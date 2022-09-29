@@ -14,7 +14,6 @@ using TGS.Core.Infrastructures.ApiClient;
 using TGS.Core.Infrastructures.Transactions;
 using TGS.Core.Infrastructures.WebApiServices;
 using TGS.Services.BackOffice.Extensions;
-using TGS.Services.Operations.Extensions;
 
 namespace Microsoft.Extensions.DependencyInjection;
 
@@ -45,7 +44,6 @@ public static class ServiceCollectionExtensions
             .AddSecurity()
             .AddWebApiServices()
             .AddTgsLog()
-            .AddOperations()
             .AddApiClient()
             .AddTransactions()
             .AddBackOfficeApplicationServices()
