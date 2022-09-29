@@ -10,8 +10,6 @@ public class ExportDepositModel
 
     public DateTime ApplicationTime { get; init; }
 
-    public decimal? Bonus { get; init; }
-
     public decimal? HandlingFee { get; init; }
 
     public string Id { get; init; }
@@ -21,8 +19,6 @@ public class ExportDepositModel
     public string PaymentMethod { get; init; }
 
     public string PaymentName { get; init; }
-
-    public string PromotionName { get; init; }
 
     public string Remark { get; init; }
 
