@@ -10,8 +10,6 @@ using ClosedXML.Excel;
 using ClosedXML.Report;
 using Microsoft.Extensions.FileProviders;
 using Tgs.Payment.Clients;
-using Tgs.Promotion.Clients;
-using Tgs.Promotion.Clients.Models.Promotion;
 using Tgs.ServiceUtility;
 using TGS.Services.BackOffice.Application.Models.Deposit;
 
@@ -23,16 +21,12 @@ public class ExportDepositFormService : IGetService<ExportDepositForm, MemoryStr
         new EmbeddedFileProvider(Assembly.GetExecutingAssembly());
 
     private readonly IPaymentServiceClient _paymentServiceClient;
-    private readonly IPromotionClient _promotionClient;
     private readonly IFileInfo _templateFileInfo;
 
     public ExportDepositFormService(
-        IPaymentServiceClient paymentServiceClient,
-        IPromotionClient promotionClient)
+        IPaymentServiceClient paymentServiceClient)
     {
-        _paymentServiceClient =
-            paymentServiceClient ?? throw new ArgumentNullException(nameof(paymentServiceClient));
-        _promotionClient = promotionClient ?? throw new ArgumentNullException(nameof(promotionClient));
+        _paymentServiceClient = paymentServiceClient ?? throw new ArgumentNullException(nameof(paymentServiceClient));
         _templateFileInfo = _EmbeddedFileProvider.GetFileInfo("/Assets/deposit_forms_template.xlsx");
     }
 
@@ -52,7 +46,7 @@ public class ExportDepositFormService : IGetService<ExportDepositForm, MemoryStr
                 UserName = query.UserName,
                 OrderNo = query.OrderNo,
             },
-            new Tgs.Payment.Clients.Paging
+            new Paging
             {
                 IsDesc = query.Paging.IsDesc,
                 ShowAll = true,
@@ -60,24 +54,8 @@ public class ExportDepositFormService : IGetService<ExportDepositForm, MemoryStr
             });
 
         var resultPaymentMethods = await _paymentServiceClient.GetAllPaymentMethodsAsync()
-        .ToDictionaryAsync(x => x.Id)
+            .ToDictionaryAsync(x => x.Id)
             .ConfigureAwait(false);
-
-        var promotionNames = (await _promotionClient
-            .GetPromotionNamesAsync(new GetPromotionNamesRequest(
-                result.Items
-                    .Where(info => info.PromotionId != null)
-                    .Select(info => info.PromotionId.Value)
-                    .ToArray()))
-            .ConfigureAwait(false))
-            .ToDictionary(model => model.Id, model => model.Name);
-
-        var promotionBonus = (await _promotionClient.GetPromotionBonusOfDepositAsync(
-            result.Items
-                .Where(info => info.PromotionPlayerId != null)
-                .Select(info => info.PromotionPlayerId.Value)
-                .ToArray()).ConfigureAwait(false))
-                .ToDictionary(model => model.Id, model => model.BonusAmount);
 
         var resource = new ResourceManager(typeof(Resources.Deposit));
 
@@ -97,15 +75,7 @@ public class ExportDepositFormService : IGetService<ExportDepositForm, MemoryStr
             Status = resource.GetString(row.Status.ToString()) ?? row.Status.ToString(),
             Remark = row.Remark,
             HandlingFee = row.Status == PaymentFlowState.Approved ? row.HandlingFee : null,
-            ReviewedUserName = row.ReviewedUserName,
-            PromotionName = row.PromotionId != null
-                        && promotionNames.TryGetValue(row.PromotionId.Value, out var name)
-                        ? name
-                        : null,
-            Bonus = row.PromotionPlayerId != null
-                        && promotionBonus.TryGetValue(row.PromotionPlayerId.Value, out var bonus)
-                        ? bonus
-                        : null,
+            ReviewedUserName = row.ReviewedUserName
         });
 
         using var workbook = new XLWorkbook();
