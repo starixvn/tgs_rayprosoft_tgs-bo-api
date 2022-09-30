@@ -92,6 +92,21 @@ public class PlayerBucketRepository : IPlayerBucketRepository
                 promotionPlayerId = responseData.PromotionBonusPlayerId;
                 depositBonusAmount += responseData.DepositBonusAmount;
             }
+            else if(promotion.PromotionType == "DepositAccumulateRoulette")
+            {
+                var bucket = new TGS.Core.DataServices.Tgs.Models.PlayerBucket
+                {
+                    PlayerCode = request.PlayerCode,
+                    BucketAmount = request.DepositAmount,
+                    BucketType = BucketType.Deposit,
+                    IsFull = false,
+                    CreatedOn = DateTimeOffset.Now
+                };
+
+                _ = await _repository.PlayerBuckets.AddAsync(bucket).ConfigureAwait(false);
+
+                _ = await _repository.SaveChangesAsync().ConfigureAwait(false);
+            }
         }
         else
         {
@@ -104,9 +119,9 @@ public class PlayerBucketRepository : IPlayerBucketRepository
                 CreatedOn = DateTimeOffset.Now
             };
 
-            await _repository.PlayerBuckets.AddAsync(bucket).ConfigureAwait(false);
+            _ = await _repository.PlayerBuckets.AddAsync(bucket).ConfigureAwait(false);
 
-            await _repository.SaveChangesAsync().ConfigureAwait(false);
+            _ = await _repository.SaveChangesAsync().ConfigureAwait(false);
         }
 
         return new CreatePlayerBucketWithDepositResponse(depositBonusAmount, promotionPlayerId);
