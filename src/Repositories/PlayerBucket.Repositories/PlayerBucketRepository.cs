@@ -3,16 +3,14 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Text.Json;
-using System.Text.Json.Serialization;
 using System.Threading.Tasks;
 using System.Transactions;
 using Microsoft.EntityFrameworkCore;
 using Tgs.CashService.Client;
+using Tgs.MessageQueue;
 using TGS.Core.DataServices.Tgs;
 using TGS.Core.DataServices.Tgs.Models;
-using TGS.Core.Infrastructures.Extensions;
 using TGS.Core.Models.Enums;
-using Tgs.MessageQueue;
 using TGS.Services.PlayerBucket;
 using TGS.Services.PlayerBucket.Models;
 
@@ -20,8 +18,8 @@ namespace PlayerBucket.Repositories;
 
 public class PlayerBucketRepository : IPlayerBucketRepository
 {
-    private readonly IMessageSender _messageSender;
     private readonly ICashServiceClient _cashServiceClient;
+    private readonly IMessageSender _messageSender;
     private readonly ITgsRepository _repository;
 
     public PlayerBucketRepository(
@@ -80,16 +78,20 @@ public class PlayerBucketRepository : IPlayerBucketRepository
         {
             var promotion = await _repository.Promotions.FirstAsync(x => x.Id == request.PromotionId);
 
-            var subject = $"tgs.promotion.{promotion.PromotionType.ToLower()}.distribute";
+            var allowDistributePromotionTypes = new string[] { "FirstDeposit", "DailySecondDeposit", "DailyFirstDeposit", "DepositReward" };
+            if (allowDistributePromotionTypes.Contains(promotion.PromotionType))
+            {
+                var subject = $"tgs.promotion.{promotion.PromotionType.ToLower()}.distribute";
 
-            var response = await _messageSender.RequestAsync(subject, Encoding.UTF8.GetBytes(JsonSerializer.Serialize(request)))
-                .ConfigureAwait(false);
+                var response = await _messageSender.RequestAsync(subject, Encoding.UTF8.GetBytes(JsonSerializer.Serialize(request)))
+                    .ConfigureAwait(false);
 
-            var json = Encoding.UTF8.GetString(response.Span);
-            var responseData = JsonSerializer.Deserialize<DepositMessageDataResponse>(json)!;
+                var json = Encoding.UTF8.GetString(response.Span);
+                var responseData = JsonSerializer.Deserialize<DepositMessageDataResponse>(json)!;
 
-            promotionPlayerId = responseData.PromotionBonusPlayerId;
-            depositBonusAmount += responseData.DepositBonusAmount;
+                promotionPlayerId = responseData.PromotionBonusPlayerId;
+                depositBonusAmount += responseData.DepositBonusAmount;
+            }
         }
         else
         {
