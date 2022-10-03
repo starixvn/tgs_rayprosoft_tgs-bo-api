@@ -5,7 +5,6 @@
     <UserSecretsId>827b100c-3b6a-419b-9e30-399f8af05d7a</UserSecretsId>
     <GenerateAssemblyInfo>false</GenerateAssemblyInfo>
     <DockerDefaultTargetOS>Linux</DockerDefaultTargetOS>
-    <DockerfileContext>..\..\..</DockerfileContext>
     <AssemblyName>TGS.Apis.BackendOffice</AssemblyName>
     <RootNamespace>TGS.Apis.BackendOffice</RootNamespace>
     <DockerfileBuildArguments>--build-arg "BuildConfiguration=$(Configuration)"</DockerfileBuildArguments>
