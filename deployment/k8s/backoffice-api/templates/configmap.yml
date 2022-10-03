@@ -1,0 +1,52 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: configmap-{{ include "backoffice-api.fullname" . }}
+data:
+  appsettings.json: |
+    {
+      "ConnectionStrings": {
+        "GameProvidersPluggable": "http://game-pluggable-service"
+      },
+      "File": {
+        "FileServiceBaseUrl": "http://file-service"
+      },
+      "Report": {
+        "Url": "http://report-api"
+      },
+      "Promotion": {
+        "Url": "http://promotion-api"
+      },
+      "BrandCertificate": {
+        "Url": "http://brand-cert-api"
+      },
+      "BackOffice": {
+        "PaymentServiceBaseUrl": "http://payment-api",
+        "CashBaseUrl": "http://cashservice-api",
+        "GameProvidersPluggableBaseUrl": "http://game-pluggable-service",
+        "ReportAggregateUrl": "http://report-aggregate-service",
+        "PlayerServiceBaseUrl": "http://player-api",
+        "MarketingReportBaseUrl": "http://marketing-report-api",
+        "VipLevelServiceBaseUrl": "http://tgs-viplevel"
+      },
+      "TGSGameProvidersKickPlayerApi": {
+        "BaseUrl": "http://game-kickplayer-server"
+      }
+    }
+  monitor.settings.json: |
+    {
+      "Metrics": {
+        "MetricCount": "1"
+      },
+      "Logging":{
+        "Console": {
+          "FormatterName": "json"
+        },
+        "LogLevel": {
+          "Default": "Warning",
+          "Microsoft": "Warning",
+          "Microsoft.Diagnostics": "Warning",
+          "Microsoft.Hosting.Lifetime": "Information"
+        }
+      }
+    }
