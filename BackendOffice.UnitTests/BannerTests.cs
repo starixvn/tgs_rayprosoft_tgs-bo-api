@@ -4,7 +4,7 @@ using System.Threading.Tasks;
 using Moq;
 using NUnit.Framework;
 using Tgs.Paging;
-using TGS.Services.BackOffice.Application.Services;
+using TGS.Services.BackOffice.ApplicationServices;
 using TGS.Services.BackOffice.Domain;
 
 namespace TGS.Tests.BackendOffice.UnitTests;
@@ -12,6 +12,28 @@ namespace TGS.Tests.BackendOffice.UnitTests;
 [TestFixture]
 public class BannerTests
 {
+    [Test]
+    public async Task Can_Archive_banner()
+    {
+        var moqBackOfficeRepository = new Mock<IBackOfficeRepository>();
+
+        var sut = new ChangeBannerStatusCommandService(moqBackOfficeRepository.Object);
+
+        var command = new ChangeBannerStatusCommand(
+            Guid.NewGuid(),
+            4000,
+            "User1");
+
+        await sut.ExecuteAsync(command);
+
+        moqBackOfficeRepository.Verify(
+            fake => fake.ChangeStatusAsync(
+                It.Is<Guid>(x => x == command.BannerId),
+                It.IsAny<int>(),
+                It.Is<string>(x => x == command.Modifier)),
+            Times.Exactly(1));
+    }
+
     [Test]
     public async Task User_Can_Change_Banner_DisplayOrder()
     {
@@ -326,28 +348,6 @@ public class BannerTests
             fake => fake.UpdateBannerAsync(
                 It.Is<Guid>(x => x == command.BannerId),
                 It.IsAny<BannerModifyInfo>(),
-                It.Is<string>(x => x == command.Modifier)),
-            Times.Exactly(1));
-    }
-
-    [Test]
-    public async Task Can_Archive_banner()
-    {
-        var moqBackOfficeRepository = new Mock<IBackOfficeRepository>();
-
-        var sut = new ChangeBannerStatusCommandService(moqBackOfficeRepository.Object);
-
-        var command = new ChangeBannerStatusCommand(
-            Guid.NewGuid(),
-            4000,
-            "User1");
-
-        await sut.ExecuteAsync(command);
-
-        moqBackOfficeRepository.Verify(
-            fake => fake.ChangeStatusAsync(
-                It.Is<Guid>(x => x == command.BannerId),
-                It.IsAny<int>(),
                 It.Is<string>(x => x == command.Modifier)),
             Times.Exactly(1));
     }

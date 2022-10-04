@@ -2,7 +2,7 @@
 using Microsoft.Extensions.Caching.Memory;
 using Tgs.MarketingReport.Client;
 using Tgs.ServiceUtility;
-using TGS.Services.BackOffice.Application.Services;
+using TGS.Services.BackOffice.ApplicationServices;
 
 namespace TGS.Services.BackOffice.Cache;
 

@@ -8,7 +8,7 @@ using Tgs.Payment.ManualDeposit;
 using Tgs.ServiceUtility;
 using TGS.Apis.BackendOffice.Controllers.Messages.ManualDeposit;
 using TGS.Payment.ManualDeposit;
-using TGS.Services.BackOffice.Application.Services;
+using TGS.Services.BackOffice.ApplicationServices;
 
 #nullable enable
 

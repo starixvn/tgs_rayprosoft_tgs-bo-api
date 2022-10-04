@@ -1,4 +1,4 @@
-﻿namespace TGS.Services.BackOffice.Application.Models.Player;
+﻿namespace TGS.Services.BackOffice.Application.Queries.PlayerHandlers;
 
 public record GetPlayerGameProviderBalanceCommand(
     string PlayerCode);

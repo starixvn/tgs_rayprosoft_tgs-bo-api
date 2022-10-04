@@ -11,7 +11,7 @@ using Tgs.ServiceUtility;
 using TGS.Apis.BackendOffice.Attributes;
 using TGS.Core.Models.Messages;
 using TGS.Services.BackOffice.Application.Models.ReportRound;
-using TGS.Services.BackOffice.Application.Services;
+using TGS.Services.BackOffice.ApplicationServices;
 
 namespace TGS.Apis.BackendOffice.Controllers.Report;
 

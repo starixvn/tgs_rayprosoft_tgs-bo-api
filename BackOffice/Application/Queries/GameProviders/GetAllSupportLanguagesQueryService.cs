@@ -5,7 +5,7 @@ using System.Threading;
 using Tgs.ServiceUtility;
 using TGS.Core.DataServices.Tgs;
 
-namespace TGS.Services.BackOffice.Application.Queries.GameProviderHandlers;
+namespace TGS.Services.BackOffice.Application.Queries.GameProviders;
 
 internal class GetAllSupportLanguagesQueryService : IQueryService<GetAllSupportLanguagesQuery, string>
 {
