@@ -7,7 +7,7 @@ using NUnit.Framework;
 using TGS.Core.DataServices.Tgs.Models;
 using TGS.Core.Models.Enums;
 using TGS.Services.BackOffice.Application.Models.Brand;
-using TGS.Services.BackOffice.Application.Services;
+using TGS.Services.BackOffice.ApplicationServices;
 using TGS.Services.BackOffice.Infrastructure.DataService;
 
 namespace TGS.Tests.BackendOffice.UnitTests;

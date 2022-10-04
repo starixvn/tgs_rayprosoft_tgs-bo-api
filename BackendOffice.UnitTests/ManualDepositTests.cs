@@ -10,7 +10,7 @@ using Tgs.Payment.Clients;
 using Tgs.Payment.ManualDeposit;
 using Tgs.Promotion.Clients;
 using TGS.Payment.ManualDeposit;
-using TGS.Services.BackOffice.Application.Services;
+using TGS.Services.BackOffice.ApplicationServices;
 
 namespace TGS.Tests.BackendOffice.UnitTests;
 
