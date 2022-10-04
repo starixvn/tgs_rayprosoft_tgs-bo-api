@@ -9,7 +9,7 @@ using Tgs.ServiceUtility;
 using Tgs.VipLevelService.Clients;
 using TGS.Core.Models.Messages;
 using TGS.Services.BackOffice.Application.Models.VipLevel;
-using TGS.Services.BackOffice.Application.Services;
+using TGS.Services.BackOffice.ApplicationServices;
 
 namespace TGS.Apis.BackendOffice.Controllers;
 

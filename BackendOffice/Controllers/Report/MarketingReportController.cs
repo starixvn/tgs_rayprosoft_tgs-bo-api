@@ -9,7 +9,7 @@ using Tgs.Paging;
 using Tgs.ServiceUtility;
 using TGS.Core.Models.Messages;
 using TGS.Services.BackOffice.Application.Models.ReportMarketing;
-using TGS.Services.BackOffice.Application.Services;
+using TGS.Services.BackOffice.ApplicationServices;
 using TGS.Services.BackOffice.Domain;
 
 namespace TGS.Apis.BackendOffice.Controllers.Report;

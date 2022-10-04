@@ -12,9 +12,9 @@ using TGS.Core.Models.Messages;
 using Tgs.Report.Client.Models.Round;
 using TGS.Services.BackOffice.Application.Models.ReportRound;
 using TGS.Services.BackOffice.Application.Queries.Game;
-using TGS.Services.BackOffice.Application.Services;
 using TGS.Services.BackOffice.Domain;
 using Tgs.ServiceUtility;
+using TGS.Services.BackOffice.ApplicationServices;
 
 namespace TGS.Services.BackOffice.Application.Queries.ReportRoundQueries;
 

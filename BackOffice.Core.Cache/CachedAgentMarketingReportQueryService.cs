@@ -4,10 +4,10 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using Tgs.MarketingReport.Client;
-using TGS.Services.BackOffice.Application.Services;
 using Tgs.ServiceUtility;
 using Microsoft.Extensions.Caching.Memory;
 using System.Runtime.CompilerServices;
+using TGS.Services.BackOffice.ApplicationServices;
 
 namespace TGS.Services.BackOffice.Cache;
 internal class CachedAgentMarketingReportQueryService : IQueryService<AgentMarketingReportQuery, DailyAggregateInfo>

@@ -7,7 +7,7 @@ using Tgs.BrandCertificate.Clients;
 using Tgs.ServiceUtility;
 using TGS.Apis.BackendOffice.Controllers.Messages.BrandMaintenance;
 using TGS.Core.Models.Messages;
-using TGS.Services.BackOffice.Application.Services;
+using TGS.Services.BackOffice.ApplicationServices;
 
 namespace TGS.Apis.BackendOffice.Controllers.Brand;
 

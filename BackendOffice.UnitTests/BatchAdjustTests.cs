@@ -11,7 +11,7 @@ using NUnit.Framework;
 using Tgs.MessageQueue;
 using Tgs.PlayerService.Client;
 using TGS.Core.Models.Enums;
-using TGS.Services.BackOffice.Application.Services.BatchAdjust;
+using TGS.Services.BackOffice.ApplicationServices.BatchAdjust;
 using TGS.Services.BackOffice.Domain;
 
 namespace TGS.Tests.BackendOffice.UnitTests;

@@ -5,7 +5,7 @@ using Tgs.BrandService.Protos;
 using Tgs.MessageQueue;
 using Tgs.ServiceUtility;
 using TGS.Core.Models.Enums;
-using TGS.Services.BackOffice.Application.Services.BatchAdjust;
+using TGS.Services.BackOffice.ApplicationServices.BatchAdjust;
 
 namespace TGS.Apis.BackendOffice.MessageQueue;
 

@@ -19,7 +19,7 @@ using TGS.Core.DataServices.Tgs.Models;
 using TGS.Core.Infrastructures.Extensions;
 using TGS.Core.Models.Enums;
 using TGS.Core.Models.Messages;
-using TGS.Services.BackOffice.Application.Services;
+using TGS.Services.BackOffice.ApplicationServices;
 using Player = TGS.Core.DataServices.Tgs.Models.Player;
 
 namespace TGS.Apis.BackendOffice.Controllers.BrandPayment;

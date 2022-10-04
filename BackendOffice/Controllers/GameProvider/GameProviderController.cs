@@ -15,7 +15,6 @@ using TGS.Core.Infrastructures.Json;
 using TGS.Core.Models.Messages;
 using TGS.Services.BackOffice.Application.Models.GameProvider;
 using TGS.Services.BackOffice.Application.Models.SubGameProvider;
-using TGS.Services.BackOffice.Application.Queries.GameProviderHandlers;
 using TGS.Services.BackOffice.Application.Queries.GameProviders;
 
 namespace TGS.Apis.BackendOffice.Controllers.GameProvider;
