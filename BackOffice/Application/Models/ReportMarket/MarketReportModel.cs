@@ -35,4 +35,8 @@ public record MarketReportModel
     public decimal NetProfit { get; init; }
 
     public decimal AdditionalExpenses { get; init; }
+
+    public decimal AgentCoveredBonus { get; init; }
+
+    public decimal AgentCoveredBonusAdjust { get; init; }
 }

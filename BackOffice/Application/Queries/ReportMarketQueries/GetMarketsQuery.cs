@@ -46,7 +46,7 @@ public class
                 Message = response.Message,
                 TotalCount = response.TotalCount,
                 Items = Array.Empty<MarketReportModel>(),
-                Total = new MarketReportTotalModel(0, 0,0,0,0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0)
+                Total = new MarketReportTotalModel(0, 0,0,0,0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0)
             };
         }
 
@@ -68,7 +68,9 @@ public class
             Turnover = x.Turnover,
             WinLossAmount = x.WinLossAmount,
             NetProfit = x.NetProfit,
-            AdditionalExpenses = x.AdditionalExpenses
+            AdditionalExpenses = x.AdditionalExpenses,
+            AgentCoveredBonus = x.AgentCoveredBonus,
+            AgentCoveredBonusAdjust = x.AgentCoveredBonusAdjust
         }).AsQueryable().CreatePagedResponse(new PageableRequest
         {
             Page = request.Page,
@@ -93,7 +95,9 @@ public class
             response.Items.Sum(x => x.Turnover),
             response.Items.Sum(x => x.WinLossAmount),
             response.Items.Sum(x => x.NetProfit),
-            response.Items.Sum(x => x.AdditionalExpenses)
+            response.Items.Sum(x => x.AdditionalExpenses),
+            response.Items.Sum(x => x.AgentCoveredBonus),
+            response.Items.Sum(x => x.AgentCoveredBonusAdjust)
         );
 
         return new GetMarketsReportResponse
