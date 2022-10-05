@@ -17,6 +17,6 @@ public record MarketReportTotalModel(
     decimal WinLossAmount,
     decimal NetProfit,
     decimal AdditionalExpenses,
-    decimal AgentCoveredBonus,
-    decimal AgentCoveredBonusAdjust
+    decimal PlatformCoveredBonus,
+    decimal PlatformCoveredBonusAdjust
 );
