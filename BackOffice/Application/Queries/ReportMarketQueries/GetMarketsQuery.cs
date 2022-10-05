@@ -69,8 +69,8 @@ public class
             WinLossAmount = x.WinLossAmount,
             NetProfit = x.NetProfit,
             AdditionalExpenses = x.AdditionalExpenses,
-            AgentCoveredBonus = x.AgentCoveredBonus,
-            AgentCoveredBonusAdjust = x.AgentCoveredBonusAdjust
+            PlatformCoveredBonus = x.PlatformCoveredBonus,
+            PlatformCoveredBonusAdjust = x.PlatformCoveredBonusAdjust
         }).AsQueryable().CreatePagedResponse(new PageableRequest
         {
             Page = request.Page,
@@ -96,8 +96,8 @@ public class
             response.Items.Sum(x => x.WinLossAmount),
             response.Items.Sum(x => x.NetProfit),
             response.Items.Sum(x => x.AdditionalExpenses),
-            response.Items.Sum(x => x.AgentCoveredBonus),
-            response.Items.Sum(x => x.AgentCoveredBonusAdjust)
+            response.Items.Sum(x => x.PlatformCoveredBonus),
+            response.Items.Sum(x => x.PlatformCoveredBonusAdjust)
         );
 
         return new GetMarketsReportResponse
