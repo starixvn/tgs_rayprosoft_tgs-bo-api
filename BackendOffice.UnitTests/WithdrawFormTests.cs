@@ -1,4 +1,6 @@
 ﻿using System;
+using System.Collections.Generic;
+using System.Collections.Immutable;
 using System.Linq;
 using System.Linq.Expressions;
 using System.Threading;
@@ -8,6 +10,7 @@ using NSubstitute;
 using NUnit.Framework;
 using Stateless;
 using Tgs.Payment.Clients;
+using Tgs.ServiceUtility;
 using TGS.Core.DataServices.Tgs.Models;
 using TGS.Core.Models.Messages;
 using TGS.Services.BackOffice.Application.Commands.Withdraw;
@@ -73,6 +76,42 @@ public class WithdrawFormTests
                 Arg.Any<string>(),
                 Arg.Any<string>(),
                 Arg.Any<string>());
+    }
+
+    [Test]
+    public async Task Can_Get_Withdraw_Form_Agent_RealName()
+    {
+        var fakeGetAgentService = Substitute.For<IGetService<Guid, string>>();
+        var fakeGetPlayerPropertiesService = Substitute.For<IGetService<string, IImmutableDictionary<string, string>>>();
+
+        var agentId = "9fbc1b81-44ee-4f00-ba12-a13170c01024";
+        fakeGetAgentService
+            .GetAsync(Guid.Parse(agentId))
+            .Returns("DeveloperExperence");
+
+        var sut = new GetWithdrawFormRealNameQueryService(fakeGetAgentService, fakeGetPlayerPropertiesService);
+
+        var actual = await sut.GetAsync(new GetWithdrawFormRealNameQuery(Tgs.Payment.Clients.UserType.Agent, agentId));
+
+        Assert.AreEqual("DeveloperExperence", actual);
+    }
+
+    [Test]
+    public async Task Can_Get_Withdraw_Form_Player_RealName()
+    {
+        var fakeGetAgentService = Substitute.For<IGetService<Guid, string>>();
+        var fakeGetPlayerPropertiesService = Substitute.For<IGetService<string, IImmutableDictionary<string, string>>>();
+
+        var playerCode = "4ucmqplxb029";
+        fakeGetPlayerPropertiesService
+            .GetAsync(playerCode)
+            .Returns(new Dictionary<string, string> { { "RealName", "DeveloperExperence" } }.ToImmutableDictionary());
+
+        var sut = new GetWithdrawFormRealNameQueryService(fakeGetAgentService, fakeGetPlayerPropertiesService);
+
+        var actual = await sut.GetAsync(new GetWithdrawFormRealNameQuery(Tgs.Payment.Clients.UserType.Player, playerCode));
+
+        Assert.AreEqual("DeveloperExperence", actual);
     }
 
     [Test]
