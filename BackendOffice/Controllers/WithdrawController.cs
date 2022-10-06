@@ -6,6 +6,7 @@ using System.Threading.Tasks;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Tgs.Payment.Clients;
+using Tgs.PlayerService.Client;
 using Tgs.ServiceUtility;
 using TGS.Apis.BackendOffice.Controllers.Messages;
 using TGS.Apis.BackendOffice.Controllers.Messages.Deposit;
@@ -16,6 +17,7 @@ using TGS.Services.BackOffice.Application.Commands.Withdraw;
 using TGS.Services.BackOffice.Application.Queries.Withdraw;
 using TGS.Services.BackOffice.Application.Resources;
 using TGS.Services.BackOffice.ApplicationServices;
+using TGS.Services.BackOffice.Infrastructure.DataService;
 
 namespace TGS.Apis.BackendOffice.Controllers;
 
@@ -115,12 +117,31 @@ public class WithdrawController : BaseContextController
     [HttpGet("{brandId}/{formId}")]
     public async Task<GenericResponse<WithdrawFormDetailViewModel>> GetWithdrawFormDetailAsync(
         [FromServices] IGetService<GetWithdrawFormDetailQuery, WithdrawFormInfo> getWithdrawFormService,
+        [FromServices] IPlayerServiceClient playerServiceClient,
+        [FromServices] IAgentService agentService,
         Guid brandId,
         Guid formId)
     {
         var formDetail = await getWithdrawFormService
             .GetAsync(new GetWithdrawFormDetailQuery(formId, brandId))
             .ConfigureAwait(false);
+
+        var userType = formDetail.UserType;
+        var realName = string.Empty;
+
+        if (formDetail.UserType == Tgs.Payment.Clients.UserType.Player)
+        {
+            var playerProperties = await playerServiceClient
+               .GetPlayerPropertiesAsync(formDetail.UserId, HttpContext.RequestAborted)
+               .ConfigureAwait(false);
+            realName = playerProperties["RealName"];
+        }
+        else if (formDetail.UserType == Tgs.Payment.Clients.UserType.Agent)
+        {
+            var agentId = Guid.Parse(formDetail.UserId);
+            var agent = await agentService.GetAgentAsync(a => a.Id == agentId);
+            realName = agent.Username;
+        }
 
         return new GenericResponse<WithdrawFormDetailViewModel>
         {
@@ -159,6 +180,7 @@ public class WithdrawController : BaseContextController
                 PaidUserName = formDetail.PaidUserName,
                 Note = formDetail.Note,
                 HandlingFee = formDetail.HandlingFee,
+                RealName = realName,
             }
         };
     }

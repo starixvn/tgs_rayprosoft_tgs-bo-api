@@ -42,6 +42,8 @@ public class WithdrawFormDetailViewModel
 
     public JsonDocument? PaymentReturn { get; init; }
 
+    public string? RealName { get; init; }
+
     public string? Remark { get; init; }
 
     public DateTimeOffset? ReviewedOn { get; init; }
