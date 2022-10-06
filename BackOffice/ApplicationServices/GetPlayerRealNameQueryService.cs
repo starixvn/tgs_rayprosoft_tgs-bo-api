@@ -6,7 +6,7 @@ using Tgs.ServiceUtility;
 
 namespace TGS.Services.BackOffice.ApplicationServices
 {
-    internal class GetPlayerRealNameQueryService : IGetService<string, string>
+    internal class GetPlayerRealNameQueryService : IGetService<GetPlayerRealNameQuery, string>
     {
         private readonly IPlayerServiceClient _playerServiceClient;
 
@@ -15,10 +15,10 @@ namespace TGS.Services.BackOffice.ApplicationServices
             _playerServiceClient = playerServiceClient ?? throw new ArgumentNullException(nameof(playerServiceClient));
         }
 
-        public async ValueTask<string> GetAsync(string playerCode, CancellationToken cancellationToken = default)
+        public async ValueTask<string> GetAsync(GetPlayerRealNameQuery query, CancellationToken cancellationToken = default)
         {
             var playerProperties = await _playerServiceClient
-                .GetPlayerPropertiesAsync(playerCode, cancellationToken)
+                .GetPlayerPropertiesAsync(query.PlayerCode, cancellationToken)
                 .ConfigureAwait(false);
 
             return playerProperties["RealName"];

@@ -79,12 +79,12 @@ public class WithdrawFormTests
     [Test]
     public async Task Can_Get_Withdraw_Form_Agent_RealName()
     {
-        var fakeGetAgentService = Substitute.For<IGetService<Guid, string>>();
-        var fakeGetPlayerPropertiesService = Substitute.For<IGetService<string, string>>();
+        var fakeGetAgentService = Substitute.For<IGetService<GetAgentRealNameQuery, string>>();
+        var fakeGetPlayerPropertiesService = Substitute.For<IGetService<GetPlayerRealNameQuery, string>>();
 
         var agentId = "9fbc1b81-44ee-4f00-ba12-a13170c01024";
-        fakeGetAgentService
-            .GetAsync(Guid.Parse(agentId))
+        _ = fakeGetAgentService
+            .GetAsync(new GetAgentRealNameQuery(Guid.Parse(agentId)))
             .Returns("DeveloperExperence");
 
         var sut = new GetWithdrawFormRealNameQueryService(fakeGetAgentService, fakeGetPlayerPropertiesService);
@@ -97,12 +97,12 @@ public class WithdrawFormTests
     [Test]
     public async Task Can_Get_Withdraw_Form_Player_RealName()
     {
-        var fakeGetAgentService = Substitute.For<IGetService<Guid, string>>();
-        var fakeGetPlayerPropertiesService = Substitute.For<IGetService<string, string>>();
+        var fakeGetAgentService = Substitute.For<IGetService<GetAgentRealNameQuery, string>>();
+        var fakeGetPlayerPropertiesService = Substitute.For<IGetService<GetPlayerRealNameQuery, string>>();
 
         var playerCode = "4ucmqplxb029";
-        fakeGetPlayerPropertiesService
-            .GetAsync(playerCode)
+        _ = fakeGetPlayerPropertiesService
+            .GetAsync(new GetPlayerRealNameQuery(playerCode))
             .Returns("DeveloperExperence");
 
         var sut = new GetWithdrawFormRealNameQueryService(fakeGetAgentService, fakeGetPlayerPropertiesService);

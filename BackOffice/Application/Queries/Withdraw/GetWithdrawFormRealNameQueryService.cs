@@ -2,17 +2,18 @@
 using System.Threading;
 using System.Threading.Tasks;
 using Tgs.ServiceUtility;
+using TGS.Services.BackOffice.ApplicationServices;
 
 namespace TGS.Services.BackOffice.Application.Queries.Withdraw
 {
     internal class GetWithdrawFormRealNameQueryService : IGetService<GetWithdrawFormRealNameQuery, string>
     {
-        private readonly IGetService<Guid, string> _getAgentRealNameService;
-        private readonly IGetService<string, string> _getPlayerRealNameService;
+        private readonly IGetService<GetAgentRealNameQuery, string> _getAgentRealNameService;
+        private readonly IGetService<GetPlayerRealNameQuery, string> _getPlayerRealNameService;
 
         public GetWithdrawFormRealNameQueryService(
-            IGetService<Guid, string> getAgentRealNameService,
-            IGetService<string, string> getPlayerRealNameService)
+            IGetService<GetAgentRealNameQuery, string> getAgentRealNameService,
+            IGetService<GetPlayerRealNameQuery, string> getPlayerRealNameService)
         {
             _getAgentRealNameService = getAgentRealNameService ?? throw new ArgumentNullException(nameof(getAgentRealNameService));
             _getPlayerRealNameService = getPlayerRealNameService ?? throw new ArgumentNullException(nameof(getPlayerRealNameService));
@@ -25,7 +26,7 @@ namespace TGS.Services.BackOffice.Application.Queries.Withdraw
                 var playerCode = query.UserId;
 
                 var playerRealName = await _getPlayerRealNameService
-                    .GetAsync(playerCode, cancellationToken)
+                    .GetAsync(new GetPlayerRealNameQuery(playerCode), cancellationToken)
                     .ConfigureAwait(false);
 
                 return playerRealName;
@@ -35,7 +36,7 @@ namespace TGS.Services.BackOffice.Application.Queries.Withdraw
                 var agentId = Guid.Parse(query.UserId);
 
                 var agentRealName = await _getAgentRealNameService
-                    .GetAsync(agentId, cancellationToken)
+                    .GetAsync(new GetAgentRealNameQuery(agentId), cancellationToken)
                     .ConfigureAwait(false);
 
                 return agentRealName;

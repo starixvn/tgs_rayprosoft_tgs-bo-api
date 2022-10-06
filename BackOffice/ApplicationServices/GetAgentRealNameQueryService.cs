@@ -6,7 +6,7 @@ using TGS.Services.BackOffice.Infrastructure.DataService;
 
 namespace TGS.Services.BackOffice.ApplicationServices
 {
-    internal class GetAgentRealNameQueryService : IGetService<Guid, string>
+    internal class GetAgentRealNameQueryService : IGetService<GetAgentRealNameQuery, string>
     {
         private readonly IAgentService _agentService;
 
@@ -15,10 +15,10 @@ namespace TGS.Services.BackOffice.ApplicationServices
             _agentService = agentService ?? throw new ArgumentNullException(nameof(agentService));
         }
 
-        public async ValueTask<string> GetAsync(Guid agentId, CancellationToken cancellationToken = default)
+        public async ValueTask<string> GetAsync(GetAgentRealNameQuery query, CancellationToken cancellationToken = default)
         {
             var agent = await _agentService
-                .GetAgentAsync(agent => agent.Id == agentId)
+                .GetAgentAsync(agent => agent.Id == query.AgentId)
                 .ConfigureAwait(false);
 
             return agent.RealName;
