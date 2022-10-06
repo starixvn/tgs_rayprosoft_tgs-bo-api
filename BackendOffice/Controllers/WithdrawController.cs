@@ -115,11 +115,16 @@ public class WithdrawController : BaseContextController
     [HttpGet("{brandId}/{formId}")]
     public async Task<GenericResponse<WithdrawFormDetailViewModel>> GetWithdrawFormDetailAsync(
         [FromServices] IGetService<GetWithdrawFormDetailQuery, WithdrawFormInfo> getWithdrawFormService,
+        [FromServices] IGetService<GetWithdrawFormRealNameQuery, string> getWithdrawRealNameService,
         Guid brandId,
         Guid formId)
     {
         var formDetail = await getWithdrawFormService
-            .GetAsync(new GetWithdrawFormDetailQuery(formId, brandId))
+            .GetAsync(new GetWithdrawFormDetailQuery(formId, brandId), HttpContext.RequestAborted)
+            .ConfigureAwait(false);
+
+        var realName = await getWithdrawRealNameService
+            .GetAsync(new GetWithdrawFormRealNameQuery(formDetail.UserType, formDetail.UserId), HttpContext.RequestAborted)
             .ConfigureAwait(false);
 
         return new GenericResponse<WithdrawFormDetailViewModel>
@@ -159,6 +164,7 @@ public class WithdrawController : BaseContextController
                 PaidUserName = formDetail.PaidUserName,
                 Note = formDetail.Note,
                 HandlingFee = formDetail.HandlingFee,
+                RealName = realName,
             }
         };
     }

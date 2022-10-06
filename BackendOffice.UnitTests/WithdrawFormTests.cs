@@ -1,4 +1,6 @@
 ﻿using System;
+using System.Collections.Generic;
+using System.Collections.Immutable;
 using System.Linq;
 using System.Linq.Expressions;
 using System.Threading;
@@ -8,6 +10,8 @@ using NSubstitute;
 using NUnit.Framework;
 using Stateless;
 using Tgs.Payment.Clients;
+using Tgs.PlayerService.Client;
+using Tgs.ServiceUtility;
 using TGS.Core.DataServices.Tgs.Models;
 using TGS.Core.Models.Messages;
 using TGS.Services.BackOffice.Application.Commands.Withdraw;
@@ -73,6 +77,87 @@ public class WithdrawFormTests
                 Arg.Any<string>(),
                 Arg.Any<string>(),
                 Arg.Any<string>());
+    }
+
+    [Test]
+    public async Task Can_Get_Agent_RealName()
+    {
+        var fakeAgentService = Substitute.For<IAgentService>();
+
+        var agentId = Guid.Parse("9fbc1b81-44ee-4f00-ba12-a13170c01024");
+
+        var agent = new Agent
+        {
+            RealName = "agentRealName",
+            Id = agentId
+        };
+
+        _ = fakeAgentService.GetAgentAsync(Arg.Any<Expression<Func<Agent, bool>>>())
+            .Returns(agent);
+
+        var sut = new GetAgentRealNameQueryService(fakeAgentService);
+
+        var actual = await sut.GetAsync(new GetAgentRealNameQuery(agentId));
+
+        Assert.AreEqual("agentRealName", actual);
+    }
+
+    [Test]
+    public async Task Can_Get_Player_RealName()
+    {
+        var fakePlayerService = Substitute.For<IPlayerServiceClient>();
+
+        var playerCode = "4ucmqplxb029";
+
+        var playerProperties = new Dictionary<string, string>
+        {
+            { "RealName" , "playerRealName"}
+        };
+
+        _ = fakePlayerService.GetPlayerPropertiesAsync(playerCode)
+            .Returns(playerProperties.ToImmutableDictionary());
+
+        var sut = new GetPlayerRealNameQueryService(fakePlayerService);
+
+        var actual = await sut.GetAsync(new GetPlayerRealNameQuery(playerCode));
+
+        Assert.AreEqual("playerRealName", actual);
+    }
+
+    [Test]
+    public async Task Can_Get_Withdraw_Form_Agent_RealName()
+    {
+        var fakeGetAgentService = Substitute.For<IGetService<GetAgentRealNameQuery, string>>();
+        var fakeGetPlayerPropertiesService = Substitute.For<IGetService<GetPlayerRealNameQuery, string>>();
+
+        var agentId = "9fbc1b81-44ee-4f00-ba12-a13170c01024";
+        _ = fakeGetAgentService
+            .GetAsync(new GetAgentRealNameQuery(Guid.Parse(agentId)))
+            .Returns("DeveloperExperence");
+
+        var sut = new GetWithdrawFormRealNameQueryService(fakeGetAgentService, fakeGetPlayerPropertiesService);
+
+        var actual = await sut.GetAsync(new GetWithdrawFormRealNameQuery(Tgs.Payment.Clients.UserType.Agent, agentId));
+
+        Assert.AreEqual("DeveloperExperence", actual);
+    }
+
+    [Test]
+    public async Task Can_Get_Withdraw_Form_Player_RealName()
+    {
+        var fakeGetAgentService = Substitute.For<IGetService<GetAgentRealNameQuery, string>>();
+        var fakeGetPlayerPropertiesService = Substitute.For<IGetService<GetPlayerRealNameQuery, string>>();
+
+        var playerCode = "4ucmqplxb029";
+        _ = fakeGetPlayerPropertiesService
+            .GetAsync(new GetPlayerRealNameQuery(playerCode))
+            .Returns("DeveloperExperence");
+
+        var sut = new GetWithdrawFormRealNameQueryService(fakeGetAgentService, fakeGetPlayerPropertiesService);
+
+        var actual = await sut.GetAsync(new GetWithdrawFormRealNameQuery(Tgs.Payment.Clients.UserType.Player, playerCode));
+
+        Assert.AreEqual("DeveloperExperence", actual);
     }
 
     [Test]
