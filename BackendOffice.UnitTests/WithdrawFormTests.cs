@@ -1,6 +1,4 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Collections.Immutable;
 using System.Linq;
 using System.Linq.Expressions;
 using System.Threading;
@@ -82,7 +80,7 @@ public class WithdrawFormTests
     public async Task Can_Get_Withdraw_Form_Agent_RealName()
     {
         var fakeGetAgentService = Substitute.For<IGetService<Guid, string>>();
-        var fakeGetPlayerPropertiesService = Substitute.For<IGetService<string, IImmutableDictionary<string, string>>>();
+        var fakeGetPlayerPropertiesService = Substitute.For<IGetService<string, string>>();
 
         var agentId = "9fbc1b81-44ee-4f00-ba12-a13170c01024";
         fakeGetAgentService
@@ -100,12 +98,12 @@ public class WithdrawFormTests
     public async Task Can_Get_Withdraw_Form_Player_RealName()
     {
         var fakeGetAgentService = Substitute.For<IGetService<Guid, string>>();
-        var fakeGetPlayerPropertiesService = Substitute.For<IGetService<string, IImmutableDictionary<string, string>>>();
+        var fakeGetPlayerPropertiesService = Substitute.For<IGetService<string, string>>();
 
         var playerCode = "4ucmqplxb029";
         fakeGetPlayerPropertiesService
             .GetAsync(playerCode)
-            .Returns(new Dictionary<string, string> { { "RealName", "DeveloperExperence" } }.ToImmutableDictionary());
+            .Returns("DeveloperExperence");
 
         var sut = new GetWithdrawFormRealNameQueryService(fakeGetAgentService, fakeGetPlayerPropertiesService);
 

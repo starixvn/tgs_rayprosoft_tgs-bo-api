@@ -6,11 +6,11 @@ using TGS.Services.BackOffice.Infrastructure.DataService;
 
 namespace TGS.Services.BackOffice.ApplicationServices
 {
-    internal class GetAgentUsernameQueryService : IGetService<Guid, string>
+    internal class GetAgentRealNameQueryService : IGetService<Guid, string>
     {
         private readonly IAgentService _agentService;
 
-        public GetAgentUsernameQueryService(IAgentService agentService)
+        public GetAgentRealNameQueryService(IAgentService agentService)
         {
             _agentService = agentService ?? throw new ArgumentNullException(nameof(agentService));
         }
@@ -21,7 +21,7 @@ namespace TGS.Services.BackOffice.ApplicationServices
                 .GetAgentAsync(agent => agent.Id == agentId)
                 .ConfigureAwait(false);
 
-            return agent.Username;
+            return agent.RealName;
         }
     }
 }

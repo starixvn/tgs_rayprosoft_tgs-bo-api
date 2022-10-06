@@ -1,5 +1,4 @@
 ﻿using System;
-using System.Collections.Immutable;
 using System.Threading;
 using System.Threading.Tasks;
 using Tgs.ServiceUtility;
@@ -8,43 +7,40 @@ namespace TGS.Services.BackOffice.Application.Queries.Withdraw
 {
     internal class GetWithdrawFormRealNameQueryService : IGetService<GetWithdrawFormRealNameQuery, string>
     {
-        private readonly IGetService<Guid, string> _getAgentService;
-        private readonly IGetService<string, IImmutableDictionary<string, string>> _getPlayerPropertiesService;
+        private readonly IGetService<Guid, string> _getAgentRealNameService;
+        private readonly IGetService<string, string> _getPlayerRealNameService;
 
         public GetWithdrawFormRealNameQueryService(
-            IGetService<Guid, string> getAgentService,
-            IGetService<string, IImmutableDictionary<string, string>> getPlayerPropertiesService)
+            IGetService<Guid, string> getAgentRealNameService,
+            IGetService<string, string> getPlayerRealNameService)
         {
-            _getAgentService = getAgentService ?? throw new ArgumentNullException(nameof(getAgentService));
-            _getPlayerPropertiesService = getPlayerPropertiesService ?? throw new ArgumentNullException(nameof(getPlayerPropertiesService));
+            _getAgentRealNameService = getAgentRealNameService ?? throw new ArgumentNullException(nameof(getAgentRealNameService));
+            _getPlayerRealNameService = getPlayerRealNameService ?? throw new ArgumentNullException(nameof(getPlayerRealNameService));
         }
 
         public async ValueTask<string> GetAsync(GetWithdrawFormRealNameQuery query, CancellationToken cancellationToken = default)
         {
-            var realName = string.Empty;
-
             if (query.UserType == Tgs.Payment.Clients.UserType.Player)
             {
                 var playerCode = query.UserId;
 
-                var playerProperties = await _getPlayerPropertiesService
+                var playerRealName = await _getPlayerRealNameService
                     .GetAsync(playerCode, cancellationToken)
                     .ConfigureAwait(false);
 
-                realName = playerProperties["RealName"];
+                return playerRealName;
             }
             else if (query.UserType == Tgs.Payment.Clients.UserType.Agent)
             {
                 var agentId = Guid.Parse(query.UserId);
 
-                var agentUsername = await _getAgentService
+                var agentRealName = await _getAgentRealNameService
                     .GetAsync(agentId, cancellationToken)
                     .ConfigureAwait(false);
 
-                realName = agentUsername;
+                return agentRealName;
             }
-
-            return realName;
+            return null;
         }
     }
 }
