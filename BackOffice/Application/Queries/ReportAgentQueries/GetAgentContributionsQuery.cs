@@ -50,7 +50,19 @@ public class
                 Message = response.Message,
                 TotalCount = response.TotalCount,
                 Items = Array.Empty<AgentContributionReportModel>(),
-                Total = new AgentContributionTotalModel(0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0)
+                Total = new AgentContributionTotalModel(
+                    DepositAmount: 0,
+                    WithdrawalAmount: 0,
+                    CompanyAdjustAmount: 0,
+                    BonusAdjustAmount: 0,
+                    AgentAdjustAmount: 0,
+                    BonusAmount: 0,
+                    BetAmount: 0,
+                    ValidBetAmount: 0,
+                    Turnover: 0,
+                    WinLossAmount: 0,
+                    NetProfit: 0,
+                    DepositHandlingFee: 0)
             };
         }
 
@@ -59,6 +71,7 @@ public class
             Username = x.Username,
             Type = (AccountType)x.Type,
             DepositAmount = x.DepositAmount,
+            DepositHandlingFee = 0m,
             WithdrawalAmount = x.WithdrawalAmount,
             CompanyAdjustAmount = x.CompanyAdjustAmount,
             BonusAdjustAmount = x.BonusAdjustAmount,
@@ -78,17 +91,18 @@ public class
         });
 
         var total = new AgentContributionTotalModel(
-            response.Items.Sum(x => x.DepositAmount),
-            response.Items.Sum(x => x.WithdrawalAmount),
-            response.Items.Sum(x => x.CompanyAdjustAmount),
-            response.Items.Sum(x => x.BonusAdjustAmount),
-            response.Items.Sum(x => x.AgentAdjustAmount),
-            response.Items.Sum(x => x.BonusAmount),
-            response.Items.Sum(x => x.BetAmount),
-            response.Items.Sum(x => x.ValidBetAmount),
-            response.Items.Sum(x => x.Turnover),
-            response.Items.Sum(x => x.WinLossAmount),
-            response.Items.Sum(x => x.NetProfit)
+            DepositAmount: response.Items.Sum(x => x.DepositAmount),
+            WithdrawalAmount: response.Items.Sum(x => x.WithdrawalAmount),
+            CompanyAdjustAmount: response.Items.Sum(x => x.CompanyAdjustAmount),
+            BonusAdjustAmount: response.Items.Sum(x => x.BonusAdjustAmount),
+            AgentAdjustAmount: response.Items.Sum(x => x.AgentAdjustAmount),
+            BonusAmount: response.Items.Sum(x => x.BonusAmount),
+            BetAmount: response.Items.Sum(x => x.BetAmount),
+            ValidBetAmount: response.Items.Sum(x => x.ValidBetAmount),
+            Turnover: response.Items.Sum(x => x.Turnover),
+            WinLossAmount: response.Items.Sum(x => x.WinLossAmount),
+            NetProfit: response.Items.Sum(x => x.NetProfit),
+            DepositHandlingFee: 0
         );
 
         return new GetAgentContributionsReportResponse

@@ -11,4 +11,5 @@ public record AgentContributionTotalModel(
     decimal ValidBetAmount,
     decimal Turnover,
     decimal WinLossAmount,
-    decimal NetProfit);
+    decimal NetProfit,
+    decimal DepositHandlingFee);
