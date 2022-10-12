@@ -57,7 +57,8 @@ public class
                     BetAmount = x.BetAmount,
                     Turnover = x.Turnover,
                     WinLossAmount = x.WinLossAmount,
-                    NetProfit = x.NetProfit
+                    NetProfit = x.NetProfit,
+                    DepositHandling = 0
                 }).ToArray()
             },
             Totals = response.Totals.Select(x => new LicenseeMarketTotalReportModel
@@ -72,7 +73,8 @@ public class
                 BetAmount = x.BetAmount,
                 Turnover = x.Turnover,
                 WinLossAmount = x.WinLossAmount,
-                NetProfit = x.NetProfit
+                NetProfit = x.NetProfit,
+                DepositHandlingFee = 0
             }).ToArray()
         };
     }
