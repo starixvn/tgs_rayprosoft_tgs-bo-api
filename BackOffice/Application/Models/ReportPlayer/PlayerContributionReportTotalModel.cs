@@ -1,15 +1,17 @@
-﻿namespace TGS.Services.BackOffice.Application.Models.ReportPlayer;
+﻿using System.Text.Json.Serialization;
+
+namespace TGS.Services.BackOffice.Application.Models.ReportPlayer;
 
 public record PlayerContributionReportTotalModel(
-    decimal DepositAmount,
-    decimal WithdrawalAmount,
-    decimal CompanyAdjustAmount,
-    decimal BonusAdjustAmount,
-    decimal AgentAdjustAmount,
-    decimal BonusAmount,
-    decimal BetAmount,
-    decimal ValidBetAmount,
-    decimal Turnover,
-    decimal WinLossAmount,
-    decimal NetProfit,
-    decimal DepositHandlingFee);
+    [property: JsonPropertyName("depositAmount")] decimal DepositAmountSummary,
+    [property: JsonPropertyName("withdrawalAmount")] decimal WithdrawalAmountSummary,
+    [property: JsonPropertyName("companyAdjustAmount")] decimal CompanyAdjustAmountSummary,
+    [property: JsonPropertyName("bonusAdjustAmount")] decimal BonusAdjustAmountSummary,
+    [property: JsonPropertyName("agentAdjustAmount")] decimal AgentAdjustAmountSummary,
+    [property: JsonPropertyName("bonusAmount")] decimal BonusAmountSummary,
+    [property: JsonPropertyName("betAmount")] decimal BetAmountSummary,
+    [property: JsonPropertyName("validBetAmount")] decimal ValidBetAmountSummary,
+    [property: JsonPropertyName("turnover")] decimal TurnoverSummary,
+    [property: JsonPropertyName("winLossAmount")] decimal WinLossAmountSummary,
+    [property: JsonPropertyName("netProfit")] decimal NetProfitSummary,
+    [property: JsonPropertyName("depositHandlingFee")] decimal DepositHandlingFeeSummary);

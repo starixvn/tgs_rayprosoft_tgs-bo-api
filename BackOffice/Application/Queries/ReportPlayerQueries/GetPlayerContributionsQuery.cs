@@ -51,18 +51,18 @@ public class
                 TotalCount = response.TotalCount,
                 Items = Array.Empty<PlayerContributionReportModel>(),
                 Total = new PlayerContributionReportTotalModel(
-                    DepositAmount: 0,
-                    WithdrawalAmount: 0,
-                    CompanyAdjustAmount: 0,
-                    BonusAdjustAmount: 0,
-                    AgentAdjustAmount: 0,
-                    BonusAmount: 0,
-                    BetAmount: 0,
-                    ValidBetAmount: 0,
-                    Turnover: 0,
-                    WinLossAmount: 0,
-                    NetProfit: 0,
-                    DepositHandlingFee: 0)
+                    DepositAmountSummary: 0,
+                    WithdrawalAmountSummary: 0,
+                    CompanyAdjustAmountSummary: 0,
+                    BonusAdjustAmountSummary: 0,
+                    AgentAdjustAmountSummary: 0,
+                    BonusAmountSummary: 0,
+                    BetAmountSummary: 0,
+                    ValidBetAmountSummary: 0,
+                    TurnoverSummary: 0,
+                    WinLossAmountSummary: 0,
+                    NetProfitSummary: 0,
+                    DepositHandlingFeeSummary: 0)
             };
         }
 

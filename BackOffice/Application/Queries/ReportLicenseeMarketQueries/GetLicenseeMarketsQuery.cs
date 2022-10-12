@@ -64,17 +64,17 @@ public class
             Totals = response.Totals.Select(x => new LicenseeMarketTotalReportModel
             {
                 CurrencyCode = x.CurrencyCode,
-                RegisteredCount = x.RegisteredCount,
-                FirstFundInCount = x.FirstFundInCount,
-                DepositAmount = x.DepositAmount,
-                WithdrawalAmount = x.WithdrawalAmount,
-                CompanyAdjustAmount = x.CompanyAdjustAmount,
-                BonusAmount = x.BonusAmount,
-                BetAmount = x.BetAmount,
-                Turnover = x.Turnover,
-                WinLossAmount = x.WinLossAmount,
-                NetProfit = x.NetProfit,
-                DepositHandlingFee = 0
+                RegisteredCountSummary = x.RegisteredCount,
+                FirstFundInCountSummary = x.FirstFundInCount,
+                DepositAmountSummary = x.DepositAmount,
+                WithdrawalAmountSummary = x.WithdrawalAmount,
+                CompanyAdjustAmountSummary = x.CompanyAdjustAmount,
+                BonusAmountSummary = x.BonusAmount,
+                BetAmountSummary = x.BetAmount,
+                TurnoverSummary = x.Turnover,
+                WinLossAmountSummary = x.WinLossAmount,
+                NetProfitSummary = x.NetProfit,
+                DepositHandlingFeeSummary = 0
             }).ToArray()
         };
     }
