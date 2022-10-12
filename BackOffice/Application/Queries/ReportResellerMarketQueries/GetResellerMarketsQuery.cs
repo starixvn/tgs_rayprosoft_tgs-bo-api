@@ -52,13 +52,14 @@ public class
                     RegisteredCount = x.RegisteredCount,
                     FirstFundInCount = x.FirstFundInCount,
                     DepositAmount = x.DepositAmount,
+                    DepositHandlingFee = 0,
                     WithdrawalAmount = x.WithdrawalAmount,
                     CompanyAdjustAmount = x.CompanyAdjustAmount,
                     BonusAmount = x.BonusAmount,
                     BetAmount = x.BetAmount,
                     Turnover = x.Turnover,
                     WinLossAmount = x.WinLossAmount,
-                    NetProfit = x.NetProfit
+                    NetProfit = x.NetProfit,
                 }).ToArray()
             },
             Totals = response.Totals.Select(x => new ResellerMarketTotalReportModel
@@ -67,6 +68,7 @@ public class
                 RegisteredCount = x.RegisteredCount,
                 FirstFundInCount = x.FirstFundInCount,
                 DepositAmount = x.DepositAmount,
+                DepositHandlingFee = 0,
                 WithdrawalAmount = x.WithdrawalAmount,
                 CompanyAdjustAmount = x.CompanyAdjustAmount,
                 BonusAmount = x.BonusAmount,
@@ -78,4 +80,3 @@ public class
         };
     }
 }
-
