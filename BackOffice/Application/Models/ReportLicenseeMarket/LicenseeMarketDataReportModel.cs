@@ -16,7 +16,7 @@ public record LicenseeMarketDataReportModel
 
     public decimal DepositAmount { get; init; }
 
-    public decimal DepositHandling { get; init; }
+    public decimal DepositHandlingFee { get; init; }
 
     public decimal WithdrawalAmount { get; init; }
 

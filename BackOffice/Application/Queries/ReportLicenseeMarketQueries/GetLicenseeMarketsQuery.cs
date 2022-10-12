@@ -58,7 +58,7 @@ public class
                     Turnover = x.Turnover,
                     WinLossAmount = x.WinLossAmount,
                     NetProfit = x.NetProfit,
-                    DepositHandling = 0
+                    DepositHandlingFee = 0
                 }).ToArray()
             },
             Totals = response.Totals.Select(x => new LicenseeMarketTotalReportModel
