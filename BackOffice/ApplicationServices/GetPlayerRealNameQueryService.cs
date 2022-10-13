@@ -21,7 +21,9 @@ namespace TGS.Services.BackOffice.ApplicationServices
                 .GetPlayerPropertiesAsync(query.PlayerCode, cancellationToken)
                 .ConfigureAwait(false);
 
-            return playerProperties["RealName"];
+            return playerProperties.TryGetValue("RealName", out var realName)
+                ? realName
+                : string.Empty;
         }
     }
 }
