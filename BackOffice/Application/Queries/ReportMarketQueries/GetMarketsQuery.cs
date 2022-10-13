@@ -46,59 +46,83 @@ public class
                 Message = response.Message,
                 TotalCount = response.TotalCount,
                 Items = Array.Empty<MarketReportModel>(),
-                Total = new MarketReportTotalModel(0, 0,0,0,0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0)
+                Total = new MarketReportTotalModel(
+                    RegisteredCount: 0,
+                    FirstFundInCount: 0,
+                    DepositCount: 0,
+                    ActivePlayer: 0,
+                    LoginPlayer: 0,
+                    DepositAmountSummary: 0,
+                    WithdrawalAmountSummary: 0,
+                    CompanyAdjustAmountSummary: 0,
+                    BonusAdjustAmountSummary: 0,
+                    BonusAmountSummary: 0,
+                    BetAmountSummary: 0,
+                    ValidBetAmountSummary: 0,
+                    TurnoverSummary: 0,
+                    WinLossAmountSummary: 0,
+                    NetProfitSummary: 0,
+                    AdditionalExpensesSummary: 0,
+                    PlatformCoveredBonusSummary: 0,
+                    PlatformCoveredBonusAdjustSummary: 0,
+                    DepositHandlingFeeSummary: 0)
             };
         }
 
-        var pageArray = response.Items?.Select(x => new MarketReportModel
-        {
-            ReportDate = x.ReportDate,
-            RegisteredCount = x.RegisteredCount,
-            FirstFundInCount = x.FirstFundInCount,
-            DepositCount = x.DepositCount,
-            ActivePlayer = x.ActivePlayer,
-            LoginPlayer = x.LoginPlayer,
-            DepositAmount = x.DepositAmount,
-            WithdrawalAmount = x.WithdrawalAmount,
-            CompanyAdjustAmount = x.CompanyAdjustAmount,
-            BonusAdjustAmount = x.BonusAdjustAmount,
-            BonusAmount = x.BonusAmount,
-            BetAmount = x.BetAmount,
-            ValidBetAmount = x.ValidBetAmount,
-            Turnover = x.Turnover,
-            WinLossAmount = x.WinLossAmount,
-            NetProfit = x.NetProfit,
-            AdditionalExpenses = x.AdditionalExpenses,
-            PlatformCoveredBonus = x.PlatformCoveredBonus,
-            PlatformCoveredBonusAdjust = x.PlatformCoveredBonusAdjust
-        }).AsQueryable().CreatePagedResponse(new PageableRequest
-        {
-            Page = request.Page,
-            Rows = request.Rows,
-            OrderBy = request.OrderBy,
-            SortBy = request.SortBy
-        });
+        var pageArray = response.Items?.Select(x
+            => new MarketReportModel
+            {
+                ReportDate = x.ReportDate,
+                RegisteredCount = x.RegisteredCount,
+                FirstFundInCount = x.FirstFundInCount,
+                DepositCount = x.DepositCount,
+                ActivePlayer = x.ActivePlayer,
+                LoginPlayer = x.LoginPlayer,
+                DepositAmount = x.DepositAmount,
+                DepositHandlingFee = 0,
+                WithdrawalAmount = x.WithdrawalAmount,
+                CompanyAdjustAmount = x.CompanyAdjustAmount,
+                BonusAdjustAmount = x.BonusAdjustAmount,
+                BonusAmount = x.BonusAmount,
+                BetAmount = x.BetAmount,
+                ValidBetAmount = x.ValidBetAmount,
+                Turnover = x.Turnover,
+                WinLossAmount = x.WinLossAmount,
+                NetProfit = x.NetProfit,
+                AdditionalExpenses = x.AdditionalExpenses,
+                PlatformCoveredBonus = x.PlatformCoveredBonus,
+                PlatformCoveredBonusAdjust = x.PlatformCoveredBonusAdjust,
+            })
+            .AsQueryable()
+            .CreatePagedResponse(
+                new PageableRequest
+                {
+                    Page = request.Page,
+                    Rows = request.Rows,
+                    OrderBy = request.OrderBy,
+                    SortBy = request.SortBy
+                });
 
         var total = new MarketReportTotalModel(
-            response.Items.Sum(x => x.RegisteredCount),
-            response.Items.Sum(x => x.FirstFundInCount),
-            response.Items.Sum(x => x.DepositCount),
-            response.Items.Sum(x => x.ActivePlayer),
-            response.Items.Sum(x => x.LoginPlayer),
-            response.Items.Sum(x => x.DepositAmount),
-            response.Items.Sum(x => x.WithdrawalAmount),
-            response.Items.Sum(x => x.CompanyAdjustAmount),
-            response.Items.Sum(x => x.BonusAdjustAmount),
-            response.Items.Sum(x => x.BonusAmount),
-            response.Items.Sum(x => x.BetAmount),
-            response.Items.Sum(x => x.ValidBetAmount),
-            response.Items.Sum(x => x.Turnover),
-            response.Items.Sum(x => x.WinLossAmount),
-            response.Items.Sum(x => x.NetProfit),
-            response.Items.Sum(x => x.AdditionalExpenses),
-            response.Items.Sum(x => x.PlatformCoveredBonus),
-            response.Items.Sum(x => x.PlatformCoveredBonusAdjust)
-        );
+            RegisteredCount: response.Items.Sum(x => x.RegisteredCount),
+            FirstFundInCount: response.Items.Sum(x => x.FirstFundInCount),
+            DepositCount: response.Items.Sum(x => x.DepositCount),
+            ActivePlayer: response.Items.Sum(x => x.ActivePlayer),
+            LoginPlayer: response.Items.Sum(x => x.LoginPlayer),
+            DepositAmountSummary: response.Items.Sum(x => x.DepositAmount),
+            WithdrawalAmountSummary: response.Items.Sum(x => x.WithdrawalAmount),
+            CompanyAdjustAmountSummary: response.Items.Sum(x => x.CompanyAdjustAmount),
+            BonusAdjustAmountSummary: response.Items.Sum(x => x.BonusAdjustAmount),
+            BonusAmountSummary: response.Items.Sum(x => x.BonusAmount),
+            BetAmountSummary: response.Items.Sum(x => x.BetAmount),
+            ValidBetAmountSummary: response.Items.Sum(x => x.ValidBetAmount),
+            TurnoverSummary: response.Items.Sum(x => x.Turnover),
+            WinLossAmountSummary: response.Items.Sum(x => x.WinLossAmount),
+            NetProfitSummary: response.Items.Sum(x => x.NetProfit),
+            AdditionalExpensesSummary: response.Items.Sum(x => x.AdditionalExpenses),
+            PlatformCoveredBonusSummary: response.Items.Sum(x => x.PlatformCoveredBonus),
+            PlatformCoveredBonusAdjustSummary: response.Items.Sum(x => x.PlatformCoveredBonusAdjust),
+            DepositHandlingFeeSummary: 0);
 
         return new GetMarketsReportResponse
         {

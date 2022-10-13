@@ -2,7 +2,6 @@
 using System.ComponentModel;
 using System.Linq;
 using System.Threading.Tasks;
-using MediatR;
 using Microsoft.AspNetCore.Mvc;
 using Tgs.Paging;
 using Tgs.ServiceUtility;
@@ -17,13 +16,6 @@ namespace TGS.Apis.BackendOffice.Controllers;
 [ApiController]
 public class VipLevelController : BaseContextController
 {
-    private readonly IMediator _mediator;
-
-    public VipLevelController(IMediator mediator)
-    {
-        _mediator = mediator;
-    }
-
     [HttpPost]
     [Description("Create a vip level")]
     public async Task<MessageResponse> CreateAsync(
@@ -135,10 +127,39 @@ public class VipLevelController : BaseContextController
     [HttpPut("{id}")]
     [Description("Update a vip level")]
     public async Task<MessageResponse> UpdateAsync(
+        [FromServices] IQueryService<AllVipLevelsQuery, VipLevelInfo> queryService,
         [FromServices] IVipLevelServiceClient vipLevelServiceClient,
         Guid id,
         [FromBody] UpdateVipLevelRequest request)
     {
+        var allVip = await queryService.QueryAsync(
+            new AllVipLevelsQuery(request.BrandId),
+            HttpContext.RequestAborted)
+            .OrderBy(vip => vip.Level)
+            .ToArrayAsync(HttpContext.RequestAborted)
+            .ConfigureAwait(false);
+
+        var itemIndex = allVip.Select((info, idx) => (info, idx))
+            .Where(t => t.info.Id == id)
+            .Select(t => t.idx)
+            .Single();
+
+        if (itemIndex > 0
+            && (allVip[itemIndex - 1].LevelUpAccumulateBetAmount >= request.LevelUpAccumulateBetAmount
+                || allVip[itemIndex - 1].LevelUpAccumulateDeposit >= request.LevelUpAccumulateDeposit))
+            return CreateInvalidResponse<MessageResponse>(string.Format(
+                "Level up accumulate can't less than previous level (Bet Amount :{0}) (Deposit :{1})",
+                allVip[itemIndex - 1].LevelUpAccumulateBetAmount,
+                allVip[itemIndex - 1].LevelUpAccumulateDeposit));
+
+        if (itemIndex < allVip.Length - 1
+            && (allVip[itemIndex + 1].LevelUpAccumulateBetAmount <= request.LevelUpAccumulateBetAmount ||
+            allVip[itemIndex + 1].LevelUpAccumulateDeposit <= request.LevelUpAccumulateDeposit))
+            return CreateInvalidResponse<MessageResponse>(string.Format(
+                "Level up accumulate can't greater than next level (Bet Amount :{0}) (Deposit :{1})",
+                allVip[itemIndex + 1].LevelUpAccumulateBetAmount,
+                allVip[itemIndex + 1].LevelUpAccumulateDeposit));
+
         var updateInfo = VipLevelUpdateInfo.Default with
         {
             Level = request.Level,

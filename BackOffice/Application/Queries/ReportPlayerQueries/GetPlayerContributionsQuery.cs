@@ -50,7 +50,19 @@ public class
                 Message = response.Message,
                 TotalCount = response.TotalCount,
                 Items = Array.Empty<PlayerContributionReportModel>(),
-                Total = new PlayerContributionReportTotalModel(0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0)
+                Total = new PlayerContributionReportTotalModel(
+                    DepositAmountSummary: 0,
+                    WithdrawalAmountSummary: 0,
+                    CompanyAdjustAmountSummary: 0,
+                    BonusAdjustAmountSummary: 0,
+                    AgentAdjustAmountSummary: 0,
+                    BonusAmountSummary: 0,
+                    BetAmountSummary: 0,
+                    ValidBetAmountSummary: 0,
+                    TurnoverSummary: 0,
+                    WinLossAmountSummary: 0,
+                    NetProfitSummary: 0,
+                    DepositHandlingFeeSummary: 0)
             };
         }
 
@@ -61,6 +73,7 @@ public class
             Type = (AccountType)x.Type,
             Level = x.Level,
             DepositAmount = x.DepositAmount,
+            DepositHandlingFee = 0,
             WithdrawalAmount = x.WithdrawalAmount,
             CompanyAdjustAmount = x.CompanyAdjustAmount,
             BonusAdjustAmount = x.BonusAdjustAmount,
@@ -70,7 +83,7 @@ public class
             ValidBetAmount = x.ValidBetAmount,
             Turnover = x.Turnover,
             WinLossAmount = x.WinLossAmount,
-            NetProfit = x.NetProfit
+            NetProfit = x.NetProfit,
         });
 
         var totalRequest = new GetPlayerContributionsTotalAmountRequest
@@ -96,7 +109,8 @@ public class
             totalResponse.ValidBetAmount,
             totalResponse.Turnover,
             totalResponse.WinLossAmount,
-            totalResponse.NetProfit
+            totalResponse.NetProfit,
+            0
         );
 
         return new GetPlayerContributionsReportResponse
