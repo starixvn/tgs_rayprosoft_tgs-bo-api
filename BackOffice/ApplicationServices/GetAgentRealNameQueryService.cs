@@ -21,9 +21,7 @@ namespace TGS.Services.BackOffice.ApplicationServices
                 .GetAgentAsync(agent => agent.Id == query.AgentId)
                 .ConfigureAwait(false);
 
-            return string.IsNullOrWhiteSpace(agent.RealName)
-                ? string.Empty
-                : agent.RealName;
+            return agent.RealName ?? string.Empty;
         }
     }
 }
