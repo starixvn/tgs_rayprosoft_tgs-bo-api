@@ -1,26 +1,41 @@
-﻿namespace TGS.Services.BackOffice.Application.Models.ReportLicenseeMarket;
+﻿using System.Text.Json.Serialization;
+
+namespace TGS.Services.BackOffice.Application.Models.ReportLicenseeMarket;
 
 public record LicenseeMarketTotalReportModel
 {
     public string CurrencyCode { get; init; } = default!;
 
-    public int RegisteredCount { get; init; }
+    [JsonPropertyName("registeredCount")]
+    public int RegisteredCountSummary { get; init; }
 
-    public int FirstFundInCount { get; init; }
+    [JsonPropertyName("firstFundInCount")]
+    public int FirstFundInCountSummary { get; init; }
 
-    public decimal DepositAmount { get; init; }
+    [JsonPropertyName("depositAmount")]
+    public decimal DepositAmountSummary { get; init; }
 
-    public decimal WithdrawalAmount { get; init; }
+    [JsonPropertyName("depositHandlingFee")]
+    public decimal DepositHandlingFeeSummary { get; init; }
 
-    public decimal CompanyAdjustAmount { get; init; }
+    [JsonPropertyName("withdrawalAmount")]
+    public decimal WithdrawalAmountSummary { get; init; }
 
-    public decimal BonusAmount { get; init; }
+    [JsonPropertyName("companyAdjustAmount")]
+    public decimal CompanyAdjustAmountSummary { get; init; }
 
-    public decimal BetAmount { get; init; }
+    [JsonPropertyName("bonusAmount")]
+    public decimal BonusAmountSummary { get; init; }
 
-    public decimal Turnover { get; init; }
+    [JsonPropertyName("betAmount")]
+    public decimal BetAmountSummary { get; init; }
 
-    public decimal WinLossAmount { get; init; }
+    [JsonPropertyName("turnover")]
+    public decimal TurnoverSummary { get; init; }
 
-    public decimal NetProfit { get; init; }
+    [JsonPropertyName("winLossAmount")]
+    public decimal WinLossAmountSummary { get; init; }
+
+    [JsonPropertyName("netProfit")]
+    public decimal NetProfitSummary { get; init; }
 }
