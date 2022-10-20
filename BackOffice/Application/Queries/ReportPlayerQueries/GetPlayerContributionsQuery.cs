@@ -5,16 +5,13 @@ using System.Threading.Tasks;
 using Tgs.Report.Client;
 using Tgs.Report.Client.Models.Player;
 using Tgs.ServiceUtility;
-using TGS.Core.DataServices.Base.Extensions;
 using TGS.Core.Models.Enums;
-using TGS.Core.Models.Messages;
 using TGS.Services.BackOffice.Application.Models.ReportPlayer;
 
 namespace TGS.Services.BackOffice.Application.Queries.ReportPlayerQueries;
 
-public class
-    GetPlayerContributionsQuery : IGetService<GetPlayerContributionsReportRequest,
-        GetPlayerContributionsReportResponse>
+public class GetPlayerContributionsQuery
+    : IGetService<GetPlayerContributionsReportRequest, GetPlayerContributionsReportResponse>
 {
     private readonly IReportClient _reportClient;
 
@@ -52,6 +49,7 @@ public class
                 Items = Array.Empty<PlayerContributionReportModel>(),
                 Total = new PlayerContributionReportTotalModel(
                     DepositAmountSummary: 0,
+                    DepositHandlingFeeSummary: 0,
                     WithdrawalAmountSummary: 0,
                     CompanyAdjustAmountSummary: 0,
                     BonusAdjustAmountSummary: 0,
@@ -61,8 +59,7 @@ public class
                     ValidBetAmountSummary: 0,
                     TurnoverSummary: 0,
                     WinLossAmountSummary: 0,
-                    NetProfitSummary: 0,
-                    DepositHandlingFeeSummary: 0)
+                    NetProfitSummary: 0)
             };
         }
 
@@ -73,7 +70,7 @@ public class
             Type = (AccountType)x.Type,
             Level = x.Level,
             DepositAmount = x.DepositAmount,
-            DepositHandlingFee = 0,
+            DepositHandlingFee = x.DepositHandlingFee,
             WithdrawalAmount = x.WithdrawalAmount,
             CompanyAdjustAmount = x.CompanyAdjustAmount,
             BonusAdjustAmount = x.BonusAdjustAmount,
@@ -83,7 +80,7 @@ public class
             ValidBetAmount = x.ValidBetAmount,
             Turnover = x.Turnover,
             WinLossAmount = x.WinLossAmount,
-            NetProfit = x.NetProfit,
+            NetProfit = x.NetProfit
         });
 
         var totalRequest = new GetPlayerContributionsTotalAmountRequest
@@ -99,19 +96,18 @@ public class
         var totalResponse = await _reportClient.GetPlayerContributionsTotalAmountAsync(totalRequest);
 
         var total = new PlayerContributionReportTotalModel(
-            totalResponse.DepositAmount,
-            totalResponse.WithdrawalAmount,
-            totalResponse.CompanyAdjustAmount,
-            totalResponse.BonusAdjustAmount,
-            totalResponse.AgentAdjustAmount,
-            totalResponse.BonusAmount,
-            totalResponse.BetAmount,
-            totalResponse.ValidBetAmount,
-            totalResponse.Turnover,
-            totalResponse.WinLossAmount,
-            totalResponse.NetProfit,
-            0
-        );
+            DepositAmountSummary: totalResponse.DepositAmount,
+            DepositHandlingFeeSummary: totalResponse.DepositHandlingFee,
+            WithdrawalAmountSummary: totalResponse.WithdrawalAmount,
+            CompanyAdjustAmountSummary: totalResponse.CompanyAdjustAmount,
+            BonusAdjustAmountSummary: totalResponse.BonusAdjustAmount,
+            AgentAdjustAmountSummary: totalResponse.AgentAdjustAmount,
+            BonusAmountSummary: totalResponse.BonusAmount,
+            BetAmountSummary: totalResponse.BetAmount,
+            ValidBetAmountSummary: totalResponse.ValidBetAmount,
+            TurnoverSummary: totalResponse.Turnover,
+            WinLossAmountSummary: totalResponse.WinLossAmount,
+            NetProfitSummary: totalResponse.NetProfit);
 
         return new GetPlayerContributionsReportResponse
         {

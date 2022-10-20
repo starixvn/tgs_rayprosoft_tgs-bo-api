@@ -36,7 +36,7 @@ public class
             ShowAll = request.ShowAll
         };
 
-        var response = await _reportClient.GetMarketsAsync(reportRequest);
+        var response = await _reportClient.GetMarketsAsync(reportRequest).ConfigureAwait(false);
 
         if (!response.Valid)
         {
@@ -53,6 +53,7 @@ public class
                     ActivePlayer: 0,
                     LoginPlayer: 0,
                     DepositAmountSummary: 0,
+                    DepositHandlingFeeSummary: 0,
                     WithdrawalAmountSummary: 0,
                     CompanyAdjustAmountSummary: 0,
                     BonusAdjustAmountSummary: 0,
@@ -64,8 +65,7 @@ public class
                     NetProfitSummary: 0,
                     AdditionalExpensesSummary: 0,
                     PlatformCoveredBonusSummary: 0,
-                    PlatformCoveredBonusAdjustSummary: 0,
-                    DepositHandlingFeeSummary: 0)
+                    PlatformCoveredBonusAdjustSummary: 0)
             };
         }
 
@@ -79,7 +79,7 @@ public class
                 ActivePlayer = x.ActivePlayer,
                 LoginPlayer = x.LoginPlayer,
                 DepositAmount = x.DepositAmount,
-                DepositHandlingFee = 0,
+                DepositHandlingFee = x.DepositHandlingFee,
                 WithdrawalAmount = x.WithdrawalAmount,
                 CompanyAdjustAmount = x.CompanyAdjustAmount,
                 BonusAdjustAmount = x.BonusAdjustAmount,
@@ -110,6 +110,7 @@ public class
             ActivePlayer: response.Items.Sum(x => x.ActivePlayer),
             LoginPlayer: response.Items.Sum(x => x.LoginPlayer),
             DepositAmountSummary: response.Items.Sum(x => x.DepositAmount),
+            DepositHandlingFeeSummary: response.Items.Sum(x => x.DepositHandlingFee),
             WithdrawalAmountSummary: response.Items.Sum(x => x.WithdrawalAmount),
             CompanyAdjustAmountSummary: response.Items.Sum(x => x.CompanyAdjustAmount),
             BonusAdjustAmountSummary: response.Items.Sum(x => x.BonusAdjustAmount),
@@ -121,8 +122,7 @@ public class
             NetProfitSummary: response.Items.Sum(x => x.NetProfit),
             AdditionalExpensesSummary: response.Items.Sum(x => x.AdditionalExpenses),
             PlatformCoveredBonusSummary: response.Items.Sum(x => x.PlatformCoveredBonus),
-            PlatformCoveredBonusAdjustSummary: response.Items.Sum(x => x.PlatformCoveredBonusAdjust),
-            DepositHandlingFeeSummary: 0);
+            PlatformCoveredBonusAdjustSummary: response.Items.Sum(x => x.PlatformCoveredBonusAdjust));
 
         return new GetMarketsReportResponse
         {

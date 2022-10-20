@@ -10,7 +10,8 @@ using Tgs.ServiceUtility;
 namespace TGS.Services.BackOffice.Application.Queries.ReportLicenseeMarketQueries;
 
 public class
-    GetLicenseeMarketsQuery : IGetService<GetLicenseeMarketsReportRequest,
+    GetLicenseeMarketsQuery
+    : IGetService<GetLicenseeMarketsReportRequest,
         LicenseeMarketsReportResponse>
 {
     private readonly IReportClient _reportClient;
@@ -48,33 +49,29 @@ public class
                     BrandId = x.BrandId,
                     BrandCode = x.BrandCode,
                     CurrencyCode = x.CurrencyCode,
-                    RegisteredCount = x.RegisteredCount,
-                    FirstFundInCount = x.FirstFundInCount,
                     DepositAmount = x.DepositAmount,
+                    DepositHandlingFee = x.DepositHandlingFee,
                     WithdrawalAmount = x.WithdrawalAmount,
                     CompanyAdjustAmount = x.CompanyAdjustAmount,
                     BonusAmount = x.BonusAmount,
                     BetAmount = x.BetAmount,
                     Turnover = x.Turnover,
                     WinLossAmount = x.WinLossAmount,
-                    NetProfit = x.NetProfit,
-                    DepositHandlingFee = 0
+                    NetProfit = x.NetProfit
                 }).ToArray()
             },
             Totals = response.Totals.Select(x => new LicenseeMarketTotalReportModel
             {
                 CurrencyCode = x.CurrencyCode,
-                RegisteredCountSummary = x.RegisteredCount,
-                FirstFundInCountSummary = x.FirstFundInCount,
                 DepositAmountSummary = x.DepositAmount,
+                DepositHandlingFeeSummary = x.DepositHandlingFee,
                 WithdrawalAmountSummary = x.WithdrawalAmount,
                 CompanyAdjustAmountSummary = x.CompanyAdjustAmount,
                 BonusAmountSummary = x.BonusAmount,
                 BetAmountSummary = x.BetAmount,
                 TurnoverSummary = x.Turnover,
                 WinLossAmountSummary = x.WinLossAmount,
-                NetProfitSummary = x.NetProfit,
-                DepositHandlingFeeSummary = 0
+                NetProfitSummary = x.NetProfit
             }).ToArray()
         };
     }

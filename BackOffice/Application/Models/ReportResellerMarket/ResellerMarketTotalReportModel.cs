@@ -6,12 +6,6 @@ public record ResellerMarketTotalReportModel
 {
     public string CurrencyCode { get; init; } = default!;
 
-    [JsonPropertyName("registeredCount")]
-    public int RegisteredCountSummary { get; init; }
-
-    [JsonPropertyName("firstFundInCount")]
-    public int FirstFundInCountSummary { get; init; }
-
     [JsonPropertyName("depositAmount")]
     public decimal DepositAmountSummary { get; init; }
 
