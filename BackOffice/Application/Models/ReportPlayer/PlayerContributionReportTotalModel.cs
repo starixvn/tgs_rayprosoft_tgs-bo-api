@@ -4,6 +4,7 @@ namespace TGS.Services.BackOffice.Application.Models.ReportPlayer;
 
 public record PlayerContributionReportTotalModel(
     [property: JsonPropertyName("depositAmount")] decimal DepositAmountSummary,
+    [property: JsonPropertyName("depositHandlingFee")] decimal DepositHandlingFeeSummary,
     [property: JsonPropertyName("withdrawalAmount")] decimal WithdrawalAmountSummary,
     [property: JsonPropertyName("companyAdjustAmount")] decimal CompanyAdjustAmountSummary,
     [property: JsonPropertyName("bonusAdjustAmount")] decimal BonusAdjustAmountSummary,
@@ -13,5 +14,4 @@ public record PlayerContributionReportTotalModel(
     [property: JsonPropertyName("validBetAmount")] decimal ValidBetAmountSummary,
     [property: JsonPropertyName("turnover")] decimal TurnoverSummary,
     [property: JsonPropertyName("winLossAmount")] decimal WinLossAmountSummary,
-    [property: JsonPropertyName("netProfit")] decimal NetProfitSummary,
-    [property: JsonPropertyName("depositHandlingFee")] decimal DepositHandlingFeeSummary);
+    [property: JsonPropertyName("netProfit")] decimal NetProfitSummary);

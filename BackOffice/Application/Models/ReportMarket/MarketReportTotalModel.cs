@@ -9,6 +9,7 @@ public record MarketReportTotalModel(
     int ActivePlayer,
     int LoginPlayer,
     [property: JsonPropertyName("depositAmount")] decimal DepositAmountSummary,
+    [property: JsonPropertyName("depositHandlingFee")] decimal DepositHandlingFeeSummary,
     [property: JsonPropertyName("withdrawalAmount")] decimal WithdrawalAmountSummary,
     [property: JsonPropertyName("companyAdjustAmount")] decimal CompanyAdjustAmountSummary,
     [property: JsonPropertyName("bonusAdjustAmount")] decimal BonusAdjustAmountSummary,
@@ -20,5 +21,4 @@ public record MarketReportTotalModel(
     [property: JsonPropertyName("netProfit")] decimal NetProfitSummary,
     [property: JsonPropertyName("additionalExpenses")] decimal AdditionalExpensesSummary,
     [property: JsonPropertyName("platformCoveredBonus")] decimal PlatformCoveredBonusSummary,
-    [property: JsonPropertyName("platformCoveredBonusAdjust")] decimal PlatformCoveredBonusAdjustSummary,
-    [property: JsonPropertyName("depositHandlingFee")] decimal DepositHandlingFeeSummary);
+    [property: JsonPropertyName("platformCoveredBonusAdjust")] decimal PlatformCoveredBonusAdjustSummary);

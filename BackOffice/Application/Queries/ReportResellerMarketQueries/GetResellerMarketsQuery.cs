@@ -49,10 +49,8 @@ public class
                     BrandId = x.BrandId,
                     BrandCode = x.BrandCode,
                     CurrencyCode = x.CurrencyCode,
-                    RegisteredCount = x.RegisteredCount,
-                    FirstFundInCount = x.FirstFundInCount,
                     DepositAmount = x.DepositAmount,
-                    DepositHandlingFee = 0,
+                    DepositHandlingFee = x.DepositHandlingFee,
                     WithdrawalAmount = x.WithdrawalAmount,
                     CompanyAdjustAmount = x.CompanyAdjustAmount,
                     BonusAmount = x.BonusAmount,
@@ -65,10 +63,8 @@ public class
             Totals = response.Totals.Select(x => new ResellerMarketTotalReportModel
             {
                 CurrencyCode = x.CurrencyCode,
-                RegisteredCountSummary = x.RegisteredCount,
-                FirstFundInCountSummary = x.FirstFundInCount,
                 DepositAmountSummary = x.DepositAmount,
-                DepositHandlingFeeSummary = 0,
+                DepositHandlingFeeSummary = x.DepositHandlingFee,
                 WithdrawalAmountSummary = x.WithdrawalAmount,
                 CompanyAdjustAmountSummary = x.CompanyAdjustAmount,
                 BonusAmountSummary = x.BonusAmount,
