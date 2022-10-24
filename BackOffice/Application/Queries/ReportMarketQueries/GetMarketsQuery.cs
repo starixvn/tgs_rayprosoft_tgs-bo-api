@@ -5,8 +5,6 @@ using System.Threading.Tasks;
 using Tgs.Report.Client;
 using Tgs.Report.Client.Models.Market;
 using Tgs.ServiceUtility;
-using TGS.Core.DataServices.Base.Extensions;
-using TGS.Core.Models.Messages;
 using TGS.Services.BackOffice.Application.Models.ReportMarket;
 
 namespace TGS.Services.BackOffice.Application.Queries.ReportMarketQueries;
@@ -92,16 +90,7 @@ public class
                 AdditionalExpenses = x.AdditionalExpenses,
                 PlatformCoveredBonus = x.PlatformCoveredBonus,
                 PlatformCoveredBonusAdjust = x.PlatformCoveredBonusAdjust,
-            })
-            .AsQueryable()
-            .CreatePagedResponse(
-                new PageableRequest
-                {
-                    Page = request.Page,
-                    Rows = request.Rows,
-                    OrderBy = request.OrderBy,
-                    SortBy = request.SortBy
-                });
+            });
 
         var total = new MarketReportTotalModel(
             RegisteredCount: response.Items.Sum(x => x.RegisteredCount),
@@ -127,7 +116,7 @@ public class
         return new GetMarketsReportResponse
         {
             TotalCount = response.TotalCount,
-            Items = pageArray.Items,
+            Items = pageArray.ToArray(),
             Total = total
         };
     }
