@@ -6,7 +6,6 @@ public record AgentContributionTotalModel(
     [property: JsonPropertyName("depositAmount")] decimal DepositAmountSummary,
     [property: JsonPropertyName("depositHandlingFee")] decimal DepositHandlingFeeSummary,
     [property: JsonPropertyName("withdrawalAmount")] decimal WithdrawalAmountSummary,
-    [property: JsonPropertyName("companyAdjustAmount")] decimal CompanyAdjustAmountSummary,
     [property: JsonPropertyName("bonusAdjustAmount")] decimal BonusAdjustAmountSummary,
     [property: JsonPropertyName("agentAdjustAmount")] decimal AgentAdjustAmountSummary,
     [property: JsonPropertyName("bonusAmount")] decimal BonusAmountSummary,
