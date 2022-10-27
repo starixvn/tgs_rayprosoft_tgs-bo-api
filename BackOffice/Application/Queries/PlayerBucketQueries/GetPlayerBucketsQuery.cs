@@ -20,18 +20,10 @@ public class GetPlayerBucketsQuery : IGetService<GetPlayerBucketsRequest, GetPla
     public async ValueTask<GetPlayerBucketsResponse> GetAsync(GetPlayerBucketsRequest request,
         CancellationToken cancellationToken = default)
     {
-        var before14DayDateTime = DateTimeOffset.Now.ToOffset(new(8, 0, 0)).AddDays(-14);
-
-        var before14DayDate = new DateTimeOffset(before14DayDateTime.Year,
-            before14DayDateTime.Month,
-            before14DayDateTime.Day,
-            0,
-            0,
-            0,
-            before14DayDateTime.Offset);
+        var before60Day = DateTime.UtcNow.AddDays(-60);
 
         var playerBuckets = await _playerBucketService.GetPlayerBucketQueries()
-            .Where(x => x.CreatedOn >= before14DayDate || x.IsFull == false)
+            .Where(x => x.CreatedOn >= before60Day || x.IsFull == false)
             .Where(x => x.PlayerCode == request.PlayerCode)
             .OrderByDescending(x => x.CreatedOn)
             .ToArrayAsync(cancellationToken);
