@@ -1,11 +1,14 @@
 ﻿using System;
-using TGS.Core.Models.Enums;
+using Tgs.Service.PlayerBuckets;
 
 namespace TGS.Services.PlayerBucket.Models;
+
+#nullable enable
 
 public record CreatePlayerBucketRequest(
     Guid BrandId,
     string PlayerCode,
     Guid DefaultWalletId,
     BucketType BucketType,
-    decimal BucketAmount);
+    decimal BucketAmount,
+    string? ExternalId);

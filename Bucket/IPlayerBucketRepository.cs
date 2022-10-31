@@ -1,15 +1,20 @@
-﻿using System.Threading.Tasks;
+﻿using System;
+using System.Threading;
+using System.Threading.Tasks;
 using TGS.Services.PlayerBucket.Models;
 
 namespace TGS.Services.PlayerBucket;
 
+#nullable enable
+
 public interface IPlayerBucketRepository
 {
-    ValueTask<CreatePlayerBucketWithDepositResponse> CreatePlayerBucketWithDepositAsync(
-        CreatePlayerBucketWithDepositRequest request);
+    ValueTask ClearPlayerBucketsAsync(string playerCode, Guid anchorId, string? externalId, CancellationToken cancellationToken = default);
 
-    Task CreatePlayerBucketsAsync(CreatePlayerBucketRequest[] request);
-    Task FillInBucketAsync(FillInPlayerBucketsRequest request);
-    ValueTask<bool> IsBucketFullAsync(string playerCode);
-    ValueTask<decimal> ClearPlayerBucketsAsync(string playerCode);
+    Task CreatePlayerBucketsAsync(params CreatePlayerBucketRequest[] request);
+
+    ValueTask<CreatePlayerBucketWithDepositResponse> CreatePlayerBucketWithDepositAsync(
+                CreatePlayerBucketWithDepositRequest request);
+
+    ValueTask<PlayerBucketInfo> GetPlayerBucketInfoAsync(string playerCode, CancellationToken cancellationToken = default);
 }

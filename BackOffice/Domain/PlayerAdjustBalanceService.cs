@@ -7,6 +7,7 @@ using TGS.Core.Models.Enums;
 using TGS.Services.PlayerBucket;
 using TGS.Services.PlayerBucket.Models;
 using TGS.Services.WalletService;
+using BucketType = Tgs.Service.PlayerBuckets.BucketType;
 
 namespace TGS.Services.BackOffice.Domain;
 
@@ -47,7 +48,8 @@ internal class PlayerAdjustBalanceService : IPlayerAdjustBalanceService
                         applyInfo.PlayerCode,
                         applyInfo.WalletId,
                         BucketType.Adjustment,
-                        applyInfo.BucketAmount)
+                        applyInfo.BucketAmount,
+                        null)
                 })
                 .ConfigureAwait(false);
 
@@ -88,15 +90,14 @@ internal class PlayerAdjustBalanceService : IPlayerAdjustBalanceService
     {
         if (applyInfo.BucketAmount > 0M)
             await _playerBucketRepository
-                .CreatePlayerBucketsAsync(new[]
-                {
+                .CreatePlayerBucketsAsync(
                     new CreatePlayerBucketRequest(
                         applyInfo.BrandId,
                         applyInfo.PlayerCode,
                         applyInfo.WalletId,
                         BucketType.Adjustment,
-                        applyInfo.BucketAmount)
-                })
+                        applyInfo.BucketAmount,
+                        null))
                 .ConfigureAwait(false);
 
         var createId = await _serialNumberGenerator

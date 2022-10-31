@@ -1,4 +1,4 @@
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.Data;
 using System.Diagnostics;
@@ -12,7 +12,6 @@ using FluentValidation.AspNetCore;
 using Microsoft.AspNetCore.Authentication.Cookies;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Builder;
-using Microsoft.AspNetCore.DataProtection;
 using Microsoft.AspNetCore.DataProtection.KeyManagement;
 using Microsoft.AspNetCore.DataProtection.StackExchangeRedis;
 using Microsoft.AspNetCore.Http;
@@ -27,6 +26,7 @@ using OpenTelemetry.Instrumentation.AspNetCore;
 using OpenTelemetry.Resources;
 using OpenTelemetry.Trace;
 using Prometheus;
+using Tgs.PlayerBucket.Clients.DependencyInjection;
 using TGS.Apis.BackendOffice.Filters;
 using TGS.Apis.BackendOffice.MessageQueue;
 using TGS.Apis.BackendOffice.Middlewares;
@@ -125,6 +125,7 @@ builder.Services
     .AddNatsGlobPatternExchange("*");
 
 builder.Services
+    .AddPlayerBucketClient()
     .AddPaymentServiceClient(httpClientBuilder => httpClientBuilder
         .ConfigureHttpClient((sp, http) =>
         {
