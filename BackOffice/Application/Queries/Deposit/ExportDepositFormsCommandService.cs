@@ -15,7 +15,7 @@ using TGS.Services.BackOffice.Application.Models.Deposit;
 
 namespace TGS.Services.BackOffice.Application.Queries.Deposit;
 
-public class ExportDepositFormService : IGetService<ExportDepositForm, MemoryStream>
+public class ExportDepositFormsCommandService : IGetService<ExportDepositFormsCommand, MemoryStream>
 {
     private static readonly EmbeddedFileProvider _EmbeddedFileProvider =
         new EmbeddedFileProvider(Assembly.GetExecutingAssembly());
@@ -23,43 +23,22 @@ public class ExportDepositFormService : IGetService<ExportDepositForm, MemoryStr
     private readonly IPaymentServiceClient _paymentServiceClient;
     private readonly IFileInfo _templateFileInfo;
 
-    public ExportDepositFormService(
+    public ExportDepositFormsCommandService(
         IPaymentServiceClient paymentServiceClient)
     {
         _paymentServiceClient = paymentServiceClient ?? throw new ArgumentNullException(nameof(paymentServiceClient));
         _templateFileInfo = _EmbeddedFileProvider.GetFileInfo("/Assets/deposit_forms_template.xlsx");
     }
 
-    public async ValueTask<MemoryStream> GetAsync(ExportDepositForm query, CancellationToken cancellationToken)
+    public async ValueTask<MemoryStream> GetAsync(ExportDepositFormsCommand query, CancellationToken cancellationToken)
     {
-        var result = await _paymentServiceClient.QueryDepositFormsAsync(
-            new DepositFormQueryConditions
-            {
-                BrandId = query.BrandId,
-                ChannelName = query.ChannelName,
-                CreateOnRange = query.CreateOnRange,
-                PaymentMethodId = query.PaymentMethodId,
-                Status = query.Status,
-                ThirdPartyOrderNo = query.ThirdPartyOrderNo,
-                FormId = query.FormId,
-                UpdateOnRange = query.UpdateOnRange,
-                UserName = query.UserName,
-                OrderNo = query.OrderNo,
-            },
-            new Paging
-            {
-                IsDesc = query.Paging.IsDesc,
-                ShowAll = true,
-                SortBy = query.Paging.SortBy
-            });
-
         var resultPaymentMethods = await _paymentServiceClient.GetAllPaymentMethodsAsync()
             .ToDictionaryAsync(x => x.Id)
             .ConfigureAwait(false);
 
         var resource = new ResourceManager(typeof(Resources.Deposit));
 
-        var exportData = result.Items?.Select((row, index) => new ExportDepositModel
+        var exportData = query.DepositForms.Select((row, index) => new ExportDepositModel
         {
             SerialNumber = index + 1,
             UserName = row.UserName,
@@ -80,7 +59,7 @@ public class ExportDepositFormService : IGetService<ExportDepositForm, MemoryStr
 
         using var workbook = new XLWorkbook();
 
-        GenerateWorkSheet(workbook, exportData, result.Sum);
+        GenerateWorkSheet(workbook, exportData, query.TotalAmount);
 
         var ms = new MemoryStream();
 

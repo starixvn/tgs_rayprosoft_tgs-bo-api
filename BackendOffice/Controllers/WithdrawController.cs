@@ -82,8 +82,9 @@ public class WithdrawController : BaseContextController
     [IgnoreAntiforgeryToken]
     [HttpGet("exportWithdraw/{brandId}")]
     public async Task<IActionResult> ExportWithdrawAsync(
-        [FromServices] IGetService<ExportWithdrawForm, MemoryStream> queryService,
-         Guid brandId,
+        [FromServices] IGetService<WithdrawFormQuery, WithdrawForms> queryService,
+        [FromServices] IGetService<ExportWithdrawFormsCommand, MemoryStream> exportService,
+        Guid brandId,
         [FromQuery] WithdrawFormRequest request,
         [FromQuery] PageableRequest paging)
     {
@@ -96,20 +97,37 @@ public class WithdrawController : BaseContextController
         if (request.BeginUpdateOn != null && request.EndUpdateOn != null)
             updateOnRange = (request.BeginUpdateOn.Value, request.EndUpdateOn.Value);
 
-        var query = new ExportWithdrawForm(
+        var query = new WithdrawFormQuery(
             brandId,
             request.UserName,
             request.ChannelName,
             request.ThirdPartyOrderNo,
+            request.OrderNo,
             request.FormId,
             request.PaymentMethodId,
             request.Status?.SelectMany(s => s.ToPaymentFlowState()).Distinct()
                 ?? default(FlowState?).ToPaymentFlowState(),
+            request.BrandPaymentIds.Distinct(),
+            request.UserType,
             createOnRange,
             updateOnRange,
-            paging);
+            new Paging
+            {
+                IsDesc = paging.IsDesc,
+                ShowAll = true,
+                SortBy = paging.SortBy
+            });
 
-        return File(await queryService.GetAsync(query).ConfigureAwait(false), "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet", "Withdraw.xlsx");
+        var queryResponse = await queryService.GetAsync(query, HttpContext.RequestAborted).ConfigureAwait(false);
+
+        var exportCommand = new ExportWithdrawFormsCommand(
+            queryResponse.Items,
+            queryResponse.Sum);
+
+        return File(
+            await exportService.GetAsync(exportCommand).ConfigureAwait(false),
+            "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
+            "Withdraw.xlsx");
     }
 
     [HttpGet("{brandId}/{formId}")]
@@ -199,7 +217,14 @@ public class WithdrawController : BaseContextController
             request.UserType,
             createOnRange,
             updateOnRange,
-            paging);
+            new Paging
+            {
+                IsDesc = paging.IsDesc,
+                Page = paging.Page,
+                Rows = paging.Rows,
+                ShowAll = paging.ShowAll,
+                SortBy = paging.SortBy
+            });
 
         var result = await queryService
             .GetAsync(query, HttpContext.RequestAborted)

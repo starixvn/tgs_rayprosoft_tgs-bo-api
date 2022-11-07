@@ -30,12 +30,5 @@ internal class DepositFormQueryService : IGetService<DepositFormQuery, DepositFo
                 UserName = query.UserName,
                 OrderNo = query.OrderNo
             },
-            new Tgs.Payment.Clients.Paging
-            {
-                IsDesc = query.Paging.IsDesc,
-                Page = query.Paging.Page,
-                Rows = query.Paging.Rows,
-                ShowAll = query.Paging.ShowAll,
-                SortBy = query.Paging.SortBy
-            });
+            query.Paging);
 }

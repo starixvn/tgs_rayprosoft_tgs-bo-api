@@ -1,7 +1,6 @@
 ﻿using System;
 using System.IO;
 using System.Linq;
-using System.Security.Claims;
 using System.Text.Json;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Mvc;
@@ -13,7 +12,6 @@ using Tgs.ServiceUtility;
 using TGS.Apis.BackendOffice.Controllers.Messages;
 using TGS.Apis.BackendOffice.Controllers.Messages.Deposit;
 using TGS.Apis.BackendOffice.Extensions;
-using TGS.Core.Models;
 using TGS.Core.Models.Messages;
 using TGS.Services.BackOffice.Application.Queries.Deposit;
 using TGS.Services.BackOffice.ApplicationServices;
@@ -39,10 +37,11 @@ public class DepositController : BaseContextController
 
     [HttpGet("exportDeposit/{brandId}")]
     public async Task<IActionResult> ExportDepositAsync(
-        [FromServices] IGetService<ExportDepositForm, MemoryStream> queryService,
-        Guid brandId,
-        [FromQuery] DepositFormRequest request,
-        [FromQuery] PageableRequest paging)
+            [FromServices] IGetService<DepositFormQuery, DepositForms> queryService,
+            [FromServices] IGetService<ExportDepositFormsCommand, MemoryStream> exportService,
+            Guid brandId,
+            [FromQuery] DepositFormRequest request,
+            [FromQuery] PageableRequest paging)
     {
         var createOnRange = ((DateTimeOffset Begin, DateTimeOffset End)?)null;
         var updateOnRange = ((DateTimeOffset Begin, DateTimeOffset End)?)null;
@@ -53,22 +52,35 @@ public class DepositController : BaseContextController
         if (request.BeginUpdateOn != null && request.EndUpdateOn != null)
             updateOnRange = (request.BeginUpdateOn.Value, request.EndUpdateOn.Value);
 
-        var query = new ExportDepositForm(
+        var query = new DepositFormQuery(
             brandId,
             request.UserName,
             request.ChannelName,
             request.ThirdPartyOrderNo,
+            request.OrderNo,
             request.FormId,
             request.PaymentMethodId,
             request.Status?.SelectMany(s => s.ToPaymentFlowState()).Distinct()
                 ?? default(FlowState?).ToPaymentFlowState(),
-            request.OrderNo,
             createOnRange,
             updateOnRange,
-            paging);
+            new Paging
+            {
+                IsDesc = paging.IsDesc,
+                ShowAll = true,
+                SortBy = paging.SortBy
+            });
+
+        var queryResponse = await queryService.GetAsync(
+            query,
+            HttpContext.RequestAborted).ConfigureAwait(false);
+
+        var exportCommand = new ExportDepositFormsCommand(
+            queryResponse.Items,
+            queryResponse.Sum);
 
         return File(
-            await queryService.GetAsync(query).ConfigureAwait(false),
+            await exportService.GetAsync(exportCommand).ConfigureAwait(false),
             "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
             "Deposit.xlsx");
     }
@@ -185,7 +197,14 @@ public class DepositController : BaseContextController
                 ?? default(FlowState?).ToPaymentFlowState(),
             createOnRange,
             updateOnRange,
-            paging);
+            new Paging
+            {
+                IsDesc = paging.IsDesc,
+                Page = paging.Page,
+                Rows = paging.Rows,
+                ShowAll = paging.ShowAll,
+                SortBy = paging.SortBy
+            });
 
         var result = await queryService.GetAsync(query).ConfigureAwait(false);
 
