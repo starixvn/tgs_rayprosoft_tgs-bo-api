@@ -100,18 +100,27 @@ internal class ReviewDepositFormCommandService : ICommandService<ReviewDepositFo
                 {
                     try
                     {
+                        var bucketInfo = await _playerBucketRepository.GetPlayerBucketInfoAsync(
+                            form.PlayerCode,
+                            cancellationToken).ConfigureAwait(false);
+
                         var playerAllBalances = await _getPlayerGameProviderBalanceService.QueryAsync(
                             query: new GetPlayerGameProviderBalanceCommand(form.PlayerCode),
                             cancellationToken: cancellationToken).ToArrayAsync().ConfigureAwait(false);
 
-                        if (!playerAllBalances.Where(x => x.IsMaintain).Any())
+                        if (!playerAllBalances.Where(x => x.IsMaintain).Any()
+                            && bucketInfo.Amount > 0M)
                         {
                             var balance = playerAllBalances.Sum(x => x.Balance) ?? 0M;
 
                             if (balance <= brand.AutoClearWageringRequirementBalance)
-                                _ = await _playerBucketRepository
-                                      .ClearPlayerBucketsAsync(form.PlayerCode)
-                                      .ConfigureAwait(false);
+                                await _playerBucketRepository
+                                    .ClearPlayerBucketsAsync(
+                                        form.PlayerCode,
+                                        bucketInfo.SpanshotId!.Value,
+                                        form.Id.ToString(),
+                                        cancellationToken)
+                                    .ConfigureAwait(false);
                         }
                     }
                     catch (Exception ex)

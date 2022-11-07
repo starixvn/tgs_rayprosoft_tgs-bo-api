@@ -1,7 +1,6 @@
 ﻿using System.Threading;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Http;
-using TGS.Core.Models.Messages;
 using TGS.Services.BackOffice.Application.Models.Player;
 using TGS.Services.BackOffice.Application.Resources;
 using TGS.Services.BackOffice.Infrastructure.DataService;
@@ -22,7 +21,8 @@ public class ClearPlayerBucketsHandler : Handler<ClearPlayerBucketsRequest, Clea
         _playerBucketRepository = playerBucketRepository;
     }
 
-    public override async Task<ClearPlayerBucketsResponse> Handle(ClearPlayerBucketsRequest request,
+    public override async Task<ClearPlayerBucketsResponse> Handle(
+        ClearPlayerBucketsRequest request,
         CancellationToken cancellationToken)
     {
         var player = await _service.GetPlayerAsync(x => x.PlayerCode == request.PlayerCode).ConfigureAwait(false);
@@ -32,11 +32,21 @@ public class ClearPlayerBucketsHandler : Handler<ClearPlayerBucketsRequest, Clea
             return CreateInvalidResponse<ClearPlayerBucketsResponse>(Player.NotFound);
         }
 
-        var wageringRequirement = await _playerBucketRepository.ClearPlayerBucketsAsync(request.PlayerCode);
+        var bucketInfo = await _playerBucketRepository.GetPlayerBucketInfoAsync(
+            player.PlayerCode,
+            cancellationToken).ConfigureAwait(false);
 
-        return new ClearPlayerBucketsResponse { 
+        if (bucketInfo.Amount > 0M && bucketInfo.SpanshotId is not null)
+            await _playerBucketRepository.ClearPlayerBucketsAsync(
+                player.PlayerCode,
+                bucketInfo.SpanshotId.Value,
+                null,
+                cancellationToken).ConfigureAwait(false);
+
+        return new ClearPlayerBucketsResponse
+        {
             Valid = true,
-            wageringRequirement = wageringRequirement
+            wageringRequirement = bucketInfo.Amount
         };
     }
 }

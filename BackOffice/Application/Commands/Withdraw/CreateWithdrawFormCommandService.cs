@@ -1,7 +1,4 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
 using Tgs.CashService.Client;
@@ -11,6 +8,7 @@ using Tgs.ServiceUtility;
 using TGS.Services.PlayerBucket;
 
 namespace TGS.Services.BackOffice.Application.Commands.Withdraw;
+
 internal class CreateWithdrawFormCommandService : ICommandService<CreateWithdrawFormCommand>
 {
     private readonly ICashServiceClient _cashServiceClient;
@@ -39,11 +37,11 @@ internal class CreateWithdrawFormCommandService : ICommandService<CreateWithdraw
         if (playerInfo is null)
             throw new Exception("Can't find player.");
 
-        var isBucketFull = await _playerBucketRepository
-            .IsBucketFullAsync(command.PlayerCode)
-            .ConfigureAwait(false);
+        var bucketInfo = await _playerBucketRepository.GetPlayerBucketInfoAsync(
+            command.PlayerCode,
+            cancellationToken).ConfigureAwait(false);
 
-        if (!isBucketFull)
+        if (bucketInfo.Amount > 0M)
             throw new Exception("InsufficientBucket");
 
         var playerProps = await _playerServiceClient
