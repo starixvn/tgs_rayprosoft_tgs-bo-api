@@ -13,7 +13,6 @@ using Tgs.Payment.Clients;
 using Tgs.PlayerService.Client;
 using Tgs.ServiceUtility;
 using TGS.Core.DataServices.Tgs.Models;
-using TGS.Core.Models.Messages;
 using TGS.Services.BackOffice.Application.Commands.Withdraw;
 using TGS.Services.BackOffice.Application.Queries.Withdraw;
 using TGS.Services.BackOffice.ApplicationServices;
@@ -663,14 +662,14 @@ public class WithdrawFormTests
             UserType: null,
             CreateOnRange: null,
             UpdateOnRange: null,
-            Paging: new PageableRequest());
+            Paging: new Paging());
 
         _ = await sut.GetAsync(query, default);
 
         moqPaymentServiceClient.Verify(
             fake => fake.QueryWithdrawFormsAsync(
                 It.IsAny<WithdrawFormQueryConditions>(),
-                It.IsAny<Tgs.Payment.Clients.Paging>(),
+                It.IsAny<Paging>(),
                 It.IsAny<CancellationToken>()),
             Times.Exactly(1));
     }

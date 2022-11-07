@@ -1,7 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
 using Tgs.Payment.Clients;
-using TGS.Core.Models.Messages;
 
 namespace TGS.Services.BackOffice.Application.Queries.Withdraw;
 
@@ -18,4 +17,4 @@ public record WithdrawFormQuery(
     UserType? UserType,
     (DateTimeOffset Begin, DateTimeOffset End)? CreateOnRange,
     (DateTimeOffset Begin, DateTimeOffset End)? UpdateOnRange,
-    PageableRequest Paging);
+    Paging Paging);
