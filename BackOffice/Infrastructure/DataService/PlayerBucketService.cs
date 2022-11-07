@@ -26,6 +26,7 @@ public class PlayerBucketService : BaseRepositoryOperations<ITgsRepository>, IPl
 
     public async ValueTask<PlayerBucketHistory[]> GetPlayerBucketHistoriesAsync(Guid playerBucketId)
         => await GetQueriesAsync<PlayerBucketHistory>(q => q.Where(x => x.PlayerBucketId == playerBucketId), false)
+            .Where(x => x.Turnover > 0)
             .ToArrayAsync();
 
     public IQueryable<Core.DataServices.Tgs.Models.PlayerBucket> GetPlayerBucketQueries(
