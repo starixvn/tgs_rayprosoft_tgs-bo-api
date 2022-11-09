@@ -41,7 +41,6 @@ public class VipLevelController : BaseContextController
                 lastVip.LevelUpAccumulateDeposit));
 
         var createInfo = new VipLevelCreateInfo(
-            request.Level,
             request.LevelUpAccumulateBetAmount,
             request.LevelUpAccumulateDeposit,
             request.LevelKeepAccumulateBetAmount,
