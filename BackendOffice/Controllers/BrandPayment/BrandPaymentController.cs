@@ -322,6 +322,14 @@ public partial class BrandPaymentController : BaseContextController
         return CreateValidResponse<CreateUpdateBrandPaymentResponse>();
     }
 
+    [HttpPatch("extendeddata/{brandPaymentId:guid}")]
+    [Description("Update a brand Payment's extended data")]
+    public ValueTask UpdateBrandPaymentExtendedDataAsync(
+        Guid brandPaymentId,
+        UpdateBrandPaymentExtendedDataRequest request,
+        [FromServices] IPaymentServiceClient paymentServiceClient)
+        => paymentServiceClient.UpdateBrandPaymentExtendedDataAsync(brandPaymentId, request.ExtendedData, HttpContext.RequestAborted);
+
     [HttpPost("upload")]
     [Description("Upload player file")]
     public async Task<MessageResponse> UploadPlayersAsync(IFormFile file)
