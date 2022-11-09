@@ -1,20 +1,31 @@
 ﻿using System;
+using System.Collections.Generic;
+using System.Collections.Immutable;
 using System.Data.SqlClient;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 using AutoFixture;
+using ExpectedObjects;
 using FluentAssertions;
 using MediatR;
 using Microsoft.Extensions.Logging.Abstractions;
 using MockQueryable.Moq;
 using Moq;
+using NSubstitute;
 using NUnit.Framework;
+using Tgs.CashService.Client;
+using Tgs.Payment.Clients;
+using Tgs.PlayerService.Client;
 using Tgs.Promotion.Clients;
+using Tgs.Service.PlayerBuckets;
+using Tgs.ServiceUtility;
 using TGS.Apis.BackendOffice.Controllers;
 using TGS.Core.Models.Messages;
 using TGS.Services.BackOffice.Application.Models.Player;
 using TGS.Services.BackOffice.Application.Resources;
+using TGS.Services.BackOffice.ApplicationServices;
+using TGS.Services.BackOffice.Domain;
 
 namespace TGS.Tests.BackendOffice.UnitTests.Controllers;
 
@@ -31,37 +42,73 @@ public class PlayerControllerTests : BaseTests
     [Test]
     public async Task Can_Get_Player()
     {
-        var fixture = new Fixture();
-        var player = CreatePlayersModelFixture().Create<PlayerModel>();
+        var fakePlayerServiceClient = Substitute.For<IPlayerServiceClient>();
+        var fakePaymentServiceClient = Substitute.For<IPaymentServiceClient>();
+        var fakeCashServiceClient = Substitute.For<ICashServiceClient>();
+        var fakePlayerBucketClient = Substitute.For<IPlayerBucketClient>();
+        var fakeServiceCoordinator = Substitute.For<IServiceCoordinator>();
 
-        _mediatorMock
-            .Setup(m => m.Send(It.IsAny<GetPlayerRequest>(), It.IsAny<CancellationToken>()))
-            .ReturnsAsync(new GetPlayerResponse
+        var sut = new GetSinglePlayerQueryService(
+            fakePlayerServiceClient,
+            fakePaymentServiceClient,
+            fakeCashServiceClient,
+            fakePlayerBucketClient,
+            fakeServiceCoordinator);
+
+        var query = new GetSinglePlayerQuery("test1");
+
+        var agentId = Guid.NewGuid();
+
+        var expected = new
+        {
+            PlayerCode = "test1",
+            AgentUsername = "agent1",
+            AreaCode = "333",
+            Phone = "456789",
+            Balance = 500M,
+            Birthdate = "2022/11/09",
+            Email = "test@test.com"
+        };
+
+        _ = fakePlayerServiceClient.GetPlayerInfoAsync(
+            Arg.Is(query.PlayerCode))
+            .Returns(new Tgs.PlayerService.Client.PlayerInfo
             {
-                Valid = true,
-                Player = player
+                PlayerCode = query.PlayerCode,
+                BrandId = Guid.NewGuid(),
+                UserName = "tester",
+                RegisteredOn = DateTime.UtcNow
             });
 
-        var response = await _controller.GetSingleAsync(It.IsAny<string>());
+        _ = fakePlayerServiceClient.GetPlayerPropertiesAsync(Arg.Is(query.PlayerCode))
+            .Returns(new Dictionary<string, string>
+            {
+                ["DefaultWalletId"] = Guid.NewGuid().ToString(),
+                ["AgentId"] = agentId.ToString(),
+                ["AreaCode"] = expected.AreaCode,
+                ["Phone"] = expected.Phone,
+                ["Birthdate"] = expected.Birthdate,
+                ["Email"] = expected.Email
+            }.ToImmutableDictionary());
 
-        response.Valid.Should().BeTrue();
-        response.Player.Status.Should().Be(player.Status);
-        response.Player.Username.Should().Be(player.Username);
-        response.Player.RealName.Should().Be(player.RealName);
-        response.Player.RegisteredOn.Should().Be(player.RegisteredOn);
-        response.Player.AgentUsername.Should().Be(player.AgentUsername);
-        response.Player.Balance.Should().Be(player.Balance);
-        response.Player.Phone.Should().Be(player.Phone);
-        response.Player.Email.Should().Be(player.Email);
-        response.Player.QQ.Should().Be(player.QQ);
-        response.Player.WeChat.Should().Be(player.WeChat);
-        response.Player.FacebookMessenger.Should().Be(player.FacebookMessenger);
-        response.Player.Viber.Should().Be(player.Viber);
-        response.Player.Line.Should().Be(player.Line);
-        response.Player.Telegram.Should().Be(player.Telegram);
-        response.Player.WhatsApp.Should().Be(player.WhatsApp);
+        _ = fakePlayerBucketClient.ReadBucketsAsync(Arg.Is(query.PlayerCode))
+            .Returns(new ReadBucketResult(1000M, Guid.NewGuid()));
 
-        _mediatorMock.Verify(x => x.Send(It.IsAny<GetPlayerRequest>(), It.IsAny<CancellationToken>()));
+        _ = fakeServiceCoordinator.QueryAsync<AllAgentsByBrandQuery, AgentInfo>(Arg.Any<AllAgentsByBrandQuery>())
+            .Returns(new[] {
+                new AgentInfo(
+                    agentId,
+                    expected.AgentUsername,
+                    Guid.NewGuid(),
+                    Core.Models.Enums.AgentStatus.Enabled)
+            }.ToAsyncEnumerable());
+
+        _ = fakeCashServiceClient.GetBalanceAsync(Arg.Any<Guid>())
+            .Returns(500M);
+
+        var actual = await sut.GetAsync(query);
+
+        expected.ToExpectedObject().ShouldMatch(actual);
     }
 
     [TestCase(true)]
@@ -109,26 +156,6 @@ public class PlayerControllerTests : BaseTests
         }
 
         _mediatorMock.Verify(x => x.Send(It.IsAny<GetPlayerOperationRequest>(), It.IsAny<CancellationToken>()));
-    }
-
-    [Test]
-    public async Task Cannot_Get_Player_Not_Found()
-    {
-        var playerCode = Generator.RandomString(12);
-
-        _mediatorMock
-            .Setup(m => m.Send(It.IsAny<GetPlayerRequest>(), It.IsAny<CancellationToken>()))
-            .ReturnsAsync(new GetPlayerResponse
-            {
-                Valid = false,
-                Message = Player.NotFound
-            });
-
-        var response = await _controller.GetSingleAsync(playerCode);
-        response.Valid.Should().BeFalse();
-        response.Message.Should().Be(Player.NotFound);
-
-        _mediatorMock.Verify(x => x.Send(It.IsAny<GetPlayerRequest>(), It.IsAny<CancellationToken>()));
     }
 
     [Test]

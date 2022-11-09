@@ -11,7 +11,7 @@
     <PackageReference Include="Microsoft.Extensions.Configuration.EnvironmentVariables" Version="6.0.1" />
     <PackageReference Include="Microsoft.Extensions.Configuration.Json" Version="6.0" />
     <PackageReference Include="Microsoft.Extensions.DependencyInjection" Version="6.0" />
-    <PackageReference Include="Tgs.Core" Version="1.0.10" />
+    <PackageReference Include="Tgs.Core" Version="1.0.11" />
   </ItemGroup>
 
   <ItemGroup>
