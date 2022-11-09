@@ -25,7 +25,6 @@ using OpenTelemetry.Exporter;
 using OpenTelemetry.Instrumentation.AspNetCore;
 using OpenTelemetry.Resources;
 using OpenTelemetry.Trace;
-using Prometheus;
 using Tgs.PlayerBucket.Clients.DependencyInjection;
 using TGS.Apis.BackendOffice.Filters;
 using TGS.Apis.BackendOffice.MessageQueue;
@@ -157,6 +156,7 @@ builder.Services
     .AddRouting(options => options.LowercaseUrls = true);
 
 builder.Services
+    .AddDateOnlyTimeOnlyStringConverters()
     .AddControllers(options =>
     {
         var policy = new AuthorizationPolicyBuilder()
@@ -165,7 +165,6 @@ builder.Services
 
         options.Filters.Add(new AuthorizeFilter(policy));
         options.Filters.Add(new ValidationFilter());
-        options.UseDateOnlyTimeOnlyStringConverters();
     })
     .AddDataAnnotationsLocalization()
     .AddFluentValidation(c =>
@@ -178,12 +177,10 @@ builder.Services
     {
         options.JsonSerializerOptions.Converters.Add(new JsonStringEnumConverter());
         options.JsonSerializerOptions.DefaultIgnoreCondition = JsonIgnoreCondition.WhenWritingNull;
-        options.UseDateOnlyTimeOnlyStringConverters();
     });
 
 builder.Services
-    .AddHealthChecks()
-    .ForwardToPrometheus();
+    .AddHealthChecks();
 
 builder.Services
     .AddAntiforgery(options =>
@@ -330,8 +327,6 @@ app.UseRequestLocalization(options =>
 
 app.UseMiddleware<ExceptionMiddleware>();
 
-app.UseHttpMetrics();
-
 app.UseAuthentication();
 app.UseAuthorization();
 
@@ -339,7 +334,6 @@ app.MapControllers();
 app.MapHub<NotifyHub>("api/notify");
 app.MapProfileViewer();
 app.MapHealthChecks("/health");
-app.MapMetrics();
 
 app.Use(async (httpContext, next) =>
 {

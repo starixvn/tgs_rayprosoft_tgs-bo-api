@@ -2,7 +2,7 @@
 
 using System;
 using System.Text.Json;
-using TGS.Core.Models.Enums;
+using Tgs.PlayerService.Client;
 
 namespace TGS.Services.BackOffice.Application.Models.Player;
 

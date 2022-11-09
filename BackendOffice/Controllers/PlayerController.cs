@@ -17,6 +17,7 @@ using Tgs.ServiceUtility;
 using Tgs.VipLevelService.Clients;
 using TGS.Apis.BackendOffice.Controllers.Messages.Promotion;
 using TGS.Apis.BackendOffice.Models;
+using TGS.Apis.BackendOffice.Resources;
 using TGS.Core.Models.Enums;
 using TGS.Core.Models.Messages;
 using TGS.Services.BackOffice.Application.Models.Player;
@@ -501,8 +502,28 @@ public partial class PlayerController : BaseContextController
 
     [HttpGet("{playerCode}", Name = "GetSinglePlayer")]
     [Description("Get player")]
-    public Task<GetPlayerResponse> GetSingleAsync(string playerCode) =>
-        _mediator.Send(new GetPlayerRequest(playerCode));
+    public async Task<GetPlayerResponse> GetSingleAsync(
+        [FromServices] IGetService<GetSinglePlayerQuery, PlayerModel> getService,
+        string playerCode)
+    {
+        var query = new GetSinglePlayerQuery(playerCode);
+
+        var player = await getService.GetAsync(
+            query,
+            HttpContext.RequestAborted).ConfigureAwait(false);
+
+        return player is null
+            ? new GetPlayerResponse
+            {
+                Valid = false,
+                Message = Player.NotFound
+            }
+            : new GetPlayerResponse
+            {
+                Valid = true,
+                Player = player
+            };
+    }
 
     [HttpPut("{playerCode}/{type}", Name = "UpdatePlayer")]
     [Description("Update player")]
@@ -562,7 +583,6 @@ public partial class PlayerController : BaseContextController
                         return description;
                     }
                 }
-
 
             case TransactionType.GameProviderFundOut:
             case TransactionType.GameProviderFundIn:

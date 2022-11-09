@@ -6,7 +6,7 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <PackageReference Include="Tgs.Core" Version="1.0.10" />
+    <PackageReference Include="Tgs.Core" Version="1.0.11" />
   </ItemGroup>
 
 </Project>
