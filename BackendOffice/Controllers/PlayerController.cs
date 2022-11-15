@@ -13,6 +13,7 @@ using Tgs.PlayerService.Client;
 using Tgs.Promotion.Clients;
 using Tgs.Report.Client;
 using Tgs.Report.Client.Models.Player;
+using Tgs.Service.PlayerBuckets;
 using Tgs.ServiceUtility;
 using Tgs.VipLevelService.Clients;
 using TGS.Apis.BackendOffice.Controllers.Messages.Promotion;
@@ -455,15 +456,55 @@ public partial class PlayerController : BaseContextController
 
     [HttpGet("{playerBucketId}/playerBucketHistories", Name = "GetPlayerBucketHistories")]
     [Description("Get player buckets")]
-    public ValueTask<GetPlayerBucketHistoriesResponse> GetPlayerBucketHistoriesAsync(Guid playerBucketId,
-        [FromServices] IGetService<GetPlayerBucketHistoriesRequest, GetPlayerBucketHistoriesResponse> service)
-        => service.GetAsync(new GetPlayerBucketHistoriesRequest(playerBucketId));
+    public async ValueTask<GetPlayerBucketHistoriesResponse> GetPlayerBucketHistoriesAsync(
+        [FromServices] IQueryService<GetPlayerBucketHistoriesQuery, BucketEvent> queryService,
+        Guid playerBucketId)
+    {
+        var query = new GetPlayerBucketHistoriesQuery(playerBucketId);
+
+        return new GetPlayerBucketHistoriesResponse
+        {
+            Valid = true,
+            Items = await queryService
+                .QueryAsync(query, HttpContext.RequestAborted)
+                .Select(evt => new PlayerBucketHistoryModel
+                {
+                    PlayerBucketId = evt.BucketId,
+                    Turnover = evt.ChangeAmount,
+                    CreatedOn = evt.CreatedOn
+                })
+                .ToArrayAsync(HttpContext.RequestAborted)
+                .ConfigureAwait(false)
+        };
+    }
 
     [HttpGet("{playerCode}/playerBuckets", Name = "GetPlayerBuckets")]
     [Description("Get player buckets")]
-    public ValueTask<GetPlayerBucketsResponse> GetPlayerBucketsAsync(string playerCode,
-        [FromServices] IGetService<GetPlayerBucketsRequest, GetPlayerBucketsResponse> service)
-        => service.GetAsync(new GetPlayerBucketsRequest(playerCode));
+    public async ValueTask<GetPlayerBucketsResponse> GetPlayerBucketsAsync(
+        [FromServices] IQueryService<GetPlayerBucketsQuery, BucketInfo> queryService,
+        string playerCode)
+    {
+        var query = new GetPlayerBucketsQuery(playerCode);
+
+        return new GetPlayerBucketsResponse
+        {
+            Valid = true,
+            Items = await queryService
+                .QueryAsync(query, HttpContext.RequestAborted)
+                .Select(info => new PlayerBucketModel
+                {
+                    Id = info.Id,
+                    PlayerCode = info.PlayerCode,
+                    BucketType = info.Type,
+                    WageringRequirement = info.Amount,
+                    CompletedWagering = info.FillInAmount,
+                    CreatedOn = info.CreatedOn,
+                    UncompleteWagering = info.Amount - info.FillInAmount
+                })
+                .ToArrayAsync()
+                .ConfigureAwait(false)
+        };
+    }
 
     [HttpGet("{playerCode}/transferwallet", Name = "GetPlayerGameProviderBalances")]
     [Description("Get Player Transfer Wallet")]

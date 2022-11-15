@@ -1,0 +1,20 @@
+﻿using System;
+using System.Collections.Generic;
+using System.Threading;
+using Tgs.Service.PlayerBuckets;
+using Tgs.ServiceUtility;
+
+namespace TGS.Services.BackOffice.ApplicationServices;
+
+internal class GetPlayerBucketHistoriesQueryService : IQueryService<GetPlayerBucketHistoriesQuery, BucketEvent>
+{
+    private readonly IPlayerBucketClient _playerBucketClient;
+
+    public GetPlayerBucketHistoriesQueryService(IPlayerBucketClient playerBucketClient)
+    {
+        _playerBucketClient = playerBucketClient ?? throw new ArgumentNullException(nameof(playerBucketClient));
+    }
+
+    public IAsyncEnumerable<BucketEvent> QueryAsync(GetPlayerBucketHistoriesQuery query, CancellationToken cancellationToken = default)
+        => _playerBucketClient.GetBucketEventsAsync(query.BucketId, cancellationToken);
+}

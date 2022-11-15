@@ -1,12 +1,10 @@
 ﻿using System;
 using System.Linq;
 using System.Threading.Tasks;
-using MockQueryable.Moq;
 using NSubstitute;
 using NUnit.Framework;
-using TGS.Services.BackOffice.Application.Models.PlayerBucket;
-using TGS.Services.BackOffice.Application.Queries.PlayerBucketQueries;
-using TGS.Services.BackOffice.Infrastructure.DataService;
+using Tgs.Service.PlayerBuckets;
+using TGS.Services.BackOffice.ApplicationServices;
 
 namespace TGS.Tests.BackendOffice.UnitTests;
 
@@ -16,58 +14,30 @@ public class PlayerBucketsTests
     [Test]
     public async Task Can_Get_Player_Buckets()
     {
-        var fakePlayerBucketService = Substitute.For<IPlayerBucketService>();
-        var sut = new GetPlayerBucketsQuery(fakePlayerBucketService);
+        var fakePlayerBucketClient = Substitute.For<IPlayerBucketClient>();
 
-        var playerBuckets = new Core.DataServices.Tgs.Models.PlayerBucket[]
-        {
-            new Core.DataServices.Tgs.Models.PlayerBucket
-            {
-                PlayerCode="playerCode",
-                IsFull = false
-            } ,
-            new Core.DataServices.Tgs.Models.PlayerBucket
-            {
-                PlayerCode="playerCode",
-                IsFull = true
-            }
-        };
+        var sut = new GetPlayerBucketsQueryService(fakePlayerBucketClient);
 
-        fakePlayerBucketService.GetPlayerBucketQueries().Returns(playerBuckets.AsQueryable().BuildMock());
+        var query = new GetPlayerBucketsQuery("test1");
 
-        var actual = await sut.GetAsync(new GetPlayerBucketsRequest("playerCode"));
+        _ = await sut.QueryAsync(query).ToArrayAsync();
 
-        Assert.AreEqual(1, actual.Items.Length);
+        _ = fakePlayerBucketClient.Received(1)
+            .GetBucketsByPlayerCodeAsync(Arg.Is(query.PlayerCode));
     }
 
     [Test]
-    public async Task Get_Player_Buckets_Order_Descending_By_Created_On()
+    public async Task Can_Get_Player_Bucket_Histories()
     {
-        var fakePlayerBucketService = Substitute.For<IPlayerBucketService>();
-        var sut = new GetPlayerBucketsQuery(fakePlayerBucketService);
+        var fakePlayerBucketClient = Substitute.For<IPlayerBucketClient>();
 
-        var playerBuckets = new Core.DataServices.Tgs.Models.PlayerBucket[]
-        {
-            new Core.DataServices.Tgs.Models.PlayerBucket
-            {
-                PlayerCode="playerCode",
-                IsFull = false,
-                CreatedOn = new DateTimeOffset(2022,1,7,0,31,11,TimeSpan.Zero)
-            } ,
-            new Core.DataServices.Tgs.Models.PlayerBucket
-            {
-                PlayerCode="playerCode",
-                IsFull = false,
-                CreatedOn = new DateTimeOffset(2022,3,17,0,31,13,TimeSpan.Zero)
-            }
-        };
+        var sut = new GetPlayerBucketHistoriesQueryService(fakePlayerBucketClient);
 
-        fakePlayerBucketService.GetPlayerBucketQueries().Returns(playerBuckets.AsQueryable().BuildMock());
+        var query = new GetPlayerBucketHistoriesQuery(Guid.NewGuid());
 
-        var actual = await sut.GetAsync(new GetPlayerBucketsRequest("playerCode"));
+        _ = await sut.QueryAsync(query).ToArrayAsync();
 
-        Assert.AreEqual(
-            new DateTimeOffset(2022, 3, 17, 0, 31, 13, TimeSpan.Zero),
-            actual.Items.First().CreatedOn);
+        _ = fakePlayerBucketClient.Received(1)
+            .GetBucketEventsAsync(Arg.Is(query.BucketId));
     }
 }
