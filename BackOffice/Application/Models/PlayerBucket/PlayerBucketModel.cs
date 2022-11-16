@@ -1,5 +1,5 @@
 ﻿using System;
-using TGS.Core.Models.Enums;
+using Tgs.Service.PlayerBuckets;
 
 namespace TGS.Services.BackOffice.Application.Models.PlayerBucket;
 
@@ -17,5 +17,5 @@ public record PlayerBucketModel
 
     public BucketType BucketType { get; set; }
 
-    public DateTimeOffset CreatedOn { get; set; }
+    public DateTime CreatedOn { get; set; }
 }

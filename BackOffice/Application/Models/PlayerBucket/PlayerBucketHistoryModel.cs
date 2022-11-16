@@ -6,11 +6,7 @@ public record PlayerBucketHistoryModel
 {
     public Guid PlayerBucketId { get; set; }
 
-    public string PlayerCode { get; set; }
-
     public decimal Turnover { get; set; }
-
-    public string Data { get; set; }
 
     public DateTimeOffset CreatedOn { get; set; }
 }

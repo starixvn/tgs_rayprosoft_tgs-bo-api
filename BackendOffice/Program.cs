@@ -124,7 +124,9 @@ builder.Services
     .AddNatsGlobPatternExchange("*");
 
 builder.Services
-    .AddPlayerBucketClient()
+    .AddPlayerBucketClient(httpClientBuilder => httpClientBuilder
+        .ConfigureHttpClient(httpClient => httpClient.BaseAddress =
+            builder.Configuration.GetValue<Uri>("BackOffice:PlayerBucketBaseUrl")))
     .AddPaymentServiceClient(httpClientBuilder => httpClientBuilder
         .ConfigureHttpClient((sp, http) =>
         {
