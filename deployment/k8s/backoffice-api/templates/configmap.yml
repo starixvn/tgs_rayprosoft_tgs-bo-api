@@ -27,7 +27,8 @@ data:
         "ReportAggregateUrl": "http://report-aggregate-service",
         "PlayerServiceBaseUrl": "http://player-api",
         "MarketingReportBaseUrl": "http://marketing-report-api",
-        "VipLevelServiceBaseUrl": "http://tgs-viplevel"
+        "VipLevelServiceBaseUrl": "http://tgs-viplevel",
+        "PlayerBucketBaseUrl": "http://tgs-playerbucket-service"
       },
       "TGSGameProvidersKickPlayerApi": {
         "BaseUrl": "http://game-kickplayer-server"
