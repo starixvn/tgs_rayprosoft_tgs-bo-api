@@ -240,6 +240,12 @@ builder.Services.AddMarketingReportClient((options, sp) =>
     options.BaseUrl = config.GetValue<Uri>("BackOffice:MarketingReportBaseUrl");
 });
 
+builder.Services.AddDepositAccumulateRouletteClient((options, sp) =>
+{
+    var config = sp.GetRequiredService<IConfiguration>();
+    options.BaseUrl = config.GetValue<Uri>("BackOffice:DepositAccumulateRouletteServiceBaseUrl");
+});
+
 builder.Services.AddSwaggerGen(c =>
 {
     c.SwaggerDoc("v1",
