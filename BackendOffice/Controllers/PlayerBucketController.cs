@@ -15,7 +15,7 @@ namespace TGS.Apis.BackendOffice.Controllers;
 [ApiController]
 public class PlayerBucketController : BaseContextController
 {
-    [HttpGet("amount/{playerCode}", Name = "GetPlayerBucketAmount")]
+    [HttpGet("amount/{playerCode}", Name = "GetPlayerBucketAmount2")]
     public async Task<decimal> GetPlayerBucketAmountAsync(
         [FromServices] IGetService<GetPlayerBucketAmountQuery, ReadBucketResult> getService,
         string playerCode)
@@ -29,7 +29,7 @@ public class PlayerBucketController : BaseContextController
         return result.Amount;
     }
 
-    [HttpGet("history/{bucketId}", Name = "GetPlayerBucketHistories")]
+    [HttpGet("history/{bucketId}", Name = "GetPlayerBucketHistories2")]
     public IAsyncEnumerable<PlayerBucketEventViewModel> GetPlayerBucketHistoriesAsync(
         [FromServices] IQueryService<GetPlayerBucketHistoriesQuery, BucketEvent> queryService,
         Guid bucketId)
