@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Threading.Tasks;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Tgs.Service.PlayerBuckets;
@@ -14,6 +15,20 @@ namespace TGS.Apis.BackendOffice.Controllers;
 [ApiController]
 public class PlayerBucketController : BaseContextController
 {
+    [HttpGet("amount/{playerCode}", Name = "GetPlayerBucketAmount")]
+    public async Task<decimal> GetPlayerBucketAmountAsync(
+        [FromServices] IGetService<GetPlayerBucketAmountQuery, ReadBucketResult> getService,
+        string playerCode)
+    {
+        var query = new GetPlayerBucketAmountQuery(playerCode);
+
+        var result = await getService.GetAsync(
+            query,
+            HttpContext.RequestAborted).ConfigureAwait(false);
+
+        return result.Amount;
+    }
+
     [HttpGet("history/{bucketId}", Name = "GetPlayerBucketHistories")]
     public IAsyncEnumerable<PlayerBucketEventViewModel> GetPlayerBucketHistoriesAsync(
         [FromServices] IQueryService<GetPlayerBucketHistoriesQuery, BucketEvent> queryService,
