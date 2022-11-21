@@ -51,10 +51,15 @@ public class DepositAccumulateRouletteController : BaseContextController
         [FromQuery] DepositAccumulateRouletteGameRecordsRequest request,
         [FromQuery] PageableRequest pagingRequest)
     {
-        var range = ((DateTimeOffset Begin, DateTimeOffset End)?)null;
+        (DateTimeOffset Begin, DateTimeOffset End) timeRange;
 
         if (request.From != null && request.To != null)
-            range = (request.From.Value, request.To.Value);
+            timeRange = (request.From.Value, request.To.Value);
+        else
+        {
+            var now = DateTimeOffset.UtcNow.ToOffset(TimeSpan.FromHours(8D));
+            timeRange = (now.AddDays(-3D), now);
+        }
 
         var playerCodes = Array.Empty<string>();
 
@@ -117,7 +122,7 @@ public class DepositAccumulateRouletteController : BaseContextController
             brandId,
             promotionIds,
             playerCodes,
-            range);
+            timeRange);
 
         var result = queryService
             .QueryAsync(query, HttpContext.RequestAborted);

@@ -9,4 +9,4 @@ public record DepositAccumulateRouletteGameRecordQuery(
     Guid BrandId,
     IEnumerable<Guid> PromotionIds,
     IEnumerable<string> PlayerCodes,
-    (DateTimeOffset Begin, DateTimeOffset End)? TimeRange);
+    (DateTimeOffset Begin, DateTimeOffset End) TimeRange);

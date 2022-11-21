@@ -6,7 +6,6 @@ using NSubstitute;
 using NUnit.Framework;
 using Tgs.DepositAccumulateRoulette.Clients;
 using Tgs.Promotion.Clients;
-using TGS.Services.BackOffice;
 using TGS.Services.BackOffice.ApplicationServices;
 using TGS.Services.BackOffice.Domain;
 
@@ -80,43 +79,8 @@ internal class DepositAccumulateRouletteTests
     }
 
     [Test]
-    public async Task Can_Get_Roulette_Records_By_Default_Three_Days_TimeRange()
+    public async Task Can_Get_Roulette_Records()
     {
-        var fakeSystemClock = Substitute.For<ISystemClock>();
-        var fakeRouletteServiceClient = Substitute.For<IDepositAccumulateRouletteServiceClient>();
-
-        _ = fakeSystemClock.UtcNow.Returns(DateTimeOffset.Parse("2022-11-21 06:00:00+00:00"));
-
-        var query = new DepositAccumulateRouletteGameRecordQuery(
-            Guid.NewGuid(),
-            Array.Empty<Guid>(),
-            Array.Empty<string>(),
-            null);
-
-        var expectedTimeRange = (Begin: DateTimeOffset.Parse("2022-11-18 16:00:00+00:00"),
-            End: DateTimeOffset.Parse("2022-11-21 16:00:00+00:00"));
-
-        var sut = new DepositAccumulateRouletteGameRecordQueryService(
-            fakeSystemClock,
-            fakeRouletteServiceClient);
-
-        _ = await sut.QueryAsync(query).ToArrayAsync();
-
-        _ = fakeRouletteServiceClient.Received(1)
-            .GetRouletteRecordsAsync(
-                Arg.Is(query.BrandId),
-                Arg.Is<RouletteRecordQuery>(x =>
-                    x.PlayerCodes.SequenceEqual(query.PlayerCodes)
-                    && x.PromotionIds.SequenceEqual(query.PromotionIds)
-                    && x.BeginTime == expectedTimeRange.Begin
-                    && x.EndTime == expectedTimeRange.End),
-                Arg.Any<CancellationToken>());
-    }
-
-    [Test]
-    public async Task Can_Get_Roulette_Records_By_Specific_TimeRange()
-    {
-        var fakeSystemClock = Substitute.For<ISystemClock>();
         var fakeRouletteServiceClient = Substitute.For<IDepositAccumulateRouletteServiceClient>();
 
         var query = new DepositAccumulateRouletteGameRecordQuery(
@@ -127,7 +91,6 @@ internal class DepositAccumulateRouletteTests
              End: DateTimeOffset.Parse("2022-11-20 00:00:00+08:00")));
 
         var sut = new DepositAccumulateRouletteGameRecordQueryService(
-            fakeSystemClock,
             fakeRouletteServiceClient);
 
         _ = await sut.QueryAsync(query).ToArrayAsync();
@@ -138,8 +101,8 @@ internal class DepositAccumulateRouletteTests
                 Arg.Is<RouletteRecordQuery>(x =>
                     x.PlayerCodes.SequenceEqual(query.PlayerCodes)
                     && x.PromotionIds.SequenceEqual(query.PromotionIds)
-                    && x.BeginTime == query.TimeRange!.Value.Begin
-                    && x.EndTime == query.TimeRange!.Value.End),
+                    && x.BeginTime == query.TimeRange.Begin
+                    && x.EndTime == query.TimeRange.End),
                 Arg.Any<CancellationToken>());
     }
 }
