@@ -49,7 +49,7 @@ public class PlayerBucketController : BaseContextController
             });
     }
 
-    [HttpGet("{playerCode}", Name = "GetPlayerBuckets")]
+    [HttpGet("{playerCode}", Name = "GetPlayerBuckets2")]
     public IAsyncEnumerable<PlayerBucketViewModel> GetPlayerBucketsAsync(
         [FromServices] IQueryService<GetPlayerBucketsQuery, BucketInfo> queryService,
         string playerCode)
