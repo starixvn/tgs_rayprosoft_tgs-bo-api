@@ -28,7 +28,8 @@ data:
         "PlayerServiceBaseUrl": "http://player-api",
         "MarketingReportBaseUrl": "http://marketing-report-api",
         "VipLevelServiceBaseUrl": "http://tgs-viplevel",
-        "PlayerBucketBaseUrl": "http://tgs-playerbucket-service"
+        "PlayerBucketBaseUrl": "http://tgs-playerbucket-service",
+        "DepositAccumulateRouletteServiceBaseUrl": "http://tgs-deposit-accumulate-roulette"
       },
       "TGSGameProvidersKickPlayerApi": {
         "BaseUrl": "http://game-kickplayer-server"
