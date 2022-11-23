@@ -15,7 +15,7 @@ namespace TGS.Apis.BackendOffice.Controllers;
 [ApiController]
 public class PlayerBucketController : BaseContextController
 {
-    [HttpGet("amount/{playerCode}", Name = "GetPlayerBucketAmount2")]
+    [HttpGet("amount/{playerCode}", Name = "GetPlayerBucketAmount")]
     public async Task<decimal> GetPlayerBucketAmountAsync(
         [FromServices] IGetService<GetPlayerBucketAmountQuery, ReadBucketResult> getService,
         string playerCode)
@@ -63,7 +63,7 @@ public class PlayerBucketController : BaseContextController
                 BucketType = info.Type,
                 PlayerCode = info.PlayerCode,
                 WageringRequirement = info.Amount,
-                UncompleteWagering = info.FillInAmount,
+                UncompleteWagering = info.IsFull ? 0M : info.FillInAmount,
                 CreatedOn = info.CreatedOn
             });
     }
