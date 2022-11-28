@@ -3,6 +3,7 @@ using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 using Microsoft.Extensions.Logging;
+using Polly;
 using StackExchange.Redis;
 using Tgs.Payment.Clients;
 using Tgs.Promotion.Clients;
@@ -114,12 +115,18 @@ internal class ReviewDepositFormCommandService : ICommandService<ReviewDepositFo
                             var balance = playerAllBalances.Sum(x => x.Balance) ?? 0M;
 
                             if (balance <= brand.AutoClearWageringRequirementBalance)
-                                await _playerBucketRepository
-                                    .ClearPlayerBucketsAsync(
-                                        form.PlayerCode,
-                                        bucketInfo.SpanshotId!.Value,
-                                        form.Id.ToString(),
-                                        cancellationToken)
+                                await Policy.Handle<Exception>()
+                                    .RetryAsync(2, (ex, count) =>
+                                    {
+                                        _logger.LogWarning(ex, "Clean buckets throw exception, retry {count}.", count);
+                                    })
+                                    .ExecuteAsync(async () => await _playerBucketRepository
+                                            .ClearPlayerBucketsAsync(
+                                                form.PlayerCode,
+                                                bucketInfo.SpanshotId!.Value,
+                                                form.Id.ToString(),
+                                                cancellationToken)
+                                            .ConfigureAwait(false))
                                     .ConfigureAwait(false);
                         }
                     }
