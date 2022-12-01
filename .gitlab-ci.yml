@@ -94,7 +94,8 @@ deploy-dev:
   before_script:
     - export KUBECONFIG=$KubeConfig_Raypro_dev
   script:
-    - echo "deploy-dev" > artifacts/bo-api.txt
+    - mkdir cache/
+    - echo "deploy-dev" > cache/bo-api.txt
     - export resources=$(kubectl get cm resources-setting -o jsonpath={.data.$TgsSettingKey})
     - export dedicated=$(kubectl get cm tgs-settings -o jsonpath={.data.dedicated})
     - export node_selector=$(kubectl get cm tgs-settings -o jsonpath={.data.node-selector})
@@ -121,7 +122,10 @@ deploy-dev:
         "resources": $resources
       }
       EOF
-
+  cache:
+    key: job-cache
+    paths:
+      - cache/
 deploy-staging:
   variables:
     GIT_STRATEGY: none
@@ -140,7 +144,8 @@ deploy-staging:
   before_script:
     - export KUBECONFIG=$KubeConfig_Raypro_staging
   script:
-    - echo "staging-dev" > artifacts/bo-api.txt
+    - mkdir cache/
+    - echo "staging-staging" > cache/bo-api.txt
     - export resources=$(kubectl get cm resources-setting -o jsonpath={.data.$TgsSettingKey})
     - export dedicated=$(kubectl get cm tgs-settings -o jsonpath={.data.dedicated})
     - export node_selector=$(kubectl get cm tgs-settings -o jsonpath={.data.node-selector})
@@ -186,7 +191,8 @@ deploy-prod:
   before_script:
     - export KUBECONFIG=$KubeConfig_Raypro_prod
   script:
-    - echo "staging-prod" > artifacts/bo-api.txt
+    - mkdir cache/
+    - echo "staging-prod" > cache/bo-api.txt
     - export resources=$(kubectl get cm resources-setting -o jsonpath={.data.$TgsSettingKey})
     - export dedicated=$(kubectl get cm tgs-settings -o jsonpath={.data.dedicated})
     - export node_selector=$(kubectl get cm tgs-settings -o jsonpath={.data.node-selector})
@@ -213,12 +219,20 @@ deploy-prod:
         "resources": $resources
       }
       EOF
+  cache:
+    key: job-cache
+    paths:
+      - cache/
 notification:
   stage: .post
+  cache:
+    key: job-cache
+    paths:
+      - cache/
   script: 
     - printenv
     - pwd
-    - export Job=$(cat artifacts/bo-api.txt)
+    - export Job=$(cat cache/bo-api.txt)
     - |
       curl --location --request POST $Telegram_Bot_Url \
       --header 'Content-Type: application/json' \
