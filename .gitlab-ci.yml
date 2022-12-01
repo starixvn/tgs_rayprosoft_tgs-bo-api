@@ -217,6 +217,8 @@ notification:
   stage: .post
   script: 
     - printenv
+    - pwd
+    - export Job=$(cat bo-api.txt)
     - |
       curl --location --request POST $Telegram_Bot_Url \
       --header 'Content-Type: application/json' \
