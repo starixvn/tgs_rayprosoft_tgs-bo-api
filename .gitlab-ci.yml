@@ -238,6 +238,6 @@ notification:
       --header 'Content-Type: application/json' \
       --data-raw "{
           \"chat_id\": $Telegram_Chat_Id,
-          \"text\": \"Project: $CI_PROJECT_NAME\nBranch: $CI_COMMIT_BRANCH\nPipeline: $CI_PIPELINE_URL\nEnv: $Env\nCommit: $CI_PROJECT_URL/-/commit/$CI_COMMIT_SHA\nStarted by: $GITLAB_USER_LOGIN\",
+          \"text\": \"Project: $CI_PROJECT_NAME\nBranch: $CI_COMMIT_BRANCH\nEnv: $Env\nPipeline: $CI_PIPELINE_URL\nCommit: $CI_PROJECT_URL/-/commit/$CI_COMMIT_SHA\nStarted by: $GITLAB_USER_LOGIN\",
           \"parse_mode\": \"HTML\"
       }"
