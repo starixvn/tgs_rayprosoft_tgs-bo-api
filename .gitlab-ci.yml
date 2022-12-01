@@ -93,11 +93,7 @@ deploy-dev:
     - main
   before_script:
     - export KUBECONFIG=$KubeConfig_Raypro_dev
-  artifacts:
-    variables:
-      - Job
   script:
-    - export Job=deploy-dev
     - export resources=$(kubectl get cm resources-setting -o jsonpath={.data.$TgsSettingKey})
     - export dedicated=$(kubectl get cm tgs-settings -o jsonpath={.data.dedicated})
     - export node_selector=$(kubectl get cm tgs-settings -o jsonpath={.data.node-selector})
@@ -142,11 +138,7 @@ deploy-staging:
   when: manual
   before_script:
     - export KUBECONFIG=$KubeConfig_Raypro_staging
-  artifacts:
-    variables:
-      - Job
   script:
-    - export Job=deploy-staging
     - export resources=$(kubectl get cm resources-setting -o jsonpath={.data.$TgsSettingKey})
     - export dedicated=$(kubectl get cm tgs-settings -o jsonpath={.data.dedicated})
     - export node_selector=$(kubectl get cm tgs-settings -o jsonpath={.data.node-selector})
@@ -191,11 +183,7 @@ deploy-prod:
   when: manual
   before_script:
     - export KUBECONFIG=$KubeConfig_Raypro_prod
-  artifacts:
-    variables:
-      - Job
   script:
-    - export Job=deploy-prod
     - export resources=$(kubectl get cm resources-setting -o jsonpath={.data.$TgsSettingKey})
     - export dedicated=$(kubectl get cm tgs-settings -o jsonpath={.data.dedicated})
     - export node_selector=$(kubectl get cm tgs-settings -o jsonpath={.data.node-selector})
