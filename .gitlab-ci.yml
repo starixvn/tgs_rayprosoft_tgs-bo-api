@@ -1,7 +1,13 @@
+include:
+  - project: rayprosoft/tgs-ci-scripts
+    ref: main
+    file: GitLab/Templates/gitlab-job-templates.yml
+
 variables:
   ImageName: pgtgs/backoffice-api
   TgsSettingKey: backoffice-api
   HelmTemplateFolderName: backoffice-api
+  BuildCacheKey: Tgs.BoApi.$CI_PIPELINE_IID
 
 stages:
   - build
@@ -19,7 +25,7 @@ build-code:
     - merge_requests
     - main
   cache:
-    key: Tgs.BoApi.$CI_PIPELINE_ID
+    key: $BuildCacheKey
     untracked: true
 
 unit-test:
@@ -32,7 +38,7 @@ unit-test:
     - merge_requests
     - main
   cache:
-    key: Tgs.BoApi.$CI_PIPELINE_ID
+    key: $BuildCacheKey
     untracked: true
     policy: pull
   artifacts:
@@ -48,7 +54,7 @@ push-docker-image:
   only:
     - main
   cache:
-    key: Tgs.BoApi.$CI_PIPELINE_ID
+    key: $BuildCacheKey
     untracked: true
     policy: pull
   script:
@@ -79,9 +85,10 @@ push-k8s-template:
       - artifacts/**/*
 
 deploy-dev:
+  extends: .deploy-template
   variables:
-    GIT_STRATEGY: none
     namespace: dev
+    kube_config: KubeConfig_Raypro_dev
   environment:
     name: dev
   stage: deploy-dev
@@ -91,46 +98,12 @@ deploy-dev:
       artifacts: true
   only:
     - main
-  before_script:
-    - export KUBECONFIG=$KubeConfig_Raypro_dev
-  script:
-    - mkdir -p cache/
-    - echo "dev" > cache/env.txt
-    - export resources=$(kubectl get cm resources-setting -o jsonpath={.data.$TgsSettingKey})
-    - export dedicated=$(kubectl get cm tgs-settings -o jsonpath={.data.dedicated})
-    - export node_selector=$(kubectl get cm tgs-settings -o jsonpath={.data.node-selector})
-    - |
-      cat << EOF | yq e -P | helm template artifacts/k8s/$HelmTemplateFolderName \
-        -n $namespace \
-        --name-template tgs \
-        -f - 
-      {
-        "nodeSelector": $node_selector,
-        "tolerations": [$dedicated],
-        "resources": $resources
-      }
-      EOF
-    - |
-      cat << EOF | yq e -P | helm template artifacts/k8s/$HelmTemplateFolderName \
-        -n $namespace \
-        --name-template tgs \
-        -f - \
-        | kubectl -n $namespace apply -f -
-      {
-        "nodeSelector": $node_selector,
-        "tolerations": [$dedicated],
-        "resources": $resources
-      }
-      EOF
-  cache:
-    key: job-cache
-    paths:
-      - cache/
+
 deploy-staging:
+  extends: .deploy-template
   variables:
-    GIT_STRATEGY: none
     namespace: staging
-    Job: deploy-staging
+    kube_config: KubeConfig_Raypro_staging
   environment:
     name: staging
   stage: deploy-staging
@@ -141,43 +114,11 @@ deploy-staging:
   only:
     - main
   when: manual
-  before_script:
-    - export KUBECONFIG=$KubeConfig_Raypro_staging
-  script:
-    - mkdir -p cache/
-    - echo "staging" > cache/env.txt
-    - export resources=$(kubectl get cm resources-setting -o jsonpath={.data.$TgsSettingKey})
-    - export dedicated=$(kubectl get cm tgs-settings -o jsonpath={.data.dedicated})
-    - export node_selector=$(kubectl get cm tgs-settings -o jsonpath={.data.node-selector})
-    - |
-      cat << EOF | yq e -P | helm template artifacts/k8s/$HelmTemplateFolderName \
-        -n $namespace \
-        --name-template tgs \
-        -f - 
-      {
-        "nodeSelector": $node_selector,
-        "tolerations": [$dedicated],
-        "resources": $resources
-      }
-      EOF
-    - |
-      cat << EOF | yq e -P | helm template artifacts/k8s/$HelmTemplateFolderName \
-        -n $namespace \
-        --name-template tgs \
-        -f - \
-        | kubectl -n $namespace apply -f -
-      {
-        "nodeSelector": $node_selector,
-        "tolerations": [$dedicated],
-        "resources": $resources
-      }
-      EOF
 
 deploy-prod:
   variables:
-    GIT_STRATEGY: none
     namespace: prod
-    Job: deploy-prod
+    kube_config: KubeConfig_Raypro_prod
   environment:
     name: prod
   stage: deploy-prod
@@ -188,56 +129,3 @@ deploy-prod:
   only:
     - main
   when: manual
-  before_script:
-    - export KUBECONFIG=$KubeConfig_Raypro_prod
-  script:
-    - mkdir -p cache/
-    - echo "prod" > cache/env.txt
-    - export resources=$(kubectl get cm resources-setting -o jsonpath={.data.$TgsSettingKey})
-    - export dedicated=$(kubectl get cm tgs-settings -o jsonpath={.data.dedicated})
-    - export node_selector=$(kubectl get cm tgs-settings -o jsonpath={.data.node-selector})
-    - |
-      cat << EOF | yq e -P | helm template artifacts/k8s/$HelmTemplateFolderName \
-        -n $namespace \
-        --name-template tgs \
-        -f - 
-      {
-        "nodeSelector": $node_selector,
-        "tolerations": [$dedicated],
-        "resources": $resources
-      }
-      EOF
-    - |
-      cat << EOF | yq e -P | helm template artifacts/k8s/$HelmTemplateFolderName \
-        -n $namespace \
-        --name-template tgs \
-        -f - \
-        | kubectl -n $namespace apply -f -
-      {
-        "nodeSelector": $node_selector,
-        "tolerations": [$dedicated],
-        "resources": $resources
-      }
-      EOF
-  cache:
-    key: job-cache
-    paths:
-      - cache/
-notification:
-  stage: .post
-  cache:
-    key: job-cache
-    paths:
-      - cache/
-  script: 
-    - printenv
-    - pwd
-    - export Env=$(cat cache/env.txt)
-    - |
-      curl --location --request POST $Telegram_Bot_Url \
-      --header 'Content-Type: application/json' \
-      --data-raw "{
-          \"chat_id\": $Telegram_Chat_Id,
-          \"text\": \"Project: $CI_PROJECT_NAME\nBranch: $CI_COMMIT_BRANCH\nEnv: $Env\nPipeline: $CI_PIPELINE_URL\nCommit: $CI_PROJECT_URL/-/commit/$CI_COMMIT_SHA\nStarted by: $GITLAB_USER_LOGIN\",
-          \"parse_mode\": \"HTML\"
-      }"
