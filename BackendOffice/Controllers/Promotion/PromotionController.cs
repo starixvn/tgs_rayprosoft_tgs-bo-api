@@ -4,8 +4,10 @@ using System.ComponentModel;
 using System.Linq;
 using System.Text.Json;
 using System.Threading.Tasks;
+using JsonCons.Utilities;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Options;
+using Tgs.Promotion;
 using Tgs.Promotion.Clients;
 using Tgs.ServiceUtility;
 using TGS.Apis.BackendOffice.Controllers.Messages.Promotion;
@@ -86,18 +88,21 @@ public class PromotionController : BaseContextController
             Username,
             HttpContext.RequestAborted).ConfigureAwait(false);
 
+        var baseRule = JsonSerializer.SerializeToDocument(new
+        {
+            request.GameProviderIds,
+            request.BonusAmountLimit,
+            request.Percentage,
+            request.TurnoverMultiple,
+            request.GameType,
+            request.VipLevels
+        }, PromotionUtility.SerializerOptions);
+
         if (request.Rule == null)
         {
             await promotionServiceClient.SetPromotionRuleAsync(
                 promotionId,
-                new
-                {
-                    request.GameProviderIds,
-                    request.BonusAmountLimit,
-                    request.Percentage,
-                    request.TurnoverMultiple,
-                    request.GameType
-                },
+                baseRule,
                 Username,
                 HttpContext.RequestAborted).ConfigureAwait(false);
         }
@@ -105,7 +110,7 @@ public class PromotionController : BaseContextController
         {
             await promotionServiceClient.SetPromotionRuleAsync(
                 promotionId,
-                request.Rule,
+                JsonMergePatch.ApplyMergePatch(baseRule.RootElement, request.Rule.RootElement),
                 Username,
                 HttpContext.RequestAborted).ConfigureAwait(false);
         }
@@ -214,8 +219,8 @@ public class PromotionController : BaseContextController
                 .Select(promotion => new PromotionViewModel
                 {
                     Id = promotion.Id,
-                    Name = promotion.Name,                    
-                    Localization = promotion.Localization                    
+                    Name = promotion.Name,
+                    Localization = promotion.Localization
                 });
     }
 
