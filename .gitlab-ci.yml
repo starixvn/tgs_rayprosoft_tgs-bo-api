@@ -116,6 +116,7 @@ deploy-staging:
   when: manual
 
 deploy-prod:
+  extends: .deploy-template
   variables:
     namespace: prod
     kube_config: KubeConfig_Raypro_prod
