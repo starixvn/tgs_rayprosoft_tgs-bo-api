@@ -204,7 +204,6 @@ public class PromotionController : BaseContextController
     [HttpGet("player", Name = "ListPlayerPromotions")]
     public IAsyncEnumerable<PromotionViewModel> ListPlayerPromotionsAsync(
         [FromServices] IPromotionServiceClient promotionServiceClient,
-        [FromServices] IOptions<JsonOptions> jsonOptionsAccessor,
         [FromQuery] ListPlayerPromotionsRequest request)
     {
         var allowPlayerSelectPromotionTypes = new string[] {
@@ -214,14 +213,14 @@ public class PromotionController : BaseContextController
         };
 
         return promotionServiceClient
-                .ListPromotionsAsync(request.BrandId, request.PlayerCode, HttpContext.RequestAborted)
-                .Where(promotion => allowPlayerSelectPromotionTypes.Contains(promotion.PromotionType))
-                .Select(promotion => new PromotionViewModel
-                {
-                    Id = promotion.Id,
-                    Name = promotion.Name,
-                    Localization = promotion.Localization
-                });
+            .ListPromotionsAsync(request.BrandId, request.PlayerCode, HttpContext.RequestAborted)
+            .Where(promotion => allowPlayerSelectPromotionTypes.Contains(promotion.PromotionType))
+            .Select(promotion => new PromotionViewModel
+            {
+                Id = promotion.Id,
+                Name = promotion.Name,
+                Localization = promotion.Localization
+            });
     }
 
     [HttpPut("{promotionId}", Name = "UpdatePromotion")]
@@ -267,18 +266,21 @@ public class PromotionController : BaseContextController
             Username,
             HttpContext.RequestAborted).ConfigureAwait(false);
 
+        var baseRule = JsonSerializer.SerializeToDocument(new
+        {
+            request.GameProviderIds,
+            request.BonusAmountLimit,
+            request.Percentage,
+            request.TurnoverMultiple,
+            request.GameType,
+            request.VipLevels
+        }, PromotionUtility.SerializerOptions);
+
         if (request.Rule == null)
         {
             await promotionServiceClient.SetPromotionRuleAsync(
                 promotionId,
-                new
-                {
-                    request.GameProviderIds,
-                    request.BonusAmountLimit,
-                    request.Percentage,
-                    request.TurnoverMultiple,
-                    request.GameType
-                },
+                baseRule,
                 Username,
                 HttpContext.RequestAborted).ConfigureAwait(false);
         }
@@ -286,7 +288,7 @@ public class PromotionController : BaseContextController
         {
             await promotionServiceClient.SetPromotionRuleAsync(
                 promotionId,
-                request.Rule,
+                JsonMergePatch.ApplyMergePatch(baseRule.RootElement, request.Rule.RootElement),
                 Username,
                 HttpContext.RequestAborted).ConfigureAwait(false);
         }
