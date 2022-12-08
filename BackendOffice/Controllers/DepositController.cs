@@ -59,6 +59,7 @@ public class DepositController : BaseContextController
             request.ThirdPartyOrderNo,
             request.OrderNo,
             request.FormId,
+            request.PaymentId,
             request.PaymentMethodId,
             request.Status?.SelectMany(s => s.ToPaymentFlowState()).Distinct()
                 ?? default(FlowState?).ToPaymentFlowState(),
@@ -192,6 +193,7 @@ public class DepositController : BaseContextController
             request.ThirdPartyOrderNo,
             request.OrderNo,
             request.FormId,
+            request.PaymentId,
             request.PaymentMethodId,
             request.Status?.SelectMany(s => s.ToPaymentFlowState()).Distinct()
                 ?? default(FlowState?).ToPaymentFlowState(),
