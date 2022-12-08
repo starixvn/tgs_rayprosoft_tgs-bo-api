@@ -22,6 +22,7 @@ internal class DepositFormQueryService : IGetService<DepositFormQuery, DepositFo
                 BrandId = query.BrandId,
                 ChannelName = query.ChannelName,
                 CreateOnRange = query.CreateOnRange,
+                PaymentId = query.PaymentId,
                 PaymentMethodId = query.PaymentMethodId,
                 Status = query.Status,
                 ThirdPartyOrderNo = query.ThirdPartyOrderNo,
@@ -30,5 +31,6 @@ internal class DepositFormQueryService : IGetService<DepositFormQuery, DepositFo
                 UserName = query.UserName,
                 OrderNo = query.OrderNo
             },
-            query.Paging);
+            query.Paging,
+            cancellationToken);
 }

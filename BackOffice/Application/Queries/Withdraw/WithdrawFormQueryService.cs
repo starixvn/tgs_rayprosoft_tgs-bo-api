@@ -22,6 +22,7 @@ internal class WithdrawFormQueryService : IGetService<WithdrawFormQuery, Withdra
                 BrandId = query.BrandId,
                 ChannelName = query.ChannelName,
                 CreateOnRange = query.CreateOnRange,
+                PaymentId = query.PaymentId,
                 PaymentMethodId = query.PaymentMethodId,
                 Status = query.Status,
                 BrandPaymentIds = query.BrandPaymentIds,

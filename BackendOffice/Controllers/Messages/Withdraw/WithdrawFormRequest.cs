@@ -22,6 +22,9 @@ public record WithdrawFormRequest
     [FromQuery(Name = "id")]
     public Guid? FormId { get; init; }
 
+    [FromQuery(Name = "payment")]
+    public Guid? PaymentId { get; init; }
+
     [FromQuery(Name = "method")]
     public Guid? PaymentMethodId { get; init; }
 

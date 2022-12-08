@@ -11,6 +11,7 @@ public record WithdrawFormQuery(
     string ThirdPartyOrderNo,
     string OrderNo,
     Guid? FormId,
+    Guid? PaymentId,
     Guid? PaymentMethodId,
     IEnumerable<PaymentFlowState> Status,
     IEnumerable<Guid> BrandPaymentIds,
