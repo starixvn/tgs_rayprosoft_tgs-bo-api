@@ -656,6 +656,7 @@ public class WithdrawFormTests
             ThirdPartyOrderNo: null,
             OrderNo: null,
             FormId: null,
+            PaymentId: null,
             PaymentMethodId: null,
             Status: null,
             BrandPaymentIds: null,
