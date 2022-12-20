@@ -36,24 +36,13 @@ public class AgentReportController : BaseContextController
             .GetAsync(request)
             .ConfigureAwait(false);
 
-    [HttpGet("singleAgentDividends")]
-    [Description("Get single agent dividends report")]
-    public async Task<PagedResponse<AgentDividendReportModel>>
+    [HttpGet("AgentDividends")]
+    [Description("Get agent dividends report")]
+    public async Task<GetMainSubAgentDividendsReportResponse>
         GetSingleAgentDividendsAsync(
-            [FromServices] IGetService<GetSingleAgentDividendsReportRequest, PagedResponse<AgentDividendReportModel>>
+            [FromServices] IGetService<GetMainSubAgentDividendsReportRequest, GetMainSubAgentDividendsReportResponse>
                 agentDividendsService,
-            [FromQuery] GetSingleAgentDividendsReportRequest request)
-        => await agentDividendsService
-            .GetAsync(request)
-            .ConfigureAwait(false);
-
-    [HttpGet("subAgentDividends")]
-    [Description("Get sub agent dividends report")]
-    public async Task<GetAgentDividendsReportResponse>
-        GetSubAgentDividendsAsync(
-            [FromServices] IGetService<GetSubAgentDividendsReportRequest, GetAgentDividendsReportResponse>
-                agentDividendsService,
-            [FromQuery] GetSubAgentDividendsReportRequest request)
+            [FromQuery] GetMainSubAgentDividendsReportRequest request)
         => await agentDividendsService
             .GetAsync(request)
             .ConfigureAwait(false);

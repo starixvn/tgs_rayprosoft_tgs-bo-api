@@ -4,7 +4,7 @@ using TGS.Core.Models.Messages;
 
 namespace TGS.Services.BackOffice.Application.Models.ReportAgent;
 
-public class GetSubAgentDividendsReportRequest : PageableRequest
+public class GetMainSubAgentDividendsReportRequest : PageableRequest
 {
     public Guid BrandId { get; init; }
 
