@@ -4,6 +4,7 @@ using System.IO;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Mvc;
 using TGS.Apis.BackendOffice.Attributes;
+using TGS.Apis.BackendOffice.Controllers.Messages.Report;
 using TGS.Core.Models.Messages;
 using Tgs.Report.Client.Models.Agent;
 using TGS.Services.BackOffice.Application.Models.ReportAgent;
@@ -42,10 +43,27 @@ public class AgentReportController : BaseContextController
         GetSingleAgentDividendsAsync(
             [FromServices] IGetService<GetMainSubAgentDividendsReportRequest, GetMainSubAgentDividendsReportResponse>
                 agentDividendsService,
-            [FromQuery] GetMainSubAgentDividendsReportRequest request)
-        => await agentDividendsService
-            .GetAsync(request)
+            [FromQuery] GetMainSubAgentDividendsReportViewRequest request)
+    {
+        var reportRequest = new GetMainSubAgentDividendsReportRequest
+        {
+            BrandId = request.BrandId,
+            AgentId = request.AgentId,
+            Username = request.Username,
+            Type = request.Type,
+            From = request.From,
+            To = request.To,
+            Page = request.Page,
+            Rows = request.Rows,
+            SortBy = request.SortBy,
+            OrderBy = request.OrderBy,
+            ShowAll = request.ShowAll,
+        };
+
+        return await agentDividendsService
+            .GetAsync(reportRequest)
             .ConfigureAwait(false);
+    }
 
     [HttpGet("dividendDetails")]
     [Description("Get agent dividend details report")]
