@@ -6,7 +6,6 @@ using System.Text.Json;
 using System.Threading.Tasks;
 using JsonCons.Utilities;
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.Extensions.Options;
 using Tgs.Promotion;
 using Tgs.Promotion.Clients;
 using Tgs.ServiceUtility;
@@ -22,16 +21,11 @@ namespace TGS.Apis.BackendOffice.Controllers.Promotion;
 [ApiController]
 public class PromotionController : BaseContextController
 {
-    private readonly IPromotionClient _client;
-
-    public PromotionController(IPromotionClient client)
-    {
-        _client = client;
-    }
-
     [HttpPut("ChangeOrders", Name = "ChangeOrder")]
     [Description("Change Promotion Display Order")]
-    public async Task<MessageResponse> ChangeOrderAsync(ChangeOrderRequest request)
+    public async Task<MessageResponse> ChangeOrderAsync(
+        [FromServices] IPromotionClient promotionClient,
+        ChangeOrderRequest request)
     {
         var promotionRequest = new Tgs.Promotion.Clients.Models.Promotion.ChangeOrderRequest
         {
@@ -42,7 +36,8 @@ public class PromotionController : BaseContextController
             }).ToArray()
         };
 
-        var response = await _client.ChangeOrderAsync(promotionRequest);
+        var response = await promotionClient.ChangeOrderAsync(promotionRequest)
+            .ConfigureAwait(false);
 
         return new MessageResponse { Valid = response.Valid, Message = response.Message };
     }
@@ -61,6 +56,7 @@ public class PromotionController : BaseContextController
             IsAutoSent = request.AutoSentPlayerBonus,
             PromotionLimitAmount = request.Unlimited ? null : request.TotalAmountLimit
         };
+
         var promotionId = await promotionServiceClient.CreatePromotionAsync(
             request.BrandId,
             createInfo,
@@ -143,7 +139,9 @@ public class PromotionController : BaseContextController
 
     [HttpGet(Name = "GetPromotions")]
     [Description("Get promotions")]
-    public async Task<PagedResponse<PromotionModel>> GetPromotionsAsync([FromQuery] GetPromotionsRequest request)
+    public async Task<PagedResponse<PromotionModel>> GetPromotionsAsync(
+        [FromServices] IPromotionClient promotionClient,
+        [FromQuery] GetPromotionsRequest request)
     {
         var promotionRequest = new Tgs.Promotion.Clients.Models.Promotion.GetPromotionsRequest
         {
@@ -160,7 +158,8 @@ public class PromotionController : BaseContextController
             ShowAll = request.ShowAll
         };
 
-        var response = await _client.GetPromotionsAsync(promotionRequest);
+        var response = await promotionClient.GetPromotionsAsync(promotionRequest)
+            .ConfigureAwait(false);
 
         return new PagedResponse<PromotionModel>
         {
@@ -309,9 +308,14 @@ public class PromotionController : BaseContextController
 
     [HttpPut("{promotionId:guid}/{status}", Name = "UpdatePromotionStatus")]
     [Description("change a Promotion's status")]
-    public async Task<MessageResponse> UpdatePromotionStatusAsync(Guid promotionId, Core.Models.Enums.PromotionStatus status)
+    public async Task<MessageResponse> UpdatePromotionStatusAsync(
+        [FromServices] IPromotionClient promotionClient,
+        Guid promotionId,
+        Core.Models.Enums.PromotionStatus status)
     {
-        var response = await _client.ChangePromotionStatusAsync(new(promotionId, (short)status));
+        var response = await promotionClient.ChangePromotionStatusAsync(
+            new (promotionId, (short)status));
+
         return new MessageResponse { Valid = response.Valid, Message = response.Message };
     }
 }
