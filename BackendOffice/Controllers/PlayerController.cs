@@ -457,6 +457,7 @@ public partial class PlayerController : BaseContextController
 
     [HttpGet("{playerBucketId}/playerBucketHistories", Name = "GetPlayerBucketHistories")]
     [Description("Get player buckets")]
+    [Obsolete("舊Api要淘汰")]
     public async ValueTask<GetPlayerBucketHistoriesResponse> GetPlayerBucketHistoriesAsync(
         [FromServices] IQueryService<GetPlayerBucketHistoriesQuery, BucketEvent> queryService,
         Guid playerBucketId)
@@ -481,6 +482,7 @@ public partial class PlayerController : BaseContextController
 
     [HttpGet("{playerCode}/playerBuckets", Name = "GetPlayerBuckets")]
     [Description("Get player buckets")]
+    [Obsolete("舊Api要淘汰")]
     public async ValueTask<GetPlayerBucketsResponse> GetPlayerBucketsAsync(
         [FromServices] IQueryService<GetPlayerBucketsQuery, BucketInfo> queryService,
         string playerCode)
