@@ -41,7 +41,7 @@ public class BrandPaymentService : IBrandPaymentService
         });
 
         _repository.BrandPayments.UpdateRange(payments);
-        await _repository.SaveChangesAsync();
+        _ = await _repository.SaveChangesAsync();
     }
 
     public async Task ChangeStatusAsync(BrandPayment payment, SwitchStatus status, string username)
@@ -67,11 +67,11 @@ public class BrandPaymentService : IBrandPaymentService
 
         _repository.Entry(payment).State = EntityState.Modified;
 
-        await _repository.PaymentAuditLogs
+        _ = await _repository.PaymentAuditLogs
             .AddAsync(GeneratePaymentAuditLog(payment, beforePayment))
             .ConfigureAwait(false);
 
-        await _repository.SaveChangesAsync().ConfigureAwait(false);
+        _ = await _repository.SaveChangesAsync().ConfigureAwait(false);
     }
 
     public async Task CreatePaymentAsync(CreateBrandPaymentRequest request, PaymentTransferType transferType, string username)
@@ -125,8 +125,8 @@ public class BrandPaymentService : IBrandPaymentService
             VipLevel = vip
         }).ToArray();
         payment.VipLevels = new HashSet<BrandPaymentVipLevel>(vipLevels);
-        await _repository.BrandPayments.AddAsync(payment);
-        await _repository.SaveChangesAsync();
+        _ = await _repository.BrandPayments.AddAsync(payment);
+        _ = await _repository.SaveChangesAsync();
     }
 
     public Task<bool> ExistsAsync(Expression<Func<BrandPayment, bool>> predicate) =>
@@ -191,7 +191,7 @@ public class BrandPaymentService : IBrandPaymentService
         _repository.BrandPaymentPlayers.RemoveRange(payment.BrandPaymentPlayers);
         _repository.BrandPaymentVipLevels.RemoveRange(payment.VipLevels);
 
-        await _repository.SaveChangesAsync();
+        _ = await _repository.SaveChangesAsync();
 
         var whitelist = await GeneratePaymentPlayerListAsync(payment.Id, request.Whitelist, PlayerListType.White);
         var blacklist = await GeneratePaymentPlayerListAsync(payment.Id, request.Blacklist, PlayerListType.Black);
@@ -212,15 +212,15 @@ public class BrandPaymentService : IBrandPaymentService
 
         _repository.Entry(payment).State = EntityState.Modified;
 
-        await _repository.SaveChangesAsync();
+        _ = await _repository.SaveChangesAsync();
 
-        await _repository.PaymentAuditLogs.AddAsync(GeneratePaymentAuditLog(payment, beforePayment));
-        await _repository.SaveChangesAsync();
+        _ = await _repository.PaymentAuditLogs.AddAsync(GeneratePaymentAuditLog(payment, beforePayment));
+        _ = await _repository.SaveChangesAsync();
 
         await tran.CommitAsync();
     }
 
-    private BrandPaymentAuditData ExchangeBrandPaymentData(BrandPayment payment) =>
+    private static BrandPaymentAuditData ExchangeBrandPaymentData(BrandPayment payment) =>
         new(
             payment.ChannelName,
             payment.PaymentStatus,
@@ -234,7 +234,7 @@ public class BrandPaymentService : IBrandPaymentService
             payment.DepositedAmountMax,
             payment.DepositedAmountUnlimited);
 
-    private BrandPaymentAuditLog GeneratePaymentAuditLog(BrandPayment payment, BrandPayment beforePayment) =>
+    private static BrandPaymentAuditLog GeneratePaymentAuditLog(BrandPayment payment, BrandPayment beforePayment) =>
         new()
         {
             Id = Guid.NewGuid(),

@@ -23,13 +23,12 @@ internal class GetBrandLiveChatQueryService : IGetService<BrandLiveChatQuery, Br
     {
         var result = await _tgsQueries.GetSingleAsync(x => x.BrandId == query.BrandId);
 
-        if (result == null)
-            return null;
-
-        return new BrandLiveChatInfo()
-        {
-            ChatName = result.ChatName,
-            ChatSetting = JsonDocument.Parse(result.ChatSetting)
-        };
+        return result == null
+            ? null
+            : new BrandLiveChatInfo()
+            {
+                ChatName = result.ChatName,
+                ChatSetting = JsonDocument.Parse(result.ChatSetting)
+            };
     }
 }

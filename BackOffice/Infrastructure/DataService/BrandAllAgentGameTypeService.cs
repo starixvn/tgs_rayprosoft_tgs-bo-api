@@ -10,6 +10,10 @@ namespace TGS.Services.BackOffice.Infrastructure.DataService;
 
 public interface IBrandAllAgentGameTypeService
 {
+    Task CreateBrandAllAgentGameTypeAsync(BrandAllAgentGameType brandAllAgent);
+
+    Task DeleteBrandAllAgentGameTypeAsync(BrandAllAgentGameType brandAllAgent);
+
     Task<BrandAllAgentGameType> GetBrandAllAgentGameTypeAsync(
         Expression<Func<BrandAllAgentGameType, bool>> predicate,
         Func<IQueryable<BrandAllAgentGameType>, IQueryable<BrandAllAgentGameType>> preQuery = null);
@@ -19,35 +23,31 @@ public interface IBrandAllAgentGameTypeService
         bool tracking = false);
 
     Task UpdateBrandAllAgentGameTypeSwitchAsync(BrandAllAgentGameType brandAllAgent);
-
-    Task CreateBrandAllAgentGameTypeAsync(BrandAllAgentGameType brandAllAgent);
-    Task DeleteBrandAllAgentGameTypeAsync(BrandAllAgentGameType brandAllAgent);
 }
 
-public class BrandAllAgentGameTypeService : BaseRepositoryOperations<ITgsRepository>,
-    IBrandAllAgentGameTypeService
+public class BrandAllAgentGameTypeService : BaseRepositoryOperations<ITgsRepository>, IBrandAllAgentGameTypeService
 {
-    private readonly ITgsRepository _repository;
-
-    public BrandAllAgentGameTypeService(ITgsRepository tgsRepository) : base(tgsRepository)
-        => _repository = tgsRepository;
+    public BrandAllAgentGameTypeService(ITgsRepository tgsRepository)
+        : base(tgsRepository)
+    {
+    }
 
     public Task CreateBrandAllAgentGameTypeAsync(BrandAllAgentGameType brandAllAgent)
         => CreateEntityAsync(brandAllAgent);
 
-    public IQueryable<BrandAllAgentGameType> GetBrandAllAgentGameTypeQueries(
-        Func<IQueryable<BrandAllAgentGameType>, IQueryable<BrandAllAgentGameType>> preQuery,
-        bool tracking) =>
-        GetQueriesAsync(preQuery, tracking);
-
-    public Task UpdateBrandAllAgentGameTypeSwitchAsync(BrandAllAgentGameType brandAllAgent)
-        => UpdateEntityAsync(brandAllAgent);
+    public Task DeleteBrandAllAgentGameTypeAsync(BrandAllAgentGameType brandAllAgent)
+        => DeleteEntityAsync(brandAllAgent);
 
     public Task<BrandAllAgentGameType> GetBrandAllAgentGameTypeAsync(
         Expression<Func<BrandAllAgentGameType, bool>> predicate,
         Func<IQueryable<BrandAllAgentGameType>, IQueryable<BrandAllAgentGameType>> preQuery) =>
         GetEntityFirstOrDefaultAsync(predicate, preQuery);
 
-    public Task DeleteBrandAllAgentGameTypeAsync(BrandAllAgentGameType brandAllAgent)
-        => DeleteEntityAsync(brandAllAgent);
+    public IQueryable<BrandAllAgentGameType> GetBrandAllAgentGameTypeQueries(
+                Func<IQueryable<BrandAllAgentGameType>, IQueryable<BrandAllAgentGameType>> preQuery,
+        bool tracking) =>
+        GetQueriesAsync(preQuery, tracking);
+
+    public Task UpdateBrandAllAgentGameTypeSwitchAsync(BrandAllAgentGameType brandAllAgent)
+        => UpdateEntityAsync(brandAllAgent);
 }

@@ -24,7 +24,7 @@ internal class ReviewWithdrawFormCommandService : ICommandService<ReviewWithdraw
         ReviewWithdrawFormCommand command, CancellationToken cancellationToken = default)
     {
         var formData = await _paymentServiceClient
-            .GetWithdrawFormAsync(command.BrandId, command.FormId)
+            .GetWithdrawFormAsync(command.BrandId, command.FormId, cancellationToken)
             .ConfigureAwait(false);
 
         var fsm = _paymentServiceClient.CreateWithdrawStateMachine(formData.Status);
@@ -41,7 +41,8 @@ internal class ReviewWithdrawFormCommandService : ICommandService<ReviewWithdraw
                     command.Status,
                     command.ReviewUserId,
                     command.ReviewUserName,
-                    command.Remark)
+                    command.Remark,
+                    cancellationToken)
                 .ConfigureAwait(false);
         }
         else
@@ -56,7 +57,8 @@ internal class ReviewWithdrawFormCommandService : ICommandService<ReviewWithdraw
                     command.Status,
                     command.ReviewUserId,
                     command.ReviewUserName,
-                    command.Remark)
+                    command.Remark,
+                    cancellationToken)
                 .ConfigureAwait(false);
 
             await _walletExchangeService.RollbackWithdrawAsync(
@@ -65,7 +67,8 @@ internal class ReviewWithdrawFormCommandService : ICommandService<ReviewWithdraw
                 formData.UserId,
                 formData.Amount,
                 command.ReviewUserId,
-                command.FormId).ConfigureAwait(false);
+                command.FormId,
+                cancellationToken).ConfigureAwait(false);
         }
     }
 }

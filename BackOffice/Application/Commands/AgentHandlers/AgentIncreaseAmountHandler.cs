@@ -3,7 +3,6 @@ using System.Threading;
 using System.Threading.Tasks;
 using System.Transactions;
 using Microsoft.AspNetCore.Http;
-using Tgs.CashService.Client;
 using TGS.Core.Infrastructures.Json;
 using TGS.Core.Models.Enums;
 using TGS.Core.Models.Messages;
@@ -19,23 +18,17 @@ public class AgentIncreaseAmountHandler : Handler<CreateAgentIncreaseAmountReque
     private readonly IAdjustAgentAccountService _adjustAgentAccountService;
     private readonly IAgentService _agentService;
     private readonly IAgentWalletRepository _agentWalletRepository;
-    private readonly ICashServiceClient _cashServiceClient;
     private readonly IJsonSerializationProvider _jsonSerializationProvider;
-    private readonly IPlayerService _playerService;
 
     public AgentIncreaseAmountHandler(
         IAgentService agentService,
         IAgentWalletRepository agentWalletRepository,
-        ICashServiceClient cashServiceClient,
-        IPlayerService playerService,
         IJsonSerializationProvider jsonSerializationProvider,
         IAdjustAgentAccountService adjustAgentAccountService,
         IHttpContextAccessor accessor) : base(accessor)
     {
         _agentService = agentService;
         _agentWalletRepository = agentWalletRepository;
-        _cashServiceClient = cashServiceClient ?? throw new ArgumentNullException(nameof(cashServiceClient));
-        _playerService = playerService;
         _jsonSerializationProvider = jsonSerializationProvider;
         _adjustAgentAccountService = adjustAgentAccountService;
     }
@@ -65,7 +58,7 @@ public class AgentIncreaseAmountHandler : Handler<CreateAgentIncreaseAmountReque
 
         using var scope = new TransactionScope(TransactionScopeAsyncFlowOption.Enabled);
 
-        var response = await _agentWalletRepository.ExchangeAsync(
+        var (transactionId, postBalance) = await _agentWalletRepository.ExchangeAsync(
             agent.BrandId,
             agent.DefaultWalletId,
             agent.Id,
@@ -73,8 +66,8 @@ public class AgentIncreaseAmountHandler : Handler<CreateAgentIncreaseAmountReque
             request.Amount,
             remark).ConfigureAwait(false);
 
-        await _adjustAgentAccountService.CreateAsync(
-            response.TransactionId,
+        _ = await _adjustAgentAccountService.CreateAsync(
+            transactionId,
             agent.BrandId,
             agent.Id,
             AdjustmentType.Add,

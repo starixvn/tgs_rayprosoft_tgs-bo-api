@@ -15,6 +15,37 @@ namespace TGS.Tests.BackendOffice.UnitTests;
 public class BrandLiveChatTests
 {
     [Test]
+    public async Task Create_Brand_Live_Chat_Should_Success()
+    {
+        var fakeTgsCommand = Substitute.For<ITgsCommands<CoreModels.BrandLiveChat>>();
+
+        var sut = new CreateBrandLiveChatCommandService(fakeTgsCommand);
+
+        var command = new CreateBrandLiveChatCommand();
+        await sut.ExecuteAsync(command);
+
+        _ = fakeTgsCommand
+            .Received(1)
+            .CreateAsync(Arg.Any<CoreModels.BrandLiveChat>());
+    }
+
+    [Test]
+    public async Task Delete_Brand_Live_Chat_Should_Success()
+    {
+        var fakeTgsQueries = Substitute.For<ITgsQueries<CoreModels.BrandLiveChat>>();
+        var fakeTgsCommand = Substitute.For<ITgsCommands<CoreModels.BrandLiveChat>>();
+
+        var sut = new DeleteBrandLiveChatCommandService(fakeTgsQueries, fakeTgsCommand);
+
+        var command = new DeleteBrandLiveChatCommand(Guid.NewGuid());
+        await sut.ExecuteAsync(command);
+
+        _ = fakeTgsCommand
+            .Received(1)
+            .DeleteAsync(Arg.Any<CoreModels.BrandLiveChat>());
+    }
+
+    [Test]
     public async Task Get_Brand_Live_Chat_Should_Success()
     {
         var fakeTgsQueries = Substitute.For<ITgsQueries<CoreModels.BrandLiveChat>>();
@@ -32,7 +63,7 @@ public class BrandLiveChatTests
             ChatSetting = "{\"url\": \"https://www.google.com/\" }"
         };
 
-        fakeTgsQueries
+        _ = fakeTgsQueries
             .GetSingleAsync(Arg.Any<Expression<Func<CoreModels.BrandLiveChat, bool>>>())
             .Returns(brandLiveChat);
 
@@ -42,27 +73,12 @@ public class BrandLiveChatTests
     }
 
     [Test]
-    public async Task Create_Brand_Live_Chat_Should_Success()
-    {
-        var fakeTgsCommand = Substitute.For<ITgsCommands<CoreModels.BrandLiveChat>>();
-
-        var sut = new CreateBrandLiveChatCommandService(fakeTgsCommand);
-
-        var command = new CreateBrandLiveChatCommand();
-        await sut.ExecuteAsync(command);
-
-        _ = fakeTgsCommand
-            .Received(1)
-            .CreateAsync(Arg.Any<CoreModels.BrandLiveChat>());
-    }
-
-    [Test]
     public async Task Update_Brand_Live_Chat_Should_Success()
     {
         var fakeTgsQueries = Substitute.For<ITgsQueries<CoreModels.BrandLiveChat>>();
         var fakeTgsCommand = Substitute.For<ITgsCommands<CoreModels.BrandLiveChat>>();
 
-        fakeTgsQueries
+        _ = fakeTgsQueries
             .GetSingleAsync(Arg.Any<Expression<Func<CoreModels.BrandLiveChat, bool>>>())
             .Returns(new CoreModels.BrandLiveChat());
 
@@ -80,21 +96,5 @@ public class BrandLiveChatTests
         _ = fakeTgsCommand
             .Received(1)
             .UpdateAsync(Arg.Any<CoreModels.BrandLiveChat>());
-    }
-
-    [Test]
-    public async Task Delete_Brand_Live_Chat_Should_Success()
-    {
-        var fakeTgsQueries = Substitute.For<ITgsQueries<CoreModels.BrandLiveChat>>();
-        var fakeTgsCommand = Substitute.For<ITgsCommands<CoreModels.BrandLiveChat>>();
-
-        var sut = new DeleteBrandLiveChatCommandService(fakeTgsQueries, fakeTgsCommand);
-
-        var command = new DeleteBrandLiveChatCommand(Guid.NewGuid());
-        await sut.ExecuteAsync(command);
-
-        _ = fakeTgsCommand
-            .Received(1)
-            .DeleteAsync(Arg.Any<CoreModels.BrandLiveChat>());
     }
 }

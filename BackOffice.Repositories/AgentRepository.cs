@@ -23,7 +23,7 @@ internal class AgentRepository : IAgentRepository
 
     public async ValueTask AddDomainToAgentAsync(Guid agentId, string domainName)
     {
-        await _tgsRepository.AgentDomains
+        _ = await _tgsRepository.AgentDomains
             .AddAsync(new AgentDomain
             {
                 AgentId = agentId,
@@ -31,7 +31,7 @@ internal class AgentRepository : IAgentRepository
             })
             .ConfigureAwait(false);
 
-        await _tgsRepository
+        _ = await _tgsRepository
             .SaveChangesAsync()
             .ConfigureAwait(false);
     }
@@ -69,8 +69,8 @@ internal class AgentRepository : IAgentRepository
             .FindAsync(agentId, domainName)
             .ConfigureAwait(false);
 
-        _tgsRepository.AgentDomains.Remove(domainData!);
+        _ = _tgsRepository.AgentDomains.Remove(domainData!);
 
-        await _tgsRepository.SaveChangesAsync().ConfigureAwait(false);
+        _ = await _tgsRepository.SaveChangesAsync().ConfigureAwait(false);
     }
 }

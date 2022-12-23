@@ -340,7 +340,7 @@ public partial class PlayerController : BaseContextController
                 Items = Array.Empty<PlayersModel>()
             };
 
-        string[] bankInfoPlayers = Array.Empty<string>();
+        var bankInfoPlayers = Array.Empty<string>();
 
         if (!string.IsNullOrWhiteSpace(request.BankInfoTagType) && !string.IsNullOrWhiteSpace(request.BankInfoTag))
         {
@@ -378,10 +378,11 @@ public partial class PlayerController : BaseContextController
             query,
             HttpContext.RequestAborted);
 
-        var paging = new Paging<PlayerListItem>();
-
-        paging.Page = request.Page;
-        paging.RowCount = request.Rows;
+        var paging = new Paging<PlayerListItem>
+        {
+            Page = request.Page,
+            RowCount = request.Rows
+        };
 
         var totalCount = await result.CountAsync(HttpContext.RequestAborted).ConfigureAwait(false);
 

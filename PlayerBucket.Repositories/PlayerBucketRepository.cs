@@ -62,7 +62,7 @@ public class PlayerBucketRepository : IPlayerBucketRepository
         var depositBonusAmount = request.DepositAmount;
         var promotionPlayerId = default(int?);
 
-        await _cashServiceClient.DepositedAsync(
+        _ = await _cashServiceClient.DepositedAsync(
             request.DefaultWalletId,
             request.DepositAmount,
             request.Remark,

@@ -24,7 +24,7 @@ internal class CreateBannerCommandService : ICommandService<CreateBannerCommand>
             command.EndTime,
             command.Localization);
 
-        await _backOfficeRepository
+        _ = await _backOfficeRepository
             .CreateBannerAsync(createInfo, command.Modifier)
             .ConfigureAwait(false);
     }

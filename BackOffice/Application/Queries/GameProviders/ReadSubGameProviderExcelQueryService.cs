@@ -17,7 +17,7 @@ internal class ReadSubGameProviderExcelQueryService
 
         var headers = new List<string>();
 
-        reader.Read();
+        _ = reader.Read();
         for (var i = 0; i < reader.FieldCount; i++)
             headers.Add(reader.GetValue(i).ToString());
 

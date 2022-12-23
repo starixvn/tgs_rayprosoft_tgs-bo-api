@@ -57,7 +57,7 @@ internal class CreateSubGameProviderExcelStreamQueryService : IGetService<Create
                     });
             }
 
-            sheetData.AppendChild(row);
+            _ = sheetData.AppendChild(row);
 
             foreach (var gameProvider in query.SubGameProviders)
             {
@@ -80,8 +80,7 @@ internal class CreateSubGameProviderExcelStreamQueryService : IGetService<Create
                     foreach (var item in query.Languages)
                     {
                         var localization = JsonDocument.Parse(gameProvider.Localization);
-                        JsonElement lang;
-                        var isExist = localization.RootElement.TryGetProperty(item, out lang);
+                        var isExist = localization.RootElement.TryGetProperty(item, out var lang);
                         if (isExist)
                         {
                             row.Append(
@@ -95,11 +94,11 @@ internal class CreateSubGameProviderExcelStreamQueryService : IGetService<Create
                     }
                 }
 
-                sheetData.AppendChild(row);
+                _ = sheetData.AppendChild(row);
             }
         }
 
-        memoryStream.Seek(0, SeekOrigin.Begin);
+        _ = memoryStream.Seek(0, SeekOrigin.Begin);
 
         return ValueTask.FromResult<Stream>(memoryStream);
     }

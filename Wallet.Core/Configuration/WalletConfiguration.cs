@@ -15,7 +15,7 @@ public class WalletConfiguration
     public WalletConfiguration AddAgentWalletRepository<TWalletRepository>()
         where TWalletRepository : class, IAgentWalletRepository
     {
-        Services.AddTransient<IAgentWalletRepository, TWalletRepository>();
+        _ = Services.AddTransient<IAgentWalletRepository, TWalletRepository>();
 
         return this;
     }

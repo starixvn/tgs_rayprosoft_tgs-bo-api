@@ -22,8 +22,8 @@ public class
 
     public UpdateBrandAllAgentWinLossConditionHandler(IBrandService brandService,
         IBrandAllAgentGameTypeConditionService service,
-        IHttpContextAccessor accessor) :
-        base(accessor)
+        IHttpContextAccessor accessor)
+        : base(accessor)
     {
         _service = service;
         _brandService = brandService;

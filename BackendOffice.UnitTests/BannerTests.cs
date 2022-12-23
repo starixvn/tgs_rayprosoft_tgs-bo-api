@@ -77,7 +77,7 @@ public class BannerTests
             BannerStatus.Rejected,
             paging);
 
-        moqBackOfficeRepository
+        _ = moqBackOfficeRepository
             .Setup(fake => fake.QueryRejectedBannersAsync(It.Is<Guid>(x => x == query.BrandId)))
             .Returns(new[]
             {
@@ -147,7 +147,7 @@ public class BannerTests
             Guid.NewGuid(),
             Guid.NewGuid());
 
-        await sut.GetAsync(query);
+        _ = await sut.GetAsync(query);
 
         moqBackOfficeRepository.Verify(
             fake => fake.GetBannerByIdAsync(It.Is<Guid>(x => x == query.BannerId)),
@@ -174,11 +174,11 @@ public class BannerTests
             BannerStatus.Expired,
             paging);
 
-        moqBackOfficeRepository
+        _ = moqBackOfficeRepository
             .Setup(fake => fake.QueryExpiredBannersAsync(It.Is<Guid>(x => x == query.BrandId)))
             .Returns(Array.Empty<BannerInfo>().ToAsyncEnumerable());
 
-        await sut.QueryAsync(query).ToArrayAsync();
+        _ = await sut.QueryAsync(query).ToArrayAsync();
 
         moqBackOfficeRepository.Verify(
             fake => fake.QueryExpiredBannersAsync(It.Is<Guid>(x => x == query.BrandId)),
@@ -205,11 +205,11 @@ public class BannerTests
             BannerStatus.Rejected,
             paging);
 
-        moqBackOfficeRepository
+        _ = moqBackOfficeRepository
             .Setup(fake => fake.QueryRejectedBannersAsync(It.Is<Guid>(x => x == query.BrandId)))
             .Returns(Array.Empty<BannerInfo>().ToAsyncEnumerable());
 
-        await sut.QueryAsync(query).ToArrayAsync();
+        _ = await sut.QueryAsync(query).ToArrayAsync();
 
         moqBackOfficeRepository.Verify(
             fake => fake.QueryRejectedBannersAsync(It.Is<Guid>(x => x == query.BrandId)),
@@ -236,11 +236,11 @@ public class BannerTests
             BannerStatus.Reviewing,
             paging);
 
-        moqBackOfficeRepository
+        _ = moqBackOfficeRepository
             .Setup(fake => fake.QueryReviewingBannersAsync(It.Is<Guid>(x => x == query.BrandId)))
             .Returns(Array.Empty<BannerInfo>().ToAsyncEnumerable());
 
-        await sut.QueryAsync(query).ToArrayAsync();
+        _ = await sut.QueryAsync(query).ToArrayAsync();
 
         moqBackOfficeRepository.Verify(
             fake => fake.QueryReviewingBannersAsync(It.Is<Guid>(x => x == query.BrandId)),
@@ -267,11 +267,11 @@ public class BannerTests
             BannerStatus.Valid,
             paging);
 
-        moqBackOfficeRepository
+        _ = moqBackOfficeRepository
             .Setup(fake => fake.QueryValidBannersAsync(It.Is<Guid>(x => x == query.BrandId)))
             .Returns(Array.Empty<BannerInfo>().ToAsyncEnumerable());
 
-        await sut.QueryAsync(query).ToArrayAsync();
+        _ = await sut.QueryAsync(query).ToArrayAsync();
 
         moqBackOfficeRepository.Verify(
             fake => fake.QueryValidBannersAsync(It.Is<Guid>(x => x == query.BrandId)),

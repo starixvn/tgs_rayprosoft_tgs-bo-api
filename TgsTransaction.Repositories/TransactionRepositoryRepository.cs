@@ -8,12 +8,9 @@ namespace Transaction.Repositories;
 
 public class TransactionRepositoryRepository : BaseRepositoryOperations<ITgsRepository>, ITgsTransactionRepository
 {
-    private readonly ITgsRepository _repository;
-
     public TransactionRepositoryRepository(ITgsRepository tgsRepository) : base(
         tgsRepository)
     {
-        _repository = tgsRepository;
     }
 
     Task ITgsTransactionRepository.CreateTransactionPromotionsAsync(TransactionPromotion[] transactionPromotions) =>

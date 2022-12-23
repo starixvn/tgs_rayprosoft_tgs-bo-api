@@ -2,11 +2,11 @@
 
 public class ValidBetConditionModel
 {
-    public int Rank { get; set; }
+    public int ActiveNumber { get; set; }
 
     public decimal NetProfit { get; set; }
 
-    public int ActiveNumber { get; set; }
+    public int Rank { get; set; }
 
     public decimal RebatePercentage { get; set; }
 }

@@ -9,23 +9,12 @@ namespace TGS.Tests.BackendOffice.UnitTests.Validators.BrandGameProviderSchedule
 [TestFixture]
 public class BrandGameProviderRequestValidatorTests
 {
+    private ScheduleRequestValidator _validator = default!;
+
     [SetUp]
     public void Setup()
     {
         _validator = new ScheduleRequestValidator();
-    }
-
-    private ScheduleRequestValidator _validator = default!;
-
-    [Test]
-    public void Should_have_error_when_from_date_greater_than_to_date()
-    {
-        var model = new BrandGameProviderRequest
-        { From = DateTimeOffset.UtcNow.AddDays(1), To = DateTimeOffset.UtcNow };
-        var result = _validator.TestValidate(model);
-        result.ShouldHaveValidationErrorFor(request => request.From)
-            .WithErrorMessage(Services.BackOffice.Application.Resources.BrandGameProviderSchedule
-                .ToDateGreaterThanFrom);
     }
 
     [Test]
@@ -36,8 +25,19 @@ public class BrandGameProviderRequestValidatorTests
             DayOfWeek = (DayOfWeek)8
         };
         var result = _validator.TestValidate(model);
-        result.ShouldHaveValidationErrorFor(request => request.DayOfWeek)
+        _ = result.ShouldHaveValidationErrorFor(request => request.DayOfWeek)
             .WithErrorMessage(
                 Services.BackOffice.Application.Resources.BrandGameProviderSchedule.DayOfWeekIncorrect);
+    }
+
+    [Test]
+    public void Should_have_error_when_from_date_greater_than_to_date()
+    {
+        var model = new BrandGameProviderRequest
+        { From = DateTimeOffset.UtcNow.AddDays(1), To = DateTimeOffset.UtcNow };
+        var result = _validator.TestValidate(model);
+        _ = result.ShouldHaveValidationErrorFor(request => request.From)
+            .WithErrorMessage(Services.BackOffice.Application.Resources.BrandGameProviderSchedule
+                .ToDateGreaterThanFrom);
     }
 }

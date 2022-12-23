@@ -4,8 +4,8 @@ using System.Threading;
 using System.Threading.Tasks;
 using Tgs.Report.Client;
 using Tgs.Report.Client.Models.Market;
-using TGS.Services.BackOffice.Application.Models.ReportMarket;
 using Tgs.ServiceUtility;
+using TGS.Services.BackOffice.Application.Models.ReportMarket;
 
 namespace TGS.Services.BackOffice.Application.Queries.ReportMarketQueries;
 

@@ -4,14 +4,14 @@ using System.Linq;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Options;
+using Tgs.Paging;
+using Tgs.ServiceUtility;
 using TGS.Apis.BackendOffice.Controllers.Messages;
 using TGS.Apis.BackendOffice.Controllers.Messages.Banner;
 using TGS.Core.Infrastructures.Json;
 using TGS.Core.Models.Messages;
-using TGS.Services.BackOffice.Domain;
-using Tgs.ServiceUtility;
-using Tgs.Paging;
 using TGS.Services.BackOffice.ApplicationServices;
+using TGS.Services.BackOffice.Domain;
 
 namespace TGS.Apis.BackendOffice.Controllers;
 
@@ -19,6 +19,19 @@ namespace TGS.Apis.BackendOffice.Controllers;
 [ApiController]
 public class BannerController : BaseContextController
 {
+    [HttpPut("archive/{bannerId}")]
+    public ValueTask ArchiveBannerAsync(
+        [FromServices] ICommandService<ChangeBannerStatusCommand> updateService,
+        Guid bannerId)
+    {
+        var command = new ChangeBannerStatusCommand(
+            bannerId,
+            4000,
+            Username);
+
+        return updateService.ExecuteAsync(command);
+    }
+
     [HttpPut("{brandId}")]
     public ValueTask CreateBannerAsync(
         [FromServices] ICommandService<CreateBannerCommand> createService,
@@ -114,10 +127,11 @@ public class BannerController : BaseContextController
         Guid brandId,
         [FromQuery] PageableRequest pagingRequest)
     {
-        var paging = new Paging<BannerInfo>();
-
-        paging.RowCount = pagingRequest.Rows;
-        paging.Page = pagingRequest.Page;
+        var paging = new Paging<BannerInfo>
+        {
+            RowCount = pagingRequest.Rows,
+            Page = pagingRequest.Page
+        };
 
         paging.SortByPropertyName(
             string.IsNullOrWhiteSpace(pagingRequest.SortBy)
@@ -161,10 +175,11 @@ public class BannerController : BaseContextController
         Guid brandId,
         [FromQuery] PageableRequest pagingRequest)
     {
-        var paging = new Paging<BannerInfo>();
-
-        paging.RowCount = pagingRequest.Rows;
-        paging.Page = pagingRequest.Page;
+        var paging = new Paging<BannerInfo>
+        {
+            RowCount = pagingRequest.Rows,
+            Page = pagingRequest.Page
+        };
 
         paging.SortByPropertyName(
             string.IsNullOrWhiteSpace(pagingRequest.SortBy)
@@ -208,10 +223,11 @@ public class BannerController : BaseContextController
         Guid brandId,
         [FromQuery] PageableRequest pagingRequest)
     {
-        var paging = new Paging<BannerInfo>();
-
-        paging.RowCount = pagingRequest.Rows;
-        paging.Page = pagingRequest.Page;
+        var paging = new Paging<BannerInfo>
+        {
+            RowCount = pagingRequest.Rows,
+            Page = pagingRequest.Page
+        };
 
         paging.SortByPropertyName(
             string.IsNullOrWhiteSpace(pagingRequest.SortBy)
@@ -255,10 +271,11 @@ public class BannerController : BaseContextController
         Guid brandId,
         [FromQuery] PageableRequest pagingRequest)
     {
-        var paging = new Paging<BannerInfo>();
-
-        paging.RowCount = pagingRequest.Rows;
-        paging.Page = pagingRequest.Page;
+        var paging = new Paging<BannerInfo>
+        {
+            RowCount = pagingRequest.Rows,
+            Page = pagingRequest.Page
+        };
 
         paging.SortByPropertyName(
             string.IsNullOrWhiteSpace(pagingRequest.SortBy)
@@ -348,19 +365,6 @@ public class BannerController : BaseContextController
             jsonSerializationProvider.SerializeToString(
                 request.Localization,
                 jsonOptions.JsonSerializerOptions),
-            Username);
-
-        return updateService.ExecuteAsync(command);
-    }
-
-    [HttpPut("archive/{bannerId}")]
-    public ValueTask ArchiveBannerAsync(
-        [FromServices] ICommandService<ChangeBannerStatusCommand> updateService,
-        Guid bannerId)
-    {
-        var command = new ChangeBannerStatusCommand(
-            bannerId,
-            4000,
             Username);
 
         return updateService.ExecuteAsync(command);

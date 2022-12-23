@@ -13,8 +13,8 @@ public class GetLanguagesQueryHandler : Handler<GetLanguagesRequest, PagedRespon
 {
     private readonly ILanguageService _service;
 
-    public GetLanguagesQueryHandler(ILanguageService service, IHttpContextAccessor accessor) :
-        base(accessor)
+    public GetLanguagesQueryHandler(ILanguageService service, IHttpContextAccessor accessor)
+        : base(accessor)
     {
         _service = service;
     }

@@ -4,10 +4,10 @@ using System.Linq;
 using System.Threading.Tasks;
 using MediatR;
 using Microsoft.AspNetCore.Mvc;
-using TGS.Core.Models.Enums;
-using TGS.Core.Models.Messages;
 using Tgs.Report.Client;
 using Tgs.Report.Client.Models.Agent;
+using TGS.Core.Models.Enums;
+using TGS.Core.Models.Messages;
 using TGS.Services.BackOffice.Application.Models.Agent;
 using TGS.Services.BackOffice.Application.Models.AgentAdjust;
 using TGS.Services.BackOffice.Application.Models.ReportAgent;
@@ -27,36 +27,9 @@ public partial class AgentController : BaseContextController
         _client = client;
     }
 
-    [HttpGet]
-    [Description("Get agents")]
-    public Task<PagedResponse<AgentModel>> GetAgentsAsync([FromQuery] GetAgentsRequest request) =>
-        _mediator.Send(request);
-
-    [HttpGet("{id}")]
-    [Description("Get an agent")]
-    public Task<GetAgentResponse> GetAgentAsync(Guid id) => _mediator.Send(new GetAgentRequest(id));
-
-    [HttpGet("dividendPercentage/{brandId}/{username}")]
-    [Description("Get an agent dividend percentage by username")]
-    public Task<GetAgentDividendSettingResponse> GetAgentDividendPercentageAsync(Guid brandId, string username)
-        => _mediator.Send(new GetAgentDividendSettingRequest(brandId, username));
-
-    [HttpGet("{id}/operations")]
-    [Description("Get agent operations")]
-    public Task<PagedResponse<AgentOperationModel>> GetAgentOperationsAsync(Guid id) =>
-        _mediator.Send(new GetAgentOperationsRequest(id));
-
     [HttpPost]
     [Description("Create a agent")]
     public Task<MessageResponse> CreateAgentAsync(CreateAgentRequest request) => _mediator.Send(request);
-
-    [HttpPut("{id}")]
-    [Description("Update a agent")]
-    public Task<MessageResponse> UpdateAgentAsync(Guid id, UpdateAgentRequest request)
-    {
-        request.Id = id;
-        return _mediator.Send(request);
-    }
 
     [HttpPost("{id}/adjust/increase")]
     [Description("Create an agent adjustment to increase amount")]
@@ -109,5 +82,32 @@ public partial class AgentController : BaseContextController
                 RecordedOn = x.RecordedOn
             }).ToArray()
         };
+    }
+
+    [HttpGet("{id}")]
+    [Description("Get an agent")]
+    public Task<GetAgentResponse> GetAgentAsync(Guid id) => _mediator.Send(new GetAgentRequest(id));
+
+    [HttpGet("dividendPercentage/{brandId}/{username}")]
+    [Description("Get an agent dividend percentage by username")]
+    public Task<GetAgentDividendSettingResponse> GetAgentDividendPercentageAsync(Guid brandId, string username)
+        => _mediator.Send(new GetAgentDividendSettingRequest(brandId, username));
+
+    [HttpGet("{id}/operations")]
+    [Description("Get agent operations")]
+    public Task<PagedResponse<AgentOperationModel>> GetAgentOperationsAsync(Guid id) =>
+        _mediator.Send(new GetAgentOperationsRequest(id));
+
+    [HttpGet]
+    [Description("Get agents")]
+    public Task<PagedResponse<AgentModel>> GetAgentsAsync([FromQuery] GetAgentsRequest request) =>
+        _mediator.Send(request);
+
+    [HttpPut("{id}")]
+    [Description("Update a agent")]
+    public Task<MessageResponse> UpdateAgentAsync(Guid id, UpdateAgentRequest request)
+    {
+        request.Id = id;
+        return _mediator.Send(request);
     }
 }

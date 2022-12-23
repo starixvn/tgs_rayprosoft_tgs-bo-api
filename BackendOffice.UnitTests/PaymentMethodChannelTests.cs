@@ -43,7 +43,7 @@ public class PaymentMethodChannelTests
 
         var command = new DeletePaymentMethodChannelCommand(Guid.NewGuid());
 
-        sut.ExecuteAsync(command);
+        _ = sut.ExecuteAsync(command);
 
         _ = fakePaymentServiceClient.Received(1)
             .DeletePaymentMethodChannelAsync(Arg.Is(command.Id));
@@ -56,7 +56,7 @@ public class PaymentMethodChannelTests
 
         var sut = new AllPaymentMethodChannelQueryService(moqPaymentServiceClient.Object);
 
-        sut.QueryAsync(new AllPaymentMethodChannelQuery());
+        _ = sut.QueryAsync(new AllPaymentMethodChannelQuery());
 
         moqPaymentServiceClient.Verify(
             fake => fake.GetAllPaymentMethodChannelsAsync(It.IsAny<CancellationToken>()),

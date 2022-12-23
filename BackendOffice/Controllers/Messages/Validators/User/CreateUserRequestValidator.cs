@@ -7,12 +7,12 @@ public class CreateUserRequestValidator : AbstractValidator<CreateUserRequest>
 {
     public CreateUserRequestValidator()
     {
-        RuleFor(p => p.Name)
+        _ = RuleFor(p => p.Name)
             .NotNull()
             .NotEmpty()
             .WithMessage(Resources.User.NameRequired);
 
-        RuleFor(p => p.Password)
+        _ = RuleFor(p => p.Password)
             .NotNull()
             .WithMessage(Resources.User.PasswordRequired)
             .Equal(p => p.ConfirmPassword)

@@ -19,7 +19,7 @@ public class VipLevelTests
 
         var query = new AllVipLevelsQuery(Guid.NewGuid());
 
-        await sut.QueryAsync(query).ToArrayAsync();
+        _ = await sut.QueryAsync(query).ToArrayAsync();
 
         _ = fakeVipLevelServiceClient.Received(1)
             .GetBrandAllVipLevelsAsync(Arg.Is(query.BrandId));

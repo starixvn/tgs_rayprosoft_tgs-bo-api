@@ -11,10 +11,6 @@ namespace TGS.Apis.BackendOffice.Controllers;
 
 public class BaseContextController : ControllerBase
 {
-    protected string UserId => GetUserMap()[Consts.BackendOffice.UserInfo.UserIdKey];
-
-    protected string Username => GetUserMap()[Consts.BackendOffice.UserInfo.UsernameKey];
-
     protected Guid? BrandId => GetUserMap().GetIdByKey(Consts.BackendOffice.UserInfo.BrandKey);
 
     protected Guid? LicenseeId => GetUserMap().GetIdByKey(Consts.BackendOffice.UserInfo.LicenseeKey);
@@ -22,6 +18,10 @@ public class BaseContextController : ControllerBase
     protected Guid? ResellerId => GetUserMap().GetIdByKey(Consts.BackendOffice.UserInfo.ResellerKey);
 
     protected string RoleName => GetUserMap()[Consts.BackendOffice.UserInfo.RolenameKey];
+
+    protected string UserId => GetUserMap()[Consts.BackendOffice.UserInfo.UserIdKey];
+
+    protected string Username => GetUserMap()[Consts.BackendOffice.UserInfo.UsernameKey];
 
     protected RoleType? UserRoleType =>
         GetUserMap().GetTypeByKey<RoleType>(Consts.BackendOffice.UserInfo.RoleTypeKey);

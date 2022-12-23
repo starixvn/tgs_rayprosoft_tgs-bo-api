@@ -2,11 +2,11 @@
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
-using TGS.Core.Models.Messages;
 using Tgs.Report.Client;
 using Tgs.Report.Client.Models.BrandGameProvider;
-using TGS.Services.BackOffice.Application.Models.ReportBrandGameProviderRound;
 using Tgs.ServiceUtility;
+using TGS.Core.Models.Messages;
+using TGS.Services.BackOffice.Application.Models.ReportBrandGameProviderRound;
 
 namespace TGS.Services.BackOffice.Application.Queries.ReportBrandGameProviderQueries;
 

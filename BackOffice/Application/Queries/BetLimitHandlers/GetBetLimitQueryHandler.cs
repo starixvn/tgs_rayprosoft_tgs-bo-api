@@ -12,8 +12,8 @@ public class GetBetLimitQueryHandler : Handler<GetBetLimitRequest,
 {
     private readonly IBetLimitService _service;
 
-    public GetBetLimitQueryHandler(IBetLimitService service, IHttpContextAccessor accessor) :
-        base(accessor)
+    public GetBetLimitQueryHandler(IBetLimitService service, IHttpContextAccessor accessor)
+        : base(accessor)
     {
         _service = service;
     }
@@ -23,21 +23,19 @@ public class GetBetLimitQueryHandler : Handler<GetBetLimitRequest,
         CancellationToken cancellationToken)
     {
         var betLimit = await _service.GetBetLimitAsync(x => x.Id == request.Id);
-        if (betLimit == null)
-        {
-            return CreateInvalidResponse<GetBetLimitResponse>(BrandGame.NotFound);
-        }
 
-        return new GetBetLimitResponse
-        {
-            Valid = true,
-            BetLimit = new BetLimitResponseModel
+        return betLimit == null
+            ? CreateInvalidResponse<GetBetLimitResponse>(BrandGame.NotFound)
+            : new GetBetLimitResponse
             {
-                Id = betLimit.Id,
-                MinBet = betLimit.MinBet,
-                MaxBet = betLimit.MaxBet,
-                MaxBetPerMatch = betLimit.MaxBetPerMatch
-            }
-        };
+                Valid = true,
+                BetLimit = new BetLimitResponseModel
+                {
+                    Id = betLimit.Id,
+                    MinBet = betLimit.MinBet,
+                    MaxBet = betLimit.MaxBet,
+                    MaxBetPerMatch = betLimit.MaxBetPerMatch
+                }
+            };
     }
 }

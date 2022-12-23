@@ -48,7 +48,7 @@ public class WithdrawFormTests
             "93a723b2-9ebb-4607-ee8d-08d978fba75f",
             "reviewUserName");
 
-        fakePaymentServiceClient
+        _ = fakePaymentServiceClient
             .GetWithdrawFormAsync(Arg.Is(brandId), Arg.Is(formId))
             .Returns(new WithdrawFormInfo
             {
@@ -59,10 +59,10 @@ public class WithdrawFormTests
             });
 
         var fakeFsm = new StateMachine<PaymentFlowState, PaymentTrigger>(PaymentFlowState.WaitApprove);
-        fakeFsm.Configure(PaymentFlowState.WaitApprove)
+        _ = fakeFsm.Configure(PaymentFlowState.WaitApprove)
             .Permit(PaymentTrigger.Approve, PaymentFlowState.Approved);
 
-        fakePaymentServiceClient
+        _ = fakePaymentServiceClient
             .CreateWithdrawStateMachine(Arg.Is(PaymentFlowState.WaitApprove))
             .Returns(fakeFsm);
 
@@ -170,7 +170,6 @@ public class WithdrawFormTests
             fakeWalletExchangeService);
 
         var formId = Guid.NewGuid();
-        var brandPaymentId = Guid.NewGuid();
         var brandId = Guid.NewGuid();
 
         var command = new ReviewWithdrawFormCommand(
@@ -182,7 +181,7 @@ public class WithdrawFormTests
             "93a723b2-9ebb-4607-ee8d-08d978fba75f",
             "reviewUserName");
 
-        fakePaymentServiceClient
+        _ = fakePaymentServiceClient
             .GetWithdrawFormAsync(Arg.Is(brandId), Arg.Is(formId))
             .Returns(new WithdrawFormInfo
             {
@@ -193,10 +192,10 @@ public class WithdrawFormTests
             });
 
         var fakeFsm = new StateMachine<PaymentFlowState, PaymentTrigger>(PaymentFlowState.Approved);
-        fakeFsm.Configure(PaymentFlowState.Approved)
+        _ = fakeFsm.Configure(PaymentFlowState.Approved)
             .Permit(PaymentTrigger.Reject, PaymentFlowState.Reject);
 
-        fakePaymentServiceClient
+        _ = fakePaymentServiceClient
             .CreateWithdrawStateMachine(Arg.Is(PaymentFlowState.Approved))
             .Returns(fakeFsm);
 
@@ -240,7 +239,7 @@ public class WithdrawFormTests
         var amount = 1000M;
         var userId = Guid.NewGuid();
 
-        moqAgentService
+        _ = moqAgentService
             .Setup(fake => fake.GetAgentAsync(
                 It.IsAny<Expression<Func<Agent, bool>>>(),
                 It.IsAny<Func<IQueryable<Agent>, IQueryable<Agent>>>()))
@@ -323,7 +322,7 @@ public class WithdrawFormTests
         var amount = 1000M;
         var userId = Guid.NewGuid();
 
-        fakeAgentService.GetAgentAsync(
+        _ = fakeAgentService.GetAgentAsync(
             Arg.Any<Expression<Func<Agent, bool>>>(),
             Arg.Any<Func<IQueryable<Agent>, IQueryable<Agent>>>())
             .Returns(new Agent
@@ -400,7 +399,7 @@ public class WithdrawFormTests
 
         var query = new GetWithdrawFormDetailQuery(formId, brandId);
 
-        await sut.GetAsync(query);
+        _ = await sut.GetAsync(query);
 
         moqPaymentServiceClient.Verify(
             fake => fake.GetWithdrawFormAsync(
@@ -427,7 +426,7 @@ public class WithdrawFormTests
             "93a723b2-9ebb-4607-ee8d-08d978fba75f",
             "reviewUserName");
 
-        fakePaymentServiceClient.CreateWithdrawStateMachine(Arg.Any<PaymentFlowState>())
+        _ = fakePaymentServiceClient.CreateWithdrawStateMachine(Arg.Any<PaymentFlowState>())
             .ReturnsForAnyArgs(callInfo =>
             {
                 var initialState = callInfo.Arg<PaymentFlowState>();
@@ -449,7 +448,7 @@ public class WithdrawFormTests
                 return fsm;
             });
 
-        fakePaymentServiceClient.GetWithdrawFormAsync(
+        _ = fakePaymentServiceClient.GetWithdrawFormAsync(
             Arg.Is(brandId),
             Arg.Is(formId))
             .Returns(new WithdrawFormInfo
@@ -506,7 +505,7 @@ public class WithdrawFormTests
             "93a723b2-9ebb-4607-ee8d-08d978fba75f",
             "reviewUserName");
 
-        moqPaymentServiceClient
+        _ = moqPaymentServiceClient
             .Setup(fake => fake.GetWithdrawFormAsync(
                 It.Is<Guid>(x => x == brandId),
                 It.Is<Guid>(x => x == formId),
@@ -520,10 +519,10 @@ public class WithdrawFormTests
                 }));
 
         var fakeFsm = new StateMachine<PaymentFlowState, PaymentTrigger>(PaymentFlowState.WaitApprove);
-        fakeFsm.Configure(PaymentFlowState.WaitApprove)
+        _ = fakeFsm.Configure(PaymentFlowState.WaitApprove)
             .Permit(PaymentTrigger.Approve, PaymentFlowState.Approved);
 
-        moqPaymentServiceClient
+        _ = moqPaymentServiceClient
             .Setup(fake => fake.CreateWithdrawStateMachine(
                 It.Is<PaymentFlowState>(x => x == PaymentFlowState.WaitApprove)))
             .Returns(fakeFsm);
@@ -561,7 +560,7 @@ public class WithdrawFormTests
         var amount = 1000M;
         var userId = Guid.NewGuid();
 
-        fakeAgentService.GetAgentAsync(
+        _ = fakeAgentService.GetAgentAsync(
             Arg.Any<Expression<Func<Agent, bool>>>(),
             Arg.Any<Func<IQueryable<Agent>, IQueryable<Agent>>>())
             .Returns(new Agent
@@ -633,7 +632,7 @@ public class WithdrawFormTests
 
         var query = new CountUntreatedWithdrawFormsQuery(Guid.NewGuid());
 
-        await sut.GetAsync(query);
+        _ = await sut.GetAsync(query);
 
         moqPaymentServiceClient.Verify(
             fake => fake.CountUntreatedWithdrawFormsAsync(

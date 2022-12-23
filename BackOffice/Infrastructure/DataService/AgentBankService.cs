@@ -31,12 +31,9 @@ public interface IAgentBankService
 
 public class AgentBankService : BaseRepositoryOperations<ITgsRepository>, IAgentBankService
 {
-    private readonly ITgsRepository _repository;
-
     public AgentBankService(ITgsRepository repository)
         : base(repository)
     {
-        _repository = repository;
     }
 
     async Task IAgentBankService.CreateAgentBankAsync(CreateAgentBankRequest request)

@@ -220,11 +220,11 @@ public class PlayerService : BaseRepositoryOperations<ITgsRepository>, IPlayerSe
             Username = playerCode
         };
 
-        await _repository.PlayerAuditLogs
+        _ = await _repository.PlayerAuditLogs
             .AddAsync(auditLog)
             .ConfigureAwait(false);
 
-        await _repository.SaveChangesAsync().ConfigureAwait(false);
+        _ = await _repository.SaveChangesAsync().ConfigureAwait(false);
 
         await _cacheManager
             .ClearCacheAsync(RedisCacheType.Player, playerCode)
@@ -250,13 +250,14 @@ public class PlayerService : BaseRepositoryOperations<ITgsRepository>, IPlayerSe
             };
             _ = await _repository.PlayerParents.AddAsync(playerParent);
         }
+
         _ = await _repository.SaveChangesAsync().ConfigureAwait(false);
     }
 
     async Task IPlayerService.UpdatePlayerAsync(
-                        Player player, UpdatePlayerRequest request)
+        Player player,
+        UpdatePlayerRequest request)
     {
-        var id = DateTimeOffset.Now.ToUnixTimeMilliseconds().ToString();
         using var scope = new TransactionScope(TransactionScopeAsyncFlowOption.Enabled);
 
         var updatePlayerType = new[]
@@ -340,6 +341,7 @@ public class PlayerService : BaseRepositoryOperations<ITgsRepository>, IPlayerSe
         {
             identityData.PlayerAuthenticationFormId = identityAuthenticationFormId;
         }
+
         _ = await _repository
             .SaveChangesAsync()
             .ConfigureAwait(false);

@@ -14,8 +14,8 @@ public class
 {
     private readonly ISubGameProviderService _service;
 
-    public GetSubGameProvidersQueryHandler(ISubGameProviderService service, IHttpContextAccessor accessor) :
-        base(accessor)
+    public GetSubGameProvidersQueryHandler(ISubGameProviderService service, IHttpContextAccessor accessor)
+        : base(accessor)
     {
         _service = service;
     }

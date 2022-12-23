@@ -179,7 +179,7 @@ public partial class AnnouncementController : BaseContextController
             return CreateInvalidResponse<MessageResponse>(Resources.Announcement.NotFound);
         }
 
-        if (announcement.Status != AnnounceStatus.Effective && announcement.Status != AnnounceStatus.Invalid)
+        if (announcement.Status is not AnnounceStatus.Effective and not AnnounceStatus.Invalid)
         {
             return CreateInvalidResponse<MessageResponse>(Resources.Announcement.CannotUpdateDueToInvalidStatus);
         }

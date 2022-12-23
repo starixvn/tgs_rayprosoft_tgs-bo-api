@@ -35,7 +35,6 @@ public record AgentDividendTeamDetailReportModel
     public decimal ExpenditureAmount { get; init; }
 
     public decimal BonusAmount { get; init; }
-    public decimal NetProfit {get;set;}
-    public decimal CompanyWinLossTotalAmount {get;set;}
-
+    public decimal NetProfit { get; set; }
+    public decimal CompanyWinLossTotalAmount { get; set; }
 }

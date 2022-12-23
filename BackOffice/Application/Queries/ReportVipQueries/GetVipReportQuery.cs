@@ -5,8 +5,6 @@ using System.Threading.Tasks;
 using Tgs.Report.Client;
 using Tgs.Report.Client.Models.Vip;
 using Tgs.ServiceUtility;
-using TGS.Core.DataServices.Base.Extensions;
-using TGS.Core.Models.Messages;
 using TGS.Services.BackOffice.Application.Models.ReportVip;
 
 namespace TGS.Services.BackOffice.Application.Queries.ReportVipQueries;
@@ -71,7 +69,8 @@ public class
             NetProfit = x.NetProfit
         });
 
-        var totalRequest = new GetVipReportTotalAmountRequest {
+        var totalRequest = new GetVipReportTotalAmountRequest
+        {
             BrandId = request.BrandId,
             Username = request.Username,
             Level = request.Level,

@@ -1,5 +1,4 @@
 ﻿using System;
-using System.Collections.Generic;
 using System.Linq;
 using System.Linq.Dynamic.Core;
 using System.Threading;
@@ -16,8 +15,8 @@ public class GetPlayerIpByUserNameOperationQueryHandler : Handler<GetPlayerIpsBy
 {
     private readonly IPlayerIpService _service;
 
-    public GetPlayerIpByUserNameOperationQueryHandler(IPlayerIpService service, IHttpContextAccessor accessor) :
-        base(accessor)
+    public GetPlayerIpByUserNameOperationQueryHandler(IPlayerIpService service, IHttpContextAccessor accessor)
+        : base(accessor)
     {
         _service = service ?? throw new System.ArgumentNullException(nameof(service));
     }
@@ -38,11 +37,11 @@ public class GetPlayerIpByUserNameOperationQueryHandler : Handler<GetPlayerIpsBy
               CreatedOn = x.RecordOn
           })
           .OrderByDescending(x => x.CreatedOn);
-        loginRecords.Concat(registerRecords);
+        _ = loginRecords.Concat(registerRecords);
 
         return loginRecords.GroupBy(x => new
         {
-            IpAddress = x.IpAddress
+            x.IpAddress
         }).Select(group => new PlayerIpByUserNameModel
         {
             IpAddress = group.Key.IpAddress,

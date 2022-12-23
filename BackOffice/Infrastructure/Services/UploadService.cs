@@ -37,7 +37,7 @@ public class UploadService : IUploadService
 
         using var reader = ExcelReaderFactory.CreateReader(stream);
 
-        reader.Read();
+        _ = reader.Read();
         var headers = new List<string>();
         for (var i = 0; i < reader.FieldCount; i++)
         {
@@ -60,14 +60,9 @@ public class UploadService : IUploadService
                 if (value != null)
                 {
                     var fieldType = reader.GetFieldType(i);
-                    if (fieldType == typeof(bool))
-                    {
-                        obj.TryAdd(header, value);
-                    }
-                    else
-                    {
-                        obj.TryAdd(header, value.ToString());
-                    }
+                    _ = fieldType == typeof(bool)
+                        ? obj.TryAdd(header, value)
+                        : obj.TryAdd(header, value.ToString());
                 }
             }
 

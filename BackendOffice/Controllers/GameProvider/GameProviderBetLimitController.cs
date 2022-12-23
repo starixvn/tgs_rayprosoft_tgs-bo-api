@@ -4,7 +4,6 @@ using System.Threading.Tasks;
 using MediatR;
 using Microsoft.AspNetCore.Mvc;
 using TGS.Core.Models.Messages;
-using TGS.Services.BackOffice.Application.Models.GameProvider;
 using TGS.Services.BackOffice.Application.Models.GameProviderBetLimit;
 
 namespace TGS.Apis.BackendOffice.Controllers.GameProvider;
@@ -20,10 +19,9 @@ public class GameProviderBetLimitController : BaseContextController
         _mediator = mediator;
     }
 
-    [HttpGet]
-    [Description("Get game provider bet limits")]
-    public Task<GetGameProviderBetLimitsResponse>
-        GetGameProviderBetLimitsAsync([FromQuery] GetGameProviderBetLimitsRequest request) =>
+    [HttpPost]
+    [Description("Create a game provider bet limit")]
+    public Task<MessageResponse> CreateGameProviderBetLimitAsync(CreateGameProviderBetLimitRequest request) =>
         _mediator.Send(request);
 
     [HttpGet("{id}")]
@@ -31,15 +29,16 @@ public class GameProviderBetLimitController : BaseContextController
     public Task<GetGameProviderBetLimitResponse> GetGameProviderBetLimitAsync(Guid id) =>
         _mediator.Send(new GetGameProviderBetLimitRequest(id));
 
+    [HttpGet]
+    [Description("Get game provider bet limits")]
+    public Task<GetGameProviderBetLimitsResponse>
+        GetGameProviderBetLimitsAsync([FromQuery] GetGameProviderBetLimitsRequest request) =>
+        _mediator.Send(request);
+
     [HttpGet("{id}/InUse")]
     [Description("Get in use brand names")]
     public Task<GetInUseBrandsResponse> GetInUseBrandNamesAsync(Guid id) =>
         _mediator.Send(new GetInUseBrandsRequest(id));
-
-    [HttpPost]
-    [Description("Create a game provider bet limit")]
-    public Task<MessageResponse> CreateGameProviderBetLimitAsync(CreateGameProviderBetLimitRequest request) =>
-        _mediator.Send(request);
 
     [HttpPut("{id}")]
     [Description("Update a game provider bet limit")]

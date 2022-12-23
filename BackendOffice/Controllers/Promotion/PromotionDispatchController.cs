@@ -3,9 +3,9 @@ using System.ComponentModel;
 using System.Linq;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Mvc;
+using Tgs.Promotion.Clients;
 using TGS.Apis.BackendOffice.Controllers.Messages.PromotionDispatch;
 using TGS.Core.Models.Messages;
-using Tgs.Promotion.Clients;
 
 namespace TGS.Apis.BackendOffice.Controllers.Promotion;
 
@@ -18,6 +18,28 @@ public class PromotionDispatchController : BaseContextController
     public PromotionDispatchController(IPromotionDispatchClient client)
     {
         _client = client;
+    }
+
+    [HttpPost(Name = "DispatchPromotions")]
+    [Description("Dispatch promotion")]
+    public async Task<MessageResponse> DispatchPromotionsAsync(
+        [FromBody] DispatchPromotionBonusRequest request)
+    {
+        request.OperatorUserId = Guid.Parse(UserId);
+
+        var promotionRequest = new Tgs.Promotion.Clients.Models.PromotionDispatch.DispatchPromotionBonusRequest
+        {
+            OperatorUserId = Guid.Parse(UserId),
+            Players = request.Players.Select(x => new Tgs.Promotion.Clients.Models.PromotionDispatch.DispatchPlayer
+            {
+                PromotionBonusId = x.PromotionBonusId,
+                PlayerCode = x.PlayerCode
+            }).ToArray()
+        };
+
+        var response = await _client.DispatchPromotionAsync(promotionRequest);
+
+        return new MessageResponse { Valid = response.Valid, Message = response.Message };
     }
 
     [HttpGet(Name = "GetPromotionDispatches")]
@@ -44,7 +66,7 @@ public class PromotionDispatchController : BaseContextController
 
         return new PagedResponse<PromotionDispatchModel>
         {
-            Valid = response.Valid, 
+            Valid = response.Valid,
             Message = response.Message,
             TotalCount = response.TotalCount,
             Items = response.Items.Select(x => new PromotionDispatchModel
@@ -61,27 +83,5 @@ public class PromotionDispatchController : BaseContextController
                 SentOn = x.SentOn
             }).ToArray()
         };
-    }
-
-    [HttpPost(Name = "DispatchPromotions")]
-    [Description("Dispatch promotion")]
-    public async Task<MessageResponse> DispatchPromotionsAsync(
-        [FromBody] DispatchPromotionBonusRequest request)
-    {
-        request.OperatorUserId = Guid.Parse(UserId);
-
-        var promotionRequest = new Tgs.Promotion.Clients.Models.PromotionDispatch.DispatchPromotionBonusRequest
-        {
-            OperatorUserId = Guid.Parse(UserId),
-            Players = request.Players.Select(x => new Tgs.Promotion.Clients.Models.PromotionDispatch.DispatchPlayer
-            {
-                PromotionBonusId = x.PromotionBonusId,
-                PlayerCode = x.PlayerCode
-            }).ToArray()
-        };
-
-        var response = await _client.DispatchPromotionAsync(promotionRequest);
-
-        return new MessageResponse { Valid = response.Valid, Message = response.Message };
     }
 }

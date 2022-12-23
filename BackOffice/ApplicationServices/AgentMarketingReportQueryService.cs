@@ -21,6 +21,6 @@ internal class AgentMarketingReportQueryService : IQueryService<AgentMarketingRe
             .ToOffset(TimeSpan.FromHours(8D))
             .DateTime);
 
-        return _marketingReportClient.QueryMarketingStatisticsAsync(query.BrandId, currentDate);
+        return _marketingReportClient.QueryMarketingStatisticsAsync(query.BrandId, currentDate, cancellationToken);
     }
 }

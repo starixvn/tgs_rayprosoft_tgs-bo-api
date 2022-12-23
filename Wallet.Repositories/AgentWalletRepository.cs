@@ -41,7 +41,7 @@ internal class AgentWalletRepository : IAgentWalletRepository
                 { ":updated_on", updatedOn }
             }).ConfigureAwait(false);
 
-        await _tgsRepository.AgentTransactions
+        _ = await _tgsRepository.AgentTransactions
             .AddAsync(new()
             {
                 Id = transactionId,
@@ -52,22 +52,22 @@ internal class AgentWalletRepository : IAgentWalletRepository
                 Balance = postBalance,
                 Type = transactionType switch
                 {
-                    TransactionTypes.Deposit          => AgentTransactionType.Deposit,
-                    TransactionTypes.Withdrawal       => AgentTransactionType.Withdrawal,
-                    TransactionTypes.CompanyAdjust    => AgentTransactionType.CompanyAdjust,
-                    TransactionTypes.Bonus            => AgentTransactionType.Bonus,
-                    TransactionTypes.Rebate           => AgentTransactionType.Rebate,
-                    TransactionTypes.Dividend         => AgentTransactionType.Dividend,
-                    TransactionTypes.Promotion        => AgentTransactionType.Promotion,
+                    TransactionTypes.Deposit => AgentTransactionType.Deposit,
+                    TransactionTypes.Withdrawal => AgentTransactionType.Withdrawal,
+                    TransactionTypes.CompanyAdjust => AgentTransactionType.CompanyAdjust,
+                    TransactionTypes.Bonus => AgentTransactionType.Bonus,
+                    TransactionTypes.Rebate => AgentTransactionType.Rebate,
+                    TransactionTypes.Dividend => AgentTransactionType.Dividend,
+                    TransactionTypes.Promotion => AgentTransactionType.Promotion,
                     TransactionTypes.CancelWithdrawal => AgentTransactionType.CancelWithdrawal,
-                    _                                 => AgentTransactionType.Other
+                    _ => AgentTransactionType.Other
                 },
                 Description = description,
                 RecordedOn = DateTimeOffset.Now
             })
             .ConfigureAwait(false);
 
-        await _tgsRepository.SaveChangesAsync().ConfigureAwait(false);
+        _ = await _tgsRepository.SaveChangesAsync().ConfigureAwait(false);
 
         scope.Complete();
 
@@ -80,8 +80,6 @@ internal class AgentWalletRepository : IAgentWalletRepository
             .FindAsync(walletId)
             .ConfigureAwait(false);
 
-        if (agentWallet!.AgentId == agentId)
-            return agentWallet.Balance;
-        throw new Exception("Can't find agent wallet.");
+        return agentWallet!.AgentId == agentId ? agentWallet.Balance : throw new Exception("Can't find agent wallet.");
     }
 }

@@ -22,5 +22,5 @@ internal class CreatePaymentMethodCommandService : ICommandService<CreatePayment
         {
             Code = command.Code,
             BankType = command.BankType
-        });
+        }, cancellationToken);
 }

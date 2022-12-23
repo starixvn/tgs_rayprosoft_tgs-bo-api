@@ -30,7 +30,7 @@ internal class WalletExchangeService : IWalletExchangeService
         UserType userType,
         string userId,
         decimal amount,
-        string reviewUserId,        
+        string reviewUserId,
         CancellationToken cancellationToken = default)
     {
         switch (userType)
@@ -41,7 +41,8 @@ internal class WalletExchangeService : IWalletExchangeService
                     amount,
                     null,
                     null,
-                    string.IsNullOrWhiteSpace(reviewUserId) ? null : Guid.Parse(reviewUserId)).ConfigureAwait(false);
+                    string.IsNullOrWhiteSpace(reviewUserId) ? null : Guid.Parse(reviewUserId),
+                    cancellationToken).ConfigureAwait(false);
                 return;
 
             case UserType.Agent:
@@ -49,7 +50,8 @@ internal class WalletExchangeService : IWalletExchangeService
                     brandId,
                     Guid.Parse(userId),
                     TransactionTypes.CancelWithdrawal,
-                    amount).ConfigureAwait(false);
+                    amount,
+                    cancellationToken).ConfigureAwait(false);
                 return;
 
             default:
@@ -114,7 +116,8 @@ internal class WalletExchangeService : IWalletExchangeService
                     brandId,
                     Guid.Parse(userId),
                     TransactionTypes.CancelWithdrawal,
-                    amount).ConfigureAwait(false);
+                    amount,
+                    cancellationToken).ConfigureAwait(false);
                 return;
 
             default:
@@ -123,12 +126,14 @@ internal class WalletExchangeService : IWalletExchangeService
     }
 
     private async ValueTask ExchangeAgentWalletAsync(
-                        Guid brandId,
+        Guid brandId,
         Guid agentId,
         TransactionTypes transactionType,
         decimal amount,
         CancellationToken cancellationToken = default)
     {
+        cancellationToken.ThrowIfCancellationRequested();
+
         var agent = await _agentService
             .GetAgentAsync(x => x.Id == agentId)
             .ConfigureAwait(false);

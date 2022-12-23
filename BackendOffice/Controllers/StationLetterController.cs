@@ -56,6 +56,26 @@ public class StationLetterController : BaseContextController
         _stationLetterService = stationLetterService;
     }
 
+    [HttpPut("{id}/status/{status}")]
+    [Description("Change an station letter status")]
+    public async Task<MessageResponse> ChangeStatusAsync(Guid id, StationLetterStatus status)
+    {
+        var announcement = await _queries.GetSingleAsync(q => q.Id == id);
+
+        if (announcement == null)
+        {
+            return CreateInvalidResponse<MessageResponse>(Resources.StationLetter.NotFound);
+        }
+
+        announcement.Status = status;
+        announcement.UpdatedOn = DateTimeOffset.Now;
+        announcement.UpdatedByUsername = Username;
+
+        await _commands.UpdateAsync(announcement);
+
+        return CreateValidResponse<MessageResponse>();
+    }
+
     [HttpPost]
     [Description("Create a station letter")]
     public async Task<MessageResponse> CreateAsync(
@@ -86,7 +106,7 @@ public class StationLetterController : BaseContextController
 
         var players = !request.AssignedAllPlayers
             ? await _playerQueries.GetQueries()
-                .Where(p => p.Status == PlayerStatus.Enabled&& p.BrandId == request.BrandId)
+                .Where(p => p.Status == PlayerStatus.Enabled && p.BrandId == request.BrandId)
                 .Where(p => request.PlayerUsernames.Contains(p.Username))
                 .Select(x => new StationLetterPlayer
                 {
@@ -94,7 +114,7 @@ public class StationLetterController : BaseContextController
                     StationLetterId = stationLetter.Id
                 })
                 .ToArrayAsync()
-            : new StationLetterPlayer[]{};
+            : Array.Empty<StationLetterPlayer>();
 
         await _stationLetterService.CreateStationLetterAsync(stationLetter, players);
 
@@ -240,26 +260,6 @@ public class StationLetterController : BaseContextController
         stationLetter.UpdatedOn = DateTimeOffset.Now;
 
         await _commands.UpdateAsync(stationLetter);
-
-        return CreateValidResponse<MessageResponse>();
-    }
-
-    [HttpPut("{id}/status/{status}")]
-    [Description("Change an station letter status")]
-    public async Task<MessageResponse> ChangeStatusAsync(Guid id, StationLetterStatus status)
-    {
-        var announcement = await _queries.GetSingleAsync(q => q.Id == id);
-
-        if (announcement == null)
-        {
-            return CreateInvalidResponse<MessageResponse>(Resources.StationLetter.NotFound);
-        }
-
-        announcement.Status = status;
-        announcement.UpdatedOn = DateTimeOffset.Now;
-        announcement.UpdatedByUsername = Username;
-
-        await _commands.UpdateAsync(announcement);
 
         return CreateValidResponse<MessageResponse>();
     }

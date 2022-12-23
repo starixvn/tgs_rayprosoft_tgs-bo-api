@@ -35,7 +35,7 @@ public class PaymentChannelTests
 
         var sut = new PaymentChannelQueryService(moqPaymentServiceClient.Object);
 
-        sut.QueryAsync(new PaymentChannelQuery());
+        _ = sut.QueryAsync(new PaymentChannelQuery());
 
         moqPaymentServiceClient.Verify(
             fake => fake.GetAllPaymentChannelsAsync(It.IsAny<CancellationToken>()),

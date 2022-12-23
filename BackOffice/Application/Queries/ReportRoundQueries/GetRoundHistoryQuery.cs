@@ -1,12 +1,13 @@
 ﻿#nullable enable
+
 using System;
 using System.Text.Json;
 using System.Threading;
 using System.Threading.Tasks;
 using Tgs.Report.Client;
 using Tgs.Report.Client.Models.Round;
-using TGS.Services.BackOffice.Application.Models.ReportRound;
 using Tgs.ServiceUtility;
+using TGS.Services.BackOffice.Application.Models.ReportRound;
 
 namespace TGS.Services.BackOffice.Application.Queries.ReportRoundQueries;
 

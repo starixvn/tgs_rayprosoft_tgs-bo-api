@@ -19,16 +19,16 @@ public partial class BrandGameProviderController : BaseContextController
         _mediator = mediator;
     }
 
+    [HttpGet("{brandGameProviderId}/defaultTimes")]
+    [Description("Get default times")]
+    public Task<GetDefaultTimesResponse> GetBrandGameProviderDefaultTimesAsync(Guid brandGameProviderId) =>
+        _mediator.Send(new GetDefaultTimesRequest(brandGameProviderId));
+
     [HttpGet]
     [Description("Get brand game providers")]
     public Task<PagedResponse<BrandGameProviderModel>> GetBrandGameProvidersAsync(
         [FromQuery] GetBrandGameProvidersRequest request) =>
         _mediator.Send(request);
-
-    [HttpGet("{brandGameProviderId}/defaultTimes")]
-    [Description("Get default times")]
-    public Task<GetDefaultTimesResponse> GetBrandGameProviderDefaultTimesAsync(Guid brandGameProviderId) =>
-        _mediator.Send(new GetDefaultTimesRequest(brandGameProviderId));
 
     [HttpPut("{id}")]
     [Description("Update a brand game provider")]

@@ -6,5 +6,6 @@ namespace TGS.Services.BackOffice.Application.Models.Player;
 public class PlayerIdentityFormInfo
 {
     public Guid FormId { get; set; }
+
     public PlayerIdentityReviewState Status { get; set; }
 }

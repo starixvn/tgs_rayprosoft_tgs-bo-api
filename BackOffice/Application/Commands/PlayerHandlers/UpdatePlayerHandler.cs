@@ -34,8 +34,8 @@ public class UpdatePlayerHandler : Handler<UpdatePlayerRequest, MessageResponse>
         IAgentService agentService,
         IHttpContextAccessor accessor,
         IGameProvidersBackofficePluggableClient gameProvidersBackofficePluggableClient,
-        IPlayerServiceClient playerServiceClient) :
-        base(accessor)
+        IPlayerServiceClient playerServiceClient)
+        : base(accessor)
     {
         _logger = logger ?? throw new ArgumentNullException(nameof(logger));
         _service = service;
@@ -125,7 +125,7 @@ public class UpdatePlayerHandler : Handler<UpdatePlayerRequest, MessageResponse>
             };
 
             await _playerServiceClient
-                .SetPlayerPropertiesAsync(player.PlayerCode, properties.ToImmutableDictionary())
+                .SetPlayerPropertiesAsync(player.PlayerCode, properties.ToImmutableDictionary(), cancellationToken)
                 .ConfigureAwait(false);
         }
 
@@ -140,7 +140,10 @@ public class UpdatePlayerHandler : Handler<UpdatePlayerRequest, MessageResponse>
                 [PlayerPropertyName.WhatsApp] = request.WhatsApp
             };
 
-            await _playerServiceClient.SetPlayerPropertiesAsync(player.PlayerCode, properties.ToImmutableDictionary())
+            await _playerServiceClient.SetPlayerPropertiesAsync(
+                player.PlayerCode,
+                properties.ToImmutableDictionary(),
+                cancellationToken)
                 .ConfigureAwait(false);
         }
 
@@ -149,7 +152,9 @@ public class UpdatePlayerHandler : Handler<UpdatePlayerRequest, MessageResponse>
             if (request.Status is PlayerStatus.Disabled or PlayerStatus.InBlacklist)
             {
                 _logger.LogInformation("call KickPlayerAsync");
-                await _gameProvidersBackofficePluggableClient.KickPlayerAsync(request.PlayerCode).ConfigureAwait(false);
+                await _gameProvidersBackofficePluggableClient
+                    .KickPlayerAsync(request.PlayerCode, cancellationToken)
+                    .ConfigureAwait(false);
             }
         }
 

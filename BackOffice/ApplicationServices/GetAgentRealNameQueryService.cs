@@ -4,24 +4,23 @@ using System.Threading.Tasks;
 using Tgs.ServiceUtility;
 using TGS.Services.BackOffice.Infrastructure.DataService;
 
-namespace TGS.Services.BackOffice.ApplicationServices
+namespace TGS.Services.BackOffice.ApplicationServices;
+
+internal class GetAgentRealNameQueryService : IGetService<GetAgentRealNameQuery, string>
 {
-    internal class GetAgentRealNameQueryService : IGetService<GetAgentRealNameQuery, string>
+    private readonly IAgentService _agentService;
+
+    public GetAgentRealNameQueryService(IAgentService agentService)
     {
-        private readonly IAgentService _agentService;
+        _agentService = agentService ?? throw new ArgumentNullException(nameof(agentService));
+    }
 
-        public GetAgentRealNameQueryService(IAgentService agentService)
-        {
-            _agentService = agentService ?? throw new ArgumentNullException(nameof(agentService));
-        }
+    public async ValueTask<string> GetAsync(GetAgentRealNameQuery query, CancellationToken cancellationToken = default)
+    {
+        var agent = await _agentService
+            .GetAgentAsync(agent => agent.Id == query.AgentId)
+            .ConfigureAwait(false);
 
-        public async ValueTask<string> GetAsync(GetAgentRealNameQuery query, CancellationToken cancellationToken = default)
-        {
-            var agent = await _agentService
-                .GetAgentAsync(agent => agent.Id == query.AgentId)
-                .ConfigureAwait(false);
-
-            return agent.RealName ?? string.Empty;
-        }
+        return agent.RealName ?? string.Empty;
     }
 }

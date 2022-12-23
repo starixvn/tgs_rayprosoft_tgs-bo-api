@@ -33,30 +33,27 @@ public class
             .Where(BrandId, b => b.GameProvider.Brands.Select(x => x.BrandId).Contains(BrandId.Value))
         );
 
-        if (configuration == null)
-        {
-            return CreateInvalidResponse<GetGameProviderConfigurationResponse>(GameProviderConfiguration.NotFound);
-        }
-
-        return new GetGameProviderConfigurationResponse
-        {
-            Valid = true,
-            GameProviderConfiguration = new GameProviderConfigurationModel
+        return configuration == null
+            ? CreateInvalidResponse<GetGameProviderConfigurationResponse>(GameProviderConfiguration.NotFound)
+            : new GetGameProviderConfigurationResponse
             {
-                Id = configuration.Id,
-                GameProviderId = configuration.GameProviderId,
-                Name = configuration.Name,
-                Description = configuration.Description,
-                ClientId = configuration.ClientId,
-                SecretKey = configuration.SecretKey,
-                Status = configuration.Status,
-                DesktopEndpoint = configuration.DesktopEndpoint,
-                MobileEndpoint = configuration.MobileEndpoint,
-                ConfigurationData = configuration.ConfigurationData,
-                IsDefault = configuration.IsDefault,
-                UpdatedByUsername = configuration.UpdatedByUsername,
-                UpdatedOn = configuration.UpdatedOn
-            }
-        };
+                Valid = true,
+                GameProviderConfiguration = new GameProviderConfigurationModel
+                {
+                    Id = configuration.Id,
+                    GameProviderId = configuration.GameProviderId,
+                    Name = configuration.Name,
+                    Description = configuration.Description,
+                    ClientId = configuration.ClientId,
+                    SecretKey = configuration.SecretKey,
+                    Status = configuration.Status,
+                    DesktopEndpoint = configuration.DesktopEndpoint,
+                    MobileEndpoint = configuration.MobileEndpoint,
+                    ConfigurationData = configuration.ConfigurationData,
+                    IsDefault = configuration.IsDefault,
+                    UpdatedByUsername = configuration.UpdatedByUsername,
+                    UpdatedOn = configuration.UpdatedOn
+                }
+            };
     }
 }

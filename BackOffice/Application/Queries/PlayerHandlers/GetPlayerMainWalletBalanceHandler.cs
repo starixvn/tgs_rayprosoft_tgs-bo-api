@@ -1,7 +1,4 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
 using Tgs.CashService.Client;
@@ -28,6 +25,8 @@ internal class GetPlayerMainWalletBalanceHandler : IGetService<GetPlayerMainWall
     {
         var player = await _playerService.GetPlayerAsync(x => x.PlayerCode == query.PlayerCode).ConfigureAwait(false);
 
-        return await _cashServiceClient.GetBalanceAsync(player.DefaultWalletId).ConfigureAwait(false);
+        return await _cashServiceClient.GetBalanceAsync(
+            player.DefaultWalletId,
+            cancellationToken).ConfigureAwait(false);
     }
 }

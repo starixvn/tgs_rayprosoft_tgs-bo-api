@@ -15,8 +15,8 @@ public class
 {
     private readonly IBrandGameProviderService _service;
 
-    public GetBrandGameProvidersQueryHandler(IBrandGameProviderService service, IHttpContextAccessor accessor) :
-        base(accessor)
+    public GetBrandGameProvidersQueryHandler(IBrandGameProviderService service, IHttpContextAccessor accessor)
+        : base(accessor)
     {
         _service = service;
     }

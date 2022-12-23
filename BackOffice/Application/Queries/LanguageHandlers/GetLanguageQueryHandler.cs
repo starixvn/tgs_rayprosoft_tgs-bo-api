@@ -12,8 +12,8 @@ public class GetLanguageQueryHandler : Handler<GetLanguageRequest,
 {
     private readonly ILanguageService _service;
 
-    public GetLanguageQueryHandler(ILanguageService service, IHttpContextAccessor accessor) :
-        base(accessor)
+    public GetLanguageQueryHandler(ILanguageService service, IHttpContextAccessor accessor)
+        : base(accessor)
     {
         _service = service;
     }
@@ -23,25 +23,22 @@ public class GetLanguageQueryHandler : Handler<GetLanguageRequest,
         CancellationToken cancellationToken)
     {
         var language = await _service.GetLanguageAsync(x => x.CultureCode == request.CultureCode);
-        if (language == null)
-        {
-            return CreateInvalidResponse<GetLanguageResponse>(Language.NotFound);
-        }
-
-        return new GetLanguageResponse
-        {
-            Valid = true,
-            Language = new LanguageModel
+        return language == null
+            ? CreateInvalidResponse<GetLanguageResponse>(Language.NotFound)
+            : new GetLanguageResponse
             {
-                CultureCode = language.CultureCode,
-                LanguageCode = language.LanguageCode,
-                Name = language.Name,
-                LocalizedName = language.LocalizedName,
-                CreatedByUsername = language.CreatedByUsername,
-                CreatedOn = language.CreatedOn,
-                UpdatedByUsername = language.UpdatedByUsername,
-                UpdatedOn = language.UpdatedOn
-            }
-        };
+                Valid = true,
+                Language = new LanguageModel
+                {
+                    CultureCode = language.CultureCode,
+                    LanguageCode = language.LanguageCode,
+                    Name = language.Name,
+                    LocalizedName = language.LocalizedName,
+                    CreatedByUsername = language.CreatedByUsername,
+                    CreatedOn = language.CreatedOn,
+                    UpdatedByUsername = language.UpdatedByUsername,
+                    UpdatedOn = language.UpdatedOn
+                }
+            };
     }
 }

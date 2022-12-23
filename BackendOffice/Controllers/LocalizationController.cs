@@ -24,7 +24,7 @@ public class LocalizationController : ControllerBase
 
         var content = new byte[fs.Length];
 
-        await fs.ReadAsync(new Memory<byte>(content)).ConfigureAwait(false);
+        _ = await fs.ReadAsync(new Memory<byte>(content)).ConfigureAwait(false);
 
         return File(
             content,

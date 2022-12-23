@@ -9,37 +9,36 @@ using Tgs.MessageQueue;
 using Tgs.ServiceUtility;
 using TGS.Services.BackOffice.Infrastructure.DataService;
 
-namespace TGS.Services.BackOffice.ApplicationServices
+namespace TGS.Services.BackOffice.ApplicationServices;
+
+internal class ClearAllBrandMaintenanceCacheCommandService : ICommandService<ClearAllBrandMaintenanceCacheCommand>
 {
-    internal class ClearAllBrandMaintenanceCacheCommandService : ICommandService<ClearAllBrandMaintenanceCacheCommand>
+    private readonly IBrandService _brandService;
+    private readonly IMessageSender _messageSender;
+
+    public ClearAllBrandMaintenanceCacheCommandService(
+        IBrandService brandService,
+        IMessageSender messageSender)
     {
-        private readonly IBrandService _brandService;
-        private readonly IMessageSender _messageSender;
+        _brandService = brandService ?? throw new ArgumentNullException(nameof(brandService));
+        _messageSender = messageSender ?? throw new ArgumentNullException(nameof(messageSender));
+    }
 
-        public ClearAllBrandMaintenanceCacheCommandService(
-            IBrandService brandService,
-            IMessageSender messageSender)
+    public async ValueTask ExecuteAsync(ClearAllBrandMaintenanceCacheCommand command, CancellationToken cancellationToken = default)
+    {
+        var brandIds = _brandService.GetBrandQueries().Select(brand => brand.Id).ToArray();
+
+        foreach (var brandId in brandIds)
         {
-            _brandService = brandService ?? throw new ArgumentNullException(nameof(brandService));
-            _messageSender = messageSender ?? throw new ArgumentNullException(nameof(messageSender));
-        }
-
-        public async ValueTask ExecuteAsync(ClearAllBrandMaintenanceCacheCommand command, CancellationToken cancellationToken = default)
-        {
-            var brandIds = _brandService.GetBrandQueries().Select(brand => brand.Id).ToArray();
-
-            foreach (var brandId in brandIds)
+            var request = new ClearMaintenanceCacheRequest
             {
-                var request = new ClearMaintenanceCacheRequest
-                {
-                    BrandId = brandId
-                };
+                BrandId = brandId
+            };
 
-                await _messageSender.PublishAsync("tgs.brandservice.maintenance.cache.clear",
-                        Encoding.UTF8.GetBytes(JsonSerializer.Serialize(request)),
-                        cancellationToken)
-                    .ConfigureAwait(false);
-            }
+            await _messageSender.PublishAsync("tgs.brandservice.maintenance.cache.clear",
+                    Encoding.UTF8.GetBytes(JsonSerializer.Serialize(request)),
+                    cancellationToken)
+                .ConfigureAwait(false);
         }
     }
 }

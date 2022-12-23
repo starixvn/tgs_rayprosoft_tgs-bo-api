@@ -2,12 +2,12 @@
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
-using TGS.Core.Models.Enums;
-using TGS.Core.Models.Messages;
 using Tgs.Report.Client;
 using Tgs.Report.Client.Models.Round;
-using TGS.Services.BackOffice.Application.Models.ReportRound;
 using Tgs.ServiceUtility;
+using TGS.Core.Models.Enums;
+using TGS.Core.Models.Messages;
+using TGS.Services.BackOffice.Application.Models.ReportRound;
 
 namespace TGS.Services.BackOffice.Application.Queries.ReportRoundQueries;
 

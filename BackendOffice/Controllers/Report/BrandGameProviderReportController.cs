@@ -1,10 +1,10 @@
 ﻿using System.ComponentModel;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Mvc;
+using Tgs.ServiceUtility;
 using TGS.Core.Models.Messages;
 using TGS.Services.BackOffice.Application.Models.Aggregate;
 using TGS.Services.BackOffice.Application.Models.ReportBrandGameProviderRound;
-using Tgs.ServiceUtility;
 
 namespace TGS.Apis.BackendOffice.Controllers.Report;
 
@@ -12,17 +12,6 @@ namespace TGS.Apis.BackendOffice.Controllers.Report;
 [ApiController]
 public class BrandGameProviderReportController : BaseContextController
 {
-    [HttpGet]
-    [Description("Get brand game provider round aggregate")]
-    public async Task<GetBrandGameProviderRoundsReportResponse> GetGameProviderRoundsAsync(
-        [FromServices]
-        IGetService<GetBrandGameProviderRoundsReportRequest, GetBrandGameProviderRoundsReportResponse>
-            brandGameProviderRoundsService,
-        [FromQuery] GetBrandGameProviderRoundsReportRequest request)
-        => await brandGameProviderRoundsService
-            .GetAsync(request)
-            .ConfigureAwait(false);
-
     [HttpPost("generate")]
     [Description("Generate brand game provider round aggregate")]
     public async Task<MessageResponse> GenerateGameProviderAggregateAsync(
@@ -35,4 +24,15 @@ public class BrandGameProviderReportController : BaseContextController
             .GetAsync(request)
             .ConfigureAwait(false);
     }
+
+    [HttpGet]
+    [Description("Get brand game provider round aggregate")]
+    public async Task<GetBrandGameProviderRoundsReportResponse> GetGameProviderRoundsAsync(
+        [FromServices]
+        IGetService<GetBrandGameProviderRoundsReportRequest, GetBrandGameProviderRoundsReportResponse>
+            brandGameProviderRoundsService,
+        [FromQuery] GetBrandGameProviderRoundsReportRequest request)
+        => await brandGameProviderRoundsService
+            .GetAsync(request)
+            .ConfigureAwait(false);
 }

@@ -7,16 +7,16 @@ public class GameProviderBetLimitModelValidator : AbstractValidator<GameProvider
 {
     public GameProviderBetLimitModelValidator()
     {
-        RuleFor(x => x.CurrencyCode)
+        _ = RuleFor(x => x.CurrencyCode)
             .NotEmpty()
             .NotNull()
             .WithMessage(Application.Resources.GameProviderBetLimit.CurrencyRequired);
 
-        RuleFor(x => x.MinBet)
+        _ = RuleFor(x => x.MinBet)
             .GreaterThanOrEqualTo(0)
             .WithMessage(Application.Resources.GameProviderBetLimit.MinbetGreaterThanZero);
 
-        RuleFor(x => x.MaxBet)
+        _ = RuleFor(x => x.MaxBet)
             .GreaterThan(x => x.MinBet)
             .WithMessage(Application.Resources.GameProviderBetLimit.MaxbetGreaterThanMinbet);
     }

@@ -4,7 +4,6 @@ using System.Linq;
 using System.Text.Json;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.Extensions.Logging;
 using Tgs.Payment.Clients;
 using Tgs.Promotion.Clients;
 using Tgs.Promotion.Clients.Models.Promotion;
@@ -22,13 +21,6 @@ namespace TGS.Apis.BackendOffice.Controllers;
 [ApiController]
 public class DepositController : BaseContextController
 {
-    private readonly ILogger<DepositController> _logger;
-
-    public DepositController(ILogger<DepositController> logger)
-    {
-        _logger = logger ?? throw new ArgumentNullException(nameof(logger));
-    }
-
     [HttpGet("untreated/{brandId}")]
     public ValueTask<int> CountUntreatedDepositFormsAsync(
         [FromServices] IGetService<CountUntreatedDepositFormsQuery, int> countService,

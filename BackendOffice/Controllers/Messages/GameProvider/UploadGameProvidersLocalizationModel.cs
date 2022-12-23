@@ -4,21 +4,13 @@ namespace TGS.Apis.BackendOffice.Controllers.Messages.GameProvider;
 
 public class UploadGameProvidersLocalizationModel
 {
-    public string Id { get; set; }
-
-    public string Name { get; set; }
-
     [JsonPropertyName("enUS")]
     public string EnUS { get; set; }
 
-    [JsonPropertyName("zhCN")]
-    public string ZhCN { get; set; }
+    public string Id { get; set; }
 
-    [JsonPropertyName("zhTW")]
-    public string ZhTW { get; set; }
-
-    [JsonPropertyName("thTH")]
-    public string ThTH { get; set; }
+    [JsonPropertyName("idID")]
+    public string IdID { get; set; }
 
     [JsonPropertyName("jaJP")]
     public string JaJP { get; set; }
@@ -26,9 +18,17 @@ public class UploadGameProvidersLocalizationModel
     [JsonPropertyName("koKR")]
     public string KoKR { get; set; }
 
-    [JsonPropertyName("idID")]
-    public string IdID { get; set; }
+    public string Name { get; set; }
+
+    [JsonPropertyName("thTH")]
+    public string ThTH { get; set; }
 
     [JsonPropertyName("viVN")]
     public string ViVN { get; set; }
+
+    [JsonPropertyName("zhCN")]
+    public string ZhCN { get; set; }
+
+    [JsonPropertyName("zhTW")]
+    public string ZhTW { get; set; }
 }

@@ -32,7 +32,6 @@ internal class MarketingReportFirstDepositDetailQueryTests
             "Agent123",
             paging);
 
-
         var sut = new GetMarketingFirstDepositDetailQueryService(
             fakeQueryService,
             fakeAgentQueryService);

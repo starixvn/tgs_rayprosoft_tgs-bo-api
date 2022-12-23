@@ -37,7 +37,7 @@ internal class BackOfficeRepository : IBackOfficeRepository
         banner.UpdatedByUserName = modifier;
         banner.UpdatedOn = _systemClock.UtcNow;
 
-        await _tgsRepository.SaveChangesAsync().ConfigureAwait(false);
+        _ = await _tgsRepository.SaveChangesAsync().ConfigureAwait(false);
     }
 
     public async ValueTask ChangeStatusAsync(Guid id, int status, string modifier)
@@ -50,7 +50,7 @@ internal class BackOfficeRepository : IBackOfficeRepository
         banner.UpdatedByUserName = modifier;
         banner.UpdatedOn = DateTimeOffset.UtcNow;
 
-        await _tgsRepository.SaveChangesAsync().ConfigureAwait(false);
+        _ = await _tgsRepository.SaveChangesAsync().ConfigureAwait(false);
     }
 
     public async ValueTask<Guid> CreateBannerAsync(BannerModifyInfo createInfo, string modifier)
@@ -68,11 +68,11 @@ internal class BackOfficeRepository : IBackOfficeRepository
             Title = createInfo.Title
         };
 
-        await _tgsRepository.Banners
+        _ = await _tgsRepository.Banners
             .AddAsync(createBanner)
             .ConfigureAwait(false);
 
-        await _tgsRepository.SaveChangesAsync().ConfigureAwait(false);
+        _ = await _tgsRepository.SaveChangesAsync().ConfigureAwait(false);
 
         return createBanner.Id;
     }
@@ -113,10 +113,9 @@ internal class BackOfficeRepository : IBackOfficeRepository
             .FindAsync(brandId)
             .ConfigureAwait(false);
 
-        if (brand == null || string.IsNullOrWhiteSpace(brand.LogoInfo))
-            return null;
-
-        return JsonSerializer.Deserialize<BrandLogoInfo>(brand.LogoInfo);
+        return brand == null || string.IsNullOrWhiteSpace(brand.LogoInfo)
+            ? null
+            : JsonSerializer.Deserialize<BrandLogoInfo>(brand.LogoInfo);
     }
 
     public async ValueTask ImportLocalizationStringsAsync(
@@ -145,7 +144,7 @@ internal class BackOfficeRepository : IBackOfficeRepository
             }
             else
             {
-                await _tgsRepository.SystemLocalizations
+                _ = await _tgsRepository.SystemLocalizations
                     .AddAsync(new SystemLocalization
                     {
                         SystemCode = info.SystemCode,
@@ -157,7 +156,7 @@ internal class BackOfficeRepository : IBackOfficeRepository
             }
         }
 
-        await _tgsRepository.SaveChangesAsync().ConfigureAwait(false);
+        _ = await _tgsRepository.SaveChangesAsync().ConfigureAwait(false);
     }
 
     public async ValueTask InsertAdjustPlayerRecordAsync(
@@ -411,7 +410,7 @@ internal class BackOfficeRepository : IBackOfficeRepository
         banner.UpdatedByUserName = reviewer;
         banner.UpdatedOn = _systemClock.UtcNow;
 
-        await _tgsRepository.SaveChangesAsync().ConfigureAwait(false);
+        _ = await _tgsRepository.SaveChangesAsync().ConfigureAwait(false);
     }
 
     public async ValueTask SetIsEnableBannerAsync(Guid id, bool isEnable, string modifier)
@@ -425,7 +424,7 @@ internal class BackOfficeRepository : IBackOfficeRepository
         banner.UpdatedByUserName = modifier;
         banner.UpdatedOn = _systemClock.UtcNow;
 
-        await _tgsRepository.SaveChangesAsync().ConfigureAwait(false);
+        _ = await _tgsRepository.SaveChangesAsync().ConfigureAwait(false);
     }
 
     public async ValueTask UpdateBannerAsync(Guid id, BannerModifyInfo updateInfo, string modifier)
@@ -442,7 +441,7 @@ internal class BackOfficeRepository : IBackOfficeRepository
         banner.UpdatedByUserName = modifier;
         banner.UpdatedOn = _systemClock.UtcNow;
 
-        await _tgsRepository.SaveChangesAsync().ConfigureAwait(false);
+        _ = await _tgsRepository.SaveChangesAsync().ConfigureAwait(false);
     }
 
     public async ValueTask UpdateBrandLogoInfoAsync(BrandLogoInfo info, string modifier)
@@ -458,7 +457,7 @@ internal class BackOfficeRepository : IBackOfficeRepository
         brand.UpdatedByUsername = modifier;
         brand.UpdatedOn = DateTimeOffset.UtcNow;
 
-        await _tgsRepository
+        _ = await _tgsRepository
             .SaveChangesAsync()
             .ConfigureAwait(false);
     }

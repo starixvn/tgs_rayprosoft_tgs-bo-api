@@ -15,8 +15,8 @@ public class GetGameProviderConfigurationsQueryHandler : Handler<GetGameProvider
     private readonly IGameProviderConfigurationService _service;
 
     public GetGameProviderConfigurationsQueryHandler(IGameProviderConfigurationService service,
-        IHttpContextAccessor accessor) :
-        base(accessor)
+        IHttpContextAccessor accessor)
+        : base(accessor)
     {
         _service = service;
     }

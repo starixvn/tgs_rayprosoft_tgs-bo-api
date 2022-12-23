@@ -47,6 +47,133 @@ public class RoleController : BaseContextController
         _jsonSerializationProvider = jsonSerializationProvider;
     }
 
+    [HttpPost("{roleId}/copy")]
+    [Description("Copy role")]
+    public async Task<MessageResponse> CopyAsync(Guid roleId, [FromBody] CopyRoleRequest request)
+    {
+        var role = await _roleQueries.GetSingleAsync(p => p.Id == roleId);
+
+        if (role == null)
+        {
+            return CreateInvalidResponse<GetRoleResponse>(Resources.Role.NotFound);
+        }
+
+        if (role.IsRoot)
+        {
+            return CreateInvalidResponse<GetRoleResponse>(Resources.Role.CannotCopyRootRole);
+        }
+
+        var roleNameExisted = await _roleQueries.GetQueries()
+            .Where(role.ResellerId, x => x.ResellerId == role.ResellerId)
+            .Where(role.LicenseeId, x => x.LicenseeId == role.LicenseeId)
+            .Where(role.BrandId, x => x.BrandId == role.BrandId)
+            .AnyAsync(x => x.Name == request.Name);
+
+        if (roleNameExisted)
+        {
+            return CreateInvalidResponse<GetRoleResponse>(Resources.Role.NameExists);
+        }
+
+        var newRole = CreateRole(request.Name,
+            role.DisplayName,
+            role.Description,
+            role.ResellerId,
+            role.RoleType,
+            role.LicenseeId,
+            role.BrandId,
+            role.MenuSetting,
+            role.IsRoot);
+
+        await _roleCommands.CreateAsync(newRole);
+
+        return CreateValidResponse<MessageResponse>();
+    }
+
+    [HttpPost]
+    [Description("Create a role")]
+    public async Task<MessageResponse> CreateAsync([FromBody] CreateRoleRequest request)
+    {
+        var roleNameExisted = await _roleQueries.GetQueries()
+            .Where(request.ResellerId, x => x.ResellerId == request.ResellerId)
+            .Where(request.LicenseeId, x => x.LicenseeId == request.LicenseeId)
+            .Where(request.BrandId, x => x.BrandId == request.BrandId)
+            .AnyAsync(x => x.Name == request.Name);
+
+        if (roleNameExisted)
+        {
+            return CreateInvalidResponse<GetRoleResponse>(Resources.Role.NameExists);
+        }
+
+        switch (request.IsRoot)
+        {
+            case true when request.RoleType == RoleType.Brand &&
+                await _roleQueries.GetCountAsync(x => x.IsRoot && x.BrandId == request.BrandId) > 0:
+                return CreateInvalidResponse<GetRoleResponse>(Resources.Role.BrandRootExisted);
+
+            case true when request.RoleType == RoleType.Licensee &&
+                await _roleQueries.GetCountAsync(x
+                    => x.IsRoot && x.LicenseeId == request.LicenseeId && x.BrandId == null) >
+                0:
+                return CreateInvalidResponse<GetRoleResponse>(Resources.Role.LicenseeRootExisted);
+
+            case true when request.RoleType == RoleType.Reseller &&
+                await _roleQueries.GetCountAsync(x
+                    => x.IsRoot && x.ResellerId == request.ResellerId && x.LicenseeId == null &&
+                    x.BrandId == null) >
+                0:
+                return CreateInvalidResponse<GetRoleResponse>(Resources.Role.ResellerRootExisted);
+
+            case true when request.RoleType == RoleType.Admin && await _roleQueries.GetCountAsync(x =>
+                x.IsRoot && x.ResellerId == null && x.LicenseeId == null && x.BrandId == null) > 0:
+                return CreateInvalidResponse<GetRoleResponse>(Resources.Role.RootExixted);
+        }
+
+        var role = CreateRole(request.Name,
+            request.DisplayName,
+            request.Description,
+            request.ResellerId,
+            request.RoleType,
+            request.LicenseeId,
+            request.BrandId,
+            _jsonSerializationProvider.SerializeToString(request.Menus),
+            request.IsRoot);
+
+        await _roleCommands.CreateAsync(role);
+
+        return CreateValidResponse<MessageResponse>();
+    }
+
+    [HttpDelete("{roleId}")]
+    [Description("Delete a role")]
+    public async Task<MessageResponse> DeleteAsync(Guid roleId)
+    {
+        var role = await _roleQueries.GetSingleAsync(p => p.Id == roleId, s => s.Include(x => x.Users));
+
+        if (role == null)
+        {
+            return CreateInvalidResponse<MessageResponse>(Resources.Role.NotFound);
+        }
+
+        if (role.Users.Any())
+        {
+            return CreateInvalidResponse<MessageResponse>(Resources.Role.CannotDeleteRole);
+        }
+
+        if (role.IsRoot)
+        {
+            return CreateInvalidResponse<MessageResponse>(Resources.Role.CannotDeleteRootRole);
+        }
+
+        if (role.IsRoot)
+        {
+            return CreateInvalidResponse<MessageResponse>(Resources.Role.CannotDeleteRootRole);
+        }
+
+        await _roleCommands.DeleteAsync(role);
+
+        return CreateValidResponse<MessageResponse>();
+    }
+
     [HttpGet]
     [Description("Get roles")]
     public Task<PagedResponse<RoleModel>> GetListAsync([FromQuery] GetRolesRequest request) =>
@@ -127,6 +254,28 @@ public class RoleController : BaseContextController
                 UpdatedByUsername = x.role.UpdatedByUsername
             })
             .CreatePagedResponseAsync(request);
+
+    [HttpPost("menus")]
+    [Description("Get menus")]
+    public async Task<GetMenuResponse> GetMenuAsync(GetMenuRequest request)
+    {
+        var setting = request.RoleType != RoleType.Admin
+            ? (await _roleQueries.GetSingleAsync(x => x.Id == request.RoleId))?.MenuSetting
+            : (await _settingQueries.GetSingleAsync(p => p.Key == "Menus"))?.Value;
+
+        if (setting == null)
+        {
+            return CreateInvalidResponse<GetMenuResponse>(Resources.Role.MenuNotFound);
+        }
+
+        var menus = GetMenuSettingByString(setting);
+
+        return new()
+        {
+            Valid = true,
+            Menus = menus
+        };
+    }
 
     [HttpGet("{roleId}")]
     [Description("Get a role")]
@@ -231,7 +380,7 @@ public class RoleController : BaseContextController
             UpdateRoles(role, resellerRoles);
         }
 
-        if (role.RoleType == RoleType.Reseller || role.RoleType == RoleType.Licensee)
+        if (role.RoleType is RoleType.Reseller or RoleType.Licensee)
         {
             var licenseeRootRole = roles.FirstOrDefault(x => x.RoleType == RoleType.Licensee && x.IsRoot);
 
@@ -267,158 +416,16 @@ public class RoleController : BaseContextController
         return CreateValidResponse<MessageResponse>();
     }
 
-    [HttpDelete("{roleId}")]
-    [Description("Delete a role")]
-    public async Task<MessageResponse> DeleteAsync(Guid roleId)
+    private static MenuSetting SetMenuDisplay(MenuSetting menuTemplate, IEnumerable<MenuSetting> roleMenus)
     {
-        var role = await _roleQueries.GetSingleAsync(p => p.Id == roleId, s => s.Include(x => x.Users));
+        var roleMenuLevel1 = roleMenus?.FirstOrDefault(p => p.Code == menuTemplate.Code);
+        menuTemplate.IsDisplay = roleMenuLevel1?.IsDisplay ?? false;
 
-        if (role == null)
-        {
-            return CreateInvalidResponse<MessageResponse>(Resources.Role.NotFound);
-        }
-
-        if (role.Users.Any())
-        {
-            return CreateInvalidResponse<MessageResponse>(Resources.Role.CannotDeleteRole);
-        }
-
-        if (role.IsRoot)
-        {
-            return CreateInvalidResponse<MessageResponse>(Resources.Role.CannotDeleteRootRole);
-        }
-
-        if (role.IsRoot)
-        {
-            return CreateInvalidResponse<MessageResponse>(Resources.Role.CannotDeleteRootRole);
-        }
-
-
-        await _roleCommands.DeleteAsync(role);
-
-        return CreateValidResponse<MessageResponse>();
-    }
-
-    [HttpPost("{roleId}/copy")]
-    [Description("Copy role")]
-    public async Task<MessageResponse> CopyAsync(Guid roleId, [FromBody] CopyRoleRequest request)
-    {
-        var role = await _roleQueries.GetSingleAsync(p => p.Id == roleId);
-
-        if (role == null)
-        {
-            return CreateInvalidResponse<GetRoleResponse>(Resources.Role.NotFound);
-        }
-
-        if (role.IsRoot)
-        {
-            return CreateInvalidResponse<GetRoleResponse>(Resources.Role.CannotCopyRootRole);
-        }
-
-        var roleNameExisted = await _roleQueries.GetQueries()
-            .Where(role.ResellerId, x => x.ResellerId == role.ResellerId)
-            .Where(role.LicenseeId, x => x.LicenseeId == role.LicenseeId)
-            .Where(role.BrandId, x => x.BrandId == role.BrandId)
-            .AnyAsync(x => x.Name == request.Name);
-
-        if (roleNameExisted)
-        {
-            return CreateInvalidResponse<GetRoleResponse>(Resources.Role.NameExists);
-        }
-
-        var newRole = CreateRole(request.Name,
-            role.DisplayName,
-            role.Description,
-            role.ResellerId,
-            role.RoleType,
-            role.LicenseeId,
-            role.BrandId,
-            role.MenuSetting,
-            role.IsRoot);
-
-        await _roleCommands.CreateAsync(newRole);
-
-        return CreateValidResponse<MessageResponse>();
-    }
-
-    [HttpPost]
-    [Description("Create a role")]
-    public async Task<MessageResponse> CreateAsync([FromBody] CreateRoleRequest request)
-    {
-        var roleNameExisted = await _roleQueries.GetQueries()
-            .Where(request.ResellerId, x => x.ResellerId == request.ResellerId)
-            .Where(request.LicenseeId, x => x.LicenseeId == request.LicenseeId)
-            .Where(request.BrandId, x => x.BrandId == request.BrandId)
-            .AnyAsync(x => x.Name == request.Name);
-
-        if (roleNameExisted)
-        {
-            return CreateInvalidResponse<GetRoleResponse>(Resources.Role.NameExists);
-        }
-
-        switch (request.IsRoot)
-        {
-            case true when request.RoleType == RoleType.Brand &&
-                await _roleQueries.GetCountAsync(x => x.IsRoot && x.BrandId == request.BrandId) > 0:
-                return CreateInvalidResponse<GetRoleResponse>(Resources.Role.BrandRootExisted);
-
-            case true when request.RoleType == RoleType.Licensee &&
-                await _roleQueries.GetCountAsync(x
-                    => x.IsRoot && x.LicenseeId == request.LicenseeId && x.BrandId == null) >
-                0:
-                return CreateInvalidResponse<GetRoleResponse>(Resources.Role.LicenseeRootExisted);
-
-            case true when request.RoleType == RoleType.Reseller &&
-                await _roleQueries.GetCountAsync(x
-                    => x.IsRoot && x.ResellerId == request.ResellerId && x.LicenseeId == null &&
-                    x.BrandId == null) >
-                0:
-                return CreateInvalidResponse<GetRoleResponse>(Resources.Role.ResellerRootExisted);
-
-            case true when request.RoleType == RoleType.Admin && await _roleQueries.GetCountAsync(x =>
-                x.IsRoot && x.ResellerId == null && x.LicenseeId == null && x.BrandId == null) > 0:
-                return CreateInvalidResponse<GetRoleResponse>(Resources.Role.RootExixted);
-        }
-
-        var role = CreateRole(request.Name,
-            request.DisplayName,
-            request.Description,
-            request.ResellerId,
-            request.RoleType,
-            request.LicenseeId,
-            request.BrandId,
-            _jsonSerializationProvider.SerializeToString(request.Menus),
-            request.IsRoot);
-
-        await _roleCommands.CreateAsync(role);
-
-        return CreateValidResponse<MessageResponse>();
-    }
-
-    [HttpPost("menus")]
-    [Description("Get menus")]
-    public async Task<GetMenuResponse> GetMenuAsync(GetMenuRequest request)
-    {
-        var setting = request.RoleType != RoleType.Admin
-            ? (await _roleQueries.GetSingleAsync(x => x.Id == request.RoleId))?.MenuSetting
-            : (await _settingQueries.GetSingleAsync(p => p.Key == "Menus"))?.Value;
-
-        if (setting == null)
-        {
-            return CreateInvalidResponse<GetMenuResponse>(Resources.Role.MenuNotFound);
-        }
-
-        var menus = GetMenuSettingByString(setting);
-
-        return new()
-        {
-            Valid = true,
-            Menus = menus
-        };
+        return roleMenuLevel1;
     }
 
     private Role CreateRole(
-        string name, string displayName, string description, Guid? resellerId,
+            string name, string displayName, string description, Guid? resellerId,
         RoleType roleType, Guid? licenseeId, Guid? brandId, string menuSetting, bool isRoot) =>
         new()
         {
@@ -438,9 +445,6 @@ public class RoleController : BaseContextController
             UpdatedOn = DateTimeOffset.Now
         };
 
-    private MenuSetting[] GetMenuSettingByString(string setting) =>
-        _jsonSerializationProvider.DeserializeFromString<MenuSetting[]>(setting);
-
     private MenuSetting[] GetMenuSetting(string template, string menuSetting)
     {
         var templateMenus = GetMenuSettingByString(template);
@@ -456,7 +460,7 @@ public class RoleController : BaseContextController
 
                 foreach (var permission in subMenu.SubMenus)
                 {
-                    SetMenuDisplay(permission, roleMenuLevel2?.SubMenus);
+                    _ = SetMenuDisplay(permission, roleMenuLevel2?.SubMenus);
                 }
             }
         }
@@ -464,13 +468,8 @@ public class RoleController : BaseContextController
         return templateMenus;
     }
 
-    private static MenuSetting SetMenuDisplay(MenuSetting menuTemplate, IEnumerable<MenuSetting> roleMenus)
-    {
-        var roleMenuLevel1 = roleMenus?.FirstOrDefault(p => p.Code == menuTemplate.Code);
-        menuTemplate.IsDisplay = roleMenuLevel1?.IsDisplay ?? false;
-
-        return roleMenuLevel1;
-    }
+    private MenuSetting[] GetMenuSettingByString(string setting) =>
+            _jsonSerializationProvider.DeserializeFromString<MenuSetting[]>(setting);
 
     private void UpdateRoles(Role templateRole, IEnumerable<Role> roles)
     {

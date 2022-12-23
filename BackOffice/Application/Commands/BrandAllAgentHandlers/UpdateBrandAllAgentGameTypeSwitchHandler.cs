@@ -17,8 +17,8 @@ public class
 
     public UpdateBrandAllAgentGameTypeGameTypeSwitchHandler(IBrandService brandService,
         IBrandAllAgentGameTypeService service,
-        IHttpContextAccessor accessor) :
-        base(accessor)
+        IHttpContextAccessor accessor)
+        : base(accessor)
     {
         _service = service;
         _brandService = brandService;

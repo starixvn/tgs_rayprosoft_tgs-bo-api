@@ -46,27 +46,26 @@ public partial class BrandController : BaseContextController
             .GetAsync(query, HttpContext.RequestAborted)
             .ConfigureAwait(false);
 
-        if (info == null)
-            return new ResponseViewModel<BrandLogoInfoViewModel>
+        return info == null
+            ? new ResponseViewModel<BrandLogoInfoViewModel>
             {
                 Valid = true,
                 Data = new BrandLogoInfoViewModel
                 {
                     BrandId = brandId
                 }
-            };
-
-        return new ResponseViewModel<BrandLogoInfoViewModel>
-        {
-            Valid = true,
-            Data = new BrandLogoInfoViewModel
-            {
-                BrandId = info.BrandId,
-                DesktopLogoUrl = info.DesktopLogoUrl,
-                LoadingIconUrl = info.LoadingUrl,
-                MobileLogoUrl = info.MobileLogoUrl
             }
-        };
+            : new ResponseViewModel<BrandLogoInfoViewModel>
+            {
+                Valid = true,
+                Data = new BrandLogoInfoViewModel
+                {
+                    BrandId = info.BrandId,
+                    DesktopLogoUrl = info.DesktopLogoUrl,
+                    LoadingIconUrl = info.LoadingUrl,
+                    MobileLogoUrl = info.MobileLogoUrl
+                }
+            };
     }
 
     [HttpGet(Name = "GetBrands")]

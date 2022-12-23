@@ -54,7 +54,7 @@ public class BrandCommunicationTests
 
         var query = new BrandCommunicationQuery(
             BrandId: Guid.NewGuid());
-        await sut.QueryAsync(query)
+        _ = await sut.QueryAsync(query)
             .ToListAsync()
             .ConfigureAwait(false);
 
@@ -67,8 +67,7 @@ public class BrandCommunicationTests
     public void String_To_CommunicationType_If_Not_Match_Parse_Fail()
     {
         var text = "AAAA";
-
-        var actual = Enum.TryParse(typeof(CommunicationType), text, out var result);
+        var actual = Enum.TryParse(typeof(CommunicationType), text, out _);
 
         Assert.IsFalse(actual);
     }
@@ -79,7 +78,7 @@ public class BrandCommunicationTests
         var fakeTgsQueries = Substitute.For<ITgsQueries<CoreModels.BrandCommunication>>();
         var fakeTgsCommand = Substitute.For<ITgsCommands<CoreModels.BrandCommunication>>();
 
-        fakeTgsQueries
+        _ = fakeTgsQueries
             .GetSingleAsync(Arg.Any<Expression<Func<CoreModels.BrandCommunication, bool>>>())
             .Returns(new CoreModels.BrandCommunication());
 

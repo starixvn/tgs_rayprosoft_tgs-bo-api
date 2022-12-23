@@ -23,23 +23,20 @@ public class
     {
         var gameProviderBetLimit = await _service.GetGameProviderBetLimitAsync(x => x.Id == request.Id);
 
-        if (gameProviderBetLimit == null)
-        {
-            return CreateInvalidResponse<GetGameProviderBetLimitResponse>(GameProviderBetLimit.NotFound);
-        }
-
-        return new()
-        {
-            Valid = true,
-            GameProviderBetLimit = new()
+        return gameProviderBetLimit == null
+            ? CreateInvalidResponse<GetGameProviderBetLimitResponse>(GameProviderBetLimit.NotFound)
+            : (new()
             {
-                Id = gameProviderBetLimit.Id,
-                CurrencyCode = gameProviderBetLimit.CurrencyCode,
-                MinBet = gameProviderBetLimit.MinBet,
-                MaxBet = gameProviderBetLimit.MaxBet,
-                MaxBetPerMatch = gameProviderBetLimit.MaxBetPerMatch,
-                ExternalSetting = gameProviderBetLimit.ExternalSetting
-            }
-        };
+                Valid = true,
+                GameProviderBetLimit = new()
+                {
+                    Id = gameProviderBetLimit.Id,
+                    CurrencyCode = gameProviderBetLimit.CurrencyCode,
+                    MinBet = gameProviderBetLimit.MinBet,
+                    MaxBet = gameProviderBetLimit.MaxBet,
+                    MaxBetPerMatch = gameProviderBetLimit.MaxBetPerMatch,
+                    ExternalSetting = gameProviderBetLimit.ExternalSetting
+                }
+            });
     }
 }

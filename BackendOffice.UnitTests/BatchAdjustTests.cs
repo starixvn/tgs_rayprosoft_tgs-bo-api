@@ -54,7 +54,7 @@ public class BatchAdjustTests
 
         var query = new ProcessResultQuery(Guid.NewGuid());
 
-        await sut.QueryAsync(query).ToArrayAsync();
+        _ = await sut.QueryAsync(query).ToArrayAsync();
 
         _ = fakeBatchTempRepository.Received(1)
             .GetAdjustBalanceItemResultsAsync(Arg.Is(query.BatchId));
@@ -69,7 +69,7 @@ public class BatchAdjustTests
 
         var query = new PreviewBatchQuery(Guid.NewGuid());
 
-        await sut.QueryAsync(query).ToArrayAsync();
+        _ = await sut.QueryAsync(query).ToArrayAsync();
 
         _ = fakeBatchTempRepository.Received(1)
             .GetAdjustBalanceBatchAsync(Arg.Is(query.BatchId));

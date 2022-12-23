@@ -20,15 +20,15 @@ public class TgsQueries<T> : ITgsQueries<T> where T : class
     Task<bool> ITgsQueries<T>.ExistsAsync(Expression<Func<T, bool>> predicate) =>
         _repository.Set<T>().AnyAsync(predicate);
 
+    Task<int> ITgsQueries<T>.GetCountAsync(Expression<Func<T, bool>> predicate) =>
+        _repository.Set<T>().CountAsync(predicate);
+
+    IQueryable<T> ITgsQueries<T>.GetQueries() => _repository.Set<T>();
+
     Task<T> ITgsQueries<T>.GetSingleAsync(Expression<Func<T, bool>> predicate,
-        Func<IQueryable<T>, IQueryable<T>> preQuery)
+                Func<IQueryable<T>, IQueryable<T>> preQuery)
     {
         preQuery ??= c => c;
         return preQuery(_repository.Set<T>()).FirstOrDefaultAsync(predicate);
     }
-
-    IQueryable<T> ITgsQueries<T>.GetQueries() => _repository.Set<T>();
-
-    Task<int> ITgsQueries<T>.GetCountAsync(Expression<Func<T, bool>> predicate) =>
-        _repository.Set<T>().CountAsync(predicate);
 }

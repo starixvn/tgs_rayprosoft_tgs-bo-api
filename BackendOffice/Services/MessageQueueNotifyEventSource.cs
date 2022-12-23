@@ -7,9 +7,8 @@ namespace TGS.Apis.BackendOffice.Services;
 
 internal class MessageQueueNotifyEventSource : INotifyEventSource, IDisposable
 {
+    private readonly Subject<BackOfficeNotifyEvent> _eventSubject = new();
     private bool _disposedValue;
-    private Subject<BackOfficeNotifyEvent> _eventSubject = new();
-
     public IObservable<BackOfficeNotifyEvent> EventSource => _eventSubject.AsObservable();
 
     public void Dispose()

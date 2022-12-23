@@ -17,5 +17,5 @@ internal class PaymentMethodQueryService : IQueryService<PaymentMethodQuery, Pay
 
     public IAsyncEnumerable<PaymentMethodInfo> QueryAsync(PaymentMethodQuery query,
         CancellationToken cancellationToken = default)
-        => _paymentServiceClient.GetAllPaymentMethodsAsync();
+        => _paymentServiceClient.GetAllPaymentMethodsAsync(cancellationToken);
 }

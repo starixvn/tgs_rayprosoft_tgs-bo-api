@@ -27,7 +27,7 @@ public class BrandGameControllerTests : BaseTests
     {
         var brandGame = CreateBrandGameResponseModelFixture().Create<BrandGameResponseModel>();
 
-        _mediatorMock
+        _ = _mediatorMock
             .Setup(m => m.Send(It.IsAny<GetBrandGameRequest>(), It.IsAny<CancellationToken>()))
             .ReturnsAsync(new GetBrandGameResponse
             {
@@ -36,17 +36,17 @@ public class BrandGameControllerTests : BaseTests
             });
 
         var response = await _controller.GetBrandGameAsync(It.IsAny<Guid>());
-        response.Valid.Should().BeTrue();
-        response.BrandGame.Id.Should().Be(brandGame.Id);
-        response.BrandGame.GameId.Should().Be(brandGame.GameId);
-        response.BrandGame.GameProviderName.Should().Be(brandGame.GameProviderName);
-        response.BrandGame.GameName.Should().Be(brandGame.GameName);
-        response.BrandGame.Status.Should().Be(brandGame.Status);
-        response.BrandGame.GameType.Should().Be(brandGame.GameType);
-        response.BrandGame.Platform.Should().Be(brandGame.Platform);
-        response.BrandGame.SupportHtml5.Should().Be(brandGame.SupportHtml5);
-        response.BrandGame.EffectiveBettingPercentage.Should().Be(brandGame.EffectiveBettingPercentage);
-        response.BrandGame.Rebate.Should().Be(brandGame.Rebate);
+        _ = response.Valid.Should().BeTrue();
+        _ = response.BrandGame.Id.Should().Be(brandGame.Id);
+        _ = response.BrandGame.GameId.Should().Be(brandGame.GameId);
+        _ = response.BrandGame.GameProviderName.Should().Be(brandGame.GameProviderName);
+        _ = response.BrandGame.GameName.Should().Be(brandGame.GameName);
+        _ = response.BrandGame.Status.Should().Be(brandGame.Status);
+        _ = response.BrandGame.GameType.Should().Be(brandGame.GameType);
+        _ = response.BrandGame.Platform.Should().Be(brandGame.Platform);
+        _ = response.BrandGame.SupportHtml5.Should().Be(brandGame.SupportHtml5);
+        _ = response.BrandGame.EffectiveBettingPercentage.Should().Be(brandGame.EffectiveBettingPercentage);
+        _ = response.BrandGame.Rebate.Should().Be(brandGame.Rebate);
 
         _mediatorMock.Verify(x => x.Send(It.IsAny<GetBrandGameRequest>(), It.IsAny<CancellationToken>()));
     }
@@ -73,7 +73,7 @@ public class BrandGameControllerTests : BaseTests
 
         var expectedRoles = showAll ? orderedRoles.ToArray() : orderedRoles.Skip(skip).Take(take).ToArray();
 
-        _mediatorMock
+        _ = _mediatorMock
             .Setup(m => m.Send(It.IsAny<GetBrandGamesRequest>(), It.IsAny<CancellationToken>()))
             .ReturnsAsync(new PagedResponse<BrandGameModel>
             {
@@ -82,12 +82,12 @@ public class BrandGameControllerTests : BaseTests
             });
 
         var response = await _controller.GetBrandGamesAsync(request);
-        response.Valid.Should().BeTrue();
+        _ = response.Valid.Should().BeTrue();
 
         for (var i = 0; i < response.Items.Length; i++)
         {
-            response.Items[i].Id.Should().Be(expectedRoles[i].Id);
-            response.Items[i].GameName.Should().Be(expectedRoles[i].GameName);
+            _ = response.Items[i].Id.Should().Be(expectedRoles[i].Id);
+            _ = response.Items[i].GameName.Should().Be(expectedRoles[i].GameName);
         }
 
         _mediatorMock.Verify(x => x.Send(It.IsAny<GetBrandGamesRequest>(), It.IsAny<CancellationToken>()));
@@ -99,13 +99,13 @@ public class BrandGameControllerTests : BaseTests
         var brandGame = CreateBrandGameResponseModelFixture().Create<BrandGameModel>();
         var request = new Fixture().Create<UpdateBrandGameRequest>();
 
-        _mediatorMock
+        _ = _mediatorMock
             .Setup(m => m.Send(It.IsAny<UpdateBrandGameRequest>(), It.IsAny<CancellationToken>()))
             .ReturnsAsync(new MessageResponse { Valid = true });
 
         var response = await _controller.UpdateBrandGameAsync(brandGame.Id, request);
 
-        response.Valid.Should().BeTrue();
+        _ = response.Valid.Should().BeTrue();
         _mediatorMock.Verify(x => x.Send(It.IsAny<UpdateBrandGameRequest>(), It.IsAny<CancellationToken>()));
     }
 
@@ -114,13 +114,13 @@ public class BrandGameControllerTests : BaseTests
     {
         var request = new Fixture().Create<UpdateBrandGameTagRequest>();
 
-        _mediatorMock
+        _ = _mediatorMock
             .Setup(m => m.Send(It.IsAny<UpdateBrandGameTagRequest>(), It.IsAny<CancellationToken>()))
             .ReturnsAsync(new MessageResponse { Valid = true });
 
         var response = await _controller.UpdateBrandTagAsync(request.Id, request.GameTag, request.Enabled);
 
-        response.Valid.Should().BeTrue();
+        _ = response.Valid.Should().BeTrue();
         _mediatorMock.Verify(x => x.Send(It.IsAny<UpdateBrandGameTagRequest>(), It.IsAny<CancellationToken>()));
     }
 
@@ -132,18 +132,18 @@ public class BrandGameControllerTests : BaseTests
             _mediatorMock.Object);
     }
 
-    private Fixture CreateBrandGameModelFixture()
+    private static Fixture CreateBrandGameModelFixture()
     {
         var fixture = new Fixture();
-        fixture.Create<BrandGameModel>();
+        _ = fixture.Create<BrandGameModel>();
         fixture.Behaviors.Add(new OmitOnRecursionBehavior());
         return fixture;
     }
 
-    private Fixture CreateBrandGameResponseModelFixture()
+    private static Fixture CreateBrandGameResponseModelFixture()
     {
         var fixture = new Fixture();
-        fixture.Create<BrandGameResponseModel>();
+        _ = fixture.Create<BrandGameResponseModel>();
         fixture.Behaviors.Add(new OmitOnRecursionBehavior());
         return fixture;
     }

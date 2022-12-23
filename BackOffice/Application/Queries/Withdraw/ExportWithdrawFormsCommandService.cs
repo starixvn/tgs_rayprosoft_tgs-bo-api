@@ -18,7 +18,7 @@ namespace TGS.Services.BackOffice.Application.Queries.Withdraw;
 internal class ExportWithdrawFormsCommandService : IGetService<ExportWithdrawFormsCommand, MemoryStream>
 {
     private static readonly EmbeddedFileProvider _EmbeddedFileProvider =
-        new EmbeddedFileProvider(Assembly.GetExecutingAssembly());
+        new(Assembly.GetExecutingAssembly());
 
     private readonly IPaymentServiceClient _paymentServiceClient;
     private readonly IFileInfo _templateFileInfo;
@@ -32,8 +32,9 @@ internal class ExportWithdrawFormsCommandService : IGetService<ExportWithdrawFor
 
     public async ValueTask<MemoryStream> GetAsync(ExportWithdrawFormsCommand query, CancellationToken cancellationToken)
     {
-        var resultPaymentMethods = await _paymentServiceClient.GetAllPaymentMethodsAsync()
-            .ToDictionaryAsync(x => x.Id).ConfigureAwait(false);
+        var resultPaymentMethods = await _paymentServiceClient.GetAllPaymentMethodsAsync(cancellationToken)
+            .ToDictionaryAsync(x => x.Id, cancellationToken: cancellationToken)
+            .ConfigureAwait(false);
 
         var resource = new ResourceManager(typeof(Resources.Withdraw));
 
@@ -78,8 +79,8 @@ internal class ExportWithdrawFormsCommandService : IGetService<ExportWithdrawFor
             TotalAmount = totalAmount
         });
 
-        template.Generate();
+        _ = template.Generate();
 
-        template.Workbook.Worksheet("template").CopyTo(target, "Withdraw");
+        _ = template.Workbook.Worksheet("template").CopyTo(target, "Withdraw");
     }
 }

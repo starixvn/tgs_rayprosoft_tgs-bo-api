@@ -15,8 +15,8 @@ public class
 {
     private readonly IBrandGameProviderScheduleService _service;
 
-    public GetDefaultTimesQueryHandler(IBrandGameProviderScheduleService service, IHttpContextAccessor accessor) :
-        base(accessor)
+    public GetDefaultTimesQueryHandler(IBrandGameProviderScheduleService service, IHttpContextAccessor accessor)
+        : base(accessor)
     {
         _service = service;
     }
@@ -31,9 +31,9 @@ public class
                 .Where(BrandId != null, b => b.BrandGameProvider.BrandId == BrandId)
                 .Where(x => x.BrandGameProviderId == request.BrandGameProviderId)
                 .Where(x => !x.IsDefault))
-            .Select(x => new DefaultTimeModel {From = x.From, To = x.To, ScheduleStatus = x.Status})
+            .Select(x => new DefaultTimeModel { From = x.From, To = x.To, ScheduleStatus = x.Status })
             .ToArrayAsync(cancellationToken);
 
-        return new() {Valid = true, DefaultTimes = defaultTimes};
+        return new() { Valid = true, DefaultTimes = defaultTimes };
     }
 }
