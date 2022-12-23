@@ -104,11 +104,9 @@ public class AgentDomainTests
 
         var query = new AgentDomainsQuery(Guid.NewGuid());
 
-        moqAgentRepository
-            .Setup(fake => fake.QueryDomainsFromAgentAsync(It.IsAny<Guid>()))
-            .Returns(Array.Empty<string>().ToAsyncEnumerable());
+        _ = moqAgentRepository.Setup(fake => fake.QueryDomainsFromAgentAsync(It.IsAny<Guid>())).Returns(Array.Empty<string>().ToAsyncEnumerable());
 
-        await sut.QueryAsync(query).ToArrayAsync();
+        _ = await sut.QueryAsync(query).ToArrayAsync();
 
         moqAgentRepository.Verify(
             fake => fake.QueryDomainsFromAgentAsync(It.Is<Guid>(x => x == query.AgentId)),

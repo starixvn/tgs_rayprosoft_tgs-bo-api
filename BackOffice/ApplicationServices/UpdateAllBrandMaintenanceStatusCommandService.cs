@@ -8,35 +8,34 @@ using TGS.Core.Models.Enums;
 using TGS.Services.BackOffice.Application.Models.Brand;
 using TGS.Services.BackOffice.Infrastructure.DataService;
 
-namespace TGS.Services.BackOffice.ApplicationServices
+namespace TGS.Services.BackOffice.ApplicationServices;
+
+internal class UpdateAllBrandMaintenanceStatusCommandService : ICommandService<UpdateAllBrandMaintenanceStatusCommand>
 {
-    internal class UpdateAllBrandMaintenanceStatusCommandService : ICommandService<UpdateAllBrandMaintenanceStatusCommand>
+    private readonly IBrandService _service;
+
+    public UpdateAllBrandMaintenanceStatusCommandService(IBrandService service)
     {
-        private readonly IBrandService _service;
+        _service = service ?? throw new ArgumentNullException(nameof(service));
+    }
 
-        public UpdateAllBrandMaintenanceStatusCommandService(IBrandService service)
+    public async ValueTask ExecuteAsync(UpdateAllBrandMaintenanceStatusCommand command, CancellationToken cancellationToken = default)
+    {
+        var brands = await _service
+            .GetBrandQueries(brand => brand.Where(b => b.Status == BrandStatus.Active))
+            .ToArrayAsync(cancellationToken: cancellationToken)
+            .ConfigureAwait(false);
+
+        foreach (var brand in brands)
         {
-            _service = service ?? throw new ArgumentNullException(nameof(service));
-        }
-
-        public async ValueTask ExecuteAsync(UpdateAllBrandMaintenanceStatusCommand command, CancellationToken cancellationToken = default)
-        {
-            var brands = await _service
-                .GetBrandQueries(brand => brand.Where(b => b.Status == BrandStatus.Active))
-                .ToArrayAsync(cancellationToken: cancellationToken)
-                .ConfigureAwait(false);
-
-            foreach (var brand in brands)
+            var request = new UpdateBrandStatusRequest(brand.Id, BrandStatus.Maintenance)
             {
-                var request = new UpdateBrandStatusRequest(brand.Id, BrandStatus.Maintenance)
-                {
-                    EditorUsername = command.EditorUsername
-                };
+                EditorUsername = command.EditorUsername
+            };
 
-                await _service
-                    .ChangeStatusAsync(brand, request)
-                    .ConfigureAwait(false);
-            }
+            await _service
+                .ChangeStatusAsync(brand, request)
+                .ConfigureAwait(false);
         }
     }
 }

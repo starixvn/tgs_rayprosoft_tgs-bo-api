@@ -1,4 +1,3 @@
-﻿namespace TGS.Services.BackOffice.ApplicationServices
-{
-    public record GetPlayerRealNameQuery(string PlayerCode);
-}
+﻿namespace TGS.Services.BackOffice.ApplicationServices;
+
+public record GetPlayerRealNameQuery(string PlayerCode);

@@ -6,15 +6,15 @@ namespace TGS.Services.BackOffice.Application.Models.ReportAgent;
 
 public class GetAgentDividendsReportRequest : PageableRequest
 {
-    public Guid BrandId { get; init; }
-
     public Guid? AgentId { get; init; }
 
-    public string Username { get; init; } = default!;
-
-    public AgentType? Type { get; init; }
+    public Guid BrandId { get; init; }
 
     public DateTimeOffset From { get; init; }
 
     public DateTimeOffset To { get; init; }
+
+    public AgentType? Type { get; init; }
+
+    public string Username { get; init; } = default!;
 }

@@ -10,7 +10,7 @@ namespace TGS.Services.BackOffice.ApplicationServices.BatchAdjust;
 internal class ExportBatchAdjustFormTemplateCommandService : IGetService<ExportBatchAdjustFormTemplateCommand, Stream>
 {
     private static readonly EmbeddedFileProvider _EmbeddedFileProvider =
-        new EmbeddedFileProvider(Assembly.GetExecutingAssembly());
+        new(Assembly.GetExecutingAssembly());
 
     private readonly IFileInfo _templateFileInfo;
 

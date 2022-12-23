@@ -10,12 +10,12 @@ namespace TGS.Services.BackOffice.Infrastructure.DataService;
 
 public interface IPlayerBucketService
 {
+    ValueTask<PlayerBucketHistory[]> GetPlayerBucketHistoriesAsync(Guid playerBucketId);
+
     IQueryable<Core.DataServices.Tgs.Models.PlayerBucket> GetPlayerBucketQueries(
-        Func<IQueryable<Core.DataServices.Tgs.Models.PlayerBucket>,
+            Func<IQueryable<Core.DataServices.Tgs.Models.PlayerBucket>,
             IQueryable<Core.DataServices.Tgs.Models.PlayerBucket>> preQuery = null,
         bool tracking = false);
-
-    ValueTask<PlayerBucketHistory[]> GetPlayerBucketHistoriesAsync(Guid playerBucketId);
 }
 
 public class PlayerBucketService : BaseRepositoryOperations<ITgsRepository>, IPlayerBucketService

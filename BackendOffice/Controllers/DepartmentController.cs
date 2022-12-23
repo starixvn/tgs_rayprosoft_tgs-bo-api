@@ -28,6 +28,58 @@ public class DepartmentController : BaseContextController
         _commands = commands;
     }
 
+    [HttpPost]
+    [Description("Create a department")]
+    public async Task<MessageResponse> CreateAsync([FromBody] DepartmentRequest request)
+    {
+        var departmentNameExisted = await _queries.GetQueries()
+            .Where(request.ResellerId, x => x.ResellerId == request.ResellerId)
+            .Where(request.LicenseeId, x => x.LicenseeId == request.LicenseeId)
+            .Where(request.BrandId, x => x.BrandId == request.BrandId)
+            .AnyAsync(x => x.Name == request.Name);
+
+        if (departmentNameExisted)
+        {
+            return CreateInvalidResponse<MessageResponse>(Resources.Department.NameExists);
+        }
+
+        var department = new Department
+        {
+            Id = GuidExtensions.NewSequentialGuid(),
+            ResellerId = request.ResellerId,
+            LicenseeId = request.LicenseeId,
+            BrandId = request.BrandId,
+            Name = request.Name,
+            Description = request.Name,
+            CreatedByUsername = Username,
+            UpdatedByUsername = Username,
+            CreatedOn = DateTimeOffset.Now,
+            UpdatedOn = DateTimeOffset.Now
+        };
+
+        await _commands.CreateAsync(department);
+        return CreateValidResponse<MessageResponse>();
+    }
+
+    [HttpDelete("{id}")]
+    [Description("Delete a department")]
+    public async Task<MessageResponse> DeleteAsync(Guid id)
+    {
+        var department = await _queries.GetSingleAsync(p => p.Id == id, d => d.Include(x => x.Users));
+        if (department == null)
+        {
+            return CreateInvalidResponse<MessageResponse>(Resources.Department.NotFound);
+        }
+
+        if (department.Users.Any())
+        {
+            return CreateInvalidResponse<MessageResponse>(Resources.Department.CannotBeDeleted);
+        }
+
+        await _commands.DeleteAsync(department);
+        return CreateValidResponse<MessageResponse>();
+    }
+
     [HttpGet]
     [Description("Get departments")]
     public Task<PagedResponse<DepartmentModel>> GetListAsync([FromQuery] GetDepartmentsRequest request) =>
@@ -78,59 +130,6 @@ public class DepartmentController : BaseContextController
         department.UpdatedOn = DateTimeOffset.Now;
 
         await _commands.UpdateAsync(department);
-        return CreateValidResponse<MessageResponse>();
-    }
-
-    [HttpDelete("{id}")]
-    [Description("Delete a department")]
-    public async Task<MessageResponse> DeleteAsync(Guid id)
-    {
-        var department = await _queries.GetSingleAsync(p => p.Id == id, d => d.Include(x => x.Users));
-        if (department == null)
-        {
-            return CreateInvalidResponse<MessageResponse>(Resources.Department.NotFound);
-        }
-
-        if (department.Users.Any())
-        {
-            return CreateInvalidResponse<MessageResponse>(Resources.Department.CannotBeDeleted);
-        }
-
-        await _commands.DeleteAsync(department);
-        return CreateValidResponse<MessageResponse>();
-    }
-
-
-    [HttpPost]
-    [Description("Create a department")]
-    public async Task<MessageResponse> CreateAsync([FromBody] DepartmentRequest request)
-    {
-        var departmentNameExisted = await _queries.GetQueries()
-            .Where(request.ResellerId, x => x.ResellerId == request.ResellerId)
-            .Where(request.LicenseeId, x => x.LicenseeId == request.LicenseeId)
-            .Where(request.BrandId, x => x.BrandId == request.BrandId)
-            .AnyAsync(x => x.Name == request.Name);
-
-        if (departmentNameExisted)
-        {
-            return CreateInvalidResponse<MessageResponse>(Resources.Department.NameExists);
-        }
-
-        var department = new Department
-        {
-            Id = GuidExtensions.NewSequentialGuid(),
-            ResellerId = request.ResellerId,
-            LicenseeId = request.LicenseeId,
-            BrandId = request.BrandId,
-            Name = request.Name,
-            Description = request.Name,
-            CreatedByUsername = Username,
-            UpdatedByUsername = Username,
-            CreatedOn = DateTimeOffset.Now,
-            UpdatedOn = DateTimeOffset.Now
-        };
-
-        await _commands.CreateAsync(department);
         return CreateValidResponse<MessageResponse>();
     }
 }

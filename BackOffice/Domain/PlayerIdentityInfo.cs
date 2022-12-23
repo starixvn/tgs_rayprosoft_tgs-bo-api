@@ -4,9 +4,9 @@ using TGS.Services.BackOffice.Application.Commands.PlayerIdentity;
 namespace TGS.Services.BackOffice.Domain;
 
 public record PlayerIdentityInfo(
-    Guid Id, 
-    string RealName, 
-    string IdNumber, 
+    Guid Id,
+    string RealName,
+    string IdNumber,
     string Data,
     DateTimeOffset CreatedOn,
     PlayerIdentityReviewState Status,

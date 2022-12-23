@@ -18,19 +18,19 @@ public class LanguageController : BaseContextController
         _mediator = mediator;
     }
 
-    [HttpGet]
-    [Description("Get languages")]
-    public Task<PagedResponse<LanguageModel>> GetLanguagesAsync([FromQuery] GetLanguagesRequest request) =>
-        _mediator.Send(request);
+    [HttpPost]
+    [Description("Create a language")]
+    public Task<MessageResponse> CreateLanguageAsync(CreateLanguageRequest request) => _mediator.Send(request);
 
     [HttpGet("{cultureCode}")]
     [Description("Get a language")]
     public Task<GetLanguageResponse> GetLanguageAsync(string cultureCode) =>
         _mediator.Send(new GetLanguageRequest(cultureCode));
 
-    [HttpPost]
-    [Description("Create a language")]
-    public Task<MessageResponse> CreateLanguageAsync(CreateLanguageRequest request) => _mediator.Send(request);
+    [HttpGet]
+    [Description("Get languages")]
+    public Task<PagedResponse<LanguageModel>> GetLanguagesAsync([FromQuery] GetLanguagesRequest request) =>
+        _mediator.Send(request);
 
     [HttpPut("{cultureCode}")]
     [Description("Update a language")]

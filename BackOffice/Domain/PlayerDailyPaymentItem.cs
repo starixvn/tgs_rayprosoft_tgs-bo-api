@@ -12,4 +12,3 @@ public record PlayerDailyPaymentItem(
     decimal TotalDepositAmount,
     decimal TotalWithdrawAmount,
     string RegisterIp);
-    

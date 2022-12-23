@@ -6,7 +6,6 @@ using System.Text.Json;
 using System.Threading.Tasks;
 using JsonCons.Utilities;
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.Extensions.Options;
 using Tgs.Promotion;
 using Tgs.Promotion.Clients;
 using Tgs.ServiceUtility;

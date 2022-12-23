@@ -7,28 +7,27 @@ using Tgs.BrandService.Protos;
 using Tgs.MessageQueue;
 using Tgs.ServiceUtility;
 
-namespace TGS.Services.BackOffice.ApplicationServices
+namespace TGS.Services.BackOffice.ApplicationServices;
+
+internal class ClearBrandMaintenanceCacheCommandService : ICommandService<ClearBrandMaintenanceCacheCommand>
 {
-    internal class ClearBrandMaintenanceCacheCommandService : ICommandService<ClearBrandMaintenanceCacheCommand>
+    private readonly IMessageSender _messageSender;
+
+    public ClearBrandMaintenanceCacheCommandService(IMessageSender messageSender)
     {
-        private readonly IMessageSender _messageSender;
+        _messageSender = messageSender ?? throw new ArgumentNullException(nameof(messageSender));
+    }
 
-        public ClearBrandMaintenanceCacheCommandService(IMessageSender messageSender)
+    public async ValueTask ExecuteAsync(ClearBrandMaintenanceCacheCommand command, CancellationToken cancellationToken = default)
+    {
+        var request = new ClearMaintenanceCacheRequest
         {
-            _messageSender = messageSender ?? throw new ArgumentNullException(nameof(messageSender));
-        }
+            BrandId = command.BrandId
+        };
 
-        public async ValueTask ExecuteAsync(ClearBrandMaintenanceCacheCommand command, CancellationToken cancellationToken = default)
-        {
-            var request = new ClearMaintenanceCacheRequest
-            {
-                BrandId = command.BrandId
-            };
-
-            await _messageSender.PublishAsync("tgs.brandservice.maintenance.cache.clear",
-                    Encoding.UTF8.GetBytes(JsonSerializer.Serialize(request)),
-                    cancellationToken)
-                .ConfigureAwait(false);
-        }
+        await _messageSender.PublishAsync("tgs.brandservice.maintenance.cache.clear",
+                Encoding.UTF8.GetBytes(JsonSerializer.Serialize(request)),
+                cancellationToken)
+            .ConfigureAwait(false);
     }
 }

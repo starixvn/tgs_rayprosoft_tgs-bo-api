@@ -10,7 +10,6 @@ using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Options;
 using Tgs.ServiceUtility;
-using TGS.Apis.BackendOffice.Services;
 using TGS.Core.Infrastructures.Json;
 using TGS.Core.Models.Messages;
 using TGS.Services.BackOffice.Application.Models.GameProvider;
@@ -24,12 +23,10 @@ namespace TGS.Apis.BackendOffice.Controllers.GameProvider;
 public partial class GameProviderController : BaseContextController
 {
     private readonly IMediator _mediator;
-    private readonly IUploadService _uploadService;
 
-    public GameProviderController(IMediator mediator, IUploadService uploadService)
+    public GameProviderController(IMediator mediator)
     {
         _mediator = mediator;
-        _uploadService = uploadService;
     }
 
     [HttpPost]
@@ -108,7 +105,7 @@ public partial class GameProviderController : BaseContextController
                 Localization = row.Localization
                     .Select(p => new
                     {
-                        Key = p.Key,
+                        p.Key,
                         Value = jsonSerializationProvider.SerializeToString(
                             new
                             {
@@ -130,20 +127,17 @@ public partial class GameProviderController : BaseContextController
             .ToArrayAsync()
             .ConfigureAwait(false);
 
-        if (diffSubGameProvidersIds.Any())
-        {
-            return new MessageResponse
+        return diffSubGameProvidersIds.Any()
+            ? new MessageResponse
             {
                 Valid = false,
                 Message = "GameProviders Not Found",
                 Errors = diffSubGameProvidersIds
+            }
+            : new MessageResponse
+            {
+                Valid = true,
+                Message = "Update Game Providers Localization Success"
             };
-        }
-
-        return new MessageResponse
-        {
-            Valid = true,
-            Message = "Update Game Providers Localization Success"
-        };
     }
 }

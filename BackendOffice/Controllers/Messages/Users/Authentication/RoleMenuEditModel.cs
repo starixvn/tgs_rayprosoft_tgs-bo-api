@@ -15,9 +15,13 @@ public class RoleSubMenuEditModel : BaseRoleMenuEditModel
 
 public class PermissionEditModel
 {
-    public Guid PermissionId { get; set; }
     public string Code { get; set; }
-    public string Name { get; set; }
-    public bool IsDisplay { get; set; }
+
     public int DisplayOrder { get; set; }
+
+    public bool IsDisplay { get; set; }
+
+    public string Name { get; set; }
+
+    public Guid PermissionId { get; set; }
 }

@@ -31,9 +31,6 @@ public class BrandGameService : BaseRepositoryOperations<ITgsRepository>, IBrand
     {
     }
 
-    async Task IBrandGameService.UpdateBrandGamesAsync(IEnumerable<BrandGame> brandGames) =>
-        await UpdateEntitiesAsync(brandGames);
-
     Task<BrandGame> IBrandGameService.GetBrandGameAsync(Expression<Func<BrandGame, bool>> predicate,
         Func<IQueryable<BrandGame>, IQueryable<BrandGame>> preQuery) =>
         GetEntityFirstOrDefaultAsync(predicate, preQuery);
@@ -43,4 +40,7 @@ public class BrandGameService : BaseRepositoryOperations<ITgsRepository>, IBrand
         GetQueriesAsync(preQuery, tracking);
 
     Task IBrandGameService.UpdateBrandGameAsync(BrandGame game) => UpdateEntityAsync(game);
+
+    async Task IBrandGameService.UpdateBrandGamesAsync(IEnumerable<BrandGame> brandGames) =>
+                    await UpdateEntitiesAsync(brandGames);
 }

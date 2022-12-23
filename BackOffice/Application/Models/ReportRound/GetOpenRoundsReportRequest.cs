@@ -7,9 +7,9 @@ public class GetOpenRoundsReportRequest : PageableRequest
 {
     public string ExternalRoundId { get; init; }
 
-    public Guid? GameProviderId { get; init; }
-
     public DateTimeOffset From { get; init; }
+
+    public Guid? GameProviderId { get; init; }
 
     public DateTimeOffset To { get; init; }
 }

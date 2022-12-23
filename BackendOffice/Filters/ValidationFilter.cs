@@ -34,6 +34,6 @@ public class ValidationFilter : IAsyncActionFilter
             return;
         }
 
-        await next();
+        _ = await next();
     }
 }

@@ -48,7 +48,7 @@ internal class
                 game.UpdatedOn = DateTimeOffset.Now;
             }
 
-            await _tgsRepository.SaveChangesAsync(cancellationToken);
+            _ = await _tgsRepository.SaveChangesAsync(cancellationToken);
 
             return new UpdateSubGameProvidersLocationInfo { DiffGameProviderCodes = Array.Empty<string>() };
         }

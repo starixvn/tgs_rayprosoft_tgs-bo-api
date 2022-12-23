@@ -19,7 +19,7 @@ public class PlayerOnlineData
 
     public string Username { get; init; }
 
-    public int VipLevel { get; init; }
-
     public Guid VipId { get; init; }
+
+    public int VipLevel { get; init; }
 }

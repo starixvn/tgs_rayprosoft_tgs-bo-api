@@ -6,9 +6,13 @@ namespace TGS.Services.BackOffice.Application.Models.Agent;
 
 public class UpdateAgentRequest : AgentRequest, IRequest<MessageResponse>
 {
-    public Guid Id { get; set; }
     public string Email { get; init; }
+
+    public Guid Id { get; set; }
+
     public string Phone { get; init; }
+
     public string QQ { get; init; }
+
     public string Wechat { get; init; }
 }

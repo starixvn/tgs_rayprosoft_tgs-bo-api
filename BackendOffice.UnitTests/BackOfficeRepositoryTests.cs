@@ -19,7 +19,7 @@ public class BackOfficeRepositoryTests
     public async Task Query_Banners_By_Expired()
     {
         var dbContextOptionsBuilder = new DbContextOptionsBuilder<TgsRepository>();
-        dbContextOptionsBuilder
+        _ = dbContextOptionsBuilder
             .UseInMemoryDatabase(Guid.NewGuid().ToString())
             .ConfigureWarnings(x => x.Ignore(InMemoryEventId.TransactionIgnoredWarning));
         var dbContext = new TgsRepository(dbContextOptionsBuilder.Options);
@@ -38,7 +38,7 @@ public class BackOfficeRepositoryTests
             0,
             TimeSpan.FromHours(8));
 
-        moqSystemClock
+        _ = moqSystemClock
             .Setup(fake => fake.UtcNow)
             .Returns(currentTime);
 
@@ -86,7 +86,7 @@ public class BackOfficeRepositoryTests
                 }
             });
 
-        await dbContext.SaveChangesAsync();
+        _ = await dbContext.SaveChangesAsync();
 
         var actual = await sut.QueryExpiredBannersAsync(brandId).CountAsync();
 
@@ -97,7 +97,7 @@ public class BackOfficeRepositoryTests
     public async Task Query_Banners_By_Rejected()
     {
         var dbContextOptionsBuilder = new DbContextOptionsBuilder<TgsRepository>();
-        dbContextOptionsBuilder
+        _ = dbContextOptionsBuilder
             .UseInMemoryDatabase(Guid.NewGuid().ToString())
             .ConfigureWarnings(x => x.Ignore(InMemoryEventId.TransactionIgnoredWarning));
         var dbContext = new TgsRepository(dbContextOptionsBuilder.Options);
@@ -116,7 +116,7 @@ public class BackOfficeRepositoryTests
             0,
             TimeSpan.FromHours(8));
 
-        moqSystemClock
+        _ = moqSystemClock
             .Setup(fake => fake.UtcNow)
             .Returns(currentTime);
 
@@ -144,7 +144,7 @@ public class BackOfficeRepositoryTests
                 }
             });
 
-        await dbContext.SaveChangesAsync();
+        _ = await dbContext.SaveChangesAsync();
 
         var actual = await sut.QueryRejectedBannersAsync(brandId).CountAsync();
 
@@ -155,7 +155,7 @@ public class BackOfficeRepositoryTests
     public async Task Query_Banners_By_Reviewing()
     {
         var dbContextOptionsBuilder = new DbContextOptionsBuilder<TgsRepository>();
-        dbContextOptionsBuilder
+        _ = dbContextOptionsBuilder
             .UseInMemoryDatabase(Guid.NewGuid().ToString())
             .ConfigureWarnings(x => x.Ignore(InMemoryEventId.TransactionIgnoredWarning));
         var dbContext = new TgsRepository(dbContextOptionsBuilder.Options);
@@ -186,7 +186,7 @@ public class BackOfficeRepositoryTests
                 }
             });
 
-        await dbContext.SaveChangesAsync();
+        _ = await dbContext.SaveChangesAsync();
 
         var actual = await sut.QueryReviewingBannersAsync(brandId).CountAsync();
 
@@ -197,7 +197,7 @@ public class BackOfficeRepositoryTests
     public async Task Query_Banners_By_Valid()
     {
         var dbContextOptionsBuilder = new DbContextOptionsBuilder<TgsRepository>();
-        dbContextOptionsBuilder
+        _ = dbContextOptionsBuilder
             .UseInMemoryDatabase(Guid.NewGuid().ToString())
             .ConfigureWarnings(x => x.Ignore(InMemoryEventId.TransactionIgnoredWarning));
         var dbContext = new TgsRepository(dbContextOptionsBuilder.Options);
@@ -216,7 +216,7 @@ public class BackOfficeRepositoryTests
             0,
             TimeSpan.FromHours(8));
 
-        moqSystemClock
+        _ = moqSystemClock
             .Setup(fake => fake.UtcNow)
             .Returns(currentTime);
 
@@ -264,7 +264,7 @@ public class BackOfficeRepositoryTests
                 }
             });
 
-        await dbContext.SaveChangesAsync();
+        _ = await dbContext.SaveChangesAsync();
 
         var actual = await sut.QueryValidBannersAsync(brandId).CountAsync();
 

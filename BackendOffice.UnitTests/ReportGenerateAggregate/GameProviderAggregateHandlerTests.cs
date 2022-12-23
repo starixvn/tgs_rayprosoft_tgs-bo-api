@@ -5,9 +5,9 @@ using MockQueryable.Moq;
 using NSubstitute;
 using NUnit.Framework;
 using StackExchange.Redis;
+using Tgs.MessageQueue;
 using TGS.Core.DataServices.Tgs.Models;
 using TGS.Core.Infrastructures.Redis;
-using Tgs.MessageQueue;
 using TGS.Services.BackOffice.Application.Commands.ReportGenerateAggregate;
 using TGS.Services.BackOffice.Application.Models.Aggregate;
 using TGS.Services.BackOffice.Infrastructure.DataService;
@@ -34,15 +34,13 @@ public class GameProviderAggregateHandlerTests
         var gameProviderId = Guid.NewGuid();
         var userId = Guid.NewGuid().ToString();
 
-        var request = new GenerateGameProviderAggregateRequest(startDate,gameProviderId)
+        var request = new GenerateGameProviderAggregateRequest(startDate, gameProviderId)
         {
             UserId = userId
         };
 
-        fakeRedisCacheManager.GetSetAllMembersAsync("aggregate", "GP").Returns(new RedisValue[]
-        {
-        });
-        fakeGameProviderService.GetGameProviderQueries().Returns(new GameProvider[]
+        _ = fakeRedisCacheManager.GetSetAllMembersAsync("aggregate", "GP").Returns(Array.Empty<RedisValue>());
+        _ = fakeGameProviderService.GetGameProviderQueries().Returns(new GameProvider[]
         {
             new GameProvider { Id = gameProviderId }
         }.AsQueryable().BuildMock());
@@ -52,37 +50,6 @@ public class GameProviderAggregateHandlerTests
         Assert.IsTrue(response.Valid);
 
         _ = fakeMessageSender.Received(1)
-            .PublishAsync(Arg.Any<string>(), Arg.Any<ReadOnlyMemory<byte>>());
-    }
-
-    [Test]
-    public async Task Can_Not_Generate_GameProvider_Aggregate_When_Not_Number_One_Of_Month()
-    {
-        var fakeGameProviderAggregateAuditLogService =
-            Substitute.For<IGameProviderAggregateAuditLogService>();
-        var fakeGameProviderService = Substitute.For<IGameProviderService>();
-        var fakeMessageSender = Substitute.For<IMessageSender>();
-        var fakeRedisCacheManager = Substitute.For<IRedisCacheManager>();
-
-        var sut = new GameProviderAggregateHandler(fakeMessageSender,
-            fakeGameProviderService,
-            fakeGameProviderAggregateAuditLogService,
-            fakeRedisCacheManager);
-
-        var startDate = DateTimeOffset.Parse("2022/01/02 00:00:00+8");
-        var gameProviderId = Guid.NewGuid();
-        var userId = Guid.NewGuid().ToString();
-
-        var request = new GenerateGameProviderAggregateRequest(startDate,gameProviderId)
-        {
-            UserId = userId
-        };
-
-        var response = await sut.GetAsync(request, default);
-
-        Assert.IsFalse(response.Valid);
-
-        _ = fakeMessageSender.Received(0)
             .PublishAsync(Arg.Any<string>(), Arg.Any<ReadOnlyMemory<byte>>());
     }
 
@@ -104,19 +71,50 @@ public class GameProviderAggregateHandlerTests
         var gameProviderId = Guid.NewGuid();
         var userId = Guid.NewGuid().ToString();
 
-        var request = new GenerateGameProviderAggregateRequest(startDate,gameProviderId)
+        var request = new GenerateGameProviderAggregateRequest(startDate, gameProviderId)
         {
             UserId = userId
         };
 
-        fakeRedisCacheManager.GetSetAllMembersAsync("aggregate", "GP").Returns(new RedisValue[]
+        _ = fakeRedisCacheManager.GetSetAllMembersAsync("aggregate", "GP").Returns(new RedisValue[]
         { new RedisValue(gameProviderId.ToString())
         });
 
-        fakeGameProviderService.GetGameProviderQueries().Returns(new GameProvider[]
+        _ = fakeGameProviderService.GetGameProviderQueries().Returns(new GameProvider[]
         {
             new GameProvider { Id = gameProviderId }
         }.AsQueryable().BuildMock());
+
+        var response = await sut.GetAsync(request, default);
+
+        Assert.IsFalse(response.Valid);
+
+        _ = fakeMessageSender.Received(0)
+            .PublishAsync(Arg.Any<string>(), Arg.Any<ReadOnlyMemory<byte>>());
+    }
+
+    [Test]
+    public async Task Can_Not_Generate_GameProvider_Aggregate_When_Not_Number_One_Of_Month()
+    {
+        var fakeGameProviderAggregateAuditLogService =
+            Substitute.For<IGameProviderAggregateAuditLogService>();
+        var fakeGameProviderService = Substitute.For<IGameProviderService>();
+        var fakeMessageSender = Substitute.For<IMessageSender>();
+        var fakeRedisCacheManager = Substitute.For<IRedisCacheManager>();
+
+        var sut = new GameProviderAggregateHandler(fakeMessageSender,
+            fakeGameProviderService,
+            fakeGameProviderAggregateAuditLogService,
+            fakeRedisCacheManager);
+
+        var startDate = DateTimeOffset.Parse("2022/01/02 00:00:00+8");
+        var gameProviderId = Guid.NewGuid();
+        var userId = Guid.NewGuid().ToString();
+
+        var request = new GenerateGameProviderAggregateRequest(startDate, gameProviderId)
+        {
+            UserId = userId
+        };
 
         var response = await sut.GetAsync(request, default);
 

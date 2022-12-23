@@ -26,6 +26,6 @@ internal class CreatePaymentCommandService : ICommandService<CreatePaymentComman
             ExtendedData = command.ExtendedData
         };
 
-        return _paymentServiceClient.CreatePaymentAsync(createInfo);
+        return _paymentServiceClient.CreatePaymentAsync(createInfo, cancellationToken);
     }
 }

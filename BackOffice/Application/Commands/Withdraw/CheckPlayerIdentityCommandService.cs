@@ -23,7 +23,7 @@ internal class CheckPlayerIdentityCommandService : IGetService<CheckPlayerIdenti
     public async ValueTask<bool> GetAsync(CheckPlayerIdentityCommand command, CancellationToken cancellationToken = default)
     {
         var brand = await _brandServiceClient
-            .GetBrandInfoAsync(command.BrandId)
+            .GetBrandInfoAsync(command.BrandId, cancellationToken)
             .ConfigureAwait(false);
 
         if (!brand!.PlayerIdentityEnabled)
@@ -33,12 +33,6 @@ internal class CheckPlayerIdentityCommandService : IGetService<CheckPlayerIdenti
             .GetPlayerInfoAsync(command.PlayerCode, cancellationToken)
             .ConfigureAwait(false);
 
-        if (player == null)
-            throw new Exception("Player not found when withdraw check.");
-
-        if (!player.IdentityAuthentication)
-            return false;
-
-        return true;
+        return player == null ? throw new Exception("Player not found when withdraw check.") : player.IdentityAuthentication;
     }
 }

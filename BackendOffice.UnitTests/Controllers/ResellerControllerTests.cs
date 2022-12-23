@@ -29,11 +29,11 @@ public class ResellerControllerTests : BaseTests
     {
         var request = new Fixture().Create<CreateResellerRequest>();
 
-        _resellerServiceMock.Setup(s => s.ExistsAsync(It.IsAny<Expression<Func<Reseller, bool>>>()))
+        _ = _resellerServiceMock.Setup(s => s.ExistsAsync(It.IsAny<Expression<Func<Reseller, bool>>>()))
             .Returns(Task.FromResult(false));
 
         var response = await _controller.CreateResellerAsync(request);
-        response.Valid.Should().BeTrue();
+        _ = response.Valid.Should().BeTrue();
 
         _resellerServiceMock.Verify(s => s.ExistsAsync(It.IsAny<Expression<Func<Reseller, bool>>>()));
         _resellerServiceMock.Verify(p => p.CreateResellerAsync(It.Is<CreateResellerRequest>(r =>
@@ -65,16 +65,16 @@ public class ResellerControllerTests : BaseTests
 
         var expectedRoles = showAll ? orderedRoles.ToArray() : orderedRoles.Skip(skip).Take(take).ToArray();
 
-        _resellerServiceMock.Setup(x => x.GetResellers(It.IsAny<GetResellersRequest>(), false))
+        _ = _resellerServiceMock.Setup(x => x.GetResellers(It.IsAny<GetResellersRequest>(), false))
             .Returns(list);
 
         var response = await _controller.GetResellersAsync(request);
-        response.Valid.Should().BeTrue();
+        _ = response.Valid.Should().BeTrue();
 
         for (var i = 0; i < response.Items.Length; i++)
         {
-            response.Items[i].Id.Should().Be(expectedRoles[i].Id);
-            response.Items[i].Name.Should().Be(expectedRoles[i].Name);
+            _ = response.Items[i].Id.Should().Be(expectedRoles[i].Id);
+            _ = response.Items[i].Name.Should().Be(expectedRoles[i].Name);
         }
 
         _resellerServiceMock.Verify(p => p.GetResellers(It.IsAny<GetResellersRequest>(), false));
@@ -86,16 +86,16 @@ public class ResellerControllerTests : BaseTests
         var reseller = CreateResellerFixture().Create<Reseller>();
         var request = new Fixture().Create<UpdateResellerRequest>();
 
-        _resellerServiceMock.Setup(s => s.GetResellerAsync(It.IsAny<Expression<Func<Reseller, bool>>>(),
+        _ = _resellerServiceMock.Setup(s => s.GetResellerAsync(It.IsAny<Expression<Func<Reseller, bool>>>(),
                 It.IsAny<Func<IQueryable<Reseller>, IQueryable<Reseller>>>()))
             .Returns(Task.FromResult(reseller));
 
-        _resellerServiceMock.Setup(s => s.ExistsAsync(It.IsAny<Expression<Func<Reseller, bool>>>()))
+        _ = _resellerServiceMock.Setup(s => s.ExistsAsync(It.IsAny<Expression<Func<Reseller, bool>>>()))
             .Returns(Task.FromResult(false));
 
         var response = await _controller.UpdateResellerAsync(reseller.Id, request);
 
-        response.Valid.Should().BeTrue();
+        _ = response.Valid.Should().BeTrue();
         _resellerServiceMock.Verify(s => s.GetResellerAsync(It.IsAny<Expression<Func<Reseller, bool>>>(),
             It.IsAny<Func<IQueryable<Reseller>, IQueryable<Reseller>>>()));
         _resellerServiceMock.Verify(p => p.UpdateResellerAsync(It.Is<Reseller>(r =>
@@ -115,13 +115,13 @@ public class ResellerControllerTests : BaseTests
         var request = new Fixture().Create<CreateResellerRequest>();
         request.Code = list.FirstOrDefault()?.Code;
 
-        _resellerServiceMock.Setup(s =>
+        _ = _resellerServiceMock.Setup(s =>
                 s.ExistsAsync(It.IsAny<Expression<Func<Reseller, bool>>>()))
             .Returns((Expression<Func<Reseller, bool>> predicate) => list.AnyAsync(predicate));
 
         var response = await _controller.CreateResellerAsync(request);
-        response.Valid.Should().BeFalse();
-        response.Message.Should().Be(Apis.BackendOffice.Resources.Reseller.CodeExists);
+        _ = response.Valid.Should().BeFalse();
+        _ = response.Message.Should().Be(Apis.BackendOffice.Resources.Reseller.CodeExists);
     }
 
     [Test]
@@ -135,13 +135,13 @@ public class ResellerControllerTests : BaseTests
         var request = new Fixture().Create<CreateResellerRequest>();
         request.Name = list.FirstOrDefault()?.Name;
 
-        _resellerServiceMock.Setup(s =>
+        _ = _resellerServiceMock.Setup(s =>
                 s.ExistsAsync(It.IsAny<Expression<Func<Reseller, bool>>>()))
             .Returns((Expression<Func<Reseller, bool>> predicate) => list.AnyAsync(predicate));
 
         var response = await _controller.CreateResellerAsync(request);
-        response.Valid.Should().BeFalse();
-        response.Message.Should().Be(Apis.BackendOffice.Resources.Reseller.NameExists);
+        _ = response.Valid.Should().BeFalse();
+        _ = response.Message.Should().Be(Apis.BackendOffice.Resources.Reseller.NameExists);
     }
 
     [Test]
@@ -150,20 +150,20 @@ public class ResellerControllerTests : BaseTests
         var reseller = CreateResellerFixture().Create<Reseller>();
         var request = new Fixture().Create<UpdateResellerRequest>();
 
-        _resellerServiceMock.Setup(s => s.GetResellerAsync(
+        _ = _resellerServiceMock.Setup(s => s.GetResellerAsync(
                 It.IsAny<Expression<Func<Reseller, bool>>>(),
                 It.IsAny<Func<IQueryable<Reseller>,
                     IQueryable<Reseller>>>()))
             .Returns(Task.FromResult<Reseller>(default!));
 
-        _resellerServiceMock.Setup(s =>
+        _ = _resellerServiceMock.Setup(s =>
                 s.ExistsAsync(It.IsAny<Expression<Func<Reseller, bool>>>()))
             .Returns(Task.FromResult(false));
 
         var response = await _controller.UpdateResellerAsync(reseller.Id, request);
 
-        response.Valid.Should().BeFalse();
-        response.Message.Should().Be(Apis.BackendOffice.Resources.Reseller.NotFound);
+        _ = response.Valid.Should().BeFalse();
+        _ = response.Message.Should().Be(Apis.BackendOffice.Resources.Reseller.NotFound);
         _resellerServiceMock.Verify(s => s.GetResellerAsync(
             It.IsAny<Expression<Func<Reseller, bool>>>(),
             It.IsAny<Func<IQueryable<Reseller>,
@@ -180,20 +180,20 @@ public class ResellerControllerTests : BaseTests
         var reseller = CreateResellerFixture().Create<Reseller>();
         var request = new Fixture().Create<UpdateResellerRequest>();
         request.Name = reseller.Name;
-        _resellerServiceMock.Setup(s => s.GetResellerAsync(
+        _ = _resellerServiceMock.Setup(s => s.GetResellerAsync(
                 It.IsAny<Expression<Func<Reseller, bool>>>(),
                 It.IsAny<Func<IQueryable<Reseller>,
                     IQueryable<Reseller>>>()))
             .Returns(Task.FromResult(reseller));
 
-        _resellerServiceMock.Setup(s =>
+        _ = _resellerServiceMock.Setup(s =>
                 s.ExistsAsync(It.IsAny<Expression<Func<Reseller, bool>>>()))
             .Returns(Task.FromResult(true));
 
         var response = await _controller.UpdateResellerAsync(reseller.Id, request);
 
-        response.Valid.Should().BeFalse();
-        response.Message.Should().Be(Apis.BackendOffice.Resources.Reseller.NameExists);
+        _ = response.Valid.Should().BeFalse();
+        _ = response.Message.Should().Be(Apis.BackendOffice.Resources.Reseller.NameExists);
         _resellerServiceMock.Verify(s => s.GetResellerAsync(
             It.IsAny<Expression<Func<Reseller, bool>>>(),
             It.IsAny<Func<IQueryable<Reseller>,
@@ -213,16 +213,16 @@ public class ResellerControllerTests : BaseTests
         _controller.ControllerContext.HttpContext = HttpContextMock.Object;
     }
 
-    private Fixture CreateResellerFixture()
+    private static Fixture CreateResellerFixture()
     {
         var fixture = new Fixture();
         fixture.Customize<Reseller>(u => u
-            .With(s => s.GameProviders, new ResellerGameProvider[] { })
-            .With(s => s.Languages, new ResellerLanguage[] { })
-            .With(s => s.Currencies, new ResellerCurrency[] { })
-            .With(s => s.BetLimits, new ResellerBetLimit[] { })
-            .With(s => s.Licensees, new Licensee[] { })
-            .With(s => s.Departments, new Department[] { }));
+            .With(s => s.GameProviders, Array.Empty<ResellerGameProvider>())
+            .With(s => s.Languages, Array.Empty<ResellerLanguage>())
+            .With(s => s.Currencies, Array.Empty<ResellerCurrency>())
+            .With(s => s.BetLimits, Array.Empty<ResellerBetLimit>())
+            .With(s => s.Licensees, Array.Empty<Licensee>())
+            .With(s => s.Departments, Array.Empty<Department>()));
         fixture.Behaviors.Add(new OmitOnRecursionBehavior());
         return fixture;
     }

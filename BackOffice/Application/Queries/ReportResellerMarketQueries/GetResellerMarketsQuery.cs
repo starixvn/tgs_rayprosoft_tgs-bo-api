@@ -2,11 +2,11 @@
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
-using TGS.Core.Models.Messages;
 using Tgs.Report.Client;
 using Tgs.Report.Client.Models.ResellerMarket;
-using TGS.Services.BackOffice.Application.Models.ReportResellerMarket;
 using Tgs.ServiceUtility;
+using TGS.Core.Models.Messages;
+using TGS.Services.BackOffice.Application.Models.ReportResellerMarket;
 
 namespace TGS.Services.BackOffice.Application.Queries.ReportResellerMarketQueries;
 

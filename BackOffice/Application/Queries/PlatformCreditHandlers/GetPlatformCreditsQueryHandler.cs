@@ -14,8 +14,8 @@ public class GetPlatformCreditsQueryHandler : Handler<GetPlatformCreditsRequest,
 {
     private readonly IPlatformCreditService _service;
 
-    public GetPlatformCreditsQueryHandler(IPlatformCreditService service, IHttpContextAccessor accessor) :
-        base(accessor)
+    public GetPlatformCreditsQueryHandler(IPlatformCreditService service, IHttpContextAccessor accessor)
+        : base(accessor)
     {
         _service = service;
     }

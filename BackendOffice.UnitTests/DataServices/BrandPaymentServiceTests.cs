@@ -22,7 +22,7 @@ public class BrandPaymentServiceTests
     public async Task Update_Payment_Should_Log_Audit_Data()
     {
         var dbContextOptionsBuilder = new DbContextOptionsBuilder<TgsRepository>();
-        dbContextOptionsBuilder
+        _ = dbContextOptionsBuilder
             .UseInMemoryDatabase(Guid.NewGuid().ToString())
             .ConfigureWarnings(x => x.Ignore(InMemoryEventId.TransactionIgnoredWarning));
 
@@ -42,15 +42,15 @@ public class BrandPaymentServiceTests
             DepositedAmountMax = 60000,
             DepositedAmountMin = 33,
             Reason = "source reason",
-            BrandPaymentPlayers = new BrandPaymentPlayer[0],
-            VipLevels = new BrandPaymentVipLevel[0],
+            BrandPaymentPlayers = Array.Empty<BrandPaymentPlayer>(),
+            VipLevels = Array.Empty<BrandPaymentVipLevel>(),
             ExtendedData = "{}",
             CreatedByUsername = "System",
             UpdatedByUsername = "System"
         };
 
-        repository.BrandPayments.Add(source);
-        await repository.SaveChangesAsync();
+        _ = repository.BrandPayments.Add(source);
+        _ = await repository.SaveChangesAsync();
 
         var request = new UpdateBrandPaymentRequest
         {

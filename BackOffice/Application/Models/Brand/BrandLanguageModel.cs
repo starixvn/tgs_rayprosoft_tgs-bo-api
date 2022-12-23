@@ -2,6 +2,7 @@
 
 public class BrandLanguageModel
 {
-    public string CultureCode { get; set; }
     public string BrandCultureCode { get; set; }
+
+    public string CultureCode { get; set; }
 }

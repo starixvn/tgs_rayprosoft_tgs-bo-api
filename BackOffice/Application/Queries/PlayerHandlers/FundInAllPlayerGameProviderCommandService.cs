@@ -1,12 +1,10 @@
 ﻿using System;
-using System.Collections.Generic;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
-using Tgs.CashService.Client;
 using Tgs.GameProviders.Pluggable.Client;
-using TGS.Services.BackOffice.Infrastructure.DataService;
 using Tgs.ServiceUtility;
+using TGS.Services.BackOffice.Infrastructure.DataService;
 
 namespace TGS.Services.BackOffice.Application.Queries.PlayerHandlers;
 
@@ -30,7 +28,6 @@ internal class FundInAllPlayerGameProviderCommandService : ICommandService<FundI
 
     public async ValueTask ExecuteAsync(FundInAllPlayerGameProviderCommand request, CancellationToken cancellationToken)
     {
-
         var player = await _playerService.GetPlayerAsync(p => p.PlayerCode == request.PlayerCode);
         var brandGameProviders = _brandGameProviderService
             .GetBrandGameProviderQueries(q => q.Where(x =>
@@ -47,18 +44,13 @@ internal class FundInAllPlayerGameProviderCommandService : ICommandService<FundI
             .OrderBy(x => x.GameProviderCode)
             .ToArray();
 
-
-        var tasks = new List<Task>();
-
-        foreach (var brandGameProvider in brandGameProviders)
-        {
-            tasks.Add(Task.Run(async () =>
-            {
-                await _gameProvidersBackofficePluggableClient.FundInAsync(
-                    player.PlayerCode,
-                    brandGameProvider.GameProviderCode).ConfigureAwait(false);
-            }, cancellationToken: cancellationToken));
-        }
+        var tasks = (from brandGameProvider in brandGameProviders
+                     select Task.Run(async () =>
+                     {
+                         await _gameProvidersBackofficePluggableClient.FundInAsync(
+                             player.PlayerCode,
+                             brandGameProvider.GameProviderCode).ConfigureAwait(false);
+                     }, cancellationToken: cancellationToken)).ToList();
 
         await Task.WhenAll(tasks).ConfigureAwait(false);
     }

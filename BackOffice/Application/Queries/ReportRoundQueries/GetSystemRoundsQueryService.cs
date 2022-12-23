@@ -122,7 +122,7 @@ internal class GetSystemRoundsQueryService : IGetService<GetSystemRoundsReportRe
                      let loc = gameLocalization is not null &&
                          gameLocalization.TryGetValue(currentCulture, out var data)
                              ? data
-                             : default(GameLocalizationData)
+                             : default
                      select new SystemRoundView
                      {
                          PlayerName = model.PlayerName,

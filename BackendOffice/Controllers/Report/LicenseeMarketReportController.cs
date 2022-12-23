@@ -2,9 +2,9 @@
 using System.IO;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Mvc;
+using Tgs.ServiceUtility;
 using TGS.Apis.BackendOffice.Attributes;
 using TGS.Services.BackOffice.Application.Models.ReportLicenseeMarket;
-using Tgs.ServiceUtility;
 
 namespace TGS.Apis.BackendOffice.Controllers.Report;
 

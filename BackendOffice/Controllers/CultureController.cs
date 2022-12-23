@@ -27,8 +27,6 @@ public class CultureController : BaseContextController
     {
         SetCulture(culture);
 
-
-        var s = _localizer.GetAllStrings();
         return new MessageResponse
         {
             Message = _localizer.GetString("test")

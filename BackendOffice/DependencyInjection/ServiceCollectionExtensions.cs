@@ -23,23 +23,23 @@ public static class ServiceCollectionExtensions
         this IServiceCollection services,
         IConfiguration configuration)
     {
-        services.AddTgsRepository(configuration, "Tgs");
+        _ = services.AddTgsRepository(configuration, "Tgs");
 
-        services.AddScoped<IUploadService, UploadService>();
-        services.AddScoped<ExceptionMiddleware>();
+        _ = services.AddScoped<IUploadService, UploadService>();
+        _ = services.AddScoped<ExceptionMiddleware>();
 
-        services.AddTransient(typeof(ITgsCommands<>), typeof(TgsCommands<>));
-        services.AddTransient(typeof(ITgsQueries<>), typeof(TgsQueries<>));
-        services.AddTransient(typeof(ILogQueries), typeof(LogQueries));
-        services.AddTransient<IResellerService, ResellerService>();
-        services.AddTransient<ILicenseeService, LicenseeService>();
-        services.AddTransient<IBrandPaymentService, BrandPaymentService>();
-        services.AddTransient<IStationLetterService, StationLetterService>();
+        _ = services.AddTransient(typeof(ITgsCommands<>), typeof(TgsCommands<>));
+        _ = services.AddTransient(typeof(ITgsQueries<>), typeof(TgsQueries<>));
+        _ = services.AddTransient(typeof(ILogQueries), typeof(LogQueries));
+        _ = services.AddTransient<IResellerService, ResellerService>();
+        _ = services.AddTransient<ILicenseeService, LicenseeService>();
+        _ = services.AddTransient<IBrandPaymentService, BrandPaymentService>();
+        _ = services.AddTransient<IStationLetterService, StationLetterService>();
 
-        services.AddSingleton<IActionContextAccessor, ActionContextAccessor>();
-        services.AddSingleton<IFilterFactory, AutoValidateAntiforgeryTokenAttribute>();
+        _ = services.AddSingleton<IActionContextAccessor, ActionContextAccessor>();
+        _ = services.AddSingleton<IFilterFactory, AutoValidateAntiforgeryTokenAttribute>();
 
-        services
+        _ = services
             .AddSystemJsonSerializer()
             .AddSecurity()
             .AddWebApiServices()
@@ -73,10 +73,10 @@ public static class ServiceCollectionExtensions
                 options.BrandCertificateBaseUrl = config.GetValue<Uri>("BrandCertificate:Url");
             });
 
-        services.AddWallet()
+        _ = services.AddWallet()
             .AddTgsAgentWalletRepositories();
 
-        services
+        _ = services
             .AddPaymentClient();
 
         return services;
@@ -86,7 +86,7 @@ public static class ServiceCollectionExtensions
         this IServiceCollection services,
         Action<RedisOptions, IServiceProvider> configure)
     {
-        services
+        _ = services
             .AddOptions<RedisOptions>()
             .Configure(configure)
             .Services

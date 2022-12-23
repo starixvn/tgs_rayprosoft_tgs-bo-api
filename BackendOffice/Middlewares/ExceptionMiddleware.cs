@@ -12,13 +12,13 @@ using Microsoft.AspNetCore.Http.Features;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
 using Microsoft.IO;
+using Tgs.Logging;
 using TGS.Apis.BackendOffice.Attributes;
 using TGS.Core.Infrastructures.Extensions;
 using TGS.Core.Infrastructures.Json;
 using TGS.Core.Infrastructures.Utility;
 using TGS.Core.Infrastructures.WebApiServices;
 using TGS.Core.Models.Messages;
-using Tgs.Logging;
 
 namespace TGS.Apis.BackendOffice.Middlewares;
 
@@ -139,10 +139,10 @@ public class ExceptionMiddleware : IMiddleware
 
         await using var requestStream = _recyclableMemoryStreamManager.GetStream();
         await context.Request.Body.CopyToAsync(requestStream);
-        requestStream.Seek(0, SeekOrigin.Begin);
+        _ = requestStream.Seek(0, SeekOrigin.Begin);
         using var sr = new StreamReader(requestStream);
         var message = await sr.ReadToEndAsync();
-        context.Request.Body.Seek(0, SeekOrigin.Begin);
+        _ = context.Request.Body.Seek(0, SeekOrigin.Begin);
         return message;
     }
 
@@ -159,9 +159,9 @@ public class ExceptionMiddleware : IMiddleware
             await next(context);
             sw.Stop();
             var ms = (int)sw.ElapsedMilliseconds;
-            context.Response.Body.Seek(0, SeekOrigin.Begin);
+            _ = context.Response.Body.Seek(0, SeekOrigin.Begin);
             var message = await StreamToString.GetStringAsync(context.Response.Body);
-            context.Response.Body.Seek(0, SeekOrigin.Begin);
+            _ = context.Response.Body.Seek(0, SeekOrigin.Begin);
             await context.Response.Body.CopyToAsync(originalBodyStream);
             return (message, ms);
         }

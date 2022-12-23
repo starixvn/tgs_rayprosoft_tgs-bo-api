@@ -9,36 +9,18 @@ namespace TGS.Tests.BackendOffice.UnitTests.Validators.GameProvider;
 [TestFixture]
 public class GameProviderRequestValidatorTests
 {
+    private GameProviderRequestValidator _validator = default!;
+
     [SetUp]
     public void Setup() => _validator = new();
-
-    private GameProviderRequestValidator _validator = default!;
 
     [Test]
     public void Should_have_error_when_code_is_null()
     {
         var model = new GameProviderRequest { Code = null };
         var result = _validator.TestValidate(model);
-        result.ShouldHaveValidationErrorFor(request => request.Code)
+        _ = result.ShouldHaveValidationErrorFor(request => request.Code)
             .WithErrorMessage(Services.BackOffice.Application.Resources.GameProvider.CodeRequired);
-    }
-
-    [Test]
-    public void Should_have_error_when_name_is_null()
-    {
-        var model = new GameProviderRequest { Name = null };
-        var result = _validator.TestValidate(model);
-        result.ShouldHaveValidationErrorFor(request => request.Name)
-            .WithErrorMessage(Services.BackOffice.Application.Resources.GameProvider.NameRequired);
-    }
-
-    [Test]
-    public void Should_have_error_when_status_is_not_in_enums()
-    {
-        var model = new GameProviderRequest { Status = (Status)5 };
-        var result = _validator.TestValidate(model);
-        result.ShouldHaveValidationErrorFor(request => request.Status)
-            .WithErrorMessage(Services.BackOffice.Application.Resources.GameProvider.StatusRequired);
     }
 
     [Test]
@@ -46,7 +28,7 @@ public class GameProviderRequestValidatorTests
     {
         var model = new GameProviderRequest { Currencies = null };
         var result = _validator.TestValidate(model);
-        result.ShouldHaveValidationErrorFor(request => request.Currencies)
+        _ = result.ShouldHaveValidationErrorFor(request => request.Currencies)
             .WithErrorMessage(Services.BackOffice.Application.Resources.GameProvider.CurrencyRequired);
     }
 
@@ -55,7 +37,25 @@ public class GameProviderRequestValidatorTests
     {
         var model = new GameProviderRequest { Languages = null };
         var result = _validator.TestValidate(model);
-        result.ShouldHaveValidationErrorFor(request => request.Languages)
+        _ = result.ShouldHaveValidationErrorFor(request => request.Languages)
             .WithErrorMessage(Services.BackOffice.Application.Resources.GameProvider.LanguageRequired);
+    }
+
+    [Test]
+    public void Should_have_error_when_name_is_null()
+    {
+        var model = new GameProviderRequest { Name = null };
+        var result = _validator.TestValidate(model);
+        _ = result.ShouldHaveValidationErrorFor(request => request.Name)
+            .WithErrorMessage(Services.BackOffice.Application.Resources.GameProvider.NameRequired);
+    }
+
+    [Test]
+    public void Should_have_error_when_status_is_not_in_enums()
+    {
+        var model = new GameProviderRequest { Status = (Status)5 };
+        var result = _validator.TestValidate(model);
+        _ = result.ShouldHaveValidationErrorFor(request => request.Status)
+            .WithErrorMessage(Services.BackOffice.Application.Resources.GameProvider.StatusRequired);
     }
 }

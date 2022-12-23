@@ -18,18 +18,18 @@ public class BetLimitController : ControllerBase
         _mediator = mediator;
     }
 
-    [HttpGet]
-    [Description("Get bet limits")]
-    public Task<PagedResponse<BetLimitModel>> GetBetLimitsAsync([FromQuery] GetBetLimitsRequest request) =>
-        _mediator.Send(request);
+    [HttpPost]
+    [Description("Create a bet limit")]
+    public Task<MessageResponse> CreateBetLimitAsync(CreateBetLimitRequest request) => _mediator.Send(request);
 
     [HttpGet("{id}")]
     [Description("Get a bet limit")]
     public Task<GetBetLimitResponse> GetBetLimitAsync(int id) => _mediator.Send(new GetBetLimitRequest(id));
 
-    [HttpPost]
-    [Description("Create a bet limit")]
-    public Task<MessageResponse> CreateBetLimitAsync(CreateBetLimitRequest request) => _mediator.Send(request);
+    [HttpGet]
+    [Description("Get bet limits")]
+    public Task<PagedResponse<BetLimitModel>> GetBetLimitsAsync([FromQuery] GetBetLimitsRequest request) =>
+        _mediator.Send(request);
 
     [HttpPut("{id}")]
     [Description("Update a bet limit")]

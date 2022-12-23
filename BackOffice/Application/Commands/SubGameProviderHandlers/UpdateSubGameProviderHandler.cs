@@ -12,8 +12,8 @@ public class UpdateSubGameProviderHandler : Handler<UpdateSubGameProviderRequest
 {
     private readonly ISubGameProviderService _service;
 
-    public UpdateSubGameProviderHandler(ISubGameProviderService service, IHttpContextAccessor accessor) :
-        base(accessor)
+    public UpdateSubGameProviderHandler(ISubGameProviderService service, IHttpContextAccessor accessor)
+        : base(accessor)
     {
         _service = service;
     }

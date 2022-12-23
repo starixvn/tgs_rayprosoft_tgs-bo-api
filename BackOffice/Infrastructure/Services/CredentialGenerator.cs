@@ -1,12 +1,13 @@
-﻿using TGS.Core.Infrastructures.Base62;
-using Tgs.Core.Infrastructures.Security;
+﻿using Tgs.Core.Infrastructures.Security;
+using TGS.Core.Infrastructures.Base62;
 
 namespace TGS.Services.BackOffice.Infrastructure.Services;
 
 public interface ICredentialGenerator
 {
-    string GetSecretKey();
     string GetApiKey();
+
+    string GetSecretKey();
 }
 
 public class CredentialGenerator : ICredentialGenerator
@@ -18,9 +19,9 @@ public class CredentialGenerator : ICredentialGenerator
         _password = password;
     }
 
-    string ICredentialGenerator.GetSecretKey() => GetRandomStringByLength(20);
-
     string ICredentialGenerator.GetApiKey() => GetRandomStringByLength(40);
+
+    string ICredentialGenerator.GetSecretKey() => GetRandomStringByLength(20);
 
     private string GetRandomStringByLength(ushort length) => _password.GenerateRandomSalt(length).ToBase62();
 }

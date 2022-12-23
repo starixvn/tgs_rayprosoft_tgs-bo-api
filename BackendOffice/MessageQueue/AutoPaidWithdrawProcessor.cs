@@ -1,11 +1,8 @@
 ﻿using System;
 using System.Threading;
 using System.Threading.Tasks;
-using Castle.Core.Logging;
-using Google.Protobuf;
 using Microsoft.Extensions.Logging;
 using Tgs.MessageQueue;
-using Tgs.Payment.Clients;
 using Tgs.Payment.Protos;
 using Tgs.ServiceUtility;
 using TGS.Services.BackOffice.Application.Commands.Withdraw;
@@ -14,14 +11,15 @@ namespace TGS.Apis.BackendOffice.MessageQueue;
 
 public class AutoPaidWithdrawProcessor : IMessageHandler
 {
-    private readonly ICommandService<PaidWithdrawFormCommand> _paidService;
     private readonly ILogger<AutoPaidWithdrawProcessor> _logger;
+    private readonly ICommandService<PaidWithdrawFormCommand> _paidService;
 
     public AutoPaidWithdrawProcessor(ICommandService<PaidWithdrawFormCommand> paidService, ILogger<AutoPaidWithdrawProcessor> logger)
     {
         _paidService = paidService ?? throw new ArgumentNullException(nameof(paidService));
         _logger = logger ?? throw new ArgumentNullException(nameof(logger));
     }
+
     public async ValueTask HandleAsync(ReadOnlyMemory<byte> data, CancellationToken cancellationToken = default)
     {
         _logger.LogInformation("Receive AutoPaidWithdraw request.");

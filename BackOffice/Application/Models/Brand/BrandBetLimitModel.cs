@@ -2,7 +2,9 @@
 
 public class BrandBetLimitModel
 {
-    public int Id { get; set; }
     public string CurrencyCode { get; set; }
+
+    public int Id { get; set; }
+
     public bool IsDefault { get; set; }
 }

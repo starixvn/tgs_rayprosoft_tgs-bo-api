@@ -4,26 +4,25 @@ using System.Threading.Tasks;
 using Tgs.PlayerService.Client;
 using Tgs.ServiceUtility;
 
-namespace TGS.Services.BackOffice.ApplicationServices
+namespace TGS.Services.BackOffice.ApplicationServices;
+
+internal class GetPlayerRealNameQueryService : IGetService<GetPlayerRealNameQuery, string>
 {
-    internal class GetPlayerRealNameQueryService : IGetService<GetPlayerRealNameQuery, string>
+    private readonly IPlayerServiceClient _playerServiceClient;
+
+    public GetPlayerRealNameQueryService(IPlayerServiceClient playerServiceClient)
     {
-        private readonly IPlayerServiceClient _playerServiceClient;
+        _playerServiceClient = playerServiceClient ?? throw new ArgumentNullException(nameof(playerServiceClient));
+    }
 
-        public GetPlayerRealNameQueryService(IPlayerServiceClient playerServiceClient)
-        {
-            _playerServiceClient = playerServiceClient ?? throw new ArgumentNullException(nameof(playerServiceClient));
-        }
+    public async ValueTask<string> GetAsync(GetPlayerRealNameQuery query, CancellationToken cancellationToken = default)
+    {
+        var playerProperties = await _playerServiceClient
+            .GetPlayerPropertiesAsync(query.PlayerCode, cancellationToken)
+            .ConfigureAwait(false);
 
-        public async ValueTask<string> GetAsync(GetPlayerRealNameQuery query, CancellationToken cancellationToken = default)
-        {
-            var playerProperties = await _playerServiceClient
-                .GetPlayerPropertiesAsync(query.PlayerCode, cancellationToken)
-                .ConfigureAwait(false);
-
-            return playerProperties.TryGetValue("RealName", out var realName)
-                ? realName
-                : string.Empty;
-        }
+        return playerProperties.TryGetValue("RealName", out var realName)
+            ? realName
+            : string.Empty;
     }
 }

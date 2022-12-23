@@ -7,12 +7,12 @@ public class CreateRoleRequestValidator : AbstractValidator<CreateRoleRequest>
 {
     public CreateRoleRequestValidator()
     {
-        RuleFor(x => x.Name)
+        _ = RuleFor(x => x.Name)
             .NotNull()
             .NotEmpty()
             .WithMessage(Resources.Role.NameRequired);
 
-        RuleFor(x => x.Name)
+        _ = RuleFor(x => x.Name)
             .Must(p => p == null || p.Length < 50)
             .WithMessage(Resources.Role.NameLengthLimit);
     }

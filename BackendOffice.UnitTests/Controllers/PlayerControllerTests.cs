@@ -137,7 +137,7 @@ public class PlayerControllerTests : BaseTests
 
         var expectedPlayers = showAll ? orderedPlayers.ToArray() : orderedPlayers.Skip(skip).Take(take).ToArray();
 
-        _mediatorMock
+        _ = _mediatorMock
             .Setup(m => m.Send(It.IsAny<GetPlayerOperationRequest>(), It.IsAny<CancellationToken>()))
             .ReturnsAsync(new PagedResponse<PlayerOperationModel>
             {
@@ -146,13 +146,13 @@ public class PlayerControllerTests : BaseTests
             });
 
         var response = await _controller.GetPlayerOperationsAsync(playerCode, request);
-        response.Valid.Should().BeTrue();
+        _ = response.Valid.Should().BeTrue();
 
         for (var i = 0; i < response.Items.Length; i++)
         {
-            response.Items[i].CreatedOn.Should().Be(expectedPlayers[i].CreatedOn);
-            response.Items[i].CreatedByUsername.Should().Be(expectedPlayers[i].CreatedByUsername);
-            response.Items[i].Operation.Should().Be(expectedPlayers[i].Operation);
+            _ = response.Items[i].CreatedOn.Should().Be(expectedPlayers[i].CreatedOn);
+            _ = response.Items[i].CreatedByUsername.Should().Be(expectedPlayers[i].CreatedByUsername);
+            _ = response.Items[i].Operation.Should().Be(expectedPlayers[i].Operation);
         }
 
         _mediatorMock.Verify(x => x.Send(It.IsAny<GetPlayerOperationRequest>(), It.IsAny<CancellationToken>()));
@@ -162,7 +162,7 @@ public class PlayerControllerTests : BaseTests
     public async Task Cannot_Update_Player_Not_Found()
     {
         var playerCode = Generator.RandomString(12);
-        _mediatorMock
+        _ = _mediatorMock
             .Setup(m => m.Send(It.IsAny<UpdatePlayerRequest>(), It.IsAny<CancellationToken>()))
             .ReturnsAsync(new MessageResponse
             {
@@ -174,8 +174,8 @@ public class PlayerControllerTests : BaseTests
 
         var response = await _controller.UpdateAsync(playerCode, "info", request);
 
-        response.Valid.Should().BeFalse();
-        response.Message.Should().Be(Player.NotFound);
+        _ = response.Valid.Should().BeFalse();
+        _ = response.Message.Should().Be(Player.NotFound);
 
         _mediatorMock.Verify(x => x.Send(It.IsAny<UpdatePlayerRequest>(), It.IsAny<CancellationToken>()));
     }
@@ -184,7 +184,7 @@ public class PlayerControllerTests : BaseTests
     public async Task Cannot_Update_Player_With_Invalid_Update_Type()
     {
         var playerCode = Generator.RandomString(12);
-        _mediatorMock
+        _ = _mediatorMock
             .Setup(m => m.Send(It.IsAny<UpdatePlayerRequest>(), It.IsAny<CancellationToken>()))
             .ReturnsAsync(new MessageResponse
             {
@@ -196,8 +196,8 @@ public class PlayerControllerTests : BaseTests
 
         var response = await _controller.UpdateAsync(playerCode, "info2", request);
 
-        response.Valid.Should().BeFalse();
-        response.Message.Should().Be(Player.UpdateTypeNotFound);
+        _ = response.Valid.Should().BeFalse();
+        _ = response.Message.Should().Be(Player.UpdateTypeNotFound);
 
         _mediatorMock.Verify(x => x.Send(It.IsAny<UpdatePlayerRequest>(), It.IsAny<CancellationToken>()));
     }
@@ -212,18 +212,7 @@ public class PlayerControllerTests : BaseTests
             NullLogger<PlayerController>.Instance);
     }
 
-    private Fixture CreatePlayersModelFixture()
-    {
-        var fixture = new Fixture();
-        fixture.Customize<PlayerModel>(u => u
-            .With(s => s.Banks, new PlayerModel.BankModel[]
-            {
-            }));
-        fixture.Behaviors.Add(new OmitOnRecursionBehavior());
-        return fixture;
-    }
-
-    private Fixture CreateUpdatePlayerRequestFixture()
+    private static Fixture CreateUpdatePlayerRequestFixture()
     {
         var fixture = new Fixture();
         fixture.Customize<Apis.BackendOffice.Controllers.Messages.Player.UpdatePlayerRequest>(u => u

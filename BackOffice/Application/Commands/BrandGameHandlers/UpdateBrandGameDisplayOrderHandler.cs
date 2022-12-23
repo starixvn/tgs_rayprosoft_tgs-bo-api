@@ -19,8 +19,8 @@ public class UpdateBrandGameDisplayOrderHandler : Handler<ChangeOrderRequest, Me
     public UpdateBrandGameDisplayOrderHandler(
         IBrandGameService service,
         IHttpContextAccessor accessor,
-        IRedisCacheManager cacheManager) :
-        base(accessor)
+        IRedisCacheManager cacheManager)
+        : base(accessor)
     {
         _service = service;
         _cacheManager = cacheManager;
@@ -42,7 +42,7 @@ public class UpdateBrandGameDisplayOrderHandler : Handler<ChangeOrderRequest, Me
             Key = brandId
         }).ToArray();
 
-        await _cacheManager.ClearCacheByBatchAsync(cacheKeys, true);
+        _ = await _cacheManager.ClearCacheByBatchAsync(cacheKeys, true);
 
         return CreateValidResponse<MessageResponse>();
     }

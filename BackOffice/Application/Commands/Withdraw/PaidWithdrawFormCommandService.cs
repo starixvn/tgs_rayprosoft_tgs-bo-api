@@ -23,7 +23,7 @@ internal class PaidWithdrawFormCommandService : ICommandService<PaidWithdrawForm
     public async ValueTask ExecuteAsync(PaidWithdrawFormCommand command, CancellationToken cancellationToken = default)
     {
         var formData = await _paymentServiceClient
-            .GetWithdrawFormAsync(command.BrandId, command.FormId)
+            .GetWithdrawFormAsync(command.BrandId, command.FormId, cancellationToken)
             .ConfigureAwait(false);
 
         var fsm = _paymentServiceClient.CreateWithdrawStateMachine(formData.Status);
@@ -40,7 +40,8 @@ internal class PaidWithdrawFormCommandService : ICommandService<PaidWithdrawForm
                 formData.Id,
                 fsm.State,
                 paidUserId: command.PaidUserId,
-                paidUserName: command.PaidUserName)
+                paidUserName: command.PaidUserName,
+                cancellationToken: cancellationToken)
             .ConfigureAwait(false);
 
         await _walletExchangeService.CommitWithdrawAsync(
@@ -52,6 +53,7 @@ internal class PaidWithdrawFormCommandService : ICommandService<PaidWithdrawForm
             string.IsNullOrWhiteSpace(command.PaidUserId)
                 ? Guid.Empty.ToString()
                 : command.PaidUserId,
-            formData.Id).ConfigureAwait(false);
+            formData.Id,
+            cancellationToken).ConfigureAwait(false);
     }
 }

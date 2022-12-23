@@ -1,6 +1,4 @@
 ﻿using System;
-using System.Linq;
-using System.Linq.Dynamic.Core;
 using System.Threading;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Http;
@@ -16,8 +14,8 @@ public class GetPlayerIpOperationQueryHandler : Handler<GetPlayerIpsRequest, Pag
 {
     private readonly IPlayerIpService _service;
 
-    public GetPlayerIpOperationQueryHandler(IPlayerIpService service, IHttpContextAccessor accessor) :
-        base(accessor)
+    public GetPlayerIpOperationQueryHandler(IPlayerIpService service, IHttpContextAccessor accessor)
+        : base(accessor)
     {
         _service = service ?? throw new System.ArgumentNullException(nameof(service));
     }
@@ -27,18 +25,12 @@ public class GetPlayerIpOperationQueryHandler : Handler<GetPlayerIpsRequest, Pag
         var endDateTimeOffset = DateTimeOffset.UtcNow;
         var startDateTimeOffset = endDateTimeOffset.AddDays(-14);
 
-        if (request.IpType == IpType.RegisterIp)
-        {
-            return _service
+        return request.IpType == IpType.RegisterIp
+            ? _service
                 .GetPlayerIpRecordsByRegisterQueries(request.BrandId, startDateTimeOffset, endDateTimeOffset)
-                .CreatePagedResponseAsync(request);
-        }
-        else
-        {
-            return _service
+                .CreatePagedResponseAsync(request)
+            : _service
                 .GetPlayerIpOperationQueries(request.BrandId, startDateTimeOffset, endDateTimeOffset)
                 .CreatePagedResponseAsync(request);
-        }
     }
-
 }

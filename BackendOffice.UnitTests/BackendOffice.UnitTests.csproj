@@ -41,4 +41,12 @@
     <ProjectReference Include="..\TestsCommon\TestsCommon.csproj" />
   </ItemGroup>
 
+  <ItemGroup>
+    <EditorConfigFiles Remove="D:\Users\Phoenix\source\repos\tgs-bo-api\BackendOffice.UnitTests\.editorconfig" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <None Include="D:\Users\Phoenix\source\repos\tgs-bo-api\BackendOffice.UnitTests\.editorconfig" />
+  </ItemGroup>
+
 </Project>

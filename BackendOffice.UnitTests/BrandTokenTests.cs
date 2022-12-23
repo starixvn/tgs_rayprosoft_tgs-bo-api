@@ -17,7 +17,7 @@ internal class BrandTokenTests
         var sut = new GetBrandTokenQueryService(fakeBrandCertificateClient);
         var brandId = Guid.NewGuid();
 
-        await sut.GetAsync(new BrandTokenQuery(brandId));
+        _ = await sut.GetAsync(new BrandTokenQuery(brandId));
 
         _ = fakeBrandCertificateClient
             .Received(1)

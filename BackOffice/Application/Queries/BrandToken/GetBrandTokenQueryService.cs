@@ -17,6 +17,6 @@ internal class GetBrandTokenQueryService : IGetService<BrandTokenQuery, string>
 
     public async ValueTask<string> GetAsync(BrandTokenQuery query, CancellationToken cancellationToken = default)
         => await _brandCertificateClient
-            .MakeJsonWebTokenAsync(query.BrandId)
+            .MakeJsonWebTokenAsync(query.BrandId, cancellationToken)
             .ConfigureAwait(false);
 }

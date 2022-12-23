@@ -4,8 +4,8 @@ using System.Threading;
 using System.Threading.Tasks;
 using Tgs.Report.Client;
 using Tgs.Report.Client.Models.LicenseeMarket;
-using TGS.Services.BackOffice.Application.Models.ReportLicenseeMarket;
 using Tgs.ServiceUtility;
+using TGS.Services.BackOffice.Application.Models.ReportLicenseeMarket;
 
 namespace TGS.Services.BackOffice.Application.Commands.ReportExportLicenseeMarket;
 

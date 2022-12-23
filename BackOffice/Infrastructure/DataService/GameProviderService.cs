@@ -16,8 +16,14 @@ namespace TGS.Services.BackOffice.Infrastructure.DataService;
 
 public interface IGameProviderService
 {
+    Task ChangeStatusAsync(GameProvider gameProvider, UpdateGameProviderStatusRequest request);
+
+    Task CreateGameProviderAsync(CreateGameProviderRequest request);
+
+    Task<bool> ExistsAsync(Expression<Func<GameProvider, bool>> predicate);
+
     Task<GameProvider> GetGameProviderAsync(
-        Expression<Func<GameProvider, bool>> predicate,
+                    Expression<Func<GameProvider, bool>> predicate,
         Func<IQueryable<GameProvider>, IQueryable<GameProvider>> preQuery =
             null);
 
@@ -25,10 +31,7 @@ public interface IGameProviderService
         Func<IQueryable<GameProvider>, IQueryable<GameProvider>> preQuery = null,
         bool tracking = false);
 
-    Task CreateGameProviderAsync(CreateGameProviderRequest request);
     Task UpdateGameProviderAsync(GameProvider gameProvider, UpdateGameProviderRequest request);
-    Task ChangeStatusAsync(GameProvider gameProvider, UpdateGameProviderStatusRequest request);
-    Task<bool> ExistsAsync(Expression<Func<GameProvider, bool>> predicate);
 }
 
 public class GameProviderService : BaseRepositoryOperations<ITgsRepository>, IGameProviderService
@@ -42,8 +45,53 @@ public class GameProviderService : BaseRepositoryOperations<ITgsRepository>, IGa
         _cacheManager = cacheManager;
     }
 
+    async Task IGameProviderService.ChangeStatusAsync(GameProvider gameProvider,
+        UpdateGameProviderStatusRequest request)
+    {
+        gameProvider.Status = request.Status;
+        gameProvider.UpdatedByUsername = request.EditorUsername;
+        gameProvider.UpdatedOn = DateTimeOffset.Now;
+
+        await UpdateEntityAsync(gameProvider);
+
+        await _cacheManager.ClearCacheAsync(RedisCacheType.GameProvider, gameProvider.Id);
+    }
+
+    async Task IGameProviderService.CreateGameProviderAsync(CreateGameProviderRequest request)
+    {
+        var maxUniqueId = _repository.GameProviders.Max(x => x.UniqueId);
+
+        var gameProvider = new GameProvider
+        {
+            Code = request.Code,
+            Name = request.Name,
+            Status = Status.Active,
+            AutoCloseRound = request.AutoCloseRound,
+            SupportTestPlayer = request.SupportTestPlayer,
+            AllowKickPlayer = request.AllowKickPlayer,
+            PlaceBetTimeout = request.PlaceBetTimeout,
+            SettleBetTimeout = request.SettleBetTimeout,
+            TransferWallet = request.IsTransferWallet,
+            UniqueId = (ushort)(maxUniqueId + 1),
+            Description = request.Description,
+            CreatedByUsername = request.EditorUsername,
+            UpdatedByUsername = request.EditorUsername,
+            CreatedOn = DateTimeOffset.Now,
+            UpdatedOn = DateTimeOffset.Now
+        };
+
+        gameProvider.Currencies = await GenerateCurrenciesAsync(gameProvider, request);
+        gameProvider.Languages = await GenerateLanguagesAsync(gameProvider, request);
+        gameProvider.BetLimits = GenerateBetLimits(gameProvider, request);
+
+        await CreateEntityAsync(gameProvider);
+    }
+
+    Task<bool> IGameProviderService.ExistsAsync(Expression<Func<GameProvider, bool>> predicate) =>
+        ExistsAsync(predicate);
+
     Task<GameProvider> IGameProviderService.GetGameProviderAsync(
-        Expression<Func<GameProvider, bool>> predicate,
+                    Expression<Func<GameProvider, bool>> predicate,
         Func<IQueryable<GameProvider>, IQueryable<GameProvider>> preQuery) =>
         GetEntityFirstOrDefaultAsync(predicate, preQuery);
 
@@ -124,56 +172,36 @@ public class GameProviderService : BaseRepositoryOperations<ITgsRepository>, IGa
             }
         };
 
-        await _cacheManager.ClearCacheByBatchAsync(cacheKeys);
+        _ = await _cacheManager.ClearCacheByBatchAsync(cacheKeys);
     }
 
-    async Task IGameProviderService.ChangeStatusAsync(GameProvider gameProvider,
-        UpdateGameProviderStatusRequest request)
-    {
-        gameProvider.Status = request.Status;
-        gameProvider.UpdatedByUsername = request.EditorUsername;
-        gameProvider.UpdatedOn = DateTimeOffset.Now;
-
-        await UpdateEntityAsync(gameProvider);
-
-        await _cacheManager.ClearCacheAsync(RedisCacheType.GameProvider, gameProvider.Id);
-    }
-
-    async Task IGameProviderService.CreateGameProviderAsync(CreateGameProviderRequest request)
-    {
-        var maxUniqueId = _repository.GameProviders.Max(x => x.UniqueId);
-
-        var gameProvider = new GameProvider
+    private static HashSet<GameProviderBetLimit> GenerateBetLimits(GameProvider gameProvider,
+        GameProviderRequest request) =>
+        request.BetLimits.Where(x => x.Id is not null).Select(x => new GameProviderBetLimit
         {
-            Code = request.Code,
-            Name = request.Name,
-            Status = Status.Active,
-            AutoCloseRound = request.AutoCloseRound,
-            SupportTestPlayer = request.SupportTestPlayer,
-            AllowKickPlayer = request.AllowKickPlayer,
-            PlaceBetTimeout = request.PlaceBetTimeout,
-            SettleBetTimeout = request.SettleBetTimeout,
-            TransferWallet = request.IsTransferWallet,
-            UniqueId = (ushort)(maxUniqueId + 1),
-            Description = request.Description,
-            CreatedByUsername = request.EditorUsername,
-            UpdatedByUsername = request.EditorUsername,
-            CreatedOn = DateTimeOffset.Now,
-            UpdatedOn = DateTimeOffset.Now
-        };
+            Id = x.Id.Value,
+            GameProviderId = gameProvider.Id,
+            CurrencyCode = x.CurrencyCode,
+            MinBet = x.MinBet,
+            MaxBet = x.MaxBet,
+            MaxBetPerMatch = x.MaxBetPerMatch,
+            ExternalSetting = x.ExternalSetting
+        }).ToHashSet();
 
-        gameProvider.Currencies = await GenerateCurrenciesAsync(gameProvider, request);
-        gameProvider.Languages = await GenerateLanguagesAsync(gameProvider, request);
-        gameProvider.BetLimits = GenerateBetLimits(gameProvider, request);
-
-        await CreateEntityAsync(gameProvider);
-    }
-
-    Task<bool> IGameProviderService.ExistsAsync(Expression<Func<GameProvider, bool>> predicate) =>
-        ExistsAsync(predicate);
+    private static HashSet<GameProviderBetLimit> GenerateNewBetLimits(GameProvider gameProvider,
+        GameProviderRequest request) =>
+        request.BetLimits.Where(x => x.Id is null).Select(x => new GameProviderBetLimit
+        {
+            GameProviderId = gameProvider.Id,
+            CurrencyCode = x.CurrencyCode,
+            MinBet = x.MinBet,
+            MaxBet = x.MaxBet,
+            MaxBetPerMatch = x.MaxBetPerMatch,
+            ExternalSetting = x.ExternalSetting
+        }).ToHashSet();
 
     private async Task<HashSet<GameProviderCurrency>> GenerateCurrenciesAsync(GameProvider gameProvider,
-        GameProviderRequest request)
+                GameProviderRequest request)
     {
         var currencyCodes = request.Currencies.Select(x => x.Code);
         var currencies = await _repository.Currencies.AsQueryable().Where(x => currencyCodes.Contains(x.Code))
@@ -203,29 +231,4 @@ public class GameProviderService : BaseRepositoryOperations<ITgsRepository>, IGa
         });
         return new(gameProviderLanguages);
     }
-
-    private static HashSet<GameProviderBetLimit> GenerateBetLimits(GameProvider gameProvider,
-        GameProviderRequest request) =>
-        request.BetLimits.Where(x => x.Id is not null).Select(x => new GameProviderBetLimit
-        {
-            Id = x.Id.Value,
-            GameProviderId = gameProvider.Id,
-            CurrencyCode = x.CurrencyCode,
-            MinBet = x.MinBet,
-            MaxBet = x.MaxBet,
-            MaxBetPerMatch = x.MaxBetPerMatch,
-            ExternalSetting = x.ExternalSetting
-        }).ToHashSet();
-
-    private static HashSet<GameProviderBetLimit> GenerateNewBetLimits(GameProvider gameProvider,
-        GameProviderRequest request) =>
-        request.BetLimits.Where(x => x.Id is null).Select(x => new GameProviderBetLimit
-        {
-            GameProviderId = gameProvider.Id,
-            CurrencyCode = x.CurrencyCode,
-            MinBet = x.MinBet,
-            MaxBet = x.MaxBet,
-            MaxBetPerMatch = x.MaxBetPerMatch,
-            ExternalSetting = x.ExternalSetting
-        }).ToHashSet();
 }

@@ -13,8 +13,8 @@ public class GetVipLevelsQueryHandler : Handler<GetVipLevelsRequest, PagedRespon
 {
     private readonly IVipLevelService _service;
 
-    public GetVipLevelsQueryHandler(IVipLevelService service, IHttpContextAccessor accessor) :
-        base(accessor)
+    public GetVipLevelsQueryHandler(IVipLevelService service, IHttpContextAccessor accessor)
+        : base(accessor)
     {
         _service = service;
     }

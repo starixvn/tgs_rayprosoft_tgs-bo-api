@@ -19,10 +19,10 @@ public class GameProviderConfigurationController : BaseContextController
         _mediator = mediator;
     }
 
-    [HttpGet]
-    [Description("Get game provider configurations")]
-    public Task<PagedResponse<GameProviderConfigurationModel>>
-        GetGameProviderConfigurationsAsync([FromQuery] GetGameProviderConfigurationsRequest request) =>
+    [HttpPost]
+    [Description("Create a game provider configuration")]
+    public Task<MessageResponse> CreateGameProviderConfigurationAsync(
+        CreateGameProviderConfigurationRequest request) =>
         _mediator.Send(request);
 
     [HttpGet("{id}")]
@@ -30,10 +30,10 @@ public class GameProviderConfigurationController : BaseContextController
     public Task<GetGameProviderConfigurationResponse> GetGameProviderConfigurationAsync(Guid id) =>
         _mediator.Send(new GetGameProviderConfigurationRequest(id));
 
-    [HttpPost]
-    [Description("Create a game provider configuration")]
-    public Task<MessageResponse> CreateGameProviderConfigurationAsync(
-        CreateGameProviderConfigurationRequest request) =>
+    [HttpGet]
+    [Description("Get game provider configurations")]
+    public Task<PagedResponse<GameProviderConfigurationModel>>
+        GetGameProviderConfigurationsAsync([FromQuery] GetGameProviderConfigurationsRequest request) =>
         _mediator.Send(request);
 
     [HttpPut("{id}")]

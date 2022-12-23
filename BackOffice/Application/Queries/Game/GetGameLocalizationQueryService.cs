@@ -2,10 +2,10 @@
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
+using Microsoft.EntityFrameworkCore;
+using Tgs.ServiceUtility;
 using TGS.Core.DataServices.Tgs;
 using TGS.Services.BackOffice.Domain;
-using Tgs.ServiceUtility;
-using Microsoft.EntityFrameworkCore;
 
 namespace TGS.Services.BackOffice.Application.Queries.Game;
 
@@ -22,19 +22,21 @@ internal class GetGameLocalizationQueryService : IGetService<GetGameLocalization
         CancellationToken cancellationToken = default)
     {
         var gameProvider =
-            await _tgsRepository.GameProviders.FirstOrDefaultAsync(x => x.Code == query.GameProviderCode);
+            await _tgsRepository.GameProviders
+                .FirstOrDefaultAsync(x => x.Code == query.GameProviderCode, cancellationToken: cancellationToken)
+                .ConfigureAwait(false);
 
         var gpId = gameProvider.Id;
 
         var providerLanguages = await _tgsRepository.GameProviderLanguages
             .AsAsyncEnumerable()
             .Where(x => x.GameProviderId == gpId)
-            .ToArrayAsync();
+            .ToArrayAsync(cancellationToken: cancellationToken);
 
         var games = await _tgsRepository.Games
             .AsAsyncEnumerable()
             .Where(x => x.GameProviderId == gpId)
-            .ToArrayAsync();
+            .ToArrayAsync(cancellationToken: cancellationToken);
 
         return new GameLocalizationInfo
         {

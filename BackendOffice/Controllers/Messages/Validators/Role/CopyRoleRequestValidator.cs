@@ -7,7 +7,7 @@ public class CopyRoleRequestValidator : AbstractValidator<CopyRoleRequest>
 {
     public CopyRoleRequestValidator()
     {
-        RuleFor(x => x.Name)
+        _ = RuleFor(x => x.Name)
             .NotNull()
             .NotEmpty()
             .WithMessage(Resources.Role.NameRequired)

@@ -5,9 +5,9 @@ using AutoFixture;
 using FluentAssertions;
 using Moq;
 using NUnit.Framework;
+using Tgs.ServiceUtility;
 using TGS.Apis.BackendOffice.Controllers.Report;
 using TGS.Services.BackOffice.Application.Models.ReportMarket;
-using Tgs.ServiceUtility;
 
 namespace TGS.Tests.BackendOffice.UnitTests.Controllers;
 
@@ -15,17 +15,10 @@ namespace TGS.Tests.BackendOffice.UnitTests.Controllers;
 [Parallelizable]
 public class MarketControllerTests : BaseTests
 {
-    [SetUp]
-    public override void Setup()
-    {
-        base.Setup();
-        _controller = new();
-    }
-
-    private MarketReportController _controller = default!;
-
     private readonly Mock<IGetService<GetMarketsReportRequest, GetMarketsReportResponse>> _getServiceMock =
         new();
+
+    private MarketReportController _controller = default!;
 
     [TestCase(true)]
     [TestCase(false)]
@@ -48,11 +41,11 @@ public class MarketControllerTests : BaseTests
 
         var expectedRoles = showAll ? orderedRoles.ToArray() : orderedRoles.Skip(skip).Take(take).ToArray();
 
-        _getServiceMock
+        _ = _getServiceMock
             .Setup(m => m.GetAsync(It.IsAny<GetMarketsReportRequest>(), default))
             .ReturnsAsync(new GetMarketsReportResponse
             {
-                TotalCount = list.Count(),
+                TotalCount = list.Length,
                 Items = expectedRoles
             });
 
@@ -60,9 +53,16 @@ public class MarketControllerTests : BaseTests
 
         for (var i = 0; i < response.Items.Length; i++)
         {
-            response.Items[i].ReportDate.Should().Be(expectedRoles[i].ReportDate);
+            _ = response.Items[i].ReportDate.Should().Be(expectedRoles[i].ReportDate);
         }
 
         _getServiceMock.Verify(x => x.GetAsync(It.IsAny<GetMarketsReportRequest>(), default));
+    }
+
+    [SetUp]
+    public override void Setup()
+    {
+        base.Setup();
+        _controller = new();
     }
 }

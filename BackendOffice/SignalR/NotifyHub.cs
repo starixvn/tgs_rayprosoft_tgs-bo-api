@@ -4,7 +4,6 @@ using System.Reactive.Linq;
 using System.Text.Json;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.SignalR;
-using Microsoft.Extensions.Logging;
 using TGS.Core.Models;
 using TGS.Services.BackOffice.Domain;
 
@@ -15,13 +14,11 @@ namespace TGS.Apis.BackendOffice.SignalR;
 public class NotifyHub : Hub
 {
     private readonly INotifyEventSource _eventSource;
-    private readonly ILogger<NotifyHub> _logger;
     private readonly HashSet<IDisposable> _subscriptions = new();
 
-    public NotifyHub(INotifyEventSource eventSource, ILogger<NotifyHub> logger)
+    public NotifyHub(INotifyEventSource eventSource)
     {
         _eventSource = eventSource ?? throw new ArgumentNullException(nameof(eventSource));
-        _logger = logger ?? throw new ArgumentNullException(nameof(logger));
     }
 
     public override Task OnConnectedAsync()
@@ -30,7 +27,7 @@ public class NotifyHub : Hub
 
         if (!string.IsNullOrEmpty(userId))
         {
-            _subscriptions.Add(_eventSource.EventSource
+            _ = _subscriptions.Add(_eventSource.EventSource
                 .Where(evt => evt.Match("UserId", userId!)
                     && evt.Match("Feature", "BatchAdjustBalance"))
                 .Select(evt => evt.Body.Deserialize<Guid>()!)

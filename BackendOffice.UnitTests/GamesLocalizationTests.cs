@@ -19,14 +19,14 @@ public class GamesLocalizationTests
     public async Task Game_Languages_Count_Should_Match_GameProvider_Language_Count()
     {
         var dbContextOptionsBuilder = new DbContextOptionsBuilder<TgsRepository>();
-        dbContextOptionsBuilder
+        _ = dbContextOptionsBuilder
             .UseInMemoryDatabase(Guid.NewGuid().ToString())
             .ConfigureWarnings(x => x.Ignore(InMemoryEventId.TransactionIgnoredWarning));
         ITgsRepository repository = new TgsRepository(dbContextOptionsBuilder.Options);
 
         var gameProviderId = Guid.NewGuid();
         var gameProviderCode = "KY";
-        await repository.GameProviders.AddAsync(
+        _ = await repository.GameProviders.AddAsync(
             new CoreModels.GameProvider()
             {
                 Id = gameProviderId,
@@ -54,7 +54,7 @@ public class GamesLocalizationTests
 
         await repository.GameProviderLanguages.AddRangeAsync(gpLangs);
 
-        await repository.SaveChangesAsync();
+        _ = await repository.SaveChangesAsync();
 
         var sut = new GetGameLocalizationQueryService(repository);
 
@@ -68,12 +68,12 @@ public class GamesLocalizationTests
     public async Task Update_Game_Prodvier_Location_With_Exist_Id_Should_Success()
     {
         var dbContextOptionsBuilder = new DbContextOptionsBuilder<TgsRepository>();
-        dbContextOptionsBuilder
+        _ = dbContextOptionsBuilder
             .UseInMemoryDatabase(Guid.NewGuid().ToString())
             .ConfigureWarnings(x => x.Ignore(InMemoryEventId.TransactionIgnoredWarning));
         ITgsRepository repository = new TgsRepository(dbContextOptionsBuilder.Options);
 
-        repository.Games.Add(new CoreModels.Game()
+        _ = repository.Games.Add(new CoreModels.Game()
         {
             Id = 1,
             AvailableCurrencies = string.Empty,
@@ -83,7 +83,7 @@ public class GamesLocalizationTests
             CreatedByUsername = "System",
             UpdatedByUsername = "System"
         });
-        repository.Games.Add(new CoreModels.Game()
+        _ = repository.Games.Add(new CoreModels.Game()
         {
             Id = 2,
             AvailableCurrencies = string.Empty,
@@ -93,7 +93,7 @@ public class GamesLocalizationTests
             CreatedByUsername = "System",
             UpdatedByUsername = "System"
         });
-        await repository.SaveChangesAsync();
+        _ = await repository.SaveChangesAsync();
 
         var sut = new UpdateGameLocalizationQueryService(repository);
 
@@ -117,12 +117,12 @@ public class GamesLocalizationTests
     public async Task Update_Game_Provider_Localization_With_NonExist_Id_Should_Failed()
     {
         var dbContextOptionsBuilder = new DbContextOptionsBuilder<TgsRepository>();
-        dbContextOptionsBuilder
+        _ = dbContextOptionsBuilder
             .UseInMemoryDatabase(Guid.NewGuid().ToString())
             .ConfigureWarnings(x => x.Ignore(InMemoryEventId.TransactionIgnoredWarning));
         ITgsRepository repository = new TgsRepository(dbContextOptionsBuilder.Options);
 
-        repository.Games.Add(new CoreModels.Game()
+        _ = repository.Games.Add(new CoreModels.Game()
         {
             Id = 1,
             AvailableCurrencies = string.Empty,
@@ -132,7 +132,7 @@ public class GamesLocalizationTests
             CreatedByUsername = "System",
             UpdatedByUsername = "System"
         });
-        repository.Games.Add(new CoreModels.Game()
+        _ = repository.Games.Add(new CoreModels.Game()
         {
             Id = 2,
             AvailableCurrencies = string.Empty,
@@ -143,7 +143,7 @@ public class GamesLocalizationTests
             UpdatedByUsername = "System"
         });
 
-        await repository.SaveChangesAsync();
+        _ = await repository.SaveChangesAsync();
 
         var sut = new UpdateGameLocalizationQueryService(repository);
 

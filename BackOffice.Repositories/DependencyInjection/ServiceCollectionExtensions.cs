@@ -10,14 +10,14 @@ public static class ServiceCollectionExtensions
     public static IServiceCollection AddBackendOfficeRepositories(this IServiceCollection services,
         Func<IServiceProvider, IDatabase> redisDatabaseResolver)
     {
-        services
+        _ = services
             .AddTransient<ISettingRepository, SettingRepository>()
             .AddTransient<IBackOfficeRepository, BackOfficeRepository>()
             .AddTransient<IAgentRepository, AgentRepository>()
             .AddTransient<IPaymentReportingRepository, PaymentReportingRepository>()
             .AddTransient<IMarketingReportRepository, MarketingReportRepository>();
 
-        services
+        _ = services
             .AddTransient<IPlayerOnlineRepository>(
                 sp => ActivatorUtilities.CreateInstance<PlayerOnlineRepository>(
                     sp,

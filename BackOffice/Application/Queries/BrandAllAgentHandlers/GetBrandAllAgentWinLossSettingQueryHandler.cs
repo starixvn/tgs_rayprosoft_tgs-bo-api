@@ -25,11 +25,11 @@ public class GetBrandAllAgentWinLossSettingQueryHandler : Handler<GetBrandAllAge
         => _brandAllAgentGameTypeConditionService.GetBrandAllAgentGameTypeConditionQueries()
             .Where(x => x.BrandId == request.BrandId && x.AllAgentGameType == request.AllAgentGameType &&
                 x.AllAgentRebateType == AllAgentRebateType.WinLoss).Select(x => new WinLossConditionModel
-            {
-                Rank = x.Rank,
-                ActiveNumber = x.ActiveNumber,
-                NetProfit = x.NetProfit,
-                RebatePercentage = x.RebatePercentage
-            })
+                {
+                    Rank = x.Rank,
+                    ActiveNumber = x.ActiveNumber,
+                    NetProfit = x.NetProfit,
+                    RebatePercentage = x.RebatePercentage
+                })
             .ToArrayAsync(cancellationToken);
 }

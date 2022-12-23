@@ -60,13 +60,12 @@ public class AnnouncementControllerTests : BaseTests
                 }
             }
         };
-
-        _queriesMock.Setup(x => x.GetQueries())
+        _ = _queriesMock.Setup(x => x.GetQueries())
             .Returns(list);
 
         var response = await _controller.ChangeOrderAsync(request);
 
-        response.Valid.Should().BeTrue();
+        _ = response.Valid.Should().BeTrue();
 
         _queriesMock.Verify(p => p.GetQueries());
 
@@ -81,13 +80,13 @@ public class AnnouncementControllerTests : BaseTests
         var announcement = CreateAnnouncementFixture()
             .Create<Announcement>();
 
-        _queriesMock.Setup(s => s.GetSingleAsync(It.IsAny<Expression<Func<Announcement, bool>>>(),
+        _ = _queriesMock.Setup(s => s.GetSingleAsync(It.IsAny<Expression<Func<Announcement, bool>>>(),
                 It.IsAny<Func<IQueryable<Announcement>, IQueryable<Announcement>>>()))
             .Returns(Task.FromResult(announcement));
 
         var response = await _controller.ChangeStatusAsync(announcement.Id, status);
 
-        response.Valid.Should().BeTrue();
+        _ = response.Valid.Should().BeTrue();
 
         _queriesMock.Verify(s => s.GetSingleAsync(It.IsAny<Expression<Func<Announcement, bool>>>(),
             It.IsAny<Func<IQueryable<Announcement>, IQueryable<Announcement>>>()));
@@ -109,7 +108,7 @@ public class AnnouncementControllerTests : BaseTests
             Subject = "subject"
         };
 
-        _queriesMock
+        _ = _queriesMock
             .Setup(s => s.ExistsAsync(It.IsAny<Expression<Func<Announcement, bool>>>()))
             .Returns(Task.FromResult(false));
 
@@ -121,7 +120,7 @@ public class AnnouncementControllerTests : BaseTests
             jsonOptionsAccessor,
             request);
 
-        response.Valid.Should().BeTrue();
+        _ = response.Valid.Should().BeTrue();
 
         _commandsMock.Verify(p => p.CreateAsync(It.Is<Announcement>(d =>
             d.Subject == request.Subject &&
@@ -172,25 +171,25 @@ public class AnnouncementControllerTests : BaseTests
 
         var expectedRoles = showAll ? orderedRoles.ToArray() : orderedRoles.Skip(skip).Take(take).ToArray();
 
-        _queriesMock.Setup(x => x.GetQueries())
+        _ = _queriesMock.Setup(x => x.GetQueries())
             .Returns(list);
 
         var response = await _controller.GetListAsync(request);
-        response.Valid.Should().BeTrue();
+        _ = response.Valid.Should().BeTrue();
 
         for (var i = 0; i < response.Items.Length; i++)
         {
-            response.Items[i].Id.Should().Be(expectedRoles[i].Id);
-            response.Items[i].Subject.Should().Be(expectedRoles[i].Subject);
-            response.Items[i].Content.Should().Be(expectedRoles[i].Content);
-            response.Items[i].Remarks.Should().Be(expectedRoles[i].Remarks);
-            response.Items[i].CreatedByUsername.Should().Be(expectedRoles[i].CreatedByUsername);
-            response.Items[i].VerifiedByUsername.Should().Be(expectedRoles[i].VerifiedByUsername);
-            response.Items[i].From.Should().Be(expectedRoles[i].From);
-            response.Items[i].To.Should().Be(expectedRoles[i].To);
-            response.Items[i].UpdatedOn.Should().Be(expectedRoles[i].UpdatedOn);
+            _ = response.Items[i].Id.Should().Be(expectedRoles[i].Id);
+            _ = response.Items[i].Subject.Should().Be(expectedRoles[i].Subject);
+            _ = response.Items[i].Content.Should().Be(expectedRoles[i].Content);
+            _ = response.Items[i].Remarks.Should().Be(expectedRoles[i].Remarks);
+            _ = response.Items[i].CreatedByUsername.Should().Be(expectedRoles[i].CreatedByUsername);
+            _ = response.Items[i].VerifiedByUsername.Should().Be(expectedRoles[i].VerifiedByUsername);
+            _ = response.Items[i].From.Should().Be(expectedRoles[i].From);
+            _ = response.Items[i].To.Should().Be(expectedRoles[i].To);
+            _ = response.Items[i].UpdatedOn.Should().Be(expectedRoles[i].UpdatedOn);
 
-            response.Items[i].Status.Should().Be(DateTimeOffset.Now > expectedRoles[i].To
+            _ = response.Items[i].Status.Should().Be(DateTimeOffset.Now > expectedRoles[i].To
                 ? AnnounceStatus.Expired.ToString()
                 : expectedRoles[i].Status.ToString());
         }
@@ -209,13 +208,13 @@ public class AnnouncementControllerTests : BaseTests
 
         var request = new Fixture().Create<VerifyRequest>();
 
-        _queriesMock.Setup(s => s.GetSingleAsync(It.IsAny<Expression<Func<Announcement, bool>>>(),
+        _ = _queriesMock.Setup(s => s.GetSingleAsync(It.IsAny<Expression<Func<Announcement, bool>>>(),
                 It.IsAny<Func<IQueryable<Announcement>, IQueryable<Announcement>>>()))
             .Returns(Task.FromResult(announcement));
 
         var response = await _controller.VerifyAsync(announcementId, type, request);
 
-        response.Valid.Should().BeTrue();
+        _ = response.Valid.Should().BeTrue();
 
         _queriesMock.Verify(s => s.GetSingleAsync(It.IsAny<Expression<Func<Announcement, bool>>>(),
             It.IsAny<Func<IQueryable<Announcement>, IQueryable<Announcement>>>()));
@@ -241,13 +240,13 @@ public class AnnouncementControllerTests : BaseTests
             Subject = "subject"
         };
 
-        _queriesMock
+        _ = _queriesMock
             .Setup(s => s.GetSingleAsync(
                 It.IsAny<Expression<Func<Announcement, bool>>>(),
                 It.IsAny<Func<IQueryable<Announcement>, IQueryable<Announcement>>>()))
             .Returns(Task.FromResult(announcement));
 
-        _queriesMock
+        _ = _queriesMock
             .Setup(s => s.ExistsAsync(It.IsAny<Expression<Func<Announcement, bool>>>()))
             .Returns(Task.FromResult(false));
 
@@ -260,7 +259,7 @@ public class AnnouncementControllerTests : BaseTests
             announcement.Id,
             request);
 
-        response.Valid.Should().BeTrue();
+        _ = response.Valid.Should().BeTrue();
 
         _queriesMock.Verify(s => s.GetSingleAsync(
             It.IsAny<Expression<Func<Announcement, bool>>>(),
@@ -290,13 +289,13 @@ public class AnnouncementControllerTests : BaseTests
             Subject = "subject"
         };
 
-        _queriesMock
+        _ = _queriesMock
             .Setup(s => s.GetSingleAsync(
                 It.IsAny<Expression<Func<Announcement, bool>>>(),
                 It.IsAny<Func<IQueryable<Announcement>, IQueryable<Announcement>>>()))
-            .Returns(Task.FromResult<Announcement>(default(Announcement)!));
+            .Returns(Task.FromResult<Announcement>(default!));
 
-        _queriesMock
+        _ = _queriesMock
             .Setup(s => s.ExistsAsync(It.IsAny<Expression<Func<Announcement, bool>>>()))
             .Returns(Task.FromResult(false));
 
@@ -309,8 +308,8 @@ public class AnnouncementControllerTests : BaseTests
             announcement.Id,
             request);
 
-        response.Valid.Should().BeFalse();
-        response.Message.Should().Be(Apis.BackendOffice.Resources.Announcement.NotFound);
+        _ = response.Valid.Should().BeFalse();
+        _ = response.Message.Should().Be(Apis.BackendOffice.Resources.Announcement.NotFound);
 
         _queriesMock.Verify(s => s.GetSingleAsync(It.IsAny<Expression<Func<Announcement, bool>>>(),
             It.IsAny<Func<IQueryable<Announcement>, IQueryable<Announcement>>>()));
@@ -336,7 +335,7 @@ public class AnnouncementControllerTests : BaseTests
 
         var request = new Fixture().Create<VerifyRequest>();
 
-        _queriesMock
+        _ = _queriesMock
             .Setup(s => s.GetSingleAsync(
                 It.IsAny<Expression<Func<Announcement, bool>>>(),
                 It.IsAny<Func<IQueryable<Announcement>, IQueryable<Announcement>>>()))
@@ -344,7 +343,7 @@ public class AnnouncementControllerTests : BaseTests
 
         var response = await _controller.VerifyAsync(announcementId, type, request);
 
-        response.Valid.Should().BeTrue();
+        _ = response.Valid.Should().BeTrue();
 
         _queriesMock.Verify(s => s.GetSingleAsync(
             It.IsAny<Expression<Func<Announcement, bool>>>(),
@@ -359,14 +358,14 @@ public class AnnouncementControllerTests : BaseTests
     [Test]
     public async Task Cannot_Change_Announcement_Status_Not_Found()
     {
-        _queriesMock.Setup(s => s.GetSingleAsync(It.IsAny<Expression<Func<Announcement, bool>>>(),
+        _ = _queriesMock.Setup(s => s.GetSingleAsync(It.IsAny<Expression<Func<Announcement, bool>>>(),
                 It.IsAny<Func<IQueryable<Announcement>, IQueryable<Announcement>>>()))
             .Returns(Task.FromResult<Announcement>(default!));
 
         var response = await _controller.ChangeStatusAsync(Guid.NewGuid(), AnnounceStatus.Invalid);
 
-        response.Valid.Should().BeFalse();
-        response.Message.Should().Be(Apis.BackendOffice.Resources.Announcement.NotFound);
+        _ = response.Valid.Should().BeFalse();
+        _ = response.Message.Should().Be(Apis.BackendOffice.Resources.Announcement.NotFound);
     }
 
     [Test]
@@ -385,13 +384,13 @@ public class AnnouncementControllerTests : BaseTests
             Subject = "subject"
         };
 
-        _queriesMock
+        _ = _queriesMock
             .Setup(s => s.GetSingleAsync(
                 It.IsAny<Expression<Func<Announcement, bool>>>(),
                 It.IsAny<Func<IQueryable<Announcement>, IQueryable<Announcement>>>()))
             .Returns(Task.FromResult(announcement));
 
-        _queriesMock
+        _ = _queriesMock
             .Setup(s => s.ExistsAsync(It.IsAny<Expression<Func<Announcement, bool>>>()))
             .Returns(Task.FromResult(true));
 
@@ -404,8 +403,8 @@ public class AnnouncementControllerTests : BaseTests
             announcement.Id,
             request);
 
-        response.Valid.Should().BeFalse();
-        response.Message.Should().Be(Apis.BackendOffice.Resources.Announcement.CannotUpdateDueToInvalidStatus);
+        _ = response.Valid.Should().BeFalse();
+        _ = response.Message.Should().Be(Apis.BackendOffice.Resources.Announcement.CannotUpdateDueToInvalidStatus);
 
         _queriesMock.Verify(s => s.GetSingleAsync(It.IsAny<Expression<Func<Announcement, bool>>>(),
             It.IsAny<Func<IQueryable<Announcement>, IQueryable<Announcement>>>()));
@@ -426,14 +425,14 @@ public class AnnouncementControllerTests : BaseTests
 
         var request = new Fixture().Create<VerifyRequest>();
 
-        _queriesMock.Setup(s => s.GetSingleAsync(It.IsAny<Expression<Func<Announcement, bool>>>(),
+        _ = _queriesMock.Setup(s => s.GetSingleAsync(It.IsAny<Expression<Func<Announcement, bool>>>(),
                 It.IsAny<Func<IQueryable<Announcement>, IQueryable<Announcement>>>()))
             .Returns(Task.FromResult<Announcement>(default!));
 
         var response = await _controller.VerifyAsync(announcementId, "pass", request);
 
-        response.Valid.Should().BeFalse();
-        response.Message.Should().Be(Apis.BackendOffice.Resources.Announcement.NotFound);
+        _ = response.Valid.Should().BeFalse();
+        _ = response.Message.Should().Be(Apis.BackendOffice.Resources.Announcement.NotFound);
 
         _queriesMock.Verify(s => s.GetSingleAsync(It.IsAny<Expression<Func<Announcement, bool>>>(),
             It.IsAny<Func<IQueryable<Announcement>, IQueryable<Announcement>>>()));
@@ -452,14 +451,14 @@ public class AnnouncementControllerTests : BaseTests
 
         var request = new Fixture().Create<VerifyRequest>();
 
-        _queriesMock.Setup(s => s.GetSingleAsync(It.IsAny<Expression<Func<Announcement, bool>>>(),
+        _ = _queriesMock.Setup(s => s.GetSingleAsync(It.IsAny<Expression<Func<Announcement, bool>>>(),
                 It.IsAny<Func<IQueryable<Announcement>, IQueryable<Announcement>>>()))
             .Returns(Task.FromResult(announcement));
 
         var response = await _controller.VerifyAsync(announcementId, "pass2", request);
 
-        response.Valid.Should().BeFalse();
-        response.Message.Should().Be(Apis.BackendOffice.Resources.Announcement.InvalidUrl);
+        _ = response.Valid.Should().BeFalse();
+        _ = response.Message.Should().Be(Apis.BackendOffice.Resources.Announcement.InvalidUrl);
     }
 
     [TestCase("pass", AnnounceStatus.Effective, "Only announcement in verify can be passed.")]
@@ -484,15 +483,17 @@ public class AnnouncementControllerTests : BaseTests
 
         var request = new Fixture().Create<VerifyRequest>();
 
-        _queriesMock.Setup(s => s.GetSingleAsync(It.IsAny<Expression<Func<Announcement, bool>>>(),
+        _ = _queriesMock.Setup(s => s.GetSingleAsync(It.IsAny<Expression<Func<Announcement, bool>>>(),
                 It.IsAny<Func<IQueryable<Announcement>, IQueryable<Announcement>>>()))
             .Returns(Task.FromResult(announcement));
 
         var response = await _controller.VerifyAsync(announcementId, type, request);
 
-        response.Valid.Should().BeFalse();
-        response.Message.Should().Be(message);
+        _ = response.Valid.Should().BeFalse();
+        _ = response.Message.Should().Be(message);
     }
+
+    public Mock<ITgsQueries<Announcement>> Get_queriesMock() => _queriesMock;
 
     [SetUp]
     public override void Setup()
@@ -506,7 +507,7 @@ public class AnnouncementControllerTests : BaseTests
         _controller.ControllerContext.HttpContext = HttpContextMock.Object;
     }
 
-    private Fixture CreateAnnouncementFixture()
+    private static Fixture CreateAnnouncementFixture()
     {
         var fixture = new Fixture();
 

@@ -7,7 +7,7 @@ public class UpdateUserRequestValidator : AbstractValidator<UpdateUserRequest>
 {
     public UpdateUserRequestValidator()
     {
-        RuleFor(p => p.Name)
+        _ = RuleFor(p => p.Name)
             .NotNull()
             .NotEmpty()
             .WithMessage(Resources.User.NameRequired);

@@ -4,13 +4,13 @@ using System.Net.Http.Headers;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
+using Tgs.FileService.Clients;
 using TGS.Apis.BackendOffice.Attributes;
 using TGS.Apis.BackendOffice.Controllers.Messages;
 using TGS.Apis.BackendOffice.Resources;
 using TGS.Core.Infrastructures.Extensions;
 using TGS.Core.Infrastructures.Utility;
 using TGS.Core.Models;
-using Tgs.FileService.Clients;
 
 namespace TGS.Apis.BackendOffice.Controllers;
 

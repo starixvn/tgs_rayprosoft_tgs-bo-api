@@ -39,7 +39,7 @@ public class DepositFormTests
 
         var query = new GetDepositFormDetailQuery(formId, brandId);
 
-        await sut.GetAsync(query);
+        _ = await sut.GetAsync(query);
 
         moqPaymentServiceClient.Verify(
             fake => fake.GetDepositFormAsync(
@@ -59,15 +59,14 @@ public class DepositFormTests
         var fakeRedisDatabase = Substitute.For<IDatabase>();
         var fakeRedisConnection = Substitute.For<IConnectionMultiplexer>();
         var fakeRedisDatabaseFactory = Substitute.For<IRedisConnectionFactory>();
-        var fakeMediator = Substitute.For<IMediator>();
         var fakeBrandService = Substitute.For<IBrandService>();
         var fakePlayerGPBalanceService = Substitute
             .For<IQueryService<GetPlayerGameProviderBalanceCommand, GetPlayerGameProviderBalanceResponse>>();
 
-        fakeRedisDatabaseFactory.GetConnection()
+        _ = fakeRedisDatabaseFactory.GetConnection()
             .Returns(fakeRedisConnection);
 
-        fakeRedisConnection.GetDatabase(Arg.Any<int>(), Arg.Any<object>())
+        _ = fakeRedisConnection.GetDatabase(Arg.Any<int>(), Arg.Any<object>())
             .Returns(fakeRedisDatabase);
 
         var sut = new ReviewDepositFormCommandService(
@@ -80,7 +79,7 @@ public class DepositFormTests
             fakePlayerGPBalanceService,
             NullLogger<ReviewDepositFormCommandService>.Instance);
 
-        fakeRedisDatabase.StringSetAsync(
+        _ = fakeRedisDatabase.StringSetAsync(
                 Arg.Any<RedisKey>(),
                 Arg.Any<RedisValue>(),
                 Arg.Any<TimeSpan?>(),
@@ -91,7 +90,7 @@ public class DepositFormTests
         var brandId = Guid.NewGuid();
         var formId = Guid.NewGuid();
 
-        fakePaymentServiceClient.GetDepositFormAsync(brandId, formId)
+        _ = fakePaymentServiceClient.GetDepositFormAsync(brandId, formId)
             .Returns(new DepositFormInfo { Status = PaymentFlowState.Approved });
 
         var command = new ReviewDepositFormCommand(
@@ -112,68 +111,6 @@ public class DepositFormTests
                 "reviewUserName");
     }
 
-    public async Task Manager_Can_Not_Review_DepositForm_When_Form_Status_Is_Reject()
-    {
-        var fakePaymentServiceClient = Substitute.For<IPaymentServiceClient>();
-        var fakePlayerService = Substitute.For<IPlayerService>();
-        var fakePlayerBucketRepository = Substitute.For<IPlayerBucketRepository>();
-        var fakePromotionClient = Substitute.For<IPromotionClient>();
-        var fakeRedisDatabase = Substitute.For<IDatabase>();
-        var fakeRedisConnection = Substitute.For<IConnectionMultiplexer>();
-        var fakeRedisDatabaseFactory = Substitute.For<IRedisConnectionFactory>();
-        var fakeMediator = Substitute.For<IMediator>();
-        var fakeBrandService = Substitute.For<IBrandService>();
-        var fakePlayerGPBalanceService = Substitute
-            .For<IQueryService<GetPlayerGameProviderBalanceCommand, GetPlayerGameProviderBalanceResponse>>();
-
-        fakeRedisDatabaseFactory.GetConnection()
-            .Returns(fakeRedisConnection);
-
-        fakeRedisConnection.GetDatabase(Arg.Any<int>(), Arg.Any<object>())
-            .Returns(fakeRedisDatabase);
-
-        var sut = new ReviewDepositFormCommandService(
-            fakePaymentServiceClient,
-            fakePlayerService,
-            fakePlayerBucketRepository,
-            fakePromotionClient,
-            fakeRedisDatabaseFactory,
-            fakeBrandService,
-            fakePlayerGPBalanceService,
-            NullLogger<ReviewDepositFormCommandService>.Instance);
-
-        fakeRedisDatabase.StringSetAsync(
-                Arg.Any<RedisKey>(),
-                Arg.Any<RedisValue>(),
-                Arg.Any<TimeSpan?>(),
-                Arg.Any<When>(),
-                Arg.Any<CommandFlags>())
-            .Returns(true);
-
-        var brandId = Guid.NewGuid();
-        var formId = Guid.NewGuid();
-
-        fakePaymentServiceClient.GetDepositFormAsync(brandId, formId)
-            .Returns(new DepositFormInfo { Status = PaymentFlowState.Reject });
-
-        var command = new ReviewDepositFormCommand(
-            brandId,
-            formId,
-            ReviewState.Reject,
-            null,
-            null,
-            "93a723b2-9ebb-4607-ee8d-08d978fba75f",
-            "reviewUserName");
-        await sut.ExecuteAsync(command);
-
-        _ = fakePaymentServiceClient.Received(0)
-            .ReviewDepositFormAsync(
-                brandId,
-                ReviewState.Reject,
-                "93a723b2-9ebb-4607-ee8d-08d978fba75f",
-                "reviewUserName");
-    }
-
     [Test]
     public async Task Manager_Can_Review_DepositForm()
     {
@@ -189,10 +126,10 @@ public class DepositFormTests
         var fakePlayerGPBalanceService = Substitute
             .For<IQueryService<GetPlayerGameProviderBalanceCommand, GetPlayerGameProviderBalanceResponse>>();
 
-        fakeRedisDatabaseFactory.GetConnection()
+        _ = fakeRedisDatabaseFactory.GetConnection()
             .Returns(fakeRedisConnection);
 
-        fakeRedisConnection.GetDatabase(Arg.Any<int>(), Arg.Any<object>())
+        _ = fakeRedisConnection.GetDatabase(Arg.Any<int>(), Arg.Any<object>())
             .Returns(fakeRedisDatabase);
 
         var sut = new ReviewDepositFormCommandService(
@@ -217,16 +154,14 @@ public class DepositFormTests
             "93a723b2-9ebb-4607-ee8d-08d978fba75f",
             "reviewUserName");
 
-        fakeRedisDatabase.StringSetAsync(
+        _ = fakeRedisDatabase.StringSetAsync(
                 Arg.Any<RedisKey>(),
                 Arg.Any<RedisValue>(),
                 Arg.Any<TimeSpan?>(),
-                Arg.Any<bool>(),
-                Arg.Any<When>(),
-                Arg.Any<CommandFlags>())
+                Arg.Any<When>())
             .Returns(true);
 
-        moqPaymentServiceClient
+        _ = moqPaymentServiceClient
             .Setup(fake => fake.GetDepositFormAsync(
                 It.Is<Guid>(x => x == brandId),
                 It.Is<Guid>(x => x == formId),
@@ -246,7 +181,7 @@ public class DepositFormTests
                 UserName = "PlayerName"
             }));
 
-        moqPlayerService
+        _ = moqPlayerService
             .Setup(fake => fake.GetPlayerAsync(
                 It.IsAny<Expression<Func<Player, bool>>>(),
                 It.IsAny<Func<IQueryable<Player>, IQueryable<Player>>>()))
@@ -256,13 +191,13 @@ public class DepositFormTests
                 DefaultWalletId = walletId
             }));
 
-        moqBrandService
+        _ = moqBrandService
             .Setup(fake => fake.GetBrandAsync(
                 It.IsAny<Expression<Func<Brand, bool>>>(),
                 It.IsAny<Func<IQueryable<Brand>, IQueryable<Brand>>>()))
             .Returns(Task.FromResult(new Brand { AutoClearWageringRequirement = false }));
 
-        moqPlayerBucketRepository
+        _ = moqPlayerBucketRepository
             .Setup(fake => fake.CreatePlayerBucketWithDepositAsync(
                 It.Is<CreatePlayerBucketWithDepositRequest>(
                     x => x.BrandId == brandId
@@ -303,7 +238,7 @@ public class DepositFormTests
 
         var query = new CountUntreatedDepositFormsQuery(Guid.NewGuid());
 
-        await sut.GetAsync(query);
+        _ = await sut.GetAsync(query);
 
         moqPaymentServiceClient.Verify(
             fake => fake.CountUntreatedDepositFormsAsync(

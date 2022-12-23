@@ -1,5 +1,4 @@
 ﻿using System;
-using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 using System.Transactions;
@@ -105,7 +104,7 @@ public class AgentReduceAmountHandler : Handler<CreateAgentReduceAmountRequest, 
 
         using var scope = new TransactionScope(TransactionScopeAsyncFlowOption.Enabled);
 
-        var response = await _agentWalletRepository.ExchangeAsync(
+        var (transactionId, postBalance) = await _agentWalletRepository.ExchangeAsync(
             agent.BrandId,
             agent.DefaultWalletId,
             agent.Id,
@@ -113,8 +112,8 @@ public class AgentReduceAmountHandler : Handler<CreateAgentReduceAmountRequest, 
             -request.Amount,
             remark).ConfigureAwait(false);
 
-        await _adjustAgentAccountService.CreateAsync(
-            response.TransactionId,
+        _ = await _adjustAgentAccountService.CreateAsync(
+            transactionId,
             agent.BrandId,
             agent.Id,
             AdjustmentType.Add,
@@ -126,15 +125,15 @@ public class AgentReduceAmountHandler : Handler<CreateAgentReduceAmountRequest, 
 
         if (IsTransferToAgent(request))
         {
-            var agentTargetResponse = await _agentWalletRepository.ExchangeAsync(
+            var (transId, _) = await _agentWalletRepository.ExchangeAsync(
                 targetAgent.BrandId,
                 targetAgent.DefaultWalletId,
                 targetAgent.Id,
                 TransactionTypes.CompanyAdjust,
                 request.Amount).ConfigureAwait(false);
 
-            await _adjustTransferService.CreateAsync(response.TransactionId,
-                agentTargetResponse.TransactionId,
+            await _adjustTransferService.CreateAsync(transactionId,
+                transId,
                 AdjustTransferType.AgentToAgent,
                 agent.Username,
                 targetAgent.Username,
@@ -149,10 +148,11 @@ public class AgentReduceAmountHandler : Handler<CreateAgentReduceAmountRequest, 
                     request.Amount,
                     request.Remark,
                     null,
-                    Guid.Parse(UserId))
+                    Guid.Parse(UserId),
+                    cancellationToken)
                 .ConfigureAwait(false);
 
-            await _adjustTransferService.CreateAsync(response.TransactionId,
+            await _adjustTransferService.CreateAsync(transactionId,
                 playerTargetResponse.TransactionId,
                 AdjustTransferType.AgentToPlayer,
                 agent.Username,

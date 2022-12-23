@@ -7,15 +7,15 @@ public class BetLimitRequestValidator : AbstractValidator<BetLimitRequest>
 {
     public BetLimitRequestValidator()
     {
-        RuleFor(x => x.CurrencyCode)
+        _ = RuleFor(x => x.CurrencyCode)
             .NotEmpty()
             .WithMessage(Application.Resources.BetLimit.CodeRequired);
 
-        RuleFor(x => x.MinBet)
+        _ = RuleFor(x => x.MinBet)
             .GreaterThanOrEqualTo(0)
             .WithMessage(Application.Resources.BetLimit.MinbetGreaterThanZero);
 
-        RuleFor(x => x.MaxBet)
+        _ = RuleFor(x => x.MaxBet)
             .GreaterThan(x => x.MinBet)
             .WithMessage(Application.Resources.BetLimit.MaxbetGreaterThanMinbet);
     }

@@ -25,11 +25,11 @@ public class GetBrandAllAgentValidBetSettingQueryHandler : Handler<GetBrandAllAg
         => _brandAllAgentGameTypeConditionService.GetBrandAllAgentGameTypeConditionQueries()
             .Where(x => x.BrandId == request.BrandId && x.AllAgentGameType == request.AllAgentGameType &&
                 x.AllAgentRebateType == AllAgentRebateType.ValidBet).Select(x => new ValidBetConditionModel
-            {
-                Rank = x.Rank,
-                ActiveNumber = x.ActiveNumber,
-                NetProfit = x.NetProfit,
-                RebatePercentage = x.RebatePercentage
-            })
+                {
+                    Rank = x.Rank,
+                    ActiveNumber = x.ActiveNumber,
+                    NetProfit = x.NetProfit,
+                    RebatePercentage = x.RebatePercentage
+                })
             .ToArrayAsync(cancellationToken);
 }

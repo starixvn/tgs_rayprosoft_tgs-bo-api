@@ -7,23 +7,23 @@ public class ResellerRequestValidator : AbstractValidator<ResellerRequest>
 {
     public ResellerRequestValidator()
     {
-        RuleFor(x => x.Code)
+        _ = RuleFor(x => x.Code)
             .NotEmpty()
             .WithMessage(Resources.Reseller.CodeRequired);
 
-        RuleFor(x => x.Name)
+        _ = RuleFor(x => x.Name)
             .NotEmpty()
             .WithMessage(Resources.Reseller.NameRequired);
 
-        RuleFor(x => x.GameProviderIds)
+        _ = RuleFor(x => x.GameProviderIds)
             .Must(x => x.Length > 0)
             .WithMessage(Resources.Reseller.GameProviderRequired);
 
-        RuleFor(x => x.CurrencyCodes)
+        _ = RuleFor(x => x.CurrencyCodes)
             .Must(x => x.Length > 0)
             .WithMessage(Resources.Reseller.CurrencyRequired);
 
-        RuleFor(x => x.CultureCodes)
+        _ = RuleFor(x => x.CultureCodes)
             .Must(x => x.Length > 0)
             .WithMessage(Resources.Reseller.CultureRequired);
     }

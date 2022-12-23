@@ -7,9 +7,14 @@ namespace TGS.Apis.BackendOffice.Controllers.Messages.Promotion;
 public class GetPromotionsRequest : PageableRequest
 {
     public Guid BrandId { get; set; }
-    public string Type { get; set; }
-    public SwitchStatus? Status { get; set; }
-    public string Name { get; set; }
+
     public DateTimeOffset? From { get; set; }
+
+    public string Name { get; set; }
+
+    public SwitchStatus? Status { get; set; }
+
     public DateTimeOffset? To { get; set; }
+
+    public string Type { get; set; }
 }

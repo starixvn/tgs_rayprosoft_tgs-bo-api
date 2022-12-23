@@ -7,10 +7,10 @@ public class UpdateDefaultTimesRequestValidator : AbstractValidator<UpdateDefaul
 {
     public UpdateDefaultTimesRequestValidator()
     {
-        RuleForEach(x => x.DefaultTimes)
+        _ = RuleForEach(x => x.DefaultTimes)
             .ChildRules(x =>
             {
-                x.RuleFor(m => m.From)
+                _ = x.RuleFor(m => m.From)
                     .LessThan(m => m.To)
                     .WithMessage(Application.Resources.BrandGameProviderSchedule.ToDateGreaterThanFrom);
             });

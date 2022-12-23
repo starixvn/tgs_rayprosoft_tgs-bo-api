@@ -18,7 +18,7 @@ namespace TGS.Services.BackOffice.Application.Queries.Deposit;
 public class ExportDepositFormsCommandService : IGetService<ExportDepositFormsCommand, MemoryStream>
 {
     private static readonly EmbeddedFileProvider _EmbeddedFileProvider =
-        new EmbeddedFileProvider(Assembly.GetExecutingAssembly());
+        new(Assembly.GetExecutingAssembly());
 
     private readonly IPaymentServiceClient _paymentServiceClient;
     private readonly IFileInfo _templateFileInfo;
@@ -32,8 +32,8 @@ public class ExportDepositFormsCommandService : IGetService<ExportDepositFormsCo
 
     public async ValueTask<MemoryStream> GetAsync(ExportDepositFormsCommand query, CancellationToken cancellationToken)
     {
-        var resultPaymentMethods = await _paymentServiceClient.GetAllPaymentMethodsAsync()
-            .ToDictionaryAsync(x => x.Id)
+        var resultPaymentMethods = await _paymentServiceClient.GetAllPaymentMethodsAsync(cancellationToken)
+            .ToDictionaryAsync(x => x.Id, cancellationToken: cancellationToken)
             .ConfigureAwait(false);
 
         var resource = new ResourceManager(typeof(Resources.Deposit));
@@ -83,8 +83,8 @@ public class ExportDepositFormsCommandService : IGetService<ExportDepositFormsCo
             TotalAmount = totalAmount
         });
 
-        template.Generate();
+        _ = template.Generate();
 
-        template.Workbook.Worksheet("template").CopyTo(target, "Deposit");
+        _ = template.Workbook.Worksheet("template").CopyTo(target, "Deposit");
     }
 }

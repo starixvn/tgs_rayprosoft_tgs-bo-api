@@ -16,5 +16,5 @@ internal class GetWithdrawFormDetailQueryService : IGetService<GetWithdrawFormDe
     }
 
     public ValueTask<WithdrawFormInfo> GetAsync(GetWithdrawFormDetailQuery query, CancellationToken cancellationToken = default)
-        => _paymentServiceClient.GetWithdrawFormAsync(query.BrandId, query.FormId);
+        => _paymentServiceClient.GetWithdrawFormAsync(query.BrandId, query.FormId, cancellationToken);
 }

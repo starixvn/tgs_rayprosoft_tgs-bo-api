@@ -2,7 +2,6 @@
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using TGS.Core.Infrastructures.Json;
-using TGS.Core.Infrastructures.Log;
 
 namespace TGS.Tests.TestsCommon;
 
@@ -16,9 +15,9 @@ public static class ServiceExtensions
             .AddEnvironmentVariables()
             .Build();
 
-        services.AddTgsLog();
-        services.AddScoped<IJsonSerializationProvider, JsonSerializationProvider>();
-        services.AddSingleton<IConfiguration>(configuration);
+        _ = services.AddTgsLog();
+        _ = services.AddScoped<IJsonSerializationProvider, JsonSerializationProvider>();
+        _ = services.AddSingleton<IConfiguration>(configuration);
         return services;
     }
 }
