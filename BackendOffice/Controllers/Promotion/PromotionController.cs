@@ -14,6 +14,7 @@ using TGS.Core.Models.Enums;
 using TGS.Core.Models.Messages;
 using TGS.Services.BackOffice.ApplicationServices;
 using TGS.Services.BackOffice.Domain;
+using PromotionStatus = TGS.Core.Models.Enums.PromotionStatus;
 
 namespace TGS.Apis.BackendOffice.Controllers.Promotion;
 
@@ -309,13 +310,23 @@ public class PromotionController : BaseContextController
     [HttpPut("{promotionId:guid}/{status}", Name = "UpdatePromotionStatus")]
     [Description("change a Promotion's status")]
     public async Task<MessageResponse> UpdatePromotionStatusAsync(
-        [FromServices] IPromotionClient promotionClient,
+        [FromServices] IPromotionServiceClient promotionServiceClient,
         Guid promotionId,
-        Core.Models.Enums.PromotionStatus status)
+        PromotionStatus status)
     {
-        var response = await promotionClient.ChangePromotionStatusAsync(
-            new (promotionId, (short)status));
+        await promotionServiceClient.SetPromotionStatusAsync(
+                promotionId,
+                status switch
+                {
+                    PromotionStatus.Enabled => Tgs.Promotion.Clients.PromotionStatus.Enabled,
+                    PromotionStatus.Disabled => Tgs.Promotion.Clients.PromotionStatus.Disabled,
+                    PromotionStatus.Archived => Tgs.Promotion.Clients.PromotionStatus.Archived,
+                    _ => throw new NotImplementedException()
+                },
+                Username,
+                HttpContext.RequestAborted)
+            .ConfigureAwait(false);
 
-        return new MessageResponse { Valid = response.Valid, Message = response.Message };
+        return new MessageResponse { Valid = true };
     }
 }
