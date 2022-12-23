@@ -158,9 +158,7 @@ public class DepositFormTests
                 Arg.Any<RedisKey>(),
                 Arg.Any<RedisValue>(),
                 Arg.Any<TimeSpan?>(),
-                Arg.Any<bool>(),
-                Arg.Any<When>(),
-                Arg.Any<CommandFlags>())
+                Arg.Any<When>())
             .Returns(true);
 
         _ = moqPaymentServiceClient
