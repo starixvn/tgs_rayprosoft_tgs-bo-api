@@ -73,6 +73,7 @@ internal class ReviewDepositFormCommandService : ICommandService<ReviewDepositFo
                 .StringSetAsync(
                     $"Tgs:BucketDeposit:{command.FormId:N}",
                     command.FormId.ToString(),
+                    expiry: TimeSpan.FromMinutes(1),
                     when: When.NotExists)
                 .ConfigureAwait(false);
 
@@ -208,8 +209,7 @@ internal class ReviewDepositFormCommandService : ICommandService<ReviewDepositFo
         {
             if (isSaveSuccess)
                 _ = await _redisDatabase
-                    .KeyDeleteAsync(
-                        $"Tgs:BucketDeposit:{command.FormId:N}")
+                    .KeyDeleteAsync($"Tgs:BucketDeposit:{command.FormId:N}")
                     .ConfigureAwait(false);
         }
     }
