@@ -63,7 +63,7 @@ public class PlayerBucketController : BaseContextController
                 BucketType = info.Type,
                 PlayerCode = info.PlayerCode,
                 WageringRequirement = info.Amount,
-                UncompleteWagering = info.IsFull ? 0M : info.FillInAmount,
+                UncompleteWagering = info.IsFull ? 0M : info.Amount - info.FillInAmount,
                 CreatedOn = info.CreatedOn
             });
     }
