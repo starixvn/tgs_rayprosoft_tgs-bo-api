@@ -26,6 +26,7 @@ public class
         var reportRequest = new GetAgentDividendDetailsRequest
         {
             AgentId = request.AgentId,
+            AgentDividendPercentage = request.AgentDividendPercentage,
             From = request.From,
             To = request.To,
             Page = request.Page,
@@ -49,16 +50,7 @@ public class
                 SettlementDate = x.SettlementDate,
                 SettlementDateFrom = x.SettlementDateFrom,
                 SettlementDateTo = x.SettlementDateTo,
-                LiveDealerWinLoss = x.LiveDealerWinLoss,
-                SlotWinLoss = x.SlotWinLoss,
-                LotteryWinLoss = x.LotteryWinLoss,
-                CardGameWinLoss = x.CardGameWinLoss,
-                SportsWinLoss = x.SportsWinLoss,
-                VirtualSportsWinLoss = x.VirtualSportsWinLoss,
-                WinLossAmount = x.WinLossAmount,
-                AgentDividendAmount = x.AgentDividendAmount,
-                AgentDividendPercentage = x.AgentDividendPercentage,
-                ExpenditureAmount = x.ExpenditureAmount
+                AgentDividendAmount = x.AgentDividendAmount
             }).ToArray()
         };
     }

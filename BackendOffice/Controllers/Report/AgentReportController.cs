@@ -72,10 +72,25 @@ public class AgentReportController : BaseContextController
             [FromServices]
             IGetService<GetAgentDividendDetailsReportRequest, PagedResponse<AgentDividendDetailReportModel>>
                 agentDividendDetailsService,
-            [FromQuery] GetAgentDividendDetailsReportRequest request)
-        => await agentDividendDetailsService
-            .GetAsync(request)
+            [FromQuery] GetAgentDividendDetailsReportViewRequest request)
+    {
+        var reportRequest = new GetAgentDividendDetailsReportRequest
+        {
+            AgentId= request.AgentId,
+            AgentDividendPercentage= request.AgentDividendPercentage,
+            From= request.From,
+            To = request.To,
+            Page = request.Page,
+            Rows = request.Rows,
+            SortBy = request.SortBy,
+            OrderBy = request.OrderBy,
+            ShowAll = request.ShowAll
+        };
+
+        return await agentDividendDetailsService
+            .GetAsync(reportRequest)
             .ConfigureAwait(false);
+    }
 
     [HttpGet("dividendTeamDetails")]
     [Description("Get agent dividend team details report")]
@@ -84,10 +99,25 @@ public class AgentReportController : BaseContextController
             [FromServices]
             IGetService<GetAgentDividendTeamDetailsReportRequest, PagedResponse<AgentDividendTeamDetailReportModel>>
                 agentDividendTeamDetailsService,
-            [FromQuery] GetAgentDividendTeamDetailsReportRequest request)
-        => await agentDividendTeamDetailsService
-            .GetAsync(request)
+            [FromQuery] GetAgentDividendTeamDetailsReportViewRequest request)
+    {
+        var reportRequest = new GetAgentDividendTeamDetailsReportRequest
+        {
+            AgentId = request.AgentId,
+            AgentDividendPercentage = request.AgentDividendPercentage,
+            From = request.From,
+            To = request.To,
+            Page = request.Page,
+            Rows = request.Rows,
+            SortBy = request.SortBy,
+            OrderBy = request.OrderBy,
+            ShowAll = request.ShowAll
+        };
+
+        return await agentDividendTeamDetailsService
+            .GetAsync(reportRequest)
             .ConfigureAwait(false);
+    }
 
     [HttpGet("{id}/winLoss")]
     [Description("Get agent player Win/Loss report")]
@@ -95,11 +125,23 @@ public class AgentReportController : BaseContextController
         Guid id,
         [FromServices] IGetService<GetAgentPlayerWinLossReportRequest, PagedResponse<AgentPlayerWinLossReportModel>>
             agentPlayerWinLossService,
-        [FromQuery] GetAgentPlayerWinLossReportRequest request)
+        [FromQuery] GetAgentPlayerWinLossReportViewRequest request)
     {
-        request.AgentId = id;
+        var reportRequest = new GetAgentPlayerWinLossReportRequest
+        {
+            AgentId = request.AgentId,
+            AgentDividendPercentage = request.AgentDividendPercentage,
+            From = request.From,
+            To = request.To,
+            Page = request.Page,
+            Rows = request.Rows,
+            SortBy = request.SortBy,
+            OrderBy = request.OrderBy,
+            ShowAll = request.ShowAll
+        };
+
         return await agentPlayerWinLossService
-            .GetAsync(request)
+            .GetAsync(reportRequest)
             .ConfigureAwait(false);
     }
 
