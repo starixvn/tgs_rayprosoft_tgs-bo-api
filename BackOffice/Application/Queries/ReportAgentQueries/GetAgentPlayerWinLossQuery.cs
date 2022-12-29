@@ -26,6 +26,7 @@ public class
         var reportRequest = new GetAgentPlayerWinLossRequest
         {
             AgentId = request.AgentId,
+            AgentDividendPercentage = request.AgentDividendPercentage,
             From = request.From,
             To = request.To,
             Page = request.Page,
