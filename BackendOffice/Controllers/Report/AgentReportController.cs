@@ -3,12 +3,12 @@ using System.ComponentModel;
 using System.IO;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Mvc;
+using Tgs.Report.Client.Models.Agent;
+using Tgs.ServiceUtility;
 using TGS.Apis.BackendOffice.Attributes;
 using TGS.Apis.BackendOffice.Controllers.Messages.Report;
 using TGS.Core.Models.Messages;
-using Tgs.Report.Client.Models.Agent;
 using TGS.Services.BackOffice.Application.Models.ReportAgent;
-using Tgs.ServiceUtility;
 
 namespace TGS.Apis.BackendOffice.Controllers.Report;
 
@@ -16,54 +16,47 @@ namespace TGS.Apis.BackendOffice.Controllers.Report;
 [ApiController]
 public class AgentReportController : BaseContextController
 {
-    [HttpGet("contributions")]
-    [Description("Get agent contributions")]
-    public async Task<GetAgentContributionsReportResponse> GetRoundsAsync(
-        [FromServices] IGetService<GetAgentContributionsReportRequest, GetAgentContributionsReportResponse>
-            agentContributionsService,
-        [FromQuery] GetAgentContributionsReportRequest request)
-        => await agentContributionsService
-            .GetAsync(request)
-            .ConfigureAwait(false);
+    [HttpGet("exportAgentContributions")]
+    [Description("export agent contributions")]
+    [ByPassAdminLog]
+    public async Task<IActionResult> ExportAgentContributionsFileAsync(
+        [FromServices] IGetService<ExportAgentContributionsRequest, Stream>
+            exportAgentContributionsService,
+        [FromQuery] ExportAgentContributionsRequest request)
+        => File(
+            await exportAgentContributionsService
+                .GetAsync(request)
+                .ConfigureAwait(false),
+            "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
+            "AgentContributions.xlsx");
 
-    [HttpGet("dividends")]
-    [Description("Get agent dividends report")]
-    public async Task<GetAgentDividendsReportResponse>
-        GetAgentDividendsAsync(
-            [FromServices] IGetService<GetAgentDividendsReportRequest, GetAgentDividendsReportResponse>
-                agentDividendsService,
-            [FromQuery] GetAgentDividendsReportRequest request)
-        => await agentDividendsService
-            .GetAsync(request)
-            .ConfigureAwait(false);
+    [HttpGet("exportAgentDividends")]
+    [Description("export agent dividends")]
+    [ByPassAdminLog]
+    public async Task<IActionResult> ExportAgentDividendsFileAsync(
+        [FromServices] IGetService<ExportAgentDividendsRequest, Stream>
+            exportAgentDividendsService,
+        [FromQuery] ExportAgentDividendsRequest request)
+        => File(
+            await exportAgentDividendsService
+                .GetAsync(request)
+                .ConfigureAwait(false),
+            "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
+            "AgentDividends.xlsx");
 
-    [HttpGet("AgentDividends")]
-    [Description("Get agent dividends report")]
-    public async Task<GetMainSubAgentDividendsReportResponse>
-        GetSingleAgentDividendsAsync(
-            [FromServices] IGetService<GetMainSubAgentDividendsReportRequest, GetMainSubAgentDividendsReportResponse>
-                agentDividendsService,
-            [FromQuery] GetMainSubAgentDividendsReportViewRequest request)
-    {
-        var reportRequest = new GetMainSubAgentDividendsReportRequest
-        {
-            BrandId = request.BrandId,
-            AgentId = request.AgentId,
-            Username = request.Username,
-            Type = request.Type,
-            From = request.From,
-            To = request.To,
-            Page = request.Page,
-            Rows = request.Rows,
-            SortBy = request.SortBy,
-            OrderBy = request.OrderBy,
-            ShowAll = request.ShowAll,
-        };
-
-        return await agentDividendsService
-            .GetAsync(reportRequest)
-            .ConfigureAwait(false);
-    }
+    [HttpGet("exportAgentDividendsTrialCalculation")]
+    [Description("export agent dividends trial calculation")]
+    [ByPassAdminLog]
+    public async Task<IActionResult> ExportAgentDividendsTrialCalculationAsync(
+        [FromServices] IGetService<ExportAgentDividendsTrialCalculationRequest, Stream>
+            exportAgentDividendsTrialCalculationService,
+        [FromQuery] ExportAgentDividendsTrialCalculationRequest request)
+        => File(
+            await exportAgentDividendsTrialCalculationService
+                .GetAsync(request)
+                .ConfigureAwait(false),
+            "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
+            "AgentDividendsTrialCalculation.xlsx");
 
     [HttpGet("dividendDetails")]
     [Description("Get agent dividend details report")]
@@ -91,6 +84,17 @@ public class AgentReportController : BaseContextController
             .GetAsync(reportRequest)
             .ConfigureAwait(false);
     }
+
+    [HttpGet("dividends")]
+    [Description("Get agent dividends report")]
+    public async Task<GetAgentDividendsReportResponse>
+        GetAgentDividendsAsync(
+            [FromServices] IGetService<GetAgentDividendsReportRequest, GetAgentDividendsReportResponse>
+                agentDividendsService,
+            [FromQuery] GetAgentDividendsReportRequest request)
+        => await agentDividendsService
+            .GetAsync(request)
+            .ConfigureAwait(false);
 
     [HttpGet("dividendTeamDetails")]
     [Description("Get agent dividend team details report")]
@@ -145,45 +149,41 @@ public class AgentReportController : BaseContextController
             .ConfigureAwait(false);
     }
 
-    [HttpGet("exportAgentContributions")]
-    [Description("export agent contributions")]
-    [ByPassAdminLog]
-    public async Task<IActionResult> ExportAgentContributionsFileAsync(
-        [FromServices] IGetService<ExportAgentContributionsRequest, Stream>
-            exportAgentContributionsService,
-        [FromQuery] ExportAgentContributionsRequest request)
-        => File(
-            await exportAgentContributionsService
-                .GetAsync(request)
-                .ConfigureAwait(false),
-            "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
-            "AgentContributions.xlsx");
+    [HttpGet("contributions")]
+    [Description("Get agent contributions")]
+    public async Task<GetAgentContributionsReportResponse> GetRoundsAsync(
+        [FromServices] IGetService<GetAgentContributionsReportRequest, GetAgentContributionsReportResponse>
+            agentContributionsService,
+        [FromQuery] GetAgentContributionsReportRequest request)
+        => await agentContributionsService
+            .GetAsync(request)
+            .ConfigureAwait(false);
 
-    [HttpGet("exportAgentDividends")]
-    [Description("export agent dividends")]
-    [ByPassAdminLog]
-    public async Task<IActionResult> ExportAgentDividendsFileAsync(
-        [FromServices] IGetService<ExportAgentDividendsRequest, Stream>
-            exportAgentDividendsService,
-        [FromQuery] ExportAgentDividendsRequest request)
-        => File(
-            await exportAgentDividendsService
-                .GetAsync(request)
-                .ConfigureAwait(false),
-            "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
-            "AgentDividends.xlsx");
+    [HttpGet("AgentDividends")]
+    [Description("Get agent dividends report")]
+    public async Task<GetMainSubAgentDividendsReportResponse>
+        GetSingleAgentDividendsAsync(
+            [FromServices] IGetService<GetMainSubAgentDividendsReportRequest, GetMainSubAgentDividendsReportResponse>
+                agentDividendsService,
+            [FromQuery] GetMainSubAgentDividendsReportViewRequest request)
+    {
+        var reportRequest = new GetMainSubAgentDividendsReportRequest
+        {
+            BrandId = request.BrandId,
+            AgentId = request.AgentId,
+            Username = request.Username,
+            Type = request.Type,
+            From = request.From,
+            To = request.To,
+            Page = request.Page,
+            Rows = request.Rows,
+            SortBy = request.SortBy,
+            OrderBy = request.OrderBy,
+            ShowAll = request.ShowAll,
+        };
 
-    [HttpGet("exportAgentDividendsTrialCalculation")]
-    [Description("export agent dividends trial calculation")]
-    [ByPassAdminLog]
-    public async Task<IActionResult> ExportAgentDividendsTrialCalculationAsync(
-        [FromServices] IGetService<ExportAgentDividendsTrialCalculationRequest, Stream>
-            exportAgentDividendsTrialCalculationService,
-        [FromQuery] ExportAgentDividendsTrialCalculationRequest request)
-        => File(
-            await exportAgentDividendsTrialCalculationService
-                .GetAsync(request)
-                .ConfigureAwait(false),
-            "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
-            "AgentDividendsTrialCalculation.xlsx");
+        return await agentDividendsService
+            .GetAsync(reportRequest)
+            .ConfigureAwait(false);
+    }
 }

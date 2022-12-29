@@ -31,7 +31,7 @@ internal class CreateWithdrawFormCommandService : ICommandService<CreateWithdraw
     public async ValueTask ExecuteAsync(CreateWithdrawFormCommand command, CancellationToken cancellationToken = default)
     {
         var playerInfo = await _playerServiceClient
-            .GetPlayerInfoAsync(command.PlayerCode)
+            .GetPlayerInfoAsync(command.PlayerCode, cancellationToken)
             .ConfigureAwait(false);
 
         if (playerInfo is null)
@@ -45,13 +45,13 @@ internal class CreateWithdrawFormCommandService : ICommandService<CreateWithdraw
             throw new Exception("InsufficientBucket");
 
         var playerProps = await _playerServiceClient
-            .GetPlayerPropertiesAsync(command.PlayerCode)
+            .GetPlayerPropertiesAsync(command.PlayerCode, cancellationToken)
             .ConfigureAwait(false);
 
         var playerWalletId = Guid.Parse(playerProps["DefaultWalletId"]!);
 
         var balance = await _cashServiceClient
-            .GetBalanceAsync(playerWalletId)
+            .GetBalanceAsync(playerWalletId, cancellationToken)
             .ConfigureAwait(false);
 
         if (balance - command.Amount < 0)
@@ -68,7 +68,8 @@ internal class CreateWithdrawFormCommandService : ICommandService<CreateWithdraw
                     UserName = playerInfo.UserName,
                     UserType = UserType.Player,
                     Note = command.Note,
-                })
+                },
+                cancellationToken)
             .ConfigureAwait(false);
 
         var result = await _cashServiceClient
@@ -76,22 +77,22 @@ internal class CreateWithdrawFormCommandService : ICommandService<CreateWithdraw
                 playerWalletId,
                 command.Amount,
                 null,
-                null)
+                null,
+                cancellationToken)
             .ConfigureAwait(false);
 
         if (result.Balance < 0)
         {
-            await _cashServiceClient.RollbackWithdrawAsync(
+            _ = await _cashServiceClient.RollbackWithdrawAsync(
                 playerWalletId,
                 command.Amount,
                 null,
                 null,
-                null).ConfigureAwait(false);
+                null,
+                cancellationToken).ConfigureAwait(false);
 
             await _paymentServiceClient
-                .SubmitWithdrawFormStatusAsync(
-                    createFormId,
-                    PaymentFlowState.Reject)
+                .SubmitWithdrawFormStatusAsync(createFormId, PaymentFlowState.Reject, cancellationToken: cancellationToken)
                 .ConfigureAwait(false);
 
             command.ReturnFormIdSource.SetResult(createFormId);
@@ -102,7 +103,8 @@ internal class CreateWithdrawFormCommandService : ICommandService<CreateWithdraw
         await _paymentServiceClient
             .SubmitWithdrawFormStatusAsync(
                 createFormId,
-                PaymentFlowState.WaitApprove)
+                PaymentFlowState.WaitApprove,
+                cancellationToken: cancellationToken)
             .ConfigureAwait(false);
 
         command.ReturnFormIdSource.SetResult(createFormId);

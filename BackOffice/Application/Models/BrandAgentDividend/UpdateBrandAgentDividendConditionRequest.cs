@@ -6,7 +6,7 @@ namespace TGS.Services.BackOffice.Application.Models.BrandAgentDividend;
 
 public class UpdateBrandAgentDividendConditionRequest : IRequest<MessageResponse>
 {
-    public Guid BrandId { get; set; }
-
     public BrandAgentDividendConditionModel[] BrandAgentDividendConditions { get; init; }
+
+    public Guid BrandId { get; set; }
 }

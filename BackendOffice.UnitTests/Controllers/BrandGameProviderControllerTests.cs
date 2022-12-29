@@ -18,16 +18,36 @@ namespace TGS.Tests.BackendOffice.UnitTests.Controllers;
 [Parallelizable]
 public class BrandGameProviderControllerTests : BaseTests
 {
-    [SetUp]
-    public override void Setup()
-    {
-        base.Setup();
-        _controller = new BrandGameProviderController(
-            _mediatorMock.Object);
-    }
-
-    private BrandGameProviderController _controller=default!;
     private readonly Mock<IMediator> _mediatorMock = new();
+
+    private BrandGameProviderController _controller = default!;
+
+    [Test]
+    public async Task Can_Get_Default_Times()
+    {
+        var list = CreateScheduleModelFixture()
+            .CreateMany<DefaultTimeModel>(99)
+            .ToArray();
+
+        _ = _mediatorMock
+            .Setup(m => m.Send(It.IsAny<GetDefaultTimesRequest>(), It.IsAny<CancellationToken>()))
+            .ReturnsAsync(new GetDefaultTimesResponse
+            {
+                Valid = true,
+                DefaultTimes = list
+            });
+
+        var response = await _controller.GetBrandGameProviderDefaultTimesAsync(It.IsAny<Guid>());
+        _ = response.Valid.Should().BeTrue();
+
+        for (var i = 0; i < response.DefaultTimes.Length; i++)
+        {
+            _ = response.DefaultTimes[i].From.Should().Be(list[i].From);
+            _ = response.DefaultTimes[i].To.Should().Be(list[i].To);
+        }
+
+        _mediatorMock.Verify(x => x.Send(It.IsAny<GetDefaultTimesRequest>(), It.IsAny<CancellationToken>()));
+    }
 
     [TestCase(true)]
     [TestCase(false)]
@@ -51,7 +71,7 @@ public class BrandGameProviderControllerTests : BaseTests
 
         var expectedRoles = showAll ? orderedRoles.ToArray() : orderedRoles.Skip(skip).Take(take).ToArray();
 
-        _mediatorMock
+        _ = _mediatorMock
             .Setup(m => m.Send(It.IsAny<GetBrandGameProvidersRequest>(), It.IsAny<CancellationToken>()))
             .ReturnsAsync(new PagedResponse<BrandGameProviderModel>
             {
@@ -60,42 +80,31 @@ public class BrandGameProviderControllerTests : BaseTests
             });
 
         var response = await _controller.GetBrandGameProvidersAsync(request);
-        response.Valid.Should().BeTrue();
+        _ = response.Valid.Should().BeTrue();
 
         for (var i = 0; i < response.Items.Length; i++)
         {
-            response.Items[i].Id.Should().Be(expectedRoles[i].Id);
-            response.Items[i].GameProviderName.Should().Be(expectedRoles[i].GameProviderName);
+            _ = response.Items[i].Id.Should().Be(expectedRoles[i].Id);
+            _ = response.Items[i].GameProviderName.Should().Be(expectedRoles[i].GameProviderName);
         }
 
         _mediatorMock.Verify(x => x.Send(It.IsAny<GetBrandGameProvidersRequest>(), It.IsAny<CancellationToken>()));
     }
 
     [Test]
-    public async Task Can_Get_Default_Times()
+    public async Task Can_Update_Default_Times()
     {
-        var list = CreateScheduleModelFixture()
-            .CreateMany<DefaultTimeModel>(99)
-            .ToArray();
+        var request = new Fixture().Create<UpdateDefaultTimesRequest>();
 
-        _mediatorMock
-            .Setup(m => m.Send(It.IsAny<GetDefaultTimesRequest>(), It.IsAny<CancellationToken>()))
-            .ReturnsAsync(new GetDefaultTimesResponse
-            {
-                Valid = true,
-                DefaultTimes = list
-            });
+        _ = _mediatorMock
+            .Setup(m => m.Send(It.IsAny<UpdateDefaultTimesRequest>(), It.IsAny<CancellationToken>()))
+            .ReturnsAsync(new MessageResponse { Valid = true });
 
-        var response = await _controller.GetBrandGameProviderDefaultTimesAsync(It.IsAny<Guid>());
-        response.Valid.Should().BeTrue();
+        var response =
+            await _controller.UpdateBrandGameProviderDefaultTimesAsync(request.BrandGameProviderId, request);
 
-        for (var i = 0; i < response.DefaultTimes.Length; i++)
-        {
-            response.DefaultTimes[i].From.Should().Be(list[i].From);
-            response.DefaultTimes[i].To.Should().Be(list[i].To);
-        }
-
-        _mediatorMock.Verify(x => x.Send(It.IsAny<GetDefaultTimesRequest>(), It.IsAny<CancellationToken>()));
+        _ = response.Valid.Should().BeTrue();
+        _mediatorMock.Verify(x => x.Send(It.IsAny<UpdateDefaultTimesRequest>(), It.IsAny<CancellationToken>()));
     }
 
     [Test]
@@ -104,34 +113,26 @@ public class BrandGameProviderControllerTests : BaseTests
         var schedule = CreateScheduleModelFixture().Create<BrandGameProviderModel>();
         var request = new Fixture().Create<UpdateBrandGameProviderRequest>();
 
-        _mediatorMock
+        _ = _mediatorMock
             .Setup(m => m.Send(It.IsAny<UpdateBrandGameProviderRequest>(), It.IsAny<CancellationToken>()))
-            .ReturnsAsync(new MessageResponse {Valid = true});
+            .ReturnsAsync(new MessageResponse { Valid = true });
 
         var response = await _controller.UpdateBrandGameProviderAsync(schedule.Id, request);
 
-        response.Valid.Should().BeTrue();
+        _ = response.Valid.Should().BeTrue();
         _mediatorMock.Verify(x =>
             x.Send(It.IsAny<UpdateBrandGameProviderRequest>(), It.IsAny<CancellationToken>()));
     }
 
-    [Test]
-    public async Task Can_Update_Default_Times()
+    [SetUp]
+    public override void Setup()
     {
-        var request = new Fixture().Create<UpdateDefaultTimesRequest>();
-
-        _mediatorMock
-            .Setup(m => m.Send(It.IsAny<UpdateDefaultTimesRequest>(), It.IsAny<CancellationToken>()))
-            .ReturnsAsync(new MessageResponse {Valid = true});
-
-        var response =
-            await _controller.UpdateBrandGameProviderDefaultTimesAsync(request.BrandGameProviderId, request);
-
-        response.Valid.Should().BeTrue();
-        _mediatorMock.Verify(x => x.Send(It.IsAny<UpdateDefaultTimesRequest>(), It.IsAny<CancellationToken>()));
+        base.Setup();
+        _controller = new BrandGameProviderController(
+            _mediatorMock.Object);
     }
 
-    private Fixture CreateScheduleModelFixture()
+    private static Fixture CreateScheduleModelFixture()
     {
         var fixture = new Fixture();
         return fixture;

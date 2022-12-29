@@ -11,6 +11,8 @@ public class UpdatePlayerRequest
 
     public string? AreaCode { get; init; }
 
+    public DateOnly? Birthdate { get; init; }
+
     public string? ConfirmedPassword { get; init; }
 
     public string? Email { get; init; }
@@ -42,6 +44,4 @@ public class UpdatePlayerRequest
     public string? Wechat { get; init; }
 
     public string? WhatsApp { get; init; }
-
-    public DateOnly? Birthdate { get; init; }
 }

@@ -9,29 +9,21 @@ namespace TGS.Tests.BackendOffice.UnitTests.Validators.Role;
 [TestFixture]
 public class CopyRoleRequestValidatorTests
 {
+    private CopyRoleRequestValidator _validator = default!;
+
     [SetUp]
     public void Setup()
     {
         _validator = new CopyRoleRequestValidator();
     }
 
-    private CopyRoleRequestValidator _validator = default!;
-
     [Test]
     public void Should_have_error_name_is_null()
     {
-        var model = new CopyRoleRequest {Name = null};
+        var model = new CopyRoleRequest { Name = null };
         var result = _validator.TestValidate(model);
-        result.ShouldHaveValidationErrorFor(request => request.Name)
+        _ = result.ShouldHaveValidationErrorFor(request => request.Name)
             .WithErrorMessage(Apis.BackendOffice.Resources.Role.NameRequired);
-    }
-
-    [Test]
-    public void Should_not_have_error_when_name_is_specified()
-    {
-        var model = new CopyRoleRequest {Name = "RealName"};
-        var result = _validator.TestValidate(model);
-        result.ShouldNotHaveValidationErrorFor(request => request.Name);
     }
 
     [Test]
@@ -39,16 +31,24 @@ public class CopyRoleRequestValidatorTests
     {
         var fixture = new Fixture();
         var name = string.Join(string.Empty, fixture.CreateMany<string>(2));
-        var model = new CopyRoleRequest {Name = name};
+        var model = new CopyRoleRequest { Name = name };
         var result = _validator.TestValidate(model);
-        result.ShouldHaveValidationErrorFor(request => request.Name)
+        _ = result.ShouldHaveValidationErrorFor(request => request.Name)
             .WithErrorMessage(Apis.BackendOffice.Resources.Role.NameLengthLimit);
+    }
+
+    [Test]
+    public void Should_not_have_error_when_name_is_specified()
+    {
+        var model = new CopyRoleRequest { Name = "RealName" };
+        var result = _validator.TestValidate(model);
+        result.ShouldNotHaveValidationErrorFor(request => request.Name);
     }
 
     [Test]
     public void Should_not_have_error_when_name_length_is_not_greater_then_fifty()
     {
-        var model = new CopyRoleRequest {Name = "Name"};
+        var model = new CopyRoleRequest { Name = "Name" };
         var result = _validator.TestValidate(model);
         result.ShouldNotHaveValidationErrorFor(request => request.Name);
     }

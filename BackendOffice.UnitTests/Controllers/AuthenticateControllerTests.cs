@@ -51,21 +51,21 @@ public class AuthenticateControllerTests : BaseTests
 
         var user = CreateUserFixture().Create<User>();
 
-        _userQueriesMock.Setup(u => u.GetSingleAsync(It.IsAny<Expression<Func<User, bool>>>(),
+        _ = _userQueriesMock.Setup(u => u.GetSingleAsync(It.IsAny<Expression<Func<User, bool>>>(),
                 It.IsAny<Func<IQueryable<User>, IQueryable<User>>>()))
             .Returns(Task.FromResult(user));
 
-        _passwordHandlerMock.Setup(p => p.Verify(It.IsAny<byte[]>(), It.IsAny<byte[]>(), It.IsAny<string>()))
+        _ = _passwordHandlerMock.Setup(p => p.Verify(It.IsAny<byte[]>(), It.IsAny<byte[]>(), It.IsAny<string>()))
             .Returns(true);
 
-        _antiForgeryMock.Setup(p => p.GetAndStoreTokens(It.IsAny<HttpContext>()))
+        _ = _antiForgeryMock.Setup(p => p.GetAndStoreTokens(It.IsAny<HttpContext>()))
             .Returns(new Fixture().Create<AntiforgeryTokenSet>());
 
         SetupHttpContext();
 
         var response = await _controller.AuthenticateAsync(request);
-        response.Valid.Should().BeTrue();
-        response.UserInfo.Should().NotBeNull();
+        _ = response.Valid.Should().BeTrue();
+        _ = response.UserInfo.Should().NotBeNull();
         _userCommandsMock.Verify(p => p.UpdateAsync(It.Is<User>(u => u.Username == user.Username)));
     }
 
@@ -88,13 +88,13 @@ public class AuthenticateControllerTests : BaseTests
             Password = Generator.RandomString(6)
         };
 
-        _userQueriesMock.Setup(u => u.GetSingleAsync(It.IsAny<Expression<Func<User, bool>>>(),
+        _ = _userQueriesMock.Setup(u => u.GetSingleAsync(It.IsAny<Expression<Func<User, bool>>>(),
                 It.IsAny<Func<IQueryable<User>, IQueryable<User>>>()))
             .Returns(Task.FromResult<User>(default!));
 
         var response = await _controller.AuthenticateAsync(request);
-        response.Valid.Should().BeFalse();
-        response.Message.Should().Be(Apis.BackendOffice.Resources.User.NotFound);
+        _ = response.Valid.Should().BeFalse();
+        _ = response.Message.Should().Be(Apis.BackendOffice.Resources.User.NotFound);
     }
 
     [Test]
@@ -108,16 +108,16 @@ public class AuthenticateControllerTests : BaseTests
 
         var user = CreateUserFixture().Create<User>();
 
-        _userQueriesMock.Setup(u => u.GetSingleAsync(It.IsAny<Expression<Func<User, bool>>>(),
+        _ = _userQueriesMock.Setup(u => u.GetSingleAsync(It.IsAny<Expression<Func<User, bool>>>(),
                 It.IsAny<Func<IQueryable<User>, IQueryable<User>>>()))
             .Returns(Task.FromResult(user));
 
-        _passwordHandlerMock.Setup(p => p.Verify(It.IsAny<byte[]>(), It.IsAny<byte[]>(), It.IsAny<string>()))
+        _ = _passwordHandlerMock.Setup(p => p.Verify(It.IsAny<byte[]>(), It.IsAny<byte[]>(), It.IsAny<string>()))
             .Returns(false);
 
         var response = await _controller.AuthenticateAsync(request);
-        response.Valid.Should().BeFalse();
-        response.Message.Should().Be(Apis.BackendOffice.Resources.User.InvalidPassword);
+        _ = response.Valid.Should().BeFalse();
+        _ = response.Message.Should().Be(Apis.BackendOffice.Resources.User.InvalidPassword);
     }
 
     [SetUp]
@@ -133,7 +133,7 @@ public class AuthenticateControllerTests : BaseTests
             _jsonSerializationProviderMock.Object);
 
         //ref:https://stackoverflow.com/questions/47198341/how-to-unit-test-httpcontext-signinasync
-        _serviceProviderMock
+        _ = _serviceProviderMock
             .Setup(_ => _.GetService(typeof(IAuthenticationService)))
             .Returns(_authenticationServiceMock.Object);
 
@@ -143,7 +143,7 @@ public class AuthenticateControllerTests : BaseTests
         };
     }
 
-    private Fixture CreateUserFixture()
+    private static Fixture CreateUserFixture()
     {
         var fixture = new Fixture();
 
@@ -166,34 +166,34 @@ public class AuthenticateControllerTests : BaseTests
     {
         var mockHttpContext = new Mock<HttpContext>();
 
-        mockHttpContext.Setup(p => p.User)
+        _ = mockHttpContext.Setup(p => p.User)
             .Returns(GetUserClaimsPrincipal());
 
-        mockHttpContext.Setup(p => p.RequestServices)
+        _ = mockHttpContext.Setup(p => p.RequestServices)
             .Returns(SetupServiceProviderMock().Object);
 
-        mockHttpContext.Setup(p => p.Connection)
+        _ = mockHttpContext.Setup(p => p.Connection)
             .Returns(new Mock<ConnectionInfo>().Object);
 
         var httpResponse = new Mock<HttpResponse>();
 
-        httpResponse.Setup(p => p.Cookies)
+        _ = httpResponse.Setup(p => p.Cookies)
             .Returns(new Mock<IResponseCookies>().Object);
 
-        mockHttpContext.Setup(p => p.Response)
+        _ = mockHttpContext.Setup(p => p.Response)
             .Returns(httpResponse.Object);
     }
 
     private Mock<IServiceProvider> SetupServiceProviderMock()
     {
-        _authenticationServiceMock
+        _ = _authenticationServiceMock
             .Setup(_ => _.SignInAsync(It.IsAny<HttpContext>(),
                 It.IsAny<string>(),
                 It.IsAny<ClaimsPrincipal>(),
                 It.IsAny<AuthenticationProperties>()))
             .Returns(Task.FromResult(default(object)));
 
-        _authenticationServiceMock
+        _ = _authenticationServiceMock
             .Setup(_ => _.SignOutAsync(It.IsAny<HttpContext>(),
                 It.IsAny<string>(),
                 It.IsAny<AuthenticationProperties>()))
@@ -201,7 +201,7 @@ public class AuthenticateControllerTests : BaseTests
 
         var serviceProviderMock = new Mock<IServiceProvider>();
 
-        serviceProviderMock
+        _ = serviceProviderMock
             .Setup(_ => _.GetService(typeof(IAuthenticationService)))
             .Returns(_authenticationServiceMock.Object);
 

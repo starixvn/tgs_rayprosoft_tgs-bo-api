@@ -7,15 +7,15 @@ public class BrandPaymentRequestValidator : AbstractValidator<BrandPaymentReques
 {
     public BrandPaymentRequestValidator()
     {
-        RuleFor(x => x.ChannelName)
+        _ = RuleFor(x => x.ChannelName)
             .NotEmpty()
             .WithMessage(Resources.BrandPayment.ChannelNameRequired);
 
-        RuleFor(x => x.PaymentMethodChannelId)
+        _ = RuleFor(x => x.PaymentMethodChannelId)
             .NotEmpty()
             .WithMessage(Resources.BrandPayment.PaymentRequired);
 
-        RuleFor(x => x.TransferLimitTo)
+        _ = RuleFor(x => x.TransferLimitTo)
             .GreaterThan(0)
             .WithMessage(Resources.BrandPayment.TransferLimitGreaterZero);
     }

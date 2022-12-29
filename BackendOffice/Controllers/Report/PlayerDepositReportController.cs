@@ -89,12 +89,12 @@ public class PlayerDepositReportController : BaseContextController
 
         var data = queryService.QueryAsync(query, HttpContext.RequestAborted);
 
-        var dateRange = (
-            From: DateOnly.FromDateTime(request.From.ToOffset(TimeSpan.FromHours(8D)).DateTime),
-            To: DateOnly.FromDateTime(request.To.ToOffset(TimeSpan.FromHours(8D)).DateTime));
+        var (from, to) = (
+            DateOnly.FromDateTime(request.From.ToOffset(TimeSpan.FromHours(8D)).DateTime),
+            DateOnly.FromDateTime(request.To.ToOffset(TimeSpan.FromHours(8D)).DateTime));
 
-        var dataQuery = data.Where(s => s.ReportDate >= dateRange.From
-            && s.ReportDate < dateRange.To);
+        var dataQuery = data.Where(s => s.ReportDate >= from
+            && s.ReportDate < to);
 
         var utcDate = DateOnly.FromDateTime(DateTimeOffset.UtcNow.Date);
         var toDate = DateOnly.FromDateTime(request.To.ToOffset(TimeSpan.FromHours(8)).Date);
@@ -150,8 +150,8 @@ public class PlayerDepositReportController : BaseContextController
                 HttpContext.RequestAborted)
             .ConfigureAwait(false);
 
-        var dateArray = Enumerable.Range(0, dateRange.To.DayNumber - dateRange.From.DayNumber)
-            .Select(n => dateRange.From.AddDays(n));
+        var dateArray = Enumerable.Range(0, to.DayNumber - from.DayNumber)
+            .Select(n => from.AddDays(n));
 
         if (!string.IsNullOrWhiteSpace(request.AgentUsername))
         {

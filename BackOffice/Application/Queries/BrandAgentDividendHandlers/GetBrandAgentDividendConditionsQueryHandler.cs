@@ -15,8 +15,8 @@ public class GetBrandAgentDividendConditionsQueryHandler : Handler<GetBrandAgent
     private readonly IBrandAgentDividendConditionService _service;
 
     public GetBrandAgentDividendConditionsQueryHandler(IBrandAgentDividendConditionService service,
-        IHttpContextAccessor accessor) :
-        base(accessor)
+        IHttpContextAccessor accessor)
+        : base(accessor)
         => _service = service;
 
     public override Task<PagedResponse<BrandAgentDividendConditionModel>> Handle(

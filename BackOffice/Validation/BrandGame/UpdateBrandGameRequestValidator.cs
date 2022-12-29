@@ -7,7 +7,7 @@ public class UpdateBrandGameRequestValidator : AbstractValidator<UpdateBrandGame
 {
     public UpdateBrandGameRequestValidator()
     {
-        RuleFor(x => x.EffectiveBettingPercentage)
+        _ = RuleFor(x => x.EffectiveBettingPercentage)
             .GreaterThanOrEqualTo(0)
             .WithMessage(Application.Resources.BrandGameProviderSchedule.PercentageLessThan0)
             .LessThanOrEqualTo(100)

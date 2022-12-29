@@ -6,14 +6,14 @@ using System.Threading;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Options;
-using TGS.Core.Infrastructures.Json;
-using TGS.Core.Models.Enums;
 using Tgs.Report.Client;
 using Tgs.Report.Client.Models.Round;
-using TGS.Services.BackOffice.Application.Models.ReportRound;
-using TGS.Services.BackOffice.Domain;
 using Tgs.ServiceUtility;
+using TGS.Core.Infrastructures.Json;
+using TGS.Core.Models.Enums;
+using TGS.Services.BackOffice.Application.Models.ReportRound;
 using TGS.Services.BackOffice.ApplicationServices;
+using TGS.Services.BackOffice.Domain;
 
 namespace TGS.Services.BackOffice.Application.Queries.ReportRoundQueries;
 
@@ -95,7 +95,7 @@ public class
                      let loc = gameLocalization is not null &&
                          gameLocalization.TryGetValue(currentCulture, out var data)
                              ? data
-                             : default(GameLocalizationData)
+                             : default
                      select new BetRecordView
                      {
                          Id = model.Id,

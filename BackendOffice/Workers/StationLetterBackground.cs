@@ -25,6 +25,13 @@ public class StationLetterBackground : BackgroundService
         _serviceProvider = serviceProvider;
     }
 
+    public override async Task StopAsync(CancellationToken stoppingToken)
+    {
+        _logger.LogInformation("Player aggregate queued hosted service is stopping.");
+
+        await base.StopAsync(stoppingToken);
+    }
+
     protected override async Task ExecuteAsync(CancellationToken stoppingToken)
     {
         _logger.LogInformation(
@@ -58,12 +65,5 @@ public class StationLetterBackground : BackgroundService
             {
                 _logger.LogError(ex, "Error occurred executing task work item.");
             }
-    }
-
-    public override async Task StopAsync(CancellationToken stoppingToken)
-    {
-        _logger.LogInformation("Player aggregate queued hosted service is stopping.");
-
-        await base.StopAsync(stoppingToken);
     }
 }

@@ -12,11 +12,11 @@ using Microsoft.AspNetCore.Http.Features;
 using Microsoft.Extensions.Logging.Abstractions;
 using Moq;
 using NUnit.Framework;
+using Tgs.Logging;
 using TGS.Apis.BackendOffice.Middlewares;
 using TGS.Core.Infrastructures.Json;
 using TGS.Core.Infrastructures.WebApiServices;
 using TGS.Core.Models.Messages;
-using Tgs.Logging;
 
 namespace TGS.Tests.BackendOffice.UnitTests.Middlewares;
 
@@ -24,18 +24,6 @@ namespace TGS.Tests.BackendOffice.UnitTests.Middlewares;
 [Parallelizable]
 public class ExceptionMiddlewareTest
 {
-    [SetUp]
-    public void Setup()
-    {
-        _requestDelegate = innerContext => Task.FromResult(0);
-        _target = new ExceptionMiddleware(
-            _requestAnalyzerMock.Object,
-            _tgsLogMock.Object,
-            _json.Object,
-            _envMock.Object,
-            new NullLogger<ExceptionMiddleware>());
-    }
-
     private readonly Mock<IWebHostEnvironment> _envMock = new();
 
     private readonly Mock<IJsonSerializationProvider> _json = new();
@@ -59,7 +47,7 @@ public class ExceptionMiddlewareTest
         var httpContextMock = SetupHttpContext();
         Func<Task> action = () => _target.InvokeAsync(httpContextMock.Object, _requestDelegate);
 
-        await action.Should().NotThrowAsync();
+        _ = await action.Should().NotThrowAsync();
 
         _tgsLogMock.Verify(p => p.LogAdmin(It.IsAny<AdminLogEvent>()));
     }
@@ -70,10 +58,22 @@ public class ExceptionMiddlewareTest
         var httpContextMock = SetupHttpContext(false);
         Func<Task> action = () => _target.InvokeAsync(httpContextMock.Object, _requestDelegate);
 
-        await action.Should().NotThrowAsync();
+        _ = await action.Should().NotThrowAsync();
 
         _tgsLogMock.Verify(p => p.LogAdmin(It.Is<AdminLogEvent>(l =>
             l.Exception != string.Empty)));
+    }
+
+    [SetUp]
+    public void Setup()
+    {
+        _requestDelegate = innerContext => Task.FromResult(0);
+        _target = new ExceptionMiddleware(
+            _requestAnalyzerMock.Object,
+            _tgsLogMock.Object,
+            _json.Object,
+            _envMock.Object,
+            new NullLogger<ExceptionMiddleware>());
     }
 
     private Mock<HttpContext> SetupHttpContext(bool hasNoException = true)
@@ -87,13 +87,13 @@ public class ExceptionMiddlewareTest
 
         var mockHttpContext = new Mock<HttpContext>();
 
-        mockHttpContext.Setup(p => p.Connection)
+        _ = mockHttpContext.Setup(p => p.Connection)
             .Returns(new Mock<ConnectionInfo>().Object);
 
         var mockHttpResponse = new Mock<HttpResponse>();
-        mockHttpResponse.Setup(p => p.Cookies)
+        _ = mockHttpResponse.Setup(p => p.Cookies)
             .Returns(new Mock<IResponseCookies>().Object);
-        mockHttpResponse.Setup(p => p.Body)
+        _ = mockHttpResponse.Setup(p => p.Body)
             .Returns(streamResponse);
 
         mockHttpResponse
@@ -105,20 +105,20 @@ public class ExceptionMiddlewareTest
 
         if (hasNoException)
         {
-            mockHttpResponse.SetupGet(p => p.Headers)
+            _ = mockHttpResponse.SetupGet(p => p.Headers)
                 .Returns(new HeaderDictionary());
         }
 
-        mockHttpContext.Setup(p => p.Response)
+        _ = mockHttpContext.Setup(p => p.Response)
             .Returns(mockHttpResponse.Object);
 
         var mockHttpRequest = new Mock<HttpRequest>();
-        mockHttpRequest.Setup(p => p.Body).Returns(streamRequest);
-        mockHttpRequest.Setup(p => p.Path).Returns("/api/path");
-        mockHttpRequest.SetupGet(p => p.Headers)
+        _ = mockHttpRequest.Setup(p => p.Body).Returns(streamRequest);
+        _ = mockHttpRequest.Setup(p => p.Path).Returns("/api/path");
+        _ = mockHttpRequest.SetupGet(p => p.Headers)
             .Returns(new HeaderDictionary());
 
-        mockHttpContext.Setup(p => p.Request)
+        _ = mockHttpContext.Setup(p => p.Request)
             .Returns(mockHttpRequest.Object);
 
         var fc = new FeatureCollection();
@@ -127,10 +127,10 @@ public class ExceptionMiddlewareTest
         fc.Set(endPoint);
         fc.Set(ehf);
 
-        mockHttpContext.Setup(p => p.Features)
+        _ = mockHttpContext.Setup(p => p.Features)
             .Returns(fc);
 
-        _json.Setup(p => p.SerializeToString(It.IsAny<ErrorDetails>(), It.IsAny<JsonSerializerOptions>()))
+        _ = _json.Setup(p => p.SerializeToString(It.IsAny<ErrorDetails>(), It.IsAny<JsonSerializerOptions>()))
             .Returns("test");
         return mockHttpContext;
     }

@@ -7,7 +7,7 @@ public class UpdatePlayerRequestValidator : AbstractValidator<UpdatePlayerReques
 {
     public UpdatePlayerRequestValidator()
     {
-        RuleFor(p => p.Password)
+        _ = RuleFor(p => p.Password)
             .Equal(p => p.ConfirmedPassword).When(p => p.Password != null && p.ConfirmedPassword != null)
             .WithMessage(Application.Resources.Player.PasswordNotMatched)
             .NotEmpty().When(p => p.Password != null).WithMessage(Application.Resources.Player.PasswordRequired)

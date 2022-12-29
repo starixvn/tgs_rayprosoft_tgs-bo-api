@@ -15,17 +15,9 @@ namespace TGS.Tests.BackendOffice.UnitTests.Controllers;
 [Parallelizable]
 public class LogControllerTests : BaseTests
 {
-    [SetUp]
-    public override void Setup()
-    {
-        base.Setup();
-        _controller = new LogController(
-            _logQueriesMock.Object);
-        _controller.ControllerContext.HttpContext = HttpContextMock.Object;
-    }
+    private readonly Mock<ILogQueries> _logQueriesMock = new();
 
     private LogController _controller = default!;
-    private readonly Mock<ILogQueries> _logQueriesMock = new();
 
     [TestCase(true)]
     [TestCase(false)]
@@ -44,17 +36,17 @@ public class LogControllerTests : BaseTests
             .CreateMany<AdminLogModel>(10)
             .AsEnumerable();
 
-        _logQueriesMock.Setup(x => x.GetAdminLogsAsync(It.IsAny<AdminLogRequest>()))
+        _ = _logQueriesMock.Setup(x => x.GetAdminLogsAsync(It.IsAny<AdminLogRequest>()))
             .Returns(Task.FromResult((list, list.Count())));
 
         var array = list.ToArray();
         var response = await _controller.GetAdminLogsAsync(request);
-        response.Valid.Should().BeTrue();
+        _ = response.Valid.Should().BeTrue();
 
         for (var i = 0; i < response.Items.Length; i++)
         {
-            response.Items[i].Id.Should().Be(array[i].Id);
-            response.Items[i].TrackingId.Should().Be(array[i].TrackingId);
+            _ = response.Items[i].Id.Should().Be(array[i].Id);
+            _ = response.Items[i].TrackingId.Should().Be(array[i].TrackingId);
         }
 
         _logQueriesMock.Verify(p => p.GetAdminLogsAsync(It.IsAny<AdminLogRequest>()));
@@ -77,17 +69,17 @@ public class LogControllerTests : BaseTests
             .CreateMany<ApiLogModel>(10)
             .AsEnumerable();
 
-        _logQueriesMock.Setup(x => x.GetApiLogsAsync(It.IsAny<ApiLogRequest>()))
+        _ = _logQueriesMock.Setup(x => x.GetApiLogsAsync(It.IsAny<ApiLogRequest>()))
             .Returns(Task.FromResult((list, list.Count())));
 
         var array = list.ToArray();
         var response = await _controller.GetApiLogsAsync(request);
-        response.Valid.Should().BeTrue();
+        _ = response.Valid.Should().BeTrue();
 
         for (var i = 0; i < response.Items.Length; i++)
         {
-            response.Items[i].Id.Should().Be(array[i].Id);
-            response.Items[i].TrackingId.Should().Be(array[i].TrackingId);
+            _ = response.Items[i].Id.Should().Be(array[i].Id);
+            _ = response.Items[i].TrackingId.Should().Be(array[i].TrackingId);
         }
 
         _logQueriesMock.Verify(p => p.GetApiLogsAsync(It.IsAny<ApiLogRequest>()));
@@ -110,27 +102,35 @@ public class LogControllerTests : BaseTests
             .CreateMany<LogRecordModel>(10)
             .AsEnumerable();
 
-        _logQueriesMock.Setup(x => x.GetLogRecordsAsync(It.IsAny<LogRecordRequest>()))
+        _ = _logQueriesMock.Setup(x => x.GetLogRecordsAsync(It.IsAny<LogRecordRequest>()))
             .Returns(Task.FromResult((list, list.Count())));
 
         var array = list.ToArray();
         var response = await _controller.GetLogRecordsAsync(request);
-        response.Valid.Should().BeTrue();
+        _ = response.Valid.Should().BeTrue();
 
         for (var i = 0; i < response.Items.Length; i++)
         {
-            response.Items[i].Id.Should().Be(array[i].Id);
-            response.Items[i].TrackingId.Should().Be(array[i].TrackingId);
+            _ = response.Items[i].Id.Should().Be(array[i].Id);
+            _ = response.Items[i].TrackingId.Should().Be(array[i].TrackingId);
         }
 
         _logQueriesMock.Verify(p => p.GetLogRecordsAsync(It.IsAny<LogRecordRequest>()));
     }
 
+    [SetUp]
+    public override void Setup()
+    {
+        base.Setup();
+        _controller = new LogController(
+            _logQueriesMock.Object);
+        _controller.ControllerContext.HttpContext = HttpContextMock.Object;
+    }
 
-    private Fixture CreateFixture<T>()
+    private static Fixture CreateFixture<T>()
     {
         var fixture = new Fixture();
-        fixture.Create<T>();
+        _ = fixture.Create<T>();
         fixture.Behaviors.Add(new OmitOnRecursionBehavior());
         return fixture;
     }

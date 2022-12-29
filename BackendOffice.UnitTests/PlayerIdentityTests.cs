@@ -24,7 +24,7 @@ public class PlayerIdentityTests
         var fakePlayerService = Substitute.For<IPlayerService>();
 
         var formId = Guid.NewGuid();
-        fakePlayerService
+        _ = fakePlayerService
             .GetPlayerIdentityFormByIdAsync(formId)
             .Returns(new PlayerIdentityFormInfo
             {
@@ -67,7 +67,7 @@ public class PlayerIdentityTests
         var fakePlayerService = Substitute.For<IPlayerService>();
 
         var formId = Guid.NewGuid();
-        fakePlayerService
+        _ = fakePlayerService
             .GetPlayerIdentityFormByIdAsync(formId)
             .Returns(new PlayerIdentityFormInfo
             {
@@ -131,7 +131,7 @@ public class PlayerIdentityTests
             null,
             paging);
 
-        fakeBackOfficeRepository.QueryPlayerIdentityAuthenticationsAsync(
+        _ = fakeBackOfficeRepository.QueryPlayerIdentityAuthenticationsAsync(
             Arg.Is(brandId),
             null,
             null,
@@ -177,7 +177,7 @@ public class PlayerIdentityTests
         var brandId = Guid.Parse("4e86719f-243f-46f6-b010-5c758b7285af");
         var playerCode = "playerCode";
 
-        fakeBrandService.GetBrandAsync(Arg.Any<Expression<Func<Brand, bool>>>())
+        _ = fakeBrandService.GetBrandAsync(Arg.Any<Expression<Func<Brand, bool>>>())
             .Returns(new Brand()
             {
                 Id = brandId,
@@ -218,7 +218,7 @@ public class PlayerIdentityTests
 
         var brandId = Guid.Parse("4e86719f-243f-46f6-b010-5c758b7285af");
 
-        fakeBrandService.GetBrandAsync(Arg.Any<Expression<Func<Brand, bool>>>())
+        _ = fakeBrandService.GetBrandAsync(Arg.Any<Expression<Func<Brand, bool>>>())
             .Returns(new Brand()
             {
                 Id = brandId,
@@ -265,7 +265,7 @@ public class PlayerIdentityTests
             null,
             paging);
 
-        fakeBackOfficeRepository.QueryPlayerIdentityAuthenticationsAsync(
+        _ = fakeBackOfficeRepository.QueryPlayerIdentityAuthenticationsAsync(
             Arg.Is(brandId),
             null,
             null,
@@ -297,7 +297,7 @@ public class PlayerIdentityTests
                     "PlayerCode1")
             }.ToAsyncEnumerable());
 
-        await sut.QueryAsync(query).ToArrayAsync();
+        _ = await sut.QueryAsync(query).ToArrayAsync();
 
         _ = fakeBackOfficeRepository
             .Received(1)
@@ -316,7 +316,7 @@ public class PlayerIdentityTests
     {
         var fakePlayerService = Substitute.For<IPlayerService>();
 
-        fakePlayerService
+        _ = fakePlayerService
             .GetPlayerIdentityFormAsync("playerCode")
             .Returns(new PlayerIdentityFormModel
             {
@@ -337,7 +337,7 @@ public class PlayerIdentityTests
         var fakePlayerService = Substitute.For<IPlayerService>();
 
         var formId = Guid.NewGuid();
-        fakePlayerService
+        _ = fakePlayerService
             .GetPlayerIdentityFormByIdAsync(formId)
             .Returns(new PlayerIdentityFormInfo
             {

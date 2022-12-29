@@ -1,9 +1,8 @@
-﻿using MediatR;
-using TGS.Core.Models.Messages;
+﻿using TGS.Core.Models.Messages;
 
 namespace TGS.Services.BackOffice.Application.Models.Player;
 
 public class ClearPlayerBucketsResponse : MessageResponse
 {
-    public decimal wageringRequirement { get; set; }
+    public decimal WageringRequirement { get; set; }
 }

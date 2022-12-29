@@ -17,7 +17,7 @@ public class TgsCommands<TEntity> : ITgsCommands<TEntity> where TEntity : class
     async Task ITgsCommands<TEntity>.BatchUpdateAsync(TEntity[] obj)
     {
         _repository.Set<TEntity>().UpdateRange(obj);
-        await _repository.SaveChangesAsync();
+        _ = await _repository.SaveChangesAsync();
     }
 
     Task ITgsCommands<TEntity>.CreateAsync(TEntity obj)

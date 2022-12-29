@@ -19,22 +19,6 @@ public class PlatformCreditController : BaseContextController
         _mediator = mediator;
     }
 
-    [HttpGet]
-    [Description("Get platform credits")]
-    public Task<PagedResponse<PlatformCreditModel>> GetPlatformCreditsAsync(
-        [FromQuery] GetPlatformCreditsRequest request) =>
-        _mediator.Send(request);
-
-    [HttpPut("{id}/{amount}")]
-    [Description("Update a platform credit")]
-    public Task<MessageResponse> UpdatePlatformCreditAsync(Guid id, decimal amount)
-        => _mediator.Send(new UpdatePlatformCreditRequest(id, amount));
-
-
-    [HttpPut("{id}/pay/{amount}")]
-    [Description("Update a platform credit")]
-    public Task<MessageResponse> PayAsync(Guid id, decimal amount) => _mediator.Send(new PayRequest(id, amount));
-
     [HttpGet("{id}/paymentRecords")]
     [Description("Get payment records")]
     public Task<PagedResponse<PlatformCreditPaymentModel>> GetPaymentRecordsAsync(Guid id,
@@ -43,4 +27,19 @@ public class PlatformCreditController : BaseContextController
         request.PlatformCreditId = id;
         return _mediator.Send(request);
     }
+
+    [HttpGet]
+    [Description("Get platform credits")]
+    public Task<PagedResponse<PlatformCreditModel>> GetPlatformCreditsAsync(
+        [FromQuery] GetPlatformCreditsRequest request) =>
+        _mediator.Send(request);
+
+    [HttpPut("{id}/pay/{amount}")]
+    [Description("Update a platform credit")]
+    public Task<MessageResponse> PayAsync(Guid id, decimal amount) => _mediator.Send(new PayRequest(id, amount));
+
+    [HttpPut("{id}/{amount}")]
+    [Description("Update a platform credit")]
+    public Task<MessageResponse> UpdatePlatformCreditAsync(Guid id, decimal amount)
+        => _mediator.Send(new UpdatePlatformCreditRequest(id, amount));
 }

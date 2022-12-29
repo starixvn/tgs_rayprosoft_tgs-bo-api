@@ -4,12 +4,12 @@ using System.Linq;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
+using Tgs.Core.Infrastructures.Security;
 using TGS.Apis.BackendOffice.Controllers.Messages.Users;
 using TGS.Core.DataServices.Base.Extensions;
 using TGS.Core.DataServices.Base.Interfaces;
 using TGS.Core.DataServices.Tgs.Models;
 using TGS.Core.Infrastructures.Extensions;
-using Tgs.Core.Infrastructures.Security;
 using TGS.Core.Models.Messages;
 
 namespace TGS.Apis.BackendOffice.Controllers;
@@ -37,34 +37,6 @@ public class UserController : BaseContextController
         _roleQueries = roleQueries;
         _userCommands = userCommands;
     }
-
-    [Route("")]
-    [HttpGet]
-    [Description("Get users")]
-    public Task<PagedResponse<UserModel>> GetListAsync([FromQuery] GetUsersRequest request) =>
-        _userQueries.GetQueries()
-            .Where(ResellerId, r => r.Role.ResellerId == ResellerId)
-            .Where(LicenseeId, l => l.Role.LicenseeId == LicenseeId)
-            .Where(BrandId, l => l.Role.BrandId == BrandId)
-            .Where(request.Username, p => EF.Functions.ILike(p.Username, $"%{request.Username}%"))
-            .Select(user => new UserModel
-            {
-                Id = user.Id,
-                Username = user.Username,
-                Name = user.Name,
-                RoleId = user.RoleId,
-                ResellerId = user.Role.ResellerId,
-                LicenseeId = user.Role.LicenseeId,
-                BrandId = user.Role.BrandId,
-                DepartmentId = user.DepartmentId,
-                Role = user.Role.Name,
-                DepartmentName = user.Department.Name,
-                LastLoginIp = user.LastLoginIp,
-                LastLoginTime = user.LastLoginTime,
-                Status = user.Status.ToString(),
-                CreatedOn = user.CreatedOn
-            })
-            .CreatePagedResponseAsync(request);
 
     [Route("")]
     [HttpPost]
@@ -113,6 +85,34 @@ public class UserController : BaseContextController
 
         return CreateValidResponse<MessageResponse>();
     }
+
+    [Route("")]
+    [HttpGet]
+    [Description("Get users")]
+    public Task<PagedResponse<UserModel>> GetListAsync([FromQuery] GetUsersRequest request) =>
+        _userQueries.GetQueries()
+            .Where(ResellerId, r => r.Role.ResellerId == ResellerId)
+            .Where(LicenseeId, l => l.Role.LicenseeId == LicenseeId)
+            .Where(BrandId, l => l.Role.BrandId == BrandId)
+            .Where(request.Username, p => EF.Functions.ILike(p.Username, $"%{request.Username}%"))
+            .Select(user => new UserModel
+            {
+                Id = user.Id,
+                Username = user.Username,
+                Name = user.Name,
+                RoleId = user.RoleId,
+                ResellerId = user.Role.ResellerId,
+                LicenseeId = user.Role.LicenseeId,
+                BrandId = user.Role.BrandId,
+                DepartmentId = user.DepartmentId,
+                Role = user.Role.Name,
+                DepartmentName = user.Department.Name,
+                LastLoginIp = user.LastLoginIp,
+                LastLoginTime = user.LastLoginTime,
+                Status = user.Status.ToString(),
+                CreatedOn = user.CreatedOn
+            })
+            .CreatePagedResponseAsync(request);
 
     [HttpPut("{userId}")]
     [Description("Update a user")]

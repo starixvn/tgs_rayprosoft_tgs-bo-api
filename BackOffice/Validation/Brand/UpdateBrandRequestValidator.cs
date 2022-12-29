@@ -8,31 +8,31 @@ public class UpdateBrandRequestValidator : AbstractValidator<UpdateBrandRequest>
 {
     public UpdateBrandRequestValidator()
     {
-        RuleFor(x => x.Code)
+        _ = RuleFor(x => x.Code)
             .NotEmpty()
             .WithMessage(Application.Resources.Brand.CodeRequired);
 
-        RuleFor(x => x.Name)
+        _ = RuleFor(x => x.Name)
             .NotEmpty()
             .WithMessage(Application.Resources.Brand.NameRequired);
 
-        RuleFor(x => x.GameProviders)
+        _ = RuleFor(x => x.GameProviders)
             .NotEmpty()
             .WithMessage(Application.Resources.Brand.GameProviderRequired);
 
-        RuleFor(x => x.CurrencyCodes)
+        _ = RuleFor(x => x.CurrencyCodes)
             .NotEmpty()
             .WithMessage(Application.Resources.Brand.CurrencyRequired);
 
-        RuleFor(x => x.SettlementIntervalType)
+        _ = RuleFor(x => x.SettlementIntervalType)
             .IsInEnum()
             .WithMessage(Application.Resources.Brand.SettlementIntervalInvalid);
 
-        RuleForEach(x => x.CurrencyCodes)
+        _ = RuleForEach(x => x.CurrencyCodes)
             .Must((m, n) => m.BetLimits.FirstOrDefault(x => x.CurrencyCode == n && x.IsDefault) != null)
             .WithMessage(Application.Resources.Brand.BetLimitDefaultRequired);
 
-        RuleFor(x => x.Languages)
+        _ = RuleFor(x => x.Languages)
             .NotEmpty()
             .WithMessage(Application.Resources.Brand.CultureRequired);
     }

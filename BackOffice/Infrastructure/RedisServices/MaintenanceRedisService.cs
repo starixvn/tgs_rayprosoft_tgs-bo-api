@@ -8,31 +8,43 @@ namespace TGS.Services.BackOffice.Infrastructure.RedisServices;
 
 public interface IMaintenanceRedisService
 {
-    ValueTask AddResellerMaintenancesAsync(Guid[] ids);
-    ValueTask AddResellerMaintenanceAsync(Guid id);
-    ValueTask<string> GetResellerMaintenanceAsync(Guid ids);
-    ValueTask ClearResellerMaintenancesAsync(Guid[] ids);
-    ValueTask ClearResellerMaintenanceAsync(Guid id);
-
-    ValueTask AddLicenseeMaintenancesAsync(Guid[] ids);
-    ValueTask AddLicenseeMaintenanceAsync(Guid id);
-    ValueTask<string> GetLicenseeMaintenanceAsync(Guid id);
-    ValueTask CleartLicenseeMaintenancesAsync(Guid[] ids);
-    ValueTask CleartLicenseeMaintenanceAsync(Guid id);
+    ValueTask AddBrandMaintenanceAsync(Guid id);
 
     ValueTask AddBrandMaintenancesAsync(Guid[] ids);
-    ValueTask AddBrandMaintenanceAsync(Guid id);
-    ValueTask<string> GetBrandMaintenanceAsync(Guid id);
-    ValueTask CleartBrandMaintenancesAsync(Guid[] ids);
+
+    ValueTask AddLicenseeMaintenanceAsync(Guid id);
+
+    ValueTask AddLicenseeMaintenancesAsync(Guid[] ids);
+
+    ValueTask AddResellerMaintenanceAsync(Guid id);
+
+    ValueTask AddResellerMaintenancesAsync(Guid[] ids);
+
+    ValueTask ClearResellerMaintenanceAsync(Guid id);
+
+    ValueTask ClearResellerMaintenancesAsync(Guid[] ids);
+
     ValueTask CleartBrandMaintenanceAsync(Guid id);
+
+    ValueTask CleartBrandMaintenancesAsync(Guid[] ids);
+
+    ValueTask CleartLicenseeMaintenanceAsync(Guid id);
+
+    ValueTask CleartLicenseeMaintenancesAsync(Guid[] ids);
+
+    ValueTask<string> GetBrandMaintenanceAsync(Guid id);
+
+    ValueTask<string> GetLicenseeMaintenanceAsync(Guid id);
+
+    ValueTask<string> GetResellerMaintenanceAsync(Guid ids);
 }
 
 public sealed class MaintenanceRedisService : IMaintenanceRedisService
 {
-    private const string _resellers = "Resellers";
-    private const string _licensees = "Licensees";
-    private const string _brands = "Brands";
-    private const string _maintenance = "Maintenance";
+    private const string Brands = "Brands";
+    private const string Licensees = "Licensees";
+    private const string Maintenance = "Maintenance";
+    private const string Resellers = "Resellers";
     private readonly IRedisCacheManager _cacheManager;
 
     public MaintenanceRedisService(IRedisCacheManager cacheManager)
@@ -40,84 +52,100 @@ public sealed class MaintenanceRedisService : IMaintenanceRedisService
         _cacheManager = cacheManager ?? throw new ArgumentNullException(nameof(cacheManager));
     }
 
-    async ValueTask IMaintenanceRedisService.AddResellerMaintenancesAsync(Guid[] ids)
+    async ValueTask IMaintenanceRedisService.AddBrandMaintenanceAsync(Guid id)
     {
-        await AddMaintenancesAsync(_resellers, ids).ConfigureAwait(false);
-    }
-    async ValueTask IMaintenanceRedisService.AddResellerMaintenanceAsync(Guid id)
-    {
-        await AddMaintenanceAsync(_resellers, id).ConfigureAwait(false);
-    }
-    async ValueTask<string> IMaintenanceRedisService.GetResellerMaintenanceAsync(Guid id)
-    {
-        return await GetMaintenanceAsync(_resellers, id).ConfigureAwait(false);
-    }
-    async ValueTask IMaintenanceRedisService.ClearResellerMaintenancesAsync(Guid[] ids)
-    {
-        if (ids == null || ids.Length == 0)
-        {
-            return;
-        }
-        await ClearMaintenancesAsync(_resellers, ids).ConfigureAwait(false);
-    }
-    async ValueTask IMaintenanceRedisService.ClearResellerMaintenanceAsync(Guid id)
-    {
-        await ClearMaintenanceAsync(_resellers, id).ConfigureAwait(false);
-    }
-
-    async ValueTask IMaintenanceRedisService.AddLicenseeMaintenancesAsync(Guid[] ids)
-    {
-        await AddMaintenancesAsync(_licensees, ids).ConfigureAwait(false);
-    }
-    async ValueTask IMaintenanceRedisService.AddLicenseeMaintenanceAsync(Guid id)
-    {
-        await AddMaintenanceAsync(_licensees, id).ConfigureAwait(false);
-    }
-    async ValueTask<string> IMaintenanceRedisService.GetLicenseeMaintenanceAsync(Guid id)
-    {
-        return await GetMaintenanceAsync(_licensees, id).ConfigureAwait(false);
-    }
-    async ValueTask IMaintenanceRedisService.CleartLicenseeMaintenancesAsync(Guid[] ids)
-    {
-        if (ids == null || ids.Length == 0)
-        {
-            return;
-        }
-        await ClearMaintenancesAsync(_licensees, ids).ConfigureAwait(false);
-    }
-    async ValueTask IMaintenanceRedisService.CleartLicenseeMaintenanceAsync(Guid id)
-    {
-        await ClearMaintenanceAsync(_licensees, id).ConfigureAwait(false);
+        await AddMaintenanceAsync(Brands, id).ConfigureAwait(false);
     }
 
     async ValueTask IMaintenanceRedisService.AddBrandMaintenancesAsync(Guid[] ids)
     {
-        await AddMaintenancesAsync(_brands, ids).ConfigureAwait(false);
+        await AddMaintenancesAsync(Brands, ids).ConfigureAwait(false);
     }
-    async ValueTask IMaintenanceRedisService.AddBrandMaintenanceAsync(Guid id)
+
+    async ValueTask IMaintenanceRedisService.AddLicenseeMaintenanceAsync(Guid id)
     {
-        await AddMaintenanceAsync(_brands, id).ConfigureAwait(false);
+        await AddMaintenanceAsync(Licensees, id).ConfigureAwait(false);
     }
-    async ValueTask<string> IMaintenanceRedisService.GetBrandMaintenanceAsync(Guid id)
+
+    async ValueTask IMaintenanceRedisService.AddLicenseeMaintenancesAsync(Guid[] ids)
     {
-        return await GetMaintenanceAsync(_brands, id).ConfigureAwait(false);
+        await AddMaintenancesAsync(Licensees, ids).ConfigureAwait(false);
     }
+
+    async ValueTask IMaintenanceRedisService.AddResellerMaintenanceAsync(Guid id)
+    {
+        await AddMaintenanceAsync(Resellers, id).ConfigureAwait(false);
+    }
+
+    async ValueTask IMaintenanceRedisService.AddResellerMaintenancesAsync(Guid[] ids)
+    {
+        await AddMaintenancesAsync(Resellers, ids).ConfigureAwait(false);
+    }
+
+    async ValueTask IMaintenanceRedisService.ClearResellerMaintenanceAsync(Guid id)
+        => await ClearMaintenanceAsync(Resellers, id).ConfigureAwait(false);
+
+    async ValueTask IMaintenanceRedisService.ClearResellerMaintenancesAsync(Guid[] ids)
+    {
+        if (ids == null || ids.Length == 0)
+            return;
+
+        await ClearMaintenancesAsync(Resellers, ids).ConfigureAwait(false);
+    }
+
+    async ValueTask IMaintenanceRedisService.CleartBrandMaintenanceAsync(Guid id)
+    {
+        await ClearMaintenanceAsync(Brands, id).ConfigureAwait(false);
+    }
+
     async ValueTask IMaintenanceRedisService.CleartBrandMaintenancesAsync(Guid[] ids)
     {
         if (ids == null || ids.Length == 0)
         {
             return;
         }
-        await ClearMaintenancesAsync(_brands, ids).ConfigureAwait(false);
-    }
-    async ValueTask IMaintenanceRedisService.CleartBrandMaintenanceAsync(Guid id)
-    {
-        await ClearMaintenanceAsync(_brands, id).ConfigureAwait(false);
+
+        await ClearMaintenancesAsync(Brands, ids).ConfigureAwait(false);
     }
 
-    private string GetMaintenanceKey(string merchantKey, Guid id)
+    async ValueTask IMaintenanceRedisService.CleartLicenseeMaintenanceAsync(Guid id)
     {
-        return $"{merchantKey }:{id}";
+        await ClearMaintenanceAsync(Licensees, id).ConfigureAwait(false);
+    }
+
+    async ValueTask IMaintenanceRedisService.CleartLicenseeMaintenancesAsync(Guid[] ids)
+    {
+        if (ids == null || ids.Length == 0)
+        {
+            return;
+        }
+
+        await ClearMaintenancesAsync(Licensees, ids).ConfigureAwait(false);
+    }
+
+    async ValueTask<string> IMaintenanceRedisService.GetBrandMaintenanceAsync(Guid id)
+    {
+        return await GetMaintenanceAsync(Brands, id).ConfigureAwait(false);
+    }
+
+    async ValueTask<string> IMaintenanceRedisService.GetLicenseeMaintenanceAsync(Guid id)
+    {
+        return await GetMaintenanceAsync(Licensees, id).ConfigureAwait(false);
+    }
+
+    async ValueTask<string> IMaintenanceRedisService.GetResellerMaintenanceAsync(Guid id)
+    {
+        return await GetMaintenanceAsync(Resellers, id).ConfigureAwait(false);
+    }
+
+    private static string GetMaintenanceKey(string merchantKey, Guid id)
+    {
+        return $"{merchantKey}:{id}";
+    }
+
+    private Task AddMaintenanceAsync(string merchantKey, Guid id)
+    {
+        return _cacheManager.SafeCacheForeverAsync(Maintenance, GetMaintenanceKey(merchantKey, id), id);
     }
 
     private async Task AddMaintenancesAsync(string merchantKey, Guid[] ids)
@@ -126,29 +154,20 @@ public sealed class MaintenanceRedisService : IMaintenanceRedisService
         {
             return;
         }
+
         var tasks = new List<Task>();
         foreach (var id in ids)
         {
             var task = AddMaintenanceAsync(merchantKey, id);
             tasks.Add(task);
-
         }
+
         await Task.WhenAll(tasks.ToArray()).ConfigureAwait(false);
-    }
-
-    private Task AddMaintenanceAsync(string merchantKey, Guid id)
-    {
-        return _cacheManager.SafeCacheForeverAsync(_maintenance, GetMaintenanceKey(merchantKey, id), id);
-    }
-
-    private async ValueTask<string> GetMaintenanceAsync(string merchantKey, Guid id)
-    {
-        return await _cacheManager.SafeGetAsync(_maintenance, GetMaintenanceKey(merchantKey, id), () => Task.FromResult(default(string))).ConfigureAwait(false);
     }
 
     private async ValueTask ClearMaintenanceAsync(string merchantKey, Guid id)
     {
-        await _cacheManager.ClearCacheAsync(_maintenance, GetMaintenanceKey(merchantKey, id)).ConfigureAwait(false);
+        await _cacheManager.ClearCacheAsync(Maintenance, GetMaintenanceKey(merchantKey, id)).ConfigureAwait(false);
     }
 
     private async Task ClearMaintenancesAsync(string merchantKey, Guid[] ids)
@@ -161,9 +180,14 @@ public sealed class MaintenanceRedisService : IMaintenanceRedisService
         var cacheKeys = (from id in ids.ToList()
                          select new CacheKey()
                          {
-                             CacheType = _maintenance,
+                             CacheType = Maintenance,
                              Key = GetMaintenanceKey(merchantKey, id)
                          }).ToArray();
-        await _cacheManager.ClearCacheByBatchAsync(cacheKeys).ConfigureAwait(false);
+        _ = await _cacheManager.ClearCacheByBatchAsync(cacheKeys).ConfigureAwait(false);
+    }
+
+    private async ValueTask<string> GetMaintenanceAsync(string merchantKey, Guid id)
+    {
+        return await _cacheManager.SafeGetAsync(Maintenance, GetMaintenanceKey(merchantKey, id), () => Task.FromResult(default(string))).ConfigureAwait(false);
     }
 }

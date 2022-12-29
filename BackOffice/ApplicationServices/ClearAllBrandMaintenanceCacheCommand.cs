@@ -1,6 +1,5 @@
-﻿namespace TGS.Services.BackOffice.ApplicationServices
+﻿namespace TGS.Services.BackOffice.ApplicationServices;
+
+public record ClearAllBrandMaintenanceCacheCommand
 {
-    public record ClearAllBrandMaintenanceCacheCommand
-    {
-    }
 }

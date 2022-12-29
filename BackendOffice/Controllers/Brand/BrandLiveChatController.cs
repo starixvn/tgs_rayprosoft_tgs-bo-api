@@ -3,11 +3,11 @@ using System.ComponentModel;
 using System.Text.Json;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Mvc;
+using Tgs.ServiceUtility;
 using TGS.Apis.BackendOffice.Controllers.Messages.BrandLiveChat;
 using TGS.Core.Models.Messages;
 using TGS.Services.BackOffice.Application.Commands.BrandLiveChat;
 using TGS.Services.BackOffice.Application.Queries.BrandLiveChat;
-using Tgs.ServiceUtility;
 
 namespace TGS.Apis.BackendOffice.Controllers.Brand;
 
@@ -15,28 +15,6 @@ namespace TGS.Apis.BackendOffice.Controllers.Brand;
 [ApiController]
 public class BrandLiveChatController : BaseContextController
 {
-    [HttpGet("{brandId}")]
-    [Description("Get a brand's live chat")]
-    public async Task<GetBrandLiveChatResponse> GetBrandLiveChatAsync(
-        Guid brandId,
-        [FromServices] IGetService<BrandLiveChatQuery, BrandLiveChatInfo> queryService)
-    {
-        var query = new BrandLiveChatQuery(brandId);
-        var info = await queryService.GetAsync(query).ConfigureAwait(false);
-
-        if (info == null)
-            return new GetBrandLiveChatResponse();
-
-        return new GetBrandLiveChatResponse()
-        {
-            Data = new BrandLiveChatModel()
-            {
-                Name = info.ChatName,
-                Setting = info.ChatSetting
-            }
-        };
-    }
-
     [HttpPost]
     [Description("Create a brand live chat")]
     public async Task<MessageResponse> CreateBrandCommunicationAsync(
@@ -54,6 +32,39 @@ public class BrandLiveChatController : BaseContextController
         return CreateValidResponse<MessageResponse>();
     }
 
+    [HttpDelete("{brandId}")]
+    [Description("Delete a brand live chat")]
+    public async Task<MessageResponse> DeleteAsync(
+        Guid brandId,
+        [FromServices] ICommandService<DeleteBrandLiveChatCommand> deleteService)
+    {
+        var command = new DeleteBrandLiveChatCommand(brandId);
+        await deleteService.ExecuteAsync(command).ConfigureAwait(false);
+
+        return CreateValidResponse<MessageResponse>();
+    }
+
+    [HttpGet("{brandId}")]
+    [Description("Get a brand's live chat")]
+    public async Task<GetBrandLiveChatResponse> GetBrandLiveChatAsync(
+        Guid brandId,
+        [FromServices] IGetService<BrandLiveChatQuery, BrandLiveChatInfo> queryService)
+    {
+        var query = new BrandLiveChatQuery(brandId);
+        var info = await queryService.GetAsync(query).ConfigureAwait(false);
+
+        return info == null
+            ? new GetBrandLiveChatResponse()
+            : new GetBrandLiveChatResponse()
+            {
+                Data = new BrandLiveChatModel()
+                {
+                    Name = info.ChatName,
+                    Setting = info.ChatSetting
+                }
+            };
+    }
+
     [HttpPut("{brandId}")]
     [Description("Update a brand live chat")]
     public async Task<MessageResponse> UpdateBrandCommAsync(
@@ -68,18 +79,6 @@ public class BrandLiveChatController : BaseContextController
             Setting = JsonDocument.Parse(request.Setting)
         };
         await updateService.ExecuteAsync(command).ConfigureAwait(false);
-
-        return CreateValidResponse<MessageResponse>();
-    }
-
-    [HttpDelete("{brandId}")]
-    [Description("Delete a brand live chat")]
-    public async Task<MessageResponse> DeleteAsync(
-        Guid brandId,
-        [FromServices] ICommandService<DeleteBrandLiveChatCommand> deleteService)
-    {
-        var command = new DeleteBrandLiveChatCommand(brandId);
-        await deleteService.ExecuteAsync(command).ConfigureAwait(false);
 
         return CreateValidResponse<MessageResponse>();
     }

@@ -5,6 +5,8 @@ namespace TGS.Apis.BackendOffice.Controllers.Messages;
 
 public sealed class ValidateExcelResponse : MessageResponse
 {
+    public HttpContent HttpContent { get; set; }
+
     public ValidateExcelResponse()
     {
         Valid = true;
@@ -16,6 +18,4 @@ public sealed class ValidateExcelResponse : MessageResponse
         Message = message;
         HttpContent = httpContent;
     }
-
-    public HttpContent HttpContent { get; set; }
 }

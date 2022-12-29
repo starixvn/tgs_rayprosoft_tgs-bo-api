@@ -12,8 +12,8 @@ public class GetCurrencyQueryHandler : Handler<GetCurrencyRequest,
 {
     private readonly ICurrencyService _service;
 
-    public GetCurrencyQueryHandler(ICurrencyService service, IHttpContextAccessor accessor) :
-        base(accessor)
+    public GetCurrencyQueryHandler(ICurrencyService service, IHttpContextAccessor accessor)
+        : base(accessor)
     {
         _service = service;
     }
@@ -23,25 +23,22 @@ public class GetCurrencyQueryHandler : Handler<GetCurrencyRequest,
         CancellationToken cancellationToken)
     {
         var currency = await _service.GetCurrencyAsync(x => x.Code == request.Code);
-        if (currency == null)
-        {
-            return CreateInvalidResponse<GetCurrencyResponse>(Currency.NotFound);
-        }
-
-        return new GetCurrencyResponse
-        {
-            Valid = true,
-            Currency = new CurrencyModel
+        return currency == null
+            ? CreateInvalidResponse<GetCurrencyResponse>(Currency.NotFound)
+            : new GetCurrencyResponse
             {
-                Code = currency.Code,
-                Name = currency.Name,
-                NativeName = currency.NativeName,
-                Symbol = currency.Symbol,
-                CreatedByUsername = currency.CreatedByUsername,
-                CreatedOn = currency.CreatedOn,
-                UpdatedByUsername = currency.UpdatedByUsername,
-                UpdatedOn = currency.UpdatedOn
-            }
-        };
+                Valid = true,
+                Currency = new CurrencyModel
+                {
+                    Code = currency.Code,
+                    Name = currency.Name,
+                    NativeName = currency.NativeName,
+                    Symbol = currency.Symbol,
+                    CreatedByUsername = currency.CreatedByUsername,
+                    CreatedOn = currency.CreatedOn,
+                    UpdatedByUsername = currency.UpdatedByUsername,
+                    UpdatedOn = currency.UpdatedOn
+                }
+            };
     }
 }

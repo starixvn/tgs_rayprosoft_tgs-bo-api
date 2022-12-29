@@ -13,8 +13,8 @@ public class GetCurrenciesQueryHandler : Handler<GetCurrenciesRequest, PagedResp
 {
     private readonly ICurrencyService _service;
 
-    public GetCurrenciesQueryHandler(ICurrencyService service, IHttpContextAccessor accessor) :
-        base(accessor)
+    public GetCurrenciesQueryHandler(ICurrencyService service, IHttpContextAccessor accessor)
+        : base(accessor)
     {
         _service = service;
     }

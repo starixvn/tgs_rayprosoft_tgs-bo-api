@@ -7,7 +7,9 @@ namespace TGS.Services.BackOffice.Application.Models.BrandGameProviderSchedule;
 
 public class GetBrandGameProvidersRequest : PageableRequest, IRequest<PagedResponse<BrandGameProviderModel>>
 {
-    public string Keyword { get; set; }
     public Guid? BrandId { get; set; }
+
     public GameType? GameType { get; set; }
+
+    public string Keyword { get; set; }
 }

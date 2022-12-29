@@ -18,16 +18,24 @@ namespace TGS.Tests.BackendOffice.UnitTests.Controllers;
 [Parallelizable]
 public class BrandControllerTests : BaseTests
 {
-    [SetUp]
-    public override void Setup()
-    {
-        base.Setup();
-        _controller = new BrandController(
-            _mediatorMock.Object);
-    }
+    private readonly Mock<IMediator> _mediatorMock = new();
 
     private BrandController _controller = default!;
-    private readonly Mock<IMediator> _mediatorMock = new();
+
+    [Test]
+    public async Task Can_Create_Brand()
+    {
+        var request = new Fixture().Create<CreateBrandRequest>();
+
+        _ = _mediatorMock
+            .Setup(m => m.Send(It.IsAny<CreateBrandRequest>(), It.IsAny<CancellationToken>()))
+            .ReturnsAsync(new MessageResponse { Valid = true });
+
+        var response = await _controller.CreateBrandAsync(request);
+        _ = response.Valid.Should().BeTrue();
+
+        _mediatorMock.Verify(x => x.Send(It.IsAny<CreateBrandRequest>(), It.IsAny<CancellationToken>()));
+    }
 
     [TestCase(true)]
     [TestCase(false)]
@@ -51,7 +59,7 @@ public class BrandControllerTests : BaseTests
 
         var expectedRoles = showAll ? orderedRoles.ToArray() : orderedRoles.Skip(skip).Take(take).ToArray();
 
-        _mediatorMock
+        _ = _mediatorMock
             .Setup(m => m.Send(It.IsAny<GetBrandsRequest>(), It.IsAny<CancellationToken>()))
             .ReturnsAsync(new PagedResponse<BrandModel>
             {
@@ -60,15 +68,31 @@ public class BrandControllerTests : BaseTests
             });
 
         var response = await _controller.GetBrandsAsync(request);
-        response.Valid.Should().BeTrue();
+        _ = response.Valid.Should().BeTrue();
 
         for (var i = 0; i < response.Items.Length; i++)
         {
-            response.Items[i].Id.Should().Be(expectedRoles[i].Id);
-            response.Items[i].Name.Should().Be(expectedRoles[i].Name);
+            _ = response.Items[i].Id.Should().Be(expectedRoles[i].Id);
+            _ = response.Items[i].Name.Should().Be(expectedRoles[i].Name);
         }
 
         _mediatorMock.Verify(x => x.Send(It.IsAny<GetBrandsRequest>(), It.IsAny<CancellationToken>()));
+    }
+
+    [Test]
+    public async Task Can_Update_Brand()
+    {
+        var brand = CreateBrandModelFixture().Create<BrandModel>();
+        var request = new Fixture().Create<UpdateBrandRequest>();
+
+        _ = _mediatorMock
+            .Setup(m => m.Send(It.IsAny<UpdateBrandRequest>(), It.IsAny<CancellationToken>()))
+            .ReturnsAsync(new MessageResponse { Valid = true });
+
+        var response = await _controller.UpdateBrandAsync(brand.Id, request);
+
+        _ = response.Valid.Should().BeTrue();
+        _mediatorMock.Verify(x => x.Send(It.IsAny<UpdateBrandRequest>(), It.IsAny<CancellationToken>()));
     }
 
     [Test]
@@ -81,55 +105,32 @@ public class BrandControllerTests : BaseTests
         var request = new Fixture().Create<CreateBrandRequest>();
         request.Name = list.FirstOrDefault()?.Name;
 
-        _mediatorMock
+        _ = _mediatorMock
             .Setup(m => m.Send(It.IsAny<CreateBrandRequest>(), It.IsAny<CancellationToken>()))
             .ReturnsAsync(new MessageResponse { Valid = false, Message = Brand.CodeExisted });
 
         var response = await _controller.CreateBrandAsync(request);
-        response.Valid.Should().BeFalse();
-        response.Message.Should().Be(Brand.CodeExisted);
+        _ = response.Valid.Should().BeFalse();
+        _ = response.Message.Should().Be(Brand.CodeExisted);
 
         _mediatorMock.Verify(x => x.Send(It.IsAny<CreateBrandRequest>(), It.IsAny<CancellationToken>()));
     }
 
-    [Test]
-    public async Task Can_Create_Brand()
+    [SetUp]
+    public override void Setup()
     {
-        var request = new Fixture().Create<CreateBrandRequest>();
-
-        _mediatorMock
-            .Setup(m => m.Send(It.IsAny<CreateBrandRequest>(), It.IsAny<CancellationToken>()))
-            .ReturnsAsync(new MessageResponse { Valid = true });
-
-        var response = await _controller.CreateBrandAsync(request);
-        response.Valid.Should().BeTrue();
-
-        _mediatorMock.Verify(x => x.Send(It.IsAny<CreateBrandRequest>(), It.IsAny<CancellationToken>()));
+        base.Setup();
+        _controller = new BrandController(
+            _mediatorMock.Object);
     }
 
-    [Test]
-    public async Task Can_Update_Brand()
-    {
-        var brand = CreateBrandModelFixture().Create<BrandModel>();
-        var request = new Fixture().Create<UpdateBrandRequest>();
-
-        _mediatorMock
-            .Setup(m => m.Send(It.IsAny<UpdateBrandRequest>(), It.IsAny<CancellationToken>()))
-            .ReturnsAsync(new MessageResponse { Valid = true });
-
-        var response = await _controller.UpdateBrandAsync(brand.Id, request);
-
-        response.Valid.Should().BeTrue();
-        _mediatorMock.Verify(x => x.Send(It.IsAny<UpdateBrandRequest>(), It.IsAny<CancellationToken>()));
-    }
-
-    private Fixture CreateBrandModelFixture()
+    private static Fixture CreateBrandModelFixture()
     {
         var fixture = new Fixture();
         fixture.Customize<BrandModel>(u => u
-            .With(s => s.GameProviders, new BrandGameProviderModel[] { })
-            .With(s => s.Languages, new BrandLanguageModel[] { })
-            .With(s => s.Currencies, new BrandCurrencyModel[] { }));
+            .With(s => s.GameProviders, System.Array.Empty<BrandGameProviderModel>())
+            .With(s => s.Languages, System.Array.Empty<BrandLanguageModel>())
+            .With(s => s.Currencies, System.Array.Empty<BrandCurrencyModel>()));
         fixture.Behaviors.Add(new OmitOnRecursionBehavior());
         return fixture;
     }

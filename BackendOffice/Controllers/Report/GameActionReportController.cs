@@ -1,9 +1,9 @@
 ﻿using System.ComponentModel;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Mvc;
+using Tgs.ServiceUtility;
 using TGS.Core.Models.Messages;
 using TGS.Services.BackOffice.Application.Models.ReportGameAction;
-using Tgs.ServiceUtility;
 
 namespace TGS.Apis.BackendOffice.Controllers.Report;
 

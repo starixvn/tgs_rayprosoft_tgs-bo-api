@@ -2,9 +2,9 @@
 
 public class GameData
 {
-    public int GameId { get; set; }
-
     public string GameCode { get; set; }
+
+    public int GameId { get; set; }
 
     public string GameName { get; set; }
 

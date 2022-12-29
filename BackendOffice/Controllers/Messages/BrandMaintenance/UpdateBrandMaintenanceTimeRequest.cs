@@ -1,11 +1,10 @@
 ﻿using System;
 
-namespace TGS.Apis.BackendOffice.Controllers.Messages.BrandMaintenance
-{
-    public class UpdateBrandMaintenanceTimeRequest
-    {
-        public TimeOnly BeginTime { get; set; }
+namespace TGS.Apis.BackendOffice.Controllers.Messages.BrandMaintenance;
 
-        public TimeOnly EndTime { get; set; }
-    }
+public class UpdateBrandMaintenanceTimeRequest
+{
+    public TimeOnly BeginTime { get; set; }
+
+    public TimeOnly EndTime { get; set; }
 }

@@ -3,22 +3,18 @@ using System.Threading;
 using System.Threading.Tasks;
 using Tgs.CashService.Client;
 using Tgs.PlayerService.Client;
-using TGS.Services.BackOffice.Infrastructure.DataService;
 
 namespace TGS.Services.BackOffice.Domain;
 
 internal class PlayerWalletExchangeService : IPlayerWalletExchangeService
 {
     private readonly ICashServiceClient _cashServiceClient;
-    private readonly IPlayerService _playerService;
     private readonly IPlayerServiceClient _playerServiceClient;
 
     public PlayerWalletExchangeService(
-        IPlayerService playerService,
         IPlayerServiceClient playerServiceClient,
         ICashServiceClient cashServiceClient)
     {
-        _playerService = playerService ?? throw new ArgumentNullException(nameof(playerService));
         _playerServiceClient = playerServiceClient ?? throw new ArgumentNullException(nameof(playerServiceClient));
         _cashServiceClient = cashServiceClient ?? throw new ArgumentNullException(nameof(cashServiceClient));
     }

@@ -14,8 +14,8 @@ public class ClearPlayerBucketsHandler : Handler<ClearPlayerBucketsRequest, Clea
     private readonly IPlayerService _service;
 
     public ClearPlayerBucketsHandler(IPlayerBucketRepository playerBucketRepository, IPlayerService service,
-        IHttpContextAccessor accessor) :
-        base(accessor)
+        IHttpContextAccessor accessor)
+        : base(accessor)
     {
         _service = service;
         _playerBucketRepository = playerBucketRepository;
@@ -46,7 +46,7 @@ public class ClearPlayerBucketsHandler : Handler<ClearPlayerBucketsRequest, Clea
         return new ClearPlayerBucketsResponse
         {
             Valid = true,
-            wageringRequirement = bucketInfo.Amount
+            WageringRequirement = bucketInfo.Amount
         };
     }
 }

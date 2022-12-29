@@ -1,7 +1,6 @@
 ﻿using System.Threading;
 using System.Threading.Tasks;
 using Moq;
-using NSubstitute;
 using NUnit.Framework;
 using Tgs.Payment.Clients;
 using TGS.Services.BackOffice.Application.Queries.PaymentMethod;
@@ -38,7 +37,7 @@ public class PaymentMethodTests
 
         var query = new PaymentMethodQuery();
 
-        sut.QueryAsync(query);
+        _ = sut.QueryAsync(query);
 
         moqPaymentServiceClient.Verify(
             fake => fake.GetAllPaymentMethodsAsync(It.IsAny<CancellationToken>()),

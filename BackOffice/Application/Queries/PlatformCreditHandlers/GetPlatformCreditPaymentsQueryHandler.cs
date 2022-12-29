@@ -15,8 +15,8 @@ public class
 {
     private readonly IPlatformCreditService _service;
 
-    public GetPlatformCreditPaymentsQueryHandler(IPlatformCreditService service, IHttpContextAccessor accessor) :
-        base(accessor)
+    public GetPlatformCreditPaymentsQueryHandler(IPlatformCreditService service, IHttpContextAccessor accessor)
+        : base(accessor)
     {
         _service = service;
     }

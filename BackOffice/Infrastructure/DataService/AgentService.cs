@@ -5,12 +5,12 @@ using System.Linq.Expressions;
 using System.Threading.Tasks;
 using System.Transactions;
 using Microsoft.EntityFrameworkCore;
+using Tgs.Core.Infrastructures.Security;
 using TGS.Core.DataServices.Base;
 using TGS.Core.DataServices.Base.Extensions;
 using TGS.Core.DataServices.Tgs;
 using TGS.Core.DataServices.Tgs.Models;
 using TGS.Core.Infrastructures.Extensions;
-using Tgs.Core.Infrastructures.Security;
 using TGS.Core.Infrastructures.Utility;
 using TGS.Core.Models.Enums;
 using TGS.Services.BackOffice.Application.Models.Agent;
@@ -36,11 +36,11 @@ public interface IAgentService
         Func<IQueryable<Agent>, IQueryable<Agent>> preQuery = null,
         bool tracking = false);
 
-    Task UpdateAgentAsync(Agent agent, int nLevel, UpdateAgentRequest request);
-
     Task<(IEnumerable<AgentModel>, int)> GetAgentsAsync(GetAgentsRequest request);
 
     Task<IEnumerable<AgentPathModel>> GetSubAgentsAsync(Guid agentId);
+
+    Task UpdateAgentAsync(Agent agent, int nLevel, UpdateAgentRequest request);
 }
 
 public class AgentService : BaseRepositoryOperations<ITgsRepository>, IAgentService
@@ -143,6 +143,35 @@ public class AgentService : BaseRepositoryOperations<ITgsRepository>, IAgentServ
         Func<IQueryable<Agent>, IQueryable<Agent>> preQuery,
         bool tracking) =>
         GetQueriesAsync(preQuery, tracking);
+
+    public async Task<(IEnumerable<AgentModel>, int)> GetAgentsAsync(GetAgentsRequest request)
+    {
+        const string spName = "dbo.agent_get_agents_with_team_counts";
+
+        var results = await _repository.SqlQueryMultipleAsync<AgentModel>(spName,
+            parameters: new Dictionary<string, object>
+            {
+                { "_brand_id", request.BrandId },
+                { "_username", request.Username },
+                { "_page_size", request.ShowAll ? int.MaxValue : request.Rows },
+                { "_page_number", request.ShowAll ? 1 : request.Page },
+                { "_sort_by", request.SortBy },
+                { "_is_desc", request.IsDesc },
+                { "_status", request.Status },
+                { "_type", request.Type },
+                { "_level_type", request.LevelType }
+            });
+
+        return (results, results.Any() ? results.First().TotalCount : 0);
+    }
+
+    public Task<IEnumerable<AgentPathModel>> GetSubAgentsAsync(Guid agentId)
+    {
+        const string spName = "dbo.agent_get_all_sub_agents";
+
+        return _repository.SqlQueryMultipleAsync<AgentPathModel>(spName,
+            parameters: new Dictionary<string, object> { { "_agent_path", agentId.ToString("N") } });
+    }
 
     async Task IAgentService.UpdateAgentAsync(Agent agent, int nLevel, UpdateAgentRequest request)
     {
@@ -266,54 +295,6 @@ public class AgentService : BaseRepositoryOperations<ITgsRepository>, IAgentServ
         scope.Complete();
     }
 
-    public async Task<(IEnumerable<AgentModel>, int)> GetAgentsAsync(GetAgentsRequest request)
-    {
-        const string spName = "dbo.agent_get_agents_with_team_counts";
-
-        var results = await _repository.SqlQueryMultipleAsync<AgentModel>(spName,
-            parameters: new Dictionary<string, object>
-            {
-                { "_brand_id", request.BrandId },
-                { "_username", request.Username },
-                { "_page_size", request.ShowAll ? int.MaxValue : request.Rows },
-                { "_page_number", request.ShowAll ? 1 : request.Page },
-                { "_sort_by", request.SortBy },
-                { "_is_desc", request.IsDesc },
-                { "_status", request.Status },
-                { "_type", request.Type },
-                { "_level_type", request.LevelType }
-            });
-
-        return (results, results.Any() ? results.First().TotalCount : 0);
-    }
-
-    public Task<IEnumerable<AgentPathModel>> GetSubAgentsAsync(Guid agentId)
-    {
-        const string spName = "dbo.agent_get_all_sub_agents";
-
-        return _repository.SqlQueryMultipleAsync<AgentPathModel>(spName,
-            parameters: new Dictionary<string, object> { { "_agent_path", agentId.ToString("N") } });
-    }
-
-    private static IEnumerable<Agent> GetChildAgents(Guid parentAgentId, Agent[] agents)
-    {
-        var childAgents = agents.Where(x => x.ParentAgentId == parentAgentId).ToArray();
-
-        foreach (var agent in childAgents)
-        {
-            agent.DividendPercentage = 0M;
-
-            foreach (var condition in agent.AgentDividendConditions) condition.DividendPercentage = 0M;
-
-            yield return agent;
-
-            if (agents.Any(x => x.ParentAgentId == agent.Id))
-            {
-                foreach (var childAgent in GetChildAgents(agent.Id, agents)) yield return childAgent;
-            }
-        }
-    }
-
     public async ValueTask<int> UpdateSubAgentsPathAsync(Agent agent, int nLevel, Agent newParentAgent)
     {
         const string spName = "dbo.agent_update_path";
@@ -326,5 +307,24 @@ public class AgentService : BaseRepositoryOperations<ITgsRepository>, IAgentServ
                 { "_agent_path", agent.Path.ToString() },
                 { "_new_agent_path", newParentAgent.Path.ToString() }
             });
+    }
+
+    private static IEnumerable<Agent> GetChildAgents(Guid parentAgentId, Agent[] agents)
+    {
+        var childAgents = agents.Where(x => x.ParentAgentId == parentAgentId).ToArray();
+
+        foreach (var agent in childAgents)
+        {
+            agent.DividendPercentage = 0M;
+
+            foreach (var condition in agent.AgentDividendConditions)
+                condition.DividendPercentage = 0M;
+
+            yield return agent;
+
+            if (agents.Any(x => x.ParentAgentId == agent.Id))
+                foreach (var childAgent in GetChildAgents(agent.Id, agents))
+                    yield return childAgent;
+        }
     }
 }

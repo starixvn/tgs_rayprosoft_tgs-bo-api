@@ -330,7 +330,7 @@ app.UseRequestLocalization(options =>
 
     builder.Configuration.GetSection("RequestLocalization").Bind(options);
 
-    options.SetDefaultCulture(builder.Configuration.GetValue<string>("RequestLocalization:DefaultRequestCulture"));
+    _ = options.SetDefaultCulture(builder.Configuration.GetValue<string>("RequestLocalization:DefaultRequestCulture"));
 });
 
 app.UseMiddleware<ExceptionMiddleware>();
@@ -350,7 +350,7 @@ app.Use(async (httpContext, next) =>
     var activity = Activity.Current;
 
     if (activity is not null && !httpContext.Response.Headers.ContainsKey("X-Correlation-ID"))
-        httpContext.Response.Headers.TryAdd("X-Correlation-ID", activity.Id.ToString());
+        _ = httpContext.Response.Headers.TryAdd("X-Correlation-ID", activity.Id.ToString());
 });
 
 app.UseSwagger();

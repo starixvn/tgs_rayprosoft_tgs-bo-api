@@ -10,8 +10,12 @@ namespace TGS.Services.BackOffice.Infrastructure.DataService;
 
 public interface IBrandAllAgentGameTypeConditionService
 {
+    Task CreateBrandAllAgentGameTypeConditionsAsync(BrandAllAgentGameTypeCondition[] brandAllAgents);
+
+    Task DeleteBrandAllAgentGameTypeConditionsAsync(BrandAllAgentGameTypeCondition[] brandAllAgents);
+
     Task<BrandAllAgentGameTypeCondition> GetBrandAllAgentGameTypeConditionAsync(
-        Expression<Func<BrandAllAgentGameTypeCondition, bool>> predicate,
+                Expression<Func<BrandAllAgentGameTypeCondition, bool>> predicate,
         Func<IQueryable<BrandAllAgentGameTypeCondition>, IQueryable<BrandAllAgentGameTypeCondition>> preQuery =
             null);
 
@@ -21,33 +25,31 @@ public interface IBrandAllAgentGameTypeConditionService
         bool tracking = false);
 
     Task UpdateBrandAllAgentGameTypeConditionsAsync(BrandAllAgentGameTypeCondition[] brandAllAgents);
-    Task CreateBrandAllAgentGameTypeConditionsAsync(BrandAllAgentGameTypeCondition[] brandAllAgents);
-    Task DeleteBrandAllAgentGameTypeConditionsAsync(BrandAllAgentGameTypeCondition[] brandAllAgents);
 }
 
 public class BrandAllAgentGameTypeConditionService : BaseRepositoryOperations<ITgsRepository>,
     IBrandAllAgentGameTypeConditionService
 {
-    private readonly ITgsRepository _repository;
-
-    public BrandAllAgentGameTypeConditionService(ITgsRepository tgsRepository) : base(tgsRepository)
-        => _repository = tgsRepository;
+    public BrandAllAgentGameTypeConditionService(ITgsRepository tgsRepository)
+        : base(tgsRepository)
+    {
+    }
 
     public Task CreateBrandAllAgentGameTypeConditionsAsync(BrandAllAgentGameTypeCondition[] brandAllAgents)
         => CreateEntitiesAsync(brandAllAgents);
 
-    public IQueryable<BrandAllAgentGameTypeCondition> GetBrandAllAgentGameTypeConditionQueries(
-        Func<IQueryable<BrandAllAgentGameTypeCondition>, IQueryable<BrandAllAgentGameTypeCondition>> preQuery,
-        bool tracking) =>
-        GetQueriesAsync(preQuery, tracking);
+    public Task DeleteBrandAllAgentGameTypeConditionsAsync(BrandAllAgentGameTypeCondition[] brandAllAgents)
+        => DeleteEntitiesAsync(brandAllAgents);
 
     public Task<BrandAllAgentGameTypeCondition> GetBrandAllAgentGameTypeConditionAsync(
         Expression<Func<BrandAllAgentGameTypeCondition, bool>> predicate,
         Func<IQueryable<BrandAllAgentGameTypeCondition>, IQueryable<BrandAllAgentGameTypeCondition>> preQuery) =>
         GetEntityFirstOrDefaultAsync(predicate, preQuery);
 
-    public Task DeleteBrandAllAgentGameTypeConditionsAsync(BrandAllAgentGameTypeCondition[] brandAllAgents)
-        => DeleteEntitiesAsync(brandAllAgents);
+    public IQueryable<BrandAllAgentGameTypeCondition> GetBrandAllAgentGameTypeConditionQueries(
+                Func<IQueryable<BrandAllAgentGameTypeCondition>, IQueryable<BrandAllAgentGameTypeCondition>> preQuery,
+        bool tracking) =>
+        GetQueriesAsync(preQuery, tracking);
 
     public Task UpdateBrandAllAgentGameTypeConditionsAsync(BrandAllAgentGameTypeCondition[] brandAllAgents)
         => UpdateEntitiesAsync(brandAllAgents);

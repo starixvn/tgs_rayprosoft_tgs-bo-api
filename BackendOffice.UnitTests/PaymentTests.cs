@@ -36,7 +36,7 @@ public class PaymentTests
 
         var sut = new AllPaymentQueryService(moqPaymentServiceClient.Object);
 
-        sut.QueryAsync(new AllPaymentQuery());
+        _ = sut.QueryAsync(new AllPaymentQuery());
 
         moqPaymentServiceClient.Verify(
             fake => fake.GetAllPaymentsAsync(It.IsAny<CancellationToken>()),

@@ -7,7 +7,7 @@ public static class ServiceExtensions
 {
     public static IServiceCollection AddTgsTransactionRepositoriesServices(this IServiceCollection services)
     {
-        services.AddTransient<ITgsTransactionRepository, TransactionRepositoryRepository>();
+        _ = services.AddTransient<ITgsTransactionRepository, TransactionRepositoryRepository>();
 
         return services;
     }

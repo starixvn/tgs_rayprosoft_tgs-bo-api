@@ -47,7 +47,7 @@ internal class GameProvidersBrandQueryService
                 (gameProvider, brandGameProvider) => new
                 {
                     gameProviderCode = gameProvider.GameProviderCode,
-                    brandGameProvider = brandGameProvider
+                    brandGameProvider
                 })
                 .OrderBy(x => x.gameProviderCode)
                 .SelectMany(c => c.brandGameProvider.DefaultIfEmpty(), (gameProvider, brandGameProvider)

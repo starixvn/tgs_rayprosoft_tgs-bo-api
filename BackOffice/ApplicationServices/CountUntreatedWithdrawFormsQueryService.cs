@@ -18,5 +18,5 @@ internal class CountUntreatedWithdrawFormsQueryService : IGetService<CountUntrea
     public ValueTask<int> GetAsync(
         CountUntreatedWithdrawFormsQuery query,
         CancellationToken cancellationToken = default)
-        => _paymentServiceClient.CountUntreatedWithdrawFormsAsync(query.BrandId);
+        => _paymentServiceClient.CountUntreatedWithdrawFormsAsync(query.BrandId, cancellationToken);
 }

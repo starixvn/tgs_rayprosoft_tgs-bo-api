@@ -7,6 +7,8 @@ namespace TGS.Services.BackOffice.Application.Queries.GameProviders;
 public class GameProvidersLocalizationModel
 {
     public Guid Id { get; set; }
-    public string Name { get; set; }
+
     public IDictionary<string, JsonDocument> Localization { get; set; }
+
+    public string Name { get; set; }
 }

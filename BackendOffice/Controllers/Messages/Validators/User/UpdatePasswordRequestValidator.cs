@@ -7,7 +7,7 @@ public class UpdatePasswordRequestValidator : AbstractValidator<UpdatePasswordRe
 {
     public UpdatePasswordRequestValidator()
     {
-        RuleFor(p => p.Password)
+        _ = RuleFor(p => p.Password)
             .NotNull()
             .WithMessage(Resources.User.PasswordRequired)
             .Equal(p => p.ConfirmPassword)

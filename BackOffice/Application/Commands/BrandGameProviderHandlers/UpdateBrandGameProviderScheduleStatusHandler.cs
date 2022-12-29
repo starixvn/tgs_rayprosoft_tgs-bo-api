@@ -16,7 +16,6 @@ public class
     private readonly IRedisCacheManager _cacheManager;
     private readonly IBrandGameProviderService _service;
 
-
     public UpdateBrandGameProviderScheduleStatusHandler(IBrandGameProviderService service,
         IRedisCacheManager cacheManager,
         IHttpContextAccessor accessor) : base(accessor)

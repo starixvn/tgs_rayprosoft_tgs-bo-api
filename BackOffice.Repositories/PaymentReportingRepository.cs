@@ -26,14 +26,14 @@ internal class PaymentReportingRepository : IPaymentReportingRepository
         DateOnly queryLatestDate,
         CancellationToken cancellationToken = default)
     {
-        var dateRange = (
-            From: queryLatestDate.AddDays(-91),
-            To: queryLatestDate);
+        var (from, to) = (
+            queryLatestDate.AddDays(-91),
+            queryLatestDate);
 
         var query = _tgsRepository.AgentDailyPaymentStatistics.AsQueryable()
             .Where(row => row.BrandId == brandId
-                && row.ReportDate >= dateRange.From
-                && row.ReportDate < dateRange.To)
+                && row.ReportDate >= from
+                && row.ReportDate < to)
             .Select(row => new AgentPlayerDepositStatistics(
                 row.ReportDate,
                 row.AgentId,

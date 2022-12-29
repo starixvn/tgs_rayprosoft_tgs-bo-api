@@ -16,5 +16,5 @@ internal class GetDepositFormDetailQueryService : IGetService<GetDepositFormDeta
     }
 
     public ValueTask<DepositFormInfo> GetAsync(GetDepositFormDetailQuery query, CancellationToken cancellationToken = default)
-        => _paymentServiceClient.GetDepositFormAsync(query.BrandId, query.FormId);
+        => _paymentServiceClient.GetDepositFormAsync(query.BrandId, query.FormId, cancellationToken);
 }

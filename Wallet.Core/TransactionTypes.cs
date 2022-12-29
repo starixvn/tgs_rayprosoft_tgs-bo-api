@@ -55,6 +55,7 @@ public enum TransactionTypes
     /// </summary>
     //Adjust = 5000,
     AgentAdjust = 5100,
+
     SystemAdjust = 5200,
 
     /// <summary>
@@ -66,9 +67,12 @@ public enum TransactionTypes
     /// 遊戲 10000~10999
     /// </summary>
     Game = 10000,
+
     PlaceBet = 10100,
     WinBet = 10200,
+#pragma warning disable CA1069 // 列舉值不應重複
     LoseBet = 10200,
+#pragma warning restore CA1069 // 列舉值不應重複
     FreeBet = 10300,
     TieBet = 10400,
     CancelTransaction = 10500,

@@ -8,7 +8,6 @@ using Tgs.ServiceUtility;
 using TGS.Core.Models.Enums;
 using TGS.Core.Models.Messages;
 using TGS.Services.BackOffice.Application.Queries.ReportMarketingQueries;
-using TGS.Services.BackOffice.Application.Services;
 using TGS.Services.BackOffice.ApplicationServices;
 using TGS.Services.BackOffice.Domain;
 
@@ -130,7 +129,7 @@ internal class MarketingReportTests
 
         var query = new AgentMarketingReportQuery(Guid.NewGuid());
 
-        await sut.QueryAsync(query).ToArrayAsync();
+        _ = await sut.QueryAsync(query).ToArrayAsync();
 
         _ = fakeMarketingReportClient.Received(1)
             .QueryMarketingStatisticsAsync(Arg.Is(query.BrandId), Arg.Any<DateOnly>());
@@ -223,7 +222,7 @@ internal class MarketingReportTests
     [Test]
     public void Get_RealTime_Gaming_Detail()
     {
-        var sut = new GetDailyMarketingGamingDetailQueryService();
+        _ = new GetDailyMarketingGamingDetailQueryService();
     }
 
     [Test]
@@ -235,7 +234,7 @@ internal class MarketingReportTests
 
         var query = new GetDailyMarketingRegisterDetailQuery(Guid.NewGuid(), DateOnly.FromDateTime(DateTime.Now));
 
-        await sut.QueryAsync(query).ToArrayAsync();
+        _ = await sut.QueryAsync(query).ToArrayAsync();
 
         _ = fakeMarketingReportRepository.Received(1)
             .QueryRealTimePlayerDailyRegisterStatisticsAsync(Arg.Is(query.BrandId), Arg.Is(query.QueryDate));

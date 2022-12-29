@@ -7,11 +7,11 @@ public class LanguageRequestValidator : AbstractValidator<LanguageRequest>
 {
     public LanguageRequestValidator()
     {
-        RuleFor(x => x.CultureCode)
+        _ = RuleFor(x => x.CultureCode)
             .NotEmpty()
             .WithMessage(Application.Resources.Language.CultureCodeRequired);
 
-        RuleFor(x => x.LanguageCode)
+        _ = RuleFor(x => x.LanguageCode)
             .NotEmpty()
             .WithMessage(Application.Resources.Language.LanguageCodeRequired);
     }

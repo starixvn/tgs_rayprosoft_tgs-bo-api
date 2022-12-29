@@ -11,8 +11,10 @@ public class
 {
     private readonly IAgentService _service;
 
-    public GetAgentDividendSettingQueryHandler(IAgentService service, IAgentDividendService agentDividendService,
-        IHttpContextAccessor accessor) : base(accessor)
+    public GetAgentDividendSettingQueryHandler(
+        IAgentService service,
+        IHttpContextAccessor accessor)
+        : base(accessor)
         => _service = service;
 
     public override async Task<GetAgentDividendSettingResponse> Handle(GetAgentDividendSettingRequest request,

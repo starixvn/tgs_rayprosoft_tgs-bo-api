@@ -1,4 +1,4 @@
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.ComponentModel;
 using System.Linq;
@@ -348,28 +348,6 @@ public partial class BrandPaymentController : BaseContextController
         return diffUsers.Any()
             ? new() { Valid = false, Message = Resources.BrandPayment.PlayersNotFound, NotExistsPlayers = diffUsers }
             : new UploadFileResponse { Valid = true, Players = allPlayers };
-    }
-
-    private static string[] GetDesignatedUsers(Core.DataServices.Tgs.Models.BrandPayment brandPayment)
-    {
-        var vipLevelIds = brandPayment.VipLevels.Select(x => x.VipLevelId).ToArray();
-        var playerCodes = brandPayment.BrandPaymentPlayers.Where(x => x.ListType == PlayerListType.White)
-            .Select(p => p.PlayerCode).ToArray();
-        var isAll = brandPayment.PlayerListCondition == PlayerListCondition.MatchAll;
-
-        return brandPayment.BrandPaymentPlayers
-            .Where(x => playerCodes.Contains(x.PlayerCode))
-            .Where(x =>
-                x.Player.AccumulatedDeposit >= brandPayment.DepositedAmountMin &&
-                (brandPayment.DepositedAmountUnlimited ||
-                    x.Player.AccumulatedDeposit < brandPayment.DepositedAmountMax))
-            .Where(isAll && brandPayment.IdentityAuthentication,
-                x => x.Player.IdentityAuthentication)
-            .Where(isAll && brandPayment.PhoneAuthentication,
-                x => x.Player.PhoneAuthentication)
-            .Where(isAll && brandPayment.VipLevels.Any(),
-                x => x.Player.VipId != null && vipLevelIds.Contains(x.Player.VipId.Value))
-            .Select(x => x.Player.Username).ToArray();
     }
 
     private async Task<CreateUpdateBrandPaymentResponse> CreateBrandPaymentAsync(

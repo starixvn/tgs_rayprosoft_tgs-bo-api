@@ -1,6 +1,5 @@
 ﻿using System;
 using System.Collections.Generic;
-using TGS.Core.Models.Messages;
 using TGS.Services.BackOffice.Domain;
 
 namespace TGS.Apis.BackendOffice.Controllers.Messages.Banner;

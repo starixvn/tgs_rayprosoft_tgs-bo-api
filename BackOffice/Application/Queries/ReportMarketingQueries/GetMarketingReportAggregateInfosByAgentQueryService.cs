@@ -13,8 +13,6 @@ namespace TGS.Services.BackOffice.Application.Queries.ReportMarketingQueries;
 internal class GetMarketingReportAggregateInfosByAgentQueryService
     : IGetService<GetMarketingReportAggregateInfosByAgentQuery, MarketingReportResponse>
 {
-    private static readonly TimeSpan _Offset = TimeSpan.FromHours(8D);
-
     private readonly IAgentRepository _agentRepository;
     private readonly IMarketingReportClient _reportClient;
 

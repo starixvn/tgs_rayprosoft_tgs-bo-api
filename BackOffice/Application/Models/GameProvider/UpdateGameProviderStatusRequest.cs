@@ -7,12 +7,13 @@ namespace TGS.Services.BackOffice.Application.Models.GameProvider;
 
 public class UpdateGameProviderStatusRequest : BaseRequest, IRequest<MessageResponse>
 {
+    public Guid Id { get; set; }
+
+    public Status Status { get; set; }
+
     public UpdateGameProviderStatusRequest(Guid id, Status status)
     {
         Id = id;
         Status = status;
     }
-
-    public Guid Id { get; set; }
-    public Status Status { get; set; }
 }

@@ -1,14 +1,14 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Runtime.CompilerServices;
 using System.Threading;
 using System.Threading.Tasks;
 using Tgs.CashService.Client;
 using Tgs.GameProviders.Pluggable.Client;
+using Tgs.ServiceUtility;
 using TGS.Services.BackOffice.Application.Models.Player;
 using TGS.Services.BackOffice.Infrastructure.DataService;
-using Tgs.ServiceUtility;
-using System.Runtime.CompilerServices;
 
 namespace TGS.Services.BackOffice.Application.Queries.PlayerHandlers;
 
@@ -56,7 +56,9 @@ internal class GetPlayerGameProviderBalanceCommandService : IQueryService<GetPla
 
         try
         {
-            var walletBalance = await _cashServiceClient.GetBalanceAsync(player.DefaultWalletId).ConfigureAwait(false);
+            var walletBalance = await _cashServiceClient.GetBalanceAsync(
+                player.DefaultWalletId,
+                cancellationToken).ConfigureAwait(false);
 
             gameProviderBalances.Add(new GetPlayerGameProviderBalanceResponse(
                 GameProviderCode: "DEFAULT",
@@ -74,7 +76,6 @@ internal class GetPlayerGameProviderBalanceCommandService : IQueryService<GetPla
                 IsMaintain: true,
                 Balance: null));
         }
-
 
         var tasks = new List<Task>();
 
@@ -112,7 +113,6 @@ internal class GetPlayerGameProviderBalanceCommandService : IQueryService<GetPla
         }
 
         await Task.WhenAll(tasks);
-
 
         if (!gameProviderBalances.Any())
         {

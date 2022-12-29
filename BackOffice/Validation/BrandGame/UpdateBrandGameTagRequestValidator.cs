@@ -7,7 +7,7 @@ public class UpdateBrandGameTagRequestValidator : AbstractValidator<UpdateBrandG
 {
     public UpdateBrandGameTagRequestValidator()
     {
-        RuleFor(x => x.GameTag)
+        _ = RuleFor(x => x.GameTag)
             .IsInEnum()
             .WithMessage(Application.Resources.BrandGame.GameTagNotFound);
     }

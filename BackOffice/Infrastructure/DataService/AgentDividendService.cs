@@ -20,12 +20,9 @@ public interface IAgentDividendService
 
 public class AgentDividendService : BaseRepositoryOperations<ITgsRepository>, IAgentDividendService
 {
-    private readonly ITgsRepository _repository;
-
     public AgentDividendService(ITgsRepository repository)
         : base(repository)
     {
-        _repository = repository;
     }
 
     Task<AgentDividend> IAgentDividendService.GetAgentDividendAsync(Expression<Func<AgentDividend, bool>> predicate,

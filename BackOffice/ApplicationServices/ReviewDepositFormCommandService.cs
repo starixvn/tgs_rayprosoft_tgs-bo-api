@@ -61,7 +61,7 @@ internal class ReviewDepositFormCommandService : ICommandService<ReviewDepositFo
         try
         {
             var form = await _paymentServiceClient
-                .GetDepositFormAsync(command.BrandId, command.FormId)
+                .GetDepositFormAsync(command.BrandId, command.FormId, cancellationToken)
                 .ConfigureAwait(false);
 
             if (form == null
@@ -73,6 +73,7 @@ internal class ReviewDepositFormCommandService : ICommandService<ReviewDepositFo
                 .StringSetAsync(
                     $"Tgs:BucketDeposit:{command.FormId:N}",
                     command.FormId.ToString(),
+                    expiry: TimeSpan.FromMinutes(1),
                     when: When.NotExists)
                 .ConfigureAwait(false);
 
@@ -89,7 +90,8 @@ internal class ReviewDepositFormCommandService : ICommandService<ReviewDepositFo
                     .SubmitDepositFormStatusAsync(
                         form.Id,
                         actualAmount: command.ActualAmount,
-                        handlingFee: handlingFee)
+                        handlingFee: handlingFee,
+                        cancellationToken: cancellationToken)
                     .ConfigureAwait(false);
             }
 
@@ -105,9 +107,12 @@ internal class ReviewDepositFormCommandService : ICommandService<ReviewDepositFo
                             form.PlayerCode,
                             cancellationToken).ConfigureAwait(false);
 
-                        var playerAllBalances = await _getPlayerGameProviderBalanceService.QueryAsync(
-                            query: new GetPlayerGameProviderBalanceCommand(form.PlayerCode),
-                            cancellationToken: cancellationToken).ToArrayAsync().ConfigureAwait(false);
+                        var playerAllBalances = await _getPlayerGameProviderBalanceService
+                            .QueryAsync(
+                                query: new GetPlayerGameProviderBalanceCommand(form.PlayerCode),
+                                cancellationToken: cancellationToken)
+                            .ToArrayAsync(cancellationToken: cancellationToken)
+                            .ConfigureAwait(false);
 
                         if (!playerAllBalances.Where(x => x.IsMaintain).Any()
                             && bucketInfo.Amount > 0M)
@@ -143,7 +148,8 @@ internal class ReviewDepositFormCommandService : ICommandService<ReviewDepositFo
                     command.Status,
                     command.ReviewUserId,
                     command.ReviewUserName,
-                    command.Remark)
+                    command.Remark,
+                    cancellationToken)
                 .ConfigureAwait(false);
 
             if (command.Status == ReviewState.Approve)
@@ -176,7 +182,8 @@ internal class ReviewDepositFormCommandService : ICommandService<ReviewDepositFo
                     .SubmitDepositFormStatusAsync(
                         command.FormId,
                         promotionPlayerId: promotionResponse.PromotionPlayerId,
-                        handlingFee: handlingFee)
+                        handlingFee: handlingFee,
+                        cancellationToken: cancellationToken)
                     .ConfigureAwait(false);
 
                 await _playerService
@@ -202,8 +209,7 @@ internal class ReviewDepositFormCommandService : ICommandService<ReviewDepositFo
         {
             if (isSaveSuccess)
                 _ = await _redisDatabase
-                    .KeyDeleteAsync(
-                        $"Tgs:BucketDeposit:{command.FormId:N}")
+                    .KeyDeleteAsync($"Tgs:BucketDeposit:{command.FormId:N}")
                     .ConfigureAwait(false);
         }
     }

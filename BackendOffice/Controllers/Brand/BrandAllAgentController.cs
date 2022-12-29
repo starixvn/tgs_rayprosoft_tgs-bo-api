@@ -34,16 +34,16 @@ public class BrandAllAgentController : BaseContextController
         AllAgentGameType allAgentGameType)
         => _mediator.Send(new GetBrandAllAgentWinLossSettingRequest(id, allAgentGameType));
 
-    [HttpPut("switch")]
-    [Description("Update the brand's all agent switch")]
-    public Task<MessageResponse> UpdateBrandAllAgentSwitchAsync(
-        UpdateBrandAllAgentSwitchRequest request)
-        => _mediator.Send(request);
-
     [HttpPut("gameType")]
     [Description("Update the brand's all agent game type switch")]
     public Task<MessageResponse> UpdateBrandAllAgentGameTypeAsync(
         UpdateBrandAllAgentGameTypeRequest request)
+        => _mediator.Send(request);
+
+    [HttpPut("switch")]
+    [Description("Update the brand's all agent switch")]
+    public Task<MessageResponse> UpdateBrandAllAgentSwitchAsync(
+        UpdateBrandAllAgentSwitchRequest request)
         => _mediator.Send(request);
 
     [HttpPut("validBet")]

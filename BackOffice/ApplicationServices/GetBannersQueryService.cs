@@ -22,7 +22,7 @@ internal class GetBannersQueryService : IQueryService<GetBannersQuery, BannerInf
     {
         var data = MakeDataSourceAsync(query);
 
-        return data.CountAsync();
+        return data.CountAsync(cancellationToken: cancellationToken);
     }
 
     public IAsyncEnumerable<BannerInfo> QueryAsync(GetBannersQuery query, CancellationToken cancellationToken = default)

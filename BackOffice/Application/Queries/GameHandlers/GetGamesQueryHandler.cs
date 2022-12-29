@@ -13,8 +13,8 @@ public class GetGamesQueryHandler : Handler<GetGamesRequest, PagedResponse<GameM
 {
     private readonly IGameService _service;
 
-    public GetGamesQueryHandler(IGameService service, IHttpContextAccessor accessor) :
-        base(accessor)
+    public GetGamesQueryHandler(IGameService service, IHttpContextAccessor accessor)
+        : base(accessor)
     {
         _service = service;
     }

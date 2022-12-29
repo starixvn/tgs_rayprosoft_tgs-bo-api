@@ -1,5 +1,4 @@
-﻿using System.Collections.Generic;
-using System.IO;
+﻿using System.IO;
 
 namespace TGS.Services.BackOffice.Application.Queries.GameProviders;
 

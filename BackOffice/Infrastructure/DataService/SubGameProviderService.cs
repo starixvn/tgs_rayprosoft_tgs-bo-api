@@ -12,8 +12,12 @@ namespace TGS.Services.BackOffice.Infrastructure.DataService;
 
 public interface ISubGameProviderService
 {
+    Task CreateSubGameProviderAsync(CreateSubGameProviderRequest request);
+
+    Task<bool> ExistsAsync(Expression<Func<SubGameProvider, bool>> predicate);
+
     Task<SubGameProvider> GetSubGameProviderAsync(
-        Expression<Func<SubGameProvider, bool>> predicate,
+                Expression<Func<SubGameProvider, bool>> predicate,
         Func<IQueryable<SubGameProvider>, IQueryable<SubGameProvider>> preQuery =
             null);
 
@@ -21,41 +25,14 @@ public interface ISubGameProviderService
         Func<IQueryable<SubGameProvider>, IQueryable<SubGameProvider>> preQuery = null,
         bool tracking = false);
 
-    Task CreateSubGameProviderAsync(CreateSubGameProviderRequest request);
     Task UpdateSubGameProviderAsync(SubGameProvider gameProvider, UpdateSubGameProviderRequest request);
-    Task<bool> ExistsAsync(Expression<Func<SubGameProvider, bool>> predicate);
 }
 
 public class SubGameProviderService : BaseRepositoryOperations<ITgsRepository>, ISubGameProviderService
 {
-    private readonly ITgsRepository _repository;
-
-    public SubGameProviderService(ITgsRepository tgsRepository) : base(
-        tgsRepository)
+    public SubGameProviderService(ITgsRepository tgsRepository)
+        : base(tgsRepository)
     {
-        _repository = tgsRepository;
-    }
-
-    Task<SubGameProvider> ISubGameProviderService.GetSubGameProviderAsync(
-        Expression<Func<SubGameProvider, bool>> predicate,
-        Func<IQueryable<SubGameProvider>, IQueryable<SubGameProvider>> preQuery) =>
-        GetEntityFirstOrDefaultAsync(predicate, preQuery);
-
-    IQueryable<SubGameProvider> ISubGameProviderService.GetSubGameProviderQueries(
-        Func<IQueryable<SubGameProvider>, IQueryable<SubGameProvider>> preQuery,
-        bool tracking) =>
-        GetQueriesAsync(preQuery, tracking);
-
-    async Task ISubGameProviderService.UpdateSubGameProviderAsync(
-        SubGameProvider gameProvider, UpdateSubGameProviderRequest request)
-    {
-        gameProvider.Name = request.Name;
-        gameProvider.Description = request.Description;
-        gameProvider.Localization = request.Localization?.ToJson();
-        gameProvider.UpdatedByUsername = request.EditorUsername;
-        gameProvider.UpdatedOn = DateTimeOffset.Now;
-
-        await UpdateEntityAsync(gameProvider);
     }
 
     async Task ISubGameProviderService.CreateSubGameProviderAsync(CreateSubGameProviderRequest request)
@@ -78,4 +55,26 @@ public class SubGameProviderService : BaseRepositoryOperations<ITgsRepository>, 
 
     Task<bool> ISubGameProviderService.ExistsAsync(Expression<Func<SubGameProvider, bool>> predicate) =>
         ExistsAsync(predicate);
+
+    Task<SubGameProvider> ISubGameProviderService.GetSubGameProviderAsync(
+                Expression<Func<SubGameProvider, bool>> predicate,
+        Func<IQueryable<SubGameProvider>, IQueryable<SubGameProvider>> preQuery) =>
+        GetEntityFirstOrDefaultAsync(predicate, preQuery);
+
+    IQueryable<SubGameProvider> ISubGameProviderService.GetSubGameProviderQueries(
+        Func<IQueryable<SubGameProvider>, IQueryable<SubGameProvider>> preQuery,
+        bool tracking) =>
+        GetQueriesAsync(preQuery, tracking);
+
+    async Task ISubGameProviderService.UpdateSubGameProviderAsync(
+        SubGameProvider gameProvider, UpdateSubGameProviderRequest request)
+    {
+        gameProvider.Name = request.Name;
+        gameProvider.Description = request.Description;
+        gameProvider.Localization = request.Localization?.ToJson();
+        gameProvider.UpdatedByUsername = request.EditorUsername;
+        gameProvider.UpdatedOn = DateTimeOffset.Now;
+
+        await UpdateEntityAsync(gameProvider);
+    }
 }

@@ -8,7 +8,8 @@ public class GetPlayerFromFileResponse : MessageResponse
 
     public class PlayerModel
     {
-        public string Username { get; set; }
         public bool Exists { get; set; }
+
+        public string Username { get; set; }
     }
 }

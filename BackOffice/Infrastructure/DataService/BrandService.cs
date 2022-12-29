@@ -264,7 +264,7 @@ public class BrandService : BaseRepositoryOperations<ITgsRepository>, IBrandServ
         brand.BetLimits = await GenerateBetLimitsAsync(brand, request.BetLimits);
         brand.Games = await GenerateWithUpdateGamesAsync(brand, request.GameProviders);
         brand.GameProviders = GenerateBrandGameProviders(brand, request.GameProviders);
-        brand.BrandGroups = GenerateWithUpdateGroups(brand, request.BrandGroups,request.EditorUsername);
+        brand.BrandGroups = GenerateWithUpdateGroups(brand, request.BrandGroups, request.EditorUsername);
         brand.Domains = GenerateBrandDomains(brand, request.Domains);
 
         await UpdateEntityAsync(brand);
@@ -311,11 +311,21 @@ public class BrandService : BaseRepositoryOperations<ITgsRepository>, IBrandServ
             }
         };
 
-        await _cacheManager.ClearCacheByBatchAsync(cacheKeys);
+        _ = await _cacheManager.ClearCacheByBatchAsync(cacheKeys);
+    }
+
+    private static HashSet<BrandDomain> GenerateBrandDomains(Brand brand, string[] domains)
+    {
+        var brandDomains = domains.Select(x => new BrandDomain
+        {
+            Url = x,
+            BrandId = brand.Id
+        });
+        return new(brandDomains);
     }
 
     private static HashSet<BrandGameProvider> GenerateBrandGameProviders(
-        Brand brand, BrandGameProviderModel[] brandGameProviderModels)
+            Brand brand, BrandGameProviderModel[] brandGameProviderModels)
     {
         var gameProviderIds = brandGameProviderModels.Select(x => x.GameProviderId).ToArray();
         var brandGameProviders = brand.GameProviders.Where(x => gameProviderIds.Contains(x.GameProviderId)).Select(
@@ -336,8 +346,25 @@ public class BrandService : BaseRepositoryOperations<ITgsRepository>, IBrandServ
         return new(brandGameProviders);
     }
 
+    private static HashSet<BrandGroupBetLimit> GenerateBrandGroupBetLimits(Brand brand, Guid brandGroupId,
+        bool isSports = false)
+    {
+        var brandGroupBetLimits = brand.BetLimits.Select(x =>
+        {
+            var id = Guid.NewGuid();
+            return new BrandGroupBetLimit
+            {
+                Id = id,
+                BrandGroupId = brandGroupId,
+                BetLimitId = x.BetLimitId,
+                GameProviderBetLimits = GenerateGameProviderBetLimits(brand, id, x.BetLimit, isSports)
+            };
+        });
+        return new(brandGroupBetLimits);
+    }
+
     private static HashSet<BrandGroupGame> GenerateBrandGroupGames(Brand brand, Guid brandGroupId,
-        IEnumerable<int> brandGameIds)
+            IEnumerable<int> brandGameIds)
     {
         var brandGroupGames = brandGameIds.Select(brandGameId => new BrandGroupGame
         {
@@ -377,8 +404,57 @@ public class BrandService : BaseRepositoryOperations<ITgsRepository>, IBrandServ
         return new(brandGroupGameProviderBetLimits);
     }
 
+    private static HashSet<BrandGroup> GenerateWithCreateGroups(Brand brand, string editorUsername)
+    {
+        var groups = (from BrandGroupType type in Enum.GetValues(typeof(BrandGroupType))
+                      let id = Guid.NewGuid()
+                      let code = type.ToString()
+                      let gameIds = type == BrandGroupType.Sports
+                          ? brand.Games.Where(x => Consts.Sports.Contains(x.Game.Type)).Select(x => x.GameId)
+                              .ToArray()
+                          : brand.Games.Where(x => !Consts.Sports.Contains(x.Game.Type)).Select(x => x.GameId)
+                              .ToArray()
+                      select new BrandGroup
+                      {
+                          Id = id,
+                          Name = code,
+                          IsSports = type == BrandGroupType.Sports,
+                          BrandId = brand.Id,
+                          Description = code,
+                          BrandGames = GenerateBrandGroupGames(brand, id, gameIds),
+                          BrandGroupBetLimits =
+                              GenerateBrandGroupBetLimits(brand, id, type == BrandGroupType.Sports),
+                          CreatedByUsername = editorUsername,
+                          UpdatedByUsername = editorUsername,
+                          CreatedOn = DateTimeOffset.Now,
+                          UpdatedOn = DateTimeOffset.Now
+                      }).ToList();
+
+        return new(groups);
+    }
+
+    private static HashSet<BrandGroupBetLimit> GenerateWithUpdateBrandGroupBetLimits(
+        Brand brand,
+        BrandGroup brandGroup,
+        BrandGroupGameProviderBetLimitModel[] models)
+    {
+        var brandGroupBetLimits = brand.BetLimits.Select(x =>
+        {
+            var brandGroupBetLimit = new BrandGroupBetLimit
+            {
+                BrandGroup = brandGroup,
+                BetLimitId = x.BetLimitId
+            };
+            brandGroupBetLimit.GameProviderBetLimits =
+                GenerateWithUpdateGameProviderBetLimits(brandGroupBetLimit, models);
+
+            return brandGroupBetLimit;
+        });
+        return new(brandGroupBetLimits);
+    }
+
     private static HashSet<BrandGroupGame> GenerateWithUpdateBrandGroupGames(Brand brand, BrandGroup brandGroup,
-        IEnumerable<int> brandGameIds)
+                IEnumerable<int> brandGameIds)
     {
         var brandGamePoolIds = brand.Games.Select(x => x.GameId).ToArray();
         var brandGroupGames = brandGameIds?
@@ -405,8 +481,34 @@ public class BrandService : BaseRepositoryOperations<ITgsRepository>, IBrandServ
         return new(brandGroupGameProviderBetLimits ?? Array.Empty<BrandGroupGameProviderBetLimit>());
     }
 
+    private static HashSet<BrandGroup> GenerateWithUpdateGroups(Brand brand, BrandGroupModel[] brandGroupModels, string editorUsername)
+    {
+        var brandGroups = brandGroupModels.Select(x =>
+        {
+            var brandGroup = new BrandGroup
+            {
+                Name = x.Name,
+                BrandId = brand.Id,
+                Description = x.Description,
+                IsSports = x.IsSports,
+                CreatedByUsername = editorUsername,
+                UpdatedByUsername = editorUsername,
+                CreatedOn = DateTimeOffset.Now,
+                UpdatedOn = DateTimeOffset.Now
+            };
+            brandGroup.BrandGames =
+                GenerateWithUpdateBrandGroupGames(brand, brandGroup, x.BrandGames?.Select(g => g.GameId));
+            brandGroup.BrandGroupBetLimits =
+                GenerateWithUpdateBrandGroupBetLimits(brand, brandGroup, x.GameProviderBetLimits);
+
+            return brandGroup;
+        });
+
+        return new(brandGroups);
+    }
+
     private static (DateTimeOffset, DateTimeOffset, DateTimeOffset, DateTimeOffset) GetInterval(
-        SettlementIntervalType type, DateTimeOffset startDate, int? dayOfMonth, DateTimeOffset currentFromDate)
+            SettlementIntervalType type, DateTimeOffset startDate, int? dayOfMonth, DateTimeOffset currentFromDate)
     {
         switch (type)
         {
@@ -518,33 +620,6 @@ public class BrandService : BaseRepositoryOperations<ITgsRepository>, IBrandServ
         return new(brandCurrencies);
     }
 
-    private HashSet<BrandDomain> GenerateBrandDomains(Brand brand, string[] domains)
-    {
-        var brandDomains = domains.Select(x => new BrandDomain
-        {
-            Url = x,
-            BrandId = brand.Id
-        });
-        return new(brandDomains);
-    }
-
-    private HashSet<BrandGroupBetLimit> GenerateBrandGroupBetLimits(Brand brand, Guid brandGroupId,
-        bool isSports = false)
-    {
-        var brandGroupBetLimits = brand.BetLimits.Select(x =>
-        {
-            var id = Guid.NewGuid();
-            return new BrandGroupBetLimit
-            {
-                Id = id,
-                BrandGroupId = brandGroupId,
-                BetLimitId = x.BetLimitId,
-                GameProviderBetLimits = GenerateGameProviderBetLimits(brand, id, x.BetLimit, isSports)
-            };
-        });
-        return new(brandGroupBetLimits);
-    }
-
     private async Task<HashSet<BrandLanguage>> GenerateBrandLanguagesAsync(Brand brand, BrandLanguageModel[] languageModels)
     {
         var cultureCodes = languageModels.Select(c => c.CultureCode);
@@ -583,53 +658,6 @@ public class BrandService : BaseRepositoryOperations<ITgsRepository>, IBrandServ
                 EffectiveBettingPercentage = 100M
             });
         return new(games);
-    }
-
-    private HashSet<BrandGroup> GenerateWithCreateGroups(Brand brand, string editorUsername)
-    {
-        var groups = (from BrandGroupType type in Enum.GetValues(typeof(BrandGroupType))
-                      let id = Guid.NewGuid()
-                      let code = type.ToString()
-                      let gameIds = type == BrandGroupType.Sports
-                          ? brand.Games.Where(x => Consts.Sports.Contains(x.Game.Type)).Select(x => x.GameId)
-                              .ToArray()
-                          : brand.Games.Where(x => !Consts.Sports.Contains(x.Game.Type)).Select(x => x.GameId)
-                              .ToArray()
-                      select new BrandGroup
-                      {
-                          Id = id,
-                          Name = code,
-                          IsSports = type == BrandGroupType.Sports,
-                          BrandId = brand.Id,
-                          Description = code,
-                          BrandGames = GenerateBrandGroupGames(brand, id, gameIds),
-                          BrandGroupBetLimits =
-                              GenerateBrandGroupBetLimits(brand, id, type == BrandGroupType.Sports),
-                          CreatedByUsername = editorUsername,
-                          UpdatedByUsername = editorUsername,
-                          CreatedOn = DateTimeOffset.Now,
-                          UpdatedOn = DateTimeOffset.Now
-                      }).ToList();
-
-        return new(groups);
-    }
-
-    private HashSet<BrandGroupBetLimit> GenerateWithUpdateBrandGroupBetLimits(Brand brand, BrandGroup brandGroup,
-        BrandGroupGameProviderBetLimitModel[] models)
-    {
-        var brandGroupBetLimits = brand.BetLimits.Select(x =>
-        {
-            var brandGroupBetLimit = new BrandGroupBetLimit
-            {
-                BrandGroup = brandGroup,
-                BetLimitId = x.BetLimitId
-            };
-            brandGroupBetLimit.GameProviderBetLimits =
-                GenerateWithUpdateGameProviderBetLimits(brandGroupBetLimit, models);
-
-            return brandGroupBetLimit;
-        });
-        return new(brandGroupBetLimits);
     }
 
     private async Task<HashSet<BrandGame>> GenerateWithUpdateGamesAsync(Brand brand,
@@ -681,31 +709,5 @@ public class BrandService : BaseRepositoryOperations<ITgsRepository>, IBrandServ
         });
 
         return new(brandGames);
-    }
-
-    private HashSet<BrandGroup> GenerateWithUpdateGroups(Brand brand, BrandGroupModel[] brandGroupModels, string editorUsername)
-    {
-        var brandGroups = brandGroupModels.Select(x =>
-        {
-            var brandGroup = new BrandGroup
-            {
-                Name = x.Name,
-                BrandId = brand.Id,
-                Description = x.Description,
-                IsSports = x.IsSports,
-                CreatedByUsername = editorUsername,
-                UpdatedByUsername = editorUsername,
-                CreatedOn = DateTimeOffset.Now,
-                UpdatedOn = DateTimeOffset.Now
-            };
-            brandGroup.BrandGames =
-                GenerateWithUpdateBrandGroupGames(brand, brandGroup, x.BrandGames?.Select(g => g.GameId));
-            brandGroup.BrandGroupBetLimits =
-                GenerateWithUpdateBrandGroupBetLimits(brand, brandGroup, x.GameProviderBetLimits);
-
-            return brandGroup;
-        });
-
-        return new(brandGroups);
     }
 }

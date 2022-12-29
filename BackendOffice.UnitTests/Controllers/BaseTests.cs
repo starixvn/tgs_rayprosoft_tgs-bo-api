@@ -20,16 +20,14 @@ public class BaseTests
         Login();
     }
 
-    private void Login(
-        string username = "admin.enabled",
-        string rolename = "Admin",
-        RoleType roleType = RoleType.Admin)
+    protected static (int, int) GetPage(PageableRequest request)
     {
-        HttpContextMock.Setup(p => p.User)
-            .Returns(GetUserClaimsPrincipal(username, rolename, roleType));
+        var page = request.Page <= 0 ? 0 : request.Page - 1;
+        var pageSize = request.Rows <= 0 ? 10 : request.Rows;
+        return (page * pageSize, pageSize);
     }
 
-    protected ClaimsPrincipal GetUserClaimsPrincipal(
+    protected static ClaimsPrincipal GetUserClaimsPrincipal(
         string username = "admin.enabled",
         string rolename = "Admin",
         RoleType roleType = RoleType.Admin)
@@ -45,10 +43,12 @@ public class BaseTests
         });
     }
 
-    protected (int, int) GetPage(PageableRequest request)
+    private void Login(
+                string username = "admin.enabled",
+        string rolename = "Admin",
+        RoleType roleType = RoleType.Admin)
     {
-        var page = request.Page <= 0 ? 0 : request.Page - 1;
-        var pageSize = request.Rows <= 0 ? 10 : request.Rows;
-        return (page * pageSize, pageSize);
+        _ = HttpContextMock.Setup(p => p.User)
+            .Returns(GetUserClaimsPrincipal(username, rolename, roleType));
     }
 }

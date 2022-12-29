@@ -19,7 +19,7 @@ public class BrandLogoTests
 
         var query = new GetBrandLogoQuery(Guid.NewGuid());
 
-        await sut.GetAsync(query);
+        _ = await sut.GetAsync(query);
 
         moqBackOfficeRepository.Verify(
             fake => fake.GetBrandLogoInfoAsync(It.Is<Guid>(x => x == query.BrandId)),

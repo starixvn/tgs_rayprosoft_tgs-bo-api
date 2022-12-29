@@ -340,7 +340,7 @@ public partial class PlayerController : BaseContextController
                 Items = Array.Empty<PlayersModel>()
             };
 
-        string[] bankInfoPlayers = Array.Empty<string>();
+        var bankInfoPlayers = Array.Empty<string>();
 
         if (!string.IsNullOrWhiteSpace(request.BankInfoTagType) && !string.IsNullOrWhiteSpace(request.BankInfoTag))
         {
@@ -378,10 +378,11 @@ public partial class PlayerController : BaseContextController
             query,
             HttpContext.RequestAborted);
 
-        var paging = new Paging<PlayerListItem>();
-
-        paging.Page = request.Page;
-        paging.RowCount = request.Rows;
+        var paging = new Paging<PlayerListItem>
+        {
+            Page = request.Page,
+            RowCount = request.Rows
+        };
 
         var totalCount = await result.CountAsync(HttpContext.RequestAborted).ConfigureAwait(false);
 
@@ -456,6 +457,7 @@ public partial class PlayerController : BaseContextController
 
     [HttpGet("{playerBucketId}/playerBucketHistories", Name = "GetPlayerBucketHistories")]
     [Description("Get player buckets")]
+    [Obsolete("舊Api要淘汰")]
     public async ValueTask<GetPlayerBucketHistoriesResponse> GetPlayerBucketHistoriesAsync(
         [FromServices] IQueryService<GetPlayerBucketHistoriesQuery, BucketEvent> queryService,
         Guid playerBucketId)
@@ -480,6 +482,7 @@ public partial class PlayerController : BaseContextController
 
     [HttpGet("{playerCode}/playerBuckets", Name = "GetPlayerBuckets")]
     [Description("Get player buckets")]
+    [Obsolete("舊Api要淘汰")]
     public async ValueTask<GetPlayerBucketsResponse> GetPlayerBucketsAsync(
         [FromServices] IQueryService<GetPlayerBucketsQuery, BucketInfo> queryService,
         string playerCode)

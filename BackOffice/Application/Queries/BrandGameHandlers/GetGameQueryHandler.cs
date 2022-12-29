@@ -13,8 +13,8 @@ public class GetGameQueryHandler : Handler<GetBrandGameRequest,
 {
     private readonly IBrandGameService _service;
 
-    public GetGameQueryHandler(IBrandGameService service, IHttpContextAccessor accessor) :
-        base(accessor)
+    public GetGameQueryHandler(IBrandGameService service, IHttpContextAccessor accessor)
+        : base(accessor)
     {
         _service = service;
     }
@@ -28,27 +28,25 @@ public class GetGameQueryHandler : Handler<GetBrandGameRequest,
             .Where(LicenseeId != null, l => l.Brand.LicenseeId == LicenseeId)
             .Where(BrandId != null, b => b.BrandId == BrandId)
         );
-        if (brandGame == null)
-        {
-            return CreateInvalidResponse<GetBrandGameResponse>(BrandGame.NotFound);
-        }
 
-        return new GetBrandGameResponse
-        {
-            Valid = true,
-            BrandGame = new BrandGameResponseModel
+        return brandGame == null
+            ? CreateInvalidResponse<GetBrandGameResponse>(BrandGame.NotFound)
+            : new GetBrandGameResponse
             {
-                Id = brandGame.Id,
-                GameId = brandGame.GameId,
-                GameName = brandGame.Game.Name,
-                Status = brandGame.Status,
-                GameType = brandGame.Game.Type,
-                GameProviderName = brandGame.Game.GameProvider.Name,
-                Platform = brandGame.Game.PlatformType,
-                SupportHtml5 = brandGame.Game.Html5,
-                EffectiveBettingPercentage = brandGame.EffectiveBettingPercentage,
-                Rebate = brandGame.Rebate
-            }
-        };
+                Valid = true,
+                BrandGame = new BrandGameResponseModel
+                {
+                    Id = brandGame.Id,
+                    GameId = brandGame.GameId,
+                    GameName = brandGame.Game.Name,
+                    Status = brandGame.Status,
+                    GameType = brandGame.Game.Type,
+                    GameProviderName = brandGame.Game.GameProvider.Name,
+                    Platform = brandGame.Game.PlatformType,
+                    SupportHtml5 = brandGame.Game.Html5,
+                    EffectiveBettingPercentage = brandGame.EffectiveBettingPercentage,
+                    Rebate = brandGame.Rebate
+                }
+            };
     }
 }

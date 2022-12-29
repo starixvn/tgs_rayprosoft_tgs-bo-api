@@ -7,10 +7,10 @@ public class ScheduleRequestValidator : AbstractValidator<BrandGameProviderReque
 {
     public ScheduleRequestValidator()
     {
-        RuleFor(x => x.From)
+        _ = RuleFor(x => x.From)
             .LessThan(x => x.To)
             .WithMessage(Application.Resources.BrandGameProviderSchedule.ToDateGreaterThanFrom);
-        RuleFor(x => x.DayOfWeek)
+        _ = RuleFor(x => x.DayOfWeek)
             .IsInEnum()
             .WithMessage(Application.Resources.BrandGameProviderSchedule.DayOfWeekIncorrect);
     }

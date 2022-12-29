@@ -14,8 +14,12 @@ namespace TGS.Services.BackOffice.Infrastructure.DataService;
 
 public interface IGameService
 {
+    Task CreateGamesAsync(GameProvider gameProvider, CreateGamesRequest request);
+
+    Task<bool> ExistsAsync(Expression<Func<Game, bool>> predicate);
+
     Task<Game> GetGameAsync(
-        Expression<Func<Game, bool>> predicate,
+                Expression<Func<Game, bool>> predicate,
         Func<IQueryable<Game>, IQueryable<Game>> preQuery =
             null);
 
@@ -23,8 +27,6 @@ public interface IGameService
         Func<IQueryable<Game>, IQueryable<Game>> preQuery = null,
         bool tracking = false);
 
-    Task<bool> ExistsAsync(Expression<Func<Game, bool>> predicate);
-    Task CreateGamesAsync(GameProvider gameProvider, CreateGamesRequest request);
     Task UpdateGameAsync(Game game);
 }
 
@@ -36,9 +38,6 @@ public class GameService : BaseRepositoryOperations<ITgsRepository>, IGameServic
     {
         _cacheManager = cacheManager;
     }
-
-    Task<bool> IGameService.ExistsAsync(Expression<Func<Game, bool>> predicate) =>
-        ExistsAsync(predicate);
 
     async Task IGameService.CreateGamesAsync(GameProvider gameProvider, CreateGamesRequest request)
     {
@@ -60,8 +59,19 @@ public class GameService : BaseRepositoryOperations<ITgsRepository>, IGameServic
             }
         };
 
-        await _cacheManager.ClearCacheByBatchAsync(cacheKeys);
+        _ = await _cacheManager.ClearCacheByBatchAsync(cacheKeys);
     }
+
+    Task<bool> IGameService.ExistsAsync(Expression<Func<Game, bool>> predicate) =>
+            ExistsAsync(predicate);
+
+    Task<Game> IGameService.GetGameAsync(Expression<Func<Game, bool>> predicate,
+        Func<IQueryable<Game>, IQueryable<Game>> preQuery) =>
+        GetEntityFirstOrDefaultAsync(predicate, preQuery);
+
+    IQueryable<Game> IGameService.
+        GetGameQueries(Func<IQueryable<Game>, IQueryable<Game>> preQuery, bool tracking) =>
+        GetQueriesAsync(preQuery, tracking);
 
     async Task IGameService.UpdateGameAsync(Game game)
     {
@@ -81,16 +91,8 @@ public class GameService : BaseRepositoryOperations<ITgsRepository>, IGameServic
             }
         };
 
-        await _cacheManager.ClearCacheByBatchAsync(cacheKeys);
+        _ = await _cacheManager.ClearCacheByBatchAsync(cacheKeys);
     }
-
-    Task<Game> IGameService.GetGameAsync(Expression<Func<Game, bool>> predicate,
-        Func<IQueryable<Game>, IQueryable<Game>> preQuery) =>
-        GetEntityFirstOrDefaultAsync(predicate, preQuery);
-
-    IQueryable<Game> IGameService.
-        GetGameQueries(Func<IQueryable<Game>, IQueryable<Game>> preQuery, bool tracking) =>
-        GetQueriesAsync(preQuery, tracking);
 
     private static HashSet<Game> GenerateCreateGames(GameProvider gameProvider,
         CreateGamesRequest request)

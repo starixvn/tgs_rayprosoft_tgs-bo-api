@@ -49,7 +49,7 @@ public class ManualDepositTests
                 }));
         var paymentId = Guid.NewGuid();
 
-        moqPaymentClient
+        _ = moqPaymentClient
             .Setup(fake => fake.DepositAsync(
                 It.IsAny<string>(),
                 It.Is<decimal>(x => x == command.Amount),
@@ -57,7 +57,7 @@ public class ManualDepositTests
                 It.IsAny<CancellationToken>()))
             .Returns(ValueTask.FromResult(command.CreatePaymentSettings(Guid.NewGuid())!));
 
-        moqPaymentServiceClient
+        _ = moqPaymentServiceClient
             .Setup(fake => fake.GetBrandPaymentByIdAsync(
                 It.Is<Guid>(x => x == command.BrandPaymentId),
                 It.IsAny<CancellationToken>()))
@@ -67,7 +67,7 @@ public class ManualDepositTests
                 PaymentId = paymentId
             }));
 
-        moqPaymentServiceClient
+        _ = moqPaymentServiceClient
             .Setup(fake => fake.GetPaymentByIdAsync(
                 It.Is<Guid>(x => x == paymentId),
                 It.IsAny<CancellationToken>()))
@@ -94,7 +94,7 @@ public class ManualDepositTests
                 })
         }.ToExpectedObject();
 
-        await sut.GetAsync(command);
+        _ = await sut.GetAsync(command);
 
         moqPaymentServiceClient.Verify(
             fake => fake.CreateDepositFormAsync(
@@ -128,7 +128,7 @@ public class ManualDepositTests
             _ => "{}");
         var paymentId = Guid.NewGuid();
 
-        fakePaymentServiceClient.GetBrandPaymentByIdAsync(
+        _ = fakePaymentServiceClient.GetBrandPaymentByIdAsync(
             Arg.Is(command.BrandPaymentId))
             .Returns(new BrandPaymentInfo
             {
@@ -136,7 +136,7 @@ public class ManualDepositTests
                 PaymentId = paymentId
             });
 
-        fakePaymentServiceClient.GetPaymentByIdAsync(
+        _ = fakePaymentServiceClient.GetPaymentByIdAsync(
             Arg.Is(paymentId))
             .Returns(new PaymentInfo
             {
@@ -144,11 +144,11 @@ public class ManualDepositTests
                 Code = "Test"
             });
 
-        fakeBrandServiceClient.GetBrandPaymentSettingsAsync(
+        _ = fakeBrandServiceClient.GetBrandPaymentSettingsAsync(
             Arg.Is(command.BrandId))
             .Returns(new BrandPaymentSettings(true));
 
-        Assert.ThrowsAsync<Exception>(async () => await sut.GetAsync(command));
+        _ = Assert.ThrowsAsync<Exception>(async () => await sut.GetAsync(command));
     }
 
     [Test]
@@ -174,7 +174,7 @@ public class ManualDepositTests
             Guid.NewGuid(),
             _ => "{}");
 
-        Assert.ThrowsAsync<Exception>(async () => await sut.GetAsync(command));
+        _ = Assert.ThrowsAsync<Exception>(async () => await sut.GetAsync(command));
     }
 
     [Test]
@@ -201,7 +201,7 @@ public class ManualDepositTests
             _ => "{}");
         var paymentId = Guid.NewGuid();
 
-        moqPaymentServiceClient
+        _ = moqPaymentServiceClient
             .Setup(fake => fake.GetBrandPaymentByIdAsync(
                 It.Is<Guid>(x => x == command.BrandPaymentId),
                 It.IsAny<CancellationToken>()))
@@ -211,7 +211,7 @@ public class ManualDepositTests
                 PaymentId = paymentId
             }));
 
-        moqPaymentServiceClient
+        _ = moqPaymentServiceClient
             .Setup(fake => fake.GetPaymentByIdAsync(
                 It.Is<Guid>(x => x == paymentId),
                 It.IsAny<CancellationToken>()))
@@ -221,6 +221,6 @@ public class ManualDepositTests
                 Code = "Test"
             }));
 
-        Assert.ThrowsAsync<Exception>(async () => await sut.GetAsync(command));
+        _ = Assert.ThrowsAsync<Exception>(async () => await sut.GetAsync(command));
     }
 }
