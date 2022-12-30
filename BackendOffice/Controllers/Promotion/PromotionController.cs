@@ -25,22 +25,20 @@ public class PromotionController : BaseContextController
     [HttpPut("ChangeOrders", Name = "ChangeOrder")]
     [Description("Change Promotion Display Order")]
     public async Task<MessageResponse> ChangeOrderAsync(
-        [FromServices] IPromotionClient promotionClient,
+        [FromServices] IPromotionServiceClient promotionServiceClient,
         ChangeOrderRequest request)
     {
-        var promotionRequest = new Tgs.Promotion.Clients.Models.Promotion.ChangeOrderRequest
-        {
-            Orders = request.Orders.Select(x => new Tgs.Promotion.Clients.Models.Promotion.ChangeOrderModel
-            {
-                Id = x.Id,
-                DisplayOrder = x.DisplayOrder
-            }).ToArray()
-        };
+        var promotionOrders = request.Orders
+            .Select(x => new PromotionOrder(x.Id, x.DisplayOrder))
+            .ToArray();
 
-        var response = await promotionClient.ChangeOrderAsync(promotionRequest)
+        await promotionServiceClient.ChangePromotionOrdersAsync(
+                promotionOrders, 
+                Username, 
+                HttpContext.RequestAborted)
             .ConfigureAwait(false);
 
-        return new MessageResponse { Valid = response.Valid, Message = response.Message };
+        return new MessageResponse { Valid = true };
     }
 
     [HttpPost(Name = "CreatePromotion")]
@@ -79,6 +77,7 @@ public class PromotionController : BaseContextController
             PersonalComputerBanner = request.DesktopBanner,
             SubSubject = request.SubSubject
         };
+
         await promotionServiceClient.SetPromotionContentAsync(
             promotionId,
             content,
