@@ -45,4 +45,25 @@ public class PromotionTests
                 Arg.Is(query.PromotionId),
                 Arg.Any<CancellationToken>());
     }
+
+    [Test]
+    public async Task Get_Promotion_Event_Detail()
+    {
+        var fakePromotionHistoryClient = Substitute.For<IPromotionHistoryClient>();
+
+        var sut = new GetPromotionEventDetailQueryService(fakePromotionHistoryClient);
+
+        var query = new GetPromotionEventDetailQuery(
+            Guid.NewGuid(),
+            Guid.NewGuid());
+
+        _ = await sut.GetAsync(query);
+
+        _ = fakePromotionHistoryClient
+            .Received(1)
+            .GetPromotionEventDetailAsync(
+                Arg.Is(query.PromotionId),
+                Arg.Is(query.EventId),
+                Arg.Any<CancellationToken>());
+    }
 }

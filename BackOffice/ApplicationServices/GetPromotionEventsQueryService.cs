@@ -3,7 +3,6 @@ using System.Collections.Generic;
 using System.Threading;
 using Tgs.Promotion.Clients;
 using Tgs.ServiceUtility;
-using TGS.Apis.BackendOffice.Controllers.Promotion;
 
 namespace TGS.Services.BackOffice.ApplicationServices;
 

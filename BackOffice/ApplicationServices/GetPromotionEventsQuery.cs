@@ -1,5 +1,5 @@
 ﻿using System;
 
-namespace TGS.Apis.BackendOffice.Controllers.Promotion;
+namespace TGS.Services.BackOffice.ApplicationServices;
 
 public record GetPromotionEventsQuery(Guid PromotionId);
