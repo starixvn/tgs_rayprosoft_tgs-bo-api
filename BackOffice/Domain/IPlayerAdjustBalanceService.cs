@@ -12,6 +12,13 @@ public interface IPlayerAdjustBalanceService
         string modifyUser,
         CancellationToken cancellationToken = default);
 
+    ValueTask ProcessLockedAmountAdjustApplyAsync(
+        Guid walletId,
+        decimal lockAmount,
+        string remark,
+        Guid modifyUserId,
+        CancellationToken cancellationToken = default);
+
     ValueTask ProcessTransferApplyAsync(
         PlayerBalanceTransferApplyInfo applyInfo,
         Guid modifyUserId,

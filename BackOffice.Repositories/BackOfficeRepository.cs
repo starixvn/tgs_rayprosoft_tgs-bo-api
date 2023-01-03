@@ -161,7 +161,7 @@ internal class BackOfficeRepository : IBackOfficeRepository
 
     public async ValueTask InsertAdjustPlayerRecordAsync(
         AdjustPlayerRecordCreateInfo createInfo,
-    string modifier,
+        string modifier,
         CancellationToken cancellationToken = default)
     {
         var currentDate = DateTimeOffset.Now;

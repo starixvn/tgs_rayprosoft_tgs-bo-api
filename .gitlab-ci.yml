@@ -18,49 +18,19 @@ stages:
   - deploy-prod
 
 build-code:
-  stage: build
+  extends: .build-code-template
   script:
+    - npm ci --prefix bo_client
+    - npm run build --prefix bo_client
     - dotnet build -c $BuildConfiguration
-  only:
-    - merge_requests
-    - main
-  cache:
-    key: $BuildCacheKey
-    untracked: true
 
 unit-test:
-  stage: test
-  script:
-    - dotnet test -c $BuildConfiguration -l:"junit;LogFilePath=../TestReports/{assembly}-TestReport.xml" --no-restore --no-build
-  needs:
-    - build-code
-  only:
-    - merge_requests
-    - main
-  cache:
-    key: $BuildCacheKey
-    untracked: true
-    policy: pull
-  artifacts:
-    when: always
-    reports:
-      junit: ./TestReports/*-TestReport.xml
+  extends: .unit-test-template
 
 push-docker-image:
-  stage: publish
-  needs:
-    - build-code
-    - unit-test
-  only:
-    - main
-  cache:
-    key: $BuildCacheKey
-    untracked: true
-    policy: pull
-  script:
-    - export Tag="$(date -d $CI_PIPELINE_CREATED_AT +%Y%m%d%H%M).$CI_PIPELINE_IID"
-    - dotnet build "BackendOffice/BackendOffice.csproj" -c $BuildConfiguration -t:ContainerBuild -p:DockerfileTag="$ImageName:$Tag" --no-restore
-    - docker push $ImageName:$Tag
+  extends: .push-docker-image-template
+  variables:
+    project: BackendOffice/BackendOffice.csproj
 
 push-k8s-template:
   stage: publish

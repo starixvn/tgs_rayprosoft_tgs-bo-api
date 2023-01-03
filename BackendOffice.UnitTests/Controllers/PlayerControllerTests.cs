@@ -208,8 +208,7 @@ public class PlayerControllerTests : BaseTests
         base.Setup();
         _controller = new(
             _mediatorMock.Object,
-            _promotionClientMock.Object,
-            NullLogger<PlayerController>.Instance);
+            _promotionClientMock.Object);
     }
 
     private static Fixture CreateUpdatePlayerRequestFixture()

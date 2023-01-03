@@ -345,12 +345,12 @@ app.MapHealthChecks("/health");
 
 app.Use(async (httpContext, next) =>
 {
-    await next();
-
     var activity = Activity.Current;
 
     if (activity is not null && !httpContext.Response.Headers.ContainsKey("X-Correlation-ID"))
         _ = httpContext.Response.Headers.TryAdd("X-Correlation-ID", activity.Id.ToString());
+
+    await next();
 });
 
 app.UseSwagger();

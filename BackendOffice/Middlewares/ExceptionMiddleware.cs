@@ -56,7 +56,7 @@ public class ExceptionMiddleware : IMiddleware
         {
             var reqMessage = await GetRequestBodyAsync(httpContext);
 
-            adminLogEvent.IpAddress = _requestAnalyzer.GetIp(httpContext).NoLongerThan(256);
+            adminLogEvent.IpAddress = _requestAnalyzer.GetIp(httpContext)?.NoLongerThan(256);
             adminLogEvent.Path = httpContext.Request.Path.Value;
             adminLogEvent.Method = httpContext.Request.Method.NoLongerThan(8);
             adminLogEvent.Host = httpContext.Request.Host.Value;

@@ -14,7 +14,7 @@ public interface IPlayerBucketRepository
     Task CreatePlayerBucketsAsync(params CreatePlayerBucketRequest[] request);
 
     ValueTask<CreatePlayerBucketWithDepositResponse> CreatePlayerBucketWithDepositAsync(
-                CreatePlayerBucketWithDepositRequest request);
+        CreatePlayerBucketWithDepositRequest request);
 
     ValueTask<PlayerBucketInfo> GetPlayerBucketInfoAsync(string playerCode, CancellationToken cancellationToken = default);
 }
