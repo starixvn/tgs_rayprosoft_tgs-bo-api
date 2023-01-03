@@ -76,8 +76,25 @@ internal class PlayerAdjustBalanceService : IPlayerAdjustBalanceService
             cancellationToken).ConfigureAwait(false);
     }
 
+    public async ValueTask ProcessLockedAmountAdjustApplyAsync(
+        Guid walletId,
+        decimal lockAmount,
+        string remark,
+        Guid modifyUserId,
+        CancellationToken cancellationToken = default)
+    {
+        _ = await _cashServiceClient.AdjustSystemV2Async(
+            walletId,
+            0M,
+            lockAmount,
+            remark,
+            null,
+            modifyUserId,
+            cancellationToken).ConfigureAwait(false);
+    }
+
     public async ValueTask ProcessTransferApplyAsync(
-        PlayerBalanceTransferApplyInfo applyInfo,
+            PlayerBalanceTransferApplyInfo applyInfo,
         Guid modifyUserId,
         CancellationToken cancellationToken = default)
     {

@@ -5,6 +5,7 @@ using System.Linq;
 using System.Threading.Tasks;
 using NSubstitute;
 using NUnit.Framework;
+using Tgs.CashService.Client;
 using Tgs.PlayerService.Client;
 using Tgs.ServiceUtility;
 using TGS.Core.Models.Enums;
@@ -129,6 +130,49 @@ public class PlayerAdjustTests
         _ = fakePlayerAdjustBalanceService.Received(1)
             .ProcessTransferApplyAsync(
                 Arg.Is(applyInfo),
+                Arg.Is(command.ModifyUserId));
+    }
+
+    [Test]
+    public async Task 調整玩家LockedAmount()
+    {
+        var fakeCashServiceClient = Substitute.For<ICashServiceClient>();
+        var fakePlayerServiceClient = Substitute.For<IPlayerServiceClient>();
+
+        var sut = new AdjustPlayerLockedAmountCommandService(
+            fakeCashServiceClient,
+            fakePlayerServiceClient);
+
+        var command = new AdjustPlayerLockedAmountCommand(
+            "test1",
+            1000M,
+            "test",
+            Guid.NewGuid());
+
+        _ = fakePlayerServiceClient.GetPlayerInfoAsync(Arg.Is(command.PlayerCode))
+            .Returns(new Tgs.PlayerService.Client.PlayerInfo
+            {
+                PlayerCode = command.PlayerCode,
+                BrandId = Guid.NewGuid()
+            });
+
+        var walletId = Guid.NewGuid();
+
+        _ = fakePlayerServiceClient.GetPlayerPropertiesAsync(Arg.Is(command.PlayerCode))
+            .Returns(new Dictionary<string, string>
+            {
+                ["DefaultWalletId"] = walletId.ToString()
+            }.ToImmutableDictionary());
+
+        await sut.ExecuteAsync(command);
+
+        _ = fakeCashServiceClient.Received(1)
+            .AdjustSystemV2Async(
+                Arg.Is(walletId),
+                Arg.Is(0M),
+                Arg.Is(command.LockAmount),
+                Arg.Is(command.Remark),
+                Arg.Is(default(string)),
                 Arg.Is(command.ModifyUserId));
     }
 }

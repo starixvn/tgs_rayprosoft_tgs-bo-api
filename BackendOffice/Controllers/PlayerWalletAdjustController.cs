@@ -4,6 +4,7 @@ using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Logging;
 using Tgs.ServiceUtility;
+using TGS.Apis.BackendOffice.ViewModels;
 using TGS.Core.Models.Enums;
 using TGS.Core.Models.Messages;
 using TGS.Services.BackOffice.Application.Models.Player;
@@ -20,6 +21,21 @@ public class PlayerWalletAdjustController : BaseContextController
     public PlayerWalletAdjustController(ILogger<PlayerWalletAdjustController> logger)
     {
         _logger = logger ?? throw new ArgumentNullException(nameof(logger));
+    }
+
+    [HttpPut("locked/{playerCode}", Name = "AdjustPlayerLockedAmount")]
+    public ValueTask AdjustLockedAmountAsync(
+            [FromServices] ICommandService<AdjustPlayerLockedAmountCommand> adjustService,
+            string playerCode,
+            [FromBody] PlayerAdjustLockedAmountViewModel viewModel)
+    {
+        var command = new AdjustPlayerLockedAmountCommand(
+            playerCode,
+            viewModel.LockAmount,
+            viewModel.Remark,
+            Guid.Parse(UserId));
+
+        return adjustService.ExecuteAsync(command, HttpContext.RequestAborted);
     }
 
     /// <summary>
