@@ -14,6 +14,7 @@ using TGS.Core.Models.Enums;
 using TGS.Core.Models.Messages;
 using TGS.Services.BackOffice.ApplicationServices;
 using TGS.Services.BackOffice.Domain;
+using PromotionStatus = TGS.Core.Models.Enums.PromotionStatus;
 
 namespace TGS.Apis.BackendOffice.Controllers.Promotion;
 
@@ -21,29 +22,23 @@ namespace TGS.Apis.BackendOffice.Controllers.Promotion;
 [ApiController]
 public class PromotionController : BaseContextController
 {
-    private readonly IPromotionClient _client;
-
-    public PromotionController(IPromotionClient client)
-    {
-        _client = client;
-    }
-
     [HttpPut("ChangeOrders", Name = "ChangeOrder")]
     [Description("Change Promotion Display Order")]
-    public async Task<MessageResponse> ChangeOrderAsync(ChangeOrderRequest request)
+    public async Task<MessageResponse> ChangeOrderAsync(
+        [FromServices] IPromotionServiceClient promotionServiceClient,
+        ChangeOrderRequest request)
     {
-        var promotionRequest = new Tgs.Promotion.Clients.Models.Promotion.ChangeOrderRequest
-        {
-            Orders = request.Orders.Select(x => new Tgs.Promotion.Clients.Models.Promotion.ChangeOrderModel
-            {
-                Id = x.Id,
-                DisplayOrder = x.DisplayOrder
-            }).ToArray()
-        };
+        var promotionOrders = request.Orders
+            .Select(x => new PromotionOrder(x.Id, x.DisplayOrder))
+            .ToArray();
 
-        var response = await _client.ChangeOrderAsync(promotionRequest);
+        await promotionServiceClient.ChangePromotionOrdersAsync(
+                promotionOrders, 
+                Username, 
+                HttpContext.RequestAborted)
+            .ConfigureAwait(false);
 
-        return new MessageResponse { Valid = response.Valid, Message = response.Message };
+        return new MessageResponse { Valid = true };
     }
 
     [HttpPost(Name = "CreatePromotion")]
@@ -60,6 +55,7 @@ public class PromotionController : BaseContextController
             IsAutoSent = request.AutoSentPlayerBonus,
             PromotionLimitAmount = request.Unlimited ? null : request.TotalAmountLimit
         };
+
         var promotionId = await promotionServiceClient.CreatePromotionAsync(
             request.BrandId,
             createInfo,
@@ -81,6 +77,7 @@ public class PromotionController : BaseContextController
             PersonalComputerBanner = request.DesktopBanner,
             SubSubject = request.SubSubject
         };
+
         await promotionServiceClient.SetPromotionContentAsync(
             promotionId,
             content,
@@ -142,7 +139,9 @@ public class PromotionController : BaseContextController
 
     [HttpGet(Name = "GetPromotions")]
     [Description("Get promotions")]
-    public async Task<PagedResponse<PromotionModel>> GetPromotionsAsync([FromQuery] GetPromotionsRequest request)
+    public async Task<PagedResponse<PromotionModel>> GetPromotionsAsync(
+        [FromServices] IPromotionClient promotionClient,
+        [FromQuery] GetPromotionsRequest request)
     {
         var promotionRequest = new Tgs.Promotion.Clients.Models.Promotion.GetPromotionsRequest
         {
@@ -159,7 +158,8 @@ public class PromotionController : BaseContextController
             ShowAll = request.ShowAll
         };
 
-        var response = await _client.GetPromotionsAsync(promotionRequest);
+        var response = await promotionClient.GetPromotionsAsync(promotionRequest)
+            .ConfigureAwait(false);
 
         return new PagedResponse<PromotionModel>
         {
@@ -308,9 +308,24 @@ public class PromotionController : BaseContextController
 
     [HttpPut("{promotionId:guid}/{status}", Name = "UpdatePromotionStatus")]
     [Description("change a Promotion's status")]
-    public async Task<MessageResponse> UpdatePromotionStatusAsync(Guid promotionId, Core.Models.Enums.PromotionStatus status)
+    public async Task<MessageResponse> UpdatePromotionStatusAsync(
+        [FromServices] IPromotionServiceClient promotionServiceClient,
+        Guid promotionId,
+        PromotionStatus status)
     {
-        var response = await _client.ChangePromotionStatusAsync(new(promotionId, (short)status));
-        return new MessageResponse { Valid = response.Valid, Message = response.Message };
+        await promotionServiceClient.SetPromotionStatusAsync(
+                promotionId,
+                status switch
+                {
+                    PromotionStatus.Enabled => Tgs.Promotion.Clients.PromotionStatus.Enabled,
+                    PromotionStatus.Disabled => Tgs.Promotion.Clients.PromotionStatus.Disabled,
+                    PromotionStatus.Archived => Tgs.Promotion.Clients.PromotionStatus.Archived,
+                    _ => throw new NotImplementedException()
+                },
+                Username,
+                HttpContext.RequestAborted)
+            .ConfigureAwait(false);
+
+        return new MessageResponse { Valid = true };
     }
 }
