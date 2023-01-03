@@ -1,10 +1,8 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Linq;
 using System.Threading;
 using Tgs.Promotion.Clients;
 using Tgs.ServiceUtility;
-using static Tgs.Promotion.Clients.PromotionEventAction;
 
 namespace TGS.Services.BackOffice.ApplicationServices;
 
@@ -22,6 +20,5 @@ internal class GetPromotionEventsQueryService : IQueryService<GetPromotionEvents
         GetPromotionEventsQuery query,
         CancellationToken cancellationToken = default)
         => _promotionHistoryClient
-            .QueryPromotionEventsAsync(query.PromotionId, cancellationToken)
-            .Where(evt => evt.Action != UpdateTotalUsedAmount);
+            .QueryPromotionEventsAsync(query.PromotionId, cancellationToken);
 }
