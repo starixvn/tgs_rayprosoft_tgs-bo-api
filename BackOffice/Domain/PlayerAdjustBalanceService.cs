@@ -3,9 +3,8 @@ using System.Threading;
 using System.Threading.Tasks;
 using Tgs.CashService.Client;
 using Tgs.SerialNumberGenerator;
+using Tgs.Service.PlayerBuckets;
 using TGS.Core.Models.Enums;
-using TGS.Services.PlayerBucket;
-using TGS.Services.PlayerBucket.Models;
 using TGS.Services.WalletService;
 using BucketType = Tgs.Service.PlayerBuckets.BucketType;
 
@@ -16,19 +15,19 @@ internal class PlayerAdjustBalanceService : IPlayerAdjustBalanceService
     private readonly IAgentWalletRepository _agentWalletRepository;
     private readonly IBackOfficeRepository _backOfficeRepository;
     private readonly ICashServiceClient _cashServiceClient;
-    private readonly IPlayerBucketRepository _playerBucketRepository;
+    private readonly IPlayerBucketClient _playerBucketClient;
     private readonly ISerialNumberGenerator _serialNumberGenerator;
 
     public PlayerAdjustBalanceService(
         IBackOfficeRepository backOfficeRepository,
         ICashServiceClient cashServiceClient,
-        IPlayerBucketRepository playerBucketRepository,
+        IPlayerBucketClient playerBucketClient,
         ISerialNumberGenerator serialNumberGenerator,
         IAgentWalletRepository agentWalletRepository)
     {
         _backOfficeRepository = backOfficeRepository ?? throw new ArgumentNullException(nameof(backOfficeRepository));
         _cashServiceClient = cashServiceClient ?? throw new ArgumentNullException(nameof(cashServiceClient));
-        _playerBucketRepository = playerBucketRepository ?? throw new ArgumentNullException(nameof(playerBucketRepository));
+        _playerBucketClient = playerBucketClient ?? throw new ArgumentNullException(nameof(playerBucketClient));
         _serialNumberGenerator = serialNumberGenerator ?? throw new ArgumentNullException(nameof(serialNumberGenerator));
         _agentWalletRepository = agentWalletRepository ?? throw new ArgumentNullException(nameof(agentWalletRepository));
     }
@@ -40,18 +39,12 @@ internal class PlayerAdjustBalanceService : IPlayerAdjustBalanceService
         CancellationToken cancellationToken = default)
     {
         if (applyInfo.BucketAmount > 0M)
-            await _playerBucketRepository
-                .CreatePlayerBucketsAsync(new[]
-                {
-                    new CreatePlayerBucketRequest(
-                        applyInfo.BrandId,
-                        applyInfo.PlayerCode,
-                        applyInfo.WalletId,
-                        BucketType.Adjustment,
-                        applyInfo.BucketAmount,
-                        null)
-                })
-                .ConfigureAwait(false);
+            _ = await _playerBucketClient.CreateBucketAsync(
+                applyInfo.PlayerCode,
+                applyInfo.BucketAmount,
+                BucketType.Adjustment,
+                null,
+                cancellationToken).ConfigureAwait(false);
 
         var transactionId = applyInfo.Amount > 0M
             ? (await AdjustAsync(
@@ -89,16 +82,12 @@ internal class PlayerAdjustBalanceService : IPlayerAdjustBalanceService
         CancellationToken cancellationToken = default)
     {
         if (applyInfo.BucketAmount > 0M)
-            await _playerBucketRepository
-                .CreatePlayerBucketsAsync(
-                    new CreatePlayerBucketRequest(
-                        applyInfo.BrandId,
-                        applyInfo.PlayerCode,
-                        applyInfo.WalletId,
-                        BucketType.Adjustment,
-                        applyInfo.BucketAmount,
-                        null))
-                .ConfigureAwait(false);
+            _ = await _playerBucketClient.CreateBucketAsync(
+                applyInfo.PlayerCode,
+                applyInfo.BucketAmount,
+                BucketType.Adjustment,
+                null,
+                cancellationToken).ConfigureAwait(false);
 
         var createId = await _serialNumberGenerator
             .GenerateAsync(cancellationToken)

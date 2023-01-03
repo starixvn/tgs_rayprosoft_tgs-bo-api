@@ -35,136 +35,18 @@ namespace TGS.Apis.BackendOffice.Controllers;
 public partial class PlayerController : BaseContextController
 {
     private readonly IPromotionClient _client;
-    private readonly ILogger<PlayerController> _logger;
     private readonly IMediator _mediator;
 
-    public PlayerController(IMediator mediator, IPromotionClient client, ILogger<PlayerController> logger)
+    public PlayerController(IMediator mediator, IPromotionClient client)
     {
         _mediator = mediator;
         _client = client;
-        _logger = logger ?? throw new ArgumentNullException(nameof(logger));
     }
 
     [HttpPut("{playerCode}/clear", Name = "ClearPlayerBuckets")]
     [Description("Clear player buckets")]
     public Task<ClearPlayerBucketsResponse> ClearPlayerBucketsAsync(string playerCode) =>
         _mediator.Send(new ClearPlayerBucketsRequest(playerCode));
-
-    [HttpPost("{playerCode}/adjust/increase", Name = "CreatePlayerIncreaseAmount")]
-    [Description("Create a player adjustment to increase amount")]
-    public async Task<MessageResponse> CreatePlayerIncreaseAmountAsync(
-        [FromServices] ICommandService<AdjustPlayerBalanceCommand> adjustService,
-        string playerCode,
-        CreatePlayerIncreaseAmountRequest request)
-    {
-        if (!Enum.IsDefined(request.TransactionType) ||
-            !Enum.IsDefined((PlayerAdjustmentTransactionType)request.TransactionType))
-            return new MessageResponse()
-            {
-                Valid = false,
-                Message = "is not define type"
-            };
-
-        try
-        {
-            var command = new AdjustPlayerBalanceCommand(
-                request.PlayerCode,
-                AdjustmentType.Add,
-                (PlayerAdjustmentTransactionType)request.TransactionType,
-                request.Amount,
-                request.BucketAmount,
-                request.Remark,
-                request.IncludeInNetProfit,
-                Guid.Parse(UserId),
-                Username);
-
-            await adjustService
-                .ExecuteAsync(command, HttpContext.RequestAborted)
-                .ConfigureAwait(false);
-
-            return new MessageResponse()
-            {
-                Valid = true
-            };
-        }
-        catch (Exception ex)
-        {
-            _logger.LogWarning(ex, "Adjust Fail");
-
-            return new MessageResponse
-            {
-                Valid = false,
-                Message = ex.Message
-            };
-        }
-    }
-
-    [HttpPost("{playerCode}/adjust/reduce", Name = "CreatePlayerReduceAmount")]
-    [Description("Create a player adjustment to reduce amount")]
-    public async Task<MessageResponse> CreatePlayerReduceAmountAsync(
-        [FromServices] ICommandService<AdjustPlayerBalanceCommand> adjustService,
-        [FromServices] ICommandService<PlayerTransferBalanceToParentAgentCommand> transferService,
-        string playerCode,
-        CreatePlayerReduceAmountRequest request)
-    {
-        if (!Enum.IsDefined(request.TransactionType) ||
-            !Enum.IsDefined((PlayerAdjustmentTransactionType)request.TransactionType))
-            return new MessageResponse()
-            {
-                Valid = false,
-                Message = "is not define type"
-            };
-
-        try
-        {
-            if (request.TransactionType == PlayerReduceTransactionType.TransferAdjust)
-            {
-                var command = new PlayerTransferBalanceToParentAgentCommand(
-                    request.PlayerCode,
-                    request.Amount,
-                    request.BucketAmount,
-                    request.Remark,
-                    request.IncludeInNetProfit,
-                    Guid.Parse(UserId));
-
-                await transferService
-                    .ExecuteAsync(command, HttpContext.RequestAborted)
-                    .ConfigureAwait(false);
-            }
-            else
-            {
-                var command = new AdjustPlayerBalanceCommand(
-                    request.PlayerCode,
-                    AdjustmentType.Subtract,
-                    (PlayerAdjustmentTransactionType)request.TransactionType,
-                    request.Amount,
-                    request.BucketAmount,
-                    request.Remark,
-                    request.IncludeInNetProfit,
-                    Guid.Parse(UserId),
-                    Username);
-
-                await adjustService
-                    .ExecuteAsync(command, HttpContext.RequestAborted)
-                    .ConfigureAwait(false);
-            }
-
-            return new MessageResponse()
-            {
-                Valid = true
-            };
-        }
-        catch (Exception ex)
-        {
-            _logger.LogWarning(ex, "Adjust Fail");
-
-            return new MessageResponse
-            {
-                Valid = false,
-                Message = ex.Message
-            };
-        }
-    }
 
     [HttpPost("{playerCode}/fundin/all", Name = "FundInAllPlayerGameProvider")]
     [Description("FundIn All Player GameProvider")]

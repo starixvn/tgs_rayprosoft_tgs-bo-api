@@ -1,0 +1,155 @@
+﻿using System;
+using System.Threading.Tasks;
+using Microsoft.AspNetCore.Http;
+using Microsoft.AspNetCore.Mvc;
+using Microsoft.Extensions.Logging;
+using Tgs.ServiceUtility;
+using TGS.Core.Models.Enums;
+using TGS.Core.Models.Messages;
+using TGS.Services.BackOffice.Application.Models.Player;
+using TGS.Services.BackOffice.ApplicationServices;
+
+namespace TGS.Apis.BackendOffice.Controllers;
+
+[Route("api/player/wallet")]
+[ApiController]
+public class PlayerWalletAdjustController : BaseContextController
+{
+    private readonly ILogger<PlayerWalletAdjustController> _logger;
+
+    public PlayerWalletAdjustController(ILogger<PlayerWalletAdjustController> logger)
+    {
+        _logger = logger ?? throw new ArgumentNullException(nameof(logger));
+    }
+
+    /// <summary>
+    /// Create a player adjustment to increase amount
+    /// </summary>
+    /// <param name="adjustService">The adjust service.</param>
+    /// <param name="playerCode">The player code.</param>
+    /// <param name="request">The request.</param>
+    /// <returns></returns>
+    [HttpPost("~/api/player/{playerCode}/adjust/increase")]
+    [HttpPost("increase/{playerCode}", Name = "CreatePlayerIncreaseAmount")]
+    public async Task<MessageResponse> CreatePlayerIncreaseAmountAsync(
+    [FromServices] ICommandService<AdjustPlayerBalanceCommand> adjustService,
+        string playerCode,
+        CreatePlayerIncreaseAmountRequest request)
+    {
+        if (!Enum.IsDefined(request.TransactionType) ||
+            !Enum.IsDefined((PlayerAdjustmentTransactionType)request.TransactionType))
+            return new MessageResponse()
+            {
+                Valid = false,
+                Message = "is not define type"
+            };
+
+        try
+        {
+            var command = new AdjustPlayerBalanceCommand(
+                request.PlayerCode,
+                AdjustmentType.Add,
+                (PlayerAdjustmentTransactionType)request.TransactionType,
+                request.Amount,
+                request.BucketAmount,
+                request.Remark,
+                request.IncludeInNetProfit,
+                Guid.Parse(UserId),
+                Username);
+
+            await adjustService
+                .ExecuteAsync(command, HttpContext.RequestAborted)
+                .ConfigureAwait(false);
+
+            return new MessageResponse()
+            {
+                Valid = true
+            };
+        }
+        catch (Exception ex)
+        {
+            _logger.LogWarning(ex, "Adjust Fail");
+
+            return new MessageResponse
+            {
+                Valid = false,
+                Message = ex.Message
+            };
+        }
+    }
+
+    /// <summary>
+    /// Create a player adjustment to reduce amount
+    /// </summary>
+    /// <param name="adjustService">The adjust service.</param>
+    /// <param name="transferService">The transfer service.</param>
+    /// <param name="playerCode">The player code.</param>
+    /// <param name="request">The request.</param>
+    /// <returns></returns>
+    [HttpPost("~/api/player/{playerCode}/adjust/reduce")]
+    [HttpPost("reduce/{playerCode}", Name = "CreatePlayerReduceAmount")]
+    public async Task<MessageResponse> CreatePlayerReduceAmountAsync(
+        [FromServices] ICommandService<AdjustPlayerBalanceCommand> adjustService,
+        [FromServices] ICommandService<PlayerTransferBalanceToParentAgentCommand> transferService,
+        string playerCode,
+        CreatePlayerReduceAmountRequest request)
+    {
+        if (!Enum.IsDefined(request.TransactionType) ||
+            !Enum.IsDefined((PlayerAdjustmentTransactionType)request.TransactionType))
+            return new MessageResponse()
+            {
+                Valid = false,
+                Message = "is not define type"
+            };
+
+        try
+        {
+            if (request.TransactionType == PlayerReduceTransactionType.TransferAdjust)
+            {
+                var command = new PlayerTransferBalanceToParentAgentCommand(
+                    request.PlayerCode,
+                    request.Amount,
+                    request.BucketAmount,
+                    request.Remark,
+                    request.IncludeInNetProfit,
+                    Guid.Parse(UserId));
+
+                await transferService
+                    .ExecuteAsync(command, HttpContext.RequestAborted)
+                    .ConfigureAwait(false);
+            }
+            else
+            {
+                var command = new AdjustPlayerBalanceCommand(
+                    request.PlayerCode,
+                    AdjustmentType.Subtract,
+                    (PlayerAdjustmentTransactionType)request.TransactionType,
+                    request.Amount,
+                    request.BucketAmount,
+                    request.Remark,
+                    request.IncludeInNetProfit,
+                    Guid.Parse(UserId),
+                    Username);
+
+                await adjustService
+                    .ExecuteAsync(command, HttpContext.RequestAborted)
+                    .ConfigureAwait(false);
+            }
+
+            return new MessageResponse()
+            {
+                Valid = true
+            };
+        }
+        catch (Exception ex)
+        {
+            _logger.LogWarning(ex, "Adjust Fail");
+
+            return new MessageResponse
+            {
+                Valid = false,
+                Message = ex.Message
+            };
+        }
+    }
+}

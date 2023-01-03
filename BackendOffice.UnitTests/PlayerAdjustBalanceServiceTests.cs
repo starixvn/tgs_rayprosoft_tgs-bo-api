@@ -4,6 +4,7 @@ using NSubstitute;
 using NUnit.Framework;
 using Tgs.CashService.Client;
 using Tgs.SerialNumberGenerator;
+using Tgs.Service.PlayerBuckets;
 using TGS.Core.Models.Enums;
 using TGS.Services.BackOffice.Domain;
 using TGS.Services.PlayerBucket;
@@ -19,14 +20,14 @@ public class PlayerAdjustBalanceServiceTests
     {
         var fakeBackOfficeRepository = Substitute.For<IBackOfficeRepository>();
         var fakeCashServiceClient = Substitute.For<ICashServiceClient>();
-        var fakePlayerBucketRepository = Substitute.For<IPlayerBucketRepository>();
+        var fakePlayerBucketClient = Substitute.For<IPlayerBucketClient>();
         var fakeSerialNumberGenerator = Substitute.For<ISerialNumberGenerator>();
         var fakeAgentWalletRepository = Substitute.For<IAgentWalletRepository>();
 
         var sut = new PlayerAdjustBalanceService(
             fakeBackOfficeRepository,
             fakeCashServiceClient,
-            fakePlayerBucketRepository,
+            fakePlayerBucketClient,
             fakeSerialNumberGenerator,
             fakeAgentWalletRepository);
 
@@ -80,14 +81,14 @@ public class PlayerAdjustBalanceServiceTests
     {
         var fakeBackOfficeRepository = Substitute.For<IBackOfficeRepository>();
         var fakeCashServiceClient = Substitute.For<ICashServiceClient>();
-        var fakePlayerBucketRepository = Substitute.For<IPlayerBucketRepository>();
+        var fakePlayerBucketClient = Substitute.For<IPlayerBucketClient>();
         var fakeSerialNumberGenerator = Substitute.For<ISerialNumberGenerator>();
         var fakeAgentWalletRepository = Substitute.For<IAgentWalletRepository>();
 
         var sut = new PlayerAdjustBalanceService(
             fakeBackOfficeRepository,
             fakeCashServiceClient,
-            fakePlayerBucketRepository,
+            fakePlayerBucketClient,
             fakeSerialNumberGenerator,
             fakeAgentWalletRepository);
 
@@ -141,14 +142,14 @@ public class PlayerAdjustBalanceServiceTests
     {
         var fakeBackOfficeRepository = Substitute.For<IBackOfficeRepository>();
         var fakeCashServiceClient = Substitute.For<ICashServiceClient>();
-        var fakePlayerBucketRepository = Substitute.For<IPlayerBucketRepository>();
+        var fakePlayerBucketClient = Substitute.For<IPlayerBucketClient>();
         var fakeSerialNumberGenerator = Substitute.For<ISerialNumberGenerator>();
         var fakeAgentWalletRepository = Substitute.For<IAgentWalletRepository>();
 
         var sut = new PlayerAdjustBalanceService(
             fakeBackOfficeRepository,
             fakeCashServiceClient,
-            fakePlayerBucketRepository,
+            fakePlayerBucketClient,
             fakeSerialNumberGenerator,
             fakeAgentWalletRepository);
 
@@ -202,14 +203,14 @@ public class PlayerAdjustBalanceServiceTests
     {
         var fakeBackOfficeRepository = Substitute.For<IBackOfficeRepository>();
         var fakeCashServiceClient = Substitute.For<ICashServiceClient>();
-        var fakePlayerBucketRepository = Substitute.For<IPlayerBucketRepository>();
+        var fakePlayerBucketClient = Substitute.For<IPlayerBucketClient>();
         var fakeSerialNumberGenerator = Substitute.For<ISerialNumberGenerator>();
         var fakeAgentWalletRepository = Substitute.For<IAgentWalletRepository>();
 
         var sut = new PlayerAdjustBalanceService(
             fakeBackOfficeRepository,
             fakeCashServiceClient,
-            fakePlayerBucketRepository,
+            fakePlayerBucketClient,
             fakeSerialNumberGenerator,
             fakeAgentWalletRepository);
 
@@ -263,14 +264,14 @@ public class PlayerAdjustBalanceServiceTests
     {
         var fakeBackOfficeRepository = Substitute.For<IBackOfficeRepository>();
         var fakeCashServiceClient = Substitute.For<ICashServiceClient>();
-        var fakePlayerBucketRepository = Substitute.For<IPlayerBucketRepository>();
+        var fakePlayerBucketClient = Substitute.For<IPlayerBucketClient>();
         var fakeSerialNumberGenerator = Substitute.For<ISerialNumberGenerator>();
         var fakeAgentWalletRepository = Substitute.For<IAgentWalletRepository>();
 
         var sut = new PlayerAdjustBalanceService(
             fakeBackOfficeRepository,
             fakeCashServiceClient,
-            fakePlayerBucketRepository,
+            fakePlayerBucketClient,
             fakeSerialNumberGenerator,
             fakeAgentWalletRepository);
 
@@ -316,8 +317,12 @@ public class PlayerAdjustBalanceServiceTests
 
         await sut.ProcessAdjustApplyAsync(applyInfo, modifyUserId, modifyUser);
 
-        _ = fakePlayerBucketRepository.Received(1)
-            .CreatePlayerBucketsAsync(Arg.Any<CreatePlayerBucketRequest[]>());
+        _ = fakePlayerBucketClient.Received(1)
+            .CreateBucketAsync(
+                Arg.Is(applyInfo.PlayerCode),
+                Arg.Is(applyInfo.BucketAmount),
+                Arg.Is(Tgs.Service.PlayerBuckets.BucketType.Adjustment),
+                Arg.Any<string>());
         _ = fakeBackOfficeRepository.Received(1)
             .InsertAdjustPlayerRecordAsync(Arg.Is(expectedCreateInfo), Arg.Is(modifyUser));
     }
@@ -327,14 +332,14 @@ public class PlayerAdjustBalanceServiceTests
     {
         var fakeBackOfficeRepository = Substitute.For<IBackOfficeRepository>();
         var fakeCashServiceClient = Substitute.For<ICashServiceClient>();
-        var fakePlayerBucketRepository = Substitute.For<IPlayerBucketRepository>();
+        var fakePlayerBucketClient = Substitute.For<IPlayerBucketClient>();
         var fakeSerialNumberGenerator = Substitute.For<ISerialNumberGenerator>();
         var fakeAgentWalletRepository = Substitute.For<IAgentWalletRepository>();
 
         var sut = new PlayerAdjustBalanceService(
             fakeBackOfficeRepository,
             fakeCashServiceClient,
-            fakePlayerBucketRepository,
+            fakePlayerBucketClient,
             fakeSerialNumberGenerator,
             fakeAgentWalletRepository);
 
