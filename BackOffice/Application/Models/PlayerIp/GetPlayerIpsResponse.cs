@@ -4,5 +4,5 @@ namespace TGS.Services.BackOffice.Application.Models.PlayerIp;
 
 public class GetPlayerIpsResponse : MessageResponse
 {
-    public PlayerIpModel[] datas { get; init; }
+    public PlayerIpModel[] Datas { get; init; }
 }

@@ -12,8 +12,8 @@ public class UpdateGameProviderBetLimitHandler : Handler<UpdateGameProviderBetLi
 {
     private readonly IGameProviderBetLimitService _service;
 
-    public UpdateGameProviderBetLimitHandler(IGameProviderBetLimitService service, IHttpContextAccessor accessor) :
-        base(accessor)
+    public UpdateGameProviderBetLimitHandler(IGameProviderBetLimitService service, IHttpContextAccessor accessor)
+        : base(accessor)
     {
         _service = service;
     }

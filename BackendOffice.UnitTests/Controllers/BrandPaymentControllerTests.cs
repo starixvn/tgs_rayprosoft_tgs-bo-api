@@ -61,12 +61,12 @@ public class BrandPaymentControllerTests : BaseTests
             VipLevelIds = Array.Empty<Guid>()
         };
 
-        _paymentServiceMock
+        _ = _paymentServiceMock
             .Setup(s => s.ExistsAsync(It.IsAny<Expression<Func<BrandPayment, bool>>>()))
             .Returns(Task.FromResult(false));
 
         var response = await _controller.CreateDepositBrandPaymentAsync(request);
-        response.Valid.Should().BeTrue();
+        _ = response.Valid.Should().BeTrue();
 
         _paymentServiceMock.Verify(p => p.CreatePaymentAsync(
             It.Is<CreateBrandPaymentRequest>(r => r.ChannelName == request.ChannelName),
@@ -103,16 +103,16 @@ public class BrandPaymentControllerTests : BaseTests
             VipLevelIds = Array.Empty<Guid>()
         };
 
-        _paymentServiceMock.Setup(s => s.GetPaymentAsync(It.IsAny<Expression<Func<BrandPayment, bool>>>(),
+        _ = _paymentServiceMock.Setup(s => s.GetPaymentAsync(It.IsAny<Expression<Func<BrandPayment, bool>>>(),
                 It.IsAny<Func<IQueryable<BrandPayment>, IQueryable<BrandPayment>>>(), true))
             .Returns(Task.FromResult(payment));
 
-        _paymentServiceMock.Setup(s => s.ExistsAsync(It.IsAny<Expression<Func<BrandPayment, bool>>>()))
+        _ = _paymentServiceMock.Setup(s => s.ExistsAsync(It.IsAny<Expression<Func<BrandPayment, bool>>>()))
             .Returns(Task.FromResult(false));
 
         var response = await _controller.UpdateBrandPaymentAsync(payment.Id, request);
 
-        response.Valid.Should().BeTrue();
+        _ = response.Valid.Should().BeTrue();
         _paymentServiceMock.Verify(s => s.GetPaymentAsync(It.IsAny<Expression<Func<BrandPayment, bool>>>(),
             It.IsAny<Func<IQueryable<BrandPayment>, IQueryable<BrandPayment>>>(), true));
         _paymentServiceMock.Verify(p => p.UpdatePaymentAsync(It.Is<BrandPayment>(r =>
@@ -150,9 +150,9 @@ public class BrandPaymentControllerTests : BaseTests
         };
         request.Whitelist[0] = request.Blacklist[0];
         var response = await _controller.CreateDepositBrandPaymentAsync(request);
-        response.Valid.Should().BeFalse();
-        response.DuplicatePlayers[0].Should().Be(request.Whitelist[0]);
-        response.Message.Should().Be(Apis.BackendOffice.Resources.BrandPayment.WhiteSameAsBlack);
+        _ = response.Valid.Should().BeFalse();
+        _ = response.DuplicatePlayers[0].Should().Be(request.Whitelist[0]);
+        _ = response.Message.Should().Be(Apis.BackendOffice.Resources.BrandPayment.WhiteSameAsBlack);
     }
 
     [Test]
@@ -184,20 +184,20 @@ public class BrandPaymentControllerTests : BaseTests
             VipLevelIds = Array.Empty<Guid>()
         };
 
-        _paymentServiceMock.Setup(s => s.GetPaymentAsync(
+        _ = _paymentServiceMock.Setup(s => s.GetPaymentAsync(
                 It.IsAny<Expression<Func<BrandPayment, bool>>>(),
                 It.IsAny<Func<IQueryable<BrandPayment>,
                     IQueryable<BrandPayment>>>(), true))
             .Returns(Task.FromResult<BrandPayment>(default!));
 
-        _paymentServiceMock.Setup(s =>
+        _ = _paymentServiceMock.Setup(s =>
                 s.ExistsAsync(It.IsAny<Expression<Func<BrandPayment, bool>>>()))
             .Returns(Task.FromResult(false));
 
         var response = await _controller.UpdateBrandPaymentAsync(payment.Id, request);
 
-        response.Valid.Should().BeFalse();
-        response.Message.Should().Be(Apis.BackendOffice.Resources.BrandPayment.NotFound);
+        _ = response.Valid.Should().BeFalse();
+        _ = response.Message.Should().Be(Apis.BackendOffice.Resources.BrandPayment.NotFound);
         _paymentServiceMock.Verify(s => s.GetPaymentAsync(
             It.IsAny<Expression<Func<BrandPayment, bool>>>(),
             It.IsAny<Func<IQueryable<BrandPayment>,
@@ -220,13 +220,13 @@ public class BrandPaymentControllerTests : BaseTests
         _controller.ControllerContext.HttpContext = HttpContextMock.Object;
     }
 
-    private Fixture CreatePaymentFixture()
+    private static Fixture CreatePaymentFixture()
     {
         var fixture = new Fixture();
         fixture.Customize<BrandPayment>(u => u
             .With(s => s.Brand, new Brand())
-            .With(s => s.BrandPaymentPlayers, new BrandPaymentPlayer[] { })
-            .With(s => s.VipLevels, new BrandPaymentVipLevel[] { })
+            .With(s => s.BrandPaymentPlayers, Array.Empty<BrandPaymentPlayer>())
+            .With(s => s.VipLevels, Array.Empty<BrandPaymentVipLevel>())
             .With(s => s.ExtendedData, "{}"));
         fixture.Behaviors.Add(new OmitOnRecursionBehavior());
         return fixture;

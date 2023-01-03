@@ -18,5 +18,5 @@ internal class CreatePaymentChannelCommandService : ICommandService<CreatePaymen
     public ValueTask ExecuteAsync(
         CreatePaymentChannelCommand command,
         CancellationToken cancellationToken = default)
-        => _paymentServiceClient.CreatePaymentChannelAsync(command.Code);
+        => _paymentServiceClient.CreatePaymentChannelAsync(command.Code, cancellationToken);
 }

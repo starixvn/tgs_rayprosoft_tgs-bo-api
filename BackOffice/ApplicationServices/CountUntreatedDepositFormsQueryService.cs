@@ -16,5 +16,5 @@ internal class CountUntreatedDepositFormsQueryService : IGetService<CountUntreat
     }
 
     public ValueTask<int> GetAsync(CountUntreatedDepositFormsQuery query, CancellationToken cancellationToken = default)
-        => _paymentServiceClient.CountUntreatedDepositFormsAsync(query.BrandId);
+        => _paymentServiceClient.CountUntreatedDepositFormsAsync(query.BrandId, cancellationToken);
 }

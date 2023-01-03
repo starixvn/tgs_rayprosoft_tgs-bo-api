@@ -14,8 +14,8 @@ public class
 {
     private readonly IPlayerService _service;
 
-    public GetPlayerOperationsQueryHandler(IPlayerService service, IHttpContextAccessor accessor) :
-        base(accessor)
+    public GetPlayerOperationsQueryHandler(IPlayerService service, IHttpContextAccessor accessor)
+        : base(accessor)
     {
         _service = service;
     }
@@ -26,6 +26,8 @@ public class
                 p.CreatedOn >= request.From && p.CreatedOn <= request.To && p.Username == request.PlayerCode))
             .Select(x => new PlayerOperationModel
             {
-                CreatedOn = x.CreatedOn, CreatedByUsername = x.CreatedByUsername, Operation = x.Operation
+                CreatedOn = x.CreatedOn,
+                CreatedByUsername = x.CreatedByUsername,
+                Operation = x.Operation
             }).CreatePagedResponseAsync(request);
 }

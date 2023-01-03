@@ -4,5 +4,5 @@ namespace TGS.Services.BackOffice.Application.Models.PlayerIp;
 
 public class GetPlayerIpsByUserNameResponse : MessageResponse
 {
-    public PlayerIpByUserNameModel[] datas { get; init; }
+    public PlayerIpByUserNameModel[] Datas { get; init; }
 }

@@ -19,20 +19,20 @@ public interface IPlatformCreditService
         Func<IQueryable<PlatformCredit>,
             IQueryable<PlatformCredit>> preQuery = null);
 
-    IQueryable<PlatformCredit> GetPlatformCreditQueries(
-        Func<IQueryable<PlatformCredit>,
-            IQueryable<PlatformCredit>> preQuery = null,
-        bool tracking = false);
-
     IQueryable<PlatformPayRecord> GetPlatformCreditPaymentQueries(
         Func<IQueryable<PlatformPayRecord>,
             IQueryable<PlatformPayRecord>> preQuery = null,
         bool tracking = false);
 
-    Task UpdatePlatformCreditAsync(PlatformCredit platformCredit,
-        UpdatePlatformCreditRequest request);
+    IQueryable<PlatformCredit> GetPlatformCreditQueries(
+            Func<IQueryable<PlatformCredit>,
+            IQueryable<PlatformCredit>> preQuery = null,
+        bool tracking = false);
 
     Task PayAsync(PlatformCredit platformCredit, PayRequest request);
+
+    Task UpdatePlatformCreditAsync(PlatformCredit platformCredit,
+            UpdatePlatformCreditRequest request);
 }
 
 public class PlatformCreditService : BaseRepositoryOperations<ITgsRepository>, IPlatformCreditService
@@ -44,17 +44,21 @@ public class PlatformCreditService : BaseRepositoryOperations<ITgsRepository>, I
         tgsRepository)
         => _repository = tgsRepository;
 
-    IQueryable<PlatformCredit> IPlatformCreditService.GetPlatformCreditQueries(
-        Func<IQueryable<PlatformCredit>,
-            IQueryable<PlatformCredit>> preQuery,
-        bool tracking) =>
-        GetQueriesAsync(preQuery, tracking);
-
     Task<PlatformCredit> IPlatformCreditService.GetPlatformCreditAsync(
         Expression<Func<PlatformCredit, bool>> predicate,
         Func<IQueryable<PlatformCredit>,
             IQueryable<PlatformCredit>> preQuery) =>
         GetEntityFirstOrDefaultAsync(predicate, preQuery);
+
+    IQueryable<PlatformPayRecord> IPlatformCreditService.GetPlatformCreditPaymentQueries(
+        Func<IQueryable<PlatformPayRecord>, IQueryable<PlatformPayRecord>> preQuery, bool tracking)
+        => GetQueriesAsync(preQuery, tracking);
+
+    IQueryable<PlatformCredit> IPlatformCreditService.GetPlatformCreditQueries(
+                Func<IQueryable<PlatformCredit>,
+            IQueryable<PlatformCredit>> preQuery,
+        bool tracking) =>
+        GetQueriesAsync(preQuery, tracking);
 
     async Task IPlatformCreditService.PayAsync(PlatformCredit platformCredit,
         PayRequest request)
@@ -91,10 +95,6 @@ public class PlatformCreditService : BaseRepositoryOperations<ITgsRepository>, I
 
         await UpdateEntityAsync(platformCredit);
     }
-
-    IQueryable<PlatformPayRecord> IPlatformCreditService.GetPlatformCreditPaymentQueries(
-        Func<IQueryable<PlatformPayRecord>, IQueryable<PlatformPayRecord>> preQuery, bool tracking)
-        => GetQueriesAsync(preQuery, tracking);
 
     private async ValueTask<decimal> GetBalanceAsync(IEnumerable<PlatformPayRecord> records, Guid brandId,
         decimal amount)

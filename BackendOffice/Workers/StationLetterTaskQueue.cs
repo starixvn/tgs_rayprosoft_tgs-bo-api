@@ -3,49 +3,48 @@ using System.Threading;
 using System.Threading.Channels;
 using System.Threading.Tasks;
 
-namespace TGS.Apis.BackendOffice.Workers
-{
-    public interface IStationLetterTaskQueue
-    {
-        ValueTask QueueStationLetterAsync(
-            StationLetterQueueModel model);
+namespace TGS.Apis.BackendOffice.Workers;
 
-        ValueTask<StationLetterQueueModel> DequeueAsync(
-            CancellationToken cancellationToken);
+public interface IStationLetterTaskQueue
+{
+    ValueTask<StationLetterQueueModel> DequeueAsync(
+        CancellationToken cancellationToken);
+
+    ValueTask QueueStationLetterAsync(
+            StationLetterQueueModel model);
+}
+
+public class StationLetterTaskQueue : IStationLetterTaskQueue
+{
+    private readonly Channel<StationLetterQueueModel> _queue;
+
+    public StationLetterTaskQueue(int capacity)
+    {
+        var options = new BoundedChannelOptions(capacity)
+        {
+            FullMode = BoundedChannelFullMode.Wait
+        };
+        _queue = Channel
+            .CreateBounded<StationLetterQueueModel>(options);
     }
 
-    public class StationLetterTaskQueue : IStationLetterTaskQueue
+    public async ValueTask<StationLetterQueueModel>
+        DequeueAsync(
+            CancellationToken cancellationToken)
     {
-        private readonly Channel<StationLetterQueueModel> _queue;
+        var workItem = await _queue.Reader.ReadAsync(cancellationToken);
 
-        public StationLetterTaskQueue(int capacity)
-        {
-            var options = new BoundedChannelOptions(capacity)
-            {
-                FullMode = BoundedChannelFullMode.Wait
-            };
-            _queue = Channel
-                .CreateBounded<StationLetterQueueModel>(options);
-        }
+        return workItem;
+    }
 
-        public async ValueTask QueueStationLetterAsync(
+    public async ValueTask QueueStationLetterAsync(
             StationLetterQueueModel model)
+    {
+        if (model == null)
         {
-            if (model == null)
-            {
-                throw new ArgumentNullException(nameof(model));
-            }
-
-            await _queue.Writer.WriteAsync(model);
+            throw new ArgumentNullException(nameof(model));
         }
 
-        public async ValueTask<StationLetterQueueModel>
-            DequeueAsync(
-                CancellationToken cancellationToken)
-        {
-            var workItem = await _queue.Reader.ReadAsync(cancellationToken);
-
-            return workItem;
-        }
+        await _queue.Writer.WriteAsync(model);
     }
 }

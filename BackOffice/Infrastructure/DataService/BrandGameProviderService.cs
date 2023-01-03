@@ -22,6 +22,7 @@ public interface IBrandGameProviderService
         bool tracking = false);
 
     Task UpdateBrandGameProviderAsync(BrandGameProvider brandGameProvider);
+
     Task UpdateBrandGameProvidersAsync(string toMaintenanceIds, string toActiveIds);
 }
 

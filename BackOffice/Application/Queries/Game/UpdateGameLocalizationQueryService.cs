@@ -2,10 +2,10 @@
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
+using Microsoft.EntityFrameworkCore;
+using Tgs.ServiceUtility;
 using TGS.Core.DataServices.Tgs;
 using TGS.Core.Infrastructures.Extensions;
-using Tgs.ServiceUtility;
-using Microsoft.EntityFrameworkCore;
 
 namespace TGS.Services.BackOffice.Application.Queries.Game;
 
@@ -40,7 +40,7 @@ internal class UpdateGameLocalizationQueryService : IGetService<UpdateGameLocali
                 game.UpdatedOn = DateTimeOffset.Now;
             }
 
-            await _tgsRepository.SaveChangesAsync(cancellationToken);
+            _ = await _tgsRepository.SaveChangesAsync(cancellationToken);
 
             return new UpdateGameLocationInfo { DiffGameIds = Array.Empty<int>() };
         }

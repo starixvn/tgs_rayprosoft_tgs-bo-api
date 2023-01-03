@@ -6,6 +6,8 @@ namespace TGS.Services.BackOffice.Application.Models.SubGameProvider;
 public class SubGameProvidersLocalizationModel
 {
     public string Code { get; set; }
-    public string Name { get; set; }
+
     public IDictionary<string, JsonDocument> Localization { get; set; }
+
+    public string Name { get; set; }
 }

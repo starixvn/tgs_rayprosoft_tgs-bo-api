@@ -6,12 +6,12 @@ using System.Threading;
 using System.Threading.Tasks;
 using Microsoft.EntityFrameworkCore;
 using StackExchange.Redis;
+using Tgs.MessageQueue;
+using Tgs.ServiceUtility;
 using TGS.Core.Infrastructures.Redis;
 using TGS.Core.Models.Messages;
-using Tgs.MessageQueue;
 using TGS.Services.BackOffice.Application.Models.Aggregate;
 using TGS.Services.BackOffice.Infrastructure.DataService;
-using Tgs.ServiceUtility;
 
 namespace TGS.Services.BackOffice.Application.Commands.ReportGenerateAggregate;
 
@@ -74,7 +74,7 @@ public class
                         request.BrandId))
                 .ConfigureAwait(false);
 
-        await _redisCacheManager.SetAddAsync("aggregate",
+        _ = await _redisCacheManager.SetAddAsync("aggregate",
             "brandGP",
             brandIds.Select(x => (RedisValue)x.ToString()).ToArray(),
             TimeSpan.FromMinutes(10)).ConfigureAwait(false);

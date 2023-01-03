@@ -8,13 +8,13 @@ namespace TGS.Tests.BackendOffice.UnitTests.Validators.GameProviderBetLimit;
 [TestFixture]
 public class GameProviderBetLimitRequestValidatorTests
 {
+    private GameProviderBetLimitRequestValidator _validator = default!;
+
     [SetUp]
     public void Setup()
     {
         _validator = new GameProviderBetLimitRequestValidator();
     }
-
-    private GameProviderBetLimitRequestValidator _validator = default!;
 
     [Test]
     public void Should_have_error_when_code_is_null()
@@ -24,20 +24,8 @@ public class GameProviderBetLimitRequestValidatorTests
             CurrencyCode = null
         };
         var result = _validator.TestValidate(model);
-        result.ShouldHaveValidationErrorFor(request => request.CurrencyCode)
+        _ = result.ShouldHaveValidationErrorFor(request => request.CurrencyCode)
             .WithErrorMessage(Services.BackOffice.Application.Resources.GameProviderBetLimit.CurrencyRequired);
-    }
-
-    [Test]
-    public void Should_have_error_when_min_bet_is_not_greater_zero()
-    {
-        var model = new GameProviderBetLimitRequest
-        {
-            MinBet = -1
-        };
-        var result = _validator.TestValidate(model);
-        result.ShouldHaveValidationErrorFor(request => request.MinBet)
-            .WithErrorMessage(Services.BackOffice.Application.Resources.GameProviderBetLimit.MinbetGreaterThanZero);
     }
 
     [Test]
@@ -49,8 +37,20 @@ public class GameProviderBetLimitRequestValidatorTests
             MaxBet = 30
         };
         var result = _validator.TestValidate(model);
-        result.ShouldHaveValidationErrorFor(request => request.MaxBet)
+        _ = result.ShouldHaveValidationErrorFor(request => request.MaxBet)
             .WithErrorMessage(
                 Services.BackOffice.Application.Resources.GameProviderBetLimit.MaxbetGreaterThanMinbet);
+    }
+
+    [Test]
+    public void Should_have_error_when_min_bet_is_not_greater_zero()
+    {
+        var model = new GameProviderBetLimitRequest
+        {
+            MinBet = -1
+        };
+        var result = _validator.TestValidate(model);
+        _ = result.ShouldHaveValidationErrorFor(request => request.MinBet)
+            .WithErrorMessage(Services.BackOffice.Application.Resources.GameProviderBetLimit.MinbetGreaterThanZero);
     }
 }

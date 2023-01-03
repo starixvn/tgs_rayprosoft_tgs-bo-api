@@ -1,25 +1,22 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+﻿using System.Runtime.CompilerServices;
+using Microsoft.Extensions.Caching.Memory;
 using Tgs.MarketingReport.Client;
 using Tgs.ServiceUtility;
-using Microsoft.Extensions.Caching.Memory;
-using System.Runtime.CompilerServices;
 using TGS.Services.BackOffice.ApplicationServices;
 
 namespace TGS.Services.BackOffice.Cache;
+
 internal class CachedAgentMarketingReportQueryService : IQueryService<AgentMarketingReportQuery, DailyAggregateInfo>
 {
-    private readonly IQueryService<AgentMarketingReportQuery, DailyAggregateInfo> _sourceService;
     private readonly IMemoryCache _memoryCache;
+    private readonly IQueryService<AgentMarketingReportQuery, DailyAggregateInfo> _sourceService;
 
     public CachedAgentMarketingReportQueryService(IQueryService<AgentMarketingReportQuery, DailyAggregateInfo> sourceService, IMemoryCache memoryCache)
     {
         _sourceService = sourceService ?? throw new ArgumentNullException(nameof(sourceService));
         _memoryCache = memoryCache ?? throw new ArgumentNullException(nameof(memoryCache));
     }
+
     public async IAsyncEnumerable<DailyAggregateInfo> QueryAsync(
         AgentMarketingReportQuery query,
         [EnumeratorCancellation] CancellationToken cancellationToken = default)

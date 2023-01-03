@@ -9,8 +9,6 @@ public class CreateAgentReduceAmountRequest : IRequest<MessageResponse>
 {
     public AccountType? AccountType { get; set; }
 
-    public AgentReduceTransactionType TransactionType { get; set; }
-
     public Guid AgentId { get; set; }
 
     public decimal Amount { get; set; }
@@ -18,4 +16,6 @@ public class CreateAgentReduceAmountRequest : IRequest<MessageResponse>
     public string Remark { get; set; }
 
     public string TargetName { get; set; }
+
+    public AgentReduceTransactionType TransactionType { get; set; }
 }

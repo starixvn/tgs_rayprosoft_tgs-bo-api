@@ -12,13 +12,13 @@ using MediatR;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
+using Tgs.ServiceUtility;
 using TGS.Apis.BackendOffice.Controllers.Messages.Game;
 using TGS.Apis.BackendOffice.Services;
 using TGS.Core.Models.Messages;
 using TGS.Services.BackOffice.Application.Models.Game;
 using TGS.Services.BackOffice.Application.Queries.Game;
 using TGS.Services.BackOffice.Domain;
-using Tgs.ServiceUtility;
 
 namespace TGS.Apis.BackendOffice.Controllers.GameProvider;
 
@@ -35,34 +35,10 @@ public class GameController : BaseContextController
         _uploadService = uploadService;
     }
 
-    [HttpGet]
-    [Description("Get games")]
-    public Task<PagedResponse<GameModel>>
-        GetGameProvidersAsync([FromQuery] GetGamesRequest request) => _mediator.Send(request);
-
     [HttpPost]
     [Description("Create games")]
     public Task<MessageResponse> CreateGamesAsync(CreateGamesRequest request) =>
         _mediator.Send(request);
-
-    [HttpPut("{id}")]
-    [Description("Update a game")]
-    public Task<MessageResponse> UpdateGameAsync(int id, UpdateGameRequest request)
-    {
-        request.Id = id;
-        return _mediator.Send(request);
-    }
-
-    [HttpPost("upload")]
-    [Description("Upload games")]
-    public async Task<IActionResult> UploadGamesAsync([FromForm] UploadGamesRequest request)
-    {
-        var response = await _mediator.Send(request).ConfigureAwait(false);
-
-        if (response.Valid)
-            return Ok(response);
-        return StatusCode(400, response);
-    }
 
     [AllowAnonymous]
     [HttpGet("export/{gameProviderId}")]
@@ -133,7 +109,7 @@ public class GameController : BaseContextController
                 );
             }
 
-            sheetData.AppendChild(row);
+            _ = sheetData.AppendChild(row);
 
             foreach (var game in info.Games)
             {
@@ -155,8 +131,7 @@ public class GameController : BaseContextController
                     foreach (var item in info.Languages)
                     {
                         var localization = JsonDocument.Parse(game.Localization);
-                        JsonElement lang;
-                        var isExist = localization.RootElement.TryGetProperty(item, out lang);
+                        var isExist = localization.RootElement.TryGetProperty(item, out var lang);
                         if (isExist)
                         {
                             row.Append(
@@ -170,14 +145,36 @@ public class GameController : BaseContextController
                     }
                 }
 
-                sheetData.AppendChild(row);
+                _ = sheetData.AppendChild(row);
             }
         }
 
-        memoryStream.Seek(0, SeekOrigin.Begin);
+        _ = memoryStream.Seek(0, SeekOrigin.Begin);
         return new FileStreamResult(
             memoryStream,
             "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet");
+    }
+
+    [HttpGet]
+    [Description("Get games")]
+    public Task<PagedResponse<GameModel>>
+        GetGameProvidersAsync([FromQuery] GetGamesRequest request) => _mediator.Send(request);
+
+    [HttpPut("{id}")]
+    [Description("Update a game")]
+    public Task<MessageResponse> UpdateGameAsync(int id, UpdateGameRequest request)
+    {
+        request.Id = id;
+        return _mediator.Send(request);
+    }
+
+    [HttpPost("upload")]
+    [Description("Upload games")]
+    public async Task<IActionResult> UploadGamesAsync([FromForm] UploadGamesRequest request)
+    {
+        var response = await _mediator.Send(request).ConfigureAwait(false);
+
+        return response.Valid ? Ok(response) : (IActionResult)StatusCode(400, response);
     }
 
     [HttpPost("localization/upload")]
@@ -219,20 +216,17 @@ public class GameController : BaseContextController
 
         var diffGames = info.DiffGameIds;
 
-        if (diffGames.Any())
-        {
-            return new MessageResponse
+        return diffGames.Any()
+            ? new MessageResponse
             {
                 Valid = false,
                 Message = "Games Not Found",
                 Errors = diffGames.Select(x => x.ToString()).ToArray()
+            }
+            : new MessageResponse
+            {
+                Valid = true,
+                Message = "Update Games Localization Success"
             };
-        }
-
-        return new MessageResponse
-        {
-            Valid = true,
-            Message = "Update Games Localization Success"
-        };
     }
 }

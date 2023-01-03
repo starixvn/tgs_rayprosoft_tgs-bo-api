@@ -45,7 +45,7 @@ internal class UpdateGameProvidersLocalizationQueryService
             game.UpdatedOn = DateTimeOffset.Now;
         }
 
-        await _tgsRepository
+        _ = await _tgsRepository
             .SaveChangesAsync(cancellationToken)
             .ConfigureAwait(false);
     }

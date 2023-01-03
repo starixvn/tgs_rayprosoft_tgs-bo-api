@@ -22,6 +22,85 @@ public partial class LicenseeController : BaseContextController
         _service = service;
     }
 
+    [HttpPost]
+    [Description("Create a Licensee")]
+    public async Task<MessageResponse> CreateLicenseeAsync(CreateLicenseeRequest request)
+    {
+        if (await _service.ExistsAsync(x => x.Name == request.Name))
+        {
+            return CreateInvalidResponse<MessageResponse>(Resources.Licensee.NameExists);
+        }
+
+        if (await _service.ExistsAsync(x => x.Code.ToLower() == request.Code.ToLower()))
+        {
+            return CreateInvalidResponse<MessageResponse>(Resources.Licensee.CodeExists);
+        }
+
+        await _service.CreateLicenseeAsync(request, Username);
+
+        return CreateValidResponse<MessageResponse>();
+    }
+
+    [HttpGet("{id}")]
+    [Description("Get a Licensee")]
+    public async Task<GetLicenseeResponse> GetLicenseeAsync(Guid id)
+    {
+        var licensee = await _service.GetLicenseeAsync(x => x.Id == id,
+            x => x.Include(i => i.Currencies)
+                .Include(i => i.Languages)
+                .Include(i => i.GameProviders)
+                .Where(ResellerId != null, x => x.ResellerId == ResellerId)
+                .Where(LicenseeId != null, x => x.Id == LicenseeId), true);
+
+        return licensee == null
+            ? CreateInvalidResponse<GetLicenseeResponse>(Resources.Licensee.NotFound)
+            : new GetLicenseeResponse
+            {
+                Valid = true,
+                Licensee = new LicenseeModel
+                {
+                    Id = licensee.Id,
+                    ResellerId = licensee.ResellerId,
+                    BusinessType = licensee.Reseller.BusinessType,
+                    Code = licensee.Code,
+                    Name = licensee.Name,
+                    Status = licensee.Status,
+                    Currencies = licensee.Currencies
+                    .Select(x => new LicenseeCurrencyModel
+                    {
+                        Code = x.CurrencyCode,
+                        Name = x.Currency.Name
+                    }).ToArray(),
+                    Languages = licensee.Languages
+                    .Select(x => new LicenseeLanguageModel
+                    {
+                        CultureCode = x.CultureCode,
+                        Name = x.Language.Name
+                    }).ToArray(),
+                    GameProviders = licensee.GameProviders
+                    .Select(x => new LicenseeGameProviderModel
+                    {
+                        GameProviderId = x.GameProviderId,
+                        Name = x.GameProvider.Name
+                    }).ToArray(),
+                    BetLimits = licensee.BetLimits
+                    .Select(x => new LicenseeBetLimitModel
+                    {
+                        Id = x.BetLimitId,
+                        CurrencyCode = x.BetLimit.CurrencyCode,
+                        MinBet = x.BetLimit.MinBet,
+                        MaxBet = x.BetLimit.MaxBet,
+                        MaxBetPerMatch = x.BetLimit.MaxBetPerMatch
+                    }).ToArray(),
+
+                    Description = licensee.Description,
+                    OperationalEmail = licensee.OperationalEmail,
+                    CreatedOn = licensee.CreatedOn,
+                    UpdatedOn = licensee.UpdatedOn
+                }
+            };
+    }
+
     [HttpGet]
     [Description("Get licensees: 營運商列表")]
     public Task<PagedResponse<LicenseeModel>> GetLicenseesAsync([FromQuery] GetLicenseesRequest request)
@@ -43,88 +122,6 @@ public partial class LicenseeController : BaseContextController
                 CreatedOn = x.CreatedOn,
                 UpdatedOn = x.UpdatedOn
             }).CreatePagedResponseAsync(request);
-    }
-
-    [HttpGet("{id}")]
-    [Description("Get a Licensee")]
-    public async Task<GetLicenseeResponse> GetLicenseeAsync(Guid id)
-    {
-        var licensee = await _service.GetLicenseeAsync(x => x.Id == id,
-            x => x.Include(i => i.Currencies)
-                .Include(i => i.Languages)
-                .Include(i => i.GameProviders)
-                .Where(ResellerId != null, x => x.ResellerId == ResellerId)
-                .Where(LicenseeId != null, x => x.Id == LicenseeId), true);
-
-        if (licensee == null)
-        {
-            return CreateInvalidResponse<GetLicenseeResponse>(Resources.Licensee.NotFound);
-        }
-
-        return new GetLicenseeResponse
-        {
-            Valid = true,
-            Licensee = new LicenseeModel
-            {
-                Id = licensee.Id,
-                ResellerId = licensee.ResellerId,
-                BusinessType = licensee.Reseller.BusinessType,
-                Code = licensee.Code,
-                Name = licensee.Name,
-                Status = licensee.Status,
-                Currencies = licensee.Currencies
-                    .Select(x => new LicenseeCurrencyModel
-                    {
-                        Code = x.CurrencyCode,
-                        Name = x.Currency.Name
-                    }).ToArray(),
-                Languages = licensee.Languages
-                    .Select(x => new LicenseeLanguageModel
-                    {
-                        CultureCode = x.CultureCode,
-                        Name = x.Language.Name
-                    }).ToArray(),
-                GameProviders = licensee.GameProviders
-                    .Select(x => new LicenseeGameProviderModel
-                    {
-                        GameProviderId = x.GameProviderId,
-                        Name = x.GameProvider.Name
-                    }).ToArray(),
-                BetLimits = licensee.BetLimits
-                    .Select(x => new LicenseeBetLimitModel
-                    {
-                        Id = x.BetLimitId,
-                        CurrencyCode = x.BetLimit.CurrencyCode,
-                        MinBet = x.BetLimit.MinBet,
-                        MaxBet = x.BetLimit.MaxBet,
-                        MaxBetPerMatch = x.BetLimit.MaxBetPerMatch
-                    }).ToArray(),
-
-                Description = licensee.Description,
-                OperationalEmail = licensee.OperationalEmail,
-                CreatedOn = licensee.CreatedOn,
-                UpdatedOn = licensee.UpdatedOn
-            }
-        };
-    }
-
-    [HttpPost]
-    [Description("Create a Licensee")]
-    public async Task<MessageResponse> CreateLicenseeAsync(CreateLicenseeRequest request)
-    {
-        if (await _service.ExistsAsync(x => x.Name == request.Name))
-        {
-            return CreateInvalidResponse<MessageResponse>(Resources.Licensee.NameExists);
-        }
-
-        if (await _service.ExistsAsync(x => x.Code.ToLower() == request.Code.ToLower()))
-        {
-            return CreateInvalidResponse<MessageResponse>(Resources.Licensee.CodeExists);
-        }
-
-        await _service.CreateLicenseeAsync(request, Username);
-
-        return CreateValidResponse<MessageResponse>();
     }
 
     [HttpPut("{id}")]

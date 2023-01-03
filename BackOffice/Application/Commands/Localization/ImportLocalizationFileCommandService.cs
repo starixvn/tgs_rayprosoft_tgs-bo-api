@@ -27,7 +27,7 @@ internal class ImportLocalizationFileCommandService : ICommandService<ImportLoca
                 command.SystemCode,
                 command.FileStream).ToEnumerable());
 
-    private async IAsyncEnumerable<LocalizationStringInfo> ReadLocalizationFileAsync(string systemCode, Stream fileStream)
+    private static async IAsyncEnumerable<LocalizationStringInfo> ReadLocalizationFileAsync(string systemCode, Stream fileStream)
     {
         using var reader = new XLWorkbook(fileStream);
 
@@ -54,7 +54,7 @@ internal class ImportLocalizationFileCommandService : ICommandService<ImportLoca
         await Task.CompletedTask.ConfigureAwait(false);
     }
 
-    private bool TryGetCultureInfo(string cultureCode, out CultureInfo cultureInfo)
+    private static bool TryGetCultureInfo(string cultureCode, out CultureInfo cultureInfo)
     {
         try
         {

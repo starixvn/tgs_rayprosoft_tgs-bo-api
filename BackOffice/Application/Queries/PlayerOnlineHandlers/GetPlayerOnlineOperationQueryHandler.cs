@@ -34,11 +34,11 @@ public class GetPlayerOnlineOperationQueryHandler : IGetService<GetPlayerOnlineR
 
         var playerIps = _playerIpService.GetPlayerIpRecordsByLogin(playerCodes);
 
-        var datas = await (_playerService.GetPlayerQueries(
+        var datas = await _playerService.GetPlayerQueries(
             x => x.Where(x => playerCodes.Contains(x.PlayerCode))
             .Where(query.VipId.HasValue, x => x.Vip.Id == query.VipId.Value)
             .Where(query.Status.HasValue, x => x.Status == query.Status.Value)
-            .Where(!string.IsNullOrEmpty(query.PlayerCode), x => x.PlayerCode == query.PlayerCode)))
+            .Where(!string.IsNullOrEmpty(query.PlayerCode), x => x.PlayerCode == query.PlayerCode))
             .Join(playerIps,
                 player => player.PlayerCode,
                 playerIp => playerIp.PlayerCode,
@@ -57,6 +57,6 @@ public class GetPlayerOnlineOperationQueryHandler : IGetService<GetPlayerOnlineR
             .CreatePagedResponseAsync(query)
             .ConfigureAwait(false);
 
-        return new(playerCodes.Count(), datas);
+        return new(playerCodes.Length, datas);
     }
 }

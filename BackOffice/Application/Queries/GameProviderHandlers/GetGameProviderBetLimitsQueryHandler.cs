@@ -18,8 +18,8 @@ public class
 
     public GetGameProviderBetLimitsQueryHandler(IGameProviderBetLimitService service,
         IBetLimitService betLimitService, IHttpContextAccessor accessor)
-        :
-        base(accessor)
+
+        : base(accessor)
     {
         _service = service;
         _betLimitService = betLimitService;
@@ -50,6 +50,6 @@ public class
                 ExternalSetting = x.ExternalSetting
             }).ToArrayAsync(cancellationToken);
 
-        return new() {Valid = true, BetLimits = betLimits};
+        return new() { Valid = true, BetLimits = betLimits };
     }
 }

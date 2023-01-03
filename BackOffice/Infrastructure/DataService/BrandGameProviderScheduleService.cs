@@ -21,10 +21,10 @@ public interface IBrandGameProviderScheduleService
         Func<IQueryable<BrandGameProviderSchedule>, IQueryable<BrandGameProviderSchedule>> preQuery = null,
         bool tracking = false);
 
-    Task UpdateBrandGameProviderScheduleAsync(BrandGameProviderSchedule schedule);
-
     Task UpdateBrandGameProviderDefaultTimesAsync(BrandGameProviderSchedule[] schedules,
         UpdateDefaultTimesRequest request);
+
+    Task UpdateBrandGameProviderScheduleAsync(BrandGameProviderSchedule schedule);
 }
 
 public class BrandGameProviderScheduleService : BaseRepositoryOperations<ITgsRepository>,
@@ -47,10 +47,6 @@ public class BrandGameProviderScheduleService : BaseRepositoryOperations<ITgsRep
         bool tracking) =>
         GetQueriesAsync(preQuery, tracking);
 
-    Task IBrandGameProviderScheduleService.UpdateBrandGameProviderScheduleAsync(
-        BrandGameProviderSchedule schedule) =>
-        UpdateEntityAsync(schedule);
-
     async Task IBrandGameProviderScheduleService.UpdateBrandGameProviderDefaultTimesAsync(
         BrandGameProviderSchedule[] schedules, UpdateDefaultTimesRequest request)
     {
@@ -70,4 +66,8 @@ public class BrandGameProviderScheduleService : BaseRepositoryOperations<ITgsRep
         await CreateEntitiesAsync(addSchedules);
         await tran.CommitAsync();
     }
+
+    Task IBrandGameProviderScheduleService.UpdateBrandGameProviderScheduleAsync(
+            BrandGameProviderSchedule schedule) =>
+        UpdateEntityAsync(schedule);
 }

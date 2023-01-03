@@ -72,7 +72,7 @@ public class GetSinglePlayerQueryService : IGetService<GetSinglePlayerQuery, Pla
                 .QueryAsync<AllVipLevelsQuery, VipLevelInfo>(new(player.BrandId), cancellationToken)
                 .Where(vip => vip.Id == player.VipLevelId)
                 .Select(vip => vip.Level)
-                .FirstOrDefaultAsync()
+                .FirstOrDefaultAsync(cancellationToken: cancellationToken)
                 .ConfigureAwait(false);
 
         var playerAgentId = playerProperties.GetValueOrDefault("AgentId");

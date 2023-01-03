@@ -1,5 +1,4 @@
 ﻿using System;
-using System.Collections.Generic;
 using System.Linq;
 using TGS.Core.DataServices.Tgs;
 using TGS.Core.DataServices.Tgs.Models;
@@ -45,8 +44,8 @@ public class PlayerIpService : IPlayerIpService
         x.CreatedOn < endOn)
         .GroupBy(x => new
         {
-            PlayerCode = x.Player.PlayerCode,
-            Username = x.Player.Username
+            x.Player.PlayerCode,
+            x.Player.Username
         })
         .Select(group => new PlayerIpByIpModel
         {
@@ -79,14 +78,14 @@ public class PlayerIpService : IPlayerIpService
            .GroupBy(x =>
            new
            {
-               IpAddress = x.IpAddress,
-               PlayerCode = x.PlayerCode
+               x.IpAddress,
+               x.PlayerCode
            })
            .Select(group =>
            new
            {
-               IpAddress = group.Key.IpAddress,
-               PlayerCode = group.Key.PlayerCode
+               group.Key.IpAddress,
+               group.Key.PlayerCode
            })
         .GroupBy(x => x.IpAddress)
         .Select(group => new PlayerIpModel
@@ -181,9 +180,9 @@ public class PlayerIpService : IPlayerIpService
         })
         .Select((group) => new
         {
-            Ip = group.Key.Ip,
-            IpType = group.Key.IpType,
-            PlayerCode = group.Key.PlayerCode,
+            group.Key.Ip,
+            group.Key.IpType,
+            group.Key.PlayerCode,
         })
         .GroupBy(x => x.Ip)
         .Select(group => new PlayerIpModel

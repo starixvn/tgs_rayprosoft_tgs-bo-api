@@ -12,8 +12,8 @@ public class UpdatePlatformCreditHandler : Handler<UpdatePlatformCreditRequest, 
 {
     private readonly IPlatformCreditService _service;
 
-    public UpdatePlatformCreditHandler(IPlatformCreditService service, IHttpContextAccessor accessor) :
-        base(accessor)
+    public UpdatePlatformCreditHandler(IPlatformCreditService service, IHttpContextAccessor accessor)
+        : base(accessor)
     {
         _service = service;
     }

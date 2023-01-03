@@ -7,11 +7,11 @@ public class CurrencyRequestValidator : AbstractValidator<CurrencyRequest>
 {
     public CurrencyRequestValidator()
     {
-        RuleFor(x => x.Code)
+        _ = RuleFor(x => x.Code)
             .NotEmpty()
             .WithMessage(Application.Resources.Currency.CodeRequired);
 
-        RuleFor(x => x.Name)
+        _ = RuleFor(x => x.Name)
             .NotEmpty()
             .WithMessage(Application.Resources.Currency.NameRequired);
     }

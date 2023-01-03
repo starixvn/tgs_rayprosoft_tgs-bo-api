@@ -11,43 +11,24 @@ namespace TGS.Services.BackOffice.Infrastructure.DataService;
 
 public interface ICurrencyService
 {
-    Task<Currency> GetCurrencyAsync(Expression<Func<Currency, bool>> predicate,
-        Func<IQueryable<Currency>, IQueryable<Currency>> preQuery = null);
+    Task CreateCurrencyAsync(CreateCurrencyRequest request);
+
+    Task<bool> ExistsAsync(Expression<Func<Currency, bool>> predicate);
 
     IQueryable<Currency> GetCurrencieQueries(
         Func<IQueryable<Currency>, IQueryable<Currency>> preQuery = null,
         bool tracking = false);
 
-    Task CreateCurrencyAsync(CreateCurrencyRequest request);
+    Task<Currency> GetCurrencyAsync(Expression<Func<Currency, bool>> predicate,
+                    Func<IQueryable<Currency>, IQueryable<Currency>> preQuery = null);
+
     Task UpdateCurrencyAsync(Currency currency, UpdateCurrencyRequest request);
-    Task<bool> ExistsAsync(Expression<Func<Currency, bool>> predicate);
 }
 
 public class CurrencyService : BaseRepositoryOperations<ITgsRepository>, ICurrencyService
 {
     public CurrencyService(ITgsRepository tgsRepository) : base(tgsRepository)
     {
-    }
-
-    Task<Currency> ICurrencyService.GetCurrencyAsync(Expression<Func<Currency, bool>> predicate,
-        Func<IQueryable<Currency>, IQueryable<Currency>> preQuery) =>
-        GetEntityFirstOrDefaultAsync(predicate, preQuery);
-
-    IQueryable<Currency> ICurrencyService.GetCurrencieQueries(
-        Func<IQueryable<Currency>, IQueryable<Currency>> preQuery,
-        bool tracking) =>
-        GetQueriesAsync(preQuery, tracking);
-
-    async Task ICurrencyService.UpdateCurrencyAsync(
-        Currency currency, UpdateCurrencyRequest request)
-    {
-        currency.Name = request.Name;
-        currency.NativeName = request.NativeName;
-        currency.Symbol = request.Symbol;
-        currency.UpdatedByUsername = request.EditorUsername;
-        currency.UpdatedOn = DateTimeOffset.Now;
-
-        await UpdateEntityAsync(currency);
     }
 
     async Task ICurrencyService.CreateCurrencyAsync(CreateCurrencyRequest request)
@@ -69,4 +50,25 @@ public class CurrencyService : BaseRepositoryOperations<ITgsRepository>, ICurren
 
     Task<bool> ICurrencyService.ExistsAsync(Expression<Func<Currency, bool>> predicate) =>
         ExistsAsync(predicate);
+
+    IQueryable<Currency> ICurrencyService.GetCurrencieQueries(
+        Func<IQueryable<Currency>, IQueryable<Currency>> preQuery,
+        bool tracking) =>
+        GetQueriesAsync(preQuery, tracking);
+
+    Task<Currency> ICurrencyService.GetCurrencyAsync(Expression<Func<Currency, bool>> predicate,
+                    Func<IQueryable<Currency>, IQueryable<Currency>> preQuery) =>
+        GetEntityFirstOrDefaultAsync(predicate, preQuery);
+
+    async Task ICurrencyService.UpdateCurrencyAsync(
+        Currency currency, UpdateCurrencyRequest request)
+    {
+        currency.Name = request.Name;
+        currency.NativeName = request.NativeName;
+        currency.Symbol = request.Symbol;
+        currency.UpdatedByUsername = request.EditorUsername;
+        currency.UpdatedOn = DateTimeOffset.Now;
+
+        await UpdateEntityAsync(currency);
+    }
 }

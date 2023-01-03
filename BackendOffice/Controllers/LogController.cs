@@ -19,15 +19,6 @@ public class LogController : BaseContextController
         ILogQueries logQueries)
         => _logQueries = logQueries;
 
-    [HttpGet("admin")]
-    [ByPassAdminLog]
-    public async Task<PagedResponse<AdminLogModel>> GetAdminLogsAsync([FromQuery] AdminLogRequest request)
-    {
-        var (logs, totalCount) = await _logQueries.GetAdminLogsAsync(request);
-
-        return await logs.CreatePagedResponseAsync(totalCount);
-    }
-
     [HttpGet("admin/{id:Guid}")]
     [ByPassAdminLog]
     public async Task<LogDetailResponse> GetAdminLogAsync(Guid id)
@@ -41,11 +32,11 @@ public class LogController : BaseContextController
         };
     }
 
-    [HttpGet("api")]
+    [HttpGet("admin")]
     [ByPassAdminLog]
-    public async Task<PagedResponse<ApiLogModel>> GetApiLogsAsync([FromQuery] ApiLogRequest request)
+    public async Task<PagedResponse<AdminLogModel>> GetAdminLogsAsync([FromQuery] AdminLogRequest request)
     {
-        var (logs, totalCount) = await _logQueries.GetApiLogsAsync(request);
+        var (logs, totalCount) = await _logQueries.GetAdminLogsAsync(request);
 
         return await logs.CreatePagedResponseAsync(totalCount);
     }
@@ -61,6 +52,15 @@ public class LogController : BaseContextController
             Valid = true,
             LogDetail = logDetail
         };
+    }
+
+    [HttpGet("api")]
+    [ByPassAdminLog]
+    public async Task<PagedResponse<ApiLogModel>> GetApiLogsAsync([FromQuery] ApiLogRequest request)
+    {
+        var (logs, totalCount) = await _logQueries.GetApiLogsAsync(request);
+
+        return await logs.CreatePagedResponseAsync(totalCount);
     }
 
     [HttpGet("log")]

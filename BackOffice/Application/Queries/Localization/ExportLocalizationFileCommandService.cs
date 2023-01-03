@@ -16,7 +16,7 @@ namespace TGS.Services.BackOffice.Application.Queries.Localization;
 internal class ExportLocalizationFileCommandService : IGetService<ExportLocalizationFileCommand, Stream>
 {
     private static readonly EmbeddedFileProvider _EmbeddedFileProvider =
-        new EmbeddedFileProvider(Assembly.GetExecutingAssembly());
+        new(Assembly.GetExecutingAssembly());
 
     private readonly IBackOfficeRepository _backOfficeRepository;
     private readonly IFileInfo _templateFileInfo;
@@ -64,9 +64,9 @@ internal class ExportLocalizationFileCommandService : IGetService<ExportLocaliza
             Rows = Array.Empty<object>()
         });
 
-        template.Generate();
+        _ = template.Generate();
 
-        template.Workbook.Worksheet("template").CopyTo(target, "en-US");
+        _ = template.Workbook.Worksheet("template").CopyTo(target, "en-US");
     }
 
     private void GenerateLanguageWorkSheet(
@@ -86,8 +86,8 @@ internal class ExportLocalizationFileCommandService : IGetService<ExportLocaliza
             })
         });
 
-        template.Generate();
+        _ = template.Generate();
 
-        template.Workbook.Worksheet("template").CopyTo(target, cultureCode);
+        _ = template.Workbook.Worksheet("template").CopyTo(target, cultureCode);
     }
 }

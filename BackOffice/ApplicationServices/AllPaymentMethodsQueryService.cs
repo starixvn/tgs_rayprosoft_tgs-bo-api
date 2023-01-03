@@ -20,8 +20,8 @@ internal class AllPaymentMethodsQueryService : IGetService<AllPaymentMethodsQuer
 
     public async ValueTask<IDictionary<Guid, PaymentMethodInfo>> GetAsync(AllPaymentMethodsQuery query, CancellationToken cancellationToken = default)
     {
-        var allPaymentMethods = await _paymentServiceClient.GetAllPaymentMethodsAsync()
-            .ToDictionaryAsync(method => method.Id)
+        var allPaymentMethods = await _paymentServiceClient.GetAllPaymentMethodsAsync(cancellationToken)
+            .ToDictionaryAsync(method => method.Id, cancellationToken: cancellationToken)
             .ConfigureAwait(false);
 
         return new ReadOnlyDictionary<Guid, PaymentMethodInfo>(allPaymentMethods);

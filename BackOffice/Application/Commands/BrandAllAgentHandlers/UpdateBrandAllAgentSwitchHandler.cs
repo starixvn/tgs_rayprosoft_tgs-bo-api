@@ -15,8 +15,8 @@ public class UpdateBrandAllAgentSwitchHandler : Handler<UpdateBrandAllAgentSwitc
     private readonly IBrandAllAgentService _service;
 
     public UpdateBrandAllAgentSwitchHandler(IBrandService brandService, IBrandAllAgentService service,
-        IHttpContextAccessor accessor) :
-        base(accessor)
+        IHttpContextAccessor accessor)
+        : base(accessor)
     {
         _service = service;
         _brandService = brandService;
@@ -39,6 +39,7 @@ public class UpdateBrandAllAgentSwitchHandler : Handler<UpdateBrandAllAgentSwitc
             case true when brandAllAgent is null:
                 await _service.CreateBrandAllAgentAsync(new BrandAllAgent { BrandId = request.BrandId });
                 break;
+
             case false when brandAllAgent is not null:
                 await _service.DeleteBrandAllAgentAsync(brandAllAgent);
                 break;

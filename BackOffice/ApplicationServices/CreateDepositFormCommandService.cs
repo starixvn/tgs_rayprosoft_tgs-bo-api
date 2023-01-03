@@ -39,7 +39,7 @@ internal class CreateDepositFormCommandService : IGetService<CreateDepositFormCo
             throw new Exception("BrandPayment can't found.");
 
         var payment = await _paymentServiceClient
-            .GetPaymentByIdAsync(brandPayment.PaymentId)
+            .GetPaymentByIdAsync(brandPayment.PaymentId, cancellationToken)
             .ConfigureAwait(false);
 
         if (command.PromotionId != null)
@@ -59,7 +59,7 @@ internal class CreateDepositFormCommandService : IGetService<CreateDepositFormCo
             .ConfigureAwait(false);
 
         var mutexId = await _paymentServiceClient
-            .LockDepositPaymentAsync(createFormId, payment!.Code, command.PlayerCode)
+            .LockDepositPaymentAsync(createFormId, payment!.Code, command.PlayerCode, cancellationToken)
             .ConfigureAwait(false);
 
         if (brandPaymentSettings is not null && brandPaymentSettings.PaymentDepositLockEnabled && mutexId != createFormId)
@@ -73,7 +73,7 @@ internal class CreateDepositFormCommandService : IGetService<CreateDepositFormCo
 
             var settings = command.CreatePaymentSettings(createFormId);
             var applyInfo = await _paymentClient
-                .DepositAsync(command.Subject, command.Amount, settings)
+                .DepositAsync(command.Subject, command.Amount, settings, cancellationToken)
                 .ConfigureAwait(false);
 
             var form = new DepositFormCreateInfo
@@ -87,7 +87,7 @@ internal class CreateDepositFormCommandService : IGetService<CreateDepositFormCo
             };
 
             _ = await _paymentServiceClient
-                .CreateDepositFormAsync(createFormId, form)
+                .CreateDepositFormAsync(createFormId, form, cancellationToken)
                 .ConfigureAwait(false);
         }
         catch
@@ -96,14 +96,19 @@ internal class CreateDepositFormCommandService : IGetService<CreateDepositFormCo
                 _paymentServiceClient.UnlockDepositPaymentAsync(
                     createFormId,
                     payment.Code,
-                    command.PlayerCode).AsTask(),
+                    command.PlayerCode,
+                    cancellationToken).AsTask(),
                 _promotionClient.UntagPlayerDepositAsync(command.PlayerCode, command.PromotionId))
                 .ConfigureAwait(false);
             throw;
         }
 
         await _paymentServiceClient
-            .SubmitDepositFormStatusAsync(createFormId, PaymentFlowState.WaitPayment, null)
+            .SubmitDepositFormStatusAsync(
+                createFormId,
+                PaymentFlowState.WaitPayment,
+                null,
+                cancellationToken: cancellationToken)
             .ConfigureAwait(false);
 
         return createFormId;

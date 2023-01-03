@@ -14,8 +14,8 @@ public class GetBetLimitsQueryHandler : Handler<GetBetLimitsRequest,
 {
     private readonly IBetLimitService _service;
 
-    public GetBetLimitsQueryHandler(IBetLimitService service, IHttpContextAccessor accessor) :
-        base(accessor)
+    public GetBetLimitsQueryHandler(IBetLimitService service, IHttpContextAccessor accessor)
+        : base(accessor)
     {
         _service = service;
     }

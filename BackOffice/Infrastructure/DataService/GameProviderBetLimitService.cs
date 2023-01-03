@@ -12,8 +12,10 @@ namespace TGS.Services.BackOffice.Infrastructure.DataService;
 
 public interface IGameProviderBetLimitService
 {
+    Task CreateGameProviderBetLimitAsync(CreateGameProviderBetLimitRequest request);
+
     Task<GameProviderBetLimit> GetGameProviderBetLimitAsync(
-        Expression<Func<GameProviderBetLimit, bool>> predicate,
+            Expression<Func<GameProviderBetLimit, bool>> predicate,
         Func<IQueryable<GameProviderBetLimit>, IQueryable<GameProviderBetLimit>> preQuery =
             null);
 
@@ -21,12 +23,10 @@ public interface IGameProviderBetLimitService
         Func<IQueryable<GameProviderBetLimit>, IQueryable<GameProviderBetLimit>> preQuery = null,
         bool tracking = false);
 
-    Task CreateGameProviderBetLimitAsync(CreateGameProviderBetLimitRequest request);
+    Task<string[]> GetInUseBrandsAsync(Guid id);
 
     Task UpdateGameProviderBetLimitAsync(GameProviderBetLimit gameProviderBetLimit,
-        UpdateGameProviderBetLimitRequest request);
-
-    Task<string[]> GetInUseBrandsAsync(Guid id);
+            UpdateGameProviderBetLimitRequest request);
 }
 
 public class GameProviderBetLimitService : BaseRepositoryOperations<ITgsRepository>,

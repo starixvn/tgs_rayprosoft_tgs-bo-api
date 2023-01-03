@@ -20,11 +20,11 @@ public class GameTests
 
         var query = new GetAllGamesByBrandIdQuery(Guid.NewGuid());
 
-        moqBackOfficeRepository
+        _ = moqBackOfficeRepository
             .Setup(fake => fake.QueryAllGamesAsync(It.IsAny<Guid>()))
             .Returns(Array.Empty<GameData>().ToAsyncEnumerable());
 
-        await sut.QueryAsync(query).ToArrayAsync();
+        _ = await sut.QueryAsync(query).ToArrayAsync();
 
         moqBackOfficeRepository.Verify(
             fake => fake.QueryAllGamesAsync(It.Is<Guid>(x => x == query.BrandId)),

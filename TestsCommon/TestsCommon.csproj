@@ -4,6 +4,7 @@
     <TargetFramework>net6.0</TargetFramework>
     <AssemblyName>TGS.Tests.TestsCommon</AssemblyName>
     <RootNamespace>TGS.Tests.TestsCommon</RootNamespace>
+    <NeutralLanguage>en-US</NeutralLanguage>
   </PropertyGroup>
 
   <ItemGroup>

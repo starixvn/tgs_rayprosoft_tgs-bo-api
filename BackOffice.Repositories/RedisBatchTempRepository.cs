@@ -70,10 +70,7 @@ internal class RedisBatchTempRepository : IBatchTempRepository
 
         var value = await _database.StringGetAsync(key).ConfigureAwait(false);
 
-        if (value.HasValue)
-            return value == "Completed";
-        else
-            return null;
+        return value.HasValue ? value == "Completed" : null;
     }
 
     public async ValueTask<Guid> SaveAdjustBalanceBatchAsync(

@@ -20,17 +20,26 @@ namespace TGS.Tests.BackendOffice.UnitTests.Controllers;
 [Parallelizable]
 public class LicenseeControllerTests : BaseTests
 {
-    [SetUp]
-    public override void Setup()
-    {
-        base.Setup();
-        _controller = new LicenseeController(
-            _licenseeServiceMock.Object);
-        _controller.ControllerContext.HttpContext = HttpContextMock.Object;
-    }
+    private readonly Mock<ILicenseeService> _licenseeServiceMock = new();
 
     private LicenseeController _controller = default!;
-    private readonly Mock<ILicenseeService> _licenseeServiceMock = new();
+
+    [Test]
+    public async Task Can_Create_Licensee()
+    {
+        var request = new Fixture().Create<CreateLicenseeRequest>();
+
+        _ = _licenseeServiceMock.Setup(s => s.ExistsAsync(It.IsAny<Expression<Func<Licensee, bool>>>()))
+            .Returns(Task.FromResult(false));
+
+        var response = await _controller.CreateLicenseeAsync(request);
+        _ = response.Valid.Should().BeTrue();
+
+        _licenseeServiceMock.Verify(s => s.ExistsAsync(It.IsAny<Expression<Func<Licensee, bool>>>()));
+        _licenseeServiceMock.Verify(p => p.CreateLicenseeAsync(It.Is<CreateLicenseeRequest>(r =>
+                r.Name == request.Name),
+            It.Is<string>(r => r == Username)));
+    }
 
     [TestCase(true)]
     [TestCase(false)]
@@ -56,39 +65,43 @@ public class LicenseeControllerTests : BaseTests
 
         var expectedRoles = showAll ? orderedRoles.ToArray() : orderedRoles.Skip(skip).Take(take).ToArray();
 
-        _licenseeServiceMock.Setup(x => x.GetLicensees(It.IsAny<GetLicenseesRequest>(), false))
+        _ = _licenseeServiceMock.Setup(x => x.GetLicensees(It.IsAny<GetLicenseesRequest>(), false))
             .Returns(list);
 
         var response = await _controller.GetLicenseesAsync(request);
-        response.Valid.Should().BeTrue();
+        _ = response.Valid.Should().BeTrue();
 
         for (var i = 0; i < response.Items.Length; i++)
         {
-            response.Items[i].Id.Should().Be(expectedRoles[i].Id);
-            response.Items[i].Name.Should().Be(expectedRoles[i].Name);
+            _ = response.Items[i].Id.Should().Be(expectedRoles[i].Id);
+            _ = response.Items[i].Name.Should().Be(expectedRoles[i].Name);
         }
 
         _licenseeServiceMock.Verify(p => p.GetLicensees(It.IsAny<GetLicenseesRequest>(), false));
     }
 
     [Test]
-    public async Task Cannot_Create_Licensee_With_Name_Exists()
+    public async Task Can_Update_Licensee()
     {
-        var list = CreateLicenseeFixture()
-            .CreateMany<Licensee>(2)
-            .AsQueryable()
-            .BuildMock();
+        var licensee = CreateLicenseeFixture().Create<Licensee>();
+        var request = new Fixture().Create<UpdateLicenseeRequest>();
 
-        var request = new Fixture().Create<CreateLicenseeRequest>();
-        request.Name = list.FirstOrDefault()?.Name;
+        _ = _licenseeServiceMock.Setup(s => s.GetLicenseeAsync(It.IsAny<Expression<Func<Licensee, bool>>>(),
+                It.IsAny<Func<IQueryable<Licensee>, IQueryable<Licensee>>>(), true))
+            .Returns(Task.FromResult(licensee));
 
-        _licenseeServiceMock.Setup(s =>
-                s.ExistsAsync(It.IsAny<Expression<Func<Licensee, bool>>>()))
-            .Returns((Expression<Func<Licensee, bool>> predicate) => list.AnyAsync(predicate));
+        _ = _licenseeServiceMock.Setup(s => s.ExistsAsync(It.IsAny<Expression<Func<Licensee, bool>>>()))
+            .Returns(Task.FromResult(false));
 
-        var response = await _controller.CreateLicenseeAsync(request);
-        response.Valid.Should().BeFalse();
-        response.Message.Should().Be(Apis.BackendOffice.Resources.Licensee.NameExists);
+        var response = await _controller.UpdateLicenseeAsync(licensee.Id, request);
+
+        _ = response.Valid.Should().BeTrue();
+        _licenseeServiceMock.Verify(s => s.GetLicenseeAsync(It.IsAny<Expression<Func<Licensee, bool>>>(),
+            It.IsAny<Func<IQueryable<Licensee>, IQueryable<Licensee>>>(), true));
+        _licenseeServiceMock.Verify(p => p.UpdateLicenseeAsync(It.Is<Licensee>(r =>
+                r.Name == licensee.Name),
+            It.IsAny<UpdateLicenseeRequest>(),
+            It.Is<string>(r => r == Username)));
     }
 
     [Test]
@@ -102,54 +115,33 @@ public class LicenseeControllerTests : BaseTests
         var request = new Fixture().Create<CreateLicenseeRequest>();
         request.Code = list.FirstOrDefault()?.Code;
 
-        _licenseeServiceMock.Setup(s =>
+        _ = _licenseeServiceMock.Setup(s =>
                 s.ExistsAsync(It.IsAny<Expression<Func<Licensee, bool>>>()))
             .Returns((Expression<Func<Licensee, bool>> predicate) => list.AnyAsync(predicate));
 
         var response = await _controller.CreateLicenseeAsync(request);
-        response.Valid.Should().BeFalse();
-        response.Message.Should().Be(Apis.BackendOffice.Resources.Licensee.CodeExists);
+        _ = response.Valid.Should().BeFalse();
+        _ = response.Message.Should().Be(Apis.BackendOffice.Resources.Licensee.CodeExists);
     }
 
     [Test]
-    public async Task Can_Create_Licensee()
+    public async Task Cannot_Create_Licensee_With_Name_Exists()
     {
-        var request = new Fixture().Create<CreateLicenseeRequest>();
+        var list = CreateLicenseeFixture()
+            .CreateMany<Licensee>(2)
+            .AsQueryable()
+            .BuildMock();
 
-        _licenseeServiceMock.Setup(s => s.ExistsAsync(It.IsAny<Expression<Func<Licensee, bool>>>()))
-            .Returns(Task.FromResult(false));
+        var request = new Fixture().Create<CreateLicenseeRequest>();
+        request.Name = list.FirstOrDefault()?.Name;
+
+        _ = _licenseeServiceMock.Setup(s =>
+                s.ExistsAsync(It.IsAny<Expression<Func<Licensee, bool>>>()))
+            .Returns((Expression<Func<Licensee, bool>> predicate) => list.AnyAsync(predicate));
 
         var response = await _controller.CreateLicenseeAsync(request);
-        response.Valid.Should().BeTrue();
-
-        _licenseeServiceMock.Verify(s => s.ExistsAsync(It.IsAny<Expression<Func<Licensee, bool>>>()));
-        _licenseeServiceMock.Verify(p => p.CreateLicenseeAsync(It.Is<CreateLicenseeRequest>(r =>
-                r.Name == request.Name),
-            It.Is<string>(r => r == Username)));
-    }
-
-    [Test]
-    public async Task Can_Update_Licensee()
-    {
-        var licensee = CreateLicenseeFixture().Create<Licensee>();
-        var request = new Fixture().Create<UpdateLicenseeRequest>();
-
-        _licenseeServiceMock.Setup(s => s.GetLicenseeAsync(It.IsAny<Expression<Func<Licensee, bool>>>(),
-                It.IsAny<Func<IQueryable<Licensee>, IQueryable<Licensee>>>(), true))
-            .Returns(Task.FromResult(licensee));
-
-        _licenseeServiceMock.Setup(s => s.ExistsAsync(It.IsAny<Expression<Func<Licensee, bool>>>()))
-            .Returns(Task.FromResult(false));
-
-        var response = await _controller.UpdateLicenseeAsync(licensee.Id, request);
-
-        response.Valid.Should().BeTrue();
-        _licenseeServiceMock.Verify(s => s.GetLicenseeAsync(It.IsAny<Expression<Func<Licensee, bool>>>(),
-            It.IsAny<Func<IQueryable<Licensee>, IQueryable<Licensee>>>(), true));
-        _licenseeServiceMock.Verify(p => p.UpdateLicenseeAsync(It.Is<Licensee>(r =>
-                r.Name == licensee.Name),
-            It.IsAny<UpdateLicenseeRequest>(),
-            It.Is<string>(r => r == Username)));
+        _ = response.Valid.Should().BeFalse();
+        _ = response.Message.Should().Be(Apis.BackendOffice.Resources.Licensee.NameExists);
     }
 
     [Test]
@@ -158,20 +150,20 @@ public class LicenseeControllerTests : BaseTests
         var licensee = CreateLicenseeFixture().Create<Licensee>();
         var request = new Fixture().Create<UpdateLicenseeRequest>();
 
-        _licenseeServiceMock.Setup(s => s.GetLicenseeAsync(
+        _ = _licenseeServiceMock.Setup(s => s.GetLicenseeAsync(
                 It.IsAny<Expression<Func<Licensee, bool>>>(),
                 It.IsAny<Func<IQueryable<Licensee>,
                     IQueryable<Licensee>>>(), true))
             .Returns(Task.FromResult<Licensee>(default!));
 
-        _licenseeServiceMock.Setup(s =>
+        _ = _licenseeServiceMock.Setup(s =>
                 s.ExistsAsync(It.IsAny<Expression<Func<Licensee, bool>>>()))
             .Returns(Task.FromResult(false));
 
         var response = await _controller.UpdateLicenseeAsync(licensee.Id, request);
 
-        response.Valid.Should().BeFalse();
-        response.Message.Should().Be(Apis.BackendOffice.Resources.Licensee.NotFound);
+        _ = response.Valid.Should().BeFalse();
+        _ = response.Message.Should().Be(Apis.BackendOffice.Resources.Licensee.NotFound);
         _licenseeServiceMock.Verify(s => s.GetLicenseeAsync(
             It.IsAny<Expression<Func<Licensee, bool>>>(),
             It.IsAny<Func<IQueryable<Licensee>,
@@ -188,20 +180,20 @@ public class LicenseeControllerTests : BaseTests
         var licensee = CreateLicenseeFixture().Create<Licensee>();
         var request = new Fixture().Create<UpdateLicenseeRequest>();
         request.Name = licensee.Name;
-        _licenseeServiceMock.Setup(s => s.GetLicenseeAsync(
+        _ = _licenseeServiceMock.Setup(s => s.GetLicenseeAsync(
                 It.IsAny<Expression<Func<Licensee, bool>>>(),
                 It.IsAny<Func<IQueryable<Licensee>,
                     IQueryable<Licensee>>>(), true))
             .Returns(Task.FromResult(licensee));
 
-        _licenseeServiceMock.Setup(s =>
+        _ = _licenseeServiceMock.Setup(s =>
                 s.ExistsAsync(It.IsAny<Expression<Func<Licensee, bool>>>()))
             .Returns(Task.FromResult(true));
 
         var response = await _controller.UpdateLicenseeAsync(licensee.Id, request);
 
-        response.Valid.Should().BeFalse();
-        response.Message.Should().Be(Apis.BackendOffice.Resources.Licensee.NameExists);
+        _ = response.Valid.Should().BeFalse();
+        _ = response.Message.Should().Be(Apis.BackendOffice.Resources.Licensee.NameExists);
         _licenseeServiceMock.Verify(s => s.GetLicenseeAsync(
             It.IsAny<Expression<Func<Licensee, bool>>>(),
             It.IsAny<Func<IQueryable<Licensee>,
@@ -212,17 +204,26 @@ public class LicenseeControllerTests : BaseTests
             It.Is<string>(r => r == Username)), Times.Never);
     }
 
-    private Fixture CreateLicenseeFixture()
+    [SetUp]
+    public override void Setup()
+    {
+        base.Setup();
+        _controller = new LicenseeController(
+            _licenseeServiceMock.Object);
+        _controller.ControllerContext.HttpContext = HttpContextMock.Object;
+    }
+
+    private static Fixture CreateLicenseeFixture()
     {
         var fixture = new Fixture();
         fixture.Customize<Licensee>(u => u
             .With(s => s.Reseller, new Reseller())
-            .With(s => s.Brands, new Brand[] { })
-            .With(s => s.GameProviders, new LicenseeGameProvider[] { })
-            .With(s => s.Languages, new LicenseeLanguage[] { })
-            .With(s => s.Currencies, new LicenseeCurrency[] { })
-            .With(s => s.BetLimits, new LicenseeBetLimit[] { })
-            .With(s => s.Departments, new Department[] { }));
+            .With(s => s.Brands, Array.Empty<Brand>())
+            .With(s => s.GameProviders, Array.Empty<LicenseeGameProvider>())
+            .With(s => s.Languages, Array.Empty<LicenseeLanguage>())
+            .With(s => s.Currencies, Array.Empty<LicenseeCurrency>())
+            .With(s => s.BetLimits, Array.Empty<LicenseeBetLimit>())
+            .With(s => s.Departments, Array.Empty<Department>()));
         fixture.Behaviors.Add(new OmitOnRecursionBehavior());
         return fixture;
     }

@@ -7,11 +7,11 @@ public class UpdateRoleRequestValidator : AbstractValidator<UpdateRoleRequest>
 {
     public UpdateRoleRequestValidator()
     {
-        RuleFor(x => x.Name)
+        _ = RuleFor(x => x.Name)
             .NotNull()
             .WithMessage(Resources.Role.NameRequired);
 
-        RuleFor(x => x.Name)
+        _ = RuleFor(x => x.Name)
             .Must(p => p == null || p.Length < 50)
             .WithMessage(Resources.Role.NameLengthLimit);
     }

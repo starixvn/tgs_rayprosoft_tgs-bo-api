@@ -9,6 +9,7 @@ public class ChangeOrderRequest
 
 public class ChangeOrderModel
 {
-    public Guid Id { get; set; }
     public int DisplayOrder { get; set; }
+
+    public Guid Id { get; set; }
 }

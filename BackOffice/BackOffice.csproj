@@ -4,6 +4,7 @@
     <TargetFramework>net6.0</TargetFramework>
     <AssemblyName>TGS.Services.BackOffice</AssemblyName>
     <RootNamespace>TGS.Services.BackOffice</RootNamespace>
+    <NeutralLanguage>en-US</NeutralLanguage>
   </PropertyGroup>
 
   <ItemGroup>
@@ -65,7 +66,7 @@
     <PackageReference Include="Tgs.PaymentService.Client" Version="0.6.19-alpha" />
     <PackageReference Include="Tgs.PlayerService.Client" Version="0.0.25" />
     <PackageReference Include="Tgs.Promotion.Client" Version="1.0.38" />
-    <PackageReference Include="Tgs.Report.Client" Version="0.0.46" />
+    <PackageReference Include="Tgs.Report.Client" Version="0.0.47" />
     <PackageReference Include="Tgs.SerialNumberGenerator" Version="1.0.0" />
     <PackageReference Include="TGS.ServiceUtility" Version="0.2.0" />
     <PackageReference Include="Tgs.VipLevelService.Client" Version="0.0.6" />

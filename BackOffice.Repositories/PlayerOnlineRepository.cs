@@ -8,7 +8,7 @@ namespace TGS.BackOffice.Repositories;
 
 internal class PlayerOnlineRepository : IPlayerOnlineRepository
 {
-    private const string _playerOnlineKey = "playeronline";
+    private const string PlayerOnlineKey = "playeronline";
     private readonly IDatabase _database;
 
     public PlayerOnlineRepository(
@@ -22,7 +22,7 @@ internal class PlayerOnlineRepository : IPlayerOnlineRepository
         var redisDatas = (string[])await _database.ScriptEvaluateAsync(LuaScript.Prepare(
                //Redis的keys模糊查询：
                " local res = redis.call('KEYS', @keypattern) " +
-               " return res "), new { @keypattern = $"{ _playerOnlineKey }:{brandId}:*" })
+               " return res "), new { @keypattern = $"{PlayerOnlineKey}:{brandId}:*" })
             .ConfigureAwait(true);
 
         return redisDatas.Select(x => x.Split(':').Last()).ToArray();

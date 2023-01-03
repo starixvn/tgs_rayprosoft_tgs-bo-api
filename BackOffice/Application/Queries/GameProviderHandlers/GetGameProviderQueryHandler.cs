@@ -28,51 +28,48 @@ public class GetGameProviderQueryHandler : Handler<GetGameProviderRequest, GetGa
             .Where(BrandId, b => b.Brands.Select(x => x.BrandId).Contains(BrandId.Value))
         );
 
-        if (gameProvider == null)
-        {
-            return CreateInvalidResponse<GetGameProviderResponse>(GameProvider.NotFound);
-        }
-
-        return new()
-        {
-            Valid = true,
-            GameProvider = new()
+        return gameProvider == null
+            ? CreateInvalidResponse<GetGameProviderResponse>(GameProvider.NotFound)
+            : (new()
             {
-                Id = gameProvider.Id,
-                Name = gameProvider.Name,
-                Code = gameProvider.Code,
-                UniqueId = gameProvider.UniqueId,
-                Description = gameProvider.Description,
-                AutoCloseRound = gameProvider.AutoCloseRound,
-                SupportTestPlayer = gameProvider.SupportTestPlayer,
-                AllowKickPlayer = gameProvider.AllowKickPlayer,
-                PlaceBetTimeout = gameProvider.PlaceBetTimeout,
-                SettleBetTimeout = gameProvider.SettleBetTimeout,
-                IsTransferWallet = gameProvider.TransferWallet,
-                Currencies =
+                Valid = true,
+                GameProvider = new()
+                {
+                    Id = gameProvider.Id,
+                    Name = gameProvider.Name,
+                    Code = gameProvider.Code,
+                    UniqueId = gameProvider.UniqueId,
+                    Description = gameProvider.Description,
+                    AutoCloseRound = gameProvider.AutoCloseRound,
+                    SupportTestPlayer = gameProvider.SupportTestPlayer,
+                    AllowKickPlayer = gameProvider.AllowKickPlayer,
+                    PlaceBetTimeout = gameProvider.PlaceBetTimeout,
+                    SettleBetTimeout = gameProvider.SettleBetTimeout,
+                    IsTransferWallet = gameProvider.TransferWallet,
+                    Currencies =
                     gameProvider.Currencies.Select(x => new GameProviderCurrencyModel
                     {
                         Code = x.CurrencyCode,
                         GameProviderCurrencyCode = x.GameProviderCurrencyCode
                     }).ToArray(),
-                Languages =
+                    Languages =
                     gameProvider.Languages.Select(x => new GameProviderLanguageModel
                     {
                         CultureCode = x.CultureCode,
                         GameProviderCultureCode = x.GameProviderCultureCode
                     }).ToArray(),
-                BetLimits = gameProvider.BetLimits.Select(x => new GameProviderBetLimitModel
-                {
-                    Id = x.Id,
-                    CurrencyCode = x.CurrencyCode,
-                    MinBet = x.MinBet,
-                    MaxBet = x.MaxBet,
-                    MaxBetPerMatch = x.MaxBetPerMatch,
-                    ExternalSetting = x.ExternalSetting
-                }).ToArray(),
-                UpdatedByUsername = gameProvider.UpdatedByUsername,
-                UpdatedOn = gameProvider.UpdatedOn
-            }
-        };
+                    BetLimits = gameProvider.BetLimits.Select(x => new GameProviderBetLimitModel
+                    {
+                        Id = x.Id,
+                        CurrencyCode = x.CurrencyCode,
+                        MinBet = x.MinBet,
+                        MaxBet = x.MaxBet,
+                        MaxBetPerMatch = x.MaxBetPerMatch,
+                        ExternalSetting = x.ExternalSetting
+                    }).ToArray(),
+                    UpdatedByUsername = gameProvider.UpdatedByUsername,
+                    UpdatedOn = gameProvider.UpdatedOn
+                }
+            });
     }
 }

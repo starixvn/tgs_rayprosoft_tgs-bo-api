@@ -2,7 +2,6 @@
 using System.ComponentModel;
 using System.Linq;
 using System.Threading.Tasks;
-using DocumentFormat.OpenXml.Office.CustomUI;
 using Microsoft.AspNetCore.Mvc;
 using Tgs.MarketingReport.Client;
 using Tgs.Paging;
@@ -132,7 +131,6 @@ public class MarketingReportController : BaseContextController
                             FirstDepositPlayers = paymentItem?.FirstDepositPlayers ?? 0,
                             GamingCount = marketingItem?.GamingCount ?? 0
                         };
-
 
         var utcDate = DateOnly.FromDateTime(DateTimeOffset.UtcNow.Date);
         var toDate = end;

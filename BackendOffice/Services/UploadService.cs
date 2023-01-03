@@ -27,9 +27,10 @@ public class UploadService : IUploadService
 
         using var reader = ExcelReaderFactory.CreateReader(stream);
 
-        reader.Read();
+        _ = reader.Read();
         var headers = new List<string>();
-        for (var i = 0; i < reader.FieldCount; i++) headers.Add(reader.GetValue(i).ToString());
+        for (var i = 0; i < reader.FieldCount; i++)
+            headers.Add(reader.GetValue(i).ToString());
         var fieldCount = reader.FieldCount;
         while (reader.Read()) //Each row of the file
         {
@@ -40,7 +41,7 @@ public class UploadService : IUploadService
             for (var i = 0; i < fieldCount; i++)
             {
                 var header = headers[i];
-                obj.TryAdd(header, reader.GetValue(i));
+                _ = obj.TryAdd(header, reader.GetValue(i));
                 //var dictionary = (IDictionary<string, object>) obj;
                 //dictionary.Add(header, reader.GetValue(i)?.ToString());
                 ((IDictionary<string, object>)obj)[header] = reader.GetValue(i)?.ToString();

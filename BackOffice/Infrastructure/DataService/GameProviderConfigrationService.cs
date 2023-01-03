@@ -12,8 +12,12 @@ namespace TGS.Services.BackOffice.Infrastructure.DataService;
 
 public interface IGameProviderConfigurationService
 {
+    Task CreateGameProviderConfigurationAsync(CreateGameProviderConfigurationRequest request);
+
+    Task<bool> ExistsAsync(Expression<Func<GameProviderConfiguration, bool>> predicate);
+
     Task<GameProviderConfiguration> GetGameProviderConfigurationAsync(
-        Expression<Func<GameProviderConfiguration, bool>> predicate,
+                Expression<Func<GameProviderConfiguration, bool>> predicate,
         Func<IQueryable<GameProviderConfiguration>, IQueryable<GameProviderConfiguration>> preQuery =
             null);
 
@@ -21,12 +25,8 @@ public interface IGameProviderConfigurationService
         Func<IQueryable<GameProviderConfiguration>, IQueryable<GameProviderConfiguration>> preQuery = null,
         bool tracking = false);
 
-    Task CreateGameProviderConfigurationAsync(CreateGameProviderConfigurationRequest request);
-
     Task UpdateGameProviderConfigurationAsync(GameProviderConfiguration configuration,
         UpdateGameProviderConfigurationRequest request);
-
-    Task<bool> ExistsAsync(Expression<Func<GameProviderConfiguration, bool>> predicate);
 }
 
 public class GameProviderConfigurationService : BaseRepositoryOperations<ITgsRepository>,
@@ -35,17 +35,6 @@ public class GameProviderConfigurationService : BaseRepositoryOperations<ITgsRep
     public GameProviderConfigurationService(ITgsRepository tgsRepository) : base(tgsRepository)
     {
     }
-
-    Task<GameProviderConfiguration> IGameProviderConfigurationService.GetGameProviderConfigurationAsync(
-        Expression<Func<GameProviderConfiguration, bool>> predicate,
-        Func<IQueryable<GameProviderConfiguration>, IQueryable<GameProviderConfiguration>> preQuery) =>
-        GetEntityFirstOrDefaultAsync(predicate, preQuery);
-
-    IQueryable<GameProviderConfiguration> IGameProviderConfigurationService.
-        GetGameProviderConfigurationQueries(
-            Func<IQueryable<GameProviderConfiguration>, IQueryable<GameProviderConfiguration>> preQuery,
-            bool tracking) =>
-        GetQueriesAsync(preQuery, tracking);
 
     async Task IGameProviderConfigurationService.CreateGameProviderConfigurationAsync(
         CreateGameProviderConfigurationRequest request)
@@ -74,6 +63,17 @@ public class GameProviderConfigurationService : BaseRepositoryOperations<ITgsRep
     Task<bool> IGameProviderConfigurationService.ExistsAsync(
         Expression<Func<GameProviderConfiguration, bool>> predicate) =>
         ExistsAsync(predicate);
+
+    Task<GameProviderConfiguration> IGameProviderConfigurationService.GetGameProviderConfigurationAsync(
+                Expression<Func<GameProviderConfiguration, bool>> predicate,
+        Func<IQueryable<GameProviderConfiguration>, IQueryable<GameProviderConfiguration>> preQuery) =>
+        GetEntityFirstOrDefaultAsync(predicate, preQuery);
+
+    IQueryable<GameProviderConfiguration> IGameProviderConfigurationService.
+        GetGameProviderConfigurationQueries(
+            Func<IQueryable<GameProviderConfiguration>, IQueryable<GameProviderConfiguration>> preQuery,
+            bool tracking) =>
+        GetQueriesAsync(preQuery, tracking);
 
     async Task IGameProviderConfigurationService.UpdateGameProviderConfigurationAsync(
         GameProviderConfiguration configuration,

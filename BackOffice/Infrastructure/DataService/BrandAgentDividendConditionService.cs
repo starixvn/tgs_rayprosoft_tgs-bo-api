@@ -11,14 +11,14 @@ namespace TGS.Services.BackOffice.Infrastructure.DataService;
 
 public interface IBrandAgentDividendConditionService
 {
+    Task CreateBrandAgentDividendConditionsAsync(BrandAgentDividendCondition[] brandAgentDividendConditions);
+
     IQueryable<BrandAgentDividendCondition> GetBrandAgentDividendConditionQueries(
-        Func<IQueryable<BrandAgentDividendCondition>, IQueryable<BrandAgentDividendCondition>> preQuery = null,
+            Func<IQueryable<BrandAgentDividendCondition>, IQueryable<BrandAgentDividendCondition>> preQuery = null,
         bool tracking = false);
 
     Task UpdateBrandAgentDividendConditionsAsync(Guid brandId,
         BrandAgentDividendCondition[] brandAgentDividendConditions);
-
-    Task CreateBrandAgentDividendConditionsAsync(BrandAgentDividendCondition[] brandAgentDividendConditions);
 }
 
 public class BrandAgentDividendConditionService : BaseRepositoryOperations<ITgsRepository>,

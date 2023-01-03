@@ -1,9 +1,5 @@
-﻿using System;
-using System.Collections;
-using System.Collections.Generic;
-using System.Linq;
+﻿using System.Collections.Generic;
 using System.Reflection;
-using System.Text;
 using System.Threading.Tasks;
 using Moq;
 using NUnit.Framework;
@@ -16,6 +12,22 @@ namespace TGS.Tests.BackendOffice.UnitTests;
 [TestFixture]
 public class SystemLocalizationTests
 {
+    [Test]
+    public void Export_Localization_Strings_To_File()
+    {
+        var moqBackOfficeRepository = new Mock<IBackOfficeRepository>();
+
+        var sut = new ExportLocalizationFileCommandService(moqBackOfficeRepository.Object);
+
+        var command = new ExportLocalizationFileCommand("test");
+
+        _ = sut.GetAsync(command);
+
+        moqBackOfficeRepository.Verify(
+            fake => fake.ExportLocalizationStringsAsync(It.IsAny<string>()),
+            Times.Exactly(1));
+    }
+
     [Test]
     public async Task Import_Localization_File_To_System()
     {
@@ -35,22 +47,6 @@ public class SystemLocalizationTests
             fake => fake.ImportLocalizationStringsAsync(
                 It.IsAny<string>(),
                 It.IsAny<IEnumerable<LocalizationStringInfo>>()),
-            Times.Exactly(1));
-    }
-
-    [Test]
-    public void Export_Localization_Strings_To_File()
-    {
-        var moqBackOfficeRepository = new Mock<IBackOfficeRepository>();
-
-        var sut = new ExportLocalizationFileCommandService(moqBackOfficeRepository.Object);
-
-        var command = new ExportLocalizationFileCommand("test");
-
-        _ = sut.GetAsync(command);
-
-        moqBackOfficeRepository.Verify(
-            fake => fake.ExportLocalizationStringsAsync(It.IsAny<string>()),
             Times.Exactly(1));
     }
 }

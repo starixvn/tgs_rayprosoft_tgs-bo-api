@@ -17,6 +17,11 @@ public partial class AgentController
         return _mediator.Send(request);
     }
 
+    [HttpDelete("bank/{id}")]
+    [Description("Delete an Agent bank")]
+    public Task<MessageResponse> DeleteAgentBankAsync(Guid id) =>
+        _mediator.Send(new DeleteAgentBankRequest(id));
+
     [HttpPut("bank/{id}")]
     [Description("Update an Agent bank")]
     public Task<MessageResponse> UpdateAgentBankAsync(Guid id, [FromBody] UpdateAgentBankRequest request)
@@ -24,9 +29,4 @@ public partial class AgentController
         request.Id = id;
         return _mediator.Send(request);
     }
-
-    [HttpDelete("bank/{id}")]
-    [Description("Delete an Agent bank")]
-    public Task<MessageResponse> DeleteAgentBankAsync(Guid id) =>
-        _mediator.Send(new DeleteAgentBankRequest(id));
 }

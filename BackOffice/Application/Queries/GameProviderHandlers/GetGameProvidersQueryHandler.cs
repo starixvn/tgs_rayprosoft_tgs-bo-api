@@ -13,8 +13,8 @@ public class GetGameProvidersQueryHandler : Handler<GetGameProvidersRequest, Pag
 {
     private readonly IGameProviderService _service;
 
-    public GetGameProvidersQueryHandler(IGameProviderService service, IHttpContextAccessor accessor) :
-        base(accessor)
+    public GetGameProvidersQueryHandler(IGameProviderService service, IHttpContextAccessor accessor)
+        : base(accessor)
     {
         _service = service;
     }

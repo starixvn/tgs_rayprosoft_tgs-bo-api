@@ -18,6 +18,10 @@ public class CurrencyController : BaseContextController
         _mediator = mediator;
     }
 
+    [HttpPost]
+    [Description("Create a currency")]
+    public Task<MessageResponse> CreateCurrencyAsync(CreateCurrencyRequest request) => _mediator.Send(request);
+
     [HttpGet]
     [Description("Get currencies")]
     public Task<PagedResponse<CurrencyModel>> GetCurrenciesAsync([FromQuery] GetCurrenciesRequest request) =>
@@ -27,10 +31,6 @@ public class CurrencyController : BaseContextController
     [Description("Get a currency")]
     public Task<GetCurrencyResponse> GetCurrencyAsync(string code) =>
         _mediator.Send(new GetCurrencyRequest(code));
-
-    [HttpPost]
-    [Description("Create a currency")]
-    public Task<MessageResponse> CreateCurrencyAsync(CreateCurrencyRequest request) => _mediator.Send(request);
 
     [HttpPut("{code}")]
     [Description("Update a currency")]

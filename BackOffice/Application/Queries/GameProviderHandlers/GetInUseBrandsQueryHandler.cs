@@ -13,8 +13,8 @@ public class
     private readonly IGameProviderBetLimitService _service;
 
     public GetInUseBrandsQueryHandler(IGameProviderBetLimitService service, IHttpContextAccessor accessor)
-        :
-        base(accessor)
+
+        : base(accessor)
     {
         _service = service;
     }

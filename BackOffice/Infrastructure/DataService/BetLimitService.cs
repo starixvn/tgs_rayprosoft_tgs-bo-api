@@ -11,13 +11,14 @@ namespace TGS.Services.BackOffice.Infrastructure.DataService;
 
 public interface IBetLimitService
 {
+    Task CreateBetLimitAsync(CreateBetLimitRequest request);
+
     Task<BetLimit> GetBetLimitAsync(Expression<Func<BetLimit, bool>> predicate,
-        Func<IQueryable<BetLimit>, IQueryable<BetLimit>> preQuery = null);
+            Func<IQueryable<BetLimit>, IQueryable<BetLimit>> preQuery = null);
 
     IQueryable<BetLimit> GetBetLimitQueries(Func<IQueryable<BetLimit>, IQueryable<BetLimit>> preQuery = null,
         bool tracking = false);
 
-    Task CreateBetLimitAsync(CreateBetLimitRequest request);
     Task UpdateBetLimitAsync(BetLimit betLimit, UpdateBetLimitRequest request);
 }
 
@@ -48,6 +49,11 @@ public class BetLimitService : BaseRepositoryOperations<ITgsRepository>, IBetLim
         Func<IQueryable<BetLimit>, IQueryable<BetLimit>> preQuery) =>
         GetEntityFirstOrDefaultAsync(predicate, preQuery);
 
+    IQueryable<BetLimit> IBetLimitService.GetBetLimitQueries(
+        Func<IQueryable<BetLimit>, IQueryable<BetLimit>> preQuery,
+        bool tracking) =>
+        GetQueriesAsync(preQuery, tracking);
+
     Task IBetLimitService.UpdateBetLimitAsync(BetLimit betLimit, UpdateBetLimitRequest request)
     {
         betLimit.CurrencyCode = request.CurrencyCode;
@@ -59,9 +65,4 @@ public class BetLimitService : BaseRepositoryOperations<ITgsRepository>, IBetLim
 
         return UpdateEntityAsync(betLimit);
     }
-
-    IQueryable<BetLimit> IBetLimitService.GetBetLimitQueries(
-        Func<IQueryable<BetLimit>, IQueryable<BetLimit>> preQuery,
-        bool tracking) =>
-        GetQueriesAsync(preQuery, tracking);
 }

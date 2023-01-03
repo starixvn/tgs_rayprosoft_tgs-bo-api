@@ -5,7 +5,9 @@ namespace TGS.Apis.BackendOffice.Controllers.Messages.Promotion;
 
 public class GetJoinedPromotionsRequest : PageableRequest
 {
-    public string PlayerCode { get; set; }
     public DateTimeOffset From { get; init; }
+
+    public string PlayerCode { get; set; }
+
     public DateTimeOffset To { get; init; }
 }
