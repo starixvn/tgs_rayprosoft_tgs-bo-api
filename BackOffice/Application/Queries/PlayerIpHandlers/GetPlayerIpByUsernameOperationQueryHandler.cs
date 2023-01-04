@@ -24,7 +24,7 @@ public class GetPlayerIpByUserNameOperationQueryHandler : Handler<GetPlayerIpsBy
     public override Task<PagedResponse<PlayerIpByUserNameModel>> Handle(GetPlayerIpsByUserNameRequest request, CancellationToken cancellationToken)
     {
         var endDateTimeOffset = DateTimeOffset.UtcNow;
-        var startDateTimeOffset = endDateTimeOffset.AddDays(-14);
+        var startDateTimeOffset = endDateTimeOffset.AddMonths(-6);
 
         var loginRecords = _service.GetPlayerIpOperationByUsernameQueries(request.BrandId, request.UserName, startDateTimeOffset, endDateTimeOffset);
 
