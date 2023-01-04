@@ -54,13 +54,9 @@ public static class ServiceCollectionExtensions
         _ = services.AddTransient<IBrandGameProviderAggregateAuditLogService, BrandGameProviderAggregateAuditLogService>();
         _ = services.AddTransient<IGameProviderAggregateAuditLogService, GameProviderAggregateAuditLogService>();
         _ = services.AddTransient<IAdjustAgentAccountService, AdjustAgentAccountService>();
-        _ = services.AddTransient<IAdjustPlayerAccountService, AdjustPlayerAccountService>();
         _ = services.AddTransient<IAdjustTransferService, AdjustTransferService>();
-        _ = services.AddTransient<IPlayerBucketService, PlayerBucketService>();
-        _ = services.AddTransient<ITransactionService, TransactionService>();
         _ = services.AddTransient<IPlayerAdjustBalanceService, PlayerAdjustBalanceService>();
         _ = services.AddSerialNumberGenerator();
-        _ = services.AddTgsTransactionRepositoriesServices();
 
         _ = services.AddSingleton<ISystemClock, DefaultSystemClock>();
 
