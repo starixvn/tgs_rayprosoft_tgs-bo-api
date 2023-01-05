@@ -74,8 +74,6 @@
 
   <ItemGroup>
     <ProjectReference Include="..\Bucket\PlayerBucket.Core.csproj" />
-    <ProjectReference Include="..\TgsTransaction.Core\TgsTransaction.Core.csproj" />
-    <ProjectReference Include="..\TgsTransaction.Repositories\TgsTransaction.Repositories.csproj" />
     <ProjectReference Include="..\Wallet.Core\Wallet.Core.csproj" />
   </ItemGroup>
 
