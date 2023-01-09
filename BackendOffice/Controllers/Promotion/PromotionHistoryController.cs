@@ -24,8 +24,9 @@ public class PromotionHistoryController : ControllerBase
         var query = new GetPromotionEventsQuery(promotionId);
 
         return queryService.QueryAsync(
-                query, 
+                query,
                 HttpContext.RequestAborted)
+            .OrderByDescending(evt => evt.CreatedOn)
             .Select(evt => new PromotionEventViewModel
             {
                 EventId = evt.EventId,
