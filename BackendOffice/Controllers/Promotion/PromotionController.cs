@@ -7,6 +7,7 @@ using System.Text.Json;
 using System.Threading.Tasks;
 using JsonCons.Utilities;
 using Microsoft.AspNetCore.Mvc;
+using Tgs.BrandCertificate.Clients;
 using Tgs.Promotion;
 using Tgs.Promotion.Clients;
 using Tgs.ServiceUtility;
@@ -56,7 +57,7 @@ public class PromotionController : BaseContextController
     [Description("Create a promotion")]
     public async Task<MessageResponse> CreatePromotionAsync(
         [FromServices] IPromotionServiceClient promotionServiceClient,
-        [FromServices] IGetService<GetBrandTimeSpanMinutesQuery, int> getService,
+        [FromServices] IBrandServiceClient brandServiceClient,
         [FromBody] CreatePromotionRequest request)
     {
         var from = DateTimeOffset.Parse($"{request.From} 00:00:00 +8");
@@ -64,12 +65,15 @@ public class PromotionController : BaseContextController
 
         if (promotionTypes.Contains(request.PromotionType))
         {
-            var brandTimeSpanMinutes = await getService.GetAsync(new GetBrandTimeSpanMinutesQuery(request.BrandId))
+            var brandInfo = await brandServiceClient.GetBrandInfoAsync(request.BrandId)
                 .ConfigureAwait(false);
 
-            var plus = brandTimeSpanMinutes >= 0 ? "+" : "";
-            from = DateTimeOffset.Parse($"{request.From} 00:00 {plus}{TimeSpan.FromMinutes(brandTimeSpanMinutes)}");
-            to = DateTimeOffset.Parse($"{request.To} 00:00 {plus}{TimeSpan.FromMinutes(brandTimeSpanMinutes)}");
+            var timeSpanMinutes = (int)brandInfo?.TimeSpanMinutes!;
+
+            var plus = timeSpanMinutes >= 0 ? "+" : "";
+
+            from = DateTimeOffset.Parse($"{request.From} 00:00 {plus}{TimeSpan.FromMinutes(timeSpanMinutes)}");
+            to = DateTimeOffset.Parse($"{request.To} 00:00 {plus}{TimeSpan.FromMinutes(timeSpanMinutes)}");
         }
 
         var createInfo = new CreatePromotionMainInfo
@@ -251,7 +255,7 @@ public class PromotionController : BaseContextController
     [Description("Update a promotion")]
     public async Task<MessageResponse> UpdatePromotionAsync(
         [FromServices] IPromotionServiceClient promotionServiceClient,
-        [FromServices] IGetService<GetBrandTimeSpanMinutesQuery, int> getService,
+        [FromServices] IBrandServiceClient brandServiceClient,
         Guid promotionId,
         [FromBody] UpdatePromotionRequest request)
     {
@@ -262,13 +266,15 @@ public class PromotionController : BaseContextController
         {
             var promotion = await promotionServiceClient.GetPromotionMainInfoAsync(promotionId).ConfigureAwait(false);
 
-            var brandTimeSpanMinutes = await getService.GetAsync(new GetBrandTimeSpanMinutesQuery(promotion!.BrandId))
+            var brandInfo = await brandServiceClient.GetBrandInfoAsync(promotion.BrandId)
                 .ConfigureAwait(false);
 
-            var plus = brandTimeSpanMinutes >= 0 ? "+" : "";
+            var timeSpanMinutes = (int)brandInfo?.TimeSpanMinutes!;
 
-            from = DateTimeOffset.Parse($"{request.From} 00:00 {plus}{TimeSpan.FromMinutes(brandTimeSpanMinutes)}");
-            to = DateTimeOffset.Parse($"{request.To} 00:00 {plus}{TimeSpan.FromMinutes(brandTimeSpanMinutes)}");
+            var plus = timeSpanMinutes >= 0 ? "+" : "";
+
+            from = DateTimeOffset.Parse($"{request.From} 00:00 {plus}{TimeSpan.FromMinutes(timeSpanMinutes)}");
+            to = DateTimeOffset.Parse($"{request.To} 00:00 {plus}{TimeSpan.FromMinutes(timeSpanMinutes)}");
         }
 
         var updateInfo = new CreatePromotionMainInfo
