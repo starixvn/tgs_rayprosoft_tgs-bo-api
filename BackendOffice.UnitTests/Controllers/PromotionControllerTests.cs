@@ -31,8 +31,8 @@ public class PromotionControllerTests : BaseTests
         var request = new CreatePromotionRequest
         {
             BrandId = brandId,
-            From = "2022/01/20",
-            To = "2022/03/20",
+            From = DateOnly.Parse("2022/01/20"),
+            To = DateOnly.Parse("2022/03/20"),
             PromotionType = "ReliefMoneyDaily"
         };
 
@@ -73,8 +73,8 @@ public class PromotionControllerTests : BaseTests
         var request = new CreatePromotionRequest
         {
             BrandId = brandId,
-            From = "2022/01/20",
-            To = "2022/03/20",
+            From = DateOnly.Parse("2022/01/20"),
+            To = DateOnly.Parse("2022/03/20"),
             PromotionType = "ReliefMoneyDaily"
         };
 
