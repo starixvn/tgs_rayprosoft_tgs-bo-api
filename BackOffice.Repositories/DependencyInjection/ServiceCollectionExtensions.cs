@@ -15,7 +15,8 @@ public static class ServiceCollectionExtensions
             .AddTransient<IBackOfficeRepository, BackOfficeRepository>()
             .AddTransient<IAgentRepository, AgentRepository>()
             .AddTransient<IPaymentReportingRepository, PaymentReportingRepository>()
-            .AddTransient<IMarketingReportRepository, MarketingReportRepository>();
+            .AddTransient<IMarketingReportRepository, MarketingReportRepository>()
+            .AddTransient<IGameRepository, GameRepository>();
 
         _ = services
             .AddTransient<IPlayerOnlineRepository>(

@@ -4,7 +4,6 @@ using System.IO;
 using System.Linq;
 using System.Text.Json;
 using System.Threading.Tasks;
-using DocumentFormat.OpenXml;
 using MediatR;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
@@ -41,13 +40,20 @@ public partial class GameProviderController : BaseContextController
         [FromServices] IQueryService<GetGameProvidersLocalizationQuery, SubGameProviderData> queryService,
         [FromServices] IGetService<CreateSubGameProviderExcelStreamQuery, Stream> createExcelService)
     {
-        var allSupportLangs = getAllSupportLangService.QueryAsync(new GetAllSupportLanguagesQuery());
-        var subGameProviders = queryService.QueryAsync(new GetGameProvidersLocalizationQuery());
+        var allSupportLangs = await getAllSupportLangService
+            .QueryAsync(new GetAllSupportLanguagesQuery())
+            .ToArrayAsync(HttpContext.RequestAborted)
+            .ConfigureAwait(false);
+
+        var subGameProviders = await queryService
+            .QueryAsync(new GetGameProvidersLocalizationQuery())
+            .ToArrayAsync(HttpContext.RequestAborted)
+            .ConfigureAwait(false);
 
         var fileStream = await createExcelService
             .GetAsync(new CreateSubGameProviderExcelStreamQuery(
-                allSupportLangs.ToEnumerable(),
-                subGameProviders.ToEnumerable()))
+                allSupportLangs,
+                subGameProviders))
             .ConfigureAwait(false);
 
         return new FileStreamResult(
