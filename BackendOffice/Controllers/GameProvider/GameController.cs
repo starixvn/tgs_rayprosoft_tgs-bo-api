@@ -186,8 +186,8 @@ public class GameController : BaseContextController
                     },
                     new Cell
                     {
-                        CellValue = new CellValue(game.HasTurnoverOnTieBet ? bool.TrueString : bool.FalseString),
-                        DataType = CellValues.String
+                        CellValue = new CellValue(game.HasTurnoverOnTieBet),
+                        DataType = CellValues.Boolean
                     },
                     new Cell
                     {
@@ -201,18 +201,18 @@ public class GameController : BaseContextController
                     },
                     new Cell
                     {
-                        CellValue = new CellValue(game.SubGame ? bool.TrueString : bool.FalseString), 
-                        DataType = CellValues.String
+                        CellValue = new CellValue(game.SubGame), 
+                        DataType = CellValues.Boolean
                     },
                     new Cell
                     {
-                        CellValue = new CellValue(game.AvailableToBrand ? bool.TrueString : bool.FalseString),
-                        DataType = CellValues.String
+                        CellValue = new CellValue(game.AvailableToBrand),
+                        DataType = CellValues.Boolean
                     },
                     new Cell
                     {
-                        CellValue = new CellValue(game.Html5 ? bool.TrueString : bool.FalseString),
-                        DataType = CellValues.String
+                        CellValue = new CellValue(game.Html5),
+                        DataType = CellValues.Boolean
                     },
                     new Cell
                     {
@@ -221,7 +221,8 @@ public class GameController : BaseContextController
                     },
                     new Cell
                     {
-                        CellValue = new CellValue(game.SubGameProviderCode), DataType = CellValues.String
+                        CellValue = new CellValue(game.SubGameProviderCode),
+                        DataType = CellValues.String
                     });
 
                 _ = sheetData.AppendChild(row);
