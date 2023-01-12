@@ -142,7 +142,8 @@ public class GetBrandQueryHandler : Handler<GetBrandRequest, GetBrandResponse>
                     AutoClearWageringRequirement = brand.AutoClearWageringRequirement,
                     AutoClearWageringRequirementBalance = brand.AutoClearWageringRequirementBalance,
                     DepositHandlingFeeRateTenPercentile = brand.DepositHandlingFeeRateTenPercentile,
-                    WithdrawHandlingFeeRateTenPercentile = brand.WithdrawHandlingFeeRateTenPercentile
+                    WithdrawHandlingFeeRateTenPercentile = brand.WithdrawHandlingFeeRateTenPercentile,
+                    TimeSpanMinutes = (int)brand.TimeSpanMinutes!
                 }
             });
     }

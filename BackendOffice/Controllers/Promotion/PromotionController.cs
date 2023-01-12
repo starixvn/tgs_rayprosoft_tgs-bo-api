@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Collections.Immutable;
 using System.ComponentModel;
 using System.Linq;
 using System.Text.Json;
@@ -12,6 +13,7 @@ using Tgs.ServiceUtility;
 using TGS.Apis.BackendOffice.Controllers.Messages.Promotion;
 using TGS.Core.Models.Enums;
 using TGS.Core.Models.Messages;
+using TGS.Services.BackOffice.Application.Queries.BrandHandlers;
 using TGS.Services.BackOffice.ApplicationServices;
 using TGS.Services.BackOffice.Domain;
 using PromotionStatus = TGS.Core.Models.Enums.PromotionStatus;
@@ -22,6 +24,15 @@ namespace TGS.Apis.BackendOffice.Controllers.Promotion;
 [ApiController]
 public class PromotionController : BaseContextController
 {
+    private readonly ImmutableArray<string> promotionTypes = new string[]
+    {
+        "ReliefMoneyDaily",
+        "ReliefMoneyWeekly",
+        "ReliefMoneyMonthly",
+        "TurnoverRebate",
+        "TurnoverRebateWeekly"
+    }.ToImmutableArray();
+
     [HttpPut("ChangeOrders", Name = "ChangeOrder")]
     [Description("Change Promotion Display Order")]
     public async Task<MessageResponse> ChangeOrderAsync(
@@ -45,12 +56,26 @@ public class PromotionController : BaseContextController
     [Description("Create a promotion")]
     public async Task<MessageResponse> CreatePromotionAsync(
         [FromServices] IPromotionServiceClient promotionServiceClient,
+        [FromServices] IGetService<GetBrandTimeSpanMinutesQuery, int> getService,
         [FromBody] CreatePromotionRequest request)
     {
+        var from = DateTimeOffset.Parse($"{request.From} 00:00:00 +8");
+        var to = DateTimeOffset.Parse($"{request.To} 00:00:00 +8");
+
+        if (promotionTypes.Contains(request.PromotionType))
+        {
+            var brandTimeSpanMinutes = await getService.GetAsync(new GetBrandTimeSpanMinutesQuery(request.BrandId))
+                .ConfigureAwait(false);
+
+            var plus = brandTimeSpanMinutes >= 0 ? "+" : "";
+            from = DateTimeOffset.Parse($"{request.From} 00:00 {plus}{TimeSpan.FromMinutes(brandTimeSpanMinutes)}");
+            to = DateTimeOffset.Parse($"{request.To} 00:00 {plus}{TimeSpan.FromMinutes(brandTimeSpanMinutes)}");
+        }
+
         var createInfo = new CreatePromotionMainInfo
         {
             Name = request.Name,
-            EventDuring = (request.From.UtcDateTime, request.To.UtcDateTime),
+            EventDuring = (from.UtcDateTime, to.UtcDateTime),
             PromotionType = request.PromotionType,
             IsAutoSent = request.AutoSentPlayerBonus,
             PromotionLimitAmount = request.Unlimited ? null : request.TotalAmountLimit
@@ -115,9 +140,9 @@ public class PromotionController : BaseContextController
             promotionId,
             request.Status switch
             {
-                SwitchStatus.Enabled => Tgs.Promotion.Clients.PromotionStatus.Enabled,
+                SwitchStatus.Enabled  => Tgs.Promotion.Clients.PromotionStatus.Enabled,
                 SwitchStatus.Disabled => Tgs.Promotion.Clients.PromotionStatus.Disabled,
-                _ => throw new NotImplementedException()
+                _                     => throw new NotImplementedException()
             },
             Username,
             HttpContext.RequestAborted).ConfigureAwait(false);
@@ -226,13 +251,30 @@ public class PromotionController : BaseContextController
     [Description("Update a promotion")]
     public async Task<MessageResponse> UpdatePromotionAsync(
         [FromServices] IPromotionServiceClient promotionServiceClient,
+        [FromServices] IGetService<GetBrandTimeSpanMinutesQuery, int> getService,
         Guid promotionId,
         [FromBody] UpdatePromotionRequest request)
     {
+        var from = DateTimeOffset.Parse($"{request.From} 00:00:00 +8");
+        var to = DateTimeOffset.Parse($"{request.To} 00:00:00 +8");
+
+        if (promotionTypes.Contains(request.PromotionType))
+        {
+            var promotion = await promotionServiceClient.GetPromotionMainInfoAsync(promotionId).ConfigureAwait(false);
+
+            var brandTimeSpanMinutes = await getService.GetAsync(new GetBrandTimeSpanMinutesQuery(promotion!.BrandId))
+                .ConfigureAwait(false);
+
+            var plus = brandTimeSpanMinutes >= 0 ? "+" : "";
+
+            from = DateTimeOffset.Parse($"{request.From} 00:00 {plus}{TimeSpan.FromMinutes(brandTimeSpanMinutes)}");
+            to = DateTimeOffset.Parse($"{request.To} 00:00 {plus}{TimeSpan.FromMinutes(brandTimeSpanMinutes)}");
+        }
+
         var updateInfo = new CreatePromotionMainInfo
         {
             Name = request.Name,
-            EventDuring = (request.From.UtcDateTime, request.To.UtcDateTime),
+            EventDuring = (from.UtcDateTime, to.UtcDateTime),
             PromotionType = request.PromotionType,
             IsAutoSent = request.AutoSentPlayerBonus,
             PromotionLimitAmount = request.Unlimited ? null : request.TotalAmountLimit
@@ -296,9 +338,9 @@ public class PromotionController : BaseContextController
             promotionId,
             request.Status switch
             {
-                SwitchStatus.Enabled => Tgs.Promotion.Clients.PromotionStatus.Enabled,
+                SwitchStatus.Enabled  => Tgs.Promotion.Clients.PromotionStatus.Enabled,
                 SwitchStatus.Disabled => Tgs.Promotion.Clients.PromotionStatus.Disabled,
-                _ => throw new NotImplementedException()
+                _                     => throw new NotImplementedException()
             },
             Username,
             HttpContext.RequestAborted).ConfigureAwait(false);

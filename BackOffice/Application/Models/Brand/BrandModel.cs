@@ -70,4 +70,6 @@ public class BrandModel
     public DateTimeOffset UpdatedOn { get; set; }
 
     public decimal WithdrawHandlingFeeRateTenPercentile { get; set; }
+
+    public int TimeSpanMinutes { get; set; }
 }
