@@ -60,8 +60,8 @@ public class PromotionController : BaseContextController
         [FromServices] IBrandServiceClient brandServiceClient,
         [FromBody] CreatePromotionRequest request)
     {
-        var from = DateTimeOffset.Parse($"{request.From} 00:00:00 +8");
-        var to = DateTimeOffset.Parse($"{request.To} 00:00:00 +8");
+        var from = new DateTimeOffset(request.From.ToDateTime(TimeOnly.MinValue), TimeSpan.FromHours(8));
+        var to = new DateTimeOffset(request.To.ToDateTime(TimeOnly.MinValue), TimeSpan.FromHours(8));
 
         if (promotionTypes.Contains(request.PromotionType))
         {
@@ -70,10 +70,8 @@ public class PromotionController : BaseContextController
 
             var timeSpanMinutes = (int)brandInfo?.TimeSpanMinutes!;
 
-            var plus = timeSpanMinutes >= 0 ? "+" : "";
-
-            from = DateTimeOffset.Parse($"{request.From} 00:00 {plus}{TimeSpan.FromMinutes(timeSpanMinutes)}");
-            to = DateTimeOffset.Parse($"{request.To} 00:00 {plus}{TimeSpan.FromMinutes(timeSpanMinutes)}");
+            from = new DateTimeOffset(request.From.ToDateTime(TimeOnly.MinValue), TimeSpan.FromMinutes(timeSpanMinutes));
+            to = new DateTimeOffset(request.To.ToDateTime(TimeOnly.MinValue), TimeSpan.FromMinutes(timeSpanMinutes));
         }
 
         var createInfo = new CreatePromotionMainInfo
@@ -259,8 +257,8 @@ public class PromotionController : BaseContextController
         Guid promotionId,
         [FromBody] UpdatePromotionRequest request)
     {
-        var from = DateTimeOffset.Parse($"{request.From} 00:00:00 +8");
-        var to = DateTimeOffset.Parse($"{request.To} 00:00:00 +8");
+        var from = new DateTimeOffset(request.From.ToDateTime(TimeOnly.MinValue), TimeSpan.FromHours(8));
+        var to = new DateTimeOffset(request.To.ToDateTime(TimeOnly.MinValue), TimeSpan.FromHours(8));
 
         if (promotionTypes.Contains(request.PromotionType))
         {
@@ -271,10 +269,8 @@ public class PromotionController : BaseContextController
 
             var timeSpanMinutes = (int)brandInfo?.TimeSpanMinutes!;
 
-            var plus = timeSpanMinutes >= 0 ? "+" : "";
-
-            from = DateTimeOffset.Parse($"{request.From} 00:00 {plus}{TimeSpan.FromMinutes(timeSpanMinutes)}");
-            to = DateTimeOffset.Parse($"{request.To} 00:00 {plus}{TimeSpan.FromMinutes(timeSpanMinutes)}");
+            from = new DateTimeOffset(request.From.ToDateTime(TimeOnly.MinValue), TimeSpan.FromMinutes(timeSpanMinutes));
+            to = new DateTimeOffset(request.To.ToDateTime(TimeOnly.MinValue), TimeSpan.FromMinutes(timeSpanMinutes));
         }
 
         var updateInfo = new CreatePromotionMainInfo
