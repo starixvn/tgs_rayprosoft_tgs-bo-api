@@ -16,7 +16,7 @@ namespace TGS.Tests.BackendOffice.UnitTests.Controllers;
 public class PromotionControllerTests : BaseTests
 {
     [Test]
-    public async Task Can_Create_Promotion_Time_Period_2()
+    public async Task Can_Create_Promotion_Time_Period_With_Minus_420_Time_Span_Minutes()
     {
         base.Setup();
 
@@ -58,7 +58,7 @@ public class PromotionControllerTests : BaseTests
     }
 
     [Test]
-    public async Task Check_Promotion_Time_Period_1()
+    public async Task Check_Promotion_Time_Period_With_Plus_420_Time_Span_Minutes()
     {
         base.Setup();
 
