@@ -131,7 +131,8 @@ public class BrandService : BaseRepositoryOperations<ITgsRepository>, IBrandServ
             AutoClearWageringRequirement = request.AutoClearWageringRequirement,
             AutoClearWageringRequirementBalance = request.AutoClearWageringRequirementBalance,
             DepositHandlingFeeRateTenPercentile = request.DepositHandlingFeeRateTenPercentile,
-            WithdrawHandlingFeeRateTenPercentile = request.WithdrawHandlingFeeRateTenPercentile
+            WithdrawHandlingFeeRateTenPercentile = request.WithdrawHandlingFeeRateTenPercentile,
+            TimeSpanMinutes = request.TimeSpanMinutes,
         };
 
         brand.Languages = await GenerateBrandLanguagesAsync(brand, request.Languages);

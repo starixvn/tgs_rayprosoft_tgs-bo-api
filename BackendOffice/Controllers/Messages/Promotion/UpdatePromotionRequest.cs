@@ -18,7 +18,7 @@ public class UpdatePromotionRequest
 
     public string? EditorUsername { get; set; }
 
-    public DateTimeOffset From { get; set; }
+    public DateOnly From { get; set; }
 
     public Guid[]? GameProviderIds { get; set; }
 
@@ -44,7 +44,7 @@ public class UpdatePromotionRequest
 
     public string? Terms { get; set; }
 
-    public DateTimeOffset To { get; set; }
+    public DateOnly To { get; set; }
 
     public decimal? TotalAmountLimit { get; set; }
 
