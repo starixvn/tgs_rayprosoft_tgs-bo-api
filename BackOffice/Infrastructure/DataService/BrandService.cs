@@ -251,7 +251,6 @@ public class BrandService : BaseRepositoryOperations<ITgsRepository>, IBrandServ
         brand.AutoClearWageringRequirementBalance = request.AutoClearWageringRequirementBalance;
         brand.DepositHandlingFeeRateTenPercentile = request.DepositHandlingFeeRateTenPercentile;
         brand.WithdrawHandlingFeeRateTenPercentile = request.WithdrawHandlingFeeRateTenPercentile;
-        brand.TimeSpanMinutes = request.TimeSpanMinutes;
 
         await using var tran = await _repository.BeginTransactionAsync(IsolationLevel.ReadCommitted);
 
