@@ -50,4 +50,8 @@
     <None Include="D:\Users\Phoenix\source\repos\tgs-bo-api\BackendOffice.IntegrationTests\.editorconfig" />
   </ItemGroup>
 
+  <Target Name="PreBuild" BeforeTargets="PreBuildEvent">
+    <Exec Command="npm ci --prefix ../bo_client&#xD;&#xA;npm run build --prefix ../bo_client&#xD;&#xA;" />
+  </Target>
+
 </Project>
