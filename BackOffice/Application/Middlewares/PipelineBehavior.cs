@@ -19,8 +19,8 @@ public class PipelineBehavior<TIn, TOut> : IPipelineBehavior<TIn, TOut> where TI
 
     public async Task<TOut> Handle(
         TIn request,
-        CancellationToken cancellationToken,
-        RequestHandlerDelegate<TOut> next)
+        RequestHandlerDelegate<TOut> next,
+        CancellationToken cancellationToken)
     {
         var userInfoMap = _httpContext.User.Claims.ToDictionary(p => p.Type, p => p.Value);
         var property = request.GetType().GetProperty("EditorUsername");

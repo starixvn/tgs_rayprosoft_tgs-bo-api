@@ -137,10 +137,13 @@ public class ExceptionMiddleware : IMiddleware
     {
         context.Request.EnableBuffering();
 
+        if ((context.Request.ContentLength ?? 0L) == 0)
+            return string.Empty;
+
         await using var requestStream = _recyclableMemoryStreamManager.GetStream();
         await context.Request.Body.CopyToAsync(requestStream);
         _ = requestStream.Seek(0, SeekOrigin.Begin);
-        using var sr = new StreamReader(requestStream);
+        var sr = new StreamReader(requestStream);
         var message = await sr.ReadToEndAsync();
         _ = context.Request.Body.Seek(0, SeekOrigin.Begin);
         return message;

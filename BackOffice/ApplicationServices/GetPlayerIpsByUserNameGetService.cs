@@ -24,15 +24,14 @@ internal class GetPlayerIpsByUserNameGetService : IGetService<GetPlayerIpsByUser
         var endDateTimeOffset = DateTimeOffset.UtcNow;
         var startDateTimeOffset = endDateTimeOffset.AddMonths(-6);
         var loginRecords = _service.GetPlayerIpOperationByUsernameQueries(query.BrandId, query.UserName, startDateTimeOffset, endDateTimeOffset);
-        var registerRecords = _service
-        .GetPlayerIpRecordsByRegister(query.BrandId, query.UserName)
-          .Where(x => x.RecordOn > endDateTimeOffset && x.RecordOn < endDateTimeOffset)
-          .Select(x => new GetPlayerIpsByUserNameResult
-          {
-              IpAddress = x.Ip,
-              CreatedOn = x.RecordOn
-          })
-          .OrderByDescending(x => x.CreatedOn);
+        var registerRecords = _service.GetPlayerIpRecordsByRegister(query.BrandId, query.UserName)
+            .Where(x => x.RecordOn > endDateTimeOffset && x.RecordOn < endDateTimeOffset)
+            .Select(x => new GetPlayerIpsByUserNameResult
+            {
+                IpAddress = x.Ip,
+                CreatedOn = x.RecordOn
+            })
+            .OrderByDescending(x => x.CreatedOn);
 
         return await loginRecords.GroupBy(x => new
         {

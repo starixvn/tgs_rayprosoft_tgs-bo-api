@@ -17,20 +17,20 @@ namespace BackendOffice.IntegrationTests;
 
 internal static class TestBackendOfficeApplication
 {
-    public static IHostBuilder Builder => new FixToolApplication()
+    public static IHostBuilder Builder => new BoApplication()
         .Builder
         .ConfigureLogging((_, logging) => logging.ClearProviders())
-            .ConfigureServices(services => services
-                .AddFakeNatsMessageQueue()
-                .AddSingleton(Substitute.For<IRedisConnectionFactory>())
-                .AddSingleton<IConfigureOptions<OtlpExporterOptions>>(
-                  sp => new ConfigureNamedOptions<OtlpExporterOptions>(
-                      Options.DefaultName,
-                      exporterOptions => exporterOptions.TimeoutMilliseconds = 0))
-                .AddSingleton<IConfigureOptions<KeyManagementOptions>>(
-                    sp => new ConfigureNamedOptions<KeyManagementOptions>(
-                        string.Empty,
-                        options => options.XmlRepository = null)));
+        .ConfigureServices(services => services
+            .AddFakeNatsMessageQueue()
+            .AddSingleton(Substitute.For<IRedisConnectionFactory>())
+            .AddSingleton<IConfigureOptions<OtlpExporterOptions>>(
+                sp => new ConfigureNamedOptions<OtlpExporterOptions>(
+                    Options.DefaultName,
+                    exporterOptions => exporterOptions.TimeoutMilliseconds = 0))
+            .AddSingleton<IConfigureOptions<KeyManagementOptions>>(
+                sp => new ConfigureNamedOptions<KeyManagementOptions>(
+                    string.Empty,
+                    options => options.XmlRepository = null)));
 
     internal static IHostBuilder UseTestChannelServer(this IHostBuilder hostBuilder, string channelName)
     {
@@ -46,7 +46,7 @@ internal static class TestBackendOfficeApplication
                          $"/tmp/{channelName}.sock")));
     }
 
-    private class FixToolApplication : WebApplicationFactory<Program>
+    private class BoApplication : WebApplicationFactory<Program>
     {
         private IHostBuilder? _hostBuilder;
 

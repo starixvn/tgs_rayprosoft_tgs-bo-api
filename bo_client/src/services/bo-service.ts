@@ -4,13 +4,22 @@ export default class BackOfficeService {
     constructor(private http: AxiosInstance) { }
 
     public adjustPlayerLockedAmount(playerCode: string, lockAmount: number, remark: string | null): Promise<void> {
-        return this.http.put(`/api/player/wallet/locked/${playerCode}`, { lockAmount, remark });
+        return this.http
+            .put(`/api/player/wallet/locked/${playerCode}`, { lockAmount, remark })
+            .then(res => res.data);
     }
 
-    public getPlayerIpsByUserName(brandId: string, userName: string, page: number, rows: number, sortby: string, orderby: string, showAll: boolean) {
-        return this
-            .http
-            .get(`/api/playerip/username`,
+    public getPlayerIpsByUserName(
+        brandId: string,
+        userName: string,
+        page: number,
+        rows: number,
+        sortby: string,
+        orderby: string,
+        showAll: boolean): Promise<any> {
+        return this.http
+            .get(
+                `/api/playerip/username`,
                 {
                     params: {
                         brandId: brandId,
@@ -21,6 +30,13 @@ export default class BackOfficeService {
                         orderby: orderby,
                         showAll: showAll
                     }
-                });
+                })
+            .then(res => res.data);
+    }
+
+    public getPlayerPaymentOverview(playerCode: string): Promise<any> {
+        return this.http
+            .get(`/api/player/payment/${playerCode}`, {})
+            .then(res => res.data);
     }
 }

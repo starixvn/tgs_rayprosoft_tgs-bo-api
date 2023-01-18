@@ -30,8 +30,7 @@ public class PlayerIpController : BaseContextController
     public ValueTask<PagedResponse<GetPlayerIpsByUserNameResult>> GetPlayerIpsByUserNameListAsync(
         [FromServices] IGetService<GetPlayerIpsByUserNameQuery, PagedResponse<GetPlayerIpsByUserNameResult>> service,
         [FromQuery] GetPlayerIpsByUserNameQuery source)
-        => service
-        .GetAsync(
+        => service.GetAsync(
             query: source,
             cancellationToken: HttpContext.RequestAborted);
 
