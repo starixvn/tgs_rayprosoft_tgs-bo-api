@@ -6,7 +6,6 @@ using System.Text.Json;
 using System.Threading.Tasks;
 using MediatR;
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.Extensions.Logging;
 using Tgs.Paging;
 using Tgs.Payment.Clients;
 using Tgs.PlayerService.Client;
@@ -449,6 +448,43 @@ public partial class PlayerController : BaseContextController
                 Valid = true,
                 Player = player
             };
+    }
+
+    [HttpGet("{playerCode}/vipAdjustInfos", Name = "GetVipAdjustInfos")]
+    [Description("Get player vip adjust infos")]
+    public async Task<PagedResponse<PlayerVipAdjustInfo>> GetVipAdjustInfosAsync(
+        string playerCode,
+        [FromServices] IVipLevelServiceClient client,
+        [FromQuery] Messages.Player.GetVipAdjustInfosRequest request,
+        [FromQuery] PageableRequest paging)
+    {
+        var vipAdjustRequest = new PlayerVipAdjustQueryConditions
+        {
+            PlayerCode = playerCode,
+            BrandId = request.BrandId,
+            CreateOnRange = (request.From, request.To)
+        };
+
+        var vipPaging = new Tgs.VipLevelService.Clients.Paging
+        {
+            Page = paging.Page,
+            Rows = paging.Rows,
+            IsDesc = paging.IsDesc,
+            ShowAll = paging.ShowAll,
+            SortBy = paging.SortBy,
+        };
+
+        var response = await client
+            .QueryPlayerVipAdjustInfosAsync(vipAdjustRequest, vipPaging, HttpContext.RequestAborted)
+            .ConfigureAwait(false);
+
+        return new PagedResponse<PlayerVipAdjustInfo>
+        {
+            Valid = true,
+            Message = string.Empty,
+            TotalCount = response.TotalCount,
+            Items = response.Items.ToArray(),
+        };
     }
 
     [HttpPut("{playerCode}/{type}", Name = "UpdatePlayer")]
