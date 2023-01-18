@@ -69,9 +69,9 @@ public class AgentReportController : BaseContextController
     {
         var reportRequest = new GetAgentDividendDetailsReportRequest
         {
-            AgentId= request.AgentId,
-            AgentDividendPercentage= request.AgentDividendPercentage,
-            From= request.From,
+            AgentId = request.AgentId,
+            AgentDividendPercentage = request.AgentDividendPercentage,
+            From = request.From,
             To = request.To,
             Page = request.Page,
             Rows = request.Rows,

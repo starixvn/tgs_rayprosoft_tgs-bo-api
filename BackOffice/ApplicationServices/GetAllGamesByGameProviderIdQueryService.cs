@@ -18,6 +18,6 @@ internal class GetAllGamesByGameProviderIdQueryService : IQueryService<GetAllGam
 
     public IAsyncEnumerable<GameInfo> QueryAsync(
         GetAllGamesByGameProviderIdQuery query,
-        CancellationToken cancellationToken = default) 
+        CancellationToken cancellationToken = default)
         => _gameRepository.QueryAllGamesAsync(query.GameProviderId, cancellationToken);
 }

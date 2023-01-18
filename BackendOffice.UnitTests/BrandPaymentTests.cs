@@ -6,7 +6,7 @@ using NSubstitute;
 using NUnit.Framework;
 using Tgs.Payment.Clients;
 using Tgs.PlayerService.Client;
-using TGS.Services.BackOffice.ApplicationServices;
+using TGS.Services.BackOffice.ApplicationServices.Payment;
 
 namespace TGS.Tests.BackendOffice.UnitTests;
 

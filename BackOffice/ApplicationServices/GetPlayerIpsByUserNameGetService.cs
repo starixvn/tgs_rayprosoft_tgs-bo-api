@@ -18,6 +18,7 @@ internal class GetPlayerIpsByUserNameGetService : IGetService<GetPlayerIpsByUser
     {
         _service = service ?? throw new System.ArgumentNullException(nameof(service));
     }
+
     public async ValueTask<PagedResponse<GetPlayerIpsByUserNameResult>> GetAsync(GetPlayerIpsByUserNameQuery query, CancellationToken cancellationToken = default)
     {
         var endDateTimeOffset = DateTimeOffset.UtcNow;

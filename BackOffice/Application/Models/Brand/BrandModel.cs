@@ -65,11 +65,11 @@ public class BrandModel
 
     public BrandStatus Status { get; set; }
 
+    public int TimeSpanMinutes { get; set; }
+
     public string UpdatedByUsername { get; set; }
 
     public DateTimeOffset UpdatedOn { get; set; }
 
     public decimal WithdrawHandlingFeeRateTenPercentile { get; set; }
-
-    public int TimeSpanMinutes { get; set; }
 }

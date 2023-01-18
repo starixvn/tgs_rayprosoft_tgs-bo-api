@@ -5,7 +5,6 @@ using System.Threading.Tasks;
 using NSubstitute;
 using NUnit.Framework;
 using Tgs.Promotion.Clients;
-using TGS.Apis.BackendOffice.Controllers.Promotion;
 using TGS.Services.BackOffice.ApplicationServices;
 using TGS.Services.BackOffice.Domain;
 
@@ -14,18 +13,24 @@ namespace TGS.Tests.BackendOffice.UnitTests;
 public class PromotionTests
 {
     [Test]
-    public async Task Get_Promotion_Rule()
+    public async Task Get_Promotion_Event_Detail()
     {
-        var fakePromotionServiceClient = Substitute.For<IPromotionServiceClient>();
+        var fakePromotionHistoryClient = Substitute.For<IPromotionHistoryClient>();
 
-        var sut = new GetPromotionRuleQueryService(fakePromotionServiceClient);
+        var sut = new GetPromotionEventDetailQueryService(fakePromotionHistoryClient);
 
-        var query = new GetPromotionRuleQuery(Guid.NewGuid());
+        var query = new GetPromotionEventDetailQuery(
+            Guid.NewGuid(),
+            Guid.NewGuid());
 
         _ = await sut.GetAsync(query);
 
-        _ = fakePromotionServiceClient.Received(1)
-            .GetPromotionRuleAsync<PromotionRuleInfo>(Arg.Is(query.PromotionId));
+        _ = fakePromotionHistoryClient
+            .Received(1)
+            .GetPromotionEventDetailAsync(
+                Arg.Is(query.PromotionId),
+                Arg.Is(query.EventId),
+                Arg.Any<CancellationToken>());
     }
 
     [Test]
@@ -47,23 +52,17 @@ public class PromotionTests
     }
 
     [Test]
-    public async Task Get_Promotion_Event_Detail()
+    public async Task Get_Promotion_Rule()
     {
-        var fakePromotionHistoryClient = Substitute.For<IPromotionHistoryClient>();
+        var fakePromotionServiceClient = Substitute.For<IPromotionServiceClient>();
 
-        var sut = new GetPromotionEventDetailQueryService(fakePromotionHistoryClient);
+        var sut = new GetPromotionRuleQueryService(fakePromotionServiceClient);
 
-        var query = new GetPromotionEventDetailQuery(
-            Guid.NewGuid(),
-            Guid.NewGuid());
+        var query = new GetPromotionRuleQuery(Guid.NewGuid());
 
         _ = await sut.GetAsync(query);
 
-        _ = fakePromotionHistoryClient
-            .Received(1)
-            .GetPromotionEventDetailAsync(
-                Arg.Is(query.PromotionId),
-                Arg.Is(query.EventId),
-                Arg.Any<CancellationToken>());
+        _ = fakePromotionServiceClient.Received(1)
+            .GetPromotionRuleAsync<PromotionRuleInfo>(Arg.Is(query.PromotionId));
     }
 }

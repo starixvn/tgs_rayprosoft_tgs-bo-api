@@ -6,6 +6,7 @@ using Tgs.ServiceUtility;
 using TGS.Core.Models.Messages;
 using TGS.Services.BackOffice.Application.Queries.ReportMarketingQueries;
 using TGS.Services.BackOffice.ApplicationServices;
+using TGS.Services.BackOffice.ApplicationServices.Payment;
 using TGS.Services.BackOffice.Domain;
 
 namespace TGS.Tests.BackendOffice.UnitTests;

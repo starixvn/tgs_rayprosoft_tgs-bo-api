@@ -1,21 +1,12 @@
-﻿using System.Collections.Immutable;
-using System.Data.SqlClient;
-using System.Globalization;
+﻿using System.Data.SqlClient;
 using System.Runtime.InteropServices;
-using DocumentFormat.OpenXml.Spreadsheet;
 using Jering.Javascript.NodeJS;
-using MediatR;
-using Microsoft.AspNetCore.Http.HttpResults;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
 using NSubstitute;
-using Tgs.CashService.Client;
-using Tgs.PlayerService.Client;
 using Tgs.ServiceUtility;
-using TGS.Core.Models.Enums;
 using TGS.Core.Models.Messages;
-using TGS.Services.BackOffice.Application.Models.PlayerIp;
 using TGS.Services.BackOffice.ApplicationServices;
 using Xunit.Abstractions;
 

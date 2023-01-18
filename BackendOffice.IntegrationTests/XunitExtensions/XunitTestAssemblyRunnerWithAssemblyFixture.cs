@@ -1,7 +1,6 @@
 ﻿using Jering.Javascript.NodeJS;
 using Xunit.Abstractions;
 using Xunit.Sdk;
-using BackendOffice.IntegrationTests.XunitExtensions;
 
 namespace BackendOffice.IntegrationTests.XunitExtensions;
 
