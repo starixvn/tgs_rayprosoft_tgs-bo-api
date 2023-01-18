@@ -454,36 +454,26 @@ public partial class PlayerController : BaseContextController
     [Description("Get player vip adjust infos")]
     public async Task<PagedResponse<PlayerVipAdjustInfo>> GetVipAdjustInfosAsync(
         string playerCode,
-        [FromServices] IVipLevelServiceClient client,
+        [FromServices] IGetService<GetPlayerVipAdjustQuery, Tgs.VipLevelService.Clients.PagingResponse<PlayerVipAdjustInfo>> service,
         [FromQuery] Messages.Player.GetVipAdjustInfosRequest request,
         [FromQuery] PageableRequest paging)
     {
-        var vipAdjustRequest = new PlayerVipAdjustQueryConditions
-        {
-            PlayerCode = playerCode,
-            BrandId = request.BrandId,
-            CreateOnRange = (request.From, request.To)
-        };
+        var query = new GetPlayerVipAdjustQuery(
+            playerCode,
+            request.BrandId,
+            request.From,
+            request.To,
+            paging);
 
-        var vipPaging = new Tgs.VipLevelService.Clients.Paging
-        {
-            Page = paging.Page,
-            Rows = paging.Rows,
-            IsDesc = paging.IsDesc,
-            ShowAll = paging.ShowAll,
-            SortBy = paging.SortBy,
-        };
-
-        var response = await client
-            .QueryPlayerVipAdjustInfosAsync(vipAdjustRequest, vipPaging, HttpContext.RequestAborted)
+        var result = await service.GetAsync(query)
             .ConfigureAwait(false);
 
         return new PagedResponse<PlayerVipAdjustInfo>
         {
             Valid = true,
             Message = string.Empty,
-            TotalCount = response.TotalCount,
-            Items = response.Items.ToArray(),
+            TotalCount = result.TotalCount,
+            Items = result.Items.ToArray(),
         };
     }
 
