@@ -399,4 +399,4 @@ FodyWeavers.xsd
 
 *.feature.cs
 
-bo_client\**\*.js
+bo_client/**/*.js

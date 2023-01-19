@@ -51,4 +51,20 @@ export default class BackOfficeService {
             .post(`/api/player/wallet/reduce/${playerCode}`, request)
             .then(res => res.data);
     }
+
+    public listAgentPlayerWinloss(
+        agentId: string,
+        condition: AgentPlayerWinLossReportConditions,
+        paging: PageableRequest): Promise<PagedResponse<AgentPlayerWinLoss>> {
+        return this.http
+            .get(
+                `/api/agentreport/${agentId}/winloss`,
+                {
+                    params: {
+                        ...condition,
+                        ...paging
+                    }
+                })
+            .then(res => res.data);
+    }
 }

@@ -1,4 +1,6 @@
-﻿namespace TGS.Services.BackOffice.Application.Models.ReportAgent;
+﻿#nullable enable
+
+namespace TGS.Services.BackOffice.Application.Models.ReportAgent;
 
 public record AgentPlayerWinLossReportModel
 {
