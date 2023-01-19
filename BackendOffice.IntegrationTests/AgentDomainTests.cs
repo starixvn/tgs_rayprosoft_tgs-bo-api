@@ -1,24 +1,16 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Collections.Immutable;
-using System.Linq;
-using System.Runtime.InteropServices;
-using System.Text;
-using System.Threading.Tasks;
+﻿using System.Runtime.InteropServices;
 using Jering.Javascript.NodeJS;
+using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
+using Microsoft.Extensions.Logging;
 using NSubstitute;
-using Tgs.CashService.Client;
-using TGS.Core.Models.Enums;
-using Tgs.PlayerService.Client;
-using TGS.Services.BackOffice.Application.Models.Player;
+using TGS.Apis.BackendOffice.Controllers.Messages;
 using TGS.Services.BackOffice.Domain;
 using Xunit;
 using Xunit.Abstractions;
-using Microsoft.Extensions.Logging;
-using Microsoft.Extensions.DependencyInjection;
 
 namespace BackendOffice.IntegrationTests;
+
 public class AgentDomainTests
 {
     private readonly ITestOutputHelper _testOutputHelper;
@@ -26,6 +18,75 @@ public class AgentDomainTests
     public AgentDomainTests(ITestOutputHelper testOutputHelper)
     {
         _testOutputHelper = testOutputHelper ?? throw new ArgumentNullException(nameof(testOutputHelper));
+    }
+
+    [Fact]
+    public async Task 取得代理域名列表()
+    {
+        // Arrange
+        var channelName = Guid.NewGuid().ToString();
+        var userId = Guid.NewGuid();
+
+        var fakeAgentRepository = Substitute.For<IAgentRepository>();
+
+        using var web = TestBackendOfficeApplication.Builder
+            .UseTestChannelServer(channelName)
+            .ConfigureLogging(logging => logging.AddXUnit(_testOutputHelper))
+            .ConfigureServices(services => services
+                .AddAuthentication("Fake")
+                .AddScheme<FakeAuthenticationSchemaOptions, FakeAuthenticationHandler>(
+                    "Fake",
+                    options =>
+                    {
+                        options.UserId = userId;
+                        options.UserName = "system";
+                    })
+                .Services
+                .AddSingleton(fakeAgentRepository))
+            .Build();
+
+        await web.StartAsync();
+
+        var brandId = Guid.NewGuid();
+        var agentId = Guid.NewGuid();
+
+        var expected = new ResponseViewModel<string[]>
+        {
+            Valid = true,
+            Data = new[]
+            {
+                "test.com",
+                "test1.com"
+            }
+        };
+
+        _ = fakeAgentRepository.QueryDomainsFromAgentAsync(Arg.Is(agentId))
+            .Returns(expected.Data.ToAsyncEnumerable());
+
+        var isWindows = RuntimeInformation.IsOSPlatform(OSPlatform.Windows) ? "true" : "false";
+
+        var nodeModule = $$"""
+            const axiosConfigFactory = require('./models/axios-configuration.js').default;
+            const BackOfficeService = require('./services/bo-service.js').default;
+
+            module.exports = async (brandId, agentId, domain) =>
+            {
+                let instance = axiosConfigFactory("{{channelName}}", {{isWindows}});
+
+                let svc = new BackOfficeService(instance);
+
+                return await svc.listAgentDomains(brandId, agentId, domain);
+            };
+        """;
+
+        // Act
+        var actual = await StaticNodeJSService.InvokeFromStringAsync<ResponseViewModel<string[]>>(
+            nodeModule,
+            args: new object[] { brandId, agentId });
+
+        // Assert
+        Assert.True(actual?.Valid);
+        Assert.Equal(expected.Data, actual?.Data);
     }
 
     [Fact]
@@ -83,6 +144,65 @@ public class AgentDomainTests
         // Assert
         _ = fakeAgentRepository.Received(1)
             .AddDomainToAgentAsync(
+                Arg.Is(agentId),
+                Arg.Is(domain));
+    }
+
+    [Fact]
+    public async Task 移除代理域名()
+    {
+        // Arrange
+        var channelName = Guid.NewGuid().ToString();
+        var userId = Guid.NewGuid();
+
+        var fakeAgentRepository = Substitute.For<IAgentRepository>();
+
+        using var web = TestBackendOfficeApplication.Builder
+            .UseTestChannelServer(channelName)
+            .ConfigureLogging(logging => logging.AddXUnit(_testOutputHelper))
+            .ConfigureServices(services => services
+                .AddAuthentication("Fake")
+                .AddScheme<FakeAuthenticationSchemaOptions, FakeAuthenticationHandler>(
+                    "Fake",
+                    options =>
+                    {
+                        options.UserId = userId;
+                        options.UserName = "system";
+                    })
+                .Services
+                .AddSingleton(fakeAgentRepository))
+            .Build();
+
+        await web.StartAsync();
+
+        var brandId = Guid.NewGuid();
+        var agentId = Guid.NewGuid();
+        var domain = "test.com";
+
+        var isWindows = RuntimeInformation.IsOSPlatform(OSPlatform.Windows) ? "true" : "false";
+
+        var nodeModule = $$"""
+            const axiosConfigFactory = require('./models/axios-configuration.js').default;
+            const BackOfficeService = require('./services/bo-service.js').default;
+
+            module.exports = async (brandId, agentId, domain) =>
+            {
+                let instance = axiosConfigFactory("{{channelName}}", {{isWindows}});
+
+                let svc = new BackOfficeService(instance);
+
+                await svc.removeAgentDomain(brandId, agentId, domain);
+            };
+        """;
+
+        // Act
+        await StaticNodeJSService.InvokeFromStringAsync(
+            nodeModule,
+            args: new object[] { brandId, agentId, domain });
+
+        // Assert
+        _ = fakeAgentRepository.Received(1)
+            .RemoveDomainFromAgentAsync(
                 Arg.Is(agentId),
                 Arg.Is(domain));
     }

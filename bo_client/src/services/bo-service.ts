@@ -80,4 +80,22 @@ export default class BackOfficeService {
                 })
             .then(res => res.data);
     }
+
+    public listAgentDomains(brandId: string, agentId: string): Promise<ApiResponse<string[]>> {
+        return this.http
+            .get(`/api/agent/domain/${brandId}/${agentId}`)
+            .then(res => res.data);
+    }
+
+    public removeAgentDomain(brandId: string, agentId: string, domain: string): Promise<void> {
+        return this.http
+            .delete(
+                `/api/agent/domain/${brandId}/${agentId}`,
+                {
+                    params: {
+                        domain
+                    }
+                })
+            .then(res => res.data);
+    }
 }
