@@ -29,7 +29,6 @@ public class PlayerPaymentTests
         var channelName = Guid.NewGuid().ToString();
         var userId = Guid.NewGuid();
 
-        var fakePlayerServiceClient = Substitute.For<IPlayerServiceClient>();
         var fakePaymentServiceClient = Substitute.For<IPaymentServiceClient>();
 
         using var web = TestBackendOfficeApplication.Builder
@@ -41,27 +40,13 @@ public class PlayerPaymentTests
                     "Fake",
                     options => options.UserId = userId)
                 .Services
-                .AddSingleton(fakePaymentServiceClient)
-                .AddSingleton(fakePlayerServiceClient))
+                .AddSingleton(fakePaymentServiceClient))
             .Build();
 
         await web.StartAsync();
 
         var playerCode = "test1";
         var time = DateTime.UtcNow;
-
-        _ = fakePlayerServiceClient.GetPlayerInfoAsync(Arg.Is(playerCode), Arg.Any<CancellationToken>())
-            .Returns(new Tgs.PlayerService.Client.PlayerInfo
-            {
-                PlayerCode = playerCode,
-                BrandId = Guid.NewGuid()
-            });
-
-        _ = fakePlayerServiceClient.GetPlayerPropertiesAsync(Arg.Is(playerCode), Arg.Any<CancellationToken>())
-            .Returns(new Dictionary<string, string>
-            {
-                ["DefaultWalletId"] = Guid.NewGuid().ToString()
-            }.ToImmutableDictionary());
 
         _ = fakePaymentServiceClient.GetPlayerPaymentOverviewAsync(
             Arg.Is(playerCode),

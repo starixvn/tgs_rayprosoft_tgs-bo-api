@@ -39,4 +39,10 @@ export default class BackOfficeService {
             .get(`/api/player/payment/${playerCode}`, {})
             .then(res => res.data);
     }
+
+    public reducePlayerAmount(playerCode: string, request: ReducePlayerAmountRequest): Promise<MessageResponse> {
+        return this.http
+            .post(`/api/player/wallet/reduce/${playerCode}`, request)
+            .then(res => res.data);
+    }
 }

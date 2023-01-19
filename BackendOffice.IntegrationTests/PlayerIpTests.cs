@@ -38,7 +38,11 @@ public class PlayerIpTests
                 .AddAuthentication("Fake")
                 .AddScheme<FakeAuthenticationSchemaOptions, FakeAuthenticationHandler>(
                     "Fake",
-                    options => options.UserId = userId)
+                    options =>
+                    {
+                        options.UserId = userId;
+                        options.UserName = "system";
+                    })
                 .Services
                 .AddSingleton(fakeService))
             .Build();

@@ -123,7 +123,7 @@ public class PlayerWalletAdjustController : BaseContextController
             if (request.TransactionType == PlayerReduceTransactionType.TransferAdjust)
             {
                 var command = new PlayerTransferBalanceToParentAgentCommand(
-                    request.PlayerCode,
+                    playerCode,
                     request.Amount,
                     request.BucketAmount,
                     request.Remark,
@@ -137,7 +137,7 @@ public class PlayerWalletAdjustController : BaseContextController
             else
             {
                 var command = new AdjustPlayerBalanceCommand(
-                    request.PlayerCode,
+                    playerCode,
                     AdjustmentType.Subtract,
                     (PlayerAdjustmentTransactionType)request.TransactionType,
                     request.Amount,

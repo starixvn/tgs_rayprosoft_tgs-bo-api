@@ -94,7 +94,7 @@ internal class PlayerAdjustBalanceService : IPlayerAdjustBalanceService
     }
 
     public async ValueTask ProcessTransferApplyAsync(
-            PlayerBalanceTransferApplyInfo applyInfo,
+        PlayerBalanceTransferApplyInfo applyInfo,
         Guid modifyUserId,
         CancellationToken cancellationToken = default)
     {
