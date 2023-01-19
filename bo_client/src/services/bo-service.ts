@@ -67,4 +67,17 @@ export default class BackOfficeService {
                 })
             .then(res => res.data);
     }
+
+    public addAgentDomain(brandId: string, agentId: string, domain: string): Promise<void> {
+        return this.http
+            .put(
+                `/api/agent/domain/${brandId}/${agentId}`,
+                null,
+                {
+                    params: {
+                        domain
+                    }
+                })
+            .then(res => res.data);
+    }
 }
