@@ -16,7 +16,6 @@ public class AgentDomainController : BaseContextController
     [HttpPut("{brandId}/{agentId}")]
     public ValueTask AddAgentDomainAsync(
         [FromServices] ICommandService<AddAgentDomainCommand> addService,
-        Guid brandId,
         Guid agentId,
         [RegularExpression(".{1,253}"), Required, FromQuery(Name = "domain")] string domainName)
     {
@@ -28,7 +27,6 @@ public class AgentDomainController : BaseContextController
     [HttpGet("{brandId}/{agentId}")]
     public async Task<ResponseViewModel<string[]>> GetAgentDomainsAsync(
         [FromServices] IQueryService<AgentDomainsQuery, string> queryService,
-        Guid brandId,
         Guid agentId)
     {
         var query = new AgentDomainsQuery(agentId);
@@ -45,7 +43,6 @@ public class AgentDomainController : BaseContextController
     [HttpDelete("{brandId}/{agentId}")]
     public ValueTask RemoveAgentDomainAsync(
         [FromServices] ICommandService<RemoveAgentDomainCommand> removeService,
-        Guid brandId,
         Guid agentId,
         [RegularExpression(".{1,253}"), Required, FromQuery(Name = "domain")] string domainName)
     {

@@ -51,4 +51,51 @@ export default class BackOfficeService {
             .post(`/api/player/wallet/reduce/${playerCode}`, request)
             .then(res => res.data);
     }
+
+    public listAgentPlayerWinloss(
+        agentId: string,
+        condition: AgentPlayerWinLossReportConditions,
+        paging: PageableRequest): Promise<PagedResponse<AgentPlayerWinLoss>> {
+        return this.http
+            .get(
+                `/api/agentreport/${agentId}/winloss`,
+                {
+                    params: {
+                        ...condition,
+                        ...paging
+                    }
+                })
+            .then(res => res.data);
+    }
+
+    public addAgentDomain(brandId: string, agentId: string, domain: string): Promise<void> {
+        return this.http
+            .put(
+                `/api/agent/domain/${brandId}/${agentId}`,
+                null,
+                {
+                    params: {
+                        domain
+                    }
+                })
+            .then(res => res.data);
+    }
+
+    public listAgentDomains(brandId: string, agentId: string): Promise<ApiResponse<string[]>> {
+        return this.http
+            .get(`/api/agent/domain/${brandId}/${agentId}`)
+            .then(res => res.data);
+    }
+
+    public removeAgentDomain(brandId: string, agentId: string, domain: string): Promise<void> {
+        return this.http
+            .delete(
+                `/api/agent/domain/${brandId}/${agentId}`,
+                {
+                    params: {
+                        domain
+                    }
+                })
+            .then(res => res.data);
+    }
 }

@@ -1,0 +1,4 @@
+interface PagedResponse<T> {
+    items: T[];
+    totalCount: number;
+}
