@@ -1,4 +1,4 @@
-interface ReducePlayerAmountRequest {
+interface AdjustPlayerAmountRequest {
     includeInNetProfit: boolean;
     transactionType: string;
     amount: number;

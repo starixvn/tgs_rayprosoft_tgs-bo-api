@@ -63,7 +63,7 @@ public class PlayerWalletAdjustController : BaseContextController
         try
         {
             var command = new AdjustPlayerBalanceCommand(
-                request.PlayerCode,
+                playerCode,
                 AdjustmentType.Add,
                 (PlayerAdjustmentTransactionType)request.TransactionType,
                 request.Amount,

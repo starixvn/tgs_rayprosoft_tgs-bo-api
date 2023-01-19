@@ -40,7 +40,13 @@ export default class BackOfficeService {
             .then(res => res.data);
     }
 
-    public reducePlayerAmount(playerCode: string, request: ReducePlayerAmountRequest): Promise<MessageResponse> {
+    public increasePlayerAmount(playerCode: string, request: AdjustPlayerAmountRequest): Promise<MessageResponse> {
+        return this.http
+            .post(`/api/player/wallet/increase/${playerCode}`, request)
+            .then(res => res.data);
+    }
+
+    public reducePlayerAmount(playerCode: string, request: AdjustPlayerAmountRequest): Promise<MessageResponse> {
         return this.http
             .post(`/api/player/wallet/reduce/${playerCode}`, request)
             .then(res => res.data);
