@@ -7,8 +7,8 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <PackageReference Include="Tgs.Core" Version="1.0.15-alpha" />
-    <PackageReference Include="Tgs.PlayerBucket.Client" Version="0.0.6" />
+    <PackageReference Include="Tgs.Core" Version="1.0.17" />
+    <PackageReference Include="Tgs.PlayerBucket.Client" Version="0.0.8" />
   </ItemGroup>
 
 </Project>

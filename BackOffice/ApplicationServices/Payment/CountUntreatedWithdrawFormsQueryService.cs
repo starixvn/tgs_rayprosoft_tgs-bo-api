@@ -4,7 +4,7 @@ using System.Threading.Tasks;
 using Tgs.Payment.Clients;
 using Tgs.ServiceUtility;
 
-namespace TGS.Services.BackOffice.ApplicationServices;
+namespace TGS.Services.BackOffice.ApplicationServices.Payment;
 
 internal class CountUntreatedWithdrawFormsQueryService : IGetService<CountUntreatedWithdrawFormsQuery, int>
 {

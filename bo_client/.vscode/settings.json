@@ -1,0 +1,7 @@
+{
+    "files.exclude": {
+        "index.js": true,
+        "models": true,
+        "services": true
+    }
+}

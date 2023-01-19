@@ -21,6 +21,7 @@ using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 using Microsoft.OpenApi.Models;
+using OpenTelemetry;
 using OpenTelemetry.Exporter;
 using OpenTelemetry.Instrumentation.AspNetCore;
 using OpenTelemetry.Resources;
@@ -159,6 +160,8 @@ builder.Services
 
 builder.Services
     .AddDateOnlyTimeOnlyStringConverters()
+    .AddFluentValidationAutoValidation(config => config.DisableDataAnnotationsValidation = true)
+    .AddFluentValidationClientsideAdapters()
     .AddControllers(options =>
     {
         var policy = new AuthorizationPolicyBuilder()
@@ -169,12 +172,6 @@ builder.Services
         options.Filters.Add(new ValidationFilter());
     })
     .AddDataAnnotationsLocalization()
-    .AddFluentValidation(c =>
-    {
-        _ = c.RegisterValidatorsFromAssembly(
-            Assembly.GetExecutingAssembly(),
-            lifetime: ServiceLifetime.Scoped);
-    })
     .AddJsonOptions(options =>
     {
         options.JsonSerializerOptions.Converters.Add(new JsonStringEnumConverter());
@@ -279,20 +276,21 @@ builder.Services
     });
 
 builder.Services
-    .AddOpenTelemetryTracing(
-        builder => builder
-            .SetResourceBuilder(ResourceBuilder.CreateDefault()
-                .AddEnvironmentVariableDetector())
-            .AddSource("Tgs.*")
-            .AddSource("TGS.*")
-            .AddAspNetCoreInstrumentation()
-            .AddHttpClientInstrumentation()
-            .AddEntityFrameworkCoreInstrumentation(options =>
-            {
-                options.SetDbStatementForText = true;
-            })
-            .AddProfileViewExporter()
-            .AddOtlpExporter())
+    .AddOpenTelemetry()
+    .WithTracing(builder => builder
+        .SetResourceBuilder(ResourceBuilder.CreateDefault()
+            .AddEnvironmentVariableDetector())
+        .AddSource("Tgs.*")
+        .AddSource("TGS.*")
+        .AddAspNetCoreInstrumentation()
+        .AddHttpClientInstrumentation()
+        .AddEntityFrameworkCoreInstrumentation(options =>
+        {
+            options.SetDbStatementForText = true;
+        })
+        .AddProfileViewExporter()
+        .AddOtlpExporter())
+    .Services
     .Configure<AspNetCoreInstrumentationOptions>(options =>
     {
         options.Filter = httpContext =>

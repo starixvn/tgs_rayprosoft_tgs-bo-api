@@ -1,7 +1,6 @@
 ﻿using Jering.Javascript.NodeJS;
 using Xunit.Abstractions;
 using Xunit.Sdk;
-using BackendOffice.IntegrationTests.XunitExtensions;
 
 namespace BackendOffice.IntegrationTests.XunitExtensions;
 
@@ -38,7 +37,12 @@ public class XunitTestAssemblyRunnerWithAssemblyFixture : XunitTestAssemblyRunne
                         "../../../..",
                         "bo_client")));
             StaticNodeJSService.Configure<OutOfProcessNodeJSServiceOptions>(
-                 processOptions => processOptions.Concurrency = Concurrency.MultiProcess);
+                 processOptions =>
+                 {
+                     processOptions.Concurrency = Concurrency.MultiProcess;
+                     //processOptions.TimeoutMS = 3000;
+                     processOptions.NumRetries = 0;
+                 });
         });
     }
 

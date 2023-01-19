@@ -9,7 +9,6 @@ using AutoFixture;
 using ExpectedObjects;
 using FluentAssertions;
 using MediatR;
-using Microsoft.Extensions.Logging.Abstractions;
 using MockQueryable.Moq;
 using Moq;
 using NSubstitute;

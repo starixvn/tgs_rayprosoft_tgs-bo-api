@@ -1,7 +1,7 @@
 ﻿using System.Runtime.CompilerServices;
 using Microsoft.Extensions.Caching.Memory;
 using Tgs.ServiceUtility;
-using TGS.Services.BackOffice.ApplicationServices;
+using TGS.Services.BackOffice.ApplicationServices.Payment;
 using TGS.Services.BackOffice.Domain;
 
 namespace TGS.Services.BackOffice.Application.Services;
@@ -38,7 +38,7 @@ internal class CachedPlayerPaymentStatisticsDetailQueryService
                     .ConfigureAwait(false);
             }).ConfigureAwait(false);
 
-        foreach (var item in result)
+        foreach (var item in result!)
             yield return item;
     }
 }

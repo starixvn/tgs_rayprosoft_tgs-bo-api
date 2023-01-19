@@ -42,7 +42,7 @@ internal class CachedAgentPlayerDepositQueryService : IQueryService<AgentPlayerD
                     .ConfigureAwait(false);
             }).ConfigureAwait(false);
 
-        foreach (var item in result)
+        foreach (var item in result!)
             yield return item;
     }
 }

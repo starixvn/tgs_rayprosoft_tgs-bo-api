@@ -1,12 +1,12 @@
-﻿using MediatR;
+﻿#nullable enable
+
 using TGS.Core.Models.Enums;
-using TGS.Core.Models.Messages;
 
 namespace TGS.Services.BackOffice.Application.Models.Player;
 
-public record CreatePlayerReduceAmountRequest : IRequest<MessageResponse>
+public record CreatePlayerReduceAmountRequest
 {
-    public string PlayerCode { get; set; }
+    public string? PlayerCode { get; set; }
 
     public bool IncludeInNetProfit { get; set; }
 
@@ -14,7 +14,7 @@ public record CreatePlayerReduceAmountRequest : IRequest<MessageResponse>
 
     public decimal Amount { get; set; }
 
-    public string Remark { get; set; }
+    public string? Remark { get; set; }
 
     public decimal BucketAmount { get; set; }
 }

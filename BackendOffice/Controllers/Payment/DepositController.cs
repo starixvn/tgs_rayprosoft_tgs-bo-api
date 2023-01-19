@@ -13,9 +13,9 @@ using TGS.Apis.BackendOffice.Controllers.Messages.Deposit;
 using TGS.Apis.BackendOffice.Extensions;
 using TGS.Core.Models.Messages;
 using TGS.Services.BackOffice.Application.Queries.Deposit;
-using TGS.Services.BackOffice.ApplicationServices;
+using TGS.Services.BackOffice.ApplicationServices.Payment;
 
-namespace TGS.Apis.BackendOffice.Controllers;
+namespace TGS.Apis.BackendOffice.Controllers.Payment;
 
 [Route("api/[controller]")]
 [ApiController]

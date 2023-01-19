@@ -18,7 +18,12 @@ internal class FakeAuthenticationHandler : AuthenticationHandler<FakeAuthenticat
 
     protected override Task<AuthenticateResult> HandleAuthenticateAsync()
     {
-        var identity = new ClaimsIdentity(new[] { new Claim("UserId", Options.UserId.ToString()) }, "Fake");
+        var identity = new ClaimsIdentity(
+            new[] {
+                new Claim("UserId", Options.UserId.ToString()),
+                new Claim("Username", Options.UserName)
+            },
+            "Fake");
         var principal = new ClaimsPrincipal(identity);
         var ticket = new AuthenticationTicket(principal, "Fake");
 

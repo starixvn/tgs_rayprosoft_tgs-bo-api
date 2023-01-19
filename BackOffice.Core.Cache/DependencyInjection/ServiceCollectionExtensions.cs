@@ -2,6 +2,7 @@
 using Tgs.ServiceUtility;
 using TGS.Services.BackOffice.Application.Services;
 using TGS.Services.BackOffice.ApplicationServices;
+using TGS.Services.BackOffice.ApplicationServices.Payment;
 using TGS.Services.BackOffice.Cache;
 using TGS.Services.BackOffice.Domain;
 
