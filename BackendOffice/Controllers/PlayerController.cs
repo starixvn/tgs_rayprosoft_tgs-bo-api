@@ -450,6 +450,33 @@ public partial class PlayerController : BaseContextController
             };
     }
 
+    [HttpGet("vipAdjustInfos/{playerCode}", Name = "GetVipAdjustInfos")]
+    [Description("Get player vip adjust infos")]
+    public async Task<PagedResponse<PlayerVipAdjustInfo>> GetVipAdjustInfosAsync(
+        string playerCode,
+        [FromServices] IGetService<GetPlayerVipAdjustQuery, Tgs.VipLevelService.Clients.PagingResponse<PlayerVipAdjustInfo>> service,
+        [FromQuery] Messages.Player.GetVipAdjustInfosRequest request,
+        [FromQuery] PageableRequest paging)
+    {
+        var query = new GetPlayerVipAdjustQuery(
+            playerCode,
+            request.BrandId,
+            request.From,
+            request.To,
+            paging);
+
+        var result = await service.GetAsync(query)
+            .ConfigureAwait(false);
+
+        return new PagedResponse<PlayerVipAdjustInfo>
+        {
+            Valid = true,
+            Message = string.Empty,
+            TotalCount = result.TotalCount,
+            Items = result.Items.ToArray(),
+        };
+    }
+
     [HttpPut("{playerCode}/{type}", Name = "UpdatePlayer")]
     [Description("Update player")]
     public Task<MessageResponse> UpdateAsync(string playerCode, string type,
