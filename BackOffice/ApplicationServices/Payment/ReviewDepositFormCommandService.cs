@@ -15,7 +15,7 @@ using TGS.Services.BackOffice.Infrastructure.DataService;
 using TGS.Services.PlayerBucket;
 using TGS.Services.PlayerBucket.Models;
 
-namespace TGS.Services.BackOffice.ApplicationServices;
+namespace TGS.Services.BackOffice.ApplicationServices.Payment;
 
 internal class ReviewDepositFormCommandService : ICommandService<ReviewDepositFormCommand>
 {

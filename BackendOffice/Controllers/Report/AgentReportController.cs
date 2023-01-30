@@ -20,8 +20,7 @@ public class AgentReportController : BaseContextController
     [Description("export agent contributions")]
     [ByPassAdminLog]
     public async Task<IActionResult> ExportAgentContributionsFileAsync(
-        [FromServices] IGetService<ExportAgentContributionsRequest, Stream>
-            exportAgentContributionsService,
+        [FromServices] IGetService<ExportAgentContributionsRequest, Stream> exportAgentContributionsService,
         [FromQuery] ExportAgentContributionsRequest request)
         => File(
             await exportAgentContributionsService
@@ -69,9 +68,9 @@ public class AgentReportController : BaseContextController
     {
         var reportRequest = new GetAgentDividendDetailsReportRequest
         {
-            AgentId= request.AgentId,
-            AgentDividendPercentage= request.AgentDividendPercentage,
-            From= request.From,
+            AgentId = request.AgentId,
+            AgentDividendPercentage = request.AgentDividendPercentage,
+            From = request.From,
             To = request.To,
             Page = request.Page,
             Rows = request.Rows,
@@ -127,13 +126,12 @@ public class AgentReportController : BaseContextController
     [Description("Get agent player Win/Loss report")]
     public async Task<PagedResponse<AgentPlayerWinLossReportModel>> GetAgentPlayerWinLossAsync(
         Guid id,
-        [FromServices] IGetService<GetAgentPlayerWinLossReportRequest, PagedResponse<AgentPlayerWinLossReportModel>>
-            agentPlayerWinLossService,
+        [FromServices] IGetService<GetAgentPlayerWinLossReportRequest, PagedResponse<AgentPlayerWinLossReportModel>> agentPlayerWinLossService,
         [FromQuery] GetAgentPlayerWinLossReportViewRequest request)
     {
         var reportRequest = new GetAgentPlayerWinLossReportRequest
         {
-            AgentId = request.AgentId,
+            AgentId = id,
             AgentDividendPercentage = request.AgentDividendPercentage,
             From = request.From,
             To = request.To,

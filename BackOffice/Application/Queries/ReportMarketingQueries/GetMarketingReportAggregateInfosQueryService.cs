@@ -9,6 +9,7 @@ using Tgs.ServiceUtility;
 using TGS.Core.DataServices.Base.Extensions;
 using TGS.Services.BackOffice.Application.Models.ReportMarketing;
 using TGS.Services.BackOffice.ApplicationServices;
+using TGS.Services.BackOffice.ApplicationServices.Payment;
 using TGS.Services.BackOffice.Domain;
 
 namespace TGS.Services.BackOffice.Application.Queries.ReportMarketingQueries;

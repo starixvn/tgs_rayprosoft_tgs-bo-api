@@ -7,8 +7,6 @@ using Tgs.SerialNumberGenerator;
 using Tgs.Service.PlayerBuckets;
 using TGS.Core.Models.Enums;
 using TGS.Services.BackOffice.Domain;
-using TGS.Services.PlayerBucket;
-using TGS.Services.PlayerBucket.Models;
 using TGS.Services.WalletService;
 
 namespace TGS.Tests.BackendOffice.UnitTests;

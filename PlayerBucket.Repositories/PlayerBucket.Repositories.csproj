@@ -5,11 +5,11 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <PackageReference Include="Microsoft.VisualStudio.Threading.Analyzers" Version="17.4.27">
+    <PackageReference Include="Microsoft.VisualStudio.Threading.Analyzers" Version="17.4.33">
       <PrivateAssets>all</PrivateAssets>
       <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
     </PackageReference>
-    <PackageReference Include="Tgs.CashService.Client" Version="0.1.5" />
+    <PackageReference Include="Tgs.CashService.Client" Version="0.1.6" />
   </ItemGroup>
 
   <ItemGroup>

@@ -156,27 +156,27 @@ public class GameController : BaseContextController
                 row.Append(
                     new Cell
                     {
-                        CellValue = new CellValue(game.Name), 
+                        CellValue = new CellValue(game.Name),
                         DataType = CellValues.String
                     },
                     new Cell
                     {
-                        CellValue = new CellValue(game.Code), 
+                        CellValue = new CellValue(game.Code),
                         DataType = CellValues.String
                     },
                     new Cell
                     {
-                        CellValue = new CellValue(game.RuleUrl), 
+                        CellValue = new CellValue(game.RuleUrl),
                         DataType = CellValues.String
                     },
                     new Cell
                     {
-                        CellValue = new CellValue(game.ExternalId), 
+                        CellValue = new CellValue(game.ExternalId),
                         DataType = CellValues.String
                     },
                     new Cell
                     {
-                        CellValue = new CellValue(game.Type.ToString()), 
+                        CellValue = new CellValue(game.Type.ToString()),
                         DataType = CellValues.String
                     },
                     new Cell
@@ -194,14 +194,14 @@ public class GameController : BaseContextController
                         CellValue = new CellValue(game.EndpointPath),
                         DataType = CellValues.String
                     },
-                    new Cell 
+                    new Cell
                     {
-                        CellValue = new CellValue(game.Description), 
+                        CellValue = new CellValue(game.Description),
                         DataType = CellValues.String
                     },
                     new Cell
                     {
-                        CellValue = new CellValue(game.SubGame), 
+                        CellValue = new CellValue(game.SubGame),
                         DataType = CellValues.Boolean
                     },
                     new Cell

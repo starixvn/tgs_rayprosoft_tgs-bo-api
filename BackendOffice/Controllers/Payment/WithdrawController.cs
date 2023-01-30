@@ -15,9 +15,9 @@ using TGS.Core.Models.Messages;
 using TGS.Services.BackOffice.Application.Commands.Withdraw;
 using TGS.Services.BackOffice.Application.Queries.Withdraw;
 using TGS.Services.BackOffice.Application.Resources;
-using TGS.Services.BackOffice.ApplicationServices;
+using TGS.Services.BackOffice.ApplicationServices.Payment;
 
-namespace TGS.Apis.BackendOffice.Controllers;
+namespace TGS.Apis.BackendOffice.Controllers.Payment;
 
 [Route("api/[controller]")]
 [ApiController]

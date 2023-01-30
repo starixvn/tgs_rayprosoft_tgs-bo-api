@@ -18,8 +18,8 @@ internal class GetPromotionEventDetailQueryService : IGetService<GetPromotionEve
     }
 
     public ValueTask<PromotionEventDetailInfo?> GetAsync(
-        GetPromotionEventDetailQuery query, 
-        CancellationToken cancellationToken = default) 
+        GetPromotionEventDetailQuery query,
+        CancellationToken cancellationToken = default)
         => _promotionHistoryClient.GetPromotionEventDetailAsync(
             query.PromotionId,
             query.EventId,

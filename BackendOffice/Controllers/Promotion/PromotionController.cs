@@ -14,7 +14,6 @@ using Tgs.ServiceUtility;
 using TGS.Apis.BackendOffice.Controllers.Messages.Promotion;
 using TGS.Core.Models.Enums;
 using TGS.Core.Models.Messages;
-using TGS.Services.BackOffice.Application.Queries.BrandHandlers;
 using TGS.Services.BackOffice.ApplicationServices;
 using TGS.Services.BackOffice.Domain;
 using PromotionStatus = TGS.Core.Models.Enums.PromotionStatus;
@@ -25,7 +24,7 @@ namespace TGS.Apis.BackendOffice.Controllers.Promotion;
 [ApiController]
 public class PromotionController : BaseContextController
 {
-    private readonly ImmutableArray<string> promotionTypes = new string[]
+    private readonly ImmutableArray<string> _promotionTypes = new string[]
     {
         "ReliefMoneyDaily",
         "ReliefMoneyWeekly",
@@ -45,8 +44,8 @@ public class PromotionController : BaseContextController
             .ToArray();
 
         await promotionServiceClient.ChangePromotionOrdersAsync(
-                promotionOrders, 
-                Username, 
+                promotionOrders,
+                Username,
                 HttpContext.RequestAborted)
             .ConfigureAwait(false);
 
@@ -63,7 +62,7 @@ public class PromotionController : BaseContextController
         var from = new DateTimeOffset(request.From.ToDateTime(TimeOnly.MinValue), TimeSpan.FromHours(8));
         var to = new DateTimeOffset(request.To.ToDateTime(TimeOnly.MinValue), TimeSpan.FromHours(8));
 
-        if (promotionTypes.Contains(request.PromotionType))
+        if (_promotionTypes.Contains(request.PromotionType))
         {
             var brandInfo = await brandServiceClient.GetBrandInfoAsync(request.BrandId)
                 .ConfigureAwait(false);
@@ -142,9 +141,9 @@ public class PromotionController : BaseContextController
             promotionId,
             request.Status switch
             {
-                SwitchStatus.Enabled  => Tgs.Promotion.Clients.PromotionStatus.Enabled,
+                SwitchStatus.Enabled => Tgs.Promotion.Clients.PromotionStatus.Enabled,
                 SwitchStatus.Disabled => Tgs.Promotion.Clients.PromotionStatus.Disabled,
-                _                     => throw new NotImplementedException()
+                _ => throw new NotImplementedException()
             },
             Username,
             HttpContext.RequestAborted).ConfigureAwait(false);
@@ -260,7 +259,7 @@ public class PromotionController : BaseContextController
         var from = new DateTimeOffset(request.From.ToDateTime(TimeOnly.MinValue), TimeSpan.FromHours(8));
         var to = new DateTimeOffset(request.To.ToDateTime(TimeOnly.MinValue), TimeSpan.FromHours(8));
 
-        if (promotionTypes.Contains(request.PromotionType))
+        if (_promotionTypes.Contains(request.PromotionType))
         {
             var promotion = await promotionServiceClient.GetPromotionMainInfoAsync(promotionId).ConfigureAwait(false);
 
@@ -340,9 +339,9 @@ public class PromotionController : BaseContextController
             promotionId,
             request.Status switch
             {
-                SwitchStatus.Enabled  => Tgs.Promotion.Clients.PromotionStatus.Enabled,
+                SwitchStatus.Enabled => Tgs.Promotion.Clients.PromotionStatus.Enabled,
                 SwitchStatus.Disabled => Tgs.Promotion.Clients.PromotionStatus.Disabled,
-                _                     => throw new NotImplementedException()
+                _ => throw new NotImplementedException()
             },
             Username,
             HttpContext.RequestAborted).ConfigureAwait(false);

@@ -10,6 +10,7 @@ using TGS.Apis.BackendOffice.ViewModels;
 using TGS.Core.Models.Messages;
 using TGS.Services.BackOffice.Application.Models.ReportPlayerDeposit;
 using TGS.Services.BackOffice.ApplicationServices;
+using TGS.Services.BackOffice.ApplicationServices.Payment;
 using TGS.Services.BackOffice.Domain;
 
 namespace TGS.Apis.BackendOffice.Controllers.Report;

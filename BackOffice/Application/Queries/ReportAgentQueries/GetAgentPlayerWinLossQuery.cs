@@ -10,9 +10,7 @@ using TGS.Services.BackOffice.Application.Models.ReportAgent;
 
 namespace TGS.Services.BackOffice.Application.Queries.ReportAgentQueries;
 
-public class
-    GetAgentPlayerWinLossQuery : IGetService<GetAgentPlayerWinLossReportRequest,
-        PagedResponse<AgentPlayerWinLossReportModel>>
+public class GetAgentPlayerWinLossQuery : IGetService<GetAgentPlayerWinLossReportRequest, PagedResponse<AgentPlayerWinLossReportModel>>
 {
     private readonly IReportClient _reportClient;
 

@@ -1,0 +1,7 @@
+{
+    "files.exclude": {
+        "bo_client/index.js": true,
+        "bo_client/models": true,
+        "bo_client/services": true
+    }
+}

@@ -16,27 +16,6 @@ namespace TGS.Apis.BackendOffice.Controllers.Promotion;
 [ApiController]
 public class PromotionHistoryController : ControllerBase
 {
-    [HttpGet("{promotionId}", Name = "QueryPromotionEvents")]
-    public IAsyncEnumerable<PromotionEventViewModel> QueryPromotionEventsAsync(
-        [FromServices] IQueryService<GetPromotionEventsQuery, PromotionEventMainInfo> queryService,
-        Guid promotionId)
-    {
-        var query = new GetPromotionEventsQuery(promotionId);
-
-        return queryService.QueryAsync(
-                query,
-                HttpContext.RequestAborted)
-            .OrderByDescending(evt => evt.CreatedOn)
-            .Select(evt => new PromotionEventViewModel
-            {
-                EventId = evt.EventId,
-                Action = evt.Action,
-                PromotionId = evt.PromotionId,
-                CreatedOn = evt.CreatedOn,
-                Modifier = evt.Modifier
-            });
-    }
-
     [HttpGet("detail/{promotionId}/{eventId}", Name = "GetPromotionEventDetail")]
     public async ValueTask<PromotionEventDetailViewModel?> GetPromotionEventDetailAsync(
         [FromServices] IGetService<GetPromotionEventDetailQuery, PromotionEventDetailInfo?> getService,
@@ -58,8 +37,29 @@ public class PromotionHistoryController : ControllerBase
                 PromotionId = info.PromotionId,
                 Action = info.Action,
                 CreatedOn = info.CreatedOn,
-                ChangeSets =  info.ChangeSets,
+                ChangeSets = info.ChangeSets,
                 Modifier = info.Modifier
             };
+    }
+
+    [HttpGet("{promotionId}", Name = "QueryPromotionEvents")]
+    public IAsyncEnumerable<PromotionEventViewModel> QueryPromotionEventsAsync(
+        [FromServices] IQueryService<GetPromotionEventsQuery, PromotionEventMainInfo> queryService,
+        Guid promotionId)
+    {
+        var query = new GetPromotionEventsQuery(promotionId);
+
+        return queryService.QueryAsync(
+                query,
+                HttpContext.RequestAborted)
+            .OrderByDescending(evt => evt.CreatedOn)
+            .Select(evt => new PromotionEventViewModel
+            {
+                EventId = evt.EventId,
+                Action = evt.Action,
+                PromotionId = evt.PromotionId,
+                CreatedOn = evt.CreatedOn,
+                Modifier = evt.Modifier
+            });
     }
 }

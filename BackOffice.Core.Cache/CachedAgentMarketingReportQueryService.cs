@@ -36,11 +36,11 @@ internal class CachedAgentMarketingReportQueryService : IQueryService<AgentMarke
 
                 return await _sourceService
                     .QueryAsync(query, cancellationToken)
-                    .ToArrayAsync()
+                    .ToArrayAsync(cancellationToken)
                     .ConfigureAwait(false);
             }).ConfigureAwait(false);
 
-        foreach (var item in result)
+        foreach (var item in result!)
             yield return item;
     }
 }

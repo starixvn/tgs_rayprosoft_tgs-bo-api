@@ -35,7 +35,7 @@ internal class CachedAllAgentsByBrandQueryService : IQueryService<AllAgentsByBra
                     .ConfigureAwait(false);
             }).ConfigureAwait(false);
 
-        foreach (var item in result)
+        foreach (var item in result!)
             yield return item;
     }
 }

@@ -4,7 +4,7 @@ using System.Threading;
 using Tgs.ServiceUtility;
 using TGS.Services.BackOffice.Domain;
 
-namespace TGS.Services.BackOffice.ApplicationServices;
+namespace TGS.Services.BackOffice.ApplicationServices.Payment;
 
 internal class PlayerPaymentStatisticsDetailQueryService : IQueryService<PlayerPaymentStatisticsDetailQuery, PlayerDailyPaymentItem>
 {

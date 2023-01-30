@@ -1,21 +1,13 @@
-﻿using System.Collections.Immutable;
-using System.Data.SqlClient;
-using System.Globalization;
+﻿using System.Data.SqlClient;
 using System.Runtime.InteropServices;
-using DocumentFormat.OpenXml.Spreadsheet;
+using ExpectedObjects;
 using Jering.Javascript.NodeJS;
-using MediatR;
-using Microsoft.AspNetCore.Http.HttpResults;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
 using NSubstitute;
-using Tgs.CashService.Client;
-using Tgs.PlayerService.Client;
 using Tgs.ServiceUtility;
-using TGS.Core.Models.Enums;
 using TGS.Core.Models.Messages;
-using TGS.Services.BackOffice.Application.Models.PlayerIp;
 using TGS.Services.BackOffice.ApplicationServices;
 using Xunit.Abstractions;
 
@@ -46,10 +38,14 @@ public class PlayerIpTests
                 .AddAuthentication("Fake")
                 .AddScheme<FakeAuthenticationSchemaOptions, FakeAuthenticationHandler>(
                     "Fake",
-                    options => options.UserId = userId)
+                    options =>
+                    {
+                        options.UserId = userId;
+                        options.UserName = "system";
+                    })
                 .Services
                 .AddSingleton(fakeService))
-        .Build();
+            .Build();
 
         await web.StartAsync();
 
@@ -75,7 +71,7 @@ public class PlayerIpTests
         {
             TotalCount = 2,
             Valid = true,
-            Items = new GetPlayerIpsByUserNameResult[] {
+            Items = new[] {
                 new GetPlayerIpsByUserNameResult{
                     IpAddress="111.90.145.159",
                     CreatedOn=DateTimeOffset.Parse("2022-12-27T05:38:00.15534+00:00") },
@@ -85,9 +81,9 @@ public class PlayerIpTests
             }
         };
         _ = fakeService.GetAsync(
-            query: query,
+            Arg.Any<GetPlayerIpsByUserNameQuery>(),
             cancellationToken: Arg.Any<CancellationToken>())
-        .Returns(response);
+            .Returns(response);
 
         var isWindows = RuntimeInformation.IsOSPlatform(OSPlatform.Windows) ? "true" : "false";
 
@@ -101,13 +97,25 @@ public class PlayerIpTests
 
                 let svc = new BackOfficeService(instance);
 
-                svc.getPlayerIpsByUserName(brandId, userName, page, rows, sortby, orderby, showAll);
+                return await svc.getPlayerIpsByUserName(
+                    brandId, 
+                    userName, 
+                    page, 
+                    rows, 
+                    sortby, 
+                    orderby, 
+                    showAll);
             };
         """;
 
         // Act
-        await StaticNodeJSService.InvokeFromStringAsync(
+        var actual = await StaticNodeJSService.InvokeFromStringAsync<PagedResponse<GetPlayerIpsByUserNameResult>>(
             nodeModule,
             args: new object[] { brandId, userName, page, rows, sortby, orderby, showAll });
+
+        // Assert
+        Assert.True(actual!.Valid);
+        Assert.Equal(2, actual!.TotalCount);
+        response.Items.ToExpectedObject().ShouldMatch(actual!.Items);
     }
 }

@@ -5,9 +5,9 @@ namespace TGS.Services.BackOffice.Application.Models.ReportAgent;
 
 public class GetAgentPlayerWinLossReportRequest : PageableRequest
 {
-    public Guid AgentId { get; set; }
-
     public decimal AgentDividendPercentage { get; init; }
+
+    public Guid AgentId { get; set; }
 
     public DateTimeOffset From { get; init; }
 

@@ -20,7 +20,7 @@ internal class GameRepository : IGameRepository
     }
 
     public async IAsyncEnumerable<GameInfo> QueryAllGamesAsync(
-        Guid gameProviderId, 
+        Guid gameProviderId,
         [EnumeratorCancellation] CancellationToken cancellationToken = default)
     {
         var games = await _tgsRepository.Games
@@ -43,7 +43,7 @@ internal class GameRepository : IGameRepository
             .ToArrayAsync(cancellationToken)
             .ConfigureAwait(false);
 
-        foreach(var game in games)
+        foreach (var game in games)
             yield return game;
     }
 }
