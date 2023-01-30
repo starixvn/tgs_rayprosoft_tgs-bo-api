@@ -22,6 +22,22 @@ var BackOfficeService = /** @class */ (function () {
             }
         });
     };
+    BackOfficeService.prototype.getVipAdjustInfos = function (playerCode, brandId, from, to, page, rows, sortby, orderby, showAll) {
+        return this
+            .http
+            .get("/api/player/vipAdjustInfos/".concat(playerCode), {
+            params: {
+                brandId: brandId,
+                from: from,
+                to: to,
+                page: page,
+                rows: rows,
+                sortby: sortby,
+                orderby: orderby,
+                showAll: showAll
+            }
+        });
+    };
     return BackOfficeService;
 }());
 exports.default = BackOfficeService;

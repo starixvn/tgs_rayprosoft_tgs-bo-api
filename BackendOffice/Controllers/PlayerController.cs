@@ -450,7 +450,7 @@ public partial class PlayerController : BaseContextController
             };
     }
 
-    [HttpGet("{playerCode}/vipAdjustInfos", Name = "GetVipAdjustInfos")]
+    [HttpGet("vipAdjustInfos/{playerCode}", Name = "GetVipAdjustInfos")]
     [Description("Get player vip adjust infos")]
     public async Task<PagedResponse<PlayerVipAdjustInfo>> GetVipAdjustInfosAsync(
         string playerCode,
