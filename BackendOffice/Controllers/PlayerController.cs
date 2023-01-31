@@ -538,6 +538,7 @@ public partial class PlayerController : BaseContextController
 
             case TransactionType.GameProviderFundOut:
             case TransactionType.GameProviderFundIn:
+            case TransactionType.DividendAllAgentRebate:
                 return description;
 
             default:
