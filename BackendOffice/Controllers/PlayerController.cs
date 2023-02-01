@@ -12,7 +12,6 @@ using Tgs.PlayerService.Client;
 using Tgs.Promotion.Clients;
 using Tgs.Report.Client;
 using Tgs.Report.Client.Models.Player;
-using Tgs.Service.PlayerBuckets;
 using Tgs.ServiceUtility;
 using Tgs.VipLevelService.Clients;
 using TGS.Apis.BackendOffice.Controllers.Messages.Promotion;
@@ -21,7 +20,6 @@ using TGS.Apis.BackendOffice.Resources;
 using TGS.Core.Models.Enums;
 using TGS.Core.Models.Messages;
 using TGS.Services.BackOffice.Application.Models.Player;
-using TGS.Services.BackOffice.Application.Models.PlayerBucket;
 using TGS.Services.BackOffice.Application.Models.ReportPlayer;
 using TGS.Services.BackOffice.Application.Queries.PlayerHandlers;
 using TGS.Services.BackOffice.ApplicationServices;
@@ -59,7 +57,7 @@ public partial class PlayerController : BaseContextController
         return CreateValidResponse<MessageResponse>();
     }
 
-    [HttpPost("{playerCode}/fundin/", Name = "FundInPlayerGameProvider")]
+    [HttpPost("{playerCode}/fundin", Name = "FundInPlayerGameProvider")]
     [Description("FundIn Player GameProvider")]
     public async ValueTask<MessageResponse> FundInPlayerGameProviderAsync(
         [FromServices] ICommandService<FundInPlayerGameProviderCommand> service,
@@ -333,60 +331,6 @@ public partial class PlayerController : BaseContextController
                         : null
                 })
                 .ToArray()
-        };
-    }
-
-    [HttpGet("{playerBucketId}/playerBucketHistories", Name = "GetPlayerBucketHistories")]
-    [Description("Get player buckets")]
-    [Obsolete("舊Api要淘汰")]
-    public async ValueTask<GetPlayerBucketHistoriesResponse> GetPlayerBucketHistoriesAsync(
-        [FromServices] IQueryService<GetPlayerBucketHistoriesQuery, BucketEvent> queryService,
-        Guid playerBucketId)
-    {
-        var query = new GetPlayerBucketHistoriesQuery(playerBucketId);
-
-        return new GetPlayerBucketHistoriesResponse
-        {
-            Valid = true,
-            Items = await queryService
-                .QueryAsync(query, HttpContext.RequestAborted)
-                .Select(evt => new PlayerBucketHistoryModel
-                {
-                    PlayerBucketId = evt.BucketId,
-                    Turnover = evt.ChangeAmount,
-                    CreatedOn = evt.CreatedOn
-                })
-                .ToArrayAsync(HttpContext.RequestAborted)
-                .ConfigureAwait(false)
-        };
-    }
-
-    [HttpGet("{playerCode}/playerBuckets", Name = "GetPlayerBuckets")]
-    [Description("Get player buckets")]
-    [Obsolete("舊Api要淘汰")]
-    public async ValueTask<GetPlayerBucketsResponse> GetPlayerBucketsAsync(
-        [FromServices] IQueryService<GetPlayerBucketsQuery, BucketInfo> queryService,
-        string playerCode)
-    {
-        var query = new GetPlayerBucketsQuery(playerCode);
-
-        return new GetPlayerBucketsResponse
-        {
-            Valid = true,
-            Items = await queryService
-                .QueryAsync(query, HttpContext.RequestAborted)
-                .Select(info => new PlayerBucketModel
-                {
-                    Id = info.Id,
-                    PlayerCode = info.PlayerCode,
-                    BucketType = info.Type,
-                    WageringRequirement = info.Amount,
-                    CompletedWagering = info.FillInAmount,
-                    CreatedOn = info.CreatedOn,
-                    UncompleteWagering = info.Amount - info.FillInAmount
-                })
-                .ToArrayAsync()
-                .ConfigureAwait(false)
         };
     }
 
