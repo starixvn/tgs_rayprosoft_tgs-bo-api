@@ -15,6 +15,26 @@ namespace TGS.Apis.BackendOffice.Controllers;
 [ApiController]
 public class PlayerBucketController : BaseContextController
 {
+    [HttpDelete("{playerCode}")]
+    public async Task ClearPlayerBucketsAsync(
+        [FromServices] IGetService<GetPlayerBucketAmountQuery, ReadBucketResult> getAmountService,
+        [FromServices] ICommandService<ClearPlayerBucketsCommand> clearService,
+        string playerCode)
+    {
+        var result = await getAmountService.GetAsync(
+            new(playerCode),
+            HttpContext.RequestAborted).ConfigureAwait(false);
+
+        if (result.Amount > 0 && result.AnchorBucketId is not null)
+        {
+            var command = new ClearPlayerBucketsCommand(playerCode, result.AnchorBucketId.Value);
+
+            await clearService.ExecuteAsync(
+                command,
+                HttpContext.RequestAborted).ConfigureAwait(false);
+        }
+    }
+
     [HttpGet("amount/{playerCode}", Name = "GetPlayerBucketAmount")]
     public async Task<decimal> GetPlayerBucketAmountAsync(
         [FromServices] IGetService<GetPlayerBucketAmountQuery, ReadBucketResult> getService,

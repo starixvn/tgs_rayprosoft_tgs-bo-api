@@ -1,8 +1,5 @@
-﻿using System;
-using System.Linq;
-using System.Threading.Tasks;
-using NSubstitute;
-using NUnit.Framework;
+﻿using NSubstitute;
+using Tgs.PlayerService.Client;
 using Tgs.Service.PlayerBuckets;
 using TGS.Services.BackOffice.ApplicationServices;
 
@@ -30,10 +27,16 @@ public class PlayerBucketsTests
     public async Task Can_Get_Player_Buckets()
     {
         var fakePlayerBucketClient = Substitute.For<IPlayerBucketClient>();
+        var fakePlayerServiceClient = Substitute.For<IPlayerServiceClient>();
 
-        var sut = new GetPlayerBucketsQueryService(fakePlayerBucketClient);
+        var sut = new GetPlayerBucketsQueryService(
+            fakePlayerBucketClient,
+            fakePlayerServiceClient);
 
         var query = new GetPlayerBucketsQuery("test1");
+
+        _ = fakePlayerServiceClient.GetPlayerInfoAsync(Arg.Is(query.PlayerCode))
+            .Returns(new PlayerInfo());
 
         _ = await sut.QueryAsync(query).ToArrayAsync();
 
