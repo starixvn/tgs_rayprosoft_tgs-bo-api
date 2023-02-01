@@ -99,6 +99,25 @@ export default class BackOfficeService {
             .then(res => res.data);
     }
 
+    public getVipAdjustInfos(playerCode: string, brandId: string, from: string, to:string, page: number, rows: number, sortby: string, orderby: string, showAll: boolean){
+        return this
+            .http
+            .get(`/api/player/vipAdjustInfos/${playerCode}`,
+                {
+                    params: {
+                        brandId: brandId,
+                        from: from,
+                        to: to,
+                        page: page,
+                        rows: rows,
+                        sortby: sortby,
+                        orderby: orderby,
+                        showAll: showAll
+                    }
+                }
+            );
+    }
+
     public clearPlayerBuckets(playerCode: string): Promise<void> {
         return this.http
             .delete(`/api/player/bucket/${playerCode}`)

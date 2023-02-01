@@ -1,0 +1,113 @@
+﻿using System.Data.SqlClient;
+using System.Runtime.InteropServices;
+using Jering.Javascript.NodeJS;
+using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.Hosting;
+using Microsoft.Extensions.Logging;
+using NSubstitute;
+using Tgs.ServiceUtility;
+using Tgs.VipLevelService.Clients;
+using TGS.Core.Models.Messages;
+using TGS.Services.BackOffice.ApplicationServices;
+using Xunit.Abstractions;
+
+namespace BackendOffice.IntegrationTests;
+
+public class PlayerVipAdjustInfosTests
+{
+    private readonly ITestOutputHelper _testOutputHelper;
+
+    public PlayerVipAdjustInfosTests(ITestOutputHelper testOutputHelper)
+    {
+        _testOutputHelper = testOutputHelper ?? throw new ArgumentNullException(nameof(testOutputHelper));
+    }
+
+    [Fact]
+    public async Task 查詢玩家VIP升降紀錄()
+    {
+        // Arrange
+        var channelName = Guid.NewGuid().ToString();
+        var userId = Guid.NewGuid();
+
+        var fakeService = Substitute.For<IGetService<GetPlayerVipAdjustQuery, PagingResponse<PlayerVipAdjustInfo>>>();
+
+        using var web = TestBackendOfficeApplication.Builder
+            .UseTestChannelServer(channelName)
+            .ConfigureLogging(logging => logging.AddXUnit(_testOutputHelper))
+            .ConfigureServices(services => services
+                .AddAuthentication("Fake")
+                .AddScheme<FakeAuthenticationSchemaOptions, FakeAuthenticationHandler>(
+                    "Fake",
+                    options => options.UserId = userId)
+                .Services
+                .AddSingleton(fakeService))
+        .Build();
+
+        await web.StartAsync();
+
+        var playerCode = "4ucmqplxb029";
+        var brandId = Guid.NewGuid();
+        var from = new DateTimeOffset(2022, 12, 1, 0, 0, 0, TimeSpan.Zero);
+        var to = new DateTimeOffset(2023,1,1,0,0,0,TimeSpan.Zero);
+        var page = 1;
+        var rows = 20;
+        var sortby = "createdOn";
+        var orderby = SortOrder.Descending;
+        var showAll = false;
+        var paging = new PageableRequest
+        {
+            Rows = rows,
+            Page = page,
+            SortBy = "createdOn",
+            OrderBy = SortOrder.Descending,
+            ShowAll = showAll,
+        };
+
+        var query = new GetPlayerVipAdjustQuery(
+            PlayerCode: playerCode,
+            BrandId: brandId,
+            From: from,
+            To: to,
+            Paging: paging
+        );
+        var response = new PagingResponse<PlayerVipAdjustInfo>()
+        {
+            TotalCount = 2,            
+            Items = new PlayerVipAdjustInfo[] {
+                new PlayerVipAdjustInfo{
+                    OldLevel = 1,
+                    NewLevel = 2,
+                    CreatedOn = DateTime.Parse("2022-12-27T05:38:00.15534+00:00") },
+                new PlayerVipAdjustInfo{
+                    OldLevel = 2,
+                    NewLevel = 1,
+                    CreatedOn = DateTime.Parse("2022-12-28T10:36:38.562382+00:00") }
+            }
+        };
+        _ = fakeService.GetAsync(
+            query: query,
+            cancellationToken: Arg.Any<CancellationToken>())
+        .Returns(response);
+
+        var isWindows = RuntimeInformation.IsOSPlatform(OSPlatform.Windows) ? "true" : "false";
+
+        var nodeModule = $$"""
+            const axiosConfigFactory = require('./models/axios-configuration.js').default;
+            const BackOfficeService = require('./services/bo-service.js').default;
+
+            module.exports = async (playerCode, brandId, from, to, page, rows, sortby, orderby, showAll) =>
+            {
+                let instance = axiosConfigFactory("{{channelName}}", {{isWindows}});
+
+                let svc = new BackOfficeService(instance);
+
+                svc.getVipAdjustInfos(playerCode, brandId, from, to, page, rows, sortby, orderby, showAll);
+            };
+        """;
+
+        // Act
+        await StaticNodeJSService.InvokeFromStringAsync(
+            nodeModule,
+            args: new object[] { playerCode, brandId, from, to, page, rows, sortby, orderby, showAll });
+    }
+}
