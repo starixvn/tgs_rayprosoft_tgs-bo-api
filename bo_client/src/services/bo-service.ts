@@ -117,4 +117,16 @@ export default class BackOfficeService {
                 }
             );
     }
+
+    public clearPlayerBuckets(playerCode: string): Promise<void> {
+        return this.http
+            .delete(`/api/player/bucket/${playerCode}`)
+            .then(res => res.data);
+    }
+
+    public adjustIncreasePlayerBucket(playerCode: string, request: AdjustPlayerBucketRequest): Promise<void> {
+        return this.http
+            .put(`/api/player/bucket/${playerCode}:adjust-increase`, request)
+            .then(res => res.data);
+    }
 }

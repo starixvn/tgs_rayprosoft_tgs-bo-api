@@ -35,11 +35,4 @@ public class PlayerPaymentController : BaseContextController
             TotalWithdrawAmount = result.TotalWithdrawAmount
         };
     }
-
-    [HttpGet("test/{playerCode}")]
-    public string Test(
-        string playerCode)
-    {
-        return playerCode;
-    }
 }

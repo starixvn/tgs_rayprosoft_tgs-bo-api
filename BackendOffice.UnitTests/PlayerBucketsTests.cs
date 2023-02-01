@@ -1,8 +1,5 @@
-﻿using System;
-using System.Linq;
-using System.Threading.Tasks;
-using NSubstitute;
-using NUnit.Framework;
+﻿using NSubstitute;
+using Tgs.PlayerService.Client;
 using Tgs.Service.PlayerBuckets;
 using TGS.Services.BackOffice.ApplicationServices;
 
@@ -30,10 +27,16 @@ public class PlayerBucketsTests
     public async Task Can_Get_Player_Buckets()
     {
         var fakePlayerBucketClient = Substitute.For<IPlayerBucketClient>();
+        var fakePlayerServiceClient = Substitute.For<IPlayerServiceClient>();
 
-        var sut = new GetPlayerBucketsQueryService(fakePlayerBucketClient);
+        var sut = new GetPlayerBucketsQueryService(
+            fakePlayerBucketClient,
+            fakePlayerServiceClient);
 
         var query = new GetPlayerBucketsQuery("test1");
+
+        _ = fakePlayerServiceClient.GetPlayerInfoAsync(Arg.Is(query.PlayerCode))
+            .Returns(new PlayerInfo());
 
         _ = await sut.QueryAsync(query).ToArrayAsync();
 
@@ -54,5 +57,79 @@ public class PlayerBucketsTests
 
         _ = fakePlayerBucketClient.Received(1)
             .ReadBucketsAsync(Arg.Is(query.PlayerCode));
+    }
+
+    [Test]
+    public async Task 清除流水依據PlayerCode及AnchorBucketId()
+    {
+        var fakePlayerServiceClient = Substitute.For<IPlayerServiceClient>();
+        var fakePlayerBucketClient = Substitute.For<IPlayerBucketClient>();
+
+        var sut = new ClearPlayerBucketsCommandService(
+            fakePlayerServiceClient,
+            fakePlayerBucketClient);
+
+        var command = new ClearPlayerBucketsCommand("test1", Guid.NewGuid());
+
+        _ = fakePlayerServiceClient.GetPlayerInfoAsync(Arg.Is(command.PlayerCode))
+            .Returns(new PlayerInfo());
+
+        await sut.ExecuteAsync(command);
+
+        _ = fakePlayerBucketClient.Received(1)
+            .CleanBucketsAsync(
+                Arg.Is(command.PlayerCode),
+                Arg.Is(command.AnchorId),
+                Arg.Is(default(string)));
+    }
+
+    [Test]
+    public async Task 調整玩家流水_減少流水()
+    {
+        var fakePlayerServiceClient = Substitute.For<IPlayerServiceClient>();
+        var fakePlayerBucketCleint = Substitute.For<IPlayerBucketClient>();
+
+        var sut = new AdjustPlayerBucketCommandService(
+            fakePlayerServiceClient,
+            fakePlayerBucketCleint);
+
+        var command = new AdjustPlayerBucketCommand("test1", -1000M);
+
+        _ = fakePlayerServiceClient.GetPlayerInfoAsync(Arg.Is(command.PlayerCode))
+            .Returns(new PlayerInfo());
+
+        await sut.ExecuteAsync(command);
+
+        _ = fakePlayerBucketCleint.Received(1)
+            .FillInBucketAsync(
+                Arg.Is(command.PlayerCode),
+                Arg.Is(-command.AdjustAmount),
+                Arg.Is(FillType.Adjust),
+                Arg.Is(default(string)));
+    }
+
+    [Test]
+    public async Task 調整玩家流水_增加流水()
+    {
+        var fakePlayerServiceClient = Substitute.For<IPlayerServiceClient>();
+        var fakePlayerBucketCleint = Substitute.For<IPlayerBucketClient>();
+
+        var sut = new AdjustPlayerBucketCommandService(
+            fakePlayerServiceClient,
+            fakePlayerBucketCleint);
+
+        var command = new AdjustPlayerBucketCommand("test1", 1000M);
+
+        _ = fakePlayerServiceClient.GetPlayerInfoAsync(Arg.Is(command.PlayerCode))
+            .Returns(new PlayerInfo());
+
+        await sut.ExecuteAsync(command);
+
+        _ = fakePlayerBucketCleint.Received(1)
+            .CreateBucketAsync(
+                Arg.Is(command.PlayerCode),
+                Arg.Is(command.AdjustAmount),
+                Arg.Is(BucketType.Adjustment),
+                Arg.Is(default(string)));
     }
 }

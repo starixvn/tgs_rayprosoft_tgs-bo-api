@@ -235,6 +235,19 @@ internal class BackOfficeRepository : IBackOfficeRepository
         return query.ToAsyncEnumerable();
     }
 
+    public IAsyncEnumerable<KeyValuePair<string, string>> QueryAllLocalizationStringsAsync(string cultureCode, CancellationToken cancellationToken)
+        => _tgsRepository.SystemLocalizations.AsQueryable()
+            .Where(loc => loc.SystemCode == "BO-API" && loc.CultureCode == cultureCode)
+            .Select(loc => new
+            {
+                loc.MessageId,
+                loc.Text
+            })
+            .ToArrayAsync(cancellationToken)
+            .ToAsyncEnumerable()
+            .SelectMany(arr => arr.ToAsyncEnumerable())
+            .Select(item => new KeyValuePair<string, string>(item.MessageId, item.Text));
+
     public IAsyncEnumerable<BannerInfo> QueryExpiredBannersAsync(Guid brandId)
     {
         var currentTime = _systemClock.UtcNow;

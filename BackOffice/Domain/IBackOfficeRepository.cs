@@ -34,6 +34,8 @@ public interface IBackOfficeRepository
 
     IAsyncEnumerable<GameData> QueryAllGamesAsync(Guid brandId);
 
+    IAsyncEnumerable<KeyValuePair<string, string>> QueryAllLocalizationStringsAsync(string cultureCode, CancellationToken cancellationToken = default);
+
     IAsyncEnumerable<BannerInfo> QueryExpiredBannersAsync(Guid brandId);
 
     IAsyncEnumerable<PlayerIdentityAuthenticationInfo> QueryPlayerIdentityAuthenticationsAsync(

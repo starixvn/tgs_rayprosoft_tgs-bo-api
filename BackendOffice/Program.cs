@@ -8,6 +8,7 @@ using System.Reflection;
 using System.Text.Json.Serialization;
 using System.Threading.Tasks;
 using Dapper;
+using FluentValidation;
 using FluentValidation.AspNetCore;
 using Microsoft.AspNetCore.Authentication.Cookies;
 using Microsoft.AspNetCore.Authorization;
@@ -83,6 +84,7 @@ builder.Services
     .AddSignalR();
 
 builder.Services
+    .AddValidatorsFromAssembly(Assembly.GetExecutingAssembly())
     .AddBackendOfficeServices(builder.Configuration)
     .AddBackendOfficeRepositories(sp => sp
         .GetRequiredService<IRedisConnectionFactory>()

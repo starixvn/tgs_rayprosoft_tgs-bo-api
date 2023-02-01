@@ -15,6 +15,37 @@ namespace TGS.Apis.BackendOffice.Controllers;
 [ApiController]
 public class PlayerBucketController : BaseContextController
 {
+    [HttpPut("{playerCode}:adjust-increase", Name = "AdjustIncreasePlayerBucketAmount")]
+    public ValueTask AdjustIncreasePlayerBucketAmountAsync(
+        [FromServices] ICommandService<AdjustPlayerBucketCommand> adjustService,
+        string playerCode,
+        [FromBody] AdjustPlayerBucketViewModel viewModel)
+    {
+        var command = new AdjustPlayerBucketCommand(playerCode, viewModel.Amount);
+
+        return adjustService.ExecuteAsync(command, HttpContext.RequestAborted);
+    }
+
+    [HttpDelete("{playerCode}", Name = "ClearPlayerBuckets2")]
+    public async Task ClearPlayerBucketsAsync(
+        [FromServices] IGetService<GetPlayerBucketAmountQuery, ReadBucketResult> getAmountService,
+        [FromServices] ICommandService<ClearPlayerBucketsCommand> clearService,
+        string playerCode)
+    {
+        var result = await getAmountService.GetAsync(
+            new(playerCode),
+            HttpContext.RequestAborted).ConfigureAwait(false);
+
+        if (result.Amount > 0 && result.AnchorBucketId is not null)
+        {
+            var command = new ClearPlayerBucketsCommand(playerCode, result.AnchorBucketId.Value);
+
+            await clearService.ExecuteAsync(
+                command,
+                HttpContext.RequestAborted).ConfigureAwait(false);
+        }
+    }
+
     [HttpGet("amount/{playerCode}", Name = "GetPlayerBucketAmount")]
     public async Task<decimal> GetPlayerBucketAmountAsync(
         [FromServices] IGetService<GetPlayerBucketAmountQuery, ReadBucketResult> getService,
