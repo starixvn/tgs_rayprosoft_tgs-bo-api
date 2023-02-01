@@ -15,7 +15,18 @@ namespace TGS.Apis.BackendOffice.Controllers;
 [ApiController]
 public class PlayerBucketController : BaseContextController
 {
-    [HttpDelete("{playerCode}")]
+    [HttpPut("{playerCode}:adjust-increase", Name = "AdjustIncreasePlayerBucketAmount")]
+    public ValueTask AdjustIncreasePlayerBucketAmountAsync(
+        [FromServices] ICommandService<AdjustPlayerBucketCommand> adjustService,
+        string playerCode,
+        [FromBody] AdjustPlayerBucketViewModel viewModel)
+    {
+        var command = new AdjustPlayerBucketCommand(playerCode, viewModel.Amount);
+
+        return adjustService.ExecuteAsync(command, HttpContext.RequestAborted);
+    }
+
+    [HttpDelete("{playerCode}", Name = "ClearPlayerBuckets2")]
     public async Task ClearPlayerBucketsAsync(
         [FromServices] IGetService<GetPlayerBucketAmountQuery, ReadBucketResult> getAmountService,
         [FromServices] ICommandService<ClearPlayerBucketsCommand> clearService,
