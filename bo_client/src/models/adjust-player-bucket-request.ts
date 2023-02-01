@@ -1,0 +1,3 @@
+interface AdjustPlayerBucketRequest {
+    amount: number;
+}

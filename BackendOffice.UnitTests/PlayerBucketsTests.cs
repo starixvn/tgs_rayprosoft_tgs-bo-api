@@ -82,4 +82,54 @@ public class PlayerBucketsTests
                 Arg.Is(command.AnchorId),
                 Arg.Is(default(string)));
     }
+
+    [Test]
+    public async Task 調整玩家流水_減少流水()
+    {
+        var fakePlayerServiceClient = Substitute.For<IPlayerServiceClient>();
+        var fakePlayerBucketCleint = Substitute.For<IPlayerBucketClient>();
+
+        var sut = new AdjustPlayerBucketCommandService(
+            fakePlayerServiceClient,
+            fakePlayerBucketCleint);
+
+        var command = new AdjustPlayerBucketCommand("test1", -1000M);
+
+        _ = fakePlayerServiceClient.GetPlayerInfoAsync(Arg.Is(command.PlayerCode))
+            .Returns(new PlayerInfo());
+
+        await sut.ExecuteAsync(command);
+
+        _ = fakePlayerBucketCleint.Received(1)
+            .FillInBucketAsync(
+                Arg.Is(command.PlayerCode),
+                Arg.Is(-command.AdjustAmount),
+                Arg.Is(FillType.Adjust),
+                Arg.Is(default(string)));
+    }
+
+    [Test]
+    public async Task 調整玩家流水_增加流水()
+    {
+        var fakePlayerServiceClient = Substitute.For<IPlayerServiceClient>();
+        var fakePlayerBucketCleint = Substitute.For<IPlayerBucketClient>();
+
+        var sut = new AdjustPlayerBucketCommandService(
+            fakePlayerServiceClient,
+            fakePlayerBucketCleint);
+
+        var command = new AdjustPlayerBucketCommand("test1", 1000M);
+
+        _ = fakePlayerServiceClient.GetPlayerInfoAsync(Arg.Is(command.PlayerCode))
+            .Returns(new PlayerInfo());
+
+        await sut.ExecuteAsync(command);
+
+        _ = fakePlayerBucketCleint.Received(1)
+            .CreateBucketAsync(
+                Arg.Is(command.PlayerCode),
+                Arg.Is(command.AdjustAmount),
+                Arg.Is(BucketType.Adjustment),
+                Arg.Is(default(string)));
+    }
 }
