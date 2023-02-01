@@ -58,4 +58,28 @@ public class PlayerBucketsTests
         _ = fakePlayerBucketClient.Received(1)
             .ReadBucketsAsync(Arg.Is(query.PlayerCode));
     }
+
+    [Test]
+    public async Task 清除流水依據PlayerCode及AnchorBucketId()
+    {
+        var fakePlayerServiceClient = Substitute.For<IPlayerServiceClient>();
+        var fakePlayerBucketClient = Substitute.For<IPlayerBucketClient>();
+
+        var sut = new ClearPlayerBucketsCommandService(
+            fakePlayerServiceClient,
+            fakePlayerBucketClient);
+
+        var command = new ClearPlayerBucketsCommand("test1", Guid.NewGuid());
+
+        _ = fakePlayerServiceClient.GetPlayerInfoAsync(Arg.Is(command.PlayerCode))
+            .Returns(new PlayerInfo());
+
+        await sut.ExecuteAsync(command);
+
+        _ = fakePlayerBucketClient.Received(1)
+            .CleanBucketsAsync(
+                Arg.Is(command.PlayerCode),
+                Arg.Is(command.AnchorId),
+                Arg.Is(default(string)));
+    }
 }

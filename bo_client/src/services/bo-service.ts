@@ -98,4 +98,10 @@ export default class BackOfficeService {
                 })
             .then(res => res.data);
     }
+
+    public clearPlayerBuckets(playerCode: string): Promise<void> {
+        return this.http
+            .delete(`/api/player/bucket/${playerCode}`)
+            .then(res => res.data);
+    }
 }
