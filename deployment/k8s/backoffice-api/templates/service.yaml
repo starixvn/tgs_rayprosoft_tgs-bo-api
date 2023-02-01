@@ -4,6 +4,9 @@ metadata:
   name: {{ include "backoffice-api.fullname" . }}
   labels:
     {{- include "backoffice-api.labels" . | nindent 4 }}
+    healthCheck: enabled
+  annotations:
+    healthChecksPath: "/health"
 spec:
   type: {{ .Values.service.type }}
   ports:
