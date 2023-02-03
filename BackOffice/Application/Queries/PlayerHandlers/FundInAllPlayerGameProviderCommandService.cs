@@ -2,6 +2,7 @@
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
+using Microsoft.Extensions.Logging;
 using Tgs.GameProviders.Pluggable.Client;
 using Tgs.ServiceUtility;
 using TGS.Services.BackOffice.Infrastructure.DataService;
@@ -12,13 +13,16 @@ internal class FundInAllPlayerGameProviderCommandService : ICommandService<FundI
 {
     private readonly IBrandGameProviderService _brandGameProviderService;
     private readonly IGameProvidersBackofficePluggableClient _gameProvidersBackofficePluggableClient;
+    private readonly ILogger<FundInAllPlayerGameProviderCommandService> _logger;
     private readonly IPlayerService _playerService;
 
     public FundInAllPlayerGameProviderCommandService(
+        ILogger<FundInAllPlayerGameProviderCommandService> logger,
         IPlayerService playerService,
         IGameProvidersBackofficePluggableClient gameProvidersBackofficePluggableClient,
         IBrandGameProviderService brandGameProviderService)
     {
+        _logger = logger ?? throw new ArgumentNullException(nameof(logger));
         _playerService = playerService ?? throw new ArgumentNullException(nameof(playerService));
         _gameProvidersBackofficePluggableClient = gameProvidersBackofficePluggableClient ??
             throw new ArgumentNullException(nameof(gameProvidersBackofficePluggableClient));
@@ -47,9 +51,18 @@ internal class FundInAllPlayerGameProviderCommandService : ICommandService<FundI
         var tasks = (from brandGameProvider in brandGameProviders
                      select Task.Run(async () =>
                      {
-                         await _gameProvidersBackofficePluggableClient.FundInAsync(
-                             player.PlayerCode,
-                             brandGameProvider.GameProviderCode).ConfigureAwait(false);
+                         try
+                         {
+                             await _gameProvidersBackofficePluggableClient.FundInAsync(
+                                 player.PlayerCode,
+                                 brandGameProvider.GameProviderCode).ConfigureAwait(false);
+                         }
+                         catch (Exception ex)
+                         {
+                             _logger.LogError(ex, "This player ({playerCode}) failed to transfer from the game provider ({gameProviderCode}) to the main wallet.",
+                                 player.PlayerCode,
+                                brandGameProvider.GameProviderCode);
+                         }
                      }, cancellationToken: cancellationToken)).ToList();
 
         await Task.WhenAll(tasks).ConfigureAwait(false);
