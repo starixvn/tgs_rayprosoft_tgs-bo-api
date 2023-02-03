@@ -63,7 +63,7 @@
     <PackageReference Include="Tgs.MarketingReport.Client" Version="0.0.8" />
     <PackageReference Include="Tgs.Paging.AsyncEnumerable" Version="1.2.1" />
     <PackageReference Include="Tgs.Payment.Client" Version="0.4.8" />
-    <PackageReference Include="Tgs.Payment.ManualDeposit" Version="0.1.12" />
+    <PackageReference Include="Tgs.Payment.ManualDeposit" Version="0.1.13" />
     <PackageReference Include="Tgs.PaymentService.Client" Version="0.6.22" />
     <PackageReference Include="Tgs.PlayerService.Client" Version="0.0.27" />
     <PackageReference Include="Tgs.Promotion.Client" Version="1.0.39" />

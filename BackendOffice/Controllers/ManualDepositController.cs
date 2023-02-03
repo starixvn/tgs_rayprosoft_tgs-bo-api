@@ -45,6 +45,7 @@ public class ManualDepositController : BaseContextController
                     SendBankAccount = request.BankAccount,
                     SendBankName = request.BankName,
                     SendNote = request.Note,
+                    SendName = request.RealName,
                     ReceiveBankAccount = brandPaymentBankInfo.RootElement.GetProperty("bankAccount").GetString()!,
                     ReceiveAccountName = brandPaymentBankInfo.RootElement.GetProperty("name").GetString()!
                 }));
@@ -86,7 +87,9 @@ public class ManualDepositController : BaseContextController
                     Phone = brandPaymentBankInfo.RootElement.GetProperty("phone").GetString()!,
                     QrCode = qrCode,
                     SendNote = request.Note,
-                    BankType = request.BankType
+                    BankType = request.BankType,
+                    SendEMoneyName = request.RealName,
+                    SendPhone = request.Phone,
                 }));
 
         return await createDepositFormService
@@ -177,6 +180,8 @@ public class ManualDepositController : BaseContextController
                     Phone = brandPaymentBankInfo.RootElement.GetProperty("phone").GetString()!,
                     SendNote = request.Note,
                     BankType = request.BankType,
+                    SendName = request.RealName,
+                    SendPhone = request.Phone
                 }));
 
         return await createDepositFormService

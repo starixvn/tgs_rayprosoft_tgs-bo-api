@@ -99,7 +99,16 @@ export default class BackOfficeService {
             .then(res => res.data);
     }
 
-    public getVipAdjustInfos(playerCode: string, brandId: string, from: string, to:string, page: number, rows: number, sortby: string, orderby: string, showAll: boolean){
+    public getVipAdjustInfos(
+        playerCode: string, 
+        brandId: string, 
+        from: string, 
+        to:string, 
+        page: number, 
+        rows: number, 
+        sortby: string, 
+        orderby: string, 
+        showAll: boolean): Promise<any>{
         return this
             .http
             .get(`/api/player/vipAdjustInfos/${playerCode}`,
@@ -115,7 +124,8 @@ export default class BackOfficeService {
                         showAll: showAll
                     }
                 }
-            );
+            )
+            .then(res => res.data);
     }
 
     public clearPlayerBuckets(playerCode: string): Promise<void> {
@@ -127,6 +137,24 @@ export default class BackOfficeService {
     public adjustIncreasePlayerBucket(playerCode: string, request: AdjustPlayerBucketRequest): Promise<void> {
         return this.http
             .put(`/api/player/bucket/${playerCode}:adjust-increase`, request)
+            .then(res => res.data);
+    }
+
+    public submitDepositBank(request: SubmitManualDepositBankRequest): Promise<any> {
+        return this.http
+            .put('/api/manualdeposit/bank', request)
+            .then(res => res.data);
+    }
+
+    public submitDepositEWallet(request: SubmitManualDepositEWalletRequest): Promise<any> {
+        return this.http
+            .put('/api/manualdeposit/ewallet', request)
+            .then(res => res.data);
+    }
+
+    public submitDepositPulsa(request: SubmitManualDepositPulsaRequest): Promise<any> {
+        return this.http
+            .put('/api/manualdeposit/pulsa', request)
             .then(res => res.data);
     }
 }
