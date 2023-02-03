@@ -38,7 +38,7 @@ internal class AdjustPlayerBucketCommandService : ICommandService<AdjustPlayerBu
                 command.AdjustAmount,
                 BucketType.Adjustment,
                 null,
-                null,
+                command.Remark,
                 cancellationToken).ConfigureAwait(false);
         else
             await _playerBucketClient.FillInBucketAsync(
@@ -46,7 +46,7 @@ internal class AdjustPlayerBucketCommandService : ICommandService<AdjustPlayerBu
                 -command.AdjustAmount,
                 FillType.Adjust,
                 null,
-                null,
+                command.Remark,
                 cancellationToken).ConfigureAwait(false);
     }
 }
