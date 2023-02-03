@@ -17,5 +17,7 @@ public class PlayerBucketEventViewModel
 
     public Guid Id { get; set; }
 
+    public string? Remark { get; set; }
+
     public FillType Type { get; set; }
 }

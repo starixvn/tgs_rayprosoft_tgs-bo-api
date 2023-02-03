@@ -21,7 +21,7 @@ public class PlayerBucketController : BaseContextController
         string playerCode,
         [FromBody] AdjustPlayerBucketViewModel viewModel)
     {
-        var command = new AdjustPlayerBucketCommand(playerCode, viewModel.Amount);
+        var command = new AdjustPlayerBucketCommand(playerCode, viewModel.Amount, viewModel.Remark);
 
         return adjustService.ExecuteAsync(command, HttpContext.RequestAborted);
     }
@@ -76,7 +76,8 @@ public class PlayerBucketController : BaseContextController
                 ChangeAmount = evt.ChangeAmount,
                 Type = evt.Type,
                 ExternalId = evt.ExternalId,
-                CreatedOn = evt.CreatedOn
+                CreatedOn = evt.CreatedOn,
+                Remark = evt.Remark
             });
     }
 

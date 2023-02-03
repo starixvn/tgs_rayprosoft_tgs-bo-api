@@ -80,7 +80,8 @@ public class PlayerBucketsTests
             .CleanBucketsAsync(
                 Arg.Is(command.PlayerCode),
                 Arg.Is(command.AnchorId),
-                Arg.Is(default(string)));
+                Arg.Is(default(string)),
+                Arg.Any<string>());
     }
 
     [Test]
@@ -93,7 +94,7 @@ public class PlayerBucketsTests
             fakePlayerServiceClient,
             fakePlayerBucketCleint);
 
-        var command = new AdjustPlayerBucketCommand("test1", -1000M);
+        var command = new AdjustPlayerBucketCommand("test1", -1000M, "remark");
 
         _ = fakePlayerServiceClient.GetPlayerInfoAsync(Arg.Is(command.PlayerCode))
             .Returns(new PlayerInfo());
@@ -105,7 +106,8 @@ public class PlayerBucketsTests
                 Arg.Is(command.PlayerCode),
                 Arg.Is(-command.AdjustAmount),
                 Arg.Is(FillType.Adjust),
-                Arg.Is(default(string)));
+                Arg.Is(default(string)),
+                Arg.Is(command.Remark));
     }
 
     [Test]
@@ -118,7 +120,7 @@ public class PlayerBucketsTests
             fakePlayerServiceClient,
             fakePlayerBucketCleint);
 
-        var command = new AdjustPlayerBucketCommand("test1", 1000M);
+        var command = new AdjustPlayerBucketCommand("test1", 1000M, "remark");
 
         _ = fakePlayerServiceClient.GetPlayerInfoAsync(Arg.Is(command.PlayerCode))
             .Returns(new PlayerInfo());
@@ -130,6 +132,7 @@ public class PlayerBucketsTests
                 Arg.Is(command.PlayerCode),
                 Arg.Is(command.AdjustAmount),
                 Arg.Is(BucketType.Adjustment),
-                Arg.Is(default(string)));
+                Arg.Is(default(string)),
+                Arg.Is(command.Remark));
     }
 }

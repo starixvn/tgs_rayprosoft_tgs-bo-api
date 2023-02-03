@@ -1,6 +1,9 @@
-﻿using System.Threading;
+﻿using System;
+using System.Threading;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Http;
+using Tgs.PlayerService.Client;
+using Tgs.Service.PlayerBuckets;
 using TGS.Services.BackOffice.Application.Models.Player;
 using TGS.Services.BackOffice.Application.Resources;
 using TGS.Services.BackOffice.Infrastructure.DataService;
@@ -10,43 +13,48 @@ namespace TGS.Services.BackOffice.Application.Commands.PlayerHandlers;
 
 public class ClearPlayerBucketsHandler : Handler<ClearPlayerBucketsRequest, ClearPlayerBucketsResponse>
 {
-    private readonly IPlayerBucketRepository _playerBucketRepository;
-    private readonly IPlayerService _service;
+    private readonly IPlayerBucketClient _playerBucketClient;
+    private readonly IPlayerServiceClient _playerServiceClient;
 
-    public ClearPlayerBucketsHandler(IPlayerBucketRepository playerBucketRepository, IPlayerService service,
+    public ClearPlayerBucketsHandler(
+        IPlayerBucketClient playerBucketClient,
+        IPlayerServiceClient playerServiceClient,
         IHttpContextAccessor accessor)
         : base(accessor)
     {
-        _service = service;
-        _playerBucketRepository = playerBucketRepository;
+        if (accessor is null)
+            throw new ArgumentNullException(nameof(accessor));
+        _playerBucketClient = playerBucketClient ?? throw new ArgumentNullException(nameof(playerBucketClient));
+        _playerServiceClient = playerServiceClient ?? throw new ArgumentNullException(nameof(playerServiceClient));
     }
 
     public override async Task<ClearPlayerBucketsResponse> Handle(
         ClearPlayerBucketsRequest request,
         CancellationToken cancellationToken)
     {
-        var player = await _service.GetPlayerAsync(x => x.PlayerCode == request.PlayerCode).ConfigureAwait(false);
+        var player = await _playerServiceClient.GetPlayerInfoAsync(
+            request.PlayerCode,
+            cancellationToken).ConfigureAwait(false);
 
         if (player is null)
-        {
             return CreateInvalidResponse<ClearPlayerBucketsResponse>(Player.NotFound);
-        }
 
-        var bucketInfo = await _playerBucketRepository.GetPlayerBucketInfoAsync(
+        var bucketResult = await _playerBucketClient.ReadBucketsAsync(
             player.PlayerCode,
             cancellationToken).ConfigureAwait(false);
 
-        if (bucketInfo.Amount > 0M && bucketInfo.SpanshotId is not null)
-            await _playerBucketRepository.ClearPlayerBucketsAsync(
+        if (bucketResult.Amount > 0M && bucketResult.AnchorBucketId is not null)
+            await _playerBucketClient.CleanBucketsAsync(
                 player.PlayerCode,
-                bucketInfo.SpanshotId.Value,
+                bucketResult.AnchorBucketId.Value,
+                null,
                 null,
                 cancellationToken).ConfigureAwait(false);
 
         return new ClearPlayerBucketsResponse
         {
             Valid = true,
-            WageringRequirement = bucketInfo.Amount
+            WageringRequirement = bucketResult.Amount
         };
     }
 }

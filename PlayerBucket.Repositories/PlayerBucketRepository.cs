@@ -35,27 +35,6 @@ public class PlayerBucketRepository : IPlayerBucketRepository
         _playerBucketClient = playerBucketClient ?? throw new ArgumentNullException(nameof(playerBucketClient));
     }
 
-    public ValueTask ClearPlayerBucketsAsync(
-        string playerCode,
-        Guid anchorId,
-        string? externalId,
-        CancellationToken cancellationToken = default)
-        => _playerBucketClient.CleanBucketsAsync(
-            playerCode,
-            anchorId,
-            externalId,
-            cancellationToken);
-
-    public async Task CreatePlayerBucketsAsync(CreatePlayerBucketRequest[] requests)
-    {
-        foreach (var request in requests)
-            _ = await _playerBucketClient.CreateBucketAsync(
-                request.PlayerCode,
-                request.BucketAmount,
-                request.BucketType,
-                request.ExternalId).ConfigureAwait(false);
-    }
-
     public async ValueTask<CreatePlayerBucketWithDepositResponse> CreatePlayerBucketWithDepositAsync(
         CreatePlayerBucketWithDepositRequest request)
     {
@@ -93,7 +72,8 @@ public class PlayerBucketRepository : IPlayerBucketRepository
                     request.PlayerCode,
                     request.DepositAmount,
                     BucketType.Deposit,
-                    request.FormId.ToString()).ConfigureAwait(false);
+                    request.FormId.ToString(),
+                    request.Remark).ConfigureAwait(false);
             }
         }
         else
@@ -102,7 +82,8 @@ public class PlayerBucketRepository : IPlayerBucketRepository
                 request.PlayerCode,
                 request.DepositAmount,
                 BucketType.Deposit,
-                request.FormId.ToString()).ConfigureAwait(false);
+                request.FormId.ToString(),
+                request.Remark).ConfigureAwait(false);
         }
 
         return new CreatePlayerBucketWithDepositResponse(depositBonusAmount, promotionPlayerId);

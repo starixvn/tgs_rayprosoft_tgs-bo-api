@@ -7,6 +7,7 @@ using Polly;
 using StackExchange.Redis;
 using Tgs.Payment.Clients;
 using Tgs.Promotion.Clients;
+using Tgs.Service.PlayerBuckets;
 using Tgs.ServiceUtility;
 using TGS.Core.Infrastructures.Redis;
 using TGS.Services.BackOffice.Application.Models.Player;
@@ -24,6 +25,7 @@ internal class ReviewDepositFormCommandService : ICommandService<ReviewDepositFo
     private readonly ILogger<ReviewDepositFormCommandService> _logger;
     private readonly IPaymentServiceClient _paymentServiceClient;
     private readonly IPlayerBucketRepository _playerBucketRepository;
+    private readonly IPlayerBucketClient _playerBucketClient;
     private readonly IPlayerService _playerService;
     private readonly IPromotionClient _promotionClient;
     private readonly IDatabase _redisDatabase;
@@ -32,6 +34,7 @@ internal class ReviewDepositFormCommandService : ICommandService<ReviewDepositFo
         IPaymentServiceClient paymentServiceClient,
         IPlayerService playerService,
         IPlayerBucketRepository playerBucketRepository,
+        IPlayerBucketClient playerBucketClient,
         IPromotionClient promotionClient,
         IRedisConnectionFactory redisConnectionFactory,
         IBrandService brandService,
@@ -46,6 +49,7 @@ internal class ReviewDepositFormCommandService : ICommandService<ReviewDepositFo
 
         _playerBucketRepository =
             playerBucketRepository ?? throw new ArgumentNullException(nameof(playerBucketRepository));
+        _playerBucketClient = playerBucketClient ?? throw new ArgumentNullException(nameof(playerBucketClient));
         _promotionClient = promotionClient ?? throw new ArgumentNullException(nameof(promotionClient));
         _redisDatabase = redisConnectionFactory.GetConnection().GetDatabase();
         _brandService = brandService ?? throw new ArgumentNullException(nameof(brandService));
@@ -125,13 +129,14 @@ internal class ReviewDepositFormCommandService : ICommandService<ReviewDepositFo
                                     {
                                         _logger.LogWarning(ex, "Clean buckets throw exception, retry {count}.", count);
                                     })
-                                    .ExecuteAsync(async () => await _playerBucketRepository
-                                            .ClearPlayerBucketsAsync(
-                                                form.PlayerCode,
-                                                bucketInfo.SpanshotId!.Value,
-                                                form.Id.ToString(),
-                                                cancellationToken)
-                                            .ConfigureAwait(false))
+                                    .ExecuteAsync(async () => await _playerBucketClient
+                                        .CleanBucketsAsync(
+                                            form.PlayerCode,
+                                            bucketInfo.SpanshotId!.Value,
+                                            form.Id.ToString(),
+                                            null,
+                                            cancellationToken)
+                                        .ConfigureAwait(false))
                                     .ConfigureAwait(false);
                         }
                     }

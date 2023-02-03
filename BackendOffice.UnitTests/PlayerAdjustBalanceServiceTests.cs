@@ -320,6 +320,7 @@ public class PlayerAdjustBalanceServiceTests
                 Arg.Is(applyInfo.PlayerCode),
                 Arg.Is(applyInfo.BucketAmount),
                 Arg.Is(Tgs.Service.PlayerBuckets.BucketType.Adjustment),
+                Arg.Any<string>(),
                 Arg.Any<string>());
         _ = fakeBackOfficeRepository.Received(1)
             .InsertAdjustPlayerRecordAsync(Arg.Is(expectedCreateInfo), Arg.Is(modifyUser));
