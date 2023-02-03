@@ -1,5 +1,6 @@
 ﻿using System.Data.SqlClient;
 using System.Runtime.InteropServices;
+using ExpectedObjects;
 using Jering.Javascript.NodeJS;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
@@ -48,31 +49,33 @@ public class PlayerVipAdjustInfosTests
         var playerCode = "4ucmqplxb029";
         var brandId = Guid.NewGuid();
         var from = new DateTimeOffset(2022, 12, 1, 0, 0, 0, TimeSpan.Zero);
-        var to = new DateTimeOffset(2023,1,1,0,0,0,TimeSpan.Zero);
+        var to = new DateTimeOffset(2023, 1, 1, 0, 0, 0, TimeSpan.Zero);
         var page = 1;
         var rows = 20;
-        var sortby = "createdOn";
+        var sortby = "CreatedOn";
         var orderby = SortOrder.Descending;
         var showAll = false;
-        var paging = new PageableRequest
+        var pageRequest = new PageableRequest
         {
             Rows = rows,
             Page = page,
-            SortBy = "createdOn",
+            SortBy = sortby,
             OrderBy = SortOrder.Descending,
             ShowAll = showAll,
         };
 
-        var query = new GetPlayerVipAdjustQuery(
-            PlayerCode: playerCode,
-            BrandId: brandId,
-            From: from,
-            To: to,
-            Paging: paging
-        );
+        var paging = new Paging()
+        {
+            Page = page,
+            Rows = rows,
+            IsDesc = true,
+            ShowAll = showAll,
+            SortBy = sortby,
+        };
+
         var response = new PagingResponse<PlayerVipAdjustInfo>()
         {
-            TotalCount = 2,            
+            TotalCount = 2,
             Items = new PlayerVipAdjustInfo[] {
                 new PlayerVipAdjustInfo{
                     OldLevel = 1,
@@ -84,8 +87,9 @@ public class PlayerVipAdjustInfosTests
                     CreatedOn = DateTime.Parse("2022-12-28T10:36:38.562382+00:00") }
             }
         };
+
         _ = fakeService.GetAsync(
-            query: query,
+            query: Arg.Any<GetPlayerVipAdjustQuery>(),
             cancellationToken: Arg.Any<CancellationToken>())
         .Returns(response);
 
@@ -101,13 +105,17 @@ public class PlayerVipAdjustInfosTests
 
                 let svc = new BackOfficeService(instance);
 
-                svc.getVipAdjustInfos(playerCode, brandId, from, to, page, rows, sortby, orderby, showAll);
+                return await svc.getVipAdjustInfos(playerCode, brandId, from, to, page, rows, sortby, orderby, showAll);
             };
         """;
 
         // Act
-        await StaticNodeJSService.InvokeFromStringAsync(
+        var actual = await StaticNodeJSService.InvokeFromStringAsync<PagedResponse<PlayerVipAdjustInfo>>(
             nodeModule,
             args: new object[] { playerCode, brandId, from, to, page, rows, sortby, orderby, showAll });
+
+        //Assert
+        Assert.Equal(2, actual!.TotalCount);
+        response.Items.ToExpectedObject().ShouldMatch(actual!.Items);
     }
 }

@@ -23,4 +23,6 @@ public record SubmitManualDepositBankRequest
     public string BankType { get; init; } = default!;
 
     public string? Note { get; init; }
+
+    public string? RealName { get; init; }
 }
