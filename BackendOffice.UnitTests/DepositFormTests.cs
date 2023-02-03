@@ -11,6 +11,7 @@ using NUnit.Framework;
 using StackExchange.Redis;
 using Tgs.Payment.Clients;
 using Tgs.Promotion.Clients;
+using Tgs.Service.PlayerBuckets;
 using Tgs.ServiceUtility;
 using TGS.Core.DataServices.Tgs.Models;
 using TGS.Core.Infrastructures.Redis;
@@ -55,6 +56,7 @@ public class DepositFormTests
         var fakePaymentServiceClient = Substitute.For<IPaymentServiceClient>();
         var fakePlayerService = Substitute.For<IPlayerService>();
         var fakePlayerBucketRepository = Substitute.For<IPlayerBucketRepository>();
+        var fakePlayerBucketClient = Substitute.For<IPlayerBucketClient>();
         var fakePromotionClient = Substitute.For<IPromotionClient>();
         var fakeRedisDatabase = Substitute.For<IDatabase>();
         var fakeRedisConnection = Substitute.For<IConnectionMultiplexer>();
@@ -73,6 +75,7 @@ public class DepositFormTests
             fakePaymentServiceClient,
             fakePlayerService,
             fakePlayerBucketRepository,
+            fakePlayerBucketClient,
             fakePromotionClient,
             fakeRedisDatabaseFactory,
             fakeBrandService,
@@ -117,6 +120,7 @@ public class DepositFormTests
         var moqPaymentServiceClient = new Mock<IPaymentServiceClient>();
         var moqPlayerService = new Mock<IPlayerService>();
         var moqPlayerBucketRepository = new Mock<IPlayerBucketRepository>();
+        var fakePlayerBucketClient = Substitute.For<IPlayerBucketClient>();
         var moqPromotionClient = new Mock<IPromotionClient>();
         var fakeRedisDatabase = Substitute.For<IDatabase>();
         var fakeRedisConnection = Substitute.For<IConnectionMultiplexer>();
@@ -136,6 +140,7 @@ public class DepositFormTests
             moqPaymentServiceClient.Object,
             moqPlayerService.Object,
             moqPlayerBucketRepository.Object,
+            fakePlayerBucketClient,
             moqPromotionClient.Object,
             fakeRedisDatabaseFactory,
             moqBrandService.Object,

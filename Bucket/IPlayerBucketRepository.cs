@@ -9,10 +9,6 @@ namespace TGS.Services.PlayerBucket;
 
 public interface IPlayerBucketRepository
 {
-    ValueTask ClearPlayerBucketsAsync(string playerCode, Guid anchorId, string? externalId, CancellationToken cancellationToken = default);
-
-    Task CreatePlayerBucketsAsync(params CreatePlayerBucketRequest[] request);
-
     ValueTask<CreatePlayerBucketWithDepositResponse> CreatePlayerBucketWithDepositAsync(
         CreatePlayerBucketWithDepositRequest request);
 

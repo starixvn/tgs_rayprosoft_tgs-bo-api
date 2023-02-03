@@ -85,6 +85,7 @@ public class PlayerBucketTests
                 Arg.Is(playerCode),
                 Arg.Any<Guid>(),
                 Arg.Any<string>(),
+                Arg.Any<string>(),
                 Arg.Any<CancellationToken>());
     }
 
@@ -155,6 +156,7 @@ public class PlayerBucketTests
                 Arg.Is(request.Amount),
                 Arg.Is(BucketType.Adjustment),
                 Arg.Is(default(string)),
+                Arg.Any<string>(),
                 Arg.Any<CancellationToken>());
     }
 

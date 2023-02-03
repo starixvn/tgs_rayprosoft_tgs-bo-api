@@ -33,6 +33,7 @@ internal class ClearPlayerBucketsCommandService : ICommandService<ClearPlayerBuc
             command.PlayerCode,
             command.AnchorId,
             null,
+            null,
             cancellationToken).ConfigureAwait(false);
     }
 }

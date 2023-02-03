@@ -44,6 +44,7 @@ internal class PlayerAdjustBalanceService : IPlayerAdjustBalanceService
                 applyInfo.BucketAmount,
                 BucketType.Adjustment,
                 null,
+                applyInfo.Remark,
                 cancellationToken).ConfigureAwait(false);
 
         var transactionId = applyInfo.Amount > 0M
@@ -104,6 +105,7 @@ internal class PlayerAdjustBalanceService : IPlayerAdjustBalanceService
                 applyInfo.BucketAmount,
                 BucketType.Adjustment,
                 null,
+                applyInfo.Remark,
                 cancellationToken).ConfigureAwait(false);
 
         var createId = await _serialNumberGenerator

@@ -38,12 +38,14 @@ internal class AdjustPlayerBucketCommandService : ICommandService<AdjustPlayerBu
                 command.AdjustAmount,
                 BucketType.Adjustment,
                 null,
+                null,
                 cancellationToken).ConfigureAwait(false);
         else
             await _playerBucketClient.FillInBucketAsync(
                 command.PlayerCode,
                 -command.AdjustAmount,
                 FillType.Adjust,
+                null,
                 null,
                 cancellationToken).ConfigureAwait(false);
     }
