@@ -76,7 +76,8 @@ public class PlayerBucketController : BaseContextController
                 ChangeAmount = evt.ChangeAmount,
                 Type = evt.Type,
                 ExternalId = evt.ExternalId,
-                CreatedOn = evt.CreatedOn
+                CreatedOn = evt.CreatedOn,
+                Remark = evt.Remark
             });
     }
 
