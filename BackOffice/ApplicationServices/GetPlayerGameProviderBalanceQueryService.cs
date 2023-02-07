@@ -5,29 +5,25 @@ using System.Runtime.CompilerServices;
 using System.Threading;
 using System.Threading.Tasks;
 using Microsoft.EntityFrameworkCore;
-using Tgs.CashService.Client;
 using Tgs.GameProviders.Pluggable.Client;
 using Tgs.ServiceUtility;
 using TGS.Services.BackOffice.Application.Models.Player;
 using TGS.Services.BackOffice.Infrastructure.DataService;
 
-namespace TGS.Services.BackOffice.Application.Queries.PlayerHandlers;
+namespace TGS.Services.BackOffice.ApplicationServices;
 
-internal class GetPlayerGameProviderBalanceCommandService : IQueryService<GetPlayerGameProviderBalanceCommand, GetPlayerGameProviderBalanceResponse>
+internal class GetPlayerGameProviderBalanceQueryService : IQueryService<GetPlayerGameProviderBalanceQuery, GetPlayerGameProviderBalanceResponse>
 {
     private readonly IBrandGameProviderService _brandGameProviderService;
-    private readonly ICashServiceClient _cashServiceClient;
     private readonly IGameProvidersBackofficePluggableClient _gameProvidersBackofficePluggableClient;
     private readonly IPlayerService _playerService;
 
-    public GetPlayerGameProviderBalanceCommandService(
+    public GetPlayerGameProviderBalanceQueryService(
         IPlayerService playerService,
-        ICashServiceClient cashServiceClient,
         IGameProvidersBackofficePluggableClient gameProvidersBackofficePluggableClient,
         IBrandGameProviderService brandGameProviderService)
     {
         _playerService = playerService ?? throw new ArgumentNullException(nameof(playerService));
-        _cashServiceClient = cashServiceClient ?? throw new ArgumentNullException(nameof(cashServiceClient));
         _gameProvidersBackofficePluggableClient = gameProvidersBackofficePluggableClient ??
             throw new ArgumentNullException(nameof(gameProvidersBackofficePluggableClient));
         _brandGameProviderService = brandGameProviderService ??
@@ -35,7 +31,7 @@ internal class GetPlayerGameProviderBalanceCommandService : IQueryService<GetPla
     }
 
     public async IAsyncEnumerable<GetPlayerGameProviderBalanceResponse> QueryAsync(
-        GetPlayerGameProviderBalanceCommand query,
+        GetPlayerGameProviderBalanceQuery query,
         [EnumeratorCancellation] CancellationToken cancellationToken = default)
     {
         var gameProviderBalances = new List<GetPlayerGameProviderBalanceResponse>();
@@ -58,29 +54,6 @@ internal class GetPlayerGameProviderBalanceCommandService : IQueryService<GetPla
             .OrderBy(x => x.GameProviderCode)
             .ToArrayAsync(cancellationToken: cancellationToken)
             .ConfigureAwait(false);
-
-        try
-        {
-            var walletBalance = await _cashServiceClient.GetBalanceAsync(
-                player.DefaultWalletId,
-                cancellationToken).ConfigureAwait(false);
-
-            gameProviderBalances.Add(new GetPlayerGameProviderBalanceResponse(
-                GameProviderCode: "DEFAULT",
-                GameProviderName: "DEFAULT",
-                IsMainWallet: true,
-                IsMaintain: false,
-                Balance: walletBalance));
-        }
-        catch
-        {
-            gameProviderBalances.Add(new GetPlayerGameProviderBalanceResponse(
-                GameProviderCode: "DEFAULT",
-                GameProviderName: "DEFAULT",
-                IsMainWallet: true,
-                IsMaintain: true,
-                Balance: null));
-        }
 
         var tasks = new List<Task>();
 

@@ -19,7 +19,6 @@ using Tgs.Service.PlayerBuckets;
 using Tgs.ServiceUtility;
 using TGS.Core.Infrastructures.Redis;
 using TGS.Services.BackOffice.Application.Models.Player;
-using TGS.Services.BackOffice.Application.Queries.PlayerHandlers;
 
 namespace TGS.Services.BackOffice.ApplicationServices.Payment;
 
@@ -28,7 +27,7 @@ internal class ReviewDepositFormCommandService : ICommandService<ReviewDepositFo
     private static readonly string[] _AllowDistributePromotionTypes = new[] { "FirstDeposit", "DailySecondDeposit", "DailyFirstDeposit", "DepositReward" };
     private readonly IBrandServiceClient _brandServiceClient;
     private readonly ICashServiceClient _cashServiceClient;
-    private readonly IQueryService<GetPlayerGameProviderBalanceCommand, GetPlayerGameProviderBalanceResponse> _getPlayerGameProviderBalanceService;
+    private readonly IQueryService<GetPlayerGameProviderBalanceQuery, GetPlayerGameProviderBalanceResponse> _getPlayerGameProviderBalanceService;
     private readonly ILogger<ReviewDepositFormCommandService> _logger;
     private readonly IMessageSender _messageSender;
     private readonly IPaymentServiceClient _paymentServiceClient;
@@ -46,7 +45,7 @@ internal class ReviewDepositFormCommandService : ICommandService<ReviewDepositFo
         IPromotionServiceClient promotionServiceClient,
         IRedisConnectionFactory redisConnectionFactory,
         IBrandServiceClient brandServiceClient,
-        IQueryService<GetPlayerGameProviderBalanceCommand, GetPlayerGameProviderBalanceResponse> getPlayerGameProviderBalanceService,
+        IQueryService<GetPlayerGameProviderBalanceQuery, GetPlayerGameProviderBalanceResponse> getPlayerGameProviderBalanceService,
         ICashServiceClient cashServiceClient,
         IMessageSender messageSender,
         ILogger<ReviewDepositFormCommandService> logger)
@@ -170,6 +169,12 @@ internal class ReviewDepositFormCommandService : ICommandService<ReviewDepositFo
 
     private async Task ProcessDepositAsync(ReviewDepositFormCommand command, DepositFormInfo form, CancellationToken cancellationToken)
     {
+        var playerProps = await _playerServiceClient.GetPlayerPropertiesAsync(
+            form.PlayerCode,
+            cancellationToken).ConfigureAwait(false);
+
+        var walletId = Guid.Parse(playerProps["DefaultWalletId"]);
+
         if (command.Status == ReviewState.Approve)
         {
             var brandPaymentSettings = await _brandServiceClient.GetBrandPaymentSettingsAsync(
@@ -184,33 +189,40 @@ internal class ReviewDepositFormCommandService : ICommandService<ReviewDepositFo
                         form.PlayerCode,
                         cancellationToken).ConfigureAwait(false);
 
-                    var playerAllBalances = await _getPlayerGameProviderBalanceService
-                        .QueryAsync(
-                            query: new GetPlayerGameProviderBalanceCommand(form.PlayerCode),
-                            cancellationToken: cancellationToken)
-                        .ToArrayAsync(cancellationToken: cancellationToken)
-                        .ConfigureAwait(false);
+                    var walletBalance = await _cashServiceClient.GetBalanceAsync(
+                        walletId,
+                        cancellationToken).ConfigureAwait(false);
 
-                    if (!playerAllBalances.Where(x => x.IsMaintain).Any()
-                        && bucketResult.Amount > 0M)
+                    if (walletBalance <= brandPaymentSettings.ClearWageringRequirementBalance)
                     {
-                        var balance = playerAllBalances.Sum(x => x.Balance) ?? 0M;
+                        var playerAllBalances = await _getPlayerGameProviderBalanceService
+                            .QueryAsync(
+                                query: new GetPlayerGameProviderBalanceQuery(form.PlayerCode),
+                                cancellationToken: cancellationToken)
+                            .ToArrayAsync(cancellationToken: cancellationToken)
+                            .ConfigureAwait(false);
 
-                        if (balance <= brandPaymentSettings.ClearWageringRequirementBalance)
-                            await Policy.Handle<Exception>()
-                                .RetryAsync(2, (ex, count) =>
-                                {
-                                    _logger.LogWarning(ex, "Clean buckets throw exception, retry {count}.", count);
-                                })
-                                .ExecuteAsync(async () => await _playerBucketClient
-                                    .CleanBucketsAsync(
-                                        form.PlayerCode,
-                                        bucketResult.AnchorBucketId!.Value,
-                                        form.Id.ToString(),
-                                        null,
-                                        cancellationToken)
-                                    .ConfigureAwait(false))
-                                .ConfigureAwait(false);
+                        if (!playerAllBalances.Where(x => x.IsMaintain).Any()
+                            && bucketResult.Amount > 0M)
+                        {
+                            var gamesBalance = playerAllBalances.Sum(x => x.Balance) ?? 0M;
+
+                            if (walletBalance + gamesBalance <= brandPaymentSettings.ClearWageringRequirementBalance)
+                                await Policy.Handle<Exception>()
+                                    .RetryAsync(2, (ex, count) =>
+                                    {
+                                        _logger.LogWarning(ex, "Clean buckets throw exception, retry {count}.", count);
+                                    })
+                                    .ExecuteAsync(async () => await _playerBucketClient
+                                        .CleanBucketsAsync(
+                                            form.PlayerCode,
+                                            bucketResult.AnchorBucketId!.Value,
+                                            form.Id.ToString(),
+                                            null,
+                                            cancellationToken)
+                                        .ConfigureAwait(false))
+                                    .ConfigureAwait(false);
+                        }
                     }
                 }
                 catch (Exception ex)

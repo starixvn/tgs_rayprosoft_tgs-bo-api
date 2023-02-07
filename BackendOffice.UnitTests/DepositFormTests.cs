@@ -19,6 +19,7 @@ using TGS.Services.BackOffice.Application.Models.Player;
 using TGS.Services.BackOffice.Application.Queries.Deposit;
 using TGS.Services.BackOffice.Application.Queries.PlayerHandlers;
 using TGS.Services.BackOffice.ApplicationServices.Payment;
+using TGS.Services.BackOffice.ApplicationServices;
 
 namespace TGS.Tests.BackendOffice.UnitTests;
 
@@ -58,7 +59,7 @@ public class DepositFormTests
         var fakeRedisDatabaseFactory = Substitute.For<IRedisConnectionFactory>();
         var fakeBrandServiceClient = Substitute.For<IBrandServiceClient>();
         var fakePlayerGPBalanceService = Substitute
-            .For<IQueryService<GetPlayerGameProviderBalanceCommand, GetPlayerGameProviderBalanceResponse>>();
+            .For<IQueryService<GetPlayerGameProviderBalanceQuery, GetPlayerGameProviderBalanceResponse>>();
         var fakeCashServiceClient = Substitute.For<ICashServiceClient>();
         var fakeMessageSender = Substitute.For<IMessageSender>();
 
@@ -126,7 +127,7 @@ public class DepositFormTests
         var fakeRedisDatabaseFactory = Substitute.For<IRedisConnectionFactory>();
         var fakeBrandServiceClient = Substitute.For<IBrandServiceClient>();
         var fakePlayerGPBalanceService = Substitute
-            .For<IQueryService<GetPlayerGameProviderBalanceCommand, GetPlayerGameProviderBalanceResponse>>();
+            .For<IQueryService<GetPlayerGameProviderBalanceQuery, GetPlayerGameProviderBalanceResponse>>();
         var fakeCashServiceClient = Substitute.For<ICashServiceClient>();
         var fakeMessageSender = Substitute.For<IMessageSender>();
 
@@ -268,7 +269,7 @@ public class DepositFormTests
         var fakeRedisDatabaseFactory = Substitute.For<IRedisConnectionFactory>();
         var fakeBrandServiceClient = Substitute.For<IBrandServiceClient>();
         var fakePlayerGPBalanceService = Substitute
-            .For<IQueryService<GetPlayerGameProviderBalanceCommand, GetPlayerGameProviderBalanceResponse>>();
+            .For<IQueryService<GetPlayerGameProviderBalanceQuery, GetPlayerGameProviderBalanceResponse>>();
         var fakeCashServiceClient = Substitute.For<ICashServiceClient>();
         var fakeMessageSender = Substitute.For<IMessageSender>();
 
@@ -364,7 +365,7 @@ public class DepositFormTests
         var fakeRedisDatabaseFactory = Substitute.For<IRedisConnectionFactory>();
         var fakeBrandServiceClient = Substitute.For<IBrandServiceClient>();
         var fakePlayerGPBalanceService = Substitute
-            .For<IQueryService<GetPlayerGameProviderBalanceCommand, GetPlayerGameProviderBalanceResponse>>();
+            .For<IQueryService<GetPlayerGameProviderBalanceQuery, GetPlayerGameProviderBalanceResponse>>();
         var fakeCashServiceClient = Substitute.For<ICashServiceClient>();
         var fakeMessageSender = Substitute.For<IMessageSender>();
 
@@ -471,7 +472,7 @@ public class DepositFormTests
         var fakeRedisDatabaseFactory = Substitute.For<IRedisConnectionFactory>();
         var fakeBrandServiceClient = Substitute.For<IBrandServiceClient>();
         var fakePlayerGPBalanceService = Substitute
-            .For<IQueryService<GetPlayerGameProviderBalanceCommand, GetPlayerGameProviderBalanceResponse>>();
+            .For<IQueryService<GetPlayerGameProviderBalanceQuery, GetPlayerGameProviderBalanceResponse>>();
         var fakeCashServiceClient = Substitute.For<ICashServiceClient>();
         var fakeMessageSender = Substitute.For<IMessageSender>();
 
@@ -554,7 +555,7 @@ public class DepositFormTests
         var fakeRedisDatabaseFactory = Substitute.For<IRedisConnectionFactory>();
         var fakeBrandServiceClient = Substitute.For<IBrandServiceClient>();
         var fakePlayerGPBalanceService = Substitute
-            .For<IQueryService<GetPlayerGameProviderBalanceCommand, GetPlayerGameProviderBalanceResponse>>();
+            .For<IQueryService<GetPlayerGameProviderBalanceQuery, GetPlayerGameProviderBalanceResponse>>();
         var fakeCashServiceClient = Substitute.For<ICashServiceClient>();
         var fakeMessageSender = Substitute.For<IMessageSender>();
 
@@ -682,7 +683,7 @@ public class DepositFormTests
         var fakeRedisDatabaseFactory = Substitute.For<IRedisConnectionFactory>();
         var fakeBrandServiceClient = Substitute.For<IBrandServiceClient>();
         var fakePlayerGPBalanceService = Substitute
-            .For<IQueryService<GetPlayerGameProviderBalanceCommand, GetPlayerGameProviderBalanceResponse>>();
+            .For<IQueryService<GetPlayerGameProviderBalanceQuery, GetPlayerGameProviderBalanceResponse>>();
         var fakeCashServiceClient = Substitute.For<ICashServiceClient>();
         var fakeMessageSender = Substitute.For<IMessageSender>();
 
