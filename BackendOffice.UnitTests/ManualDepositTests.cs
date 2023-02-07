@@ -146,7 +146,7 @@ public class ManualDepositTests
 
         _ = fakeBrandServiceClient.GetBrandPaymentSettingsAsync(
             Arg.Is(command.BrandId))
-            .Returns(new BrandPaymentSettings(true));
+            .Returns(new BrandPaymentSettings(true, false, 0M));
 
         _ = Assert.ThrowsAsync<Exception>(async () => await sut.GetAsync(command));
     }

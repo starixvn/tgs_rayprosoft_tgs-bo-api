@@ -1,27 +1,25 @@
-﻿using System;
-using System.Linq;
-using System.Linq.Expressions;
-using System.Threading;
-using System.Threading.Tasks;
-using MediatR;
+﻿using System.Collections.Immutable;
+using System.Text;
+using System.Text.Json;
 using Microsoft.Extensions.Logging.Abstractions;
 using Moq;
 using NSubstitute;
 using NUnit.Framework;
+using PlayerBucket.Repositories;
 using StackExchange.Redis;
+using Tgs.BrandCertificate.Clients;
+using Tgs.CashService.Client;
+using Tgs.MessageQueue;
 using Tgs.Payment.Clients;
+using Tgs.PlayerService.Client;
 using Tgs.Promotion.Clients;
 using Tgs.Service.PlayerBuckets;
 using Tgs.ServiceUtility;
-using TGS.Core.DataServices.Tgs.Models;
 using TGS.Core.Infrastructures.Redis;
 using TGS.Services.BackOffice.Application.Models.Player;
 using TGS.Services.BackOffice.Application.Queries.Deposit;
 using TGS.Services.BackOffice.Application.Queries.PlayerHandlers;
 using TGS.Services.BackOffice.ApplicationServices.Payment;
-using TGS.Services.BackOffice.Infrastructure.DataService;
-using TGS.Services.PlayerBucket;
-using TGS.Services.PlayerBucket.Models;
 
 namespace TGS.Tests.BackendOffice.UnitTests;
 
@@ -31,9 +29,9 @@ public class DepositFormTests
     [Test]
     public async Task Manager_Can_Get_The_DepositForm_Detail()
     {
-        var moqPaymentServiceClient = new Mock<IPaymentServiceClient>();
+        var fakePaymentServiceClient = Substitute.For<IPaymentServiceClient>();
 
-        var sut = new GetDepositFormDetailQueryService(moqPaymentServiceClient.Object);
+        var sut = new GetDepositFormDetailQueryService(fakePaymentServiceClient);
 
         var formId = Guid.NewGuid();
         var brandId = Guid.NewGuid();
@@ -42,28 +40,28 @@ public class DepositFormTests
 
         _ = await sut.GetAsync(query);
 
-        moqPaymentServiceClient.Verify(
-            fake => fake.GetDepositFormAsync(
-                It.Is<Guid>(x => x == brandId),
-                It.Is<Guid>(x => x == formId),
-                It.IsAny<CancellationToken>()),
-            Times.Exactly(1));
+        _ = fakePaymentServiceClient.Received(1)
+            .GetDepositFormAsync(
+                Arg.Is(brandId),
+                Arg.Is(formId));
     }
 
     [Test]
     public async Task Manager_Can_Not_Review_DepositForm_When_Form_Status_Is_Approved()
     {
         var fakePaymentServiceClient = Substitute.For<IPaymentServiceClient>();
-        var fakePlayerService = Substitute.For<IPlayerService>();
-        var fakePlayerBucketRepository = Substitute.For<IPlayerBucketRepository>();
+        var fakePlayerServiceClient = Substitute.For<IPlayerServiceClient>();
         var fakePlayerBucketClient = Substitute.For<IPlayerBucketClient>();
         var fakePromotionClient = Substitute.For<IPromotionClient>();
+        var fakePromotionServiceClient = Substitute.For<IPromotionServiceClient>();
         var fakeRedisDatabase = Substitute.For<IDatabase>();
         var fakeRedisConnection = Substitute.For<IConnectionMultiplexer>();
         var fakeRedisDatabaseFactory = Substitute.For<IRedisConnectionFactory>();
-        var fakeBrandService = Substitute.For<IBrandService>();
+        var fakeBrandServiceClient = Substitute.For<IBrandServiceClient>();
         var fakePlayerGPBalanceService = Substitute
             .For<IQueryService<GetPlayerGameProviderBalanceCommand, GetPlayerGameProviderBalanceResponse>>();
+        var fakeCashServiceClient = Substitute.For<ICashServiceClient>();
+        var fakeMessageSender = Substitute.For<IMessageSender>();
 
         _ = fakeRedisDatabaseFactory.GetConnection()
             .Returns(fakeRedisConnection);
@@ -73,13 +71,15 @@ public class DepositFormTests
 
         var sut = new ReviewDepositFormCommandService(
             fakePaymentServiceClient,
-            fakePlayerService,
-            fakePlayerBucketRepository,
+            fakePlayerServiceClient,
             fakePlayerBucketClient,
             fakePromotionClient,
+            fakePromotionServiceClient,
             fakeRedisDatabaseFactory,
-            fakeBrandService,
+            fakeBrandServiceClient,
             fakePlayerGPBalanceService,
+            fakeCashServiceClient,
+            fakeMessageSender,
             NullLogger<ReviewDepositFormCommandService>.Instance);
 
         _ = fakeRedisDatabase.StringSetAsync(
@@ -117,18 +117,19 @@ public class DepositFormTests
     [Test]
     public async Task Manager_Can_Review_DepositForm()
     {
-        var moqPaymentServiceClient = new Mock<IPaymentServiceClient>();
-        var moqPlayerService = new Mock<IPlayerService>();
-        var moqPlayerBucketRepository = new Mock<IPlayerBucketRepository>();
+        var fakePaymentServiceClient = Substitute.For<IPaymentServiceClient>();
+        var fakePlayerServiceClient = Substitute.For<IPlayerServiceClient>();
         var fakePlayerBucketClient = Substitute.For<IPlayerBucketClient>();
-        var moqPromotionClient = new Mock<IPromotionClient>();
+        var fakePromotionClient = Substitute.For<IPromotionClient>();
+        var fakePromotionServiceClient = Substitute.For<IPromotionServiceClient>();
         var fakeRedisDatabase = Substitute.For<IDatabase>();
         var fakeRedisConnection = Substitute.For<IConnectionMultiplexer>();
         var fakeRedisDatabaseFactory = Substitute.For<IRedisConnectionFactory>();
-        var fakeMediator = Substitute.For<IMediator>();
-        var moqBrandService = new Mock<IBrandService>();
+        var fakeBrandServiceClient = Substitute.For<IBrandServiceClient>();
         var fakePlayerGPBalanceService = Substitute
             .For<IQueryService<GetPlayerGameProviderBalanceCommand, GetPlayerGameProviderBalanceResponse>>();
+        var fakeCashServiceClient = Substitute.For<ICashServiceClient>();
+        var fakeMessageSender = Substitute.For<IMessageSender>();
 
         _ = fakeRedisDatabaseFactory.GetConnection()
             .Returns(fakeRedisConnection);
@@ -137,14 +138,16 @@ public class DepositFormTests
             .Returns(fakeRedisDatabase);
 
         var sut = new ReviewDepositFormCommandService(
-            moqPaymentServiceClient.Object,
-            moqPlayerService.Object,
-            moqPlayerBucketRepository.Object,
+            fakePaymentServiceClient,
+            fakePlayerServiceClient,
             fakePlayerBucketClient,
-            moqPromotionClient.Object,
+            fakePromotionClient,
+            fakePromotionServiceClient,
             fakeRedisDatabaseFactory,
-            moqBrandService.Object,
+            fakeBrandServiceClient,
             fakePlayerGPBalanceService,
+            fakeCashServiceClient,
+            fakeMessageSender,
             NullLogger<ReviewDepositFormCommandService>.Instance);
 
         var brandId = Guid.NewGuid();
@@ -166,12 +169,10 @@ public class DepositFormTests
                 Arg.Any<When>())
             .Returns(true);
 
-        _ = moqPaymentServiceClient
-            .Setup(fake => fake.GetDepositFormAsync(
-                It.Is<Guid>(x => x == brandId),
-                It.Is<Guid>(x => x == formId),
-                It.IsAny<CancellationToken>()))
-            .Returns(ValueTask.FromResult<DepositFormInfo?>(new DepositFormInfo
+        _ = fakePaymentServiceClient.GetDepositFormAsync(
+            Arg.Is(brandId),
+            Arg.Is(formId))
+            .Returns(new DepositFormInfo
             {
                 Id = Guid.NewGuid(),
                 PaymentMethodId = Guid.NewGuid(),
@@ -184,54 +185,26 @@ public class DepositFormTests
                 Status = PaymentFlowState.WaitApprove,
                 UpdatedOn = DateTimeOffset.Now,
                 UserName = "PlayerName"
-            }));
+            });
 
-        _ = moqPlayerService
-            .Setup(fake => fake.GetPlayerAsync(
-                It.IsAny<Expression<Func<Player, bool>>>(),
-                It.IsAny<Func<IQueryable<Player>, IQueryable<Player>>>()))
-            .Returns(Task.FromResult(new Player
+        _ = fakePlayerServiceClient.GetPlayerPropertiesAsync(Arg.Any<string>())
+            .Returns(new Dictionary<string, string>
             {
-                PlayerCode = "ThisIsPlayerCode",
-                DefaultWalletId = walletId
-            }));
+                ["DefaultWalletId"] = walletId.ToString()
+            }.ToImmutableDictionary());
 
-        _ = moqBrandService
-            .Setup(fake => fake.GetBrandAsync(
-                It.IsAny<Expression<Func<Brand, bool>>>(),
-                It.IsAny<Func<IQueryable<Brand>, IQueryable<Brand>>>()))
-            .Returns(Task.FromResult(new Brand { AutoClearWageringRequirement = false }));
-
-        _ = moqPlayerBucketRepository
-            .Setup(fake => fake.CreatePlayerBucketWithDepositAsync(
-                It.Is<CreatePlayerBucketWithDepositRequest>(
-                    x => x.BrandId == brandId
-                        && x.DefaultWalletId == walletId
-                        && x.DepositAmount == 1000M
-                        && x.PlayerCode == "ThisIsPlayerCode")))
-            .Returns(ValueTask.FromResult(
-                new CreatePlayerBucketWithDepositResponse(1000M, null)));
+        _ = fakeBrandServiceClient.GetBrandPaymentSettingsAsync(Arg.Is(brandId))
+            .Returns(new BrandPaymentSettings(true, true, 0M));
 
         await sut.ExecuteAsync(command);
 
-        moqPaymentServiceClient.Verify(
-            fake => fake.ReviewDepositFormAsync(
-                It.Is<Guid>(x => x == formId),
-                It.Is<ReviewState>(x => x == ReviewState.Approve),
-                It.IsAny<string>(),
-                It.IsAny<string>(),
-                It.IsAny<string>(),
-                It.IsAny<CancellationToken>()),
-            Times.Exactly(1));
-
-        moqPlayerBucketRepository.Verify(
-            fake => fake.CreatePlayerBucketWithDepositAsync(
-                It.Is<CreatePlayerBucketWithDepositRequest>(
-                    x => x.BrandId == brandId
-                        && x.DefaultWalletId == walletId
-                        && x.DepositAmount == 1000M
-                        && x.PlayerCode == "ThisIsPlayerCode")),
-            Times.Exactly(1));
+        _ = fakePaymentServiceClient.Received(1)
+            .ReviewDepositFormAsync(
+                Arg.Is(formId),
+                Arg.Is(ReviewState.Approve),
+                Arg.Any<string>(),
+                Arg.Any<string>(),
+                Arg.Any<string>());
     }
 
     [Test]
@@ -281,5 +254,516 @@ public class DepositFormTests
                 It.IsAny<Paging>(),
                 It.IsAny<CancellationToken>()),
             Times.Exactly(1));
+    }
+
+    [Test]
+    public async Task 審核存款單沒有參加活動會進行錢包更新及加流水的動作()
+    {
+        var fakePaymentServiceClient = Substitute.For<IPaymentServiceClient>();
+        var fakePlayerServiceClient = Substitute.For<IPlayerServiceClient>();
+        var fakePlayerBucketClient = Substitute.For<IPlayerBucketClient>();
+        var fakePromotionClient = Substitute.For<IPromotionClient>();
+        var fakePromotionServiceClient = Substitute.For<IPromotionServiceClient>();
+        var fakeRedisDatabase = Substitute.For<IDatabase>();
+        var fakeRedisConnection = Substitute.For<IConnectionMultiplexer>();
+        var fakeRedisDatabaseFactory = Substitute.For<IRedisConnectionFactory>();
+        var fakeBrandServiceClient = Substitute.For<IBrandServiceClient>();
+        var fakePlayerGPBalanceService = Substitute
+            .For<IQueryService<GetPlayerGameProviderBalanceCommand, GetPlayerGameProviderBalanceResponse>>();
+        var fakeCashServiceClient = Substitute.For<ICashServiceClient>();
+        var fakeMessageSender = Substitute.For<IMessageSender>();
+
+        _ = fakeRedisDatabaseFactory.GetConnection()
+            .Returns(fakeRedisConnection);
+
+        _ = fakeRedisConnection.GetDatabase(Arg.Any<int>(), Arg.Any<object>())
+            .Returns(fakeRedisDatabase);
+
+        var sut = new ReviewDepositFormCommandService(
+            fakePaymentServiceClient,
+            fakePlayerServiceClient,
+            fakePlayerBucketClient,
+            fakePromotionClient,
+            fakePromotionServiceClient,
+            fakeRedisDatabaseFactory,
+            fakeBrandServiceClient,
+            fakePlayerGPBalanceService,
+            fakeCashServiceClient,
+            fakeMessageSender,
+            NullLogger<ReviewDepositFormCommandService>.Instance);
+
+        _ = fakeRedisDatabase.StringSetAsync(
+                Arg.Any<RedisKey>(),
+                Arg.Any<RedisValue>(),
+                Arg.Any<TimeSpan?>(),
+                Arg.Any<When>(),
+                Arg.Any<CommandFlags>())
+            .Returns(true);
+
+        var brandId = Guid.NewGuid();
+        var formId = Guid.NewGuid();
+        var brandPaymentId = Guid.NewGuid();
+        var playerCode = "test1";
+        var walletId = Guid.NewGuid();
+
+        _ = fakePaymentServiceClient.GetDepositFormAsync(brandId, formId)
+            .Returns(new DepositFormInfo
+            {
+                Id = formId,
+                Amount = 1000M,
+                BrandPaymentId = brandPaymentId,
+                PlayerCode = playerCode,
+                Status = PaymentFlowState.WaitApprove
+            });
+
+        var command = new ReviewDepositFormCommand(
+            brandId,
+            formId,
+            ReviewState.Approve,
+            null,
+            null,
+            "93a723b2-9ebb-4607-ee8d-08d978fba75f",
+            "reviewUserName");
+
+        _ = fakeRedisDatabase.StringSetAsync(
+            Arg.Is(new RedisKey($"Tgs:BucketDeposit:{command.FormId:N}")),
+            Arg.Any<RedisValue>(),
+            expiry: Arg.Any<TimeSpan>(),
+            when: Arg.Is(When.NotExists))
+            .Returns(true);
+
+        _ = fakeBrandServiceClient.GetBrandPaymentSettingsAsync(Arg.Is(brandId))
+            .Returns(new BrandPaymentSettings(
+                false, false, 0M));
+
+        _ = fakePlayerServiceClient.GetPlayerPropertiesAsync(Arg.Is(playerCode))
+            .Returns(new Dictionary<string, string>
+            {
+                ["DefaultWalletId"] = walletId.ToString()
+            }.ToImmutableDictionary());
+
+        _ = fakePaymentServiceClient.CalculateHandlingFeeAsync(Arg.Is(brandPaymentId), Arg.Is(1000M))
+            .Returns(100M);
+
+        await sut.ExecuteAsync(command);
+
+        _ = fakeCashServiceClient.Received(1)
+            .DepositedAsync(
+                Arg.Is(walletId),
+                Arg.Is((command.ActualAmount ?? 1000M) - 100M),
+                Arg.Is(command.Remark),
+                Arg.Is(formId.ToString()),
+                Arg.Is(Guid.Parse(command.ReviewUserId)));
+        _ = fakePlayerBucketClient.Received(1)
+            .CreateBucketAsync(
+                Arg.Is(playerCode),
+                Arg.Is((command.ActualAmount ?? 1000M) - 100M),
+                Arg.Is(BucketType.Deposit),
+                Arg.Is(formId.ToString()),
+                Arg.Is(command.Remark));
+    }
+
+    [Test]
+    public async Task 審核存款單時如果有其他審核程式正在處理中會結束執行不處理()
+    {
+        var fakePaymentServiceClient = Substitute.For<IPaymentServiceClient>();
+        var fakePlayerServiceClient = Substitute.For<IPlayerServiceClient>();
+        var fakePlayerBucketClient = Substitute.For<IPlayerBucketClient>();
+        var fakePromotionClient = Substitute.For<IPromotionClient>();
+        var fakePromotionServiceClient = Substitute.For<IPromotionServiceClient>();
+        var fakeRedisDatabase = Substitute.For<IDatabase>();
+        var fakeRedisConnection = Substitute.For<IConnectionMultiplexer>();
+        var fakeRedisDatabaseFactory = Substitute.For<IRedisConnectionFactory>();
+        var fakeBrandServiceClient = Substitute.For<IBrandServiceClient>();
+        var fakePlayerGPBalanceService = Substitute
+            .For<IQueryService<GetPlayerGameProviderBalanceCommand, GetPlayerGameProviderBalanceResponse>>();
+        var fakeCashServiceClient = Substitute.For<ICashServiceClient>();
+        var fakeMessageSender = Substitute.For<IMessageSender>();
+
+        _ = fakeRedisDatabaseFactory.GetConnection()
+            .Returns(fakeRedisConnection);
+
+        _ = fakeRedisConnection.GetDatabase(Arg.Any<int>(), Arg.Any<object>())
+            .Returns(fakeRedisDatabase);
+
+        var sut = new ReviewDepositFormCommandService(
+            fakePaymentServiceClient,
+            fakePlayerServiceClient,
+            fakePlayerBucketClient,
+            fakePromotionClient,
+            fakePromotionServiceClient,
+            fakeRedisDatabaseFactory,
+            fakeBrandServiceClient,
+            fakePlayerGPBalanceService,
+            fakeCashServiceClient,
+            fakeMessageSender,
+            NullLogger<ReviewDepositFormCommandService>.Instance);
+
+        _ = fakeRedisDatabase.StringSetAsync(
+                Arg.Any<RedisKey>(),
+                Arg.Any<RedisValue>(),
+                Arg.Any<TimeSpan?>(),
+                Arg.Any<When>(),
+                Arg.Any<CommandFlags>())
+            .Returns(true);
+
+        var brandId = Guid.NewGuid();
+        var formId = Guid.NewGuid();
+        var brandPaymentId = Guid.NewGuid();
+        var playerCode = "test1";
+
+        _ = fakePaymentServiceClient.GetDepositFormAsync(brandId, formId)
+            .Returns(new DepositFormInfo
+            {
+                Amount = 1000M,
+                BrandPaymentId = brandPaymentId,
+                PlayerCode = playerCode,
+                Status = PaymentFlowState.WaitApprove
+            });
+
+        var command = new ReviewDepositFormCommand(
+            brandId,
+            formId,
+            ReviewState.Approve,
+            null,
+            null,
+            "93a723b2-9ebb-4607-ee8d-08d978fba75f",
+            "reviewUserName");
+
+        _ = fakeRedisDatabase.StringSetAsync(
+            Arg.Is(new RedisKey($"Tgs:BucketDeposit:{command.FormId:N}")),
+            Arg.Any<RedisValue>(),
+            expiry: Arg.Any<TimeSpan>(),
+            when: Arg.Is(When.NotExists))
+            .Returns(false);
+
+        await sut.ExecuteAsync(command);
+
+        _ = fakePaymentServiceClient.DidNotReceive()
+            .SubmitDepositFormStatusAsync(
+                Arg.Is(command.FormId),
+                promotionPlayerId: Arg.Any<int?>(),
+                handlingFee: Arg.Is(100M));
+    }
+
+    [Test]
+    public async Task 審核存款單時有參加活動會請存款活動處理流水及活動獎勵()
+    {
+        var fakePaymentServiceClient = Substitute.For<IPaymentServiceClient>();
+        var fakePlayerServiceClient = Substitute.For<IPlayerServiceClient>();
+        var fakePlayerBucketClient = Substitute.For<IPlayerBucketClient>();
+        var fakePromotionClient = Substitute.For<IPromotionClient>();
+        var fakePromotionServiceClient = Substitute.For<IPromotionServiceClient>();
+        var fakeRedisDatabase = Substitute.For<IDatabase>();
+        var fakeRedisConnection = Substitute.For<IConnectionMultiplexer>();
+        var fakeRedisDatabaseFactory = Substitute.For<IRedisConnectionFactory>();
+        var fakeBrandServiceClient = Substitute.For<IBrandServiceClient>();
+        var fakePlayerGPBalanceService = Substitute
+            .For<IQueryService<GetPlayerGameProviderBalanceCommand, GetPlayerGameProviderBalanceResponse>>();
+        var fakeCashServiceClient = Substitute.For<ICashServiceClient>();
+        var fakeMessageSender = Substitute.For<IMessageSender>();
+
+        _ = fakeRedisDatabaseFactory.GetConnection()
+            .Returns(fakeRedisConnection);
+
+        _ = fakeRedisConnection.GetDatabase(Arg.Any<int>(), Arg.Any<object>())
+            .Returns(fakeRedisDatabase);
+
+        var sut = new ReviewDepositFormCommandService(
+            fakePaymentServiceClient,
+            fakePlayerServiceClient,
+            fakePlayerBucketClient,
+            fakePromotionClient,
+            fakePromotionServiceClient,
+            fakeRedisDatabaseFactory,
+            fakeBrandServiceClient,
+            fakePlayerGPBalanceService,
+            fakeCashServiceClient,
+            fakeMessageSender,
+            NullLogger<ReviewDepositFormCommandService>.Instance);
+
+        _ = fakeRedisDatabase.StringSetAsync(
+                Arg.Any<RedisKey>(),
+                Arg.Any<RedisValue>(),
+                Arg.Any<TimeSpan?>(),
+                Arg.Any<When>(),
+                Arg.Any<CommandFlags>())
+            .Returns(true);
+
+        var brandId = Guid.NewGuid();
+        var formId = Guid.NewGuid();
+        var brandPaymentId = Guid.NewGuid();
+        var playerCode = "test1";
+        var walletId = Guid.NewGuid();
+        var promotionId = Guid.NewGuid();
+
+        _ = fakePaymentServiceClient.GetDepositFormAsync(brandId, formId)
+            .Returns(new DepositFormInfo
+            {
+                Id = formId,
+                Amount = 1000M,
+                BrandPaymentId = brandPaymentId,
+                PlayerCode = playerCode,
+                PromotionId = promotionId,
+                Status = PaymentFlowState.WaitApprove
+            });
+
+        var command = new ReviewDepositFormCommand(
+            brandId,
+            formId,
+            ReviewState.Approve,
+            null,
+            null,
+            "93a723b2-9ebb-4607-ee8d-08d978fba75f",
+            "reviewUserName");
+
+        _ = fakeRedisDatabase.StringSetAsync(
+            Arg.Is(new RedisKey($"Tgs:BucketDeposit:{command.FormId:N}")),
+            Arg.Any<RedisValue>(),
+            expiry: Arg.Any<TimeSpan>(),
+            when: Arg.Is(When.NotExists))
+            .Returns(true);
+
+        _ = fakeBrandServiceClient.GetBrandPaymentSettingsAsync(Arg.Is(brandId))
+            .Returns(new BrandPaymentSettings(
+                false, false, 0M));
+
+        _ = fakePlayerServiceClient.GetPlayerPropertiesAsync(Arg.Is(playerCode))
+            .Returns(new Dictionary<string, string>
+            {
+                ["DefaultWalletId"] = walletId.ToString()
+            }.ToImmutableDictionary());
+
+        _ = fakePaymentServiceClient.CalculateHandlingFeeAsync(Arg.Is(brandPaymentId), Arg.Is(1000M))
+            .Returns(100M);
+
+        _ = fakePromotionServiceClient.GetPromotionMainInfoAsync(Arg.Is(promotionId))
+            .Returns(new PromotionMainInfo
+            {
+                Id = promotionId,
+                PromotionType = "FirstDeposit"
+            });
+
+        var promotionResponse = new DepositMessageDataResponse(123, 1000M);
+
+        _ = fakeMessageSender.RequestAsync(
+            Arg.Is($"tgs.promotion.firstdeposit.distribute"),
+            Arg.Any<ReadOnlyMemory<byte>>())
+            .Returns(Encoding.UTF8.GetBytes(JsonSerializer.Serialize(promotionResponse)));
+
+        await sut.ExecuteAsync(command);
+
+        _ = fakeCashServiceClient.Received(1)
+            .DepositedAsync(
+                Arg.Is(walletId),
+                Arg.Is((command.ActualAmount ?? 1000M) - 100M),
+                Arg.Is(command.Remark),
+                Arg.Is(formId.ToString()),
+                Arg.Is(Guid.Parse(command.ReviewUserId)));
+        _ = fakePlayerBucketClient.Received(0)
+            .CreateBucketAsync(
+                Arg.Is(playerCode),
+                Arg.Is((command.ActualAmount ?? 1000M) - 100M),
+                Arg.Is(BucketType.Deposit),
+                Arg.Is(formId.ToString()),
+                Arg.Is(command.Remark));
+        _ = fakePaymentServiceClient.Received(1)
+            .SubmitDepositFormStatusAsync(
+                Arg.Is(formId),
+                promotionPlayerId: Arg.Is(123),
+                handlingFee: Arg.Any<decimal>());
+    }
+
+    [Test]
+    public async Task 審核存款單時會計算手續費()
+    {
+        var fakePaymentServiceClient = Substitute.For<IPaymentServiceClient>();
+        var fakePlayerServiceClient = Substitute.For<IPlayerServiceClient>();
+        var fakePlayerBucketClient = Substitute.For<IPlayerBucketClient>();
+        var fakePromotionClient = Substitute.For<IPromotionClient>();
+        var fakePromotionServiceClient = Substitute.For<IPromotionServiceClient>();
+        var fakeRedisDatabase = Substitute.For<IDatabase>();
+        var fakeRedisConnection = Substitute.For<IConnectionMultiplexer>();
+        var fakeRedisDatabaseFactory = Substitute.For<IRedisConnectionFactory>();
+        var fakeBrandServiceClient = Substitute.For<IBrandServiceClient>();
+        var fakePlayerGPBalanceService = Substitute
+            .For<IQueryService<GetPlayerGameProviderBalanceCommand, GetPlayerGameProviderBalanceResponse>>();
+        var fakeCashServiceClient = Substitute.For<ICashServiceClient>();
+        var fakeMessageSender = Substitute.For<IMessageSender>();
+
+        _ = fakeRedisDatabaseFactory.GetConnection()
+            .Returns(fakeRedisConnection);
+
+        _ = fakeRedisConnection.GetDatabase(Arg.Any<int>(), Arg.Any<object>())
+            .Returns(fakeRedisDatabase);
+
+        var sut = new ReviewDepositFormCommandService(
+            fakePaymentServiceClient,
+            fakePlayerServiceClient,
+            fakePlayerBucketClient,
+            fakePromotionClient,
+            fakePromotionServiceClient,
+            fakeRedisDatabaseFactory,
+            fakeBrandServiceClient,
+            fakePlayerGPBalanceService,
+            fakeCashServiceClient,
+            fakeMessageSender,
+            NullLogger<ReviewDepositFormCommandService>.Instance);
+
+        _ = fakeRedisDatabase.StringSetAsync(
+                Arg.Any<RedisKey>(),
+                Arg.Any<RedisValue>(),
+                Arg.Any<TimeSpan?>(),
+                Arg.Any<When>(),
+                Arg.Any<CommandFlags>())
+            .Returns(true);
+
+        var brandId = Guid.NewGuid();
+        var formId = Guid.NewGuid();
+        var brandPaymentId = Guid.NewGuid();
+        var playerCode = "test1";
+        var walletId = Guid.NewGuid();
+
+        _ = fakePaymentServiceClient.GetDepositFormAsync(brandId, formId)
+            .Returns(new DepositFormInfo
+            {
+                Amount = 1000M,
+                BrandPaymentId = brandPaymentId,
+                PlayerCode = playerCode,
+                Status = PaymentFlowState.WaitApprove
+            });
+
+        var command = new ReviewDepositFormCommand(
+            brandId,
+            formId,
+            ReviewState.Approve,
+            null,
+            null,
+            "93a723b2-9ebb-4607-ee8d-08d978fba75f",
+            "reviewUserName");
+
+        _ = fakeRedisDatabase.StringSetAsync(
+            Arg.Is(new RedisKey($"Tgs:BucketDeposit:{command.FormId:N}")),
+            Arg.Any<RedisValue>(),
+            expiry: Arg.Any<TimeSpan>(),
+            when: Arg.Is(When.NotExists))
+            .Returns(true);
+
+        _ = fakeBrandServiceClient.GetBrandPaymentSettingsAsync(Arg.Is(brandId))
+            .Returns(new BrandPaymentSettings(
+                false, false, 0M));
+
+        _ = fakePlayerServiceClient.GetPlayerPropertiesAsync(Arg.Is(playerCode))
+            .Returns(new Dictionary<string, string>
+            {
+                ["DefaultWalletId"] = walletId.ToString()
+            }.ToImmutableDictionary());
+
+        _ = fakePaymentServiceClient.CalculateHandlingFeeAsync(Arg.Is(brandPaymentId), Arg.Is(1000M))
+            .Returns(100M);
+
+        await sut.ExecuteAsync(command);
+
+        _ = fakePaymentServiceClient.Received(1)
+            .SubmitDepositFormStatusAsync(
+                Arg.Is(command.FormId),
+                promotionPlayerId: Arg.Any<int?>(),
+                handlingFee: Arg.Is(100M));
+    }
+
+    [Test]
+    public async Task 審核存款單完成後會更新玩家總存款()
+    {
+        var fakePaymentServiceClient = Substitute.For<IPaymentServiceClient>();
+        var fakePlayerServiceClient = Substitute.For<IPlayerServiceClient>();
+        var fakePlayerBucketClient = Substitute.For<IPlayerBucketClient>();
+        var fakePromotionClient = Substitute.For<IPromotionClient>();
+        var fakePromotionServiceClient = Substitute.For<IPromotionServiceClient>();
+        var fakeRedisDatabase = Substitute.For<IDatabase>();
+        var fakeRedisConnection = Substitute.For<IConnectionMultiplexer>();
+        var fakeRedisDatabaseFactory = Substitute.For<IRedisConnectionFactory>();
+        var fakeBrandServiceClient = Substitute.For<IBrandServiceClient>();
+        var fakePlayerGPBalanceService = Substitute
+            .For<IQueryService<GetPlayerGameProviderBalanceCommand, GetPlayerGameProviderBalanceResponse>>();
+        var fakeCashServiceClient = Substitute.For<ICashServiceClient>();
+        var fakeMessageSender = Substitute.For<IMessageSender>();
+
+        _ = fakeRedisDatabaseFactory.GetConnection()
+            .Returns(fakeRedisConnection);
+
+        _ = fakeRedisConnection.GetDatabase(Arg.Any<int>(), Arg.Any<object>())
+            .Returns(fakeRedisDatabase);
+
+        var sut = new ReviewDepositFormCommandService(
+            fakePaymentServiceClient,
+            fakePlayerServiceClient,
+            fakePlayerBucketClient,
+            fakePromotionClient,
+            fakePromotionServiceClient,
+            fakeRedisDatabaseFactory,
+            fakeBrandServiceClient,
+            fakePlayerGPBalanceService,
+            fakeCashServiceClient,
+            fakeMessageSender,
+            NullLogger<ReviewDepositFormCommandService>.Instance);
+
+        _ = fakeRedisDatabase.StringSetAsync(
+                Arg.Any<RedisKey>(),
+                Arg.Any<RedisValue>(),
+                Arg.Any<TimeSpan?>(),
+                Arg.Any<When>(),
+                Arg.Any<CommandFlags>())
+            .Returns(true);
+
+        var brandId = Guid.NewGuid();
+        var formId = Guid.NewGuid();
+        var brandPaymentId = Guid.NewGuid();
+        var playerCode = "test1";
+        var walletId = Guid.NewGuid();
+
+        _ = fakePaymentServiceClient.GetDepositFormAsync(brandId, formId)
+            .Returns(new DepositFormInfo
+            {
+                Amount = 1000M,
+                BrandPaymentId = brandPaymentId,
+                PlayerCode = playerCode,
+                Status = PaymentFlowState.WaitApprove
+            });
+
+        var command = new ReviewDepositFormCommand(
+            brandId,
+            formId,
+            ReviewState.Approve,
+            null,
+            null,
+            "93a723b2-9ebb-4607-ee8d-08d978fba75f",
+            "reviewUserName");
+
+        _ = fakeRedisDatabase.StringSetAsync(
+            Arg.Is(new RedisKey($"Tgs:BucketDeposit:{command.FormId:N}")),
+            Arg.Any<RedisValue>(),
+            expiry: Arg.Any<TimeSpan>(),
+            when: Arg.Is(When.NotExists))
+            .Returns(true);
+
+        _ = fakeBrandServiceClient.GetBrandPaymentSettingsAsync(Arg.Is(brandId))
+            .Returns(new BrandPaymentSettings(
+                false, false, 0M));
+
+        _ = fakePlayerServiceClient.GetPlayerPropertiesAsync(Arg.Is(playerCode))
+            .Returns(new Dictionary<string, string>
+            {
+                ["DefaultWalletId"] = walletId.ToString()
+            }.ToImmutableDictionary());
+
+        _ = fakePaymentServiceClient.CalculateHandlingFeeAsync(Arg.Is(brandPaymentId), Arg.Is(1000M))
+            .Returns(100M);
+
+        await sut.ExecuteAsync(command);
+
+        _ = fakePlayerServiceClient.Received(1)
+            .TopUpAccumulatedDepositAsync(
+                Arg.Is(playerCode),
+                Arg.Is(900M));
     }
 }
