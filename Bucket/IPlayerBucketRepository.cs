@@ -9,8 +9,5 @@ namespace TGS.Services.PlayerBucket;
 
 public interface IPlayerBucketRepository
 {
-    ValueTask<CreatePlayerBucketWithDepositResponse> CreatePlayerBucketWithDepositAsync(
-        CreatePlayerBucketWithDepositRequest request);
-
     ValueTask<PlayerBucketInfo> GetPlayerBucketInfoAsync(string playerCode, CancellationToken cancellationToken = default);
 }
