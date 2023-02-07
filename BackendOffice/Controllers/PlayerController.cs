@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.ComponentModel;
 using System.Linq;
 using System.Text.Json;
+using System.Threading;
 using System.Threading.Tasks;
 using MediatR;
 using Microsoft.AspNetCore.Mvc;
@@ -23,6 +24,7 @@ using TGS.Services.BackOffice.Application.Models.Player;
 using TGS.Services.BackOffice.Application.Models.ReportPlayer;
 using TGS.Services.BackOffice.Application.Queries.PlayerHandlers;
 using TGS.Services.BackOffice.ApplicationServices;
+using TGS.Services.BackOffice.ApplicationServices.Agents;
 using TGS.Services.BackOffice.Domain;
 
 namespace TGS.Apis.BackendOffice.Controllers;
@@ -338,10 +340,41 @@ public partial class PlayerController : BaseContextController
     [HttpGet("{playerCode}/transferwallet", Name = "GetPlayerGameProviderBalances")]
     [Description("Get Player Transfer Wallet")]
     public async IAsyncEnumerable<GetPlayerGameProviderBalanceResponse> GetPlayerGameProviderBalancesAsync(
-        [FromServices] IQueryService<GetPlayerGameProviderBalanceCommand, GetPlayerGameProviderBalanceResponse> service,
+        [FromServices] IGetService<GetPlayerBalanceQuery, decimal> getPlayerBalanceService,
+        [FromServices] IQueryService<GetPlayerGameProviderBalanceQuery, GetPlayerGameProviderBalanceResponse> queryGameBalanceService,
         string playerCode)
     {
-        var datas = await service.QueryAsync(new GetPlayerGameProviderBalanceCommand(playerCode)).ToArrayAsync().ConfigureAwait(false);
+        async ValueTask<GetPlayerGameProviderBalanceResponse> GetPlayerBalanceAsync(CancellationToken cancellationToken)
+        {
+            try
+            {
+                var walletBalance = await getPlayerBalanceService.GetAsync(
+                    new(playerCode),
+                    cancellationToken).ConfigureAwait(false);
+
+                return new GetPlayerGameProviderBalanceResponse(
+                    "DEFAULT",
+                    "DEFAULT",
+                    true,
+                    false,
+                    walletBalance);
+            }
+            catch
+            {
+                return new GetPlayerGameProviderBalanceResponse(
+                    GameProviderCode: "DEFAULT",
+                    GameProviderName: "DEFAULT",
+                    IsMainWallet: true,
+                    IsMaintain: true,
+                    Balance: null);
+            }
+        }
+
+        yield return await GetPlayerBalanceAsync(HttpContext.RequestAborted).ConfigureAwait(false);
+
+        var datas = await queryGameBalanceService.QueryAsync(new GetPlayerGameProviderBalanceQuery(playerCode))
+            .ToArrayAsync()
+            .ConfigureAwait(false);
 
         if (!datas.Any())
         {

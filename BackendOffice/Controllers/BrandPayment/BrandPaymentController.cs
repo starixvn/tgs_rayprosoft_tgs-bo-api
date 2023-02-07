@@ -19,7 +19,6 @@ using TGS.Core.DataServices.Tgs.Models;
 using TGS.Core.Infrastructures.Extensions;
 using TGS.Core.Models.Enums;
 using TGS.Core.Models.Messages;
-using TGS.Services.BackOffice.ApplicationServices;
 using TGS.Services.BackOffice.ApplicationServices.Payment;
 using Player = TGS.Core.DataServices.Tgs.Models.Player;
 

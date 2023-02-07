@@ -1,9 +1,5 @@
-﻿using System;
-using System.Linq;
-using System.Threading.Tasks;
-using MockQueryable.Moq;
+﻿using MockQueryable.Moq;
 using NSubstitute;
-using NUnit.Framework;
 using StackExchange.Redis;
 using Tgs.MessageQueue;
 using TGS.Core.DataServices.Tgs.Models;

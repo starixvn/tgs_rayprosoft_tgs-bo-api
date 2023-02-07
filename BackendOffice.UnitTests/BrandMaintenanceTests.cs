@@ -1,9 +1,5 @@
-﻿using System;
-using System.Linq;
-using System.Threading.Tasks;
-using MockQueryable.Moq;
+﻿using MockQueryable.Moq;
 using Moq;
-using NUnit.Framework;
 using TGS.Core.DataServices.Tgs.Models;
 using TGS.Core.Models.Enums;
 using TGS.Services.BackOffice.Application.Models.Brand;

@@ -1,5 +1,4 @@
 ﻿using FluentValidation.TestHelper;
-using NUnit.Framework;
 using TGS.Apis.BackendOffice.Controllers.Messages.Users;
 using TGS.Apis.BackendOffice.Controllers.Messages.Validators.User;
 

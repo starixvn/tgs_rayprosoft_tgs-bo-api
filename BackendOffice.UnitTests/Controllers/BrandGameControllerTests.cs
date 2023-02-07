@@ -1,13 +1,8 @@
-﻿using System;
-using System.Data.SqlClient;
-using System.Linq;
-using System.Threading;
-using System.Threading.Tasks;
+﻿using System.Data.SqlClient;
 using AutoFixture;
 using FluentAssertions;
 using MediatR;
 using Moq;
-using NUnit.Framework;
 using TGS.Apis.BackendOffice.Controllers.Brand;
 using TGS.Core.Models.Messages;
 using TGS.Services.BackOffice.Application.Models.BrandGame;

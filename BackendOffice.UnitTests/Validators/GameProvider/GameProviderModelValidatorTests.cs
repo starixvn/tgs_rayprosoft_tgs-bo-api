@@ -1,5 +1,4 @@
 ﻿using FluentValidation.TestHelper;
-using NUnit.Framework;
 using TGS.Core.Models.Enums;
 using TGS.Services.BackOffice.Application.Models.GameProvider;
 using TGS.Services.BackOffice.Validation.GameProvider;

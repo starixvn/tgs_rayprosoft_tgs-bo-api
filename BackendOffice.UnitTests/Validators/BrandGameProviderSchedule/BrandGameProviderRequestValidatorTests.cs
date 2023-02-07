@@ -1,6 +1,4 @@
-﻿using System;
-using FluentValidation.TestHelper;
-using NUnit.Framework;
+﻿using FluentValidation.TestHelper;
 using TGS.Services.BackOffice.Application.Models.BrandGameProviderSchedule;
 using TGS.Services.BackOffice.Validation.BrandGameProviderSchedule;
 

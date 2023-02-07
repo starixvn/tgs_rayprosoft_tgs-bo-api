@@ -1,10 +1,7 @@
 ﻿using System.Data.SqlClient;
-using System.Linq;
-using System.Threading.Tasks;
 using AutoFixture;
 using FluentAssertions;
 using Moq;
-using NUnit.Framework;
 using TGS.Apis.BackendOffice.Controllers;
 using TGS.Apis.BackendOffice.Controllers.Messages.Log;
 using TGS.Apis.BackendOffice.DataService.Repositories;

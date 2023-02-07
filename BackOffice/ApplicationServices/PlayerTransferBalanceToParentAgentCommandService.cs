@@ -5,6 +5,7 @@ using System.Threading.Tasks;
 using Tgs.PlayerService.Client;
 using Tgs.ServiceUtility;
 using TGS.Services.BackOffice.Application.Resources;
+using TGS.Services.BackOffice.ApplicationServices.Agents;
 using TGS.Services.BackOffice.Domain;
 
 namespace TGS.Services.BackOffice.ApplicationServices;

@@ -8,7 +8,7 @@ using Tgs.Payment.Clients;
 using Tgs.ServiceUtility;
 using TGS.Apis.BackendOffice.Controllers.Messages.ManualDeposit;
 using TGS.Payment.ManualDeposit;
-using TGS.Services.BackOffice.ApplicationServices;
+using TGS.Services.BackOffice.ApplicationServices.Payment;
 using Xunit.Abstractions;
 
 namespace BackendOffice.IntegrationTests;

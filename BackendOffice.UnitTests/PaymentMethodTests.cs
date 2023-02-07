@@ -1,7 +1,4 @@
-﻿using System.Threading;
-using System.Threading.Tasks;
-using Moq;
-using NUnit.Framework;
+﻿using Moq;
 using Tgs.Payment.Clients;
 using TGS.Services.BackOffice.Application.Queries.PaymentMethod;
 

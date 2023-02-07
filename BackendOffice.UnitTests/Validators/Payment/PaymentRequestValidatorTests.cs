@@ -1,6 +1,4 @@
-﻿using System;
-using FluentValidation.TestHelper;
-using NUnit.Framework;
+﻿using FluentValidation.TestHelper;
 using TGS.Apis.BackendOffice.Controllers.Messages.BrandPayment;
 using TGS.Apis.BackendOffice.Controllers.Messages.Validators.BrandPayment;
 using TGS.Apis.BackendOffice.Resources;

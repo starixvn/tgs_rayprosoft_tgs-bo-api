@@ -1,9 +1,5 @@
-﻿using System;
-using System.IO;
-using System.Text;
+﻿using System.Text;
 using System.Text.Json;
-using System.Threading;
-using System.Threading.Tasks;
 using FluentAssertions;
 using Microsoft.AspNetCore.Diagnostics;
 using Microsoft.AspNetCore.Hosting;
@@ -11,7 +7,6 @@ using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Http.Features;
 using Microsoft.Extensions.Logging.Abstractions;
 using Moq;
-using NUnit.Framework;
 using Tgs.Logging;
 using TGS.Apis.BackendOffice.Middlewares;
 using TGS.Core.Infrastructures.Json;

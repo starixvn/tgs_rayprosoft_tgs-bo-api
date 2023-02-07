@@ -1,9 +1,6 @@
-﻿using System;
-using System.Data.SqlClient;
-using System.Linq;
+﻿using System.Data.SqlClient;
 using System.Linq.Expressions;
 using System.Text.Json;
-using System.Threading.Tasks;
 using AutoFixture;
 using FluentAssertions;
 using Microsoft.AspNetCore.Http;
@@ -11,7 +8,6 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Options;
 using MockQueryable.Moq;
 using Moq;
-using NUnit.Framework;
 using TGS.Apis.BackendOffice.Controllers;
 using TGS.Apis.BackendOffice.Controllers.Messages.StationLetter;
 using TGS.Apis.BackendOffice.DataService.Services;

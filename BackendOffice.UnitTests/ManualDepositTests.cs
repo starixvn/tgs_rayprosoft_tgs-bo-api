@@ -1,16 +1,12 @@
-﻿using System;
-using System.Threading;
-using System.Threading.Tasks;
-using ExpectedObjects;
+﻿using ExpectedObjects;
 using Moq;
 using NSubstitute;
-using NUnit.Framework;
 using Tgs.BrandCertificate.Clients;
 using Tgs.Payment.Clients;
 using Tgs.Payment.ManualDeposit;
 using Tgs.Promotion.Clients;
 using TGS.Payment.ManualDeposit;
-using TGS.Services.BackOffice.ApplicationServices;
+using TGS.Services.BackOffice.ApplicationServices.Payment;
 
 namespace TGS.Tests.BackendOffice.UnitTests;
 

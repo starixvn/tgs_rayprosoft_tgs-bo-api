@@ -1,6 +1,5 @@
 ﻿using AutoFixture;
 using FluentValidation.TestHelper;
-using NUnit.Framework;
 using TGS.Apis.BackendOffice.Controllers.Messages.Roles;
 using TGS.Apis.BackendOffice.Controllers.Messages.Validators.Role;
 

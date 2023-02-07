@@ -1,15 +1,12 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Collections.Immutable;
-using System.Linq;
-using System.Threading.Tasks;
+﻿using System.Collections.Immutable;
 using NSubstitute;
-using NUnit.Framework;
 using Tgs.CashService.Client;
 using Tgs.PlayerService.Client;
 using Tgs.ServiceUtility;
 using TGS.Core.Models.Enums;
 using TGS.Services.BackOffice.ApplicationServices;
+using TGS.Services.BackOffice.ApplicationServices.Adjust;
+using TGS.Services.BackOffice.ApplicationServices.Agents;
 using TGS.Services.BackOffice.Domain;
 
 namespace TGS.Tests.BackendOffice.UnitTests;

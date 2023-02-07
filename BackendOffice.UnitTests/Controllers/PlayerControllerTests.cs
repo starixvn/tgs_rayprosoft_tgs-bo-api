@@ -1,10 +1,5 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Collections.Immutable;
+﻿using System.Collections.Immutable;
 using System.Data.SqlClient;
-using System.Linq;
-using System.Threading;
-using System.Threading.Tasks;
 using AutoFixture;
 using ExpectedObjects;
 using FluentAssertions;
@@ -12,7 +7,6 @@ using MediatR;
 using MockQueryable.Moq;
 using Moq;
 using NSubstitute;
-using NUnit.Framework;
 using Tgs.CashService.Client;
 using Tgs.Payment.Clients;
 using Tgs.PlayerService.Client;
@@ -24,6 +18,7 @@ using TGS.Core.Models.Messages;
 using TGS.Services.BackOffice.Application.Models.Player;
 using TGS.Services.BackOffice.Application.Resources;
 using TGS.Services.BackOffice.ApplicationServices;
+using TGS.Services.BackOffice.ApplicationServices.Agents;
 using TGS.Services.BackOffice.Domain;
 
 namespace TGS.Tests.BackendOffice.UnitTests.Controllers;

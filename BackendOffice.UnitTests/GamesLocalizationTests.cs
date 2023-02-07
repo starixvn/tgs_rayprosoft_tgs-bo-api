@@ -1,10 +1,5 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
-using Microsoft.EntityFrameworkCore;
+﻿using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Diagnostics;
-using NUnit.Framework;
 using TGS.Core.DataServices.Tgs;
 using TGS.Services.BackOffice.Application.Queries.Game;
 using TGS.Services.BackOffice.Domain;

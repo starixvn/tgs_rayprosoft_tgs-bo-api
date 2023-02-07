@@ -1,9 +1,5 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Collections.Immutable;
-using System.Threading.Tasks;
+﻿using System.Collections.Immutable;
 using NSubstitute;
-using NUnit.Framework;
 using Tgs.BrandCertificate.Clients;
 using Tgs.GameProviders.Pluggable.Client;
 using Tgs.GameProviders.Pluggable.ViewModels;

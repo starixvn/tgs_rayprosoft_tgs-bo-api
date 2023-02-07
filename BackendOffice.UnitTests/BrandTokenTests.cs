@@ -1,7 +1,4 @@
-﻿using System;
-using System.Threading.Tasks;
-using NSubstitute;
-using NUnit.Framework;
+﻿using NSubstitute;
 using Tgs.BrandCertificate.Clients;
 using TGS.Services.BackOffice.Application.Queries.BrandToken;
 

@@ -1,5 +1,4 @@
 ﻿using FluentValidation.TestHelper;
-using NUnit.Framework;
 using TGS.Services.BackOffice.Application.Models.Player;
 using TGS.Services.BackOffice.Validation.Player;
 

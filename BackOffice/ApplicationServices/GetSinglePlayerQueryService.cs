@@ -12,6 +12,7 @@ using Tgs.Service.PlayerBuckets;
 using Tgs.ServiceUtility;
 using Tgs.VipLevelService.Clients;
 using TGS.Services.BackOffice.Application.Models.Player;
+using TGS.Services.BackOffice.ApplicationServices.Agents;
 using TGS.Services.BackOffice.Domain;
 
 namespace TGS.Services.BackOffice.ApplicationServices;

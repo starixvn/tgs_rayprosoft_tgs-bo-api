@@ -1,11 +1,6 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text.Json;
-using System.Threading.Tasks;
+﻿using System.Text.Json;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Diagnostics;
-using NUnit.Framework;
 using TGS.Core.DataServices.Tgs;
 using TGS.Core.Infrastructures.Json;
 using TGS.Services.BackOffice.Application.Models.SubGameProvider;

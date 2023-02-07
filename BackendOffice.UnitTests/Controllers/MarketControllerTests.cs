@@ -1,10 +1,7 @@
 ﻿using System.Data.SqlClient;
-using System.Linq;
-using System.Threading.Tasks;
 using AutoFixture;
 using FluentAssertions;
 using Moq;
-using NUnit.Framework;
 using Tgs.ServiceUtility;
 using TGS.Apis.BackendOffice.Controllers.Report;
 using TGS.Services.BackOffice.Application.Models.ReportMarket;

@@ -6,8 +6,6 @@ using Tgs.PlayerService.Client;
 using Tgs.Service.PlayerBuckets;
 using TGS.Services.BackOffice.Application.Models.Player;
 using TGS.Services.BackOffice.Application.Resources;
-using TGS.Services.BackOffice.Infrastructure.DataService;
-using TGS.Services.PlayerBucket;
 
 namespace TGS.Services.BackOffice.Application.Commands.PlayerHandlers;
 

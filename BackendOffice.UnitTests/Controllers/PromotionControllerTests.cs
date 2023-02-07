@@ -1,9 +1,5 @@
-﻿using System;
-using System.Threading;
-using System.Threading.Tasks;
-using FluentAssertions;
+﻿using FluentAssertions;
 using Moq;
-using NUnit.Framework;
 using Tgs.BrandCertificate.Clients;
 using Tgs.Promotion.Clients;
 using TGS.Apis.BackendOffice.Controllers.Messages.Promotion;

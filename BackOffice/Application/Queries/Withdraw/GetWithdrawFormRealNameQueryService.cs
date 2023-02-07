@@ -3,6 +3,7 @@ using System.Threading;
 using System.Threading.Tasks;
 using Tgs.ServiceUtility;
 using TGS.Services.BackOffice.ApplicationServices;
+using TGS.Services.BackOffice.ApplicationServices.Agents;
 
 namespace TGS.Services.BackOffice.Application.Queries.Withdraw;
 

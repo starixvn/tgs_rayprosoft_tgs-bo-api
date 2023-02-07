@@ -1,9 +1,5 @@
-﻿using System;
-using System.Threading;
-using System.Threading.Tasks;
-using Moq;
+﻿using Moq;
 using NSubstitute;
-using NUnit.Framework;
 using Tgs.Payment.Clients;
 using TGS.Services.BackOffice.Application.Commands.PaymentMethodChannel;
 using TGS.Services.BackOffice.Application.Queries.BrandPayment;

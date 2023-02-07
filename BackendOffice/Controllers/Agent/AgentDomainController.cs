@@ -6,6 +6,7 @@ using Microsoft.AspNetCore.Mvc;
 using Tgs.ServiceUtility;
 using TGS.Apis.BackendOffice.Controllers.Messages;
 using TGS.Services.BackOffice.ApplicationServices;
+using TGS.Services.BackOffice.ApplicationServices.Agents;
 
 namespace TGS.Apis.BackendOffice.Controllers.Agent;
 
