@@ -11,6 +11,8 @@ using Tgs.ServiceUtility;
 using TGS.Core.Models.Enums;
 using TGS.Services.BackOffice.ApplicationServices;
 using TGS.Services.BackOffice.Domain;
+using TGS.Services.BackOffice.ApplicationServices.Agents;
+using TGS.Services.BackOffice.ApplicationServices.Adjust;
 
 namespace TGS.Tests.BackendOffice.UnitTests;
 

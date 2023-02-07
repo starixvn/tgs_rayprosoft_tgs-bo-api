@@ -4,6 +4,7 @@ using System.Linq;
 using System.Runtime.CompilerServices;
 using System.Threading;
 using System.Threading.Tasks;
+using Microsoft.EntityFrameworkCore;
 using Tgs.CashService.Client;
 using Tgs.GameProviders.Pluggable.Client;
 using Tgs.ServiceUtility;
@@ -38,13 +39,16 @@ internal class GetPlayerGameProviderBalanceCommandService : IQueryService<GetPla
         [EnumeratorCancellation] CancellationToken cancellationToken = default)
     {
         var gameProviderBalances = new List<GetPlayerGameProviderBalanceResponse>();
-        var player = await _playerService.GetPlayerAsync(p => p.PlayerCode == query.PlayerCode);
-        var brandGameProviders = _brandGameProviderService
-            .GetBrandGameProviderQueries(q => q.Where(x =>
-                x.BrandId == player.BrandId &&
-                x.GameProvider.TransferWallet &&
-                x.GameProvider.Currencies.Any(currency
-                    => currency.CurrencyCode.Contains(player.DefaultWalletCurrencyCode))))
+
+        var player = await _playerService.GetPlayerAsync(
+            p => p.PlayerCode == query.PlayerCode).ConfigureAwait(false);
+
+        var brandGameProviders = await _brandGameProviderService
+            .GetBrandGameProviderQueries(preQuery => preQuery.Where(
+                gp => gp.BrandId == player.BrandId
+                    && gp.GameProvider.TransferWallet
+                    && gp.GameProvider.Currencies.Any(
+                        currency => currency.CurrencyCode.Contains(player.DefaultWalletCurrencyCode))))
             .Select(x => new
             {
                 GameProviderCode = x.GameProvider.Code,
@@ -52,7 +56,8 @@ internal class GetPlayerGameProviderBalanceCommandService : IQueryService<GetPla
                 GameProviderCurrencies = x.GameProvider.Currencies
             })
             .OrderBy(x => x.GameProviderCode)
-            .ToArray();
+            .ToArrayAsync(cancellationToken: cancellationToken)
+            .ConfigureAwait(false);
 
         try
         {

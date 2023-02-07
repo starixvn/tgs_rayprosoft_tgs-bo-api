@@ -5,6 +5,7 @@ using Moq;
 using NUnit.Framework;
 using Tgs.DomainSettings.Clients;
 using TGS.Services.BackOffice.ApplicationServices;
+using TGS.Services.BackOffice.ApplicationServices.Agents;
 using TGS.Services.BackOffice.Domain;
 
 namespace TGS.Tests.BackendOffice.UnitTests;

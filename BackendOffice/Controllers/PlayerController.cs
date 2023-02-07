@@ -24,6 +24,7 @@ using TGS.Services.BackOffice.Application.Models.ReportPlayer;
 using TGS.Services.BackOffice.Application.Queries.PlayerHandlers;
 using TGS.Services.BackOffice.ApplicationServices;
 using TGS.Services.BackOffice.Domain;
+using TGS.Services.BackOffice.ApplicationServices.Agents;
 
 namespace TGS.Apis.BackendOffice.Controllers;
 

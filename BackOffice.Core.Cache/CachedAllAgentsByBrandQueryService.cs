@@ -1,8 +1,8 @@
 ﻿using System.Runtime.CompilerServices;
 using Microsoft.Extensions.Caching.Memory;
 using Tgs.ServiceUtility;
-using TGS.Services.BackOffice.ApplicationServices;
 using TGS.Services.BackOffice.Domain;
+using TGS.Services.BackOffice.ApplicationServices.Agents;
 
 namespace TGS.Services.BackOffice.Cache;
 

@@ -25,6 +25,7 @@ using TGS.Services.BackOffice.Application.Models.Player;
 using TGS.Services.BackOffice.Application.Resources;
 using TGS.Services.BackOffice.ApplicationServices;
 using TGS.Services.BackOffice.Domain;
+using TGS.Services.BackOffice.ApplicationServices.Agents;
 
 namespace TGS.Tests.BackendOffice.UnitTests.Controllers;
 

@@ -8,7 +8,7 @@ using Microsoft.AspNetCore.Mvc;
 using Tgs.Promotion.Clients;
 using Tgs.ServiceUtility;
 using TGS.Apis.BackendOffice.ViewModels;
-using TGS.Services.BackOffice.ApplicationServices;
+using TGS.Services.BackOffice.ApplicationServices.Promotion;
 
 namespace TGS.Apis.BackendOffice.Controllers.Promotion;
 

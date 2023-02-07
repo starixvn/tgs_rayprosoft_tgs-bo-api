@@ -6,6 +6,7 @@ using NSubstitute;
 using NUnit.Framework;
 using Tgs.Promotion.Clients;
 using TGS.Services.BackOffice.ApplicationServices;
+using TGS.Services.BackOffice.ApplicationServices.Promotion;
 using TGS.Services.BackOffice.Domain;
 
 namespace TGS.Tests.BackendOffice.UnitTests;

@@ -7,7 +7,8 @@ using Microsoft.AspNetCore.Mvc;
 using Tgs.Service.PlayerBuckets;
 using Tgs.ServiceUtility;
 using TGS.Apis.BackendOffice.ViewModels;
-using TGS.Services.BackOffice.ApplicationServices;
+using TGS.Services.BackOffice.ApplicationServices.Adjust;
+using TGS.Services.BackOffice.ApplicationServices.PlayerBuckets;
 
 namespace TGS.Apis.BackendOffice.Controllers;
 
