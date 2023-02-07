@@ -1,16 +1,12 @@
-﻿using System;
-using System.Linq;
-using System.Threading.Tasks;
-using NSubstitute;
-using NUnit.Framework;
+﻿using NSubstitute;
 using Tgs.MarketingReport.Client;
 using Tgs.ServiceUtility;
 using TGS.Core.Models.Enums;
 using TGS.Core.Models.Messages;
 using TGS.Services.BackOffice.Application.Queries.ReportMarketingQueries;
+using TGS.Services.BackOffice.ApplicationServices.Agents;
 using TGS.Services.BackOffice.ApplicationServices.Payment;
 using TGS.Services.BackOffice.Domain;
-using TGS.Services.BackOffice.ApplicationServices.Agents;
 
 namespace TGS.Tests.BackendOffice.UnitTests;
 

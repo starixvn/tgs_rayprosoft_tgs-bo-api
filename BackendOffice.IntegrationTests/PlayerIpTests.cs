@@ -98,12 +98,12 @@ public class PlayerIpTests
                 let svc = new BackOfficeService(instance);
 
                 return await svc.getPlayerIpsByUserName(
-                    brandId, 
-                    userName, 
-                    page, 
-                    rows, 
-                    sortby, 
-                    orderby, 
+                    brandId,
+                    userName,
+                    page,
+                    rows,
+                    sortby,
+                    orderby,
                     showAll);
             };
         """;

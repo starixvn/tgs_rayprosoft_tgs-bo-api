@@ -1,7 +1,6 @@
 ﻿using NSubstitute;
 using Tgs.PlayerService.Client;
 using Tgs.Service.PlayerBuckets;
-using TGS.Services.BackOffice.ApplicationServices;
 using TGS.Services.BackOffice.ApplicationServices.Adjust;
 using TGS.Services.BackOffice.ApplicationServices.PlayerBuckets;
 

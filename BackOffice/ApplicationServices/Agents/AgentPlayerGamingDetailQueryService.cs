@@ -3,7 +3,6 @@ using System.Collections.Generic;
 using System.Threading;
 using Tgs.MarketingReport.Client;
 using Tgs.ServiceUtility;
-using TGS.Services.BackOffice.ApplicationServices.Agents;
 
 namespace TGS.Services.BackOffice.ApplicationServices.Agents;
 

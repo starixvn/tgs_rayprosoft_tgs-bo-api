@@ -1,9 +1,5 @@
-﻿using System;
-using System.Linq;
-using System.Linq.Expressions;
-using System.Threading.Tasks;
+﻿using System.Linq.Expressions;
 using NSubstitute;
-using NUnit.Framework;
 using TGS.Core.DataServices.Base.Interfaces;
 using TGS.Core.Models.Enums;
 using TGS.Services.BackOffice.Application.Commands.BrandCommunication;

@@ -1,7 +1,4 @@
-﻿using System;
-using System.Threading.Tasks;
-using NSubstitute;
-using NUnit.Framework;
+﻿using NSubstitute;
 using Tgs.CashService.Client;
 using Tgs.SerialNumberGenerator;
 using Tgs.Service.PlayerBuckets;

@@ -1,8 +1,4 @@
-﻿using System;
-using System.Linq;
-using System.Threading.Tasks;
-using NSubstitute;
-using NUnit.Framework;
+﻿using NSubstitute;
 using Tgs.VipLevelService.Clients;
 using TGS.Services.BackOffice.ApplicationServices;
 

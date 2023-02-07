@@ -1,9 +1,6 @@
-﻿using System;
-using System.Linq.Expressions;
+﻿using System.Linq.Expressions;
 using System.Text.Json;
-using System.Threading.Tasks;
 using NSubstitute;
-using NUnit.Framework;
 using TGS.Core.DataServices.Base.Interfaces;
 using TGS.Services.BackOffice.Application.Commands.BrandLiveChat;
 using TGS.Services.BackOffice.Application.Queries.BrandLiveChat;

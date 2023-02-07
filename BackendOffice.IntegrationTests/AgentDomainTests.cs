@@ -6,7 +6,6 @@ using Microsoft.Extensions.Logging;
 using NSubstitute;
 using TGS.Apis.BackendOffice.Controllers.Messages;
 using TGS.Services.BackOffice.Domain;
-using Xunit;
 using Xunit.Abstractions;
 
 namespace BackendOffice.IntegrationTests;
@@ -90,65 +89,6 @@ public class AgentDomainTests
     }
 
     [Fact]
-    public async Task 新增代理域名資料()
-    {
-        // Arrange
-        var channelName = Guid.NewGuid().ToString();
-        var userId = Guid.NewGuid();
-
-        var fakeAgentRepository = Substitute.For<IAgentRepository>();
-
-        using var web = TestBackendOfficeApplication.Builder
-            .UseTestChannelServer(channelName)
-            .ConfigureLogging(logging => logging.AddXUnit(_testOutputHelper))
-            .ConfigureServices(services => services
-                .AddAuthentication("Fake")
-                .AddScheme<FakeAuthenticationSchemaOptions, FakeAuthenticationHandler>(
-                    "Fake",
-                    options =>
-                    {
-                        options.UserId = userId;
-                        options.UserName = "system";
-                    })
-                .Services
-                .AddSingleton(fakeAgentRepository))
-            .Build();
-
-        await web.StartAsync();
-
-        var brandId = Guid.NewGuid();
-        var agentId = Guid.NewGuid();
-        var domain = "test.com";
-
-        var isWindows = RuntimeInformation.IsOSPlatform(OSPlatform.Windows) ? "true" : "false";
-
-        var nodeModule = $$"""
-            const axiosConfigFactory = require('./models/axios-configuration.js').default;
-            const BackOfficeService = require('./services/bo-service.js').default;
-
-            module.exports = async (brandId, agentId, domain) =>
-            {
-                let instance = axiosConfigFactory("{{channelName}}", {{isWindows}});
-
-                let svc = new BackOfficeService(instance);
-
-                await svc.addAgentDomain(brandId, agentId, domain);
-            };
-        """;
-
-        // Act
-        await StaticNodeJSService.InvokeFromStringAsync(
-            nodeModule,
-            args: new object[] { brandId, agentId, domain });
-
-        // Assert
-        _ = fakeAgentRepository.Received(1)
-            .AddDomainToAgentAsync(
-                Arg.Is(agentId),
-                Arg.Is(domain));
-    }
-
-    [Fact]
     public async Task 移除代理域名()
     {
         // Arrange
@@ -203,6 +143,65 @@ public class AgentDomainTests
         // Assert
         _ = fakeAgentRepository.Received(1)
             .RemoveDomainFromAgentAsync(
+                Arg.Is(agentId),
+                Arg.Is(domain));
+    }
+
+    [Fact]
+    public async Task 新增代理域名資料()
+    {
+        // Arrange
+        var channelName = Guid.NewGuid().ToString();
+        var userId = Guid.NewGuid();
+
+        var fakeAgentRepository = Substitute.For<IAgentRepository>();
+
+        using var web = TestBackendOfficeApplication.Builder
+            .UseTestChannelServer(channelName)
+            .ConfigureLogging(logging => logging.AddXUnit(_testOutputHelper))
+            .ConfigureServices(services => services
+                .AddAuthentication("Fake")
+                .AddScheme<FakeAuthenticationSchemaOptions, FakeAuthenticationHandler>(
+                    "Fake",
+                    options =>
+                    {
+                        options.UserId = userId;
+                        options.UserName = "system";
+                    })
+                .Services
+                .AddSingleton(fakeAgentRepository))
+            .Build();
+
+        await web.StartAsync();
+
+        var brandId = Guid.NewGuid();
+        var agentId = Guid.NewGuid();
+        var domain = "test.com";
+
+        var isWindows = RuntimeInformation.IsOSPlatform(OSPlatform.Windows) ? "true" : "false";
+
+        var nodeModule = $$"""
+            const axiosConfigFactory = require('./models/axios-configuration.js').default;
+            const BackOfficeService = require('./services/bo-service.js').default;
+
+            module.exports = async (brandId, agentId, domain) =>
+            {
+                let instance = axiosConfigFactory("{{channelName}}", {{isWindows}});
+
+                let svc = new BackOfficeService(instance);
+
+                await svc.addAgentDomain(brandId, agentId, domain);
+            };
+        """;
+
+        // Act
+        await StaticNodeJSService.InvokeFromStringAsync(
+            nodeModule,
+            args: new object[] { brandId, agentId, domain });
+
+        // Assert
+        _ = fakeAgentRepository.Received(1)
+            .AddDomainToAgentAsync(
                 Arg.Is(agentId),
                 Arg.Is(domain));
     }

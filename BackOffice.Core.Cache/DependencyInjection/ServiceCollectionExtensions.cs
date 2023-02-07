@@ -1,10 +1,10 @@
 ﻿using Tgs.MarketingReport.Client;
 using Tgs.ServiceUtility;
 using TGS.Services.BackOffice.Application.Services;
+using TGS.Services.BackOffice.ApplicationServices.Agents;
 using TGS.Services.BackOffice.ApplicationServices.Payment;
 using TGS.Services.BackOffice.Cache;
 using TGS.Services.BackOffice.Domain;
-using TGS.Services.BackOffice.ApplicationServices.Agents;
 
 namespace Microsoft.Extensions.DependencyInjection;
 

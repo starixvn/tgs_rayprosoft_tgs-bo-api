@@ -1,8 +1,5 @@
-﻿using System;
-using System.Data.SqlClient;
-using System.Threading.Tasks;
+﻿using System.Data.SqlClient;
 using Moq;
-using NUnit.Framework;
 using Tgs.Report.Client;
 using Tgs.Report.Client.Models.Round;
 using TGS.Core.Models.Messages;

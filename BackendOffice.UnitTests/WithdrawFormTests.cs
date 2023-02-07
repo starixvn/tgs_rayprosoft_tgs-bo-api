@@ -1,13 +1,7 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Collections.Immutable;
-using System.Linq;
+﻿using System.Collections.Immutable;
 using System.Linq.Expressions;
-using System.Threading;
-using System.Threading.Tasks;
 using Moq;
 using NSubstitute;
-using NUnit.Framework;
 using Stateless;
 using Tgs.Payment.Clients;
 using Tgs.PlayerService.Client;

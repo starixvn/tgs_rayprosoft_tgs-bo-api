@@ -1,5 +1,4 @@
-﻿using System.Collections.Immutable;
-using System.Runtime.InteropServices;
+﻿using System.Runtime.InteropServices;
 using ExpectedObjects;
 using Jering.Javascript.NodeJS;
 using Microsoft.Extensions.DependencyInjection;
@@ -7,7 +6,6 @@ using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
 using NSubstitute;
 using Tgs.Payment.Clients;
-using Tgs.PlayerService.Client;
 using TGS.Apis.BackendOffice.ViewModels;
 using Xunit.Abstractions;
 

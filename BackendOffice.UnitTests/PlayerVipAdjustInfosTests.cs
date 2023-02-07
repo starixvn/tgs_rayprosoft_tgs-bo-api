@@ -1,7 +1,4 @@
-﻿using System;
-using System.Threading.Tasks;
-using NSubstitute;
-using NUnit.Framework;
+﻿using NSubstitute;
 using Tgs.VipLevelService.Clients;
 using TGS.Services.BackOffice.ApplicationServices;
 
@@ -15,14 +12,14 @@ public class PlayerVipAdjustInfosTests
         var fakeClient = NSubstitute.Substitute.For<IVipLevelServiceClient>();
         var sut = new GetPlayerVipAdjustQueryService(fakeClient);
         _ = await sut.GetAsync(new GetPlayerVipAdjustQuery(
-            "playerCode", 
-            Guid.NewGuid(), 
-            DateTimeOffset.Now.AddDays(-10), 
-            DateTimeOffset.Now, 
-            new Core.Models.Messages.PageableRequest 
-            { 
+            "playerCode",
+            Guid.NewGuid(),
+            DateTimeOffset.Now.AddDays(-10),
+            DateTimeOffset.Now,
+            new Core.Models.Messages.PageableRequest
+            {
                 Page = 1,
-                Rows = 20,                 
+                Rows = 20,
             }));
 
         _ = fakeClient.Received(1)

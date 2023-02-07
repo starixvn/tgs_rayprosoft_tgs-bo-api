@@ -1,7 +1,5 @@
-﻿using System;
-using AutoFixture;
+﻿using AutoFixture;
 using FluentValidation.TestHelper;
-using NUnit.Framework;
 using TGS.Services.BackOffice.Application.Models.BrandGameProviderSchedule;
 using TGS.Services.BackOffice.Validation.BrandGameProviderSchedule;
 

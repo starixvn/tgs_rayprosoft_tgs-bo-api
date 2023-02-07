@@ -1,14 +1,10 @@
-﻿using System;
-using System.Data.SqlClient;
-using System.Linq;
+﻿using System.Data.SqlClient;
 using System.Linq.Expressions;
-using System.Threading.Tasks;
 using AutoFixture;
 using FluentAssertions;
 using Microsoft.EntityFrameworkCore;
 using MockQueryable.Moq;
 using Moq;
-using NUnit.Framework;
 using TGS.Apis.BackendOffice.Controllers.Messages.Reseller;
 using TGS.Apis.BackendOffice.Controllers.Reseller;
 using TGS.Apis.BackendOffice.DataService.Services;
