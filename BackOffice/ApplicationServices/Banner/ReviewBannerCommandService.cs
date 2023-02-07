@@ -4,7 +4,7 @@ using System.Threading.Tasks;
 using Tgs.ServiceUtility;
 using TGS.Services.BackOffice.Domain;
 
-namespace TGS.Services.BackOffice.ApplicationServices;
+namespace TGS.Services.BackOffice.ApplicationServices.Banner;
 
 internal class ReviewBannerCommandService : ICommandService<ReviewBannerCommand>
 {

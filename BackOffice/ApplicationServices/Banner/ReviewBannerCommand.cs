@@ -1,7 +1,7 @@
 ﻿using System;
 using TGS.Services.BackOffice.Domain;
 
-namespace TGS.Services.BackOffice.ApplicationServices;
+namespace TGS.Services.BackOffice.ApplicationServices.Banner;
 
 public record ReviewBannerCommand(
     Guid BrandId,
