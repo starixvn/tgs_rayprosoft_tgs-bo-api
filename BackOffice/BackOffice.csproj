@@ -49,7 +49,7 @@
     </PackageReference>
     <PackageReference Include="PhoenixToolkits.Protobuf.ExtendTypes" Version="0.0.6" />
     <PackageReference Include="Polly" Version="7.2.3" />
-    <PackageReference Include="Scrutor" Version="4.2.0" />
+    <PackageReference Include="Scrutor" Version="4.2.1" />
     <PackageReference Include="System.Interactive.Async" Version="6.0.1" />
     <PackageReference Include="System.Linq.Async" Version="6.0.1" />
     <PackageReference Include="Tgs.BrandCertificateClient" Version="0.0.22" />
@@ -65,6 +65,7 @@
     <PackageReference Include="Tgs.Payment.Client" Version="0.4.8" />
     <PackageReference Include="Tgs.Payment.ManualDeposit" Version="0.1.13" />
     <PackageReference Include="Tgs.PaymentService.Client" Version="0.6.23" />
+    <PackageReference Include="Tgs.PlayerBucket.Client" Version="0.0.13" />
     <PackageReference Include="Tgs.PlayerService.Client" Version="0.0.28" />
     <PackageReference Include="Tgs.Promotion.Client" Version="1.0.41" />
     <PackageReference Include="Tgs.Report.Client" Version="0.0.47" />
