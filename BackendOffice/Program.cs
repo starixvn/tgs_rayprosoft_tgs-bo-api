@@ -294,6 +294,7 @@ builder.Services
         .AddAspNetCoreInstrumentation()
         .AddRuntimeInstrumentation()
         .AddOtlpExporter())
+    .StartWithHost()
     .Services
     .Configure<AspNetCoreInstrumentationOptions>(options =>
     {
