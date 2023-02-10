@@ -7,7 +7,6 @@ using System.Text.Json;
 using System.Threading;
 using System.Threading.Tasks;
 using Microsoft.Extensions.Logging;
-using Polly;
 using StackExchange.Redis;
 using Tgs.BrandCertificate.Clients;
 using Tgs.CashService.Client;
@@ -27,7 +26,6 @@ internal class ReviewDepositFormCommandService : ICommandService<ReviewDepositFo
     private static readonly string[] _AllowDistributePromotionTypes = new[] { "FirstDeposit", "DailySecondDeposit", "DailyFirstDeposit", "DepositReward" };
     private readonly IBrandServiceClient _brandServiceClient;
     private readonly ICashServiceClient _cashServiceClient;
-    private readonly IQueryService<GetPlayerGameProviderBalanceQuery, GetPlayerGameProviderBalanceResponse> _getPlayerGameProviderBalanceService;
     private readonly ILogger<ReviewDepositFormCommandService> _logger;
     private readonly IMessageSender _messageSender;
     private readonly IPaymentServiceClient _paymentServiceClient;
@@ -45,7 +43,6 @@ internal class ReviewDepositFormCommandService : ICommandService<ReviewDepositFo
         IPromotionServiceClient promotionServiceClient,
         IRedisConnectionFactory redisConnectionFactory,
         IBrandServiceClient brandServiceClient,
-        IQueryService<GetPlayerGameProviderBalanceQuery, GetPlayerGameProviderBalanceResponse> getPlayerGameProviderBalanceService,
         ICashServiceClient cashServiceClient,
         IMessageSender messageSender,
         ILogger<ReviewDepositFormCommandService> logger)
@@ -60,7 +57,6 @@ internal class ReviewDepositFormCommandService : ICommandService<ReviewDepositFo
         _promotionServiceClient = promotionServiceClient ?? throw new ArgumentNullException(nameof(promotionServiceClient));
         _redisDatabase = redisConnectionFactory.GetConnection().GetDatabase();
         _brandServiceClient = brandServiceClient ?? throw new ArgumentNullException(nameof(brandServiceClient));
-        _getPlayerGameProviderBalanceService = getPlayerGameProviderBalanceService ?? throw new ArgumentNullException(nameof(getPlayerGameProviderBalanceService));
         _cashServiceClient = cashServiceClient ?? throw new ArgumentNullException(nameof(cashServiceClient));
         _messageSender = messageSender ?? throw new ArgumentNullException(nameof(messageSender));
         _logger = logger ?? throw new ArgumentNullException(nameof(logger));
@@ -193,41 +189,25 @@ internal class ReviewDepositFormCommandService : ICommandService<ReviewDepositFo
                         walletId,
                         cancellationToken).ConfigureAwait(false);
 
-                    if (walletBalance <= brandPaymentSettings.ClearWageringRequirementBalance)
+                    if (walletBalance <= brandPaymentSettings.ClearWageringRequirementBalance
+                        && bucketResult.Amount > 0M)
                     {
-                        var playerAllBalances = await _getPlayerGameProviderBalanceService
-                            .QueryAsync(
-                                query: new GetPlayerGameProviderBalanceQuery(form.PlayerCode),
-                                cancellationToken: cancellationToken)
-                            .ToArrayAsync(cancellationToken: cancellationToken)
-                            .ConfigureAwait(false);
-
-                        if (!playerAllBalances.Where(x => x.IsMaintain).Any()
-                            && bucketResult.Amount > 0M)
-                        {
-                            var gamesBalance = playerAllBalances.Sum(x => x.Balance) ?? 0M;
-
-                            if (walletBalance + gamesBalance <= brandPaymentSettings.ClearWageringRequirementBalance)
-                                await Policy.Handle<Exception>()
-                                    .RetryAsync(2, (ex, count) =>
-                                    {
-                                        _logger.LogWarning(ex, "Clean buckets throw exception, retry {count}.", count);
-                                    })
-                                    .ExecuteAsync(async () => await _playerBucketClient
-                                        .CleanBucketsAsync(
-                                            form.PlayerCode,
-                                            bucketResult.AnchorBucketId!.Value,
-                                            form.Id.ToString(),
-                                            null,
-                                            cancellationToken)
-                                        .ConfigureAwait(false))
-                                    .ConfigureAwait(false);
-                        }
+                        await _playerBucketClient.RequestCleanBucketsAsync(
+                            form.PlayerCode,
+                            new CleanBucketOrder(
+                                form.BrandId,
+                                walletId,
+                                walletBalance,
+                                bucketResult.Amount,
+                                bucketResult.AnchorBucketId!.Value,
+                                form.Id,
+                                brandPaymentSettings.ClearWageringRequirementBalance),
+                            cancellationToken).ConfigureAwait(false);
                     }
                 }
                 catch (Exception ex)
                 {
-                    _logger.LogWarning(ex, "ClearWagering has error.");
+                    _logger.LogWarning(ex, "Clean Buckets occur error.");
                 }
             }
         }

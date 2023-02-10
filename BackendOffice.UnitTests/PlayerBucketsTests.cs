@@ -1,6 +1,12 @@
-﻿using NSubstitute;
+﻿using ExpectedObjects;
+using Microsoft.Extensions.Logging.Abstractions;
+using NSubstitute;
+using Tgs.CashService.Client;
 using Tgs.PlayerService.Client;
 using Tgs.Service.PlayerBuckets;
+using Tgs.ServiceUtility;
+using TGS.Services.BackOffice.Application.Models.Player;
+using TGS.Services.BackOffice.ApplicationServices;
 using TGS.Services.BackOffice.ApplicationServices.Adjust;
 using TGS.Services.BackOffice.ApplicationServices.PlayerBuckets;
 
@@ -83,6 +89,216 @@ public class PlayerBucketsTests
                 Arg.Is(command.AnchorId),
                 Arg.Is(default(string)),
                 Arg.Any<string>());
+    }
+
+    [Test]
+    public async Task 處理清流水表單_如果餘額大於清除允許的額度_拒絕處理()
+    {
+        var fakePlayerBucketClient = Substitute.For<IPlayerBucketClient>();
+        var fakeCashServiceClient = Substitute.For<ICashServiceClient>();
+        var fakeGameProviderQueryService = Substitute.For<IQueryService<GetPlayerGameProviderBalanceQuery, GetPlayerGameProviderBalanceResponse>>();
+
+        var sut = new ProcessCleanBucketsRequestCommandService(
+            fakePlayerBucketClient,
+            fakeCashServiceClient,
+            fakeGameProviderQueryService,
+            NullLogger<ProcessCleanBucketsRequestCommandService>.Instance);
+
+        var command = new ProcessCleanBucketsRequestCommand(Guid.NewGuid());
+
+        var form = new CleanBucketForm(
+                command.FormId,
+                "test1",
+                Guid.NewGuid(),
+                Guid.NewGuid(),
+                0M,
+                1000M,
+                Guid.NewGuid(),
+                Guid.NewGuid(),
+                5M,
+                null,
+                null,
+                CleanFlowStatus.Create,
+                DateTime.UtcNow);
+
+        _ = fakePlayerBucketClient.GetCleanBucketFormAsync(Arg.Is(command.FormId))
+            .Returns(form);
+
+        _ = fakePlayerBucketClient.ReadBucketsAsync(Arg.Is("test1"))
+            .Returns(new ReadBucketResult(
+                1000M,
+                Guid.NewGuid()));
+
+        _ = fakeCashServiceClient.GetBalanceAsync(Arg.Is(form.WalletId))
+            .Returns(0M);
+
+        _ = fakeGameProviderQueryService.QueryAsync(Arg.Any<GetPlayerGameProviderBalanceQuery>())
+            .Returns(new[]
+            {
+                new GetPlayerGameProviderBalanceResponse(
+                    "Test",
+                    "Test",
+                    false,
+                    false,
+                    1000M)
+            }.ToAsyncEnumerable());
+
+        var expected = new
+        {
+            CleaningBalance = 0M,
+            CleaningBucketAmount = 1000M
+        };
+
+        await sut.ExecuteAsync(command);
+
+        _ = fakePlayerBucketClient.Received(0)
+                .CleanBucketsAsync(
+                    Arg.Is(form.PlayerCode),
+                    Arg.Is(form.BucketAnchorId),
+                    Arg.Is(form.DepositFormId.ToString()),
+                    Arg.Is(default(string)));
+
+        _ = fakePlayerBucketClient.Received(1)
+            .RejectCleanBucketsAsync(
+                Arg.Is(form.Id),
+                Arg.Is<ReviewCleanBucketRequest<GetPlayerGameProviderBalanceResponse[]>>(
+                    req => expected.ToExpectedObject().Matches(req)));
+    }
+
+    [Test]
+    public async Task 處理清除流水表單()
+    {
+        var fakePlayerBucketClient = Substitute.For<IPlayerBucketClient>();
+        var fakeCashServiceClient = Substitute.For<ICashServiceClient>();
+        var fakeGameProviderQueryService = Substitute.For<IQueryService<GetPlayerGameProviderBalanceQuery, GetPlayerGameProviderBalanceResponse>>();
+
+        var sut = new ProcessCleanBucketsRequestCommandService(
+            fakePlayerBucketClient,
+            fakeCashServiceClient,
+            fakeGameProviderQueryService,
+            NullLogger<ProcessCleanBucketsRequestCommandService>.Instance);
+
+        var command = new ProcessCleanBucketsRequestCommand(Guid.NewGuid());
+
+        var form = new CleanBucketForm(
+                command.FormId,
+                "test1",
+                Guid.NewGuid(),
+                Guid.NewGuid(),
+                0M,
+                1000M,
+                Guid.NewGuid(),
+                Guid.NewGuid(),
+                5M,
+                null,
+                null,
+                CleanFlowStatus.Create,
+                DateTime.UtcNow);
+
+        _ = fakePlayerBucketClient.GetCleanBucketFormAsync(Arg.Is(command.FormId))
+            .Returns(form);
+
+        _ = fakePlayerBucketClient.ReadBucketsAsync(Arg.Is("test1"))
+            .Returns(new ReadBucketResult(
+                1000M,
+                Guid.NewGuid()));
+
+        _ = fakeCashServiceClient.GetBalanceAsync(Arg.Is(form.WalletId))
+            .Returns(0M);
+
+        _ = fakeGameProviderQueryService.QueryAsync(Arg.Any<GetPlayerGameProviderBalanceQuery>())
+            .Returns(new[]
+            {
+                new GetPlayerGameProviderBalanceResponse(
+                    "Test",
+                    "Test",
+                    false,
+                    false,
+                    0M)
+            }.ToAsyncEnumerable());
+
+        var expected = new
+        {
+            CleaningBalance = 0M,
+            CleaningBucketAmount = 1000M
+        };
+
+        await sut.ExecuteAsync(command);
+
+        _ = fakePlayerBucketClient.Received(1)
+            .CleanBucketsAsync(
+                Arg.Is(form.PlayerCode),
+                Arg.Is(form.BucketAnchorId),
+                Arg.Is(form.DepositFormId.ToString()),
+                Arg.Is(default(string)));
+
+        _ = fakePlayerBucketClient.Received(1)
+            .CompleteCleanBucketsAsync(
+                Arg.Is(form.Id),
+                Arg.Is<ReviewCleanBucketRequest<GetPlayerGameProviderBalanceResponse[]>>(
+                    req => expected.ToExpectedObject().Matches(req)));
+    }
+
+    [Test]
+    public async Task 處理清除流水表單_如果遊戲廠商在維護中不處理()
+    {
+        var fakePlayerBucketClient = Substitute.For<IPlayerBucketClient>();
+        var fakeCashServiceClient = Substitute.For<ICashServiceClient>();
+        var fakeGameProviderQueryService = Substitute.For<IQueryService<GetPlayerGameProviderBalanceQuery, GetPlayerGameProviderBalanceResponse>>();
+
+        var sut = new ProcessCleanBucketsRequestCommandService(
+            fakePlayerBucketClient,
+            fakeCashServiceClient,
+            fakeGameProviderQueryService,
+            NullLogger<ProcessCleanBucketsRequestCommandService>.Instance);
+
+        var command = new ProcessCleanBucketsRequestCommand(Guid.NewGuid());
+
+        var form = new CleanBucketForm(
+                command.FormId,
+                "test1",
+                Guid.NewGuid(),
+                Guid.NewGuid(),
+                0M,
+                1000M,
+                Guid.NewGuid(),
+                Guid.NewGuid(),
+                5M,
+                null,
+                null,
+                CleanFlowStatus.Create,
+                DateTime.UtcNow);
+
+        _ = fakePlayerBucketClient.GetCleanBucketFormAsync(Arg.Is(command.FormId))
+            .Returns(form);
+
+        _ = fakePlayerBucketClient.ReadBucketsAsync(Arg.Is("test1"))
+            .Returns(new ReadBucketResult(
+                1000M,
+                Guid.NewGuid()));
+
+        _ = fakeCashServiceClient.GetBalanceAsync(Arg.Is(form.WalletId))
+            .Returns(0M);
+
+        _ = fakeGameProviderQueryService.QueryAsync(Arg.Any<GetPlayerGameProviderBalanceQuery>())
+            .Returns(new[]
+            {
+                new GetPlayerGameProviderBalanceResponse(
+                    "Test",
+                    "Test",
+                    false,
+                    true,
+                    0M)
+            }.ToAsyncEnumerable());
+
+        await sut.ExecuteAsync(command);
+
+        _ = fakePlayerBucketClient.Received(0)
+            .CleanBucketsAsync(
+                Arg.Is(form.PlayerCode),
+                Arg.Is(form.BucketAnchorId),
+                Arg.Is(form.DepositFormId.ToString()),
+                Arg.Is(default(string)));
     }
 
     [Test]
