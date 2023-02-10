@@ -61,6 +61,10 @@ public class StationLetterBackground : BackgroundService
                         { "_station_letter_id", request.StationLetterId }
                     });
             }
+            catch (TaskCanceledException)
+            {
+                _logger.LogWarning("StationLetterBackground stopped.");
+            }
             catch (Exception ex)
             {
                 _logger.LogError(ex, "Error occurred executing task work item.");
