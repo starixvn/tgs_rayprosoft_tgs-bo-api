@@ -125,7 +125,8 @@ builder.Services
         .AddHandler<BatchAdjustBalanceHandler>(
             "tgs.bo.background.adjust_batch",
             "tgs.bo.background.adjust_batch")
-        .AddHandler<BackgroundNotifyHandler>("tgs.bo.notify"))
+        .AddHandler<BackgroundNotifyHandler>("tgs.bo.notify")
+        .AddHandler<CleanBucketsHandler>("tgs.bucket.clean-form.created", "tgs.bo.clean-form"))
     .AddNatsGlobPatternExchange("*");
 
 builder.Services

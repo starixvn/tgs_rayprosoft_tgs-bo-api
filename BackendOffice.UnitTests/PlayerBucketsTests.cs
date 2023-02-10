@@ -226,11 +226,11 @@ public class PlayerBucketsTests
         await sut.ExecuteAsync(command);
 
         _ = fakePlayerBucketClient.Received(1)
-                .CleanBucketsAsync(
-                    Arg.Is(form.PlayerCode),
-                    Arg.Is(form.BucketAnchorId),
-                    Arg.Is(form.DepositFormId.ToString()),
-                    Arg.Is(default(string)));
+            .CleanBucketsAsync(
+                Arg.Is(form.PlayerCode),
+                Arg.Is(form.BucketAnchorId),
+                Arg.Is(form.DepositFormId.ToString()),
+                Arg.Is(default(string)));
 
         _ = fakePlayerBucketClient.Received(1)
             .CompleteCleanBucketsAsync(
