@@ -276,18 +276,6 @@ builder.Services.AddSwaggerGen(c =>
 });
 
 builder.Services
-    .AddOptions<OtlpExporterOptions>()
-    .Configure<IConfiguration>((options, conifg) =>
-    {
-        var nodeIp = conifg.GetValue<string>("NODE_IP");
-
-        if (!string.IsNullOrWhiteSpace(nodeIp))
-            options.Endpoint = new Uri($"http://{nodeIp}:4317");
-
-        conifg.GetSection("Opentelemetry:Tracing").Bind(options);
-    });
-
-builder.Services
     .AddOpenTelemetry()
     .WithTracing(builder => builder
         .SetResourceBuilder(ResourceBuilder.CreateDefault()
