@@ -8,6 +8,7 @@ using System.Reflection;
 using System.Text.Json.Serialization;
 using System.Threading.Tasks;
 using Dapper;
+using FluentdForward.OpenTelemetry.MessagePack;
 using FluentValidation;
 using FluentValidation.AspNetCore;
 using HealthChecks.UI.Client;
@@ -27,6 +28,7 @@ using Microsoft.OpenApi.Models;
 using OpenTelemetry;
 using OpenTelemetry.Exporter;
 using OpenTelemetry.Instrumentation.AspNetCore;
+using OpenTelemetry.Metrics;
 using OpenTelemetry.Resources;
 using OpenTelemetry.Trace;
 using Tgs.PlayerBucket.Clients.DependencyInjection;
@@ -59,7 +61,12 @@ builder.Logging
             var nodeIp = builder.Configuration.GetValue<string>("NODE_IP");
             fluentOptions.Host = nodeIp;
             fluentOptions.Tag = builder.Configuration.GetValue<string>("OTEL_SERVICE_NAME");
-            fluentOptions.UseMessagePack();
+            fluentOptions.UseMessagePack(LogRecordFormatterResolver.GetResolverInstanceWithExtendInfo(
+                "MachineInfo",
+                () => new
+                {
+                    Environment.MachineName
+                }));
         });
     });
 
@@ -294,6 +301,10 @@ builder.Services
             options.SetDbStatementForText = true;
         })
         .AddProfileViewExporter()
+        .AddOtlpExporter())
+    .WithMetrics(builder => builder
+        .AddAspNetCoreInstrumentation()
+        .AddRuntimeInstrumentation()
         .AddOtlpExporter())
     .Services
     .Configure<AspNetCoreInstrumentationOptions>(options =>
