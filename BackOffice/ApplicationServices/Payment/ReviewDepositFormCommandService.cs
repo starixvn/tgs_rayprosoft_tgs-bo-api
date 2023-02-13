@@ -17,7 +17,6 @@ using Tgs.Promotion.Clients;
 using Tgs.Service.PlayerBuckets;
 using Tgs.ServiceUtility;
 using TGS.Core.Infrastructures.Redis;
-using TGS.Services.BackOffice.Application.Models.Player;
 
 namespace TGS.Services.BackOffice.ApplicationServices.Payment;
 
@@ -144,6 +143,7 @@ internal class ReviewDepositFormCommandService : ICommandService<ReviewDepositFo
                 command.BrandId,
                 form.PromotionId,
                 form.PlayerCode,
+                walletId,
                 (command.ActualAmount ?? form.Amount) - handlingFee,
                 command.Remark,
                 command.FormId,
@@ -273,6 +273,7 @@ internal class ReviewDepositFormCommandService : ICommandService<ReviewDepositFo
         Guid BrandId,
         Guid? PromotionId,
         string PlayerCode,
+        Guid DefaultWalletId,
         decimal DepositAmount,
         string Remark,
         Guid FormId,
