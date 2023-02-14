@@ -1,7 +1,6 @@
 ﻿using System.Runtime.InteropServices;
 using ExpectedObjects;
 using Google.Protobuf;
-using Grpc.Core;
 using Jering.Javascript.NodeJS;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
@@ -17,7 +16,6 @@ using TGS.Apis.BackendOffice.ViewModels;
 using TGS.Services.BackOffice.Application.Models.Player;
 using TGS.Services.BackOffice.ApplicationServices;
 using TGS.Services.BackOffice.ApplicationServices.PlayerBuckets;
-using Xunit;
 using Xunit.Abstractions;
 
 namespace BackendOffice.IntegrationTests;
@@ -29,6 +27,118 @@ public class PlayerBucketTests
     public PlayerBucketTests(ITestOutputHelper testOutputHelper)
     {
         _testOutputHelper = testOutputHelper ?? throw new ArgumentNullException(nameof(testOutputHelper));
+    }
+
+    [Fact]
+    public async Task 查詢清除流水表單()
+    {
+        // Arrange
+        var channelName = Guid.NewGuid().ToString();
+        var userId = Guid.NewGuid();
+
+        var fakePlayerServiceClient = Substitute.For<IPlayerServiceClient>();
+        var fakePlayerBucketClient = Substitute.For<IPlayerBucketClient>();
+
+        using var web = TestBackendOfficeApplication.Builder
+            .UseTestChannelServer(channelName)
+            .ConfigureLogging(logging => logging.AddXUnit(_testOutputHelper))
+            .ConfigureServices(services => services
+                .AddAuthentication("Fake")
+                .AddScheme<FakeAuthenticationSchemaOptions, FakeAuthenticationHandler>(
+                    "Fake",
+                    options =>
+                    {
+                        options.UserId = userId;
+                        options.UserName = "system";
+                    })
+                .Services
+                .AddSingleton(fakePlayerServiceClient)
+                .AddSingleton(fakePlayerBucketClient))
+            .Build();
+
+        await web.StartAsync();
+
+        var playerCode = "test1";
+        var forms = new[]
+        {
+            new CleanBucketForm(
+                Guid.NewGuid(),
+                playerCode,
+                Guid.NewGuid(),
+                Guid.NewGuid(),
+                123M,
+                10000M,
+                Guid.NewGuid(),
+                Guid.NewGuid(),
+                100M,
+                124M,
+                11000M,
+                CleanFlowStatus.Completed,
+                DateTime.UtcNow),
+            new CleanBucketForm(
+                Guid.NewGuid(),
+                playerCode,
+                Guid.NewGuid(),
+                Guid.NewGuid(),
+                456M,
+                20000M,
+                Guid.NewGuid(),
+                Guid.NewGuid(),
+                100M,
+                null,
+                null,
+                CleanFlowStatus.Create,
+                DateTime.UtcNow.AddMinutes(1D))
+        };
+
+        var expected = forms
+            .Select(form => new CleanBucketFormViewModel
+            {
+                Id = form.Id,
+                CleaningBalance = form.CleaningBalance,
+                CleaningBucketAmount = form.CleaningBucketAmount,
+                CreatedOn = form.CreatedOn,
+                DepositFormId = form.DepositFormId,
+                PlayerCode = form.PlayerCode,
+                ReviewBalance = form.CurrentBalance,
+                ReviewBucketAmount = form.CurrentBucketAmount,
+                Status = form.Status.ToString()
+            })
+            .ToArray();
+
+        var nodeModule = $$"""
+            const axiosConfigFactory = require('./models/axios-configuration.js').default;
+            const BackOfficeService = require('./services/bo-service.js').default;
+
+            module.exports = async (playerCode) =>
+            {
+                let instance = axiosConfigFactory("{{channelName}}", {{(
+                    RuntimeInformation.IsOSPlatform(OSPlatform.Windows)
+                        ? "true"
+                        : "false")}});
+
+                let svc = new BackOfficeService(instance);
+
+                return await svc.queryCleanBucketForms(playerCode);
+            };
+        """;
+
+        _ = fakePlayerServiceClient.GetPlayerInfoAsync(Arg.Is(playerCode), Arg.Any<CancellationToken>())
+            .Returns(new PlayerInfo());
+
+        _ = fakePlayerBucketClient.QueryCleanBucketFomsAsync(Arg.Is(playerCode), Arg.Any<CancellationToken>())
+            .Returns(forms.ToAsyncEnumerable());
+
+        // Act
+        var actual = await StaticNodeJSService.InvokeFromStringAsync<CleanBucketFormViewModel[]>(
+            nodeModule,
+            args: new object[] { playerCode });
+
+        // Assert
+        expected
+            .ToExpectedObject(ctx => ctx
+                .ArrayMemberShouldMatch(o => o))
+            .ShouldEqual(actual);
     }
 
     [Fact]
@@ -98,6 +208,91 @@ public class PlayerBucketTests
                 Arg.Any<string>(),
                 Arg.Any<string>(),
                 Arg.Any<CancellationToken>());
+    }
+
+    [Fact]
+    public async Task 清除流水表單背景作業()
+    {
+        // Arrange
+        var fakePlayerBucketClient = Substitute.For<IPlayerBucketClient>();
+        var fakeCashServiceClient = Substitute.For<ICashServiceClient>();
+        var fakeGameProviderQueryService = Substitute.For<IQueryService<GetPlayerGameProviderBalanceQuery, GetPlayerGameProviderBalanceResponse>>();
+
+        using var web = TestBackendOfficeApplication.Builder
+            .ConfigureLogging(logging => logging.AddXUnit(_testOutputHelper))
+            .ConfigureServices(services => services
+                .AddSingleton(fakePlayerBucketClient)
+                .AddSingleton(fakeCashServiceClient)
+                .AddSingleton(fakeGameProviderQueryService))
+            .Build();
+
+        var sut = new CleanBucketsHandler(
+            web.Services.GetRequiredService<ICommandService<ProcessCleanBucketsRequestCommand>>());
+
+        var request = new CleanFormCreatedEvent
+        {
+            FormId = Guid.NewGuid()
+        };
+
+        var form = new CleanBucketForm(
+               request.FormId,
+               "test1",
+               Guid.NewGuid(),
+               Guid.NewGuid(),
+               0M,
+               1000M,
+               Guid.NewGuid(),
+               Guid.NewGuid(),
+               5M,
+               null,
+               null,
+               CleanFlowStatus.Create,
+               DateTime.UtcNow);
+
+        _ = fakePlayerBucketClient.GetCleanBucketFormAsync(Arg.Is(request.FormId.ToGuid()))
+            .Returns(form);
+
+        _ = fakePlayerBucketClient.ReadBucketsAsync(Arg.Is("test1"))
+            .Returns(new ReadBucketResult(
+                1000M,
+                Guid.NewGuid()));
+
+        _ = fakeCashServiceClient.GetBalanceAsync(Arg.Is(form.WalletId))
+            .Returns(0M);
+
+        _ = fakeGameProviderQueryService.QueryAsync(Arg.Any<GetPlayerGameProviderBalanceQuery>())
+            .Returns(new[]
+            {
+                new GetPlayerGameProviderBalanceResponse(
+                    "Test",
+                    "Test",
+                    false,
+                    false,
+                    0M)
+            }.ToAsyncEnumerable());
+
+        var expected = new
+        {
+            CleaningBalance = 0M,
+            CleaningBucketAmount = 1000M
+        };
+
+        // Act
+        await sut.HandleAsync(request.ToByteArray());
+
+        // Assert
+        _ = fakePlayerBucketClient.Received(1)
+            .CleanBucketsAsync(
+                Arg.Is(form.PlayerCode),
+                Arg.Is(form.BucketAnchorId),
+                Arg.Is(form.DepositFormId.ToString()),
+                Arg.Is(default(string)));
+
+        _ = fakePlayerBucketClient.Received(1)
+            .CompleteCleanBucketsAsync(
+                Arg.Is(form.Id),
+                Arg.Is<ReviewCleanBucketRequest<GetPlayerGameProviderBalanceResponse[]>>(
+                    req => expected.ToExpectedObject().Matches(req)));
     }
 
     [Fact]
@@ -237,90 +432,5 @@ public class PlayerBucketTests
 
         // Assert
         Assert.Equal("400", actual);
-    }
-
-    [Fact]
-    public async Task 清除流水表單背景作業()
-    {
-        // Arrange
-        var fakePlayerBucketClient = Substitute.For<IPlayerBucketClient>();
-        var fakeCashServiceClient = Substitute.For<ICashServiceClient>();
-        var fakeGameProviderQueryService = Substitute.For<IQueryService<GetPlayerGameProviderBalanceQuery, GetPlayerGameProviderBalanceResponse>>();
-
-        using var web = TestBackendOfficeApplication.Builder
-            .ConfigureLogging(logging => logging.AddXUnit(_testOutputHelper))
-            .ConfigureServices(services => services
-                .AddSingleton(fakePlayerBucketClient)
-                .AddSingleton(fakeCashServiceClient)
-                .AddSingleton(fakeGameProviderQueryService))
-            .Build();
-
-        var sut = new CleanBucketsHandler(
-            web.Services.GetRequiredService<ICommandService<ProcessCleanBucketsRequestCommand>>());
-
-        var request = new CleanFormCreatedEvent
-        {
-            FormId = Guid.NewGuid()
-        };
-
-        var form = new CleanBucketForm(
-               request.FormId,
-               "test1",
-               Guid.NewGuid(),
-               Guid.NewGuid(),
-               0M,
-               1000M,
-               Guid.NewGuid(),
-               Guid.NewGuid(),
-               5M,
-               null,
-               null,
-               CleanFlowStatus.Create,
-               DateTime.UtcNow);
-
-        _ = fakePlayerBucketClient.GetCleanBucketFormAsync(Arg.Is(request.FormId.ToGuid()))
-            .Returns(form);
-
-        _ = fakePlayerBucketClient.ReadBucketsAsync(Arg.Is("test1"))
-            .Returns(new ReadBucketResult(
-                1000M,
-                Guid.NewGuid()));
-
-        _ = fakeCashServiceClient.GetBalanceAsync(Arg.Is(form.WalletId))
-            .Returns(0M);
-
-        _ = fakeGameProviderQueryService.QueryAsync(Arg.Any<GetPlayerGameProviderBalanceQuery>())
-            .Returns(new[]
-            {
-                new GetPlayerGameProviderBalanceResponse(
-                    "Test",
-                    "Test",
-                    false,
-                    false,
-                    0M)
-            }.ToAsyncEnumerable());
-
-        var expected = new
-        {
-            CleaningBalance = 0M,
-            CleaningBucketAmount = 1000M
-        };
-
-        // Act
-        await sut.HandleAsync(request.ToByteArray());
-
-        // Assert
-        _ = fakePlayerBucketClient.Received(1)
-            .CleanBucketsAsync(
-                Arg.Is(form.PlayerCode),
-                Arg.Is(form.BucketAnchorId),
-                Arg.Is(form.DepositFormId.ToString()),
-                Arg.Is(default(string)));
-
-        _ = fakePlayerBucketClient.Received(1)
-            .CompleteCleanBucketsAsync(
-                Arg.Is(form.Id),
-                Arg.Is<ReviewCleanBucketRequest<GetPlayerGameProviderBalanceResponse[]>>(
-                    req => expected.ToExpectedObject().Matches(req)));
     }
 }

@@ -100,4 +100,26 @@ public class PlayerBucketController : BaseContextController
                 CreatedOn = info.CreatedOn
             });
     }
+
+    [HttpGet("clean-form/{playerCode}", Name = "QueryCleanBucketForms")]
+    public IAsyncEnumerable<CleanBucketFormViewModel> QueryCleanBucketFormsAsync(
+        [FromServices] IQueryService<GetCleanBucketFormListQuery, CleanBucketForm> queryService,
+        string playerCode)
+    {
+        var query = new GetCleanBucketFormListQuery(playerCode);
+
+        return queryService.QueryAsync(query, HttpContext.RequestAborted)
+            .Select(form => new CleanBucketFormViewModel
+            {
+                Id = form.Id,
+                PlayerCode = form.PlayerCode,
+                CleaningBalance = form.CleaningBalance,
+                CleaningBucketAmount = form.CleaningBucketAmount,
+                CreatedOn = form.CreatedOn,
+                DepositFormId = form.DepositFormId,
+                ReviewBalance = form.CurrentBalance,
+                ReviewBucketAmount = form.CurrentBucketAmount,
+                Status = form.Status.ToString()
+            });
+    }
 }
