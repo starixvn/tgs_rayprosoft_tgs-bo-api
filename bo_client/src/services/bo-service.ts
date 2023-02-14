@@ -164,4 +164,18 @@ export default class BackOfficeService {
                 : `/api/player/bucket/clean-form/${playerCode}/${flowState}`)
             .then(res => res.data);
     }
+
+    public getPlayerList(        
+        request: GetPlayersRequest 
+        ): Promise<PagedResponse<PlayerModel>>{
+        return this.http
+            .get('/api/player',
+                {
+                    params: {
+                        ...request
+                    }
+                }
+            )
+            .then(res => res.data);
+    }
 }
