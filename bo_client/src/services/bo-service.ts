@@ -159,15 +159,13 @@ export default class BackOfficeService {
     }
 
     public getPlayerList(        
-        request: GetPlayersRequest//,
-        //paging: PageableRequest  
+        request: GetPlayersRequest 
         ): Promise<PagedResponse<PlayersModel>>{
         return this.http
             .get('/api/player',
                 {
                     params: {
-                        ...request,
-                        //...paging
+                        ...request
                     }
                 }
             )
