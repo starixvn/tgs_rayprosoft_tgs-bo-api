@@ -8,6 +8,7 @@ using System.Reflection;
 using System.Text.Json.Serialization;
 using System.Threading.Tasks;
 using Dapper;
+using FluentdForward.OpenTelemetry.MessagePack;
 using FluentValidation;
 using FluentValidation.AspNetCore;
 using HealthChecks.UI.Client;
@@ -27,6 +28,7 @@ using Microsoft.OpenApi.Models;
 using OpenTelemetry;
 using OpenTelemetry.Exporter;
 using OpenTelemetry.Instrumentation.AspNetCore;
+using OpenTelemetry.Metrics;
 using OpenTelemetry.Resources;
 using OpenTelemetry.Trace;
 using Tgs.PlayerBucket.Clients.DependencyInjection;
@@ -59,7 +61,12 @@ builder.Logging
             var nodeIp = builder.Configuration.GetValue<string>("NODE_IP");
             fluentOptions.Host = nodeIp;
             fluentOptions.Tag = builder.Configuration.GetValue<string>("OTEL_SERVICE_NAME");
-            fluentOptions.UseMessagePack();
+            fluentOptions.UseMessagePack(LogRecordFormatterResolver.GetResolverInstanceWithExtendInfo(
+                "MachineInfo",
+                () => new
+                {
+                    Environment.MachineName
+                }));
         });
     });
 
@@ -125,7 +132,8 @@ builder.Services
         .AddHandler<BatchAdjustBalanceHandler>(
             "tgs.bo.background.adjust_batch",
             "tgs.bo.background.adjust_batch")
-        .AddHandler<BackgroundNotifyHandler>("tgs.bo.notify"))
+        .AddHandler<BackgroundNotifyHandler>("tgs.bo.notify")
+        .AddHandler<CleanBucketsHandler>("tgs.bucket.clean-form.created", "tgs.bo.clean-form"))
     .AddNatsGlobPatternExchange("*");
 
 builder.Services
@@ -268,18 +276,6 @@ builder.Services.AddSwaggerGen(c =>
 });
 
 builder.Services
-    .AddOptions<OtlpExporterOptions>()
-    .Configure<IConfiguration>((options, conifg) =>
-    {
-        var nodeIp = conifg.GetValue<string>("NODE_IP");
-
-        if (!string.IsNullOrWhiteSpace(nodeIp))
-            options.Endpoint = new Uri($"http://{nodeIp}:4317");
-
-        conifg.GetSection("Opentelemetry:Tracing").Bind(options);
-    });
-
-builder.Services
     .AddOpenTelemetry()
     .WithTracing(builder => builder
         .SetResourceBuilder(ResourceBuilder.CreateDefault()
@@ -294,6 +290,11 @@ builder.Services
         })
         .AddProfileViewExporter()
         .AddOtlpExporter())
+    .WithMetrics(builder => builder
+        .AddAspNetCoreInstrumentation()
+        .AddRuntimeInstrumentation()
+        .AddOtlpExporter())
+    .StartWithHost()
     .Services
     .Configure<AspNetCoreInstrumentationOptions>(options =>
     {

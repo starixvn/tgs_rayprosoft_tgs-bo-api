@@ -13,13 +13,9 @@ using Tgs.Payment.Clients;
 using Tgs.PlayerService.Client;
 using Tgs.Promotion.Clients;
 using Tgs.Service.PlayerBuckets;
-using Tgs.ServiceUtility;
 using TGS.Core.Infrastructures.Redis;
-using TGS.Services.BackOffice.Application.Models.Player;
 using TGS.Services.BackOffice.Application.Queries.Deposit;
-using TGS.Services.BackOffice.Application.Queries.PlayerHandlers;
 using TGS.Services.BackOffice.ApplicationServices.Payment;
-using TGS.Services.BackOffice.ApplicationServices;
 
 namespace TGS.Tests.BackendOffice.UnitTests;
 
@@ -58,8 +54,6 @@ public class DepositFormTests
         var fakeRedisConnection = Substitute.For<IConnectionMultiplexer>();
         var fakeRedisDatabaseFactory = Substitute.For<IRedisConnectionFactory>();
         var fakeBrandServiceClient = Substitute.For<IBrandServiceClient>();
-        var fakePlayerGPBalanceService = Substitute
-            .For<IQueryService<GetPlayerGameProviderBalanceQuery, GetPlayerGameProviderBalanceResponse>>();
         var fakeCashServiceClient = Substitute.For<ICashServiceClient>();
         var fakeMessageSender = Substitute.For<IMessageSender>();
 
@@ -77,7 +71,6 @@ public class DepositFormTests
             fakePromotionServiceClient,
             fakeRedisDatabaseFactory,
             fakeBrandServiceClient,
-            fakePlayerGPBalanceService,
             fakeCashServiceClient,
             fakeMessageSender,
             NullLogger<ReviewDepositFormCommandService>.Instance);
@@ -126,8 +119,6 @@ public class DepositFormTests
         var fakeRedisConnection = Substitute.For<IConnectionMultiplexer>();
         var fakeRedisDatabaseFactory = Substitute.For<IRedisConnectionFactory>();
         var fakeBrandServiceClient = Substitute.For<IBrandServiceClient>();
-        var fakePlayerGPBalanceService = Substitute
-            .For<IQueryService<GetPlayerGameProviderBalanceQuery, GetPlayerGameProviderBalanceResponse>>();
         var fakeCashServiceClient = Substitute.For<ICashServiceClient>();
         var fakeMessageSender = Substitute.For<IMessageSender>();
 
@@ -145,7 +136,6 @@ public class DepositFormTests
             fakePromotionServiceClient,
             fakeRedisDatabaseFactory,
             fakeBrandServiceClient,
-            fakePlayerGPBalanceService,
             fakeCashServiceClient,
             fakeMessageSender,
             NullLogger<ReviewDepositFormCommandService>.Instance);
@@ -268,8 +258,6 @@ public class DepositFormTests
         var fakeRedisConnection = Substitute.For<IConnectionMultiplexer>();
         var fakeRedisDatabaseFactory = Substitute.For<IRedisConnectionFactory>();
         var fakeBrandServiceClient = Substitute.For<IBrandServiceClient>();
-        var fakePlayerGPBalanceService = Substitute
-            .For<IQueryService<GetPlayerGameProviderBalanceQuery, GetPlayerGameProviderBalanceResponse>>();
         var fakeCashServiceClient = Substitute.For<ICashServiceClient>();
         var fakeMessageSender = Substitute.For<IMessageSender>();
 
@@ -287,7 +275,6 @@ public class DepositFormTests
             fakePromotionServiceClient,
             fakeRedisDatabaseFactory,
             fakeBrandServiceClient,
-            fakePlayerGPBalanceService,
             fakeCashServiceClient,
             fakeMessageSender,
             NullLogger<ReviewDepositFormCommandService>.Instance);
@@ -364,8 +351,6 @@ public class DepositFormTests
         var fakeRedisConnection = Substitute.For<IConnectionMultiplexer>();
         var fakeRedisDatabaseFactory = Substitute.For<IRedisConnectionFactory>();
         var fakeBrandServiceClient = Substitute.For<IBrandServiceClient>();
-        var fakePlayerGPBalanceService = Substitute
-            .For<IQueryService<GetPlayerGameProviderBalanceQuery, GetPlayerGameProviderBalanceResponse>>();
         var fakeCashServiceClient = Substitute.For<ICashServiceClient>();
         var fakeMessageSender = Substitute.For<IMessageSender>();
 
@@ -383,7 +368,6 @@ public class DepositFormTests
             fakePromotionServiceClient,
             fakeRedisDatabaseFactory,
             fakeBrandServiceClient,
-            fakePlayerGPBalanceService,
             fakeCashServiceClient,
             fakeMessageSender,
             NullLogger<ReviewDepositFormCommandService>.Instance);
@@ -460,7 +444,7 @@ public class DepositFormTests
     }
 
     [Test]
-    public async Task 審核存款單時如果有其他審核程式正在處理中會結束執行不處理()
+    public async Task 審核存款單時如果平台有開自動清流水會進行清流水程序()
     {
         var fakePaymentServiceClient = Substitute.For<IPaymentServiceClient>();
         var fakePlayerServiceClient = Substitute.For<IPlayerServiceClient>();
@@ -471,8 +455,6 @@ public class DepositFormTests
         var fakeRedisConnection = Substitute.For<IConnectionMultiplexer>();
         var fakeRedisDatabaseFactory = Substitute.For<IRedisConnectionFactory>();
         var fakeBrandServiceClient = Substitute.For<IBrandServiceClient>();
-        var fakePlayerGPBalanceService = Substitute
-            .For<IQueryService<GetPlayerGameProviderBalanceQuery, GetPlayerGameProviderBalanceResponse>>();
         var fakeCashServiceClient = Substitute.For<ICashServiceClient>();
         var fakeMessageSender = Substitute.For<IMessageSender>();
 
@@ -490,7 +472,129 @@ public class DepositFormTests
             fakePromotionServiceClient,
             fakeRedisDatabaseFactory,
             fakeBrandServiceClient,
-            fakePlayerGPBalanceService,
+            fakeCashServiceClient,
+            fakeMessageSender,
+            NullLogger<ReviewDepositFormCommandService>.Instance);
+
+        _ = fakeRedisDatabase.StringSetAsync(
+            Arg.Any<RedisKey>(),
+            Arg.Any<RedisValue>(),
+            Arg.Any<TimeSpan?>(),
+            Arg.Any<When>(),
+            Arg.Any<CommandFlags>()).Returns(true);
+
+        var brandId = Guid.NewGuid();
+        var formId = Guid.NewGuid();
+        var brandPaymentId = Guid.NewGuid();
+        var playerCode = "test1";
+        var walletId = Guid.NewGuid();
+        var promotionId = Guid.NewGuid();
+
+        _ = fakePaymentServiceClient.GetDepositFormAsync(brandId, formId)
+            .Returns(new DepositFormInfo
+            {
+                Id = formId,
+                BrandId = brandId,
+                Amount = 1000M,
+                BrandPaymentId = brandPaymentId,
+                PlayerCode = playerCode,
+                PromotionId = promotionId,
+                Status = PaymentFlowState.WaitApprove
+            });
+
+        var command = new ReviewDepositFormCommand(
+            brandId,
+            formId,
+            ReviewState.Approve,
+            null,
+            null,
+            "93a723b2-9ebb-4607-ee8d-08d978fba75f",
+            "reviewUserName");
+
+        _ = fakeRedisDatabase.StringSetAsync(
+            Arg.Is(new RedisKey($"Tgs:BucketDeposit:{command.FormId:N}")),
+            Arg.Any<RedisValue>(),
+            expiry: Arg.Any<TimeSpan>(),
+            when: Arg.Is(When.NotExists))
+            .Returns(true);
+
+        _ = fakeBrandServiceClient.GetBrandPaymentSettingsAsync(Arg.Is(brandId))
+            .Returns(new BrandPaymentSettings(
+                false, true, 0M));
+
+        _ = fakePlayerServiceClient.GetPlayerPropertiesAsync(Arg.Is(playerCode))
+            .Returns(new Dictionary<string, string>
+            {
+                ["DefaultWalletId"] = walletId.ToString()
+            }.ToImmutableDictionary());
+
+        _ = fakePaymentServiceClient.CalculateHandlingFeeAsync(Arg.Is(brandPaymentId), Arg.Is(1000M))
+            .Returns(100M);
+
+        _ = fakePromotionServiceClient.GetPromotionMainInfoAsync(Arg.Is(promotionId))
+            .Returns(new PromotionMainInfo
+            {
+                Id = promotionId,
+                PromotionType = "FirstDeposit"
+            });
+
+        var bucketResult = new ReadBucketResult(
+            1000M,
+            Guid.NewGuid());
+        _ = fakePlayerBucketClient.ReadBucketsAsync(Arg.Is(playerCode))
+            .Returns(bucketResult);
+
+        var promotionResponse = new DepositMessageDataResponse(123, 1000M);
+
+        _ = fakeMessageSender.RequestAsync(
+            Arg.Is($"tgs.promotion.firstdeposit.distribute"),
+            Arg.Any<ReadOnlyMemory<byte>>())
+            .Returns(Encoding.UTF8.GetBytes(JsonSerializer.Serialize(promotionResponse)));
+
+        await sut.ExecuteAsync(command);
+
+        _ = fakePlayerBucketClient.Received(1)
+            .RequestCleanBucketsAsync(
+                Arg.Is(playerCode),
+                Arg.Is(new CleanBucketOrder(
+                    brandId,
+                    walletId,
+                    0M,
+                    1000M,
+                    bucketResult.AnchorBucketId!.Value,
+                    formId,
+                    0M)));
+    }
+
+    [Test]
+    public async Task 審核存款單時如果有其他審核程式正在處理中會結束執行不處理()
+    {
+        var fakePaymentServiceClient = Substitute.For<IPaymentServiceClient>();
+        var fakePlayerServiceClient = Substitute.For<IPlayerServiceClient>();
+        var fakePlayerBucketClient = Substitute.For<IPlayerBucketClient>();
+        var fakePromotionClient = Substitute.For<IPromotionClient>();
+        var fakePromotionServiceClient = Substitute.For<IPromotionServiceClient>();
+        var fakeRedisDatabase = Substitute.For<IDatabase>();
+        var fakeRedisConnection = Substitute.For<IConnectionMultiplexer>();
+        var fakeRedisDatabaseFactory = Substitute.For<IRedisConnectionFactory>();
+        var fakeBrandServiceClient = Substitute.For<IBrandServiceClient>();
+        var fakeCashServiceClient = Substitute.For<ICashServiceClient>();
+        var fakeMessageSender = Substitute.For<IMessageSender>();
+
+        _ = fakeRedisDatabaseFactory.GetConnection()
+            .Returns(fakeRedisConnection);
+
+        _ = fakeRedisConnection.GetDatabase(Arg.Any<int>(), Arg.Any<object>())
+            .Returns(fakeRedisDatabase);
+
+        var sut = new ReviewDepositFormCommandService(
+            fakePaymentServiceClient,
+            fakePlayerServiceClient,
+            fakePlayerBucketClient,
+            fakePromotionClient,
+            fakePromotionServiceClient,
+            fakeRedisDatabaseFactory,
+            fakeBrandServiceClient,
             fakeCashServiceClient,
             fakeMessageSender,
             NullLogger<ReviewDepositFormCommandService>.Instance);
@@ -554,8 +658,6 @@ public class DepositFormTests
         var fakeRedisConnection = Substitute.For<IConnectionMultiplexer>();
         var fakeRedisDatabaseFactory = Substitute.For<IRedisConnectionFactory>();
         var fakeBrandServiceClient = Substitute.For<IBrandServiceClient>();
-        var fakePlayerGPBalanceService = Substitute
-            .For<IQueryService<GetPlayerGameProviderBalanceQuery, GetPlayerGameProviderBalanceResponse>>();
         var fakeCashServiceClient = Substitute.For<ICashServiceClient>();
         var fakeMessageSender = Substitute.For<IMessageSender>();
 
@@ -573,7 +675,6 @@ public class DepositFormTests
             fakePromotionServiceClient,
             fakeRedisDatabaseFactory,
             fakeBrandServiceClient,
-            fakePlayerGPBalanceService,
             fakeCashServiceClient,
             fakeMessageSender,
             NullLogger<ReviewDepositFormCommandService>.Instance);
@@ -682,8 +783,6 @@ public class DepositFormTests
         var fakeRedisConnection = Substitute.For<IConnectionMultiplexer>();
         var fakeRedisDatabaseFactory = Substitute.For<IRedisConnectionFactory>();
         var fakeBrandServiceClient = Substitute.For<IBrandServiceClient>();
-        var fakePlayerGPBalanceService = Substitute
-            .For<IQueryService<GetPlayerGameProviderBalanceQuery, GetPlayerGameProviderBalanceResponse>>();
         var fakeCashServiceClient = Substitute.For<ICashServiceClient>();
         var fakeMessageSender = Substitute.For<IMessageSender>();
 
@@ -701,7 +800,6 @@ public class DepositFormTests
             fakePromotionServiceClient,
             fakeRedisDatabaseFactory,
             fakeBrandServiceClient,
-            fakePlayerGPBalanceService,
             fakeCashServiceClient,
             fakeMessageSender,
             NullLogger<ReviewDepositFormCommandService>.Instance);
