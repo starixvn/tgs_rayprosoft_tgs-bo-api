@@ -160,7 +160,7 @@ export default class BackOfficeService {
 
     public getPlayerList(        
         request: GetPlayersRequest 
-        ): Promise<PagedResponse<PlayersModel>>{
+        ): Promise<PagedResponse<PlayerModel>>{
         return this.http
             .get('/api/player',
                 {
