@@ -157,9 +157,11 @@ export default class BackOfficeService {
             .then(res => res.data);
     }
 
-    public queryCleanBucketForms(playerCode: string): Promise<CleanBucketForm[]> {
+    public queryCleanBucketForms(playerCode: string, flowState?: string): Promise<CleanBucketForm[]> {
         return this.http
-            .get(`/api/player/bucket/clean-form/${playerCode}`)
+            .get(flowState === null || flowState === undefined
+                ? `/api/player/bucket/clean-form/${playerCode}`
+                : `/api/player/bucket/clean-form/${playerCode}/${flowState}`)
             .then(res => res.data);
     }
 }

@@ -18,5 +18,8 @@ internal class GetCleanBucketFormListQueryService : IQueryService<GetCleanBucket
     public IAsyncEnumerable<CleanBucketForm> QueryAsync(
         GetCleanBucketFormListQuery query,
         CancellationToken cancellationToken = default)
-        => _playerBucketClient.QueryCleanBucketFomsAsync(query.PlayerCode, cancellationToken);
+        => _playerBucketClient.QueryCleanBucketFomsAsync(
+            query.PlayerCode,
+            query.FlowStatus,
+            cancellationToken);
 }

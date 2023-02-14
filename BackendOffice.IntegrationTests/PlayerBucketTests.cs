@@ -126,13 +126,117 @@ public class PlayerBucketTests
         _ = fakePlayerServiceClient.GetPlayerInfoAsync(Arg.Is(playerCode), Arg.Any<CancellationToken>())
             .Returns(new PlayerInfo());
 
-        _ = fakePlayerBucketClient.QueryCleanBucketFomsAsync(Arg.Is(playerCode), Arg.Any<CancellationToken>())
+        _ = fakePlayerBucketClient.QueryCleanBucketFomsAsync(
+            Arg.Is(playerCode),
+            Arg.Is(default(CleanFlowStatus?)),
+            Arg.Any<CancellationToken>())
             .Returns(forms.ToAsyncEnumerable());
 
         // Act
         var actual = await StaticNodeJSService.InvokeFromStringAsync<CleanBucketFormViewModel[]>(
             nodeModule,
             args: new object[] { playerCode });
+
+        // Assert
+        expected
+            .ToExpectedObject(ctx => ctx
+                .ArrayMemberShouldMatch(o => o))
+            .ShouldEqual(actual);
+    }
+
+    [Fact]
+    public async Task 查詢清除流水表單_依照CleanFlowStatus()
+    {
+        // Arrange
+        var channelName = Guid.NewGuid().ToString();
+        var userId = Guid.NewGuid();
+
+        var fakePlayerServiceClient = Substitute.For<IPlayerServiceClient>();
+        var fakePlayerBucketClient = Substitute.For<IPlayerBucketClient>();
+
+        using var web = TestBackendOfficeApplication.Builder
+            .UseTestChannelServer(channelName)
+            .ConfigureLogging(logging => logging.AddXUnit(_testOutputHelper))
+            .ConfigureServices(services => services
+                .AddAuthentication("Fake")
+                .AddScheme<FakeAuthenticationSchemaOptions, FakeAuthenticationHandler>(
+                    "Fake",
+                    options =>
+                    {
+                        options.UserId = userId;
+                        options.UserName = "system";
+                    })
+                .Services
+                .AddSingleton(fakePlayerServiceClient)
+                .AddSingleton(fakePlayerBucketClient))
+            .Build();
+
+        await web.StartAsync();
+
+        var playerCode = "test1";
+        var forms = new[]
+        {
+            new CleanBucketForm(
+                Guid.NewGuid(),
+                playerCode,
+                Guid.NewGuid(),
+                Guid.NewGuid(),
+                123M,
+                10000M,
+                Guid.NewGuid(),
+                Guid.NewGuid(),
+                100M,
+                124M,
+                11000M,
+                CleanFlowStatus.Completed,
+                DateTime.UtcNow)
+        };
+
+        var expected = forms
+            .Select(form => new CleanBucketFormViewModel
+            {
+                Id = form.Id,
+                CleaningBalance = form.CleaningBalance,
+                CleaningBucketAmount = form.CleaningBucketAmount,
+                CreatedOn = form.CreatedOn,
+                DepositFormId = form.DepositFormId,
+                PlayerCode = form.PlayerCode,
+                ReviewBalance = form.CurrentBalance,
+                ReviewBucketAmount = form.CurrentBucketAmount,
+                Status = form.Status.ToString()
+            })
+            .ToArray();
+
+        var nodeModule = $$"""
+            const axiosConfigFactory = require('./models/axios-configuration.js').default;
+            const BackOfficeService = require('./services/bo-service.js').default;
+
+            module.exports = async (playerCode, flowStatus) =>
+            {
+                let instance = axiosConfigFactory("{{channelName}}", {{(
+                    RuntimeInformation.IsOSPlatform(OSPlatform.Windows)
+                        ? "true"
+                        : "false")}});
+
+                let svc = new BackOfficeService(instance);
+
+                return await svc.queryCleanBucketForms(playerCode, flowStatus);
+            };
+        """;
+
+        _ = fakePlayerServiceClient.GetPlayerInfoAsync(Arg.Is(playerCode), Arg.Any<CancellationToken>())
+            .Returns(new PlayerInfo());
+
+        _ = fakePlayerBucketClient.QueryCleanBucketFomsAsync(
+            Arg.Is(playerCode),
+            Arg.Is(CleanFlowStatus.Completed),
+            Arg.Any<CancellationToken>())
+            .Returns(forms.ToAsyncEnumerable());
+
+        // Act
+        var actual = await StaticNodeJSService.InvokeFromStringAsync<CleanBucketFormViewModel[]>(
+            nodeModule,
+            args: new object[] { playerCode, CleanFlowStatus.Completed });
 
         // Assert
         expected

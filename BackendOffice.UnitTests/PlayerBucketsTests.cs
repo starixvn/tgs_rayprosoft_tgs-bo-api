@@ -361,11 +361,13 @@ public class PlayerBucketsTests
 
         var sut = new GetCleanBucketFormListQueryService(fakePlayerBucketClent);
 
-        var query = new GetCleanBucketFormListQuery("test1");
+        var query = new GetCleanBucketFormListQuery("test1", CleanFlowStatus.Completed);
 
         _ = await sut.QueryAsync(query).ToArrayAsync();
 
         _ = fakePlayerBucketClent.Received(1)
-            .QueryCleanBucketFomsAsync(Arg.Is(query.PlayerCode));
+            .QueryCleanBucketFomsAsync(
+                Arg.Is(query.PlayerCode),
+                Arg.Is(query.FlowStatus));
     }
 }
