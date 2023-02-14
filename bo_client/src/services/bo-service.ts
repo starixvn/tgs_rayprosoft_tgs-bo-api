@@ -157,4 +157,20 @@ export default class BackOfficeService {
             .put('/api/manualdeposit/pulsa', request)
             .then(res => res.data);
     }
+
+    public getPlayerList(        
+        request: GetPlayersRequest//,
+        //paging: PageableRequest  
+        ): Promise<PagedResponse<PlayersModel>>{
+        return this.http
+            .get('/api/player',
+                {
+                    params: {
+                        ...request,
+                        //...paging
+                    }
+                }
+            )
+            .then(res => res.data);
+    }
 }

@@ -224,7 +224,12 @@ public partial class PlayerController : BaseContextController
 
         var bankInfoPlayers = Array.Empty<string>();
 
-        if (!string.IsNullOrWhiteSpace(request.BankInfoTagType) && !string.IsNullOrWhiteSpace(request.BankInfoTag))
+        if(string.IsNullOrWhiteSpace(request.PlayerCode) is false)
+            _ = bankInfoPlayers.Append(request.PlayerCode);
+
+        if (string.IsNullOrWhiteSpace(request.PlayerCode) is true
+            && !string.IsNullOrWhiteSpace(request.BankInfoTagType) 
+            && !string.IsNullOrWhiteSpace(request.BankInfoTag))
         {
             bankInfoPlayers = await paymentServiceClient
                 .GetPlayersByBankInfoTagAsync(request.BrandId, request.BankInfoTagType, request.BankInfoTag)
@@ -320,7 +325,7 @@ public partial class PlayerController : BaseContextController
                     RealName = item.RealName,
                     RegisteredTime = item.RegisteredOn,
                     RegisterHost = item.RegisteredDomainName,
-                    Status = (TGS.Core.Models.Enums.PlayerStatus)item.Status,
+                    Status = (Core.Models.Enums.PlayerStatus)item.Status,
                     Username = item.UserName,
                     AgentName = item.AgentId is not null && agentNameDict.TryGetValue(item.AgentId.Value, out var agentName)
                         ? agentName

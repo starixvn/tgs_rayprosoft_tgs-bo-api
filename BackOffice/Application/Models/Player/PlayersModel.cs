@@ -20,7 +20,7 @@ public class PlayersModel
     public DateTimeOffset? RegisteredTime { get; init; }
 
     public string? RegisterHost { get; init; }
-
+    
     public PlayerStatus Status { get; init; }
 
     public string Username { get; init; } = default!;
