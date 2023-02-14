@@ -199,6 +199,20 @@ public partial class PlayerController : BaseContextController
                 HttpContext.RequestAborted)
             .ConfigureAwait(false);
 
+        var agentNameDict = await agentQuery
+            .ToDictionaryAsync(
+                a => a.AgentId,
+                a => a.UserName)
+            .ConfigureAwait(false);
+
+        var vipDict = await queryVipService
+            .QueryAsync(new(request.BrandId), HttpContext.RequestAborted)
+            .ToDictionaryAsync(
+                info => info.Id,
+                info => info.Level,
+                HttpContext.RequestAborted)
+            .ConfigureAwait(false);
+
         var agentId = string.IsNullOrWhiteSpace(request.AgentName)
             ? (Guid?)null
             : agentDict.TryGetValue(request.AgentName, out var id)
@@ -224,11 +238,11 @@ public partial class PlayerController : BaseContextController
 
         var bankInfoPlayers = Array.Empty<string>();
 
-        if(string.IsNullOrWhiteSpace(request.PlayerCode) is false)
+        if (string.IsNullOrWhiteSpace(request.PlayerCode) is false)
             _ = bankInfoPlayers.Append(request.PlayerCode);
 
         if (string.IsNullOrWhiteSpace(request.PlayerCode) is true
-            && !string.IsNullOrWhiteSpace(request.BankInfoTagType) 
+            && !string.IsNullOrWhiteSpace(request.BankInfoTagType)
             && !string.IsNullOrWhiteSpace(request.BankInfoTag))
         {
             bankInfoPlayers = await paymentServiceClient
@@ -274,20 +288,6 @@ public partial class PlayerController : BaseContextController
         var totalCount = await result.CountAsync(HttpContext.RequestAborted).ConfigureAwait(false);
 
         result = result.ApplyPaging(paging);
-
-        var agentNameDict = await agentQuery
-            .ToDictionaryAsync(
-                a => a.AgentId,
-                a => a.UserName)
-            .ConfigureAwait(false);
-
-        var vipDict = await queryVipService
-            .QueryAsync(new(request.BrandId), HttpContext.RequestAborted)
-            .ToDictionaryAsync(
-                info => info.Id,
-                info => info.Level,
-                HttpContext.RequestAborted)
-            .ConfigureAwait(false);
 
         var pagedView = await result
                 .ToArrayAsync(HttpContext.RequestAborted)
