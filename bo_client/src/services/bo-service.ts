@@ -100,18 +100,18 @@ export default class BackOfficeService {
     }
 
     public getVipAdjustInfos(
-        playerCode: string, 
-        brandId: string, 
-        from: string, 
-        to:string, 
-        page: number, 
-        rows: number, 
-        sortby: string, 
-        orderby: string, 
-        showAll: boolean): Promise<any>{
-        return this
-            .http
-            .get(`/api/player/vipAdjustInfos/${playerCode}`,
+        playerCode: string,
+        brandId: string,
+        from: string,
+        to: string,
+        page: number,
+        rows: number,
+        sortby: string,
+        orderby: string,
+        showAll: boolean): Promise<any> {
+        return this.http
+            .get(
+                `/api/player/vipAdjustInfos/${playerCode}`,
                 {
                     params: {
                         brandId: brandId,
@@ -123,8 +123,7 @@ export default class BackOfficeService {
                         orderby: orderby,
                         showAll: showAll
                     }
-                }
-            )
+                })
             .then(res => res.data);
     }
 
@@ -152,9 +151,17 @@ export default class BackOfficeService {
             .then(res => res.data);
     }
 
-    public submitDepositPulsa(request: SubmitManualDepositPulsaRequest): Promise<any> {
+    public submitDepositPulsa(request: SubmitManualDepositPulsaRequest): Promise<string> {
         return this.http
             .put('/api/manualdeposit/pulsa', request)
+            .then(res => res.data);
+    }
+
+    public queryCleanBucketForms(playerCode: string, flowState?: string): Promise<CleanBucketForm[]> {
+        return this.http
+            .get(flowState === null || flowState === undefined
+                ? `/api/player/bucket/clean-form/${playerCode}`
+                : `/api/player/bucket/clean-form/${playerCode}/${flowState}`)
             .then(res => res.data);
     }
 }

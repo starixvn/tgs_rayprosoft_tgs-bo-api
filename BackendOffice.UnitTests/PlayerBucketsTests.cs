@@ -1,6 +1,7 @@
 ﻿using ExpectedObjects;
 using Microsoft.Extensions.Logging.Abstractions;
 using NSubstitute;
+using NUnit.Framework;
 using Tgs.CashService.Client;
 using Tgs.PlayerService.Client;
 using Tgs.Service.PlayerBuckets;
@@ -351,5 +352,22 @@ public class PlayerBucketsTests
                 Arg.Is(BucketType.Adjustment),
                 Arg.Is(default(string)),
                 Arg.Is(command.Remark));
+    }
+
+    [Test]
+    public async Task 查詢清除流水表單()
+    {
+        var fakePlayerBucketClent = Substitute.For<IPlayerBucketClient>();
+
+        var sut = new GetCleanBucketFormListQueryService(fakePlayerBucketClent);
+
+        var query = new GetCleanBucketFormListQuery("test1", CleanFlowStatus.Completed);
+
+        _ = await sut.QueryAsync(query).ToArrayAsync();
+
+        _ = fakePlayerBucketClent.Received(1)
+            .QueryCleanBucketFomsAsync(
+                Arg.Is(query.PlayerCode),
+                Arg.Is(query.FlowStatus));
     }
 }
