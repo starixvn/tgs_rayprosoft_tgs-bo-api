@@ -197,21 +197,7 @@ public partial class PlayerController : BaseContextController
                 a => a.UserName,
                 a => a.AgentId,
                 HttpContext.RequestAborted)
-            .ConfigureAwait(false);
-
-        var agentNameDict = await agentQuery
-            .ToDictionaryAsync(
-                a => a.AgentId,
-                a => a.UserName)
-            .ConfigureAwait(false);
-
-        var vipDict = await queryVipService
-            .QueryAsync(new(request.BrandId), HttpContext.RequestAborted)
-            .ToDictionaryAsync(
-                info => info.Id,
-                info => info.Level,
-                HttpContext.RequestAborted)
-            .ConfigureAwait(false);
+            .ConfigureAwait(false);        
 
         var agentId = string.IsNullOrWhiteSpace(request.AgentName)
             ? (Guid?)null
@@ -288,6 +274,20 @@ public partial class PlayerController : BaseContextController
         var totalCount = await result.CountAsync(HttpContext.RequestAborted).ConfigureAwait(false);
 
         result = result.ApplyPaging(paging);
+
+        var agentNameDict = await agentQuery
+            .ToDictionaryAsync(
+                a => a.AgentId,
+                a => a.UserName)
+            .ConfigureAwait(false);
+
+        var vipDict = await queryVipService
+            .QueryAsync(new(request.BrandId), HttpContext.RequestAborted)
+            .ToDictionaryAsync(
+                info => info.Id,
+                info => info.Level,
+                HttpContext.RequestAborted)
+            .ConfigureAwait(false);
 
         var pagedView = await result
                 .ToArrayAsync(HttpContext.RequestAborted)
