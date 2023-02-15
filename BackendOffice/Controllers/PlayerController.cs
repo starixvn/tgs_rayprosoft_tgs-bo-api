@@ -225,7 +225,7 @@ public partial class PlayerController : BaseContextController
         var bankInfoPlayers = Array.Empty<string>();
 
         if (string.IsNullOrWhiteSpace(request.PlayerCode) is false)
-            _ = bankInfoPlayers.Append(request.PlayerCode);
+            bankInfoPlayers = bankInfoPlayers.Append(request.PlayerCode).ToArray();
 
         if (string.IsNullOrWhiteSpace(request.PlayerCode) is true
             && !string.IsNullOrWhiteSpace(request.BankInfoTagType)
