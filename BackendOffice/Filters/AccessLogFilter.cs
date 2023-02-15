@@ -21,7 +21,8 @@ public class AccessLogFilter : IAsyncActionFilter
         {
             executedContext.RouteData,
             RouteTemplate = executedContext.ActionDescriptor.AttributeRouteInfo?.Template,
-            executedContext.HttpContext.Request.Method
+            executedContext.HttpContext.Request.Method,
+            UserName = executedContext.HttpContext.User.Identity.Name
         };
 
         _logger.Log(
