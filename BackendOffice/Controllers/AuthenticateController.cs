@@ -134,7 +134,7 @@ public class AuthenticateController : BaseContextController
             new(Consts.BackendOffice.UserInfo.LicenseeKey, user.Role.LicenseeId.ToString()),
             new(Consts.BackendOffice.UserInfo.BrandKey, user.Role.BrandId.ToString()),
             new(Consts.BackendOffice.UserInfo.PortalKey, user.Role.RoleType.ToString()),
-            new(ClaimTypes.NameIdentifier, user.Id.ToString())
+            new(ClaimTypes.Name, user.Id.ToString())
         };
 
         var authProperties = new AuthenticationProperties
