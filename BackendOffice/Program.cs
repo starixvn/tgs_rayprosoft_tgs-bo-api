@@ -181,7 +181,8 @@ builder.Services
             .Build();
 
         options.Filters.Add(new AuthorizeFilter(policy));
-        options.Filters.Add(new ValidationFilter());
+        _ = options.Filters.Add<AccessLogFilter>();
+        _ = options.Filters.Add<ValidationFilter>();
     })
     .AddDataAnnotationsLocalization()
     .AddJsonOptions(options =>
