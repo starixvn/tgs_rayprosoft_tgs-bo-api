@@ -464,7 +464,9 @@ public partial class PlayerController : BaseContextController
     [HttpPut("{playerCode}/{type}", Name = "UpdatePlayer")]
     [Description("Update player")]
     [TgsAction("UpdatePlayer")]
-    public Task<MessageResponse> UpdateAsync(string playerCode, string type,
+    public Task<MessageResponse> UpdateAsync(
+        string playerCode,
+        string type,
         [FromBody] Messages.Player.UpdatePlayerRequest request)
     {
         var updatePlayerModel = new UpdatePlayerRequest
