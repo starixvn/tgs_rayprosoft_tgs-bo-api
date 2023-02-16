@@ -1,6 +1,10 @@
-﻿using System.Threading.Tasks;
+﻿using System.Linq;
+using System.Security.Claims;
+using System.Threading.Tasks;
 using Microsoft.AspNetCore.Mvc.Filters;
 using Microsoft.Extensions.Logging;
+using TGS.Apis.BackendOffice.Attributes;
+using TGS.Core.Models;
 
 namespace TGS.Apis.BackendOffice.Filters;
 
@@ -17,12 +21,21 @@ public class AccessLogFilter : IAsyncActionFilter
     {
         var executedContext = await next();
 
+        var actionAttr = executedContext.ActionDescriptor.EndpointMetadata.OfType<TgsActionAttribute>().FirstOrDefault();
+
+        if (actionAttr is null)
+            return;
+
         var state = new
         {
             executedContext.RouteData,
+            executedContext.ActionDescriptor.RouteValues,
             RouteTemplate = executedContext.ActionDescriptor.AttributeRouteInfo?.Template,
             executedContext.HttpContext.Request.Method,
-            UserName = executedContext.HttpContext.User.Identity.Name
+            UserName = executedContext.HttpContext.User.Identity?.Name,
+            UserId = executedContext.HttpContext.User.FindFirst(ClaimTypes.NameIdentifier).Value,
+            BrandId = executedContext.HttpContext.User.FindFirst(Consts.BackendOffice.UserInfo.BrandKey).Value,
+            TgsAction = actionAttr.Name
         };
 
         _logger.Log(

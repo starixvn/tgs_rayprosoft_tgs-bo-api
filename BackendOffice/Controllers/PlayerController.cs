@@ -15,6 +15,7 @@ using Tgs.Report.Client;
 using Tgs.Report.Client.Models.Player;
 using Tgs.ServiceUtility;
 using Tgs.VipLevelService.Clients;
+using TGS.Apis.BackendOffice.Attributes;
 using TGS.Apis.BackendOffice.Controllers.Messages.Promotion;
 using TGS.Apis.BackendOffice.Models;
 using TGS.Apis.BackendOffice.Resources;
@@ -197,7 +198,7 @@ public partial class PlayerController : BaseContextController
                 a => a.UserName,
                 a => a.AgentId,
                 HttpContext.RequestAborted)
-            .ConfigureAwait(false);        
+            .ConfigureAwait(false);
 
         var agentId = string.IsNullOrWhiteSpace(request.AgentName)
             ? (Guid?)null
@@ -462,6 +463,7 @@ public partial class PlayerController : BaseContextController
 
     [HttpPut("{playerCode}/{type}", Name = "UpdatePlayer")]
     [Description("Update player")]
+    [TgsAction("UpdatePlayer")]
     public Task<MessageResponse> UpdateAsync(string playerCode, string type,
         [FromBody] Messages.Player.UpdatePlayerRequest request)
     {
