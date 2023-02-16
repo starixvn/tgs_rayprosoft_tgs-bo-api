@@ -37,7 +37,7 @@ public class AccessLogFilter : IAsyncActionFilter
             UserId = executedContext.HttpContext.User.FindFirst(ClaimTypes.NameIdentifier)?.Value,
             BrandId = executedContext.HttpContext.User.FindFirst(Consts.BackendOffice.UserInfo.BrandKey)?.Value,
             TgsAction = actionAttr.Name,
-            Claims = executedContext.HttpContext.User.Claims.Select(c => new { Key = c.ValueType, Value = c.Value })
+            Claims = executedContext.HttpContext.User.Claims.Select(c => new { Key = c.Type, Value = c.Value })
         };
 
         _logger.Log(
