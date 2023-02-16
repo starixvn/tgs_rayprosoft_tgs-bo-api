@@ -31,13 +31,13 @@ public class AccessLogFilter : IAsyncActionFilter
         var state = new
         {
             executedContext.RouteData,
-            executedContext.ActionDescriptor.RouteValues,
             RouteTemplate = executedContext.ActionDescriptor.AttributeRouteInfo?.Template,
             executedContext.HttpContext.Request.Method,
             UserName = executedContext.HttpContext.User.Identity?.Name,
             UserId = executedContext.HttpContext.User.FindFirst(ClaimTypes.NameIdentifier)?.Value,
             BrandId = executedContext.HttpContext.User.FindFirst(Consts.BackendOffice.UserInfo.BrandKey)?.Value,
-            TgsAction = actionAttr.Name
+            TgsAction = actionAttr.Name,
+            Claims = executedContext.HttpContext.User.Claims.Select(c => new { Key = c.ValueType, Value = c.Value })
         };
 
         _logger.Log(
