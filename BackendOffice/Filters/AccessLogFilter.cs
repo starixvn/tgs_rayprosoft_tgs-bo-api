@@ -1,4 +1,6 @@
-﻿using System.Linq;
+﻿#nullable enable
+
+using System.Linq;
 using System.Security.Claims;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Mvc.Filters;
@@ -33,9 +35,10 @@ public class AccessLogFilter : IAsyncActionFilter
             RouteTemplate = executedContext.ActionDescriptor.AttributeRouteInfo?.Template,
             executedContext.HttpContext.Request.Method,
             UserName = executedContext.HttpContext.User.Identity?.Name,
-            UserId = executedContext.HttpContext.User.FindFirst(ClaimTypes.NameIdentifier).Value,
-            BrandId = executedContext.HttpContext.User.FindFirst(Consts.BackendOffice.UserInfo.BrandKey).Value,
-            TgsAction = actionAttr.Name
+            UserId = executedContext.HttpContext.User.FindFirst(ClaimTypes.NameIdentifier)?.Value,
+            BrandId = executedContext.HttpContext.User.FindFirst(Consts.BackendOffice.UserInfo.BrandKey)?.Value,
+            TgsAction = actionAttr.Name,
+            executedContext.HttpContext.User.Claims
         };
 
         _logger.Log(
