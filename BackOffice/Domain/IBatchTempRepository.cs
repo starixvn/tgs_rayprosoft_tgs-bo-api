@@ -11,7 +11,11 @@ public interface IBatchTempRepository
 {
     ValueTask<bool> BidBatchAsync(Guid batchId, CancellationToken cancellationToken = default);
 
+    ValueTask<bool> BidOfflineLoginRewardBackgroundProcessAsync(Guid batchId, CancellationToken cancellationToken = default);
+
     ValueTask CompleteBatchAsync(Guid batchId, CancellationToken cancellationToken = default);
+
+    ValueTask CompleteOfflineLoginRewardBackgroundProcessAsync(Guid batchId, CancellationToken cancellationToken = default);
 
     IAsyncEnumerable<BatchAdjustBalanceItem> GetAdjustBalanceBatchAsync(
             Guid batchId,
@@ -26,9 +30,12 @@ public interface IBatchTempRepository
     ValueTask<OfflineLoginRewardTempUserBatch?> GetOfflineLoginRewardTempUserBatchAsync(
         Guid batchId,
         CancellationToken cancellationToken = default);
+    ValueTask<bool?> GetOfflineLoginRewardBackgroundProcessIsCompletedAsync(
+        Guid batchId, 
+        CancellationToken cancellationToken = default);
 
     ValueTask<Guid> SaveAdjustBalanceBatchAsync(
-        IEnumerable<BatchAdjustBalanceItem> batchAdjustBalanceItems,
+            IEnumerable<BatchAdjustBalanceItem> batchAdjustBalanceItems,
         CancellationToken cancellationToken = default);
 
     ValueTask SaveAdjustBalanceBatchResultAsync(

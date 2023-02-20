@@ -19,23 +19,20 @@ internal class ProcessOfflineLoginRewardTempUserBatchCommandService
 
     private readonly IQueryService<PlayerInfosByUserNamesQuery, PlayerInfo> _playerInfosQueryService;
     private readonly IBatchTempRepository _batchTempRepository;
-    private readonly ILogger<ProcessOfflineLoginRewardTempUserBatchCommandService> _logger;
-
+ 
     public ProcessOfflineLoginRewardTempUserBatchCommandService(
         IQueryService<PlayerInfosByUserNamesQuery, PlayerInfo> playerInfosQueryService,
-        IBatchTempRepository batchTempRepository,
-        ILogger<ProcessOfflineLoginRewardTempUserBatchCommandService> logger)
+        IBatchTempRepository batchTempRepository)
     {
         _playerInfosQueryService = playerInfosQueryService ?? throw new ArgumentNullException(nameof(playerInfosQueryService));
         _batchTempRepository = batchTempRepository ?? throw new ArgumentNullException(nameof(batchTempRepository));
-        _logger = logger ?? throw new ArgumentNullException(nameof(logger));
     }
     
     public async ValueTask ExecuteAsync(ProcessOfflineLoginRewardTempUserBatchCommand command,
         CancellationToken cancellationToken = default)
     {
         if (!await _batchTempRepository
-                .BidBatchAsync(command.BatchId, cancellationToken)
+                .BidOfflineLoginRewardBackgroundProcessAsync(command.BatchId, cancellationToken)
                 .ConfigureAwait(false))
             return;
 
@@ -46,7 +43,7 @@ internal class ProcessOfflineLoginRewardTempUserBatchCommandService
         if (batch is null)
         {
             await _batchTempRepository
-                .CompleteBatchAsync(command.BatchId, cancellationToken)
+                .CompleteOfflineLoginRewardBackgroundProcessAsync(command.BatchId, cancellationToken)
                 .ConfigureAwait(false);
 
             return;
@@ -67,8 +64,6 @@ internal class ProcessOfflineLoginRewardTempUserBatchCommandService
         var tasks = segments.Select((userNames, idx) =>
             Task.Run(async () =>
             {
-                _logger.LogInformation("start to process batch '{index}'", idx);
-
                 var query = new PlayerInfosByUserNamesQuery(batch.BrandId, userNames);
 
                 var infos = await _playerInfosQueryService.QueryAsync(query, cancellationToken)
@@ -101,7 +96,7 @@ internal class ProcessOfflineLoginRewardTempUserBatchCommandService
             .ConfigureAwait(false);
 
         await _batchTempRepository
-            .CompleteBatchAsync(command.BatchId, cancellationToken)
+            .CompleteOfflineLoginRewardBackgroundProcessAsync(command.BatchId, cancellationToken)
             .ConfigureAwait(false);
     }
 }

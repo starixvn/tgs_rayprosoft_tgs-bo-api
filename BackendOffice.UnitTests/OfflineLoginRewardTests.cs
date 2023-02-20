@@ -29,12 +29,10 @@ internal class OfflineLoginRewardTests
     {
         var fakeBatchTempRepository = Substitute.For<IBatchTempRepository>();
         var fakePlayerInfosQueryService = Substitute.For<IQueryService<PlayerInfosByUserNamesQuery, PlayerInfo>>();
-        var fakeLogger = NullLogger<ProcessOfflineLoginRewardTempUserBatchCommandService>.Instance;
 
         var sut = new ProcessOfflineLoginRewardTempUserBatchCommandService(
             fakePlayerInfosQueryService,
-            fakeBatchTempRepository,
-            fakeLogger);
+            fakeBatchTempRepository);
 
         var brandId = Guid.NewGuid();
         var userNames = new[] { "username1", "username2" };
@@ -43,7 +41,7 @@ internal class OfflineLoginRewardTests
         var command = new ProcessOfflineLoginRewardTempUserBatchCommand(
             Guid.NewGuid());
 
-        _ = fakeBatchTempRepository.BidBatchAsync(Arg.Is(command.BatchId))
+        _ = fakeBatchTempRepository.BidOfflineLoginRewardBackgroundProcessAsync(Arg.Is(command.BatchId))
             .Returns(true);
 
         _ = fakeBatchTempRepository
@@ -69,7 +67,9 @@ internal class OfflineLoginRewardTests
 
         _ = fakeBatchTempRepository
             .Received(1)
-            .CompleteBatchAsync(Arg.Is(command.BatchId));
+            .CompleteOfflineLoginRewardBackgroundProcessAsync(
+                Arg.Is(command.BatchId),
+                Arg.Any<CancellationToken>());
     }
 
     [Test]
@@ -111,5 +111,23 @@ internal class OfflineLoginRewardTests
         var actual = await sut.QueryAsync(query).ToArrayAsync();
 
         Assert.AreEqual(5, actual.Length);
+    }
+
+    [Test]
+    public async Task 檢查背景處理狀態是否完成()
+    {
+        var fakeBatchTempRepository = Substitute.For<IBatchTempRepository>();
+
+        var sut = new CheckOfflineLoginRewardBackgroundProcessCompletedQueryService(fakeBatchTempRepository);
+        
+        var query = new CheckOfflineLoginRewardBackgroundProcessCompletedQuery(Guid.NewGuid());
+
+        _ = await sut.GetAsync(query);
+
+        _ = fakeBatchTempRepository
+            .Received(1)
+            .GetOfflineLoginRewardBackgroundProcessIsCompletedAsync(
+                Arg.Is(query.BatchId),
+                Arg.Any<CancellationToken>());
     }
 }

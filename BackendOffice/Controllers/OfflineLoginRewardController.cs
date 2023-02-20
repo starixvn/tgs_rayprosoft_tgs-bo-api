@@ -4,6 +4,7 @@ using System.Linq;
 using System.Threading.Tasks;
 using Google.Protobuf;
 using Microsoft.AspNetCore.Http;
+using Microsoft.AspNetCore.Http.Features;
 using Microsoft.AspNetCore.Mvc;
 using Tgs.ServiceUtility;
 using TGS.Apis.BackendOffice.Controllers.Messages.OfflineLoginReward;
@@ -72,5 +73,28 @@ public class OfflineLoginRewardController : BaseContextController
             Valid = true,
             BatchId = batchId
         };
+    }
+
+    [HttpHead("{batchId}", Name = "CheckOfflineLoginRewardBackgroundProcessIsCompleted")]
+    public async Task CheckBackgroundProcessIsCompletedAsync(
+        [FromServices] IGetService<CheckOfflineLoginRewardBackgroundProcessCompletedQuery, bool?> checkService,
+        Guid batchId)
+    {
+        var query = new CheckOfflineLoginRewardBackgroundProcessCompletedQuery(batchId);
+
+        var result = await checkService
+            .GetAsync(query, HttpContext.RequestAborted)
+            .ConfigureAwait(false);
+
+        var responseFeature = HttpContext.Features.Get<IHttpResponseFeature>();
+
+        if (result == true)
+            responseFeature.StatusCode = StatusCodes.Status200OK;
+
+        if (result == false)
+            responseFeature.StatusCode = StatusCodes.Status202Accepted;
+
+        if (result is null)
+            Response.StatusCode = StatusCodes.Status204NoContent;
     }
 }

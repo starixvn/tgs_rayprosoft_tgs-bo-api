@@ -33,9 +33,37 @@ internal class RedisBatchTempRepository : IBatchTempRepository
             when: When.NotExists).ConfigureAwait(false);
     }
 
+    public async ValueTask<bool> BidOfflineLoginRewardBackgroundProcessAsync(
+        Guid batchId, 
+        CancellationToken cancellationToken = default)
+    {
+        var key = $"BackOffice:OfflineLoginReward:BackgroundProcess:{batchId}";
+
+        var machineName = Environment.MachineName;
+
+        return await _database.StringSetAsync(
+            key,
+            machineName,
+            expiry: TimeSpan.FromHours(1D),
+            when: When.NotExists).ConfigureAwait(false);
+    }
+
     public async ValueTask CompleteBatchAsync(Guid batchId, CancellationToken cancellationToken = default)
     {
         var key = $"BackOffice:BatchProcess:{batchId}";
+
+        _ = await _database.StringSetAsync(
+            key,
+            "Completed",
+            expiry: TimeSpan.FromHours(1D),
+            when: When.Exists).ConfigureAwait(false);
+    }
+
+    public async ValueTask CompleteOfflineLoginRewardBackgroundProcessAsync(
+        Guid batchId, 
+        CancellationToken cancellationToken = default)
+    {
+        var key = $"BackOffice:OfflineLoginReward:BackgroundProcess:{batchId}";
 
         _ = await _database.StringSetAsync(
             key,
@@ -86,6 +114,16 @@ internal class RedisBatchTempRepository : IBatchTempRepository
         return value.HasValue
             ? JsonSerializer.Deserialize<OfflineLoginRewardTempUserBatch>(value!)
             : null;
+    }
+
+    public async ValueTask<bool?> GetOfflineLoginRewardBackgroundProcessIsCompletedAsync(Guid batchId,
+        CancellationToken cancellationToken = default)
+    {
+        var key = $"BackOffice:OfflineLoginReward:BackgroundProcess:{batchId}";
+
+        var value = await _database.StringGetAsync(key).ConfigureAwait(false);
+
+        return value.HasValue ? value == "Completed" : null;
     }
 
     public async ValueTask<Guid> SaveAdjustBalanceBatchAsync(
