@@ -14,7 +14,6 @@
     <ImplicitUsings>enable</ImplicitUsings>
   </PropertyGroup>
 
-
   <ItemGroup>
     <EmbeddedResource Include="Assets\TestBatchAdjust.xlsx" />
     <EmbeddedResource Include="Assets\TestOfflineLoginReward.xlsx" />
@@ -42,18 +41,6 @@
   <ItemGroup>
     <ProjectReference Include="..\BackendOffice\BackendOffice.csproj" />
     <ProjectReference Include="..\TestsCommon\TestsCommon.csproj" />
-  </ItemGroup>
-
-  <ItemGroup>
-    <EditorConfigFiles Remove="D:\Users\Phoenix\source\repos\tgs-bo-api\BackendOffice.UnitTests\.editorconfig" />
-  </ItemGroup>
-
-  <ItemGroup>
-    <None Remove="Assets\TestOfflineLoginReward.xlsx" />
-  </ItemGroup>
-
-  <ItemGroup>
-    <None Include="D:\Users\Phoenix\source\repos\tgs-bo-api\BackendOffice.UnitTests\.editorconfig" />
   </ItemGroup>
 
   <ItemGroup>

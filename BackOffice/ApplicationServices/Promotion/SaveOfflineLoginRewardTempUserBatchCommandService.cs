@@ -1,9 +1,8 @@
 ﻿using System;
 using System.Threading;
 using System.Threading.Tasks;
-using TGS.Services.BackOffice.Domain;
 using Tgs.ServiceUtility;
-using TGS.Services.BackOffice.Domain.Enums;
+using TGS.Services.BackOffice.Domain;
 
 namespace TGS.Services.BackOffice.ApplicationServices.Promotion;
 

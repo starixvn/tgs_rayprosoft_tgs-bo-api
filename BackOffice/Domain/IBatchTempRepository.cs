@@ -1,4 +1,6 @@
-﻿using System;
+﻿#nullable enable
+
+using System;
 using System.Collections.Generic;
 using System.Threading;
 using System.Threading.Tasks;
@@ -21,8 +23,12 @@ public interface IBatchTempRepository
 
     ValueTask<bool?> GetBatchIsCompletedAsync(Guid batchId, CancellationToken cancellationToken = default);
 
+    ValueTask<OfflineLoginRewardTempUserBatch?> GetOfflineLoginRewardTempUserBatchAsync(
+        Guid batchId,
+        CancellationToken cancellationToken = default);
+
     ValueTask<Guid> SaveAdjustBalanceBatchAsync(
-            IEnumerable<BatchAdjustBalanceItem> batchAdjustBalanceItems,
+        IEnumerable<BatchAdjustBalanceItem> batchAdjustBalanceItems,
         CancellationToken cancellationToken = default);
 
     ValueTask SaveAdjustBalanceBatchResultAsync(
@@ -30,7 +36,12 @@ public interface IBatchTempRepository
         IEnumerable<BatchAdjustBalanceItemResult> results,
         CancellationToken cancellation = default);
 
+    ValueTask SaveOfflineLoginRewardPlayerItemsAsync(
+        Guid batchId,
+        IEnumerable<OfflineLoginRewardPlayerItem> playerItems,
+        CancellationToken cancellationToken = default);
+
     ValueTask<Guid> SaveOfflineLoginRewardTempUserBatchAsync(
-        OfflineLoginRewardTempUserBatch tempBatch,
+            OfflineLoginRewardTempUserBatch tempBatch,
         CancellationToken cancellationToken = default);
 }

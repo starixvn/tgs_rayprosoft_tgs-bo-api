@@ -2,11 +2,14 @@
 using System.IO;
 using System.Linq;
 using System.Threading.Tasks;
+using Google.Protobuf;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Tgs.ServiceUtility;
 using TGS.Apis.BackendOffice.Controllers.Messages.OfflineLoginReward;
+using Tgs.MessageQueue;
 using TGS.Services.BackOffice.ApplicationServices.Promotion;
+using Tgs.BrandService.Protos;
 
 namespace TGS.Apis.BackendOffice.Controllers;
 
@@ -29,6 +32,7 @@ public class OfflineLoginRewardController : BaseContextController
     public async ValueTask<UploadOfflineLoginRewardUserListResponse> ImportOfflineLoginRewardBatchAsync(
         [FromServices] IQueryService<ReadOfflineLoginRewardUserListQuery, string> readService,
         [FromServices] IGetService<SaveOfflineLoginRewardTempUserBatchCommand, Guid> saveService,
+        [FromServices] IMessageSender messageSender,
         Guid brandId,
         [FromForm(Name = "file")] IFormFile file)
     {
@@ -50,6 +54,17 @@ public class OfflineLoginRewardController : BaseContextController
 
         var batchId = await saveService
             .GetAsync(new(brandId, userNames), HttpContext.RequestAborted)
+            .ConfigureAwait(false);
+
+        var request = new ProcessOfflineLoginRewardTempUserBatchRequest
+        {
+            BatchId = batchId
+        };
+
+        await messageSender.PublishAsync(
+                "tgs.bo.background.offlineloginreward.temp_user_batch",
+                request.ToByteArray(), 
+                HttpContext.RequestAborted)
             .ConfigureAwait(false);
 
         return new UploadOfflineLoginRewardUserListResponse
