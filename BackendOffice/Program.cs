@@ -37,6 +37,7 @@ using TGS.Apis.BackendOffice.MessageQueue;
 using TGS.Apis.BackendOffice.Middlewares;
 using TGS.Apis.BackendOffice.Services;
 using TGS.Apis.BackendOffice.SignalR;
+using TGS.Apis.BackendOffice.Swagger;
 using TGS.Apis.BackendOffice.Workers;
 using TGS.Core.Infrastructures.Redis;
 using TGS.Core.Models;
@@ -266,6 +267,7 @@ builder.Services.AddSwaggerGen(c =>
         });
 
     c.CustomSchemaIds(type => type.FullName.Replace('.', '_'));
+    c.OperationFilter<SwaggerFileOperationFilter>();
 
     var xml = "TGS.Apis.BackendOffice.xml";
     var path = Path.Combine(AppContext.BaseDirectory, xml);

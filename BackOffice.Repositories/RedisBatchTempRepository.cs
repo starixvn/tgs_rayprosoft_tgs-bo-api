@@ -106,4 +106,23 @@ internal class RedisBatchTempRepository : IBatchTempRepository
             content,
             expiry: TimeSpan.FromHours(1D)).ConfigureAwait(false);
     }
+
+    public async ValueTask<Guid> SaveOfflineLoginRewardTempUserBatchAsync(
+        OfflineLoginRewardTempUserBatch tempBatch,
+        CancellationToken cancellationToken = default)
+    {
+        var id = Guid.NewGuid();
+
+        var key = $"BackOffice:OfflineLoginReward:TempUserBatch:{id}";
+
+        var content = JsonSerializer.Serialize(tempBatch);
+
+        _ = await _database.StringSetAsync(
+            key,
+            content,
+            expiry: TimeSpan.FromHours(1D),
+            when: When.NotExists).ConfigureAwait(false);
+
+        return id;
+    }
 }

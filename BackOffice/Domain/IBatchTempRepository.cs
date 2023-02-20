@@ -29,4 +29,8 @@ public interface IBatchTempRepository
         Guid batchId,
         IEnumerable<BatchAdjustBalanceItemResult> results,
         CancellationToken cancellation = default);
+
+    ValueTask<Guid> SaveOfflineLoginRewardTempUserBatchAsync(
+        OfflineLoginRewardTempUserBatch tempBatch,
+        CancellationToken cancellationToken = default);
 }
