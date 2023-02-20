@@ -1,0 +1,3 @@
+﻿namespace TGS.Services.BackOffice.ApplicationServices.Promotion;
+
+public record ExportOfflineLoginRewardFormTemplateCommand;
