@@ -17,6 +17,7 @@
 
   <ItemGroup>
     <EmbeddedResource Include="Assets\TestBatchAdjust.xlsx" />
+    <EmbeddedResource Include="Assets\TestOfflineLoginReward.xlsx" />
   </ItemGroup>
 
   <ItemGroup>
@@ -45,6 +46,10 @@
 
   <ItemGroup>
     <EditorConfigFiles Remove="D:\Users\Phoenix\source\repos\tgs-bo-api\BackendOffice.UnitTests\.editorconfig" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <None Remove="Assets\TestOfflineLoginReward.xlsx" />
   </ItemGroup>
 
   <ItemGroup>
