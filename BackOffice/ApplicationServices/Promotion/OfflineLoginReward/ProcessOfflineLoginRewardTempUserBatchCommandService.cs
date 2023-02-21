@@ -1,13 +1,11 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 using Tgs.PlayerService.Client;
-using TGS.Services.BackOffice.Domain;
 using Tgs.ServiceUtility;
-using System.Collections.Generic;
-using Castle.Core.Logging;
-using Microsoft.Extensions.Logging;
+using TGS.Services.BackOffice.Domain;
 
 namespace TGS.Services.BackOffice.ApplicationServices.Promotion.OfflineLoginReward;
 

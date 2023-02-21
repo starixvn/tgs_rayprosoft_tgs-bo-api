@@ -27,13 +27,17 @@ public interface IBatchTempRepository
 
     ValueTask<bool?> GetBatchIsCompletedAsync(Guid batchId, CancellationToken cancellationToken = default);
 
-    ValueTask<OfflineLoginRewardTempUserBatch?> GetOfflineLoginRewardTempUserBatchAsync(
+    ValueTask<bool?> GetOfflineLoginRewardBackgroundProcessIsCompletedAsync(
         Guid batchId,
         CancellationToken cancellationToken = default);
-    ValueTask<bool?> GetOfflineLoginRewardBackgroundProcessIsCompletedAsync(
-        Guid batchId, 
+
+    IAsyncEnumerable<OfflineLoginRewardPlayerItem> GetOfflineLoginRewardPlayerItemsAsync(
+        Guid batchId,
         CancellationToken cancellationToken = default);
 
+    ValueTask<OfflineLoginRewardTempUserBatch?> GetOfflineLoginRewardTempUserBatchAsync(
+                Guid batchId,
+        CancellationToken cancellationToken = default);
     ValueTask<Guid> SaveAdjustBalanceBatchAsync(
             IEnumerable<BatchAdjustBalanceItem> batchAdjustBalanceItems,
         CancellationToken cancellationToken = default);

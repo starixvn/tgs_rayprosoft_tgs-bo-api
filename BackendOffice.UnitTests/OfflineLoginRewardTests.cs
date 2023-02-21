@@ -1,11 +1,9 @@
 ﻿using System.Reflection;
 using Microsoft.Extensions.FileProviders;
-using Microsoft.Extensions.Logging.Abstractions;
 using NSubstitute;
 using Tgs.PlayerService.Client;
 using Tgs.ServiceUtility;
 using TGS.Services.BackOffice.ApplicationServices;
-using TGS.Services.BackOffice.ApplicationServices.Promotion;
 using TGS.Services.BackOffice.ApplicationServices.Promotion.OfflineLoginReward;
 using TGS.Services.BackOffice.Domain;
 
@@ -128,6 +126,24 @@ internal class OfflineLoginRewardTests
         _ = fakeBatchTempRepository
             .Received(1)
             .GetOfflineLoginRewardBackgroundProcessIsCompletedAsync(
+                Arg.Is(query.BatchId),
+                Arg.Any<CancellationToken>());
+    }
+
+    [Test]
+    public async Task 取得處理後的UserList資料()
+    {
+        var fakeBatchTempRepository = Substitute.For<IBatchTempRepository>();
+        
+        var sut = new OfflineLoginRewardPlayerItemsQueryService(fakeBatchTempRepository);
+
+        var query = new OfflineLoginRewardPlayerItemsQuery(Guid.NewGuid());
+
+        _ = await sut.QueryAsync(query).ToArrayAsync();
+
+        _ = fakeBatchTempRepository
+            .Received(1)
+            .GetOfflineLoginRewardPlayerItemsAsync(
                 Arg.Is(query.BatchId),
                 Arg.Any<CancellationToken>());
     }

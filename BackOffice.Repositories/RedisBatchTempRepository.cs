@@ -103,19 +103,6 @@ internal class RedisBatchTempRepository : IBatchTempRepository
         return value.HasValue ? value == "Completed" : null;
     }
 
-    public async ValueTask<OfflineLoginRewardTempUserBatch?> GetOfflineLoginRewardTempUserBatchAsync(
-        Guid batchId,
-        CancellationToken cancellationToken = default)
-    {
-        var key = $"BackOffice:OfflineLoginReward:TempUserBatch:{batchId}";
-
-        var value = await _database.StringGetAsync(key).ConfigureAwait(false);
-
-        return value.HasValue
-            ? JsonSerializer.Deserialize<OfflineLoginRewardTempUserBatch>(value!)
-            : null;
-    }
-
     public async ValueTask<bool?> GetOfflineLoginRewardBackgroundProcessIsCompletedAsync(Guid batchId,
         CancellationToken cancellationToken = default)
     {
@@ -126,6 +113,31 @@ internal class RedisBatchTempRepository : IBatchTempRepository
         return value.HasValue ? value == "Completed" : null;
     }
 
+    public IAsyncEnumerable<OfflineLoginRewardPlayerItem> GetOfflineLoginRewardPlayerItemsAsync(
+        Guid batchId,
+        CancellationToken cancellationToken = default)
+    {
+        var key = $"BackOffice:OfflineLoginReward:PlayerItems:{batchId}";
+
+        return _database.StringGetAsync(key)
+            .ToAsyncEnumerable()
+            .Select(value => JsonSerializer.Deserialize<OfflineLoginRewardPlayerItem[]>(value!))
+            .Where(arr => arr is not null)
+            .SelectMany(arr => arr!.ToAsyncEnumerable());
+    }
+
+    public async ValueTask<OfflineLoginRewardTempUserBatch?> GetOfflineLoginRewardTempUserBatchAsync(
+                Guid batchId,
+        CancellationToken cancellationToken = default)
+    {
+        var key = $"BackOffice:OfflineLoginReward:TempUserBatch:{batchId}";
+
+        var value = await _database.StringGetAsync(key).ConfigureAwait(false);
+
+        return value.HasValue
+            ? JsonSerializer.Deserialize<OfflineLoginRewardTempUserBatch>(value!)
+            : null;
+    }
     public async ValueTask<Guid> SaveAdjustBalanceBatchAsync(
                     IEnumerable<BatchAdjustBalanceItem> batchAdjustBalanceItems,
         CancellationToken cancellationToken = default)
