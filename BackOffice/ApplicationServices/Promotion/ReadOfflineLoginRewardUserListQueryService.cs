@@ -23,8 +23,7 @@ internal class ReadOfflineLoginRewardUserListQueryService : IQueryService<ReadOf
 
         while (!string.IsNullOrWhiteSpace(name))
         {
-            if (!userNames.Contains(name))
-                userNames.Add(name);
+            userNames.Add(name);
 
             name = sheet.Cell(++index, 1).GetFormattedString();
         }
