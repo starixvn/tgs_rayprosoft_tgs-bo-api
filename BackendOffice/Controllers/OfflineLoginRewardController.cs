@@ -9,8 +9,8 @@ using Microsoft.AspNetCore.Mvc;
 using Tgs.ServiceUtility;
 using TGS.Apis.BackendOffice.Controllers.Messages.OfflineLoginReward;
 using Tgs.MessageQueue;
-using TGS.Services.BackOffice.ApplicationServices.Promotion;
 using Tgs.BrandService.Protos;
+using TGS.Services.BackOffice.ApplicationServices.Promotion.OfflineLoginReward;
 
 namespace TGS.Apis.BackendOffice.Controllers;
 

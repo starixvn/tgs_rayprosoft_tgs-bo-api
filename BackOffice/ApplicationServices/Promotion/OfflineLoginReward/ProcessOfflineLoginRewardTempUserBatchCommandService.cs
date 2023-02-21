@@ -9,9 +9,9 @@ using System.Collections.Generic;
 using Castle.Core.Logging;
 using Microsoft.Extensions.Logging;
 
-namespace TGS.Services.BackOffice.ApplicationServices.Promotion;
+namespace TGS.Services.BackOffice.ApplicationServices.Promotion.OfflineLoginReward;
 
-internal class ProcessOfflineLoginRewardTempUserBatchCommandService 
+internal class ProcessOfflineLoginRewardTempUserBatchCommandService
     : ICommandService<ProcessOfflineLoginRewardTempUserBatchCommand>
 {
     private static readonly object _Locker = new();
@@ -19,7 +19,7 @@ internal class ProcessOfflineLoginRewardTempUserBatchCommandService
 
     private readonly IQueryService<PlayerInfosByUserNamesQuery, PlayerInfo> _playerInfosQueryService;
     private readonly IBatchTempRepository _batchTempRepository;
- 
+
     public ProcessOfflineLoginRewardTempUserBatchCommandService(
         IQueryService<PlayerInfosByUserNamesQuery, PlayerInfo> playerInfosQueryService,
         IBatchTempRepository batchTempRepository)
@@ -27,7 +27,7 @@ internal class ProcessOfflineLoginRewardTempUserBatchCommandService
         _playerInfosQueryService = playerInfosQueryService ?? throw new ArgumentNullException(nameof(playerInfosQueryService));
         _batchTempRepository = batchTempRepository ?? throw new ArgumentNullException(nameof(batchTempRepository));
     }
-    
+
     public async ValueTask ExecuteAsync(ProcessOfflineLoginRewardTempUserBatchCommand command,
         CancellationToken cancellationToken = default)
     {

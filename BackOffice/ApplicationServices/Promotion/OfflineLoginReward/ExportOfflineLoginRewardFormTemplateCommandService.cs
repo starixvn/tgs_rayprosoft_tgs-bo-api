@@ -5,9 +5,9 @@ using System.Threading.Tasks;
 using Microsoft.Extensions.FileProviders;
 using Tgs.ServiceUtility;
 
-namespace TGS.Services.BackOffice.ApplicationServices.Promotion;
+namespace TGS.Services.BackOffice.ApplicationServices.Promotion.OfflineLoginReward;
 
-internal class ExportOfflineLoginRewardFormTemplateCommandService 
+internal class ExportOfflineLoginRewardFormTemplateCommandService
     : IGetService<ExportOfflineLoginRewardFormTemplateCommand, Stream>
 {
     private static readonly EmbeddedFileProvider _EmbeddedFileProvider =
@@ -22,6 +22,6 @@ internal class ExportOfflineLoginRewardFormTemplateCommandService
 
     public ValueTask<Stream> GetAsync(
         ExportOfflineLoginRewardFormTemplateCommand query,
-        CancellationToken cancellationToken = default) 
+        CancellationToken cancellationToken = default)
         => ValueTask.FromResult(_templateFileInfo.CreateReadStream());
 }

@@ -4,9 +4,9 @@ using System.Threading.Tasks;
 using Tgs.ServiceUtility;
 using TGS.Services.BackOffice.Domain;
 
-namespace TGS.Services.BackOffice.ApplicationServices.Promotion;
+namespace TGS.Services.BackOffice.ApplicationServices.Promotion.OfflineLoginReward;
 
-internal class CheckOfflineLoginRewardBackgroundProcessCompletedQueryService : 
+internal class CheckOfflineLoginRewardBackgroundProcessCompletedQueryService :
     IGetService<CheckOfflineLoginRewardBackgroundProcessCompletedQuery, bool?>
 {
     private readonly IBatchTempRepository _batchTempRepository;
