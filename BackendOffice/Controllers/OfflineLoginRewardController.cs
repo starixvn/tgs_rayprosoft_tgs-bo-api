@@ -161,7 +161,7 @@ public class OfflineLoginRewardController : BaseContextController
         
         await promotionServiceClient.SetPromotionStatusAsync(
             promotionId,
-            Tgs.Promotion.Clients.PromotionStatus.Enabled,
+            PromotionStatus.Enabled,
             Username,
             HttpContext.RequestAborted).ConfigureAwait(false);
 

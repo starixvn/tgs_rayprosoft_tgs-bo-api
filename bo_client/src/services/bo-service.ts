@@ -178,4 +178,10 @@ export default class BackOfficeService {
             )
             .then(res => res.data);
     }
+
+    public createOfflineLoginRewardPromotion(brandId: string, request: createOfflineLoginRewardRequest) : Promise<MessageResponse> {
+        return this.http
+        .post(`/api/offline-login-reward/create/${brandId}`, request)
+            .then(res => res.data);
+    }
 }
