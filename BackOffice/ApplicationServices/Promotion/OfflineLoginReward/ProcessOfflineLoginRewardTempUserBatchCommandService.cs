@@ -1,5 +1,5 @@
 ﻿using System;
-using System.Collections.Generic;
+using System.Collections.Concurrent;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
@@ -12,7 +12,6 @@ namespace TGS.Services.BackOffice.ApplicationServices.Promotion.OfflineLoginRewa
 internal class ProcessOfflineLoginRewardTempUserBatchCommandService
     : ICommandService<ProcessOfflineLoginRewardTempUserBatchCommand>
 {
-    private static readonly object _Locker = new();
     private static readonly int _SegmentCount = 500;
 
     private readonly IQueryService<PlayerInfosByUserNamesQuery, PlayerInfo> _playerInfosQueryService;
@@ -47,7 +46,9 @@ internal class ProcessOfflineLoginRewardTempUserBatchCommandService
             return;
         }
 
-        var segments = batch.UserNames.Select((userName, index) =>
+        var segments = batch.UserNames
+            .Distinct()
+            .Select((userName, index) =>
                 new
                 {
                     UserName = userName,
@@ -56,8 +57,8 @@ internal class ProcessOfflineLoginRewardTempUserBatchCommandService
             .GroupBy(x => x.Group, x => x.UserName)
             .Select(g => g.ToArray())
             .ToArray();
-
-        var playerInfos = new List<PlayerInfo>();
+        
+        var userNameMap = new ConcurrentDictionary<string, string>();
 
         var tasks = segments.Select((userNames, idx) =>
             Task.Run(async () =>
@@ -67,27 +68,23 @@ internal class ProcessOfflineLoginRewardTempUserBatchCommandService
                 var infos = await _playerInfosQueryService.QueryAsync(query, cancellationToken)
                     .ToArrayAsync(cancellationToken)
                     .ConfigureAwait(false);
-
-                lock (_Locker)
-                    playerInfos.AddRange(infos);
+                
+                foreach (var info in infos)
+                    _ = userNameMap.TryAdd(info.UserName, info.PlayerCode);
 
             }, cancellationToken));
 
         await Task.WhenAll(tasks).ConfigureAwait(false);
+        
+        var playerItems = batch.UserNames
+            .Select((userName, idx) =>
+            {
+                if (!userNameMap.TryGetValue(userName, out var playerCode))
+                    playerCode = string.Empty;
 
-        var playerItems =
-            from item in batch.UserNames
-                .Select((userName, idx) => new
-                {
-                    UserName = userName,
-                    Index = idx + 1
-                })
-            join info in playerInfos on item.UserName equals info.UserName into g
-            from r in g.DefaultIfEmpty()
-            select new OfflineLoginRewardPlayerItem(
-                item.Index,
-                r?.PlayerCode ?? string.Empty,
-                item.UserName);
+                return new OfflineLoginRewardPlayerItem(playerCode,
+                    userName);
+            });
 
         await _batchTempRepository
             .SaveOfflineLoginRewardPlayerItemsAsync(command.BatchId, playerItems, cancellationToken)

@@ -127,7 +127,7 @@ internal class RedisBatchTempRepository : IBatchTempRepository
     }
 
     public async ValueTask<OfflineLoginRewardTempUserBatch?> GetOfflineLoginRewardTempUserBatchAsync(
-                Guid batchId,
+        Guid batchId,
         CancellationToken cancellationToken = default)
     {
         var key = $"BackOffice:OfflineLoginReward:TempUserBatch:{batchId}";
@@ -139,7 +139,7 @@ internal class RedisBatchTempRepository : IBatchTempRepository
             : null;
     }
     public async ValueTask<Guid> SaveAdjustBalanceBatchAsync(
-                    IEnumerable<BatchAdjustBalanceItem> batchAdjustBalanceItems,
+        IEnumerable<BatchAdjustBalanceItem> batchAdjustBalanceItems,
         CancellationToken cancellationToken = default)
     {
         var id = Guid.NewGuid();
@@ -189,7 +189,7 @@ internal class RedisBatchTempRepository : IBatchTempRepository
     }
 
     public async ValueTask<Guid> SaveOfflineLoginRewardTempUserBatchAsync(
-            OfflineLoginRewardTempUserBatch tempBatch,
+        OfflineLoginRewardTempUserBatch tempBatch,
         CancellationToken cancellationToken = default)
     {
         var id = Guid.NewGuid();
