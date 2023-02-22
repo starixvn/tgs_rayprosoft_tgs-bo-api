@@ -75,16 +75,9 @@ internal class ProcessOfflineLoginRewardTempUserBatchCommandService
             }, cancellationToken));
 
         await Task.WhenAll(tasks).ConfigureAwait(false);
-        
-        var playerItems = batch.UserNames
-            .Select((userName, idx) =>
-            {
-                if (!userNameMap.TryGetValue(userName, out var playerCode))
-                    playerCode = string.Empty;
 
-                return new OfflineLoginRewardPlayerItem(playerCode,
-                    userName);
-            });
+        var playerItems = userNameMap.Select(item 
+            => new OfflineLoginRewardPlayerItem(item.Key, item.Value));
 
         await _batchTempRepository
             .SaveOfflineLoginRewardPlayerItemsAsync(command.BatchId, playerItems, cancellationToken)
