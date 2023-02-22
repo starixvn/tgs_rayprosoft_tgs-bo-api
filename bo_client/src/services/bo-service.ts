@@ -184,4 +184,16 @@ export default class BackOfficeService {
         .post(`/api/offline-login-reward/create/${brandId}`, request)
             .then(res => res.data);
     }
+
+    public checkOfflineLoginRewardBackgroundProcessCompleted(batchId: string) : Promise<void> {
+        return this.http
+        .head(`/api/offline-login-reward/${batchId}`)
+        .then(res => res.data);
+    }
+
+    public exportOfflineLoginRewardFormTemplate() : Promise<any> {
+        return this.http
+        .get('/api/offline-login-reward/template')
+        .then(res => res.data);
+    }
 }
