@@ -1,4 +1,6 @@
 ﻿import { AxiosInstance } from "axios";
+import fs from 'fs';
+import FormData from 'form-data';
 
 export default class BackOfficeService {
     constructor(private http: AxiosInstance) { }
@@ -195,5 +197,40 @@ export default class BackOfficeService {
         return this.http
         .get('/api/offline-login-reward/template')
         .then(res => res.data);
+    }
+
+    public uploadOfflineLoginRewardUserList(brandId: string) : Promise<uploadOfflineLoginRewardUserListResponse> {
+        
+        var stream = fs.createReadStream("assets/TestOfflineLoginReward.xlsx");
+
+        var formData = new FormData();
+        formData.append("file", stream, 'file.xlsx');
+
+        // var config = {
+        //     headers: {
+        //       'Content-Type': 'multipart/form-data'
+        //     }
+        // };
+
+        // return this.http
+        //     .post(`/api/offline-login-reward/${brandId}`, formData,  {
+        //         headers: {
+        //         ...config.headers,
+        //         ...formData.getHeaders(),
+        //         },
+        //     })
+        //     .then(res => res.data);
+
+        return this.http
+            .post(`/api/offline-login-reward/${brandId}`, formData,  {
+                headers: {
+                        'Content-Type': 'multipart/form-data'
+                }
+            })
+            .then(res => res.data);
+        
+        // return this.http
+        //    .post(`/api/offline-login-reward/${brandId}`)
+        //    .then(res => res.data);
     }
 }

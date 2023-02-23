@@ -1,20 +1,23 @@
-﻿using System;
+﻿using System.Net.Http.Json;
+using System.Reflection;
 using System.Runtime.InteropServices;
 using System.Text.Json;
-using DocumentFormat.OpenXml.Wordprocessing;
+using ExpectedObjects;
 using Jering.Javascript.NodeJS;
+using Microsoft.AspNetCore.TestHost;
 using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.FileProviders;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
 using NSubstitute;
-using Tgs.Promotion;
+using Tgs.MessageQueue;
 using Tgs.Promotion.Clients;
 using Tgs.ServiceUtility;
+using TGS.Apis.BackendOffice.Controllers.Messages.OfflineLoginReward;
 using TGS.Apis.BackendOffice.ViewModels;
 using TGS.Core.Models.Messages;
 using TGS.Services.BackOffice.ApplicationServices.Promotion.OfflineLoginReward;
 using TGS.Services.BackOffice.Domain;
-using Xunit;
 using Xunit.Abstractions;
 
 namespace BackendOffice.IntegrationTests;
@@ -267,5 +270,89 @@ public class OfflineLoginRewardTests
             .GetAsync(
                 Arg.Is(command),
                 Arg.Any<CancellationToken>());
+    }
+
+    [Fact]
+    public async Task 上傳名單()
+    {
+        // Arrange
+        var channelName = Guid.NewGuid().ToString();
+        var userId = Guid.NewGuid();
+
+        var fakeReadService = Substitute.For<IQueryService<ReadOfflineLoginRewardUserListQuery, string>>();
+        var fakeSaveService = Substitute.For<IGetService<SaveOfflineLoginRewardTempUserBatchCommand, Guid>>();
+        var fakeMessageSender = Substitute.For<IMessageSender>();
+
+        using var web = TestBackendOfficeApplication.Builder
+            .UseTestChannelServer(channelName)
+            .ConfigureLogging(logging => logging.AddXUnit(_testOutputHelper))
+            .ConfigureServices(services => services
+                .AddAuthentication("Fake")
+                .AddScheme<FakeAuthenticationSchemaOptions, FakeAuthenticationHandler>(
+                    "Fake",
+                    options =>
+                    {
+                        options.UserId = userId;
+                        options.UserName = "system";
+                    })
+                .Services
+                .AddSingleton(fakeReadService)
+                .AddSingleton(fakeSaveService)
+                .AddSingleton(fakeMessageSender))
+            .Build();
+
+        await web.StartAsync();
+
+        var brandId = Guid.NewGuid();
+        var userNames = new[] { "username1", "username2" };
+
+        var batchId = Guid.NewGuid();
+
+       
+        _ = fakeReadService.QueryAsync(
+                Arg.Any<ReadOfflineLoginRewardUserListQuery>(),
+                Arg.Any<CancellationToken>())
+            .Returns(userNames.ToAsyncEnumerable());
+        
+        _ = fakeSaveService.GetAsync(
+            Arg.Any<SaveOfflineLoginRewardTempUserBatchCommand>(),
+            Arg.Any<CancellationToken>())
+            .Returns(batchId);
+        
+        var isWindows = RuntimeInformation.IsOSPlatform(OSPlatform.Windows) ? "true" : "false";
+
+        var nodeModule = $$"""
+            const axiosConfigFactory = require('./models/axios-configuration.js').default;
+            const BackOfficeService = require('./services/bo-service.js').default;
+
+            module.exports = async (brandId) =>
+            {
+                let instance = axiosConfigFactory("{{channelName}}", {{isWindows}});
+
+                let svc = new BackOfficeService(instance);
+
+                return await svc.uploadOfflineLoginRewardUserList(brandId);
+            };
+        """;
+
+        var expected = new UploadOfflineLoginRewardUserListResponse
+        {
+            Valid = true,
+            BatchId = batchId
+        };
+
+        // Act
+        var actual = await StaticNodeJSService.InvokeFromStringAsync<UploadOfflineLoginRewardUserListResponse>(
+            nodeModule,
+            args: new object[] { brandId });
+        
+        expected.ToExpectedObject().ShouldEqual(actual);
+
+        _ = fakeMessageSender
+            .Received(1)
+            .PublishAsync(
+            Arg.Is("tgs.bo.background.offlineloginreward.temp_user_batch"),
+            Arg.Any<ReadOnlyMemory<byte>>(),
+            Arg.Any<CancellationToken>());
     }
 }

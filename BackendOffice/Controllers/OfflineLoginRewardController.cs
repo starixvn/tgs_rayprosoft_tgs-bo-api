@@ -7,6 +7,7 @@ using Google.Protobuf;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Http.Features;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.Extensions.Logging;
 using Tgs.BrandService.Protos;
 using Tgs.MessageQueue;
 using Tgs.Promotion;
@@ -24,6 +25,14 @@ namespace TGS.Apis.BackendOffice.Controllers;
 [ApiController]
 public class OfflineLoginRewardController : BaseContextController
 {
+    private readonly ILogger<OfflineLoginRewardController> _logger;
+
+    public OfflineLoginRewardController(
+        ILogger<OfflineLoginRewardController> logger)
+    {
+        _logger = logger ?? throw new ArgumentNullException(nameof(logger));
+    }
+
     [HttpHead("{batchId}", Name = "CheckOfflineLoginRewardBackgroundProcessIsCompleted")]
     public async Task CheckBackgroundProcessIsCompletedAsync(
         [FromServices] IGetService<CheckOfflineLoginRewardBackgroundProcessCompletedQuery, bool?> checkService,
@@ -66,10 +75,12 @@ public class OfflineLoginRewardController : BaseContextController
         Guid brandId,
         [FromForm(Name = "file")] IFormFile file)
     {
+        _logger.LogInformation("start upload file");
+
         await using var fs = file.OpenReadStream();
 
         var userNames = await readService
-            .QueryAsync(new(fs), HttpContext.RequestAborted)
+            .QueryAsync(new ReadOfflineLoginRewardUserListQuery(fs), HttpContext.RequestAborted)
             .ToArrayAsync(HttpContext.RequestAborted)
             .ConfigureAwait(false);
 
@@ -96,6 +107,8 @@ public class OfflineLoginRewardController : BaseContextController
                 request.ToByteArray(), 
                 HttpContext.RequestAborted)
             .ConfigureAwait(false);
+
+        _logger.LogInformation("complete upload file");
 
         return new UploadOfflineLoginRewardUserListResponse
         {
