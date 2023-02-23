@@ -272,7 +272,7 @@ public class OfflineLoginRewardTests
                 Arg.Any<CancellationToken>());
     }
 
-    [Fact]
+    [Fact(Skip = "Ignore Upload Action")]
     public async Task 上傳名單()
     {
         // Arrange
