@@ -199,35 +199,35 @@ export default class BackOfficeService {
         .then(res => res.data);
     }
 
-    public uploadOfflineLoginRewardUserList(brandId: string) : Promise<uploadOfflineLoginRewardUserListResponse> {
+    public uploadOfflineLoginRewardUserList(brandId: string) : Promise<string> {
         
         var stream = fs.createReadStream("assets/TestOfflineLoginReward.xlsx");
 
         var formData = new FormData();
         formData.append("file", stream, 'file.xlsx');
 
-        // var config = {
-        //     headers: {
-        //       'Content-Type': 'multipart/form-data'
-        //     }
-        // };
-
-        // return this.http
-        //     .post(`/api/offline-login-reward/${brandId}`, formData,  {
-        //         headers: {
-        //         ...config.headers,
-        //         ...formData.getHeaders(),
-        //         },
-        //     })
-        //     .then(res => res.data);
+        var config = {
+            headers: {
+              'Content-Type': 'multipart/form-data'
+            }
+        };
 
         return this.http
             .post(`/api/offline-login-reward/${brandId}`, formData,  {
                 headers: {
-                        'Content-Type': 'multipart/form-data'
-                }
+                    ...config.headers,
+                    ...formData.getHeaders(),
+                },
             })
             .then(res => res.data);
+
+        // return this.http
+        //     .post(`/api/offline-login-reward/${brandId}`, formData,  {
+        //         headers: {
+        //                 'Content-Type': 'multipart/form-data'
+        //         }
+        //     })
+        //     .then(res => res.data);
         
         // return this.http
         //    .post(`/api/offline-login-reward/${brandId}`)

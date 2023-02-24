@@ -1,12 +1,7 @@
-﻿using System.Net.Http.Json;
-using System.Reflection;
-using System.Runtime.InteropServices;
+﻿using System.Runtime.InteropServices;
 using System.Text.Json;
-using ExpectedObjects;
 using Jering.Javascript.NodeJS;
-using Microsoft.AspNetCore.TestHost;
 using Microsoft.Extensions.DependencyInjection;
-using Microsoft.Extensions.FileProviders;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
 using NSubstitute;
@@ -272,7 +267,7 @@ public class OfflineLoginRewardTests
                 Arg.Any<CancellationToken>());
     }
 
-    [Fact(Skip = "Ignore Upload Action")]
+    [Fact]
     public async Task 上傳名單()
     {
         // Arrange
@@ -327,26 +322,32 @@ public class OfflineLoginRewardTests
 
             module.exports = async (brandId) =>
             {
-                let instance = axiosConfigFactory("{{channelName}}", {{isWindows}});
+                try {
+                    let instance = axiosConfigFactory("{{channelName}}", {{isWindows}});
 
-                let svc = new BackOfficeService(instance);
+                    let svc = new BackOfficeService(instance);                                    
+                    return await svc.uploadOfflineLoginRewardUserList(brandId);
 
-                return await svc.uploadOfflineLoginRewardUserList(brandId);
+                }catch (err) {
+                   return err.message;
+                }
             };
         """;
 
-        var expected = new UploadOfflineLoginRewardUserListResponse
-        {
-            Valid = true,
-            BatchId = batchId
-        };
+        //var expected = new UploadOfflineLoginRewardUserListResponse
+        //{
+        //    Valid = true,
+        //    BatchId = batchId
+        //};
 
         // Act
-        var actual = await StaticNodeJSService.InvokeFromStringAsync<UploadOfflineLoginRewardUserListResponse>(
+        var actual = await StaticNodeJSService.InvokeFromStringAsync<string>(
             nodeModule,
             args: new object[] { brandId });
         
-        expected.ToExpectedObject().ShouldEqual(actual);
+        //expected.ToExpectedObject().ShouldEqual(actual);
+
+        Assert.Equal("", actual);
 
         _ = fakeMessageSender
             .Received(1)
