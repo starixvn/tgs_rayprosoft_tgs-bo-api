@@ -337,7 +337,7 @@ public class OfflineLoginRewardTests
         };
 
         // Act
-        var actual = await StaticNodeJSService.InvokeFromStringAsync<string>(
+        var actual = await StaticNodeJSService.InvokeFromStringAsync<UploadOfflineLoginRewardUserListResponse>(
             nodeModule,
             args: new object[] { brandId });
         
