@@ -30,10 +30,8 @@ internal class PlayerTransferBalanceToParentAgentCommandService : ICommandServic
     {
         var playerInfo = await _playerServiceClient
             .GetPlayerInfoAsync(command.PlayerCode, cancellationToken)
-            .ConfigureAwait(false);
-
-        if (playerInfo is null)
-            throw new Exception(Player.NotFound);
+            .ConfigureAwait(false)
+            ?? throw new Exception(Player.NotFound);
 
         var props = await _playerServiceClient
             .GetPlayerPropertiesAsync(command.PlayerCode, cancellationToken)
@@ -49,10 +47,8 @@ internal class PlayerTransferBalanceToParentAgentCommandService : ICommandServic
             .FirstOrDefaultAsync(
                 agent => agent.AgentId == Guid.Parse(agentId),
                 cancellationToken)
-            .ConfigureAwait(false);
-
-        if (targetAgent is null)
-            throw new Exception(Agent.TargetAgentNotFound);
+            .ConfigureAwait(false)
+            ?? throw new Exception(Agent.TargetAgentNotFound);
 
         var apply = new PlayerBalanceTransferApplyInfo(
             playerInfo.BrandId,

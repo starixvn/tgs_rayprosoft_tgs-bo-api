@@ -30,7 +30,7 @@ public class GetGameProviderQueryHandler : Handler<GetGameProviderRequest, GetGa
 
         return gameProvider == null
             ? CreateInvalidResponse<GetGameProviderResponse>(GameProvider.NotFound)
-            : (new()
+            : new()
             {
                 Valid = true,
                 GameProvider = new()
@@ -70,6 +70,6 @@ public class GetGameProviderQueryHandler : Handler<GetGameProviderRequest, GetGa
                     UpdatedByUsername = gameProvider.UpdatedByUsername,
                     UpdatedOn = gameProvider.UpdatedOn
                 }
-            });
+            };
     }
 }

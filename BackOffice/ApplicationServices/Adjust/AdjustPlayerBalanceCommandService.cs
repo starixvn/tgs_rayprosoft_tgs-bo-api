@@ -26,10 +26,8 @@ internal class AdjustPlayerBalanceCommandService : ICommandService<AdjustPlayerB
     {
         var playerInfo = await _playerServiceClient
             .GetPlayerInfoAsync(command.PlayerCode, cancellationToken)
-            .ConfigureAwait(false);
-
-        if (playerInfo is null)
-            throw new Exception(Player.NotFound);
+            .ConfigureAwait(false)
+            ?? throw new Exception(Player.NotFound);
 
         var props = await _playerServiceClient
             .GetPlayerPropertiesAsync(command.PlayerCode, cancellationToken)
