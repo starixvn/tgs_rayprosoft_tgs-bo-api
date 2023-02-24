@@ -48,7 +48,7 @@ public class GetBrandQueryHandler : Handler<GetBrandRequest, GetBrandResponse>
 
         return brand == null
             ? CreateInvalidResponse<GetBrandResponse>(Brand.NotFound)
-            : (new()
+            : new()
             {
                 Valid = true,
                 Brand = new()
@@ -145,6 +145,6 @@ public class GetBrandQueryHandler : Handler<GetBrandRequest, GetBrandResponse>
                     WithdrawHandlingFeeRateTenPercentile = brand.WithdrawHandlingFeeRateTenPercentile,
                     TimeSpanMinutes = (int)brand.TimeSpanMinutes!
                 }
-            });
+            };
     }
 }
