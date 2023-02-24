@@ -1,4 +1,5 @@
-﻿using System.Runtime.InteropServices;
+﻿using System.Reflection;
+using System.Runtime.InteropServices;
 using System.Text.Json;
 using ExpectedObjects;
 using Jering.Javascript.NodeJS;
@@ -321,12 +322,12 @@ public class OfflineLoginRewardTests
             const axiosConfigFactory = require('./models/axios-configuration.js').default;
             const BackOfficeService = require('./services/bo-service.js').default;
 
-            module.exports = async (brandId) =>
+            module.exports = async (brandId, filePath) =>
             {
                 let instance = axiosConfigFactory("{{channelName}}", {{isWindows}});
 
                 let svc = new BackOfficeService(instance);                                    
-                return await svc.uploadOfflineLoginRewardUserList(brandId);                
+                return await svc.uploadOfflineLoginRewardUserList(brandId, filePath);                
             };
         """;
 
@@ -336,10 +337,12 @@ public class OfflineLoginRewardTests
             BatchId = batchId
         };
 
+        var filePath = Path.Combine(Directory.GetCurrentDirectory(), "Assets/TestOfflineLoginReward.xlsx");
+
         // Act
         var actual = await StaticNodeJSService.InvokeFromStringAsync<UploadOfflineLoginRewardUserListResponse>(
             nodeModule,
-            args: new object[] { brandId });
+            args: new object[] { brandId, filePath });
         
         expected.ToExpectedObject().ShouldEqual(actual);
 

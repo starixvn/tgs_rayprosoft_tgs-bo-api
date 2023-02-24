@@ -199,9 +199,9 @@ export default class BackOfficeService {
         .then(res => res.data);
     }
 
-    public uploadOfflineLoginRewardUserList(brandId: string) : Promise<uploadOfflineLoginRewardUserListResponse> {
+    public uploadOfflineLoginRewardUserList(brandId: string, filePath: string) : Promise<uploadOfflineLoginRewardUserListResponse> {
         
-        var stream = fs.createReadStream("assets/TestOfflineLoginReward.xlsx");
+        var stream = fs.readFileSync(filePath);
 
         var formData = new FormData();
         formData.append("file", stream, 'file.xlsx');
@@ -215,8 +215,8 @@ export default class BackOfficeService {
         return this.http
             .post(`/api/offline-login-reward/${brandId}`, formData,  {
                 headers: {
-                    ...config.headers,
                     ...formData.getHeaders(),
+                    "Content-Length": formData.getLengthSync()
                 },
             })
             .then(res => res.data);

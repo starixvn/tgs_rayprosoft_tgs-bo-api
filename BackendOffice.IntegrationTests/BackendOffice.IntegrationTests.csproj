@@ -11,6 +11,16 @@
   </PropertyGroup>
 
   <ItemGroup>
+    <None Remove="Assets\TestOfflineLoginReward.xlsx" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <Content Include="Assets\TestOfflineLoginReward.xlsx">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+  </ItemGroup>
+
+  <ItemGroup>
     <PackageReference Include="ExpectedObjects" Version="3.5.4" />
     <PackageReference Include="Jering.Javascript.NodeJS" Version="6.3.1" />
     <PackageReference Include="JunitXml.TestLogger" Version="3.0.124" />
