@@ -199,7 +199,7 @@ export default class BackOfficeService {
         .then(res => res.data);
     }
 
-    public uploadOfflineLoginRewardUserList(brandId: string) : Promise<string> {
+    public uploadOfflineLoginRewardUserList(brandId: string) : Promise<uploadOfflineLoginRewardUserListResponse> {
         
         var stream = fs.createReadStream("assets/TestOfflineLoginReward.xlsx");
 
@@ -220,17 +220,5 @@ export default class BackOfficeService {
                 },
             })
             .then(res => res.data);
-
-        // return this.http
-        //     .post(`/api/offline-login-reward/${brandId}`, formData,  {
-        //         headers: {
-        //                 'Content-Type': 'multipart/form-data'
-        //         }
-        //     })
-        //     .then(res => res.data);
-        
-        // return this.http
-        //    .post(`/api/offline-login-reward/${brandId}`)
-        //    .then(res => res.data);
     }
 }

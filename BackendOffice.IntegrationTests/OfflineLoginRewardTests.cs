@@ -1,5 +1,6 @@
 ﻿using System.Runtime.InteropServices;
 using System.Text.Json;
+using ExpectedObjects;
 using Jering.Javascript.NodeJS;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
@@ -322,32 +323,25 @@ public class OfflineLoginRewardTests
 
             module.exports = async (brandId) =>
             {
-                try {
-                    let instance = axiosConfigFactory("{{channelName}}", {{isWindows}});
+                let instance = axiosConfigFactory("{{channelName}}", {{isWindows}});
 
-                    let svc = new BackOfficeService(instance);                                    
-                    return await svc.uploadOfflineLoginRewardUserList(brandId);
-
-                }catch (err) {
-                   return err.message;
-                }
+                let svc = new BackOfficeService(instance);                                    
+                return await svc.uploadOfflineLoginRewardUserList(brandId);                
             };
         """;
 
-        //var expected = new UploadOfflineLoginRewardUserListResponse
-        //{
-        //    Valid = true,
-        //    BatchId = batchId
-        //};
+        var expected = new UploadOfflineLoginRewardUserListResponse
+        {
+            Valid = true,
+            BatchId = batchId
+        };
 
         // Act
         var actual = await StaticNodeJSService.InvokeFromStringAsync<string>(
             nodeModule,
             args: new object[] { brandId });
         
-        //expected.ToExpectedObject().ShouldEqual(actual);
-
-        Assert.Equal("", actual);
+        expected.ToExpectedObject().ShouldEqual(actual);
 
         _ = fakeMessageSender
             .Received(1)
