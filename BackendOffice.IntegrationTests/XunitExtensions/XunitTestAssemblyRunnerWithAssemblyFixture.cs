@@ -42,6 +42,7 @@ public class XunitTestAssemblyRunnerWithAssemblyFixture : XunitTestAssemblyRunne
                      processOptions.Concurrency = Concurrency.MultiProcess;
                      //processOptions.TimeoutMS = 3000;
                      processOptions.NumRetries = 0;
+                     processOptions.NumProcessRetries = 0;
                  });
         });
     }
