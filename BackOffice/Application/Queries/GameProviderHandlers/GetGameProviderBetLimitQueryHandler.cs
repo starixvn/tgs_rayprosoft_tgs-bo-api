@@ -25,7 +25,7 @@ public class
 
         return gameProviderBetLimit == null
             ? CreateInvalidResponse<GetGameProviderBetLimitResponse>(GameProviderBetLimit.NotFound)
-            : (new()
+            : new()
             {
                 Valid = true,
                 GameProviderBetLimit = new()
@@ -37,6 +37,6 @@ public class
                     MaxBetPerMatch = gameProviderBetLimit.MaxBetPerMatch,
                     ExternalSetting = gameProviderBetLimit.ExternalSetting
                 }
-            });
+            };
     }
 }

@@ -42,7 +42,7 @@ public class GetAgentQueryHandler : Handler<GetAgentRequest, GetAgentResponse>
             .ConfigureAwait(false)).Length;
         return agent == null
             ? CreateInvalidResponse<GetAgentResponse>(Agent.NotFound)
-            : (new()
+            : new()
             {
                 Valid = true,
                 Agent = new()
@@ -89,6 +89,6 @@ public class GetAgentQueryHandler : Handler<GetAgentRequest, GetAgentResponse>
                     }).OrderBy(x => x.Rank).ToArray(),
                     Path = agent.Path
                 }
-            });
+            };
     }
 }

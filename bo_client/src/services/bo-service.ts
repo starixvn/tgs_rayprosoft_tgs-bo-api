@@ -1,6 +1,7 @@
 ﻿import { AxiosInstance } from "axios";
 import fs from 'fs';
 import FormData from 'form-data';
+import path from 'path';
 
 export default class BackOfficeService {
     constructor(private http: AxiosInstance) { }
@@ -167,9 +168,9 @@ export default class BackOfficeService {
             .then(res => res.data);
     }
 
-    public getPlayerList(        
-        request: GetPlayersRequest 
-        ): Promise<PagedResponse<PlayerModel>>{
+    public getPlayerList(
+        request: GetPlayersRequest
+    ): Promise<PagedResponse<PlayerModel>> {
         return this.http
             .get('/api/player',
                 {
@@ -178,6 +179,44 @@ export default class BackOfficeService {
                     }
                 }
             )
+            .then(res => res.data);
+    }
+
+    public downloadBatchAdjustFormTemplate(): Promise<{ status: number; contentType: string }> {
+        return this.http
+            .get('/api/batch-adj-balance')
+            .then(res => {
+                let contentType: string;
+
+                if (typeof res.headers.getContentType === 'string' || typeof res.headers.getContentType === 'undefined')
+                    contentType = res.headers.getContentType ?? '';
+                else
+                    contentType = res.headers.getContentType()?.toString() ?? '';
+
+                return {
+                    status: res.status,
+                    contentType: contentType
+                };
+            });
+    }
+
+    public async importBatchAdjustForm(brandId: string, filePath: string): Promise<string> {
+        let fileName = path.basename(filePath);
+        let fileStream = fs.readFileSync(filePath);
+        let formData = new FormData();
+
+        formData.append('file', fileStream, fileName);
+
+        return this.http
+            .post(
+                `/api/batch-adj-balance/${brandId}`,
+                formData,
+                {
+                    headers: {
+                        ...formData.getHeaders(),
+                        "Content-Length": formData.getLengthSync()
+                    }
+                })
             .then(res => res.data);
     }
 
