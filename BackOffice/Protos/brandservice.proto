@@ -18,6 +18,10 @@ message ProcessAdjustBalanceBatchRequest {
 	string modify_user_name = 6;
 }
 
+message ProcessOfflineLoginRewardTempUserBatchRequest {
+	phoenix.protobuf.GuidValue batch_id = 1;
+}
+
 message Tag {
 	string name = 1;
 	string value = 2;

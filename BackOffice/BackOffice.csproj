@@ -22,12 +22,14 @@
     <None Remove="Assets\batch_adjust_template.xlsx" />
     <None Remove="Assets\deposit_forms_template.xlsx" />
     <None Remove="Assets\localization_template.xlsx" />
+    <None Remove="Assets\offline_login_reward_template.xlsx" />
     <None Remove="Assets\withdraw_forms_template.xlsx" />
     <None Remove="Protos\brandservice.proto" />
   </ItemGroup>
 
   <ItemGroup>
     <EmbeddedResource Include="Assets\batch_adjust_template.xlsx" />
+    <EmbeddedResource Include="Assets\offline_login_reward_template.xlsx" />
     <EmbeddedResource Include="Assets\withdraw_forms_template.xlsx" />
     <EmbeddedResource Include="Assets\deposit_forms_template.xlsx" />
     <EmbeddedResource Include="Assets\localization_template.xlsx" />
@@ -122,11 +124,6 @@
       <DesignTime>True</DesignTime>
       <AutoGen>True</AutoGen>
       <DependentUpon>BrandGameProvider.resx</DependentUpon>
-    </Compile>
-    <Compile Update="Application\Resources\BrandGameProviderSchedule - Copy.Designer.cs">
-      <DependentUpon>BrandGameProviderSchedule.resx</DependentUpon>
-      <DesignTime>True</DesignTime>
-      <AutoGen>True</AutoGen>
     </Compile>
     <Compile Update="Application\Resources\BrandGameProviderSchedule.Designer.cs">
       <DesignTime>True</DesignTime>

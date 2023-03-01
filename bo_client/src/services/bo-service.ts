@@ -219,4 +219,45 @@ export default class BackOfficeService {
                 })
             .then(res => res.data);
     }
+
+    public createOfflineLoginRewardPromotion(brandId: string, request: createOfflineLoginRewardRequest) : Promise<MessageResponse> {
+        return this.http
+        .post(`/api/offline-login-reward/${brandId}:create`, request)
+            .then(res => res.data);
+    }
+
+    public checkOfflineLoginRewardBackgroundProcessCompleted(batchId: string) : Promise<void> {
+        return this.http
+        .head(`/api/offline-login-reward/${batchId}`)
+        .then(res => res.data);
+    }
+
+    public exportOfflineLoginRewardFormTemplate() : Promise<any> {
+        return this.http
+        .get('/api/offline-login-reward/template')
+        .then(res => res.data);
+    }
+
+    public uploadOfflineLoginRewardUserList(brandId: string, filePath: string) : Promise<uploadOfflineLoginRewardUserListResponse> {
+        
+        var stream = fs.readFileSync(filePath);
+
+        var formData = new FormData();
+        formData.append("file", stream, 'file.xlsx');
+
+        var config = {
+            headers: {
+              'Content-Type': 'multipart/form-data'
+            }
+        };
+
+        return this.http
+            .post(`/api/offline-login-reward/${brandId}`, formData,  {
+                headers: {
+                    ...formData.getHeaders(),
+                    "Content-Length": formData.getLengthSync()
+                },
+            })
+            .then(res => res.data);
+    }
 }

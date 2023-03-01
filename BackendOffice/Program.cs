@@ -26,7 +26,6 @@ using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 using Microsoft.OpenApi.Models;
 using OpenTelemetry;
-using OpenTelemetry.Exporter;
 using OpenTelemetry.Instrumentation.AspNetCore;
 using OpenTelemetry.Metrics;
 using OpenTelemetry.Resources;
@@ -37,6 +36,7 @@ using TGS.Apis.BackendOffice.MessageQueue;
 using TGS.Apis.BackendOffice.Middlewares;
 using TGS.Apis.BackendOffice.Services;
 using TGS.Apis.BackendOffice.SignalR;
+using TGS.Apis.BackendOffice.Swagger;
 using TGS.Apis.BackendOffice.Workers;
 using TGS.Core.Infrastructures.Redis;
 using TGS.Core.Models;
@@ -132,6 +132,9 @@ builder.Services
         .AddHandler<BatchAdjustBalanceHandler>(
             "tgs.bo.background.adjust_batch",
             "tgs.bo.background.adjust_batch")
+        .AddHandler<OfflineLoginRewardTempUserBatchHandler>(
+            "tgs.bo.background.offlineloginreward.temp_user_batch",
+            "tgs.bo.background.offlineloginreward.temp_user_batch")
         .AddHandler<BackgroundNotifyHandler>("tgs.bo.notify")
         .AddHandler<CleanBucketsHandler>("tgs.bucket.clean-form.created", "tgs.bo.clean-form"))
     .AddNatsGlobPatternExchange("*");
@@ -266,6 +269,7 @@ builder.Services.AddSwaggerGen(c =>
         });
 
     c.CustomSchemaIds(type => type.FullName.Replace('.', '_'));
+    c.OperationFilter<SwaggerFileOperationFilter>();
 
     var xml = "TGS.Apis.BackendOffice.xml";
     var path = Path.Combine(AppContext.BaseDirectory, xml);
