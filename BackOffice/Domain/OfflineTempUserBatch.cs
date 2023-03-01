@@ -3,6 +3,6 @@ using System.Collections.Generic;
 
 namespace TGS.Services.BackOffice.Domain;
 
-public record OfflineLoginRewardTempUserBatch(
+public record OfflineTempUserBatch(
     Guid BrandId,
     IEnumerable<string> UserNames);

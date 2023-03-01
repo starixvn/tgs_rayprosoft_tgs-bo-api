@@ -2,4 +2,4 @@
 
 namespace TGS.Services.BackOffice.ApplicationServices.Promotion.Offline;
 
-public record ReadOfflineLoginRewardUserListQuery(Stream ImportFile);
+public record ReadOfflinePromotionUserListQuery(Stream ImportFile);

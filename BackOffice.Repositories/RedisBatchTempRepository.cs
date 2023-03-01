@@ -33,21 +33,6 @@ internal class RedisBatchTempRepository : IBatchTempRepository
             when: When.NotExists).ConfigureAwait(false);
     }
 
-    public async ValueTask<bool> BidOfflineLoginRewardBackgroundProcessAsync(
-        Guid batchId, 
-        CancellationToken cancellationToken = default)
-    {
-        var key = $"BackOffice:OfflineLoginReward:BackgroundProcess:{batchId}";
-
-        var machineName = Environment.MachineName;
-
-        return await _database.StringSetAsync(
-            key,
-            machineName,
-            expiry: TimeSpan.FromHours(1D),
-            when: When.NotExists).ConfigureAwait(false);
-    }
-
     public async ValueTask CompleteBatchAsync(Guid batchId, CancellationToken cancellationToken = default)
     {
         var key = $"BackOffice:BatchProcess:{batchId}";
@@ -59,22 +44,9 @@ internal class RedisBatchTempRepository : IBatchTempRepository
             when: When.Exists).ConfigureAwait(false);
     }
 
-    public async ValueTask CompleteOfflineLoginRewardBackgroundProcessAsync(
-        Guid batchId, 
-        CancellationToken cancellationToken = default)
-    {
-        var key = $"BackOffice:OfflineLoginReward:BackgroundProcess:{batchId}";
-
-        _ = await _database.StringSetAsync(
-            key,
-            "Completed",
-            expiry: TimeSpan.FromHours(1D),
-            when: When.Exists).ConfigureAwait(false);
-    }
-
     public IAsyncEnumerable<BatchAdjustBalanceItem> GetAdjustBalanceBatchAsync(Guid batchId, CancellationToken cancellationToken = default)
     {
-        var key = $"BackOffice:Batch:{batchId}";
+        var key = $"BackOffice:AdjustBalance:Batch:{batchId}";
 
         return _database.StringGetAsync(key)
             .ToAsyncEnumerable()
@@ -85,7 +57,7 @@ internal class RedisBatchTempRepository : IBatchTempRepository
 
     public IAsyncEnumerable<BatchAdjustBalanceItemResult> GetAdjustBalanceItemResultsAsync(Guid batchId, CancellationToken cancellationToken = default)
     {
-        var key = $"BackOffice:BatchResult:{batchId}";
+        var key = $"BackOffice:AdjustBalance:BatchResult:{batchId}";
 
         return _database.StringGetAsync(key)
             .ToAsyncEnumerable()
@@ -103,17 +75,7 @@ internal class RedisBatchTempRepository : IBatchTempRepository
         return value.HasValue ? value == "Completed" : null;
     }
 
-    public async ValueTask<bool?> GetOfflineLoginRewardBackgroundProcessIsCompletedAsync(Guid batchId,
-        CancellationToken cancellationToken = default)
-    {
-        var key = $"BackOffice:OfflineLoginReward:BackgroundProcess:{batchId}";
-
-        var value = await _database.StringGetAsync(key).ConfigureAwait(false);
-
-        return value.HasValue ? value == "Completed" : null;
-    }
-
-    public IAsyncEnumerable<OfflineLoginRewardPlayerItem> GetOfflineLoginRewardPlayerItemsAsync(
+    public IAsyncEnumerable<OfflinePlayerItem> GetOfflineLoginRewardPlayerItemsAsync(
         Guid batchId,
         CancellationToken cancellationToken = default)
     {
@@ -121,31 +83,22 @@ internal class RedisBatchTempRepository : IBatchTempRepository
 
         return _database.StringGetAsync(key)
             .ToAsyncEnumerable()
-            .Select(value => JsonSerializer.Deserialize<OfflineLoginRewardPlayerItem[]>(value!))
+            .Select(value => JsonSerializer.Deserialize<OfflinePlayerItem[]>(value!))
             .Where(arr => arr is not null)
             .SelectMany(arr => arr!.ToAsyncEnumerable());
     }
 
-    public async ValueTask<OfflineLoginRewardTempUserBatch?> GetOfflineLoginRewardTempUserBatchAsync(
+    public async ValueTask<OfflineTempUserBatch?> GetOfflineTempUserBatchAsync(
         Guid batchId,
         CancellationToken cancellationToken = default)
     {
-        var key = $"BackOffice:OfflineLoginReward:TempUserBatch:{batchId}";
+        var key = $"BackOffice:OfflinePromotion:Batch:{batchId}";
 
         var value = await _database.StringGetAsync(key).ConfigureAwait(false);
 
         return value.HasValue
-            ? JsonSerializer.Deserialize<OfflineLoginRewardTempUserBatch>(value!)
+            ? JsonSerializer.Deserialize<OfflineTempUserBatch>(value!)
             : null;
-    }
-
-    public async ValueTask RemoveOfflineLoginRewardTempUserBatchAsync(
-        Guid batchId, 
-        CancellationToken cancellationToken = default)
-    {
-        var key = $"BackOffice:OfflineLoginReward:TempUserBatch:{batchId}";
-
-        _ = await _database.KeyDeleteAsync(key).ConfigureAwait(false);
     }
 
     public async ValueTask<Guid> SaveAdjustBalanceBatchAsync(
@@ -154,7 +107,7 @@ internal class RedisBatchTempRepository : IBatchTempRepository
     {
         var id = Guid.NewGuid();
 
-        var key = $"BackOffice:Batch:{id}";
+        var key = $"BackOffice:AdjustBalance:Batch:{id}";
 
         var content = JsonSerializer.Serialize(batchAdjustBalanceItems);
 
@@ -172,7 +125,7 @@ internal class RedisBatchTempRepository : IBatchTempRepository
         IEnumerable<BatchAdjustBalanceItemResult> results,
         CancellationToken cancellation = default)
     {
-        var key = $"BackOffice:BatchResult:{batchId}";
+        var key = $"BackOffice:AdjustBalance:BatchResult:{batchId}";
 
         var content = JsonSerializer.Serialize(results);
 
@@ -182,29 +135,13 @@ internal class RedisBatchTempRepository : IBatchTempRepository
             expiry: TimeSpan.FromHours(1D)).ConfigureAwait(false);
     }
 
-    public async ValueTask SaveOfflineLoginRewardPlayerItemsAsync(
-        Guid batchId,
-        IEnumerable<OfflineLoginRewardPlayerItem> playerItems,
-        CancellationToken cancellationToken = default)
-    {
-        var key = $"BackOffice:OfflineLoginReward:PlayerItems:{batchId}";
-
-        var content = JsonSerializer.Serialize(playerItems);
-
-        _ = await _database.StringSetAsync(
-            key,
-            content,
-            expiry: TimeSpan.FromHours(1D),
-            when: When.NotExists).ConfigureAwait(false);
-    }
-
-    public async ValueTask<Guid> SaveOfflineLoginRewardTempUserBatchAsync(
-        OfflineLoginRewardTempUserBatch tempBatch,
+    public async ValueTask<Guid> SaveOfflineTempUserBatchAsync(
+        OfflineTempUserBatch tempBatch,
         CancellationToken cancellationToken = default)
     {
         var id = Guid.NewGuid();
 
-        var key = $"BackOffice:OfflineLoginReward:TempUserBatch:{id}";
+        var key = $"BackOffice:OfflinePromotion:Batch:{id}";
 
         var content = JsonSerializer.Serialize(tempBatch);
 
@@ -215,5 +152,18 @@ internal class RedisBatchTempRepository : IBatchTempRepository
             when: When.NotExists).ConfigureAwait(false);
 
         return id;
+    }
+
+    public async ValueTask SaveProcessedOfflinePlayerItemsAsync(Guid batchId, OfflineUsersResult result, CancellationToken cancellationToken = default)
+    {
+        var key = $"BackOffice:OfflinePromotion:BatchResult:{batchId}";
+
+        var content = JsonSerializer.Serialize(result);
+
+        _ = await _database.StringSetAsync(
+            key,
+            content,
+            expiry: TimeSpan.FromHours(1D),
+            when: When.NotExists).ConfigureAwait(false);
     }
 }

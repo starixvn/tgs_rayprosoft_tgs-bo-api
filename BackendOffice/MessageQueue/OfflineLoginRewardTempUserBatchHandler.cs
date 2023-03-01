@@ -10,10 +10,10 @@ namespace TGS.Apis.BackendOffice.MessageQueue;
 
 internal class OfflineLoginRewardTempUserBatchHandler : IMessageHandler
 {
-    private readonly ICommandService<ProcessOfflineLoginRewardTempUserBatchCommand> _commandService;
+    private readonly ICommandService<GetPlayerCodeByBatchCommand> _commandService;
 
     public OfflineLoginRewardTempUserBatchHandler(
-        ICommandService<ProcessOfflineLoginRewardTempUserBatchCommand> commandService)
+        ICommandService<GetPlayerCodeByBatchCommand> commandService)
     {
         _commandService = commandService ?? throw new ArgumentNullException(nameof(commandService));
     }
@@ -24,7 +24,7 @@ internal class OfflineLoginRewardTempUserBatchHandler : IMessageHandler
     {
         var request = ProcessOfflineLoginRewardTempUserBatchRequest.Parser.ParseFrom(data.Span);
 
-        var command = new ProcessOfflineLoginRewardTempUserBatchCommand(request.BatchId);
+        var command = new GetPlayerCodeByBatchCommand(request.BatchId);
 
         return _commandService.ExecuteAsync(command, cancellationToken);
     }

@@ -48,6 +48,7 @@ public class OfflineLoginRewardController : BaseContextController
     }
 
     [HttpGet("template", Name = "ExportOfflineLoginRewardExcelFormTemplate")]
+    [HttpGet("~/api/offline-deposit-reward/template", Name = "ExportOfflineDepositRewardExcelFormTemplate")]
     public async ValueTask<FileStreamResult> ExportFormTemplateAsync(
         [FromServices] IGetService<ExportOfflinePromotionFormTemplateCommand, Stream> exportService)
     {
@@ -60,7 +61,7 @@ public class OfflineLoginRewardController : BaseContextController
 
     [HttpPost("{brandId}", Name = "ImportOfflineLoginRewardBatch")]
     public async ValueTask<UploadOfflineLoginRewardUserListResponse> ImportOfflineLoginRewardBatchAsync(
-        [FromServices] IQueryService<ReadOfflineLoginRewardUserListQuery, string> readService,
+        [FromServices] IQueryService<ReadOfflinePromotionUserListQuery, string> readService,
         [FromServices] IGetService<SaveOfflineLoginRewardTempUserBatchCommand, Guid> saveService,
         [FromServices] IMessageSender messageSender,
         Guid brandId,
@@ -69,7 +70,7 @@ public class OfflineLoginRewardController : BaseContextController
         await using var fs = file.OpenReadStream();
 
         var userNames = await readService
-            .QueryAsync(new ReadOfflineLoginRewardUserListQuery(fs), HttpContext.RequestAborted)
+            .QueryAsync(new ReadOfflinePromotionUserListQuery(fs), HttpContext.RequestAborted)
             .ToArrayAsync(HttpContext.RequestAborted)
             .ConfigureAwait(false);
 
@@ -106,12 +107,12 @@ public class OfflineLoginRewardController : BaseContextController
 
     [HttpPost("{brandId}:create", Name = "CreateOfflineLoginRewardPromotion")]
     public async ValueTask<MessageResponse> CreatePromotionAsync(
-        [FromServices] IQueryService<OfflineLoginRewardPlayerItemsQuery, OfflineLoginRewardPlayerItem> queryService,
+        [FromServices] IQueryService<GetProcessedUsersQuery, OfflinePlayerItem> queryService,
         [FromServices] IPromotionServiceClient promotionServiceClient,
         Guid brandId,
         [FromBody] CreateOfflineLoginRewardPromotionViewModel createViewModel)
     {
-        var query = new OfflineLoginRewardPlayerItemsQuery(createViewModel.BatchId);
+        var query = new GetProcessedUsersQuery(createViewModel.BatchId);
 
         var players = await queryService.QueryAsync(query, HttpContext.RequestAborted)
             .Where(item => !string.IsNullOrEmpty(item.PlayerCode))

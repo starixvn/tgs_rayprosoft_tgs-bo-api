@@ -38,7 +38,7 @@ public class OfflineLoginRewardTests
 
         var fakePromotionServiceClient = Substitute.For<IPromotionServiceClient>();
         var fakePlayerItemsQueryService =
-            Substitute.For<IQueryService<OfflineLoginRewardPlayerItemsQuery, OfflineLoginRewardPlayerItem>>();
+            Substitute.For<IQueryService<GetProcessedUsersQuery, OfflinePlayerItem>>();
 
         using var web = TestBackendOfficeApplication.Builder
             .UseTestChannelServer(channelName)
@@ -68,12 +68,12 @@ public class OfflineLoginRewardTests
 
         var players = new[]
         {
-            new OfflineLoginRewardPlayerItem("player1", "username1"),
-            new OfflineLoginRewardPlayerItem("player2", "username2")
+            new OfflinePlayerItem("player1", "username1"),
+            new OfflinePlayerItem("player2", "username2")
         };
 
         _ = fakePlayerItemsQueryService.QueryAsync(
-                Arg.Is(new OfflineLoginRewardPlayerItemsQuery(batchId)),
+                Arg.Is(new GetProcessedUsersQuery(batchId)),
                 Arg.Any<CancellationToken>())
             .Returns(players.ToAsyncEnumerable());
 
@@ -276,7 +276,7 @@ public class OfflineLoginRewardTests
         var channelName = Guid.NewGuid().ToString();
         var userId = Guid.NewGuid();
 
-        var fakeReadService = Substitute.For<IQueryService<ReadOfflineLoginRewardUserListQuery, string>>();
+        var fakeReadService = Substitute.For<IQueryService<ReadOfflinePromotionUserListQuery, string>>();
         var fakeSaveService = Substitute.For<IGetService<SaveOfflineLoginRewardTempUserBatchCommand, Guid>>();
         var fakeMessageSender = Substitute.For<IMessageSender>();
 
@@ -307,7 +307,7 @@ public class OfflineLoginRewardTests
 
        
         _ = fakeReadService.QueryAsync(
-                Arg.Any<ReadOfflineLoginRewardUserListQuery>(),
+                Arg.Any<ReadOfflinePromotionUserListQuery>(),
                 Arg.Any<CancellationToken>())
             .Returns(userNames.ToAsyncEnumerable());
         

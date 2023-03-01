@@ -29,22 +29,22 @@ internal class OfflineLoginRewardTests
         var fakeBatchTempRepository = Substitute.For<IBatchTempRepository>();
         var fakePlayerInfosQueryService = Substitute.For<IQueryService<PlayerInfosByUserNamesQuery, PlayerInfo>>();
 
-        var sut = new ProcessOfflineLoginRewardTempUserBatchCommandService(
+        var sut = new GetPlayerCodeByBatchCommandService(
             fakePlayerInfosQueryService,
             fakeBatchTempRepository);
 
         var brandId = Guid.NewGuid();
         var userNames = new[] { "username1", "username2" };
-        var tempUserBatch = new OfflineLoginRewardTempUserBatch(brandId, userNames);
+        var tempUserBatch = new OfflineTempUserBatch(brandId, userNames);
 
-        var command = new ProcessOfflineLoginRewardTempUserBatchCommand(
+        var command = new GetPlayerCodeByBatchCommand(
             Guid.NewGuid());
 
-        _ = fakeBatchTempRepository.BidOfflineLoginRewardBackgroundProcessAsync(Arg.Is(command.BatchId))
+        _ = fakeBatchTempRepository.BidBatchAsync(Arg.Is(command.BatchId))
             .Returns(true);
 
         _ = fakeBatchTempRepository
-            .GetOfflineLoginRewardTempUserBatchAsync(
+            .GetOfflineTempUserBatchAsync(
                 Arg.Is(command.BatchId),
                 Arg.Any<CancellationToken>())
             .Returns(tempUserBatch);
@@ -59,14 +59,14 @@ internal class OfflineLoginRewardTests
 
         _ = fakeBatchTempRepository
             .Received(1)
-            .SaveOfflineLoginRewardPlayerItemsAsync(
+            .SaveProcessedOfflinePlayerItemsAsync(
                 Arg.Is(command.BatchId),
-                Arg.Any<IEnumerable<OfflineLoginRewardPlayerItem>>(),
+                Arg.Any<OfflineUsersResult>(),
                 Arg.Any<CancellationToken>());
 
         _ = fakeBatchTempRepository
             .Received(1)
-            .CompleteOfflineLoginRewardBackgroundProcessAsync(
+            .CompleteBatchAsync(
                 Arg.Is(command.BatchId),
                 Arg.Any<CancellationToken>());
     }
@@ -78,7 +78,7 @@ internal class OfflineLoginRewardTests
 
         var sut = new SaveOfflineLoginRewardTempUserBatchCommandService(fakeBatchTempRepository);
 
-        var batchData = new OfflineLoginRewardTempUserBatch(
+        var batchData = new OfflineTempUserBatch(
             Guid.NewGuid(),
             new[] { "user_name_1", "user_name_2" });
 
@@ -90,7 +90,7 @@ internal class OfflineLoginRewardTests
 
         _ = fakeBatchTempRepository
             .Received(1)
-            .SaveOfflineLoginRewardTempUserBatchAsync(
+            .SaveOfflineTempUserBatchAsync(
                 Arg.Is(batchData),
                 Arg.Any<CancellationToken>());
     }
@@ -98,14 +98,14 @@ internal class OfflineLoginRewardTests
     [Test]
     public async Task 讀取Excel_UserList資料()
     {
-        var sut = new ReadOfflineLoginRewardUserListQueryService();
+        var sut = new ReadOfflinePromotionUserListQueryService();
 
         var fileProvider = new EmbeddedFileProvider(Assembly.GetExecutingAssembly());
         var fileInfo = fileProvider.GetFileInfo("/Assets/TestOfflineLoginReward.xlsx");
 
         await using var fileStream = fileInfo.CreateReadStream();
 
-        var query = new ReadOfflineLoginRewardUserListQuery(fileStream);
+        var query = new ReadOfflinePromotionUserListQuery(fileStream);
 
         var actual = await sut.QueryAsync(query).ToArrayAsync();
 
@@ -125,7 +125,7 @@ internal class OfflineLoginRewardTests
 
         _ = fakeBatchTempRepository
             .Received(1)
-            .GetOfflineLoginRewardBackgroundProcessIsCompletedAsync(
+            .GetBatchIsCompletedAsync(
                 Arg.Is(query.BatchId),
                 Arg.Any<CancellationToken>());
     }
@@ -135,9 +135,9 @@ internal class OfflineLoginRewardTests
     {
         var fakeBatchTempRepository = Substitute.For<IBatchTempRepository>();
 
-        var sut = new OfflineLoginRewardPlayerItemsQueryService(fakeBatchTempRepository);
+        var sut = new GetProcessedUsersQueryService(fakeBatchTempRepository);
 
-        var query = new OfflineLoginRewardPlayerItemsQuery(Guid.NewGuid());
+        var query = new GetProcessedUsersQuery(Guid.NewGuid());
 
         _ = await sut.QueryAsync(query).ToArrayAsync();
 

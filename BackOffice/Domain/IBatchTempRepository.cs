@@ -11,11 +11,7 @@ public interface IBatchTempRepository
 {
     ValueTask<bool> BidBatchAsync(Guid batchId, CancellationToken cancellationToken = default);
 
-    ValueTask<bool> BidOfflineLoginRewardBackgroundProcessAsync(Guid batchId, CancellationToken cancellationToken = default);
-
     ValueTask CompleteBatchAsync(Guid batchId, CancellationToken cancellationToken = default);
-
-    ValueTask CompleteOfflineLoginRewardBackgroundProcessAsync(Guid batchId, CancellationToken cancellationToken = default);
 
     IAsyncEnumerable<BatchAdjustBalanceItem> GetAdjustBalanceBatchAsync(
         Guid batchId,
@@ -27,19 +23,11 @@ public interface IBatchTempRepository
 
     ValueTask<bool?> GetBatchIsCompletedAsync(Guid batchId, CancellationToken cancellationToken = default);
 
-    ValueTask<bool?> GetOfflineLoginRewardBackgroundProcessIsCompletedAsync(
+    IAsyncEnumerable<OfflinePlayerItem> GetOfflineLoginRewardPlayerItemsAsync(
         Guid batchId,
         CancellationToken cancellationToken = default);
 
-    IAsyncEnumerable<OfflineLoginRewardPlayerItem> GetOfflineLoginRewardPlayerItemsAsync(
-        Guid batchId,
-        CancellationToken cancellationToken = default);
-
-    ValueTask<OfflineLoginRewardTempUserBatch?> GetOfflineLoginRewardTempUserBatchAsync(
-        Guid batchId,
-        CancellationToken cancellationToken = default);
-    
-    ValueTask RemoveOfflineLoginRewardTempUserBatchAsync(
+    ValueTask<OfflineTempUserBatch?> GetOfflineTempUserBatchAsync(
         Guid batchId,
         CancellationToken cancellationToken = default);
 
@@ -52,12 +40,12 @@ public interface IBatchTempRepository
         IEnumerable<BatchAdjustBalanceItemResult> results,
         CancellationToken cancellation = default);
 
-    ValueTask SaveOfflineLoginRewardPlayerItemsAsync(
-        Guid batchId,
-        IEnumerable<OfflineLoginRewardPlayerItem> playerItems,
+    ValueTask<Guid> SaveOfflineTempUserBatchAsync(
+        OfflineTempUserBatch tempBatch,
         CancellationToken cancellationToken = default);
 
-    ValueTask<Guid> SaveOfflineLoginRewardTempUserBatchAsync(
-        OfflineLoginRewardTempUserBatch tempBatch,
+    ValueTask SaveProcessedOfflinePlayerItemsAsync(
+            Guid batchId,
+        OfflineUsersResult result,
         CancellationToken cancellationToken = default);
 }

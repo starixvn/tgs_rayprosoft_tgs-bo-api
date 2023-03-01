@@ -6,19 +6,19 @@ using Tgs.ServiceUtility;
 
 namespace TGS.Services.BackOffice.ApplicationServices.Promotion.Offline;
 
-internal class OfflineLoginRewardPlayerItemsQueryService
-    : IQueryService<OfflineLoginRewardPlayerItemsQuery, OfflineLoginRewardPlayerItem>
+internal class GetProcessedUsersQueryService
+    : IQueryService<GetProcessedUsersQuery, OfflinePlayerItem>
 {
     private readonly IBatchTempRepository _batchTempRepository;
 
-    public OfflineLoginRewardPlayerItemsQueryService(
+    public GetProcessedUsersQueryService(
         IBatchTempRepository batchTempRepository)
     {
         _batchTempRepository = batchTempRepository ?? throw new ArgumentNullException(nameof(batchTempRepository));
     }
 
-    public IAsyncEnumerable<OfflineLoginRewardPlayerItem> QueryAsync(
-        OfflineLoginRewardPlayerItemsQuery query,
+    public IAsyncEnumerable<OfflinePlayerItem> QueryAsync(
+        GetProcessedUsersQuery query,
         CancellationToken cancellationToken = default)
         => _batchTempRepository.GetOfflineLoginRewardPlayerItemsAsync(query.BatchId, cancellationToken);
 }

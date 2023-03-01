@@ -2,5 +2,5 @@
 
 namespace TGS.Services.BackOffice.ApplicationServices.Promotion.Offline;
 
-public record ProcessOfflineLoginRewardTempUserBatchCommand(
+public record GetPlayerCodeByBatchCommand(
     Guid BatchId);
