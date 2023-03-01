@@ -7,7 +7,7 @@ using Tgs.PlayerService.Client;
 using Tgs.ServiceUtility;
 using TGS.Services.BackOffice.Domain;
 
-namespace TGS.Services.BackOffice.ApplicationServices.Promotion.OfflineLoginReward;
+namespace TGS.Services.BackOffice.ApplicationServices.Promotion.Offline;
 
 internal class ProcessOfflineLoginRewardTempUserBatchCommandService
     : ICommandService<ProcessOfflineLoginRewardTempUserBatchCommand>
@@ -25,12 +25,13 @@ internal class ProcessOfflineLoginRewardTempUserBatchCommandService
         _batchTempRepository = batchTempRepository ?? throw new ArgumentNullException(nameof(batchTempRepository));
     }
 
-    public async ValueTask ExecuteAsync(ProcessOfflineLoginRewardTempUserBatchCommand command,
+    public async ValueTask ExecuteAsync(
+        ProcessOfflineLoginRewardTempUserBatchCommand command,
         CancellationToken cancellationToken = default)
     {
         if (!await _batchTempRepository
-                .BidOfflineLoginRewardBackgroundProcessAsync(command.BatchId, cancellationToken)
-                .ConfigureAwait(false))
+            .BidOfflineLoginRewardBackgroundProcessAsync(command.BatchId, cancellationToken)
+            .ConfigureAwait(false))
             return;
 
         var batch = await _batchTempRepository
@@ -57,7 +58,7 @@ internal class ProcessOfflineLoginRewardTempUserBatchCommandService
             .GroupBy(x => x.Group, x => x.UserName)
             .Select(g => g.ToArray())
             .ToArray();
-        
+
         var userNameMap = new ConcurrentDictionary<string, string>();
 
         var tasks = segments.Select((userNames, idx) =>
@@ -68,7 +69,7 @@ internal class ProcessOfflineLoginRewardTempUserBatchCommandService
                 var infos = await _playerInfosQueryService.QueryAsync(query, cancellationToken)
                     .ToArrayAsync(cancellationToken)
                     .ConfigureAwait(false);
-                
+
                 foreach (var info in infos)
                     _ = userNameMap.TryAdd(info.UserName, info.PlayerCode);
 
@@ -96,6 +97,6 @@ internal class ProcessOfflineLoginRewardTempUserBatchCommandService
 
         await _batchTempRepository
             .RemoveOfflineLoginRewardTempUserBatchAsync(command.BatchId, cancellationToken)
-            .ConfigureAwait(false);;
+            .ConfigureAwait(false);
     }
 }

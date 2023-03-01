@@ -4,7 +4,7 @@ using NSubstitute;
 using Tgs.PlayerService.Client;
 using Tgs.ServiceUtility;
 using TGS.Services.BackOffice.ApplicationServices;
-using TGS.Services.BackOffice.ApplicationServices.Promotion.OfflineLoginReward;
+using TGS.Services.BackOffice.ApplicationServices.Promotion.Offline;
 using TGS.Services.BackOffice.Domain;
 
 namespace TGS.Tests.BackendOffice.UnitTests;
@@ -14,9 +14,9 @@ internal class OfflineLoginRewardTests
     [Test]
     public async Task 下載Excel範本()
     {
-        var sut = new ExportOfflineLoginRewardFormTemplateCommandService();
+        var sut = new ExportOfflinePromotionFormTemplateCommandService();
 
-        var command = new ExportOfflineLoginRewardFormTemplateCommand();
+        var command = new ExportOfflinePromotionFormTemplateCommand();
 
         var actual = await sut.GetAsync(command);
 
@@ -118,7 +118,7 @@ internal class OfflineLoginRewardTests
         var fakeBatchTempRepository = Substitute.For<IBatchTempRepository>();
 
         var sut = new CheckOfflineLoginRewardBackgroundProcessCompletedQueryService(fakeBatchTempRepository);
-        
+
         var query = new CheckOfflineLoginRewardBackgroundProcessCompletedQuery(Guid.NewGuid());
 
         _ = await sut.GetAsync(query);
@@ -134,7 +134,7 @@ internal class OfflineLoginRewardTests
     public async Task 取得處理後的UserList資料()
     {
         var fakeBatchTempRepository = Substitute.For<IBatchTempRepository>();
-        
+
         var sut = new OfflineLoginRewardPlayerItemsQueryService(fakeBatchTempRepository);
 
         var query = new OfflineLoginRewardPlayerItemsQuery(Guid.NewGuid());

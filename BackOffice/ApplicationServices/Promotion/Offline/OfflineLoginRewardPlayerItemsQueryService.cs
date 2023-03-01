@@ -4,7 +4,7 @@ using System.Threading;
 using TGS.Services.BackOffice.Domain;
 using Tgs.ServiceUtility;
 
-namespace TGS.Services.BackOffice.ApplicationServices.Promotion.OfflineLoginReward;
+namespace TGS.Services.BackOffice.ApplicationServices.Promotion.Offline;
 
 internal class OfflineLoginRewardPlayerItemsQueryService
     : IQueryService<OfflineLoginRewardPlayerItemsQuery, OfflineLoginRewardPlayerItem>
@@ -19,6 +19,6 @@ internal class OfflineLoginRewardPlayerItemsQueryService
 
     public IAsyncEnumerable<OfflineLoginRewardPlayerItem> QueryAsync(
         OfflineLoginRewardPlayerItemsQuery query,
-        CancellationToken cancellationToken = default) 
+        CancellationToken cancellationToken = default)
         => _batchTempRepository.GetOfflineLoginRewardPlayerItemsAsync(query.BatchId, cancellationToken);
 }

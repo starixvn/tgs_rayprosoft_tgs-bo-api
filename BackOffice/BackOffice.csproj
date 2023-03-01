@@ -22,14 +22,14 @@
     <None Remove="Assets\batch_adjust_template.xlsx" />
     <None Remove="Assets\deposit_forms_template.xlsx" />
     <None Remove="Assets\localization_template.xlsx" />
-    <None Remove="Assets\offline_login_reward_template.xlsx" />
+    <None Remove="Assets\offline_promotion_template.xlsx" />
     <None Remove="Assets\withdraw_forms_template.xlsx" />
     <None Remove="Protos\brandservice.proto" />
   </ItemGroup>
 
   <ItemGroup>
     <EmbeddedResource Include="Assets\batch_adjust_template.xlsx" />
-    <EmbeddedResource Include="Assets\offline_login_reward_template.xlsx" />
+    <EmbeddedResource Include="Assets\offline_promotion_template.xlsx" />
     <EmbeddedResource Include="Assets\withdraw_forms_template.xlsx" />
     <EmbeddedResource Include="Assets\deposit_forms_template.xlsx" />
     <EmbeddedResource Include="Assets\localization_template.xlsx" />

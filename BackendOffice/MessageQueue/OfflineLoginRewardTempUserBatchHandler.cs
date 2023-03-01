@@ -4,7 +4,7 @@ using System.Threading.Tasks;
 using Tgs.BrandService.Protos;
 using Tgs.MessageQueue;
 using Tgs.ServiceUtility;
-using TGS.Services.BackOffice.ApplicationServices.Promotion.OfflineLoginReward;
+using TGS.Services.BackOffice.ApplicationServices.Promotion.Offline;
 
 namespace TGS.Apis.BackendOffice.MessageQueue;
 
