@@ -138,6 +138,16 @@ internal class RedisBatchTempRepository : IBatchTempRepository
             ? JsonSerializer.Deserialize<OfflineLoginRewardTempUserBatch>(value!)
             : null;
     }
+
+    public async ValueTask RemoveOfflineLoginRewardTempUserBatchAsync(
+        Guid batchId, 
+        CancellationToken cancellationToken = default)
+    {
+        var key = $"BackOffice:OfflineLoginReward:TempUserBatch:{batchId}";
+
+        await _database.KeyDeleteAsync(key).ConfigureAwait(false);
+    }
+
     public async ValueTask<Guid> SaveAdjustBalanceBatchAsync(
         IEnumerable<BatchAdjustBalanceItem> batchAdjustBalanceItems,
         CancellationToken cancellationToken = default)
