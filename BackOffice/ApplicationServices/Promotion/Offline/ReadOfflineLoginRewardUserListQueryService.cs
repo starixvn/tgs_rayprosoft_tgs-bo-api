@@ -4,7 +4,7 @@ using System.Threading;
 using ClosedXML.Excel;
 using Tgs.ServiceUtility;
 
-namespace TGS.Services.BackOffice.ApplicationServices.Promotion.OfflineLoginReward;
+namespace TGS.Services.BackOffice.ApplicationServices.Promotion.Offline;
 
 internal class ReadOfflineLoginRewardUserListQueryService : IQueryService<ReadOfflineLoginRewardUserListQuery, string>
 {

@@ -145,7 +145,7 @@ internal class RedisBatchTempRepository : IBatchTempRepository
     {
         var key = $"BackOffice:OfflineLoginReward:TempUserBatch:{batchId}";
 
-        await _database.KeyDeleteAsync(key).ConfigureAwait(false);
+        _ = await _database.KeyDeleteAsync(key).ConfigureAwait(false);
     }
 
     public async ValueTask<Guid> SaveAdjustBalanceBatchAsync(

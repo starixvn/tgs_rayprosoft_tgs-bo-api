@@ -13,7 +13,7 @@ using Tgs.ServiceUtility;
 using TGS.Apis.BackendOffice.Controllers.Messages.OfflineLoginReward;
 using TGS.Apis.BackendOffice.ViewModels;
 using TGS.Core.Models.Messages;
-using TGS.Services.BackOffice.ApplicationServices.Promotion.OfflineLoginReward;
+using TGS.Services.BackOffice.ApplicationServices.Promotion.Offline;
 using TGS.Services.BackOffice.Domain;
 using Xunit.Abstractions;
 
@@ -215,7 +215,7 @@ public class OfflineLoginRewardTests
         var channelName = Guid.NewGuid().ToString();
         var userId = Guid.NewGuid();
 
-        var fakeExportService = Substitute.For<IGetService<ExportOfflineLoginRewardFormTemplateCommand, Stream>>();
+        var fakeExportService = Substitute.For<IGetService<ExportOfflinePromotionFormTemplateCommand, Stream>>();
 
         using var web = TestBackendOfficeApplication.Builder
             .UseTestChannelServer(channelName)
@@ -235,7 +235,7 @@ public class OfflineLoginRewardTests
 
         await web.StartAsync();
 
-        var command = new ExportOfflineLoginRewardFormTemplateCommand();
+        var command = new ExportOfflinePromotionFormTemplateCommand();
 
         _ = fakeExportService
             .GetAsync(

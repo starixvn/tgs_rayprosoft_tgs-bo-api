@@ -16,9 +16,8 @@ using Tgs.ServiceUtility;
 using TGS.Apis.BackendOffice.Controllers.Messages.OfflineLoginReward;
 using TGS.Apis.BackendOffice.ViewModels;
 using TGS.Core.Models.Messages;
-using TGS.Services.BackOffice.ApplicationServices.Promotion.OfflineLoginReward;
+using TGS.Services.BackOffice.ApplicationServices.Promotion.Offline;
 using TGS.Services.BackOffice.Domain;
-
 namespace TGS.Apis.BackendOffice.Controllers;
 
 [Route("api/offline-login-reward")]
@@ -50,10 +49,10 @@ public class OfflineLoginRewardController : BaseContextController
 
     [HttpGet("template", Name = "ExportOfflineLoginRewardExcelFormTemplate")]
     public async ValueTask<FileStreamResult> ExportFormTemplateAsync(
-        [FromServices] IGetService<ExportOfflineLoginRewardFormTemplateCommand, Stream> exportService)
+        [FromServices] IGetService<ExportOfflinePromotionFormTemplateCommand, Stream> exportService)
     {
         var stream = await exportService
-            .GetAsync(new ExportOfflineLoginRewardFormTemplateCommand(), HttpContext.RequestAborted)
+            .GetAsync(new ExportOfflinePromotionFormTemplateCommand(), HttpContext.RequestAborted)
             .ConfigureAwait(false);
 
         return File(stream, "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet");
@@ -78,7 +77,7 @@ public class OfflineLoginRewardController : BaseContextController
         {
             return new UploadOfflineLoginRewardUserListResponse
             {
-                Valid =  false,
+                Valid = false,
                 Message = "Upload data is exceed 20,000"
             };
         }
@@ -94,7 +93,7 @@ public class OfflineLoginRewardController : BaseContextController
 
         await messageSender.PublishAsync(
             "tgs.bo.background.offlineloginreward.temp_user_batch",
-            request.ToByteArray(), 
+            request.ToByteArray(),
             HttpContext.RequestAborted)
             .ConfigureAwait(false);
 
@@ -125,13 +124,14 @@ public class OfflineLoginRewardController : BaseContextController
         {
             return new MessageResponse
             {
-                Valid = false, Message = $"Can't find users of batch id '{createViewModel.BatchId}'"
+                Valid = false,
+                Message = $"Can't find users of batch id '{createViewModel.BatchId}'"
             };
         }
 
         var from = new DateTimeOffset(createViewModel.From.ToDateTime(TimeOnly.MinValue), TimeSpan.FromHours(8));
         var to = new DateTimeOffset(createViewModel.To.ToDateTime(TimeOnly.MinValue), TimeSpan.FromHours(8));
-        
+
         var createInfo = new CreatePromotionMainInfo
         {
             Name = createViewModel.Name,
@@ -159,7 +159,7 @@ public class OfflineLoginRewardController : BaseContextController
             rule,
             Username,
             HttpContext.RequestAborted).ConfigureAwait(false);
-        
+
         await promotionServiceClient.SetPromotionStatusAsync(
             promotionId,
             PromotionStatus.Enabled,

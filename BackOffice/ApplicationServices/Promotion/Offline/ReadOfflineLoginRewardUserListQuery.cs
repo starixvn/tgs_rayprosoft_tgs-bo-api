@@ -1,5 +1,5 @@
 ﻿using System.IO;
 
-namespace TGS.Services.BackOffice.ApplicationServices.Promotion.OfflineLoginReward;
+namespace TGS.Services.BackOffice.ApplicationServices.Promotion.Offline;
 
 public record ReadOfflineLoginRewardUserListQuery(Stream ImportFile);

@@ -4,7 +4,7 @@ using System.Threading.Tasks;
 using Tgs.ServiceUtility;
 using TGS.Services.BackOffice.Domain;
 
-namespace TGS.Services.BackOffice.ApplicationServices.Promotion.OfflineLoginReward;
+namespace TGS.Services.BackOffice.ApplicationServices.Promotion.Offline;
 
 internal class CheckOfflineLoginRewardBackgroundProcessCompletedQueryService :
     IGetService<CheckOfflineLoginRewardBackgroundProcessCompletedQuery, bool?>
