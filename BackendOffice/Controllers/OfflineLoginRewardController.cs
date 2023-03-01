@@ -25,14 +25,6 @@ namespace TGS.Apis.BackendOffice.Controllers;
 [ApiController]
 public class OfflineLoginRewardController : BaseContextController
 {
-    private readonly ILogger<OfflineLoginRewardController> _logger;
-
-    public OfflineLoginRewardController(
-        ILogger<OfflineLoginRewardController> logger)
-    {
-        _logger = logger ?? throw new ArgumentNullException(nameof(logger));
-    }
-
     [HttpHead("{batchId}", Name = "CheckOfflineLoginRewardBackgroundProcessIsCompleted")]
     public async Task CheckBackgroundProcessIsCompletedAsync(
         [FromServices] IGetService<CheckOfflineLoginRewardBackgroundProcessCompletedQuery, bool?> checkService,
@@ -75,8 +67,6 @@ public class OfflineLoginRewardController : BaseContextController
         Guid brandId,
         [FromForm(Name = "file")] IFormFile file)
     {
-        _logger.LogInformation("start upload file");
-
         await using var fs = file.OpenReadStream();
 
         var userNames = await readService
@@ -103,12 +93,10 @@ public class OfflineLoginRewardController : BaseContextController
         };
 
         await messageSender.PublishAsync(
-                "tgs.bo.background.offlineloginreward.temp_user_batch",
-                request.ToByteArray(), 
-                HttpContext.RequestAborted)
+            "tgs.bo.background.offlineloginreward.temp_user_batch",
+            request.ToByteArray(), 
+            HttpContext.RequestAborted)
             .ConfigureAwait(false);
-
-        _logger.LogInformation("complete upload file");
 
         return new UploadOfflineLoginRewardUserListResponse
         {
@@ -117,7 +105,7 @@ public class OfflineLoginRewardController : BaseContextController
         };
     }
 
-    [HttpPost("create/{brandId}", Name = "CreateOfflineLoginRewardPromotionAsync")]
+    [HttpPost("{brandId}:create", Name = "CreateOfflineLoginRewardPromotion")]
     public async ValueTask<MessageResponse> CreatePromotionAsync(
         [FromServices] IQueryService<OfflineLoginRewardPlayerItemsQuery, OfflineLoginRewardPlayerItem> queryService,
         [FromServices] IPromotionServiceClient promotionServiceClient,
