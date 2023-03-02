@@ -3,7 +3,7 @@ using System.Collections.Generic;
 
 namespace TGS.Services.BackOffice.ApplicationServices.Promotion.Offline;
 
-public record SaveOfflineLoginRewardTempUserBatchCommand(
+public record SaveOfflineTempUserBatchCommand(
     Guid BrandId,
     IEnumerable<string> UserNames);
 

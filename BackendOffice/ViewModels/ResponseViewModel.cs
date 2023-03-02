@@ -1,4 +1,4 @@
-﻿namespace TGS.Apis.BackendOffice.Controllers.Messages;
+﻿namespace TGS.Apis.BackendOffice.ViewModels;
 
 public class ResponseViewModel<TData>
 {

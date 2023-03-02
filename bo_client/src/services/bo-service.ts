@@ -252,7 +252,7 @@ export default class BackOfficeService {
             });
     }
 
-    public uploadOfflineLoginRewardUserList(
+    public uploadOfflineUserList(
         brandId: string,
         filePath: string): Promise<uploadOfflineLoginRewardUserListResponse> {
 
@@ -268,7 +268,7 @@ export default class BackOfficeService {
         };
 
         return this.http
-            .post(`/api/offline-login-reward/${brandId}`, formData, {
+            .post(`/api/offline/${brandId}`, formData, {
                 headers: {
                     ...formData.getHeaders(),
                     "Content-Length": formData.getLengthSync()

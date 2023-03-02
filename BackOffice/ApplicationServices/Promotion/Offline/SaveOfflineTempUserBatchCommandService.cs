@@ -6,18 +6,18 @@ using TGS.Services.BackOffice.Domain;
 
 namespace TGS.Services.BackOffice.ApplicationServices.Promotion.Offline;
 
-internal class SaveOfflineLoginRewardTempUserBatchCommandService : IGetService<SaveOfflineLoginRewardTempUserBatchCommand, Guid>
+internal class SaveOfflineTempUserBatchCommandService : IGetService<SaveOfflineTempUserBatchCommand, Guid>
 {
     private readonly IBatchTempRepository _batchTempRepository;
 
-    public SaveOfflineLoginRewardTempUserBatchCommandService(
+    public SaveOfflineTempUserBatchCommandService(
         IBatchTempRepository batchTempRepository)
     {
         _batchTempRepository = batchTempRepository ?? throw new ArgumentNullException(nameof(batchTempRepository));
     }
 
     public ValueTask<Guid> GetAsync(
-        SaveOfflineLoginRewardTempUserBatchCommand command,
+        SaveOfflineTempUserBatchCommand command,
         CancellationToken cancellationToken = default)
     {
         var tempBatch = new OfflineTempUserBatch(

@@ -2,16 +2,12 @@
 using System.Linq;
 using System.Text.Json;
 using System.Threading.Tasks;
-using Google.Protobuf;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Http.Features;
 using Microsoft.AspNetCore.Mvc;
-using Tgs.BrandService.Protos;
-using Tgs.MessageQueue;
 using Tgs.Promotion;
 using Tgs.Promotion.Clients;
 using Tgs.ServiceUtility;
-using TGS.Apis.BackendOffice.Controllers.Messages.OfflineLoginReward;
 using TGS.Apis.BackendOffice.ViewModels;
 using TGS.Core.Models.Messages;
 using TGS.Services.BackOffice.ApplicationServices.Promotion.Offline;
@@ -108,52 +104,6 @@ public class OfflineLoginRewardController : BaseContextController
         return new MessageResponse
         {
             Valid = true
-        };
-    }
-
-    [HttpPost("{brandId}", Name = "ImportOfflineLoginRewardBatch")]
-    public async ValueTask<UploadOfflineLoginRewardUserListResponse> ImportOfflineLoginRewardBatchAsync(
-        [FromServices] IQueryService<ReadOfflinePromotionUserListQuery, string> readService,
-        [FromServices] IGetService<SaveOfflineLoginRewardTempUserBatchCommand, Guid> saveService,
-        [FromServices] IMessageSender messageSender,
-        Guid brandId,
-        [FromForm(Name = "file")] IFormFile file)
-    {
-        await using var fs = file.OpenReadStream();
-
-        var userNames = await readService
-            .QueryAsync(new ReadOfflinePromotionUserListQuery(fs), HttpContext.RequestAborted)
-            .ToArrayAsync(HttpContext.RequestAborted)
-            .ConfigureAwait(false);
-
-        if (userNames.Length > 20000)
-        {
-            return new UploadOfflineLoginRewardUserListResponse
-            {
-                Valid = false,
-                Message = "Upload data is exceed 20,000"
-            };
-        }
-
-        var batchId = await saveService
-            .GetAsync(new(brandId, userNames), HttpContext.RequestAborted)
-            .ConfigureAwait(false);
-
-        var request = new ProcessOfflineLoginRewardTempUserBatchRequest
-        {
-            BatchId = batchId
-        };
-
-        await messageSender.PublishAsync(
-            "tgs.bo.background.offlineloginreward.temp_user_batch",
-            request.ToByteArray(),
-            HttpContext.RequestAborted)
-            .ConfigureAwait(false);
-
-        return new UploadOfflineLoginRewardUserListResponse
-        {
-            Valid = true,
-            BatchId = batchId
         };
     }
 }

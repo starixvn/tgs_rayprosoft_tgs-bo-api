@@ -76,13 +76,13 @@ internal class OfflineLoginRewardTests
     {
         var fakeBatchTempRepository = Substitute.For<IBatchTempRepository>();
 
-        var sut = new SaveOfflineLoginRewardTempUserBatchCommandService(fakeBatchTempRepository);
+        var sut = new SaveOfflineTempUserBatchCommandService(fakeBatchTempRepository);
 
         var batchData = new OfflineTempUserBatch(
             Guid.NewGuid(),
             new[] { "user_name_1", "user_name_2" });
 
-        var command = new SaveOfflineLoginRewardTempUserBatchCommand(
+        var command = new SaveOfflineTempUserBatchCommand(
             batchData.BrandId,
             batchData.UserNames);
 

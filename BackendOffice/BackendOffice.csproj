@@ -249,6 +249,10 @@
     </EmbeddedResource>
   </ItemGroup>
 
+  <ItemGroup>
+    <Folder Include="Controllers\Messages\OfflineLoginReward\" />
+  </ItemGroup>
+
   <ProjectExtensions>
     <VisualStudio>
       <UserProperties properties_4launchsettings_1json__JsonSchema="" />
