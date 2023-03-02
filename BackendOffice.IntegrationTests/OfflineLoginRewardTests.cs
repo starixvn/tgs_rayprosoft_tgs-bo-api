@@ -186,17 +186,17 @@ public class OfflineLoginRewardTests
 
                 let svc = new BackOfficeService(instance);
 
-                return await svc.checkOfflineLoginRewardBackgroundProcessCompleted(batchId);
+                return await svc.checkOfflineBackgroundProcessIsCompleted(batchId);
             };
         """;
 
         // Act
-        await StaticNodeJSService.InvokeFromStringAsync(
+        var actual = await StaticNodeJSService.InvokeFromStringAsync<bool>(
             nodeModule,
             args: new object[] { batchId });
 
-        _ = fakeCheckService
-            .Received(1)
+        Assert.False(actual);
+        _ = fakeCheckService.Received(1)
             .GetAsync(
                 Arg.Is(new CheckOfflineLoginRewardBackgroundProcessCompletedQuery(batchId)),
                 Arg.Any<CancellationToken>());

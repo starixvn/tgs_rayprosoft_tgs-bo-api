@@ -79,6 +79,8 @@ internal class RedisBatchTempRepository : IBatchTempRepository
         Guid batchId,
         CancellationToken cancellationToken = default)
     {
+        cancellationToken.ThrowIfCancellationRequested();
+
         var key = $"BackOffice:OfflineLoginReward:PlayerItems:{batchId}";
 
         return _database.StringGetAsync(key)

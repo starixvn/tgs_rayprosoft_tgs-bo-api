@@ -2,5 +2,4 @@
 
 namespace TGS.Services.BackOffice.ApplicationServices.Promotion.Offline;
 
-public record CheckOfflineLoginRewardBackgroundProcessCompletedQuery(
-    Guid BatchId);
+public record CheckOfflineLoginRewardBackgroundProcessCompletedQuery(Guid BatchId);

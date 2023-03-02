@@ -228,10 +228,12 @@ export default class BackOfficeService {
             .then(res => res.data);
     }
 
-    public checkOfflineLoginRewardBackgroundProcessCompleted(batchId: string): Promise<void> {
+    public checkOfflineBackgroundProcessIsCompleted(batchId: string): Promise<boolean> {
         return this.http
-            .head(`/api/offline-login-reward/${batchId}`)
-            .then(res => res.data);
+            .head(`/api/offline/${batchId}`)
+            .then(res => {
+                return res.status == 200
+            });
     }
 
     public downloadOfflinePromotionFormTemplate(): Promise<{ status: number; contentType: string }> {

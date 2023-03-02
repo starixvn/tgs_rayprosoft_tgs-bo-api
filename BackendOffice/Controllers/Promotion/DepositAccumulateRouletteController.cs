@@ -14,7 +14,7 @@ using TGS.Core.Models.Messages;
 using TGS.Services.BackOffice.ApplicationServices.Promotion;
 using TGS.Services.BackOffice.Domain;
 
-namespace TGS.Apis.BackendOffice.Controllers;
+namespace TGS.Apis.BackendOffice.Controllers.Promotion;
 
 [Route("api/dar")]
 [ApiController]
