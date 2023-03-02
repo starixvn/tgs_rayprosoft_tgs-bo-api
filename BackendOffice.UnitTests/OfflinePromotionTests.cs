@@ -1,7 +1,9 @@
 ﻿using System.Reflection;
 using Microsoft.Extensions.FileProviders;
 using NSubstitute;
+using NUnit.Framework;
 using Tgs.PlayerService.Client;
+using Tgs.Promotion.Clients;
 using Tgs.ServiceUtility;
 using TGS.Services.BackOffice.ApplicationServices;
 using TGS.Services.BackOffice.ApplicationServices.Promotion.Offline;
@@ -9,7 +11,7 @@ using TGS.Services.BackOffice.Domain;
 
 namespace TGS.Tests.BackendOffice.UnitTests;
 
-internal class OfflineLoginRewardTests
+internal class OfflinePromotionTests
 {
     [Test]
     public async Task 下載Excel範本()
@@ -146,5 +148,54 @@ internal class OfflineLoginRewardTests
             .GetOfflineUsersResultAsync(
                 Arg.Is(query.BatchId),
                 Arg.Any<CancellationToken>());
+    }
+
+    [Test]
+    public async Task 建立線下儲值活動()
+    {
+        var fakePromotionServiceClient = Substitute.For<IPromotionServiceClient>();
+
+        var sut = new CreateOfflineDepositPromotionCommandService(fakePromotionServiceClient);
+
+        var command = new CreateOfflineDepositPromotionCommand(
+            Guid.NewGuid(),
+            "OfflineDeposit",
+            (DateTime.UtcNow.AddDays(1D), DateTime.UtcNow.AddDays(3D)),
+            new OfflineDepositSettings(
+                new[] { "test1", "test2" },
+                3M,
+                new OfflineDepositHierarchy(new[] {
+                    new OfflineDepositPhase(100M, 20M),
+                    new OfflineDepositPhase(500M, 50M) })),
+            "Modifier");
+
+        var expectedCreateInfo = new CreatePromotionMainInfo
+        {
+            Name = command.PromotionName,
+            EventDuring = command.EventDuring,
+            PromotionType = "OfflineDepositReward",
+            IsAutoSent = true,
+            PromotionLimitAmount = null
+        };
+        var promotionId = Guid.NewGuid();
+
+        _ = fakePromotionServiceClient.CreatePromotionAsync(
+            Arg.Is(command.BrandId),
+            Arg.Is(expectedCreateInfo),
+            Arg.Is(command.Modifier))
+            .Returns(promotionId);
+
+        await sut.ExecuteAsync(command);
+
+        _ = fakePromotionServiceClient.Received(1)
+            .SetPromotionRuleAsync(
+                Arg.Is(promotionId),
+                Arg.Is(command.DepositSettings),
+                Arg.Is(command.Modifier));
+        _ = fakePromotionServiceClient.Received(1)
+            .SetPromotionStatusAsync(
+                Arg.Is(promotionId),
+                Arg.Is(PromotionStatus.Enabled),
+                Arg.Is(command.Modifier));
     }
 }

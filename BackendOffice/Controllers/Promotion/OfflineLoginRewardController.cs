@@ -3,7 +3,6 @@ using System.Linq;
 using System.Text.Json;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Http;
-using Microsoft.AspNetCore.Http.Features;
 using Microsoft.AspNetCore.Mvc;
 using Tgs.Promotion;
 using Tgs.Promotion.Clients;
@@ -19,29 +18,6 @@ namespace TGS.Apis.BackendOffice.Controllers.Promotion;
 [ApiController]
 public class OfflineLoginRewardController : BaseContextController
 {
-    [HttpHead("{batchId}", Name = "CheckOfflineLoginRewardBackgroundProcessIsCompleted")]
-    public async Task CheckBackgroundProcessIsCompletedAsync(
-        [FromServices] IGetService<CheckOfflineLoginRewardBackgroundProcessCompletedQuery, bool?> checkService,
-        Guid batchId)
-    {
-        var query = new CheckOfflineLoginRewardBackgroundProcessCompletedQuery(batchId);
-
-        var result = await checkService
-            .GetAsync(query, HttpContext.RequestAborted)
-            .ConfigureAwait(false);
-
-        var responseFeature = HttpContext.Features.Get<IHttpResponseFeature>();
-
-        if (result == true)
-            responseFeature.StatusCode = StatusCodes.Status200OK;
-
-        if (result == false)
-            responseFeature.StatusCode = StatusCodes.Status202Accepted;
-
-        if (result is null)
-            Response.StatusCode = StatusCodes.Status204NoContent;
-    }
-
     [HttpPut("{brandId}:create", Name = "CreateOfflineLoginRewardPromotion")]
     public async ValueTask<MessageResponse> CreatePromotionAsync(
         [FromServices] IGetService<GetProcessedUsersQuery, OfflineUsersResult> queryService,

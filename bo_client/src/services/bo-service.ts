@@ -228,12 +228,10 @@ export default class BackOfficeService {
             .then(res => res.data);
     }
 
-    public checkOfflineBackgroundProcessIsCompleted(batchId: string): Promise<boolean> {
+    public checkOfflineBackgroundProcessIsCompleted(batchId: string): Promise<number> {
         return this.http
             .head(`/api/offline/${batchId}`)
-            .then(res => {
-                return res.status == 200
-            });
+            .then(res => res.status);
     }
 
     public downloadOfflinePromotionFormTemplate(): Promise<{ status: number; contentType: string }> {
@@ -276,6 +274,14 @@ export default class BackOfficeService {
                     "Content-Length": formData.getLengthSync()
                 },
             })
+            .then(res => res.data);
+    }
+
+    public createOfflineDepositRewardPromotion(
+        brandId: string,
+        request: CreateOfflineDepositRewardPromotionRequest): Promise<MessageResponse> {
+        return this.http
+            .put(`/api/offline-deposit-reward/${brandId}:create`, request)
             .then(res => res.data);
     }
 }
