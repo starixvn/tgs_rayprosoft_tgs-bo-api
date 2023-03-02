@@ -7,7 +7,6 @@ using Google.Protobuf;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Http.Features;
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.Extensions.Logging;
 using Tgs.BrandService.Protos;
 using Tgs.MessageQueue;
 using Tgs.Promotion;
@@ -18,6 +17,7 @@ using TGS.Apis.BackendOffice.ViewModels;
 using TGS.Core.Models.Messages;
 using TGS.Services.BackOffice.ApplicationServices.Promotion.Offline;
 using TGS.Services.BackOffice.Domain;
+
 namespace TGS.Apis.BackendOffice.Controllers;
 
 [Route("api/offline-login-reward")]
@@ -45,6 +45,71 @@ public class OfflineLoginRewardController : BaseContextController
 
         if (result is null)
             Response.StatusCode = StatusCodes.Status204NoContent;
+    }
+
+    [HttpPut("{brandId}:create", Name = "CreateOfflineLoginRewardPromotion")]
+    public async ValueTask<MessageResponse> CreatePromotionAsync(
+        [FromServices] IGetService<GetProcessedUsersQuery, OfflineUsersResult> queryService,
+        [FromServices] IPromotionServiceClient promotionServiceClient,
+        Guid brandId,
+        [FromBody] CreateOfflineLoginRewardPromotionViewModel createViewModel)
+    {
+        var query = new GetProcessedUsersQuery(createViewModel.BatchId);
+
+        var result = await queryService.GetAsync(
+            query,
+            HttpContext.RequestAborted).ConfigureAwait(false);
+
+        if (result is null || result.Matchs == 0)
+            return new MessageResponse
+            {
+                Valid = false,
+                Message = $"Can't find users of batch id '{createViewModel.BatchId}'"
+            };
+
+        var from = new DateTimeOffset(createViewModel.From.ToDateTime(TimeOnly.MinValue), TimeSpan.FromHours(8));
+        var to = new DateTimeOffset(createViewModel.To.ToDateTime(TimeOnly.MinValue), TimeSpan.FromHours(8));
+
+        var createInfo = new CreatePromotionMainInfo
+        {
+            Name = createViewModel.Name,
+            EventDuring = (from.UtcDateTime, to.UtcDateTime),
+            PromotionType = "OfflineLoginReward",
+            IsAutoSent = true,
+            PromotionLimitAmount = null
+        };
+
+        var promotionId = await promotionServiceClient.CreatePromotionAsync(
+            brandId,
+            createInfo,
+            Username,
+            HttpContext.RequestAborted).ConfigureAwait(false);
+
+        var rule = JsonSerializer.SerializeToDocument(new
+        {
+            createViewModel.BonusAmount,
+            createViewModel.TurnoverMultiple,
+            PlayerCodes = result.Players
+                .Where(player => player.PlayerCode is not null)
+                .Select(player => player.PlayerCode)
+        }, PromotionUtility.SerializerOptions);
+
+        await promotionServiceClient.SetPromotionRuleAsync(
+            promotionId,
+            rule,
+            Username,
+            HttpContext.RequestAborted).ConfigureAwait(false);
+
+        await promotionServiceClient.SetPromotionStatusAsync(
+            promotionId,
+            PromotionStatus.Enabled,
+            Username,
+            HttpContext.RequestAborted).ConfigureAwait(false);
+
+        return new MessageResponse
+        {
+            Valid = true
+        };
     }
 
     [HttpGet("template", Name = "ExportOfflineLoginRewardExcelFormTemplate")]
@@ -102,74 +167,6 @@ public class OfflineLoginRewardController : BaseContextController
         {
             Valid = true,
             BatchId = batchId
-        };
-    }
-
-    [HttpPost("{brandId}:create", Name = "CreateOfflineLoginRewardPromotion")]
-    public async ValueTask<MessageResponse> CreatePromotionAsync(
-        [FromServices] IQueryService<GetProcessedUsersQuery, OfflinePlayerItem> queryService,
-        [FromServices] IPromotionServiceClient promotionServiceClient,
-        Guid brandId,
-        [FromBody] CreateOfflineLoginRewardPromotionViewModel createViewModel)
-    {
-        var query = new GetProcessedUsersQuery(createViewModel.BatchId);
-
-        var players = await queryService.QueryAsync(query, HttpContext.RequestAborted)
-            .Where(item => !string.IsNullOrEmpty(item.PlayerCode))
-            .Select(item => item.PlayerCode)
-            .Distinct()
-            .ToArrayAsync(HttpContext.RequestAborted)
-            .ConfigureAwait(false);
-
-        if (players.Length == 0)
-        {
-            return new MessageResponse
-            {
-                Valid = false,
-                Message = $"Can't find users of batch id '{createViewModel.BatchId}'"
-            };
-        }
-
-        var from = new DateTimeOffset(createViewModel.From.ToDateTime(TimeOnly.MinValue), TimeSpan.FromHours(8));
-        var to = new DateTimeOffset(createViewModel.To.ToDateTime(TimeOnly.MinValue), TimeSpan.FromHours(8));
-
-        var createInfo = new CreatePromotionMainInfo
-        {
-            Name = createViewModel.Name,
-            EventDuring = (from.UtcDateTime, to.UtcDateTime),
-            PromotionType = "OfflineLoginReward",
-            IsAutoSent = true,
-            PromotionLimitAmount = null
-        };
-
-        var promotionId = await promotionServiceClient.CreatePromotionAsync(
-            brandId,
-            createInfo,
-            Username,
-            HttpContext.RequestAborted).ConfigureAwait(false);
-
-        var rule = JsonSerializer.SerializeToDocument(new
-        {
-            createViewModel.BonusAmount,
-            createViewModel.TurnoverMultiple,
-            PlayerCodes = players
-        }, PromotionUtility.SerializerOptions);
-
-        await promotionServiceClient.SetPromotionRuleAsync(
-            promotionId,
-            rule,
-            Username,
-            HttpContext.RequestAborted).ConfigureAwait(false);
-
-        await promotionServiceClient.SetPromotionStatusAsync(
-            promotionId,
-            PromotionStatus.Enabled,
-            Username,
-            HttpContext.RequestAborted).ConfigureAwait(false);
-
-        return new MessageResponse
-        {
-            Valid = true
         };
     }
 }

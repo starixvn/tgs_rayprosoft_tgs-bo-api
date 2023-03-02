@@ -23,7 +23,7 @@ public interface IBatchTempRepository
 
     ValueTask<bool?> GetBatchIsCompletedAsync(Guid batchId, CancellationToken cancellationToken = default);
 
-    IAsyncEnumerable<OfflinePlayerItem> GetOfflineLoginRewardPlayerItemsAsync(
+    ValueTask<OfflineUsersResult?> GetOfflineUsersResultAsync(
         Guid batchId,
         CancellationToken cancellationToken = default);
 

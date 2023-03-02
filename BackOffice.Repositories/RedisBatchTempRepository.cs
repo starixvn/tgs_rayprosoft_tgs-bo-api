@@ -101,8 +101,19 @@ internal class RedisBatchTempRepository : IBatchTempRepository
             : null;
     }
 
+    public async ValueTask<OfflineUsersResult?> GetOfflineUsersResultAsync(Guid batchId, CancellationToken cancellationToken = default)
+    {
+        var key = $"BackOffice:OfflinePromotion:BatchResult:{batchId}";
+
+        var content = await _database.StringGetAsync(key).ConfigureAwait(false);
+
+        var result = JsonSerializer.Deserialize<OfflineUsersResult>(content!);
+
+        return result;
+    }
+
     public async ValueTask<Guid> SaveAdjustBalanceBatchAsync(
-        IEnumerable<BatchAdjustBalanceItem> batchAdjustBalanceItems,
+            IEnumerable<BatchAdjustBalanceItem> batchAdjustBalanceItems,
         CancellationToken cancellationToken = default)
     {
         var id = Guid.NewGuid();

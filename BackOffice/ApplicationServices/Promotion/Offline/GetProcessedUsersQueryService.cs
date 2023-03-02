@@ -1,13 +1,15 @@
-﻿using System;
-using System.Collections.Generic;
+﻿#nullable enable
+
+using System;
 using System.Threading;
-using TGS.Services.BackOffice.Domain;
+using System.Threading.Tasks;
 using Tgs.ServiceUtility;
+using TGS.Services.BackOffice.Domain;
 
 namespace TGS.Services.BackOffice.ApplicationServices.Promotion.Offline;
 
 internal class GetProcessedUsersQueryService
-    : IQueryService<GetProcessedUsersQuery, OfflinePlayerItem>
+    : IGetService<GetProcessedUsersQuery, OfflineUsersResult?>
 {
     private readonly IBatchTempRepository _batchTempRepository;
 
@@ -17,8 +19,6 @@ internal class GetProcessedUsersQueryService
         _batchTempRepository = batchTempRepository ?? throw new ArgumentNullException(nameof(batchTempRepository));
     }
 
-    public IAsyncEnumerable<OfflinePlayerItem> QueryAsync(
-        GetProcessedUsersQuery query,
-        CancellationToken cancellationToken = default)
-        => _batchTempRepository.GetOfflineLoginRewardPlayerItemsAsync(query.BatchId, cancellationToken);
+    public ValueTask<OfflineUsersResult?> GetAsync(GetProcessedUsersQuery query, CancellationToken cancellationToken = default)
+        => _batchTempRepository.GetOfflineUsersResultAsync(query.BatchId, cancellationToken);
 }

@@ -143,7 +143,7 @@ internal class OfflineLoginRewardTests
 
         _ = fakeBatchTempRepository
             .Received(1)
-            .GetOfflineLoginRewardPlayerItemsAsync(
+            .GetOfflineUsersResultAsync(
                 Arg.Is(query.BatchId),
                 Arg.Any<CancellationToken>());
     }
