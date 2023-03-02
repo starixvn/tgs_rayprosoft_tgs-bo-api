@@ -1,6 +1,7 @@
 ﻿using System.Reflection;
 using System.Runtime.InteropServices;
 using System.Text.Json;
+using System.Text.Json.Nodes;
 using ExpectedObjects;
 using Jering.Javascript.NodeJS;
 using Microsoft.Extensions.DependencyInjection;
@@ -203,67 +204,6 @@ public class OfflineLoginRewardTests
             .Received(1)
             .GetAsync(
                 Arg.Is(new CheckOfflineLoginRewardBackgroundProcessCompletedQuery(batchId)),
-                Arg.Any<CancellationToken>());
-    }
-
-    [Fact]
-    public async Task 匯出Excel樣板()
-    {
-        // Arrange
-        var channelName = Guid.NewGuid().ToString();
-        var userId = Guid.NewGuid();
-
-        var fakeExportService = Substitute.For<IGetService<ExportOfflinePromotionFormTemplateCommand, Stream>>();
-
-        using var web = TestBackendOfficeApplication.Builder
-            .UseTestChannelServer(channelName)
-            .ConfigureLogging(logging => logging.AddXUnit(_testOutputHelper))
-            .ConfigureServices(services => services
-                .AddAuthentication("Fake")
-                .AddScheme<FakeAuthenticationSchemaOptions, FakeAuthenticationHandler>(
-                    "Fake",
-                    options =>
-                    {
-                        options.UserId = userId;
-                        options.UserName = "system";
-                    })
-                .Services
-                .AddSingleton(fakeExportService))
-            .Build();
-
-        await web.StartAsync();
-
-        var command = new ExportOfflinePromotionFormTemplateCommand();
-
-        _ = fakeExportService
-            .GetAsync(
-                Arg.Is(command),
-                Arg.Any<CancellationToken>())
-            .Returns(new MemoryStream());
-
-        var isWindows = RuntimeInformation.IsOSPlatform(OSPlatform.Windows) ? "true" : "false";
-
-        var nodeModule = $$"""
-            const axiosConfigFactory = require('./models/axios-configuration.js').default;
-            const BackOfficeService = require('./services/bo-service.js').default;
-
-            module.exports = async () =>
-            {
-                let instance = axiosConfigFactory("{{channelName}}", {{isWindows}});
-
-                let svc = new BackOfficeService(instance);
-
-                return await svc.exportOfflineLoginRewardFormTemplate();
-            };
-        """;
-
-        // Act
-        await StaticNodeJSService.InvokeFromStringAsync(nodeModule);
-
-        _ = fakeExportService
-            .Received(1)
-            .GetAsync(
-                Arg.Is(command),
                 Arg.Any<CancellationToken>());
     }
 

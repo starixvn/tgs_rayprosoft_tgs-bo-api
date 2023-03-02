@@ -1,5 +1,4 @@
 ﻿using System;
-using System.IO;
 using System.Linq;
 using System.Text.Json;
 using System.Threading.Tasks;
@@ -18,7 +17,7 @@ using TGS.Core.Models.Messages;
 using TGS.Services.BackOffice.ApplicationServices.Promotion.Offline;
 using TGS.Services.BackOffice.Domain;
 
-namespace TGS.Apis.BackendOffice.Controllers;
+namespace TGS.Apis.BackendOffice.Controllers.Promotion;
 
 [Route("api/offline-login-reward")]
 [ApiController]
@@ -110,18 +109,6 @@ public class OfflineLoginRewardController : BaseContextController
         {
             Valid = true
         };
-    }
-
-    [HttpGet("template", Name = "ExportOfflineLoginRewardExcelFormTemplate")]
-    [HttpGet("~/api/offline-deposit-reward/template", Name = "ExportOfflineDepositRewardExcelFormTemplate")]
-    public async ValueTask<FileStreamResult> ExportFormTemplateAsync(
-        [FromServices] IGetService<ExportOfflinePromotionFormTemplateCommand, Stream> exportService)
-    {
-        var stream = await exportService
-            .GetAsync(new ExportOfflinePromotionFormTemplateCommand(), HttpContext.RequestAborted)
-            .ConfigureAwait(false);
-
-        return File(stream, "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet");
     }
 
     [HttpPost("{brandId}", Name = "ImportOfflineLoginRewardBatch")]

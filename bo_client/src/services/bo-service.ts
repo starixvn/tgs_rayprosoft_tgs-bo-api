@@ -234,10 +234,22 @@ export default class BackOfficeService {
             .then(res => res.data);
     }
 
-    public exportOfflineLoginRewardFormTemplate(): Promise<any> {
+    public downloadOfflinePromotionFormTemplate(): Promise<{ status: number; contentType: string }> {
         return this.http
-            .get('/api/offline-login-reward/template')
-            .then(res => res.data);
+            .get('/api/offline/template')
+            .then(res => {
+                let contentType: string;
+
+                if (typeof res.headers.getContentType === 'string' || typeof res.headers.getContentType === 'undefined')
+                    contentType = res.headers.getContentType ?? '';
+                else
+                    contentType = res.headers.getContentType()?.toString() ?? '';
+
+                return {
+                    status: res.status,
+                    contentType: contentType
+                };
+            });
     }
 
     public uploadOfflineLoginRewardUserList(
