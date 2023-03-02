@@ -9,6 +9,7 @@ using NSubstitute;
 using Tgs.MessageQueue;
 using Tgs.ServiceUtility;
 using TGS.Apis.BackendOffice.ViewModels;
+using TGS.Services.BackOffice.ApplicationServices.BatchAdjust;
 using TGS.Services.BackOffice.ApplicationServices.Promotion.Offline;
 using Xunit.Abstractions;
 
@@ -179,8 +180,7 @@ public class OfflinePromotionTests
         var channelName = Guid.NewGuid().ToString();
         var userId = Guid.NewGuid();
 
-        var fakeCheckService =
-            Substitute.For<IGetService<CheckOfflineLoginRewardBackgroundProcessCompletedQuery, bool?>>();
+        var fakeCheckService = Substitute.For<IGetService<CheckBatchCompletedQuery, bool?>>();
 
         using var web = TestBackendOfficeApplication.Builder
             .UseTestChannelServer(channelName)
@@ -226,7 +226,7 @@ public class OfflinePromotionTests
         Assert.Equal(204, actual);
         _ = fakeCheckService.Received(1)
             .GetAsync(
-                Arg.Is(new CheckOfflineLoginRewardBackgroundProcessCompletedQuery(batchId)),
+                Arg.Is(new CheckBatchCompletedQuery(batchId)),
                 Arg.Any<CancellationToken>());
     }
 }

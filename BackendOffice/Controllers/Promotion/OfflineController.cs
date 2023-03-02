@@ -10,6 +10,7 @@ using Tgs.BrandService.Protos;
 using Tgs.MessageQueue;
 using Tgs.ServiceUtility;
 using TGS.Apis.BackendOffice.ViewModels;
+using TGS.Services.BackOffice.ApplicationServices.BatchAdjust;
 using TGS.Services.BackOffice.ApplicationServices.Promotion.Offline;
 
 namespace TGS.Apis.BackendOffice.Controllers.Promotion;
@@ -20,10 +21,10 @@ public class OfflineController : ControllerBase
 {
     [HttpHead("{batchId}", Name = "CheckOfflineBackgroundProcessIsCompleted")]
     public async Task CheckBackgroundProcessIsCompletedAsync(
-        [FromServices] IGetService<CheckOfflineLoginRewardBackgroundProcessCompletedQuery, bool?> checkService,
+        [FromServices] IGetService<CheckBatchCompletedQuery, bool?> checkService,
         Guid batchId)
     {
-        var query = new CheckOfflineLoginRewardBackgroundProcessCompletedQuery(batchId);
+        var query = new CheckBatchCompletedQuery(batchId);
 
         var result = await checkService
             .GetAsync(query, HttpContext.RequestAborted)

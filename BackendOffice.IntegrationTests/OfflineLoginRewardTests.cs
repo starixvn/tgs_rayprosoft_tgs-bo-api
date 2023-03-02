@@ -1,10 +1,10 @@
 ﻿using System.Runtime.InteropServices;
-using System.Text.Json;
 using Jering.Javascript.NodeJS;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
 using NSubstitute;
+using Tgs.BrandCertificate.Clients;
 using Tgs.Promotion.Clients;
 using Tgs.ServiceUtility;
 using TGS.Apis.BackendOffice.ViewModels;
@@ -33,8 +33,8 @@ public class OfflineLoginRewardTests
         var userId = Guid.NewGuid();
 
         var fakePromotionServiceClient = Substitute.For<IPromotionServiceClient>();
-        var fakePlayerItemsQueryService =
-            Substitute.For<IGetService<GetProcessedUsersQuery, OfflineUsersResult>>();
+        var fakePlayerItemsQueryService = Substitute.For<IGetService<GetProcessedUsersQuery, OfflineUsersResult>>();
+        var fakeBrandServiceClient = Substitute.For<IBrandServiceClient>();
 
         using var web = TestBackendOfficeApplication.Builder
             .UseTestChannelServer(channelName)
@@ -50,17 +50,30 @@ public class OfflineLoginRewardTests
                     })
                 .Services
                 .AddSingleton(fakePromotionServiceClient)
-                .AddSingleton(fakePlayerItemsQueryService))
+                .AddSingleton(fakePlayerItemsQueryService)
+                .AddSingleton(fakeBrandServiceClient))
             .Build();
 
         await web.StartAsync();
 
         var brandId = Guid.NewGuid();
-        var batchId = Guid.NewGuid();
-        var promotionId = Guid.NewGuid();
 
-        var from = DateOnly.Parse("2022-02-18");
-        var to = DateOnly.Parse("2022-03-06");
+        var request = new CreateOfflineLoginRewardPromotionViewModel
+        {
+            Name = "Test OfflineLoginReward",
+            BatchId = Guid.NewGuid(),
+            BonusAmount = 20m,
+            TurnoverMultiple = 1m,
+            From = DateOnly.Parse("2022-02-18"),
+            To = DateOnly.Parse("2022-03-06")
+        };
+
+        _ = fakeBrandServiceClient.GetBrandInfoAsync(Arg.Is(brandId))
+            .Returns(new BrandInfo
+            {
+                Id = brandId,
+                TimeSpanMinutes = 480
+            });
 
         var players = new[]
         {
@@ -69,19 +82,16 @@ public class OfflineLoginRewardTests
         };
 
         _ = fakePlayerItemsQueryService.GetAsync(
-            Arg.Is(new GetProcessedUsersQuery(batchId)),
+            Arg.Is(new GetProcessedUsersQuery(request.BatchId)),
             Arg.Any<CancellationToken>())
             .Returns(new OfflineUsersResult(players, 2, Array.Empty<string>()));
 
+        var promotionId = Guid.NewGuid();
         var createInfo = new CreatePromotionMainInfo
         {
             Name = "Test OfflineLoginReward",
-            EventDuring = new During
-            {
-                From =
-                    new DateTimeOffset(from.ToDateTime(TimeOnly.MinValue), TimeSpan.FromHours(8)).UtcDateTime,
-                To = new DateTimeOffset(to.ToDateTime(TimeOnly.MinValue), TimeSpan.FromHours(8)).UtcDateTime
-            },
+            EventDuring = (new DateTimeOffset(request.From.ToDateTime(TimeOnly.MinValue), TimeSpan.FromHours(8)).UtcDateTime,
+                new DateTimeOffset(request.To.ToDateTime(TimeOnly.MinValue), TimeSpan.FromHours(8)).UtcDateTime),
             PromotionType = "OfflineLoginReward",
             IsAutoSent = true,
             PromotionLimitAmount = null
@@ -110,16 +120,6 @@ public class OfflineLoginRewardTests
             };
         """;
 
-        var request = new CreateOfflineLoginRewardPromotionViewModel
-        {
-            Name = "Test OfflineLoginReward",
-            BatchId = batchId,
-            BonusAmount = 20m,
-            TurnoverMultiple = 1m,
-            From = from,
-            To = to
-        };
-
         // Act
         var actual = await StaticNodeJSService.InvokeFromStringAsync<MessageResponse>(
             nodeModule,
@@ -132,7 +132,7 @@ public class OfflineLoginRewardTests
         _ = fakePromotionServiceClient.Received(1)
             .SetPromotionRuleAsync(
                 Arg.Is(promotionId),
-                Arg.Any<JsonDocument>(),
+                Arg.Any<OfflineLoginSettings>(),
                 Arg.Any<string>(),
                 Arg.Any<CancellationToken>());
 

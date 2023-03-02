@@ -115,24 +115,6 @@ internal class OfflinePromotionTests
     }
 
     [Test]
-    public async Task 檢查背景處理狀態是否完成()
-    {
-        var fakeBatchTempRepository = Substitute.For<IBatchTempRepository>();
-
-        var sut = new CheckOfflineLoginRewardBackgroundProcessCompletedQueryService(fakeBatchTempRepository);
-
-        var query = new CheckOfflineLoginRewardBackgroundProcessCompletedQuery(Guid.NewGuid());
-
-        _ = await sut.GetAsync(query);
-
-        _ = fakeBatchTempRepository
-            .Received(1)
-            .GetBatchIsCompletedAsync(
-                Arg.Is(query.BatchId),
-                Arg.Any<CancellationToken>());
-    }
-
-    [Test]
     public async Task 取得處理後的UserList資料()
     {
         var fakeBatchTempRepository = Substitute.For<IBatchTempRepository>();
@@ -191,6 +173,53 @@ internal class OfflinePromotionTests
             .SetPromotionRuleAsync(
                 Arg.Is(promotionId),
                 Arg.Is(command.DepositSettings),
+                Arg.Is(command.Modifier));
+        _ = fakePromotionServiceClient.Received(1)
+            .SetPromotionStatusAsync(
+                Arg.Is(promotionId),
+                Arg.Is(PromotionStatus.Enabled),
+                Arg.Is(command.Modifier));
+    }
+
+    [Test]
+    public async Task 建立線下登入活動()
+    {
+        var fakePromotionServiceClient = Substitute.For<IPromotionServiceClient>();
+
+        var sut = new CreateOfflineLoginPromotionCommandService(fakePromotionServiceClient);
+
+        var command = new CreateOfflineLoginPromotionCommand(
+            Guid.NewGuid(),
+            "OfflineLogin",
+            (DateTime.UtcNow.AddDays(1D), DateTime.UtcNow.AddDays(3D)),
+            new OfflineLoginSettings(
+                10M,
+                2M,
+                new[] { "test1", "test2" }),
+            "Modifier");
+
+        var expectedCreateInfo = new CreatePromotionMainInfo
+        {
+            Name = command.PromotionName,
+            EventDuring = command.EventDuring,
+            PromotionType = "OfflineLoginReward",
+            IsAutoSent = true,
+            PromotionLimitAmount = null
+        };
+        var promotionId = Guid.NewGuid();
+
+        _ = fakePromotionServiceClient.CreatePromotionAsync(
+            Arg.Is(command.BrandId),
+            Arg.Is(expectedCreateInfo),
+            Arg.Is(command.Modifier))
+            .Returns(promotionId);
+
+        await sut.ExecuteAsync(command);
+
+        _ = fakePromotionServiceClient.Received(1)
+            .SetPromotionRuleAsync(
+                Arg.Is(promotionId),
+                Arg.Is(command.LoginSettings),
                 Arg.Is(command.Modifier));
         _ = fakePromotionServiceClient.Received(1)
             .SetPromotionStatusAsync(
