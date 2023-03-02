@@ -7,7 +7,7 @@ namespace TGS.Apis.BackendOffice.Controllers;
 [ApiController]
 public class OfflineDepositRewardController : ControllerBase
 {
-    [HttpPost]
+    [HttpPost("{brandId}", Name = "UploadOfflineDepositRewardPlayerList")]
     public void UploadPlayerList(
         Guid brandId,
         [FromForm] IFormFile playerListExcel)

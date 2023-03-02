@@ -6,10 +6,10 @@ using Tgs.ServiceUtility;
 
 namespace TGS.Services.BackOffice.ApplicationServices.Promotion.Offline;
 
-internal class ReadOfflineLoginRewardUserListQueryService : IQueryService<ReadOfflineLoginRewardUserListQuery, string>
+internal class ReadOfflinePromotionUserListQueryService : IQueryService<ReadOfflinePromotionUserListQuery, string>
 {
     public IAsyncEnumerable<string> QueryAsync(
-        ReadOfflineLoginRewardUserListQuery query,
+        ReadOfflinePromotionUserListQuery query,
         CancellationToken cancellationToken = default)
     {
         using var reader = new XLWorkbook(query.ImportFile);

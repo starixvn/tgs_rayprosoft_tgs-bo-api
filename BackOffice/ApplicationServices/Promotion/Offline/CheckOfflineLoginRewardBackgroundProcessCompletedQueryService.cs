@@ -20,5 +20,5 @@ internal class CheckOfflineLoginRewardBackgroundProcessCompletedQueryService :
     public ValueTask<bool?> GetAsync(
         CheckOfflineLoginRewardBackgroundProcessCompletedQuery query,
         CancellationToken cancellationToken = default)
-        => _batchTempRepository.GetOfflineLoginRewardBackgroundProcessIsCompletedAsync(query.BatchId, cancellationToken);
+        => _batchTempRepository.GetBatchIsCompletedAsync(query.BatchId, cancellationToken);
 }

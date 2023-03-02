@@ -20,10 +20,10 @@ internal class SaveOfflineLoginRewardTempUserBatchCommandService : IGetService<S
         SaveOfflineLoginRewardTempUserBatchCommand command,
         CancellationToken cancellationToken = default)
     {
-        var tempBatch = new OfflineLoginRewardTempUserBatch(
+        var tempBatch = new OfflineTempUserBatch(
             command.BrandId,
             command.UserNames);
 
-        return _batchTempRepository.SaveOfflineLoginRewardTempUserBatchAsync(tempBatch, cancellationToken);
+        return _batchTempRepository.SaveOfflineTempUserBatchAsync(tempBatch, cancellationToken);
     }
 }

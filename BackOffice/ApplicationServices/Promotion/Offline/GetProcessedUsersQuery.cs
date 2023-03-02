@@ -2,4 +2,4 @@
 
 namespace TGS.Services.BackOffice.ApplicationServices.Promotion.Offline;
 
-public record OfflineLoginRewardPlayerItemsQuery(Guid BatchId);
+public record GetProcessedUsersQuery(Guid BatchId);
