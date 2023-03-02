@@ -38,7 +38,7 @@ public class OfflineLoginRewardTests
 
         var fakePromotionServiceClient = Substitute.For<IPromotionServiceClient>();
         var fakePlayerItemsQueryService =
-            Substitute.For<IQueryService<GetProcessedUsersQuery, OfflinePlayerItem>>();
+            Substitute.For<IGetService<GetProcessedUsersQuery, OfflineUsersResult>>();
 
         using var web = TestBackendOfficeApplication.Builder
             .UseTestChannelServer(channelName)
@@ -72,10 +72,10 @@ public class OfflineLoginRewardTests
             new OfflinePlayerItem("player2", "username2")
         };
 
-        _ = fakePlayerItemsQueryService.QueryAsync(
-                Arg.Is(new GetProcessedUsersQuery(batchId)),
-                Arg.Any<CancellationToken>())
-            .Returns(players.ToAsyncEnumerable());
+        _ = fakePlayerItemsQueryService.GetAsync(
+            Arg.Is(new GetProcessedUsersQuery(batchId)),
+            Arg.Any<CancellationToken>())
+            .Returns(new OfflineUsersResult(players, 2, Array.Empty<string>()));
 
         var createInfo = new CreatePromotionMainInfo
         {
@@ -90,7 +90,7 @@ public class OfflineLoginRewardTests
             IsAutoSent = true,
             PromotionLimitAmount = null
         };
-        
+
         _ = fakePromotionServiceClient.CreatePromotionAsync(
                 Arg.Is(brandId),
                 Arg.Is(createInfo),
@@ -133,16 +133,14 @@ public class OfflineLoginRewardTests
         Assert.NotNull(actual);
         Assert.True(actual.Valid);
 
-        _ = fakePromotionServiceClient
-            .Received(1)
+        _ = fakePromotionServiceClient.Received(1)
             .SetPromotionRuleAsync(
                 Arg.Is(promotionId),
                 Arg.Any<JsonDocument>(),
                 Arg.Any<string>(),
                 Arg.Any<CancellationToken>());
 
-        _ = fakePromotionServiceClient
-            .Received(1)
+        _ = fakePromotionServiceClient.Received(1)
             .SetPromotionStatusAsync(
                 Arg.Is(promotionId),
                 Arg.Is(PromotionStatus.Enabled),
@@ -179,7 +177,7 @@ public class OfflineLoginRewardTests
         await web.StartAsync();
 
         var batchId = Guid.NewGuid();
-       
+
         var isWindows = RuntimeInformation.IsOSPlatform(OSPlatform.Windows) ? "true" : "false";
 
         var nodeModule = $$"""
@@ -242,7 +240,7 @@ public class OfflineLoginRewardTests
                 Arg.Is(command),
                 Arg.Any<CancellationToken>())
             .Returns(new MemoryStream());
-        
+
         var isWindows = RuntimeInformation.IsOSPlatform(OSPlatform.Windows) ? "true" : "false";
 
         var nodeModule = $$"""
@@ -305,17 +303,17 @@ public class OfflineLoginRewardTests
 
         var batchId = Guid.NewGuid();
 
-       
+
         _ = fakeReadService.QueryAsync(
                 Arg.Any<ReadOfflinePromotionUserListQuery>(),
                 Arg.Any<CancellationToken>())
             .Returns(userNames.ToAsyncEnumerable());
-        
+
         _ = fakeSaveService.GetAsync(
             Arg.Any<SaveOfflineLoginRewardTempUserBatchCommand>(),
             Arg.Any<CancellationToken>())
             .Returns(batchId);
-        
+
         var isWindows = RuntimeInformation.IsOSPlatform(OSPlatform.Windows) ? "true" : "false";
 
         var nodeModule = $$"""
@@ -343,7 +341,7 @@ public class OfflineLoginRewardTests
         var actual = await StaticNodeJSService.InvokeFromStringAsync<UploadOfflineLoginRewardUserListResponse>(
             nodeModule,
             args: new object[] { brandId, filePath });
-        
+
         expected.ToExpectedObject().ShouldEqual(actual);
 
         _ = fakeMessageSender

@@ -139,7 +139,7 @@ internal class OfflineLoginRewardTests
 
         var query = new GetProcessedUsersQuery(Guid.NewGuid());
 
-        _ = await sut.QueryAsync(query).ToArrayAsync();
+        _ = await sut.GetAsync(query);
 
         _ = fakeBatchTempRepository
             .Received(1)
