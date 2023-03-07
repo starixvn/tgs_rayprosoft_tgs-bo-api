@@ -6,19 +6,24 @@ using TGS.Services.BackOffice.Domain;
 
 namespace TGS.Services.BackOffice.ApplicationServices.Promotion.Offline;
 
-internal class CheckOfflineLoginRewardBackgroundProcessCompletedQueryService :
-    IGetService<CheckOfflineLoginRewardBackgroundProcessCompletedQuery, bool?>
+internal class SaveOfflineTempUserBatchCommandService : IGetService<SaveOfflineTempUserBatchCommand, Guid>
 {
     private readonly IBatchTempRepository _batchTempRepository;
 
-    public CheckOfflineLoginRewardBackgroundProcessCompletedQueryService(
+    public SaveOfflineTempUserBatchCommandService(
         IBatchTempRepository batchTempRepository)
     {
         _batchTempRepository = batchTempRepository ?? throw new ArgumentNullException(nameof(batchTempRepository));
     }
 
-    public ValueTask<bool?> GetAsync(
-        CheckOfflineLoginRewardBackgroundProcessCompletedQuery query,
+    public ValueTask<Guid> GetAsync(
+        SaveOfflineTempUserBatchCommand command,
         CancellationToken cancellationToken = default)
-        => _batchTempRepository.GetBatchIsCompletedAsync(query.BatchId, cancellationToken);
+    {
+        var tempBatch = new OfflineTempUserBatch(
+            command.BrandId,
+            command.UserNames);
+
+        return _batchTempRepository.SaveOfflineTempUserBatchAsync(tempBatch, cancellationToken);
+    }
 }

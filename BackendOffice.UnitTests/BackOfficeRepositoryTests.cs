@@ -32,10 +32,10 @@ public class BackOfficeRepositoryTests
             0,
             0,
             0,
-            TimeSpan.FromHours(8));
+            TimeSpan.FromHours(8)).ToUniversalTime();
 
         _ = moqSystemClock
-            .Setup(fake => fake.UtcNow)
+            .Setup(expression: fake => fake.UtcNow)
             .Returns(currentTime);
 
         await dbContext.Banners.AddRangeAsync(
@@ -110,7 +110,7 @@ public class BackOfficeRepositoryTests
             0,
             0,
             0,
-            TimeSpan.FromHours(8));
+            TimeSpan.FromHours(8)).ToUniversalTime();
 
         _ = moqSystemClock
             .Setup(fake => fake.UtcNow)
@@ -210,7 +210,7 @@ public class BackOfficeRepositoryTests
             0,
             0,
             0,
-            TimeSpan.FromHours(8));
+            TimeSpan.FromHours(8)).ToUniversalTime();
 
         _ = moqSystemClock
             .Setup(fake => fake.UtcNow)

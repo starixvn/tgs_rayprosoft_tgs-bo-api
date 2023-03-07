@@ -75,19 +75,6 @@ internal class RedisBatchTempRepository : IBatchTempRepository
         return value.HasValue ? value == "Completed" : null;
     }
 
-    public IAsyncEnumerable<OfflinePlayerItem> GetOfflineLoginRewardPlayerItemsAsync(
-        Guid batchId,
-        CancellationToken cancellationToken = default)
-    {
-        var key = $"BackOffice:OfflineLoginReward:PlayerItems:{batchId}";
-
-        return _database.StringGetAsync(key)
-            .ToAsyncEnumerable()
-            .Select(value => JsonSerializer.Deserialize<OfflinePlayerItem[]>(value!))
-            .Where(arr => arr is not null)
-            .SelectMany(arr => arr!.ToAsyncEnumerable());
-    }
-
     public async ValueTask<OfflineTempUserBatch?> GetOfflineTempUserBatchAsync(
         Guid batchId,
         CancellationToken cancellationToken = default)

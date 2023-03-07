@@ -4,7 +4,7 @@ using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
 using NSubstitute;
-using TGS.Apis.BackendOffice.Controllers.Messages;
+using TGS.Apis.BackendOffice.ViewModels;
 using TGS.Services.BackOffice.Domain;
 using Xunit.Abstractions;
 

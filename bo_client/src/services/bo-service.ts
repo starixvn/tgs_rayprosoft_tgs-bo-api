@@ -228,19 +228,31 @@ export default class BackOfficeService {
             .then(res => res.data);
     }
 
-    public checkOfflineLoginRewardBackgroundProcessCompleted(batchId: string): Promise<void> {
+    public checkOfflineBackgroundProcessIsCompleted(batchId: string): Promise<number> {
         return this.http
-            .head(`/api/offline-login-reward/${batchId}`)
-            .then(res => res.data);
+            .head(`/api/offline/${batchId}`)
+            .then(res => res.status);
     }
 
-    public exportOfflineLoginRewardFormTemplate(): Promise<any> {
+    public downloadOfflinePromotionFormTemplate(): Promise<{ status: number; contentType: string }> {
         return this.http
-            .get('/api/offline-login-reward/template')
-            .then(res => res.data);
+            .get('/api/offline/template')
+            .then(res => {
+                let contentType: string;
+
+                if (typeof res.headers.getContentType === 'string' || typeof res.headers.getContentType === 'undefined')
+                    contentType = res.headers.getContentType ?? '';
+                else
+                    contentType = res.headers.getContentType()?.toString() ?? '';
+
+                return {
+                    status: res.status,
+                    contentType: contentType
+                };
+            });
     }
 
-    public uploadOfflineLoginRewardUserList(
+    public uploadOfflineUserList(
         brandId: string,
         filePath: string): Promise<uploadOfflineLoginRewardUserListResponse> {
 
@@ -256,12 +268,20 @@ export default class BackOfficeService {
         };
 
         return this.http
-            .post(`/api/offline-login-reward/${brandId}`, formData, {
+            .post(`/api/offline/${brandId}`, formData, {
                 headers: {
                     ...formData.getHeaders(),
                     "Content-Length": formData.getLengthSync()
                 },
             })
+            .then(res => res.data);
+    }
+
+    public createOfflineDepositRewardPromotion(
+        brandId: string,
+        request: CreateOfflineDepositRewardPromotionRequest): Promise<MessageResponse> {
+        return this.http
+            .put(`/api/offline-deposit-reward/${brandId}:create`, request)
             .then(res => res.data);
     }
 }

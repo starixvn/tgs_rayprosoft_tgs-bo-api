@@ -1,16 +1,12 @@
-﻿using System.Reflection;
-using System.Runtime.InteropServices;
-using System.Text.Json;
-using ExpectedObjects;
+﻿using System.Runtime.InteropServices;
 using Jering.Javascript.NodeJS;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
 using NSubstitute;
-using Tgs.MessageQueue;
+using Tgs.BrandCertificate.Clients;
 using Tgs.Promotion.Clients;
 using Tgs.ServiceUtility;
-using TGS.Apis.BackendOffice.Controllers.Messages.OfflineLoginReward;
 using TGS.Apis.BackendOffice.ViewModels;
 using TGS.Core.Models.Messages;
 using TGS.Services.BackOffice.ApplicationServices.Promotion.Offline;
@@ -37,8 +33,8 @@ public class OfflineLoginRewardTests
         var userId = Guid.NewGuid();
 
         var fakePromotionServiceClient = Substitute.For<IPromotionServiceClient>();
-        var fakePlayerItemsQueryService =
-            Substitute.For<IGetService<GetProcessedUsersQuery, OfflineUsersResult>>();
+        var fakePlayerItemsQueryService = Substitute.For<IGetService<GetProcessedUsersQuery, OfflineUsersResult>>();
+        var fakeBrandServiceClient = Substitute.For<IBrandServiceClient>();
 
         using var web = TestBackendOfficeApplication.Builder
             .UseTestChannelServer(channelName)
@@ -54,17 +50,30 @@ public class OfflineLoginRewardTests
                     })
                 .Services
                 .AddSingleton(fakePromotionServiceClient)
-                .AddSingleton(fakePlayerItemsQueryService))
+                .AddSingleton(fakePlayerItemsQueryService)
+                .AddSingleton(fakeBrandServiceClient))
             .Build();
 
         await web.StartAsync();
 
         var brandId = Guid.NewGuid();
-        var batchId = Guid.NewGuid();
-        var promotionId = Guid.NewGuid();
 
-        var from = DateOnly.Parse("2022-02-18");
-        var to = DateOnly.Parse("2022-03-06");
+        var request = new CreateOfflineLoginRewardPromotionViewModel
+        {
+            Name = "Test OfflineLoginReward",
+            BatchId = Guid.NewGuid(),
+            BonusAmount = 20m,
+            TurnoverMultiple = 1m,
+            From = DateOnly.Parse("2022-02-18"),
+            To = DateOnly.Parse("2022-03-06")
+        };
+
+        _ = fakeBrandServiceClient.GetBrandInfoAsync(Arg.Is(brandId))
+            .Returns(new BrandInfo
+            {
+                Id = brandId,
+                TimeSpanMinutes = 480
+            });
 
         var players = new[]
         {
@@ -73,19 +82,16 @@ public class OfflineLoginRewardTests
         };
 
         _ = fakePlayerItemsQueryService.GetAsync(
-            Arg.Is(new GetProcessedUsersQuery(batchId)),
+            Arg.Is(new GetProcessedUsersQuery(request.BatchId)),
             Arg.Any<CancellationToken>())
             .Returns(new OfflineUsersResult(players, 2, Array.Empty<string>()));
 
+        var promotionId = Guid.NewGuid();
         var createInfo = new CreatePromotionMainInfo
         {
             Name = "Test OfflineLoginReward",
-            EventDuring = new During
-            {
-                From =
-                    new DateTimeOffset(from.ToDateTime(TimeOnly.MinValue), TimeSpan.FromHours(8)).UtcDateTime,
-                To = new DateTimeOffset(to.ToDateTime(TimeOnly.MinValue), TimeSpan.FromHours(8)).UtcDateTime
-            },
+            EventDuring = (new DateTimeOffset(request.From.ToDateTime(TimeOnly.MinValue), TimeSpan.FromHours(8)).UtcDateTime,
+                new DateTimeOffset(request.To.ToDateTime(TimeOnly.MinValue), TimeSpan.FromHours(8)).UtcDateTime),
             PromotionType = "OfflineLoginReward",
             IsAutoSent = true,
             PromotionLimitAmount = null
@@ -114,16 +120,6 @@ public class OfflineLoginRewardTests
             };
         """;
 
-        var request = new CreateOfflineLoginRewardPromotionViewModel
-        {
-            Name = "Test OfflineLoginReward",
-            BatchId = batchId,
-            BonusAmount = 20m,
-            TurnoverMultiple = 1m,
-            From = from,
-            To = to
-        };
-
         // Act
         var actual = await StaticNodeJSService.InvokeFromStringAsync<MessageResponse>(
             nodeModule,
@@ -136,7 +132,7 @@ public class OfflineLoginRewardTests
         _ = fakePromotionServiceClient.Received(1)
             .SetPromotionRuleAsync(
                 Arg.Is(promotionId),
-                Arg.Any<JsonDocument>(),
+                Arg.Any<OfflineLoginSettings>(),
                 Arg.Any<string>(),
                 Arg.Any<CancellationToken>());
 
@@ -146,209 +142,5 @@ public class OfflineLoginRewardTests
                 Arg.Is(PromotionStatus.Enabled),
                 Arg.Any<string>(),
                 Arg.Any<CancellationToken>());
-    }
-
-    [Fact]
-    public async Task 檢查背景執行狀態()
-    {
-        // Arrange
-        var channelName = Guid.NewGuid().ToString();
-        var userId = Guid.NewGuid();
-
-        var fakeCheckService =
-            Substitute.For<IGetService<CheckOfflineLoginRewardBackgroundProcessCompletedQuery, bool?>>();
-
-        using var web = TestBackendOfficeApplication.Builder
-            .UseTestChannelServer(channelName)
-            .ConfigureLogging(logging => logging.AddXUnit(_testOutputHelper))
-            .ConfigureServices(services => services
-                .AddAuthentication("Fake")
-                .AddScheme<FakeAuthenticationSchemaOptions, FakeAuthenticationHandler>(
-                    "Fake",
-                    options =>
-                    {
-                        options.UserId = userId;
-                        options.UserName = "system";
-                    })
-                .Services
-                .AddSingleton(fakeCheckService))
-            .Build();
-
-        await web.StartAsync();
-
-        var batchId = Guid.NewGuid();
-
-        var isWindows = RuntimeInformation.IsOSPlatform(OSPlatform.Windows) ? "true" : "false";
-
-        var nodeModule = $$"""
-            const axiosConfigFactory = require('./models/axios-configuration.js').default;
-            const BackOfficeService = require('./services/bo-service.js').default;
-
-            module.exports = async (batchId) =>
-            {
-                let instance = axiosConfigFactory("{{channelName}}", {{isWindows}});
-
-                let svc = new BackOfficeService(instance);
-
-                return await svc.checkOfflineLoginRewardBackgroundProcessCompleted(batchId);
-            };
-        """;
-
-        // Act
-        await StaticNodeJSService.InvokeFromStringAsync(
-            nodeModule,
-            args: new object[] { batchId });
-
-        _ = fakeCheckService
-            .Received(1)
-            .GetAsync(
-                Arg.Is(new CheckOfflineLoginRewardBackgroundProcessCompletedQuery(batchId)),
-                Arg.Any<CancellationToken>());
-    }
-
-    [Fact]
-    public async Task 匯出Excel樣板()
-    {
-        // Arrange
-        var channelName = Guid.NewGuid().ToString();
-        var userId = Guid.NewGuid();
-
-        var fakeExportService = Substitute.For<IGetService<ExportOfflinePromotionFormTemplateCommand, Stream>>();
-
-        using var web = TestBackendOfficeApplication.Builder
-            .UseTestChannelServer(channelName)
-            .ConfigureLogging(logging => logging.AddXUnit(_testOutputHelper))
-            .ConfigureServices(services => services
-                .AddAuthentication("Fake")
-                .AddScheme<FakeAuthenticationSchemaOptions, FakeAuthenticationHandler>(
-                    "Fake",
-                    options =>
-                    {
-                        options.UserId = userId;
-                        options.UserName = "system";
-                    })
-                .Services
-                .AddSingleton(fakeExportService))
-            .Build();
-
-        await web.StartAsync();
-
-        var command = new ExportOfflinePromotionFormTemplateCommand();
-
-        _ = fakeExportService
-            .GetAsync(
-                Arg.Is(command),
-                Arg.Any<CancellationToken>())
-            .Returns(new MemoryStream());
-
-        var isWindows = RuntimeInformation.IsOSPlatform(OSPlatform.Windows) ? "true" : "false";
-
-        var nodeModule = $$"""
-            const axiosConfigFactory = require('./models/axios-configuration.js').default;
-            const BackOfficeService = require('./services/bo-service.js').default;
-
-            module.exports = async () =>
-            {
-                let instance = axiosConfigFactory("{{channelName}}", {{isWindows}});
-
-                let svc = new BackOfficeService(instance);
-
-                return await svc.exportOfflineLoginRewardFormTemplate();
-            };
-        """;
-
-        // Act
-        await StaticNodeJSService.InvokeFromStringAsync(nodeModule);
-
-        _ = fakeExportService
-            .Received(1)
-            .GetAsync(
-                Arg.Is(command),
-                Arg.Any<CancellationToken>());
-    }
-
-    [Fact]
-    public async Task 上傳名單()
-    {
-        // Arrange
-        var channelName = Guid.NewGuid().ToString();
-        var userId = Guid.NewGuid();
-
-        var fakeReadService = Substitute.For<IQueryService<ReadOfflinePromotionUserListQuery, string>>();
-        var fakeSaveService = Substitute.For<IGetService<SaveOfflineLoginRewardTempUserBatchCommand, Guid>>();
-        var fakeMessageSender = Substitute.For<IMessageSender>();
-
-        using var web = TestBackendOfficeApplication.Builder
-            .UseTestChannelServer(channelName)
-            .ConfigureLogging(logging => logging.AddXUnit(_testOutputHelper))
-            .ConfigureServices(services => services
-                .AddAuthentication("Fake")
-                .AddScheme<FakeAuthenticationSchemaOptions, FakeAuthenticationHandler>(
-                    "Fake",
-                    options =>
-                    {
-                        options.UserId = userId;
-                        options.UserName = "system";
-                    })
-                .Services
-                .AddSingleton(fakeReadService)
-                .AddSingleton(fakeSaveService)
-                .AddSingleton(fakeMessageSender))
-            .Build();
-
-        await web.StartAsync();
-
-        var brandId = Guid.NewGuid();
-        var userNames = new[] { "username1", "username2" };
-
-        var batchId = Guid.NewGuid();
-
-
-        _ = fakeReadService.QueryAsync(
-                Arg.Any<ReadOfflinePromotionUserListQuery>(),
-                Arg.Any<CancellationToken>())
-            .Returns(userNames.ToAsyncEnumerable());
-
-        _ = fakeSaveService.GetAsync(
-            Arg.Any<SaveOfflineLoginRewardTempUserBatchCommand>(),
-            Arg.Any<CancellationToken>())
-            .Returns(batchId);
-
-        var isWindows = RuntimeInformation.IsOSPlatform(OSPlatform.Windows) ? "true" : "false";
-
-        var nodeModule = $$"""
-            const axiosConfigFactory = require('./models/axios-configuration.js').default;
-            const BackOfficeService = require('./services/bo-service.js').default;
-
-            module.exports = async (brandId, filePath) =>
-            {
-                let instance = axiosConfigFactory("{{channelName}}", {{isWindows}});
-
-                let svc = new BackOfficeService(instance);                                    
-                return await svc.uploadOfflineLoginRewardUserList(brandId, filePath);                
-            };
-        """;
-
-        var expected = new UploadOfflineLoginRewardUserListResponse
-        {
-            Valid = true,
-            BatchId = batchId
-        };
-
-        var filePath = Path.Combine(Directory.GetCurrentDirectory(), "Assets/TestOfflineLoginReward.xlsx");
-
-        // Act
-        var actual = await StaticNodeJSService.InvokeFromStringAsync<UploadOfflineLoginRewardUserListResponse>(
-            nodeModule,
-            args: new object[] { brandId, filePath });
-
-        expected.ToExpectedObject().ShouldEqual(actual);
-
-        _ = fakeMessageSender
-            .Received(1)
-            .PublishAsync(
-            Arg.Is("tgs.bo.background.offlineloginreward.temp_user_batch"),
-            Arg.Any<ReadOnlyMemory<byte>>(),
-            Arg.Any<CancellationToken>());
     }
 }

@@ -132,9 +132,9 @@ builder.Services
         .AddHandler<BatchAdjustBalanceHandler>(
             "tgs.bo.background.adjust_batch",
             "tgs.bo.background.adjust_batch")
-        .AddHandler<OfflineLoginRewardTempUserBatchHandler>(
-            "tgs.bo.background.offlineloginreward.temp_user_batch",
-            "tgs.bo.background.offlineloginreward.temp_user_batch")
+        .AddHandler<ProcessOfflineTempUserBatchHandler>(
+            "tgs.bo.background.offline-promotion",
+            "tgs.bo.background.offline-promotion")
         .AddHandler<BackgroundNotifyHandler>("tgs.bo.notify")
         .AddHandler<CleanBucketsHandler>("tgs.bucket.clean-form.created", "tgs.bo.clean-form"))
     .AddNatsGlobPatternExchange("*");

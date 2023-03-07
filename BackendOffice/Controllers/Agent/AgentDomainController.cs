@@ -4,7 +4,7 @@ using System.Linq;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Mvc;
 using Tgs.ServiceUtility;
-using TGS.Apis.BackendOffice.Controllers.Messages;
+using TGS.Apis.BackendOffice.ViewModels;
 using TGS.Services.BackOffice.ApplicationServices;
 using TGS.Services.BackOffice.ApplicationServices.Agents;
 
