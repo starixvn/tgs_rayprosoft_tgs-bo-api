@@ -105,9 +105,13 @@ internal class ProcessBatchCommandService : ICommandService<ProcessBatchCommand>
             Value = "BatchAdjustBalance"
         });
 
-        await _messageSender.SendAsync(
+        _logger.LogDebug("Notify begin publish.");
+
+        await _messageSender.PublishAsync(
             "tgs.bo.notify",
             notifyEvent.ToByteArray(),
             cancellationToken).ConfigureAwait(false);
+
+        _logger.LogDebug("Notify published. {evt}", notifyEvent);
     }
 }
