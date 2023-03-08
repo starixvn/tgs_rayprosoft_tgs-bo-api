@@ -123,7 +123,7 @@ public class BatchAdjustTests
             .CompleteBatchAsync(Arg.Is(command.BatchId));
 
         _ = fakeMessageSender.Received(1)
-            .SendAsync(
+            .PublishAsync(
                 Arg.Is("tgs.bo.notify"),
                 Arg.Any<ReadOnlyMemory<byte>>());
     }
@@ -172,11 +172,13 @@ public class BatchAdjustTests
 
         var sut = new SaveBatchCommandService(fakeBatchTempRepository);
 
-        var command = new SaveBatchCommand(Array.Empty<BatchAdjustBalanceItem>().ToAsyncEnumerable());
+        var command = new SaveBatchCommand(Array.Empty<BatchAdjustBalanceItem>().ToAsyncEnumerable(), "testToken");
 
         _ = await sut.GetAsync(command);
 
         _ = fakeBatchTempRepository.Received(1)
-            .SaveAdjustBalanceBatchAsync(Arg.Any<IEnumerable<BatchAdjustBalanceItem>>());
+            .SaveAdjustBalanceBatchAsync(
+                Arg.Any<IEnumerable<BatchAdjustBalanceItem>>(),
+                Arg.Is(command.ClientToken));
     }
 }

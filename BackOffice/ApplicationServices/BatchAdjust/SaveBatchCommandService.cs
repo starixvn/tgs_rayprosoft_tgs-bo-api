@@ -17,5 +17,8 @@ internal class SaveBatchCommandService : IGetService<SaveBatchCommand, Guid>
     }
 
     public ValueTask<Guid> GetAsync(SaveBatchCommand query, CancellationToken cancellationToken = default)
-        => _batchTempRepository.SaveAdjustBalanceBatchAsync(query.Batch.ToEnumerable(), cancellationToken);
+        => _batchTempRepository.SaveAdjustBalanceBatchAsync(
+            query.Batch.ToEnumerable(),
+            query.ClientToken,
+            cancellationToken);
 }

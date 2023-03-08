@@ -39,6 +39,10 @@ internal class ProcessBatchCommandService : ICommandService<ProcessBatchCommand>
             .ConfigureAwait(false))
             return;
 
+        var clientToken = await _batchTempRepository.GetAdjustBalanceBatchClientTokenAsync(
+            command.BatchId,
+            cancellationToken).ConfigureAwait(false);
+
         var batch = await _batchTempRepository.GetAdjustBalanceBatchAsync(command.BatchId, cancellationToken)
             .Select(async item =>
             {
@@ -86,7 +90,13 @@ internal class ProcessBatchCommandService : ICommandService<ProcessBatchCommand>
 
         var notifyEvent = new NotifyEvent
         {
-            Data = JsonSerializer.Serialize(command.BatchId)
+            Data = JsonSerializer.Serialize(
+                new
+                {
+                    command.BatchId,
+                    ClientToken = clientToken
+                },
+                BackOfficeUtility.SerializerOptions)
         };
 
         notifyEvent.Tags.Add(new Tag
