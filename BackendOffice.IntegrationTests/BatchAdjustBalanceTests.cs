@@ -164,6 +164,7 @@ public class BatchAdjustBalanceTests
         fakeBatchTempRepository.When(
             fake => fake.SaveAdjustBalanceBatchAsync(
                 Arg.Any<IEnumerable<BatchAdjustBalanceItem>>(),
+                Arg.Any<string>(),
                 Arg.Any<CancellationToken>()))
             .Do(callInfo =>
             {
@@ -181,6 +182,7 @@ public class BatchAdjustBalanceTests
         _ = fakeBatchTempRepository.Received(1)
             .SaveAdjustBalanceBatchAsync(
                 Arg.Any<IEnumerable<BatchAdjustBalanceItem>>(),
+                Arg.Any<string>(),
                 Arg.Any<CancellationToken>());
     }
 

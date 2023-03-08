@@ -46,13 +46,20 @@ internal class RedisBatchTempRepository : IBatchTempRepository
 
     public IAsyncEnumerable<BatchAdjustBalanceItem> GetAdjustBalanceBatchAsync(Guid batchId, CancellationToken cancellationToken = default)
     {
-        var key = $"BackOffice:AdjustBalance:Batch:{batchId}";
+        var key = new RedisKey($"BackOffice:AdjustBalance:Batch:{batchId}");
 
         return _database.StringGetAsync(key)
             .ToAsyncEnumerable()
             .Select(value => JsonSerializer.Deserialize<BatchAdjustBalanceItem[]>(value!))
             .Where(arr => arr is not null)
             .SelectMany(arr => arr!.ToAsyncEnumerable());
+    }
+
+    public async ValueTask<string?> GetAdjustBalanceBatchClientTokenAsync(Guid batchId, CancellationToken cancellationToken = default)
+    {
+        var key = new RedisKey($"BackOffice:AdjustBalance:Batch:{batchId}:Client");
+
+        return await _database.StringGetAsync(key).ConfigureAwait(false);
     }
 
     public IAsyncEnumerable<BatchAdjustBalanceItemResult> GetAdjustBalanceItemResultsAsync(Guid batchId, CancellationToken cancellationToken = default)
@@ -100,12 +107,20 @@ internal class RedisBatchTempRepository : IBatchTempRepository
     }
 
     public async ValueTask<Guid> SaveAdjustBalanceBatchAsync(
-            IEnumerable<BatchAdjustBalanceItem> batchAdjustBalanceItems,
+        IEnumerable<BatchAdjustBalanceItem> batchAdjustBalanceItems,
+        string? clientToken,
         CancellationToken cancellationToken = default)
     {
         var id = Guid.NewGuid();
 
-        var key = $"BackOffice:AdjustBalance:Batch:{id}";
+        var key = new RedisKey($"BackOffice:AdjustBalance:Batch:{id}");
+
+        if (!string.IsNullOrWhiteSpace(clientToken))
+            _ = await _database.StringSetAsync(
+                key.Append("Client"),
+                clientToken,
+                expiry: TimeSpan.FromHours(1D),
+                when: When.NotExists).ConfigureAwait(false);
 
         var content = JsonSerializer.Serialize(batchAdjustBalanceItems);
 

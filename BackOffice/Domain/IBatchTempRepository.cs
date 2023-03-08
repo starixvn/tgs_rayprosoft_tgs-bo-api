@@ -17,22 +17,25 @@ public interface IBatchTempRepository
         Guid batchId,
         CancellationToken cancellationToken = default);
 
+    ValueTask<string?> GetAdjustBalanceBatchClientTokenAsync(Guid batchId, CancellationToken cancellationToken = default);
+
     IAsyncEnumerable<BatchAdjustBalanceItemResult> GetAdjustBalanceItemResultsAsync(
         Guid batchId,
         CancellationToken cancellationToken = default);
 
     ValueTask<bool?> GetBatchIsCompletedAsync(Guid batchId, CancellationToken cancellationToken = default);
 
-    ValueTask<OfflineUsersResult?> GetOfflineUsersResultAsync(
-        Guid batchId,
-        CancellationToken cancellationToken = default);
-
     ValueTask<OfflineTempUserBatch?> GetOfflineTempUserBatchAsync(
         Guid batchId,
         CancellationToken cancellationToken = default);
 
+    ValueTask<OfflineUsersResult?> GetOfflineUsersResultAsync(
+            Guid batchId,
+        CancellationToken cancellationToken = default);
+
     ValueTask<Guid> SaveAdjustBalanceBatchAsync(
         IEnumerable<BatchAdjustBalanceItem> batchAdjustBalanceItems,
+        string? clientToken,
         CancellationToken cancellationToken = default);
 
     ValueTask SaveAdjustBalanceBatchResultAsync(

@@ -1,4 +1,6 @@
-﻿using System;
+﻿#nullable enable
+
+using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
@@ -31,7 +33,7 @@ public class BatchAdjustBalanceController : BaseContextController
             .GetAsync(query, HttpContext.RequestAborted)
             .ConfigureAwait(false);
 
-        var responseFeature = HttpContext.Features.Get<IHttpResponseFeature>();
+        var responseFeature = HttpContext.Features.Get<IHttpResponseFeature>()!;
 
         if (result == true)
             responseFeature.StatusCode = StatusCodes.Status200OK;
@@ -67,11 +69,12 @@ public class BatchAdjustBalanceController : BaseContextController
             });
     }
 
-    [HttpPost("{brandId}")]
+    [HttpPost("{brandId}/{clientToken?}")]
     public async Task<Guid> ImportBatchAsync(
         [FromServices] IQueryService<ReadBatchAdjustItemsQuery, BatchAdjustBalanceItem> readService,
         [FromServices] IGetService<SaveBatchCommand, Guid> saveService,
         Guid brandId,
+        string? clientToken,
         [FromForm(Name = "file")] IFormFile file)
     {
         await using var fs = file.OpenReadStream();
@@ -81,7 +84,7 @@ public class BatchAdjustBalanceController : BaseContextController
         var items = readService.QueryAsync(query, HttpContext.RequestAborted);
 
         return await saveService
-            .GetAsync(new(items), HttpContext.RequestAborted)
+            .GetAsync(new(items, clientToken), HttpContext.RequestAborted)
             .ConfigureAwait(false);
     }
 
