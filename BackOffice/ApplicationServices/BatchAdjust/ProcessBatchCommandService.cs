@@ -91,11 +91,7 @@ internal class ProcessBatchCommandService : ICommandService<ProcessBatchCommand>
         var notifyEvent = new NotifyEvent
         {
             Data = JsonSerializer.Serialize(
-                new
-                {
-                    command.BatchId,
-                    ClientToken = clientToken
-                },
+                new BatchAdjustBalanceNotifyBody(command.BatchId, clientToken),
                 BackOfficeUtility.SerializerOptions)
         };
 
