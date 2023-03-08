@@ -93,6 +93,7 @@ builder.Services
     .AddSignalR();
 
 builder.Services
+    .AddHostedService<BatchAdjustNotifyConsumer>()
     .AddValidatorsFromAssembly(Assembly.GetExecutingAssembly())
     .AddBackendOfficeServices(builder.Configuration)
     .AddBackendOfficeRepositories(sp => sp

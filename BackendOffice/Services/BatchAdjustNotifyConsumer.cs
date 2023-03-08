@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Reactive;
 using System.Reactive.Linq;
 using System.Reactive.Threading.Tasks;
 using System.Text.Json;
@@ -35,7 +36,9 @@ public class BatchAdjustNotifyConsumer : BackgroundService
             {
                 _logger.LogDebug("Notify event： {evt}", evt);
             })
-            .Select(evt => (BatchId: evt.Body.Deserialize<Guid>()!, Users: evt.GetTagValues("UserId")))
+            .Select(evt => (
+                Payload: evt.Body.Deserialize<BatchAdjustBalanceNotifyBody>(BackOfficeUtility.SerializerOptions)!,
+                Users: evt.GetTagValues("UserId")))
             .Select(tup => Observable.FromAsync(async () =>
             {
                 await _hubContext.Clients.Users(tup.Users).SendAsync(
@@ -43,10 +46,16 @@ public class BatchAdjustNotifyConsumer : BackgroundService
                     new
                     {
                         Type = "BatchAdjustBalance",
-                        tup.BatchId
+                        tup.Payload
                     },
                     stoppingToken).ConfigureAwait(false);
             }))
             .Merge()
+            .Catch((Exception ex) =>
+            {
+                _logger.LogError(ex, "Occur error.");
+
+                return Observable.Empty<Unit>();
+            })
             .ToTask(stoppingToken);
 }

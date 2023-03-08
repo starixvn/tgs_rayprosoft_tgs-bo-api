@@ -33,7 +33,7 @@ internal class BackgroundNotifyHandler : IMessageHandler
             eventData.Tags.Select(tag => new KeyValuePair<string, string>(tag.Name, tag.Value)),
             eventData.Data);
 
-        _logger.LogDebug("NotifyEvent: {notify} received.", officeNotify);
+        _logger.LogDebug("NotifyEvent: received.");
 
         _eventSource.PublishEvent(officeNotify);
 
