@@ -50,7 +50,7 @@ internal class RedisBatchTempRepository : IBatchTempRepository
 
         return _database.StringGetAsync(key)
             .ToAsyncEnumerable()
-            .Select(value => JsonSerializer.Deserialize<BatchAdjustBalanceItem[]>(value!))
+            .Select(value => JsonSerializer.Deserialize<BatchAdjustBalanceItem[]>(value!, BackOfficeUtility.SerializerOptions))
             .Where(arr => arr is not null)
             .SelectMany(arr => arr!.ToAsyncEnumerable());
     }
@@ -68,7 +68,7 @@ internal class RedisBatchTempRepository : IBatchTempRepository
 
         return _database.StringGetAsync(key)
             .ToAsyncEnumerable()
-            .Select(value => JsonSerializer.Deserialize<BatchAdjustBalanceItemResult[]>(value!))
+            .Select(value => JsonSerializer.Deserialize<BatchAdjustBalanceItemResult[]>(value!, BackOfficeUtility.SerializerOptions))
             .Where(arr => arr is not null)
             .SelectMany(arr => arr!.ToAsyncEnumerable());
     }
@@ -91,7 +91,7 @@ internal class RedisBatchTempRepository : IBatchTempRepository
         var value = await _database.StringGetAsync(key).ConfigureAwait(false);
 
         return value.HasValue
-            ? JsonSerializer.Deserialize<OfflineTempUserBatch>(value!)
+            ? JsonSerializer.Deserialize<OfflineTempUserBatch>(value!, BackOfficeUtility.SerializerOptions)
             : null;
     }
 
@@ -101,7 +101,7 @@ internal class RedisBatchTempRepository : IBatchTempRepository
 
         var content = await _database.StringGetAsync(key).ConfigureAwait(false);
 
-        var result = JsonSerializer.Deserialize<OfflineUsersResult>(content!);
+        var result = JsonSerializer.Deserialize<OfflineUsersResult>(content!, BackOfficeUtility.SerializerOptions);
 
         return result;
     }
@@ -122,7 +122,7 @@ internal class RedisBatchTempRepository : IBatchTempRepository
                 expiry: TimeSpan.FromHours(1D),
                 when: When.NotExists).ConfigureAwait(false);
 
-        var content = JsonSerializer.Serialize(batchAdjustBalanceItems);
+        var content = JsonSerializer.Serialize(batchAdjustBalanceItems, BackOfficeUtility.SerializerOptions);
 
         _ = await _database.StringSetAsync(
             key,
@@ -140,7 +140,7 @@ internal class RedisBatchTempRepository : IBatchTempRepository
     {
         var key = $"BackOffice:AdjustBalance:BatchResult:{batchId}";
 
-        var content = JsonSerializer.Serialize(results);
+        var content = JsonSerializer.Serialize(results, BackOfficeUtility.SerializerOptions);
 
         _ = await _database.StringSetAsync(
             key,
@@ -156,7 +156,7 @@ internal class RedisBatchTempRepository : IBatchTempRepository
 
         var key = $"BackOffice:OfflinePromotion:Batch:{id}";
 
-        var content = JsonSerializer.Serialize(tempBatch);
+        var content = JsonSerializer.Serialize(tempBatch, BackOfficeUtility.SerializerOptions);
 
         _ = await _database.StringSetAsync(
             key,
@@ -171,7 +171,7 @@ internal class RedisBatchTempRepository : IBatchTempRepository
     {
         var key = $"BackOffice:OfflinePromotion:BatchResult:{batchId}";
 
-        var content = JsonSerializer.Serialize(result);
+        var content = JsonSerializer.Serialize(result, BackOfficeUtility.SerializerOptions);
 
         _ = await _database.StringSetAsync(
             key,

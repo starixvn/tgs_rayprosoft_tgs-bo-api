@@ -2,8 +2,12 @@
 
 using System;
 using System.Linq;
+using System.Text.Json;
 using System.Threading;
 using System.Threading.Tasks;
+using Google.Protobuf;
+using Tgs.BrandService.Protos;
+using Tgs.MessageQueue;
 using Tgs.PlayerService.Client;
 using Tgs.ServiceUtility;
 using TGS.Services.BackOffice.Domain;
@@ -16,14 +20,17 @@ internal class GetPlayerCodeByBatchCommandService
     private static readonly int _SegmentCount = 500;
 
     private readonly IBatchTempRepository _batchTempRepository;
+    private readonly IMessageSender _messageSender;
     private readonly IQueryService<PlayerInfosByUserNamesQuery, PlayerInfo> _playerInfosQueryService;
 
     public GetPlayerCodeByBatchCommandService(
         IQueryService<PlayerInfosByUserNamesQuery, PlayerInfo> playerInfosQueryService,
-        IBatchTempRepository batchTempRepository)
+        IBatchTempRepository batchTempRepository,
+        IMessageSender messageSender)
     {
         _playerInfosQueryService = playerInfosQueryService ?? throw new ArgumentNullException(nameof(playerInfosQueryService));
         _batchTempRepository = batchTempRepository ?? throw new ArgumentNullException(nameof(batchTempRepository));
+        _messageSender = messageSender ?? throw new ArgumentNullException(nameof(messageSender));
     }
 
     public async ValueTask ExecuteAsync(
@@ -86,5 +93,28 @@ internal class GetPlayerCodeByBatchCommandService
         await _batchTempRepository
             .CompleteBatchAsync(command.BatchId, cancellationToken)
             .ConfigureAwait(false);
+
+        var notifyEvent = new NotifyEvent
+        {
+            Data = JsonSerializer.Serialize(
+                new OfflineParsePlayerCodeNotifyBody(command.BatchId, batch.ClientToken),
+                BackOfficeUtility.SerializerOptions)
+        };
+
+        notifyEvent.Tags.Add(new Tag
+        {
+            Name = "UserId",
+            Value = batch.ModifyUserId.ToString()
+        });
+        notifyEvent.Tags.Add(new Tag
+        {
+            Name = "Feature",
+            Value = "OfflinePromotion"
+        });
+
+        await _messageSender.PublishAsync(
+            "tgs.bo.notify",
+            notifyEvent.ToByteArray(),
+            cancellationToken).ConfigureAwait(false);
     }
 }

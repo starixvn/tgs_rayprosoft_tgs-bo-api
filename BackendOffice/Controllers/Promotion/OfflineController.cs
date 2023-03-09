@@ -1,4 +1,6 @@
-﻿using System;
+﻿#nullable enable
+
+using System;
 using System.IO;
 using System.Linq;
 using System.Threading.Tasks;
@@ -17,7 +19,7 @@ namespace TGS.Apis.BackendOffice.Controllers.Promotion;
 
 [Route("api/offline")]
 [ApiController]
-public class OfflineController : ControllerBase
+public class OfflineController : BaseContextController
 {
     [HttpHead("{batchId}", Name = "CheckOfflineBackgroundProcessIsCompleted")]
     public async Task CheckBackgroundProcessIsCompletedAsync(
@@ -30,7 +32,7 @@ public class OfflineController : ControllerBase
             .GetAsync(query, HttpContext.RequestAborted)
             .ConfigureAwait(false);
 
-        var responseFeature = HttpContext.Features.Get<IHttpResponseFeature>();
+        var responseFeature = HttpContext.Features.Get<IHttpResponseFeature>()!;
 
         if (result == true)
             responseFeature.StatusCode = StatusCodes.Status200OK;
@@ -53,12 +55,13 @@ public class OfflineController : ControllerBase
         return File(stream, "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet");
     }
 
-    [HttpPost("{brandId}", Name = "UploadOfflineUserListExcel")]
+    [HttpPost("{brandId}/{clientToken?}", Name = "UploadOfflineUserListExcel")]
     public async ValueTask<ResponseViewModel<Guid?>> UploadOfflineUserListExcelAsync(
         [FromServices] IQueryService<ReadOfflinePromotionUserListQuery, string> readService,
         [FromServices] IGetService<SaveOfflineTempUserBatchCommand, Guid> saveService,
         [FromServices] IMessageSender messageSender,
         Guid brandId,
+        string? cleintToken,
         [FromForm(Name = "file")] IFormFile excelFile)
     {
         await using var fs = excelFile.OpenReadStream();
@@ -78,7 +81,11 @@ public class OfflineController : ControllerBase
         }
 
         var batchId = await saveService
-            .GetAsync(new(brandId, userNames), HttpContext.RequestAborted)
+            .GetAsync(new(
+                brandId,
+                cleintToken,
+                userNames,
+                Guid.Parse(UserId)), HttpContext.RequestAborted)
             .ConfigureAwait(false);
 
         var request = new ProcessOfflineTempUserBatchRequest
