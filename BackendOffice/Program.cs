@@ -320,14 +320,14 @@ builder.Services
 
 builder.Services
     .AddHostedService<StationLetterBackground>()
-    .AddSingleton<IStationLetterTaskQueue>(_ =>
+    .AddSingleton<IStationLetterTaskQueue>(sp =>
     {
         if (!int.TryParse(builder.Configuration["QueueCapacity"], out var queueCapacity))
         {
             queueCapacity = 100;
         }
 
-        return new StationLetterTaskQueue(queueCapacity);
+        return ActivatorUtilities.CreateInstance<StationLetterTaskQueue>(sp, queueCapacity);
     });
 
 var app = builder.Build();

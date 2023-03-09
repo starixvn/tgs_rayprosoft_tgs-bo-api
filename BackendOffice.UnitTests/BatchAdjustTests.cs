@@ -108,6 +108,10 @@ public class BatchAdjustTests
                         null)
                 }.ToAsyncEnumerable());
 
+        var clientToken = "client";
+        _ = fakeBatchTempRepository.GetAdjustBalanceBatchClientTokenAsync(Arg.Is(command.BatchId))
+            .Returns(clientToken);
+
         await sut.ExecuteAsync(command);
 
         _ = fakePlayerAdjustBalanceService.Received(1)
