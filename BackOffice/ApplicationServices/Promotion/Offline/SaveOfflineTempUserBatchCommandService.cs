@@ -22,7 +22,9 @@ internal class SaveOfflineTempUserBatchCommandService : IGetService<SaveOfflineT
     {
         var tempBatch = new OfflineTempUserBatch(
             command.BrandId,
-            command.UserNames);
+            command.ClientToken,
+            command.UserNames,
+            command.ModifyUserId);
 
         return _batchTempRepository.SaveOfflineTempUserBatchAsync(tempBatch, cancellationToken);
     }

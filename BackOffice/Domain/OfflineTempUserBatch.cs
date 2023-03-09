@@ -1,8 +1,12 @@
-﻿using System;
+﻿#nullable enable
+
+using System;
 using System.Collections.Generic;
 
 namespace TGS.Services.BackOffice.Domain;
 
 public record OfflineTempUserBatch(
     Guid BrandId,
-    IEnumerable<string> UserNames);
+    string? ClientToken,
+    IEnumerable<string> UserNames,
+    Guid ModifyUserId);

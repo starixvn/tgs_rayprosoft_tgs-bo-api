@@ -94,6 +94,7 @@ builder.Services
 
 builder.Services
     .AddHostedService<BatchAdjustNotifyConsumer>()
+    .AddHostedService<OfflinePromotionNotifyConsumer>()
     .AddValidatorsFromAssembly(Assembly.GetExecutingAssembly())
     .AddBackendOfficeServices(builder.Configuration)
     .AddBackendOfficeRepositories(sp => sp
