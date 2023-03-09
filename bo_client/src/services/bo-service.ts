@@ -200,16 +200,24 @@ export default class BackOfficeService {
             });
     }
 
-    public async importBatchAdjustForm(brandId: string, filePath: string): Promise<string> {
+    public async importBatchAdjustForm(
+        brandId: string,
+        clientToken: string | null,
+        filePath: string): Promise<string> {
+
         let fileName = path.basename(filePath);
         let fileStream = fs.readFileSync(filePath);
         let formData = new FormData();
 
         formData.append('file', fileStream, fileName);
 
+        let apiPath = `/api/batch-adj-balance/${brandId}`;
+        if (!clientToken || clientToken.length > 0)
+            apiPath += `/${clientToken}`;
+
         return this.http
             .post(
-                `/api/batch-adj-balance/${brandId}`,
+                apiPath,
                 formData,
                 {
                     headers: {
@@ -217,6 +225,34 @@ export default class BackOfficeService {
                         "Content-Length": formData.getLengthSync()
                     }
                 })
+            .then(res => res.data);
+    }
+
+    public previewBatchAdjustBatchData(batchId: string): Promise<BatchAdjustBalanceItem[]> {
+        return this.http
+            .get(`/api/batch-adj-balance/${batchId}`)
+            .then(res => res.data);
+    }
+
+    public processAdjustBatch(
+        brandId: string,
+        batchId: string,
+        condition: BatchAdjustBalanceProcessCondition): Promise<number> {
+
+        return this.http
+            .put(`/api/batch-adj-balance/${brandId}/${batchId}`, condition)
+            .then(res => res.status);
+    }
+
+    public checkAdjustBatchIsCompleted(batchId: string): Promise<number> {
+        return this.http
+            .head(`/api/batch-adj-balance/${batchId}`)
+            .then(res => res.status);
+    }
+
+    public getBatchAdjustProcessResult(batchId: string): Promise<BatchAdjustBalanceItemResult[]> {
+        return this.http
+            .get(`/api/batch-adj-balance/result/${batchId}`)
             .then(res => res.data);
     }
 
