@@ -350,7 +350,7 @@ public class PromotionController : BaseContextController
         return new MessageResponse { Valid = true };
     }
 
-    [HttpPut("content/{promotionId}", Name = "UpdatePromotionContent")]
+    [HttpPatch("content/{promotionId}", Name = "UpdatePromotionContent")]
     public async ValueTask<MessageResponse> UpdatePromotionContentAsync(
         [FromServices] IPromotionServiceClient promotionServiceClient,
         Guid promotionId,
@@ -378,7 +378,7 @@ public class PromotionController : BaseContextController
         };
     }
 
-    [HttpPut("rule/{promotionId}", Name = "UpdatePromotionRule")]
+    [HttpPatch("rule/{promotionId}", Name = "UpdatePromotionRule")]
     public async ValueTask<MessageResponse> UpdatePromotionRuleAsync(
         [FromServices] IPromotionServiceClient promotionServiceClient,
         Guid promotionId,
@@ -420,7 +420,7 @@ public class PromotionController : BaseContextController
         };
     }
 
-    [HttpPut("main/{promotionId}", Name = "UpdatePromotionMain")]
+    [HttpPatch("main/{promotionId}", Name = "UpdatePromotionMain")]
     public async ValueTask<MessageResponse> UpdatePromotionMainInfoAsync(
         [FromServices] IPromotionServiceClient promotionServiceClient,
         [FromServices] IBrandServiceClient brandServiceClient,

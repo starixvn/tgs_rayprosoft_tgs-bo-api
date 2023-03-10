@@ -325,7 +325,7 @@ export default class BackOfficeService {
         promotionId: string,
         request: UpdatePromotionContentRequest): Promise<MessageResponse> {
         return this.http
-            .put(`/api/promotion/content/${promotionId}`, request)
+            .patch(`/api/promotion/content/${promotionId}`, request)
             .then(res => res.data);
     }
 
@@ -333,7 +333,7 @@ export default class BackOfficeService {
         promotionId: string,
         request: UpdatePromotionRuleRequest): Promise<MessageResponse> {
         return this.http
-            .put(`/api/promotion/rule/${promotionId}`, request)
+            .patch(`/api/promotion/rule/${promotionId}`, request)
             .then(res => res.data);
     }
 
@@ -341,7 +341,7 @@ export default class BackOfficeService {
         promotionId: string,
         request: UpdatePromotionMainInfoRequest) : Promise<MessageResponse> {
         return this.http
-            .put(`/api/promotion/main/${promotionId}`, request)
+            .patch(`/api/promotion/main/${promotionId}`, request)
             .then(res => res.data);       
     }    
 }
