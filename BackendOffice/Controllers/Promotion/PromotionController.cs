@@ -350,7 +350,7 @@ public class PromotionController : BaseContextController
         return new MessageResponse { Valid = true };
     }
 
-    [HttpPut("{promotionId}:content", Name = "UpdatePromotionContent")]
+    [HttpPut("content/{promotionId}", Name = "UpdatePromotionContent")]
     public async ValueTask<MessageResponse> UpdatePromotionContentAsync(
         [FromServices] IPromotionServiceClient promotionServiceClient,
         Guid promotionId,
@@ -369,6 +369,48 @@ public class PromotionController : BaseContextController
         await promotionServiceClient.SetPromotionContentAsync(
             promotionId,
             content,
+            Username,
+            HttpContext.RequestAborted).ConfigureAwait(false);
+
+        return new MessageResponse
+        {
+            Valid = true
+        };
+    }
+
+    [HttpPut("rule/{promotionId}", Name = "UpdatePromotionRule")]
+    public async ValueTask<MessageResponse> UpdatePromotionRuleAsync(
+        [FromServices] IPromotionServiceClient promotionServiceClient,
+        Guid promotionId,
+        UpdatePromotionRuleViewModel viewModel)
+    {
+        var baseRule = JsonSerializer.SerializeToDocument(new
+        {
+            viewModel.GameProviderIds,
+            viewModel.GameType,
+            viewModel.VipLevels
+        }, PromotionUtility.SerializerOptions);
+
+        if (viewModel.Rule == null)
+        {
+            await promotionServiceClient.SetPromotionRuleAsync(
+                promotionId,
+                baseRule,
+                Username,
+                HttpContext.RequestAborted).ConfigureAwait(false);
+        }
+        else
+        {
+            await promotionServiceClient.SetPromotionRuleAsync(
+                promotionId,
+                JsonMergePatch.ApplyMergePatch(baseRule.RootElement, viewModel.Rule.RootElement),
+                Username,
+                HttpContext.RequestAborted).ConfigureAwait(false);
+        }
+
+        await promotionServiceClient.SetPromotionVipLevelsAsync(
+            promotionId,
+            viewModel.VipLevels,
             Username,
             HttpContext.RequestAborted).ConfigureAwait(false);
 

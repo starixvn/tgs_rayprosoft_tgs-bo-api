@@ -6,10 +6,15 @@ namespace TGS.Apis.BackendOffice.ViewModels;
 
 public class UpdatePromotionContentViewModel
 {
-    public string? Content { get; set; }
-    public string? Terms { get; set; }
-    public JsonDocument? Localization { get; set; } = default!;
-    public string? MobileBanner { get; set; }
-    public string? DesktopBanner { get; set; }
-    public string? SubSubject { get; set; }
+    public string? Content { get; init; }
+
+    public string? DesktopBanner { get; init; }
+
+    public JsonDocument? Localization { get; init; } = default!;
+
+    public string? MobileBanner { get; init; }
+
+    public string? SubSubject { get; init; }
+
+    public string? Terms { get; init; }
 }

@@ -1,4 +1,5 @@
-﻿using System.Runtime.InteropServices;
+﻿using System;
+using System.Runtime.InteropServices;
 using System.Text.Json;
 using Jering.Javascript.NodeJS;
 using Microsoft.Extensions.DependencyInjection;
@@ -8,6 +9,7 @@ using NSubstitute;
 using Tgs.Promotion.Clients;
 using TGS.Apis.BackendOffice.ViewModels;
 using TGS.Core.Models.Messages;
+using Xunit;
 using Xunit.Abstractions;
 
 namespace BackendOffice.IntegrationTests;
@@ -88,6 +90,84 @@ public class PromotionTests
             .SetPromotionContentAsync(
                 Arg.Is(promotionId),
                 Arg.Is<PromotionContent>(x => x.Content == request.Content),
+                Arg.Any<string>(),
+                Arg.Any<CancellationToken>());
+    }
+
+    [Fact]
+    public async Task 更新活動規則()
+    {
+        // Arrange
+        var channelName = Guid.NewGuid().ToString();
+        var userId = Guid.NewGuid();
+
+        var fakePromotionServiceClient = Substitute.For<IPromotionServiceClient>();
+
+        using var web = TestBackendOfficeApplication.Builder
+            .UseTestChannelServer(channelName)
+            .ConfigureLogging(logging => logging.AddXUnit(_testOutputHelper))
+            .ConfigureServices(services => services
+                .AddAuthentication("Fake")
+                .AddScheme<FakeAuthenticationSchemaOptions, FakeAuthenticationHandler>(
+                    "Fake",
+                    options =>
+                    {
+                        options.UserId = userId;
+                        options.UserName = "system";
+                    })
+                .Services
+                .AddSingleton(fakePromotionServiceClient))
+            .Build();
+
+        await web.StartAsync();
+
+        var promotionId = Guid.NewGuid();
+
+        var request = new UpdatePromotionRuleViewModel
+        {
+            GameProviderIds = new[] { Guid.NewGuid()},
+            Rule = JsonDocument.Parse("{}"),
+            VipLevels = new [] {1, 2, 3}
+        };
+
+        var isWindows = RuntimeInformation.IsOSPlatform(OSPlatform.Windows) ? "true" : "false";
+
+        var nodeModule = $$"""
+            const axiosConfigFactory = require('./models/axios-configuration.js').default;
+            const BackOfficeService = require('./services/bo-service.js').default;
+
+            module.exports = async (promotionId, request) =>
+            {
+                let instance = axiosConfigFactory("{{channelName}}", {{isWindows}});
+
+                let svc = new BackOfficeService(instance);
+
+                return await svc.updatePromotionRule(promotionId, request);
+            };
+        """;
+
+        // Act
+        var actual = await StaticNodeJSService.InvokeFromStringAsync<MessageResponse>(
+            nodeModule,
+            args: new object[] { promotionId, request });
+
+        // Assert
+        Assert.NotNull(actual);
+        Assert.True(actual.Valid);
+
+        _ = fakePromotionServiceClient
+            .Received(1)
+            .SetPromotionRuleAsync(
+                Arg.Is(promotionId),
+                Arg.Any<JsonDocument>(),
+                Arg.Any<string>(),
+                Arg.Any<CancellationToken>());
+
+        _ = fakePromotionServiceClient
+            .Received(1)
+            .SetPromotionVipLevelsAsync(
+                Arg.Is(promotionId),
+                Arg.Is<IEnumerable<int>>(x => x.SequenceEqual(request.VipLevels)),
                 Arg.Any<string>(),
                 Arg.Any<CancellationToken>());
     }

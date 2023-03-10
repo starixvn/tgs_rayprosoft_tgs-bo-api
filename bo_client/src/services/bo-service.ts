@@ -290,7 +290,7 @@ export default class BackOfficeService {
 
     public uploadOfflineUserList(
         brandId: string,
-        filePath: string): Promise<uploadOfflineLoginRewardUserListResponse> {
+        filePath: string): Promise<UploadOfflineLoginRewardUserListResponse> {
 
         let stream = fs.readFileSync(filePath);
 
@@ -325,7 +325,15 @@ export default class BackOfficeService {
         promotionId: string,
         request: UpdatePromotionContentRequest): Promise<MessageResponse> {
         return this.http
-            .put(`/api/promotion/${promotionId}:content`, request)
+            .put(`/api/promotion/content/${promotionId}`, request)
+            .then(res => res.data);
+    }
+
+    public updatePromotionRule(
+        promotionId: string,
+        request: UpdatePromotionRuleRequest): Promise<MessageResponse> {
+        return this.http
+            .put(`/api/promotion/rule/${promotionId}`, request)
             .then(res => res.data);
     }
 }
