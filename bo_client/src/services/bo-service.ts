@@ -336,4 +336,12 @@ export default class BackOfficeService {
             .put(`/api/promotion/rule/${promotionId}`, request)
             .then(res => res.data);
     }
+
+    public updatePromotionMainInfo(
+        promotionId: string,
+        request: UpdatePromotionMainInfoRequest) : Promise<MessageResponse> {
+        return this.http
+            .put(`/api/promotion/main/${promotionId}`, request)
+            .then(res => res.data);       
+    }    
 }
