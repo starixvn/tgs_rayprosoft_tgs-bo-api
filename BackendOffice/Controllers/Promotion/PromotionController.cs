@@ -419,41 +419,24 @@ public class PromotionController : BaseContextController
 
     [HttpPatch("main/{promotionId}", Name = "UpdatePromotionMain")]
     public async ValueTask<MessageResponse> UpdatePromotionMainInfoAsync(
-        [FromServices] IPromotionServiceClient promotionServiceClient,
-        [FromServices] IBrandServiceClient brandServiceClient,
+        [FromServices] ICommandService<UpdatePromotionMainInfoCommand> commandService,
         Guid promotionId,
         UpdatePromotionMainInfoViewModel viewModel)
     {
-        var from = new DateTimeOffset(viewModel.From.ToDateTime(TimeOnly.MinValue), TimeSpan.FromHours(8));
-        var to = new DateTimeOffset(viewModel.To.ToDateTime(TimeOnly.MinValue), TimeSpan.FromHours(8));
-
-        if (_promotionTypes.Contains(viewModel.PromotionType))
-        {
-            var promotion = await promotionServiceClient.GetPromotionMainInfoAsync(promotionId).ConfigureAwait(false);
-
-            var brandInfo = await brandServiceClient.GetBrandInfoAsync(promotion!.BrandId)
-                .ConfigureAwait(false);
-
-            var timeSpanMinutes = (int)brandInfo?.TimeSpanMinutes!;
-
-            from = new DateTimeOffset(viewModel.From.ToDateTime(TimeOnly.MinValue), TimeSpan.FromMinutes(timeSpanMinutes));
-            to = new DateTimeOffset(viewModel.To.ToDateTime(TimeOnly.MinValue), TimeSpan.FromMinutes(timeSpanMinutes));
-        }
-
-        var updateInfo = new CreatePromotionMainInfo
-        {
-            Name = viewModel.Name,
-            EventDuring = (from.UtcDateTime, to.UtcDateTime),
-            PromotionType = viewModel.PromotionType,
-            IsAutoSent = viewModel.AutoSentPlayerBonus,
-            PromotionLimitAmount = viewModel.Unlimited ? null : viewModel.TotalAmountLimit
-        };
-
-        await promotionServiceClient.UpdatePromotionMainInfoAsync(
+        var command = new UpdatePromotionMainInfoCommand(
             promotionId,
-            updateInfo,
-            Username,
-            HttpContext.RequestAborted).ConfigureAwait(false);
+            viewModel.Name,
+            viewModel.PromotionType,
+            viewModel.From,
+            viewModel.To,
+            viewModel.Unlimited,
+            viewModel.TotalAmountLimit,
+            viewModel.AutoSentPlayerBonus,
+            Username);
+
+
+        await commandService.ExecuteAsync(command, HttpContext.RequestAborted)
+            .ConfigureAwait(false);
 
         return new MessageResponse
         {

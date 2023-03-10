@@ -1,5 +1,6 @@
 ﻿using System.Text.Json;
 using NSubstitute;
+using Tgs.BrandCertificate.Clients;
 using Tgs.Promotion.Clients;
 using TGS.Services.BackOffice.ApplicationServices.Promotion;
 using TGS.Services.BackOffice.Domain;
@@ -86,6 +87,122 @@ public class PromotionTests
                 Arg.Is(command.PromotionId),
                 Arg.Is<PromotionContent>(x => x.SubSubject == command.SubSubject),
                 Arg.Is(command.Modifier),
+                Arg.Any<CancellationToken>());
+    }
+
+    [Test]
+    public async Task 修改活動MainInfo()
+    {
+        var fakePromotionServiceClient = Substitute.For<IPromotionServiceClient>();
+        var fakeBrandServiceClient = Substitute.For<IBrandServiceClient>();
+
+        var sut = new UpdatePromotionMainInfoCommandService(fakePromotionServiceClient, fakeBrandServiceClient);
+
+        var command = new UpdatePromotionMainInfoCommand(
+            Guid.NewGuid(),
+            "TestPromotion",
+            "TestPromotion",
+            DateOnly.Parse("2023-01-01"),
+            DateOnly.Parse("2023-03-01"),
+            true,
+            null,
+            true,
+            "User1");
+
+        var expectedCreateInfo = new CreatePromotionMainInfo
+        {
+            Name = "TestPromotion",
+            EventDuring = new During(
+                From: DateTime.Parse("2022-12-31 16:00:00"),
+                To: DateTime.Parse("2023-02-28 16:00:00")),
+            PromotionType = "TestPromotion",
+            PromotionLimitAmount = null,
+            IsAutoSent = command.IsAutoSent,
+        };
+
+        await sut.ExecuteAsync(command);
+
+        _ = fakePromotionServiceClient.Received(1)
+            .UpdatePromotionMainInfoAsync(
+                Arg.Is(command.PromotionId),
+                Arg.Is(expectedCreateInfo),
+                Arg.Is(command.Modifier),
+                Arg.Any<CancellationToken>());
+
+        _ = fakeBrandServiceClient.DidNotReceive()
+            .GetBrandInfoAsync(
+                Arg.Any<Guid>(),
+                Arg.Any<CancellationToken>());
+    }
+
+    [Test]
+    public async Task 修改活動MainInfo_特定活動類型會取得Brand時區設定()
+    {
+        var fakePromotionServiceClient = Substitute.For<IPromotionServiceClient>();
+        var fakeBrandServiceClient = Substitute.For<IBrandServiceClient>();
+
+        var sut = new UpdatePromotionMainInfoCommandService(fakePromotionServiceClient, fakeBrandServiceClient);
+
+        var promotionId = Guid.NewGuid();
+        var brandId = Guid.NewGuid();
+        
+        var command = new UpdatePromotionMainInfoCommand(
+            promotionId,
+            "TestPromotion",
+            "TurnoverRebate",
+            DateOnly.Parse("2023-01-01"),
+            DateOnly.Parse("2023-03-01"),
+            true,
+            null,
+            true,
+            "User1");
+
+        var promotionInfo = new PromotionMainInfo
+        {
+            Id = promotionId,
+            BrandId = brandId,
+            PromotionType = command.PromotionType
+        };
+
+        var brandInfo = new BrandInfo
+        {
+            Id = brandId, 
+            TimeSpanMinutes = 420
+        };
+
+        _ = fakePromotionServiceClient.GetPromotionMainInfoAsync(
+                Arg.Is(promotionId),
+                Arg.Any<CancellationToken>())
+            .Returns(promotionInfo);
+
+        _ = fakeBrandServiceClient.GetBrandInfoAsync(
+                Arg.Is(brandId),
+                Arg.Any<CancellationToken>())
+            .Returns(brandInfo);
+        
+        var expectedCreateInfo = new CreatePromotionMainInfo
+        {
+            Name = "TestPromotion",
+            EventDuring = new During(
+                From: DateTime.Parse("2022-12-31 17:00:00"),
+                To: DateTime.Parse("2023-02-28 17:00:00")),
+            PromotionType = "TurnoverRebate",
+            PromotionLimitAmount = null,
+            IsAutoSent = command.IsAutoSent,
+        };
+
+        await sut.ExecuteAsync(command);
+
+        _ = fakePromotionServiceClient.Received(1)
+            .UpdatePromotionMainInfoAsync(
+                Arg.Is(command.PromotionId),
+                Arg.Is(expectedCreateInfo),
+                Arg.Is(command.Modifier),
+                Arg.Any<CancellationToken>());
+
+        _ = fakeBrandServiceClient.Received(1)
+            .GetBrandInfoAsync(
+                Arg.Is(brandId),
                 Arg.Any<CancellationToken>());
     }
 }
