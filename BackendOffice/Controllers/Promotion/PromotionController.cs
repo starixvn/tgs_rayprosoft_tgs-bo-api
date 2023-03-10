@@ -152,6 +152,34 @@ public class PromotionController : BaseContextController
         return new MessageResponse { Valid = true };
     }
 
+    [HttpPut("main/{brandId}", Name = "CreatePromotionMainInfo")]
+    public async ValueTask<ResponseViewModel<Guid?>> CreatePromotionMainInfoAsync(
+        [FromServices] IGetService<CreatePromotionMainInfoCommand, Guid> getService,
+        Guid brandId,
+        CreatePromotionMainInfoViewModel viewModel)
+    {
+        var command = new CreatePromotionMainInfoCommand(
+            brandId,
+            viewModel.Name,
+            viewModel.PromotionType,
+            viewModel.From,
+            viewModel.To,
+            viewModel.Unlimited,
+            viewModel.TotalAmountLimit,
+            viewModel.AutoSentPlayerBonus,
+            Username);
+
+        var promotionId = await getService
+            .GetAsync(command, HttpContext.RequestAborted)
+            .ConfigureAwait(false);
+
+        return new ResponseViewModel<Guid?>
+        {
+            Valid = true,
+            Data = promotionId
+        };
+    }
+
     [HttpGet("rule/{promotionId}", Name = "GetPromotionRule")]
     public async Task<JsonDocument> GetPromotionRuleAsync(
         [FromServices] IGetService<GetPromotionRuleQuery, PromotionRuleInfo> getService,
@@ -375,6 +403,32 @@ public class PromotionController : BaseContextController
         };
     }
 
+    [HttpPatch("main/{promotionId}", Name = "UpdatePromotionMainInfo")]
+    public async ValueTask<MessageResponse> UpdatePromotionMainInfoAsync(
+        [FromServices] ICommandService<UpdatePromotionMainInfoCommand> commandService,
+        Guid promotionId,
+        UpdatePromotionMainInfoViewModel viewModel)
+    {
+        var command = new UpdatePromotionMainInfoCommand(
+            promotionId,
+            viewModel.Name,
+            viewModel.PromotionType,
+            viewModel.From,
+            viewModel.To,
+            viewModel.Unlimited,
+            viewModel.TotalAmountLimit,
+            viewModel.AutoSentPlayerBonus,
+            Username);
+
+        await commandService.ExecuteAsync(command, HttpContext.RequestAborted)
+            .ConfigureAwait(false);
+
+        return new MessageResponse
+        {
+            Valid = true
+        };
+    }
+
     [HttpPatch("rule/{promotionId}", Name = "UpdatePromotionRule")]
     public async ValueTask<MessageResponse> UpdatePromotionRuleAsync(
         [FromServices] ICommandService<UpdatePromotionRuleCommand> commandService,
@@ -405,33 +459,6 @@ public class PromotionController : BaseContextController
             Valid = true
         };
     }
-
-    [HttpPatch("main/{promotionId}", Name = "UpdatePromotionMainInfo")]
-    public async ValueTask<MessageResponse> UpdatePromotionMainInfoAsync(
-        [FromServices] ICommandService<UpdatePromotionMainInfoCommand> commandService,
-        Guid promotionId,
-        UpdatePromotionMainInfoViewModel viewModel)
-    {
-        var command = new UpdatePromotionMainInfoCommand(
-            promotionId,
-            viewModel.Name,
-            viewModel.PromotionType,
-            viewModel.From,
-            viewModel.To,
-            viewModel.Unlimited,
-            viewModel.TotalAmountLimit,
-            viewModel.AutoSentPlayerBonus,
-            Username);
-
-        await commandService.ExecuteAsync(command, HttpContext.RequestAborted)
-            .ConfigureAwait(false);
-
-        return new MessageResponse
-        {
-            Valid = true
-        };
-    }
-
     [HttpPut("{promotionId:guid}/{status}", Name = "UpdatePromotionStatus")]
     [Description("change a Promotion's status")]
     public async Task<MessageResponse> UpdatePromotionStatusAsync(

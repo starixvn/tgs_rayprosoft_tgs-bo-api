@@ -1,5 +1,4 @@
-﻿using System;
-using System.Runtime.InteropServices;
+﻿using System.Runtime.InteropServices;
 using System.Text.Json;
 using Jering.Javascript.NodeJS;
 using Microsoft.Extensions.DependencyInjection;
@@ -7,10 +6,8 @@ using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
 using NSubstitute;
 using Tgs.Promotion.Clients;
-using Tgs.Report.Client.Models.Vip;
 using TGS.Apis.BackendOffice.ViewModels;
 using TGS.Core.Models.Messages;
-using Xunit;
 using Xunit.Abstractions;
 
 namespace BackendOffice.IntegrationTests;
@@ -22,6 +19,92 @@ public class PromotionTests
     public PromotionTests(ITestOutputHelper testOutputHelper)
     {
         _testOutputHelper = testOutputHelper ?? throw new ArgumentNullException(nameof(testOutputHelper));
+    }
+
+    [Fact]
+    public async Task 更新活動MainInfo()
+    {
+
+        // Arrange
+        var channelName = Guid.NewGuid().ToString();
+        var userId = Guid.NewGuid();
+
+        var fakePromotionServiceClient = Substitute.For<IPromotionServiceClient>();
+
+        using var web = TestBackendOfficeApplication.Builder
+            .UseTestChannelServer(channelName)
+            .ConfigureLogging(logging => logging.AddXUnit(_testOutputHelper))
+            .ConfigureServices(services => services
+                .AddAuthentication("Fake")
+                .AddScheme<FakeAuthenticationSchemaOptions, FakeAuthenticationHandler>(
+                    "Fake",
+                    options =>
+                    {
+                        options.UserId = userId;
+                        options.UserName = "system";
+                    })
+                .Services
+                .AddSingleton(fakePromotionServiceClient))
+            .Build();
+
+        await web.StartAsync();
+
+        var promotionId = Guid.NewGuid();
+
+        var request = new UpdatePromotionMainInfoViewModel
+        {
+            Name = "TestPromotion",
+            From = DateOnly.Parse("2023-01-01"),
+            To = DateOnly.Parse("2023-01-31"),
+            PromotionType = "TestPromotion",
+            AutoSentPlayerBonus = false,
+            Unlimited = true,
+        };
+
+        var isWindows = RuntimeInformation.IsOSPlatform(OSPlatform.Windows) ? "true" : "false";
+
+        var nodeModule = $$"""
+            const axiosConfigFactory = require('./models/axios-configuration.js').default;
+            const BackOfficeService = require('./services/bo-service.js').default;
+
+            module.exports = async (promotionId, request) =>
+            {
+                let instance = axiosConfigFactory("{{channelName}}", {{isWindows}});
+
+                let svc = new BackOfficeService(instance);
+
+                return await svc.updatePromotionMainInfo(promotionId, request);
+            };
+        """;
+
+        // Act
+        var actual = await StaticNodeJSService.InvokeFromStringAsync<MessageResponse>(
+            nodeModule,
+            args: new object[] { promotionId, request });
+
+        // Assert
+        Assert.NotNull(actual);
+        Assert.True(actual.Valid);
+
+        var from = new DateTimeOffset(request.From.ToDateTime(TimeOnly.MinValue), TimeSpan.FromHours(8)).UtcDateTime;
+        var to = new DateTimeOffset(request.To.ToDateTime(TimeOnly.MinValue), TimeSpan.FromHours(8)).UtcDateTime;
+
+        var updateInfo = new CreatePromotionMainInfo
+        {
+            Name = request.Name,
+            EventDuring = (from, to),
+            PromotionType = request.PromotionType,
+            IsAutoSent = request.AutoSentPlayerBonus,
+            PromotionLimitAmount = request.Unlimited ? null : request.TotalAmountLimit
+        };
+
+        _ = fakePromotionServiceClient
+            .Received(1)
+            .UpdatePromotionMainInfoAsync(
+                Arg.Is(promotionId),
+                Arg.Is(updateInfo),
+                Arg.Any<string>(),
+                Arg.Any<CancellationToken>());
     }
 
     [Fact]
@@ -172,11 +255,9 @@ public class PromotionTests
                 Arg.Any<string>(),
                 Arg.Any<CancellationToken>());
     }
-
     [Fact]
-    public async Task 更新活動MainInfo()
+    public async Task 新增活動MainInfo()
     {
-
         // Arrange
         var channelName = Guid.NewGuid().ToString();
         var userId = Guid.NewGuid();
@@ -201,7 +282,7 @@ public class PromotionTests
 
         await web.StartAsync();
 
-        var promotionId = Guid.NewGuid();
+        var brandId = Guid.NewGuid();
 
         var request = new UpdatePromotionMainInfoViewModel
         {
@@ -219,29 +300,29 @@ public class PromotionTests
             const axiosConfigFactory = require('./models/axios-configuration.js').default;
             const BackOfficeService = require('./services/bo-service.js').default;
 
-            module.exports = async (promotionId, request) =>
+            module.exports = async (brandId, request) =>
             {
                 let instance = axiosConfigFactory("{{channelName}}", {{isWindows}});
 
                 let svc = new BackOfficeService(instance);
 
-                return await svc.updatePromotionMainInfo(promotionId, request);
+                return await svc.createPromotionMainInfo(brandId, request);
             };
         """;
 
         // Act
         var actual = await StaticNodeJSService.InvokeFromStringAsync<MessageResponse>(
             nodeModule,
-            args: new object[] { promotionId, request });
+            args: new object[] { brandId, request });
 
         // Assert
         Assert.NotNull(actual);
         Assert.True(actual.Valid);
-        
+
         var from = new DateTimeOffset(request.From.ToDateTime(TimeOnly.MinValue), TimeSpan.FromHours(8)).UtcDateTime;
         var to = new DateTimeOffset(request.To.ToDateTime(TimeOnly.MinValue), TimeSpan.FromHours(8)).UtcDateTime;
 
-        var updateInfo = new CreatePromotionMainInfo
+        var createInfo = new CreatePromotionMainInfo
         {
             Name = request.Name,
             EventDuring = (from, to),
@@ -252,9 +333,9 @@ public class PromotionTests
 
         _ = fakePromotionServiceClient
             .Received(1)
-            .UpdatePromotionMainInfoAsync(
-                Arg.Is(promotionId),
-                Arg.Is(updateInfo),
+            .CreatePromotionAsync(
+                Arg.Is(brandId),
+                Arg.Is(createInfo),
                 Arg.Any<string>(),
                 Arg.Any<CancellationToken>());
     }

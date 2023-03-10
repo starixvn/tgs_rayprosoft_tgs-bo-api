@@ -344,4 +344,12 @@ export default class BackOfficeService {
             .patch(`/api/promotion/main/${promotionId}`, request)
             .then(res => res.data);       
     }    
+    
+    public createPromotionMainInfo(
+        brandId: string,
+        request: CreatePromotionMainInfoRequest) : Promise<MessageResponse> {
+        return this.http
+            .put(`/api/promotion/main/${brandId}`, request)
+            .then(res => res.data);       
+    }    
 }
