@@ -205,4 +205,36 @@ public class PromotionTests
                 Arg.Is(brandId),
                 Arg.Any<CancellationToken>());
     }
+
+    [Test]
+    public async Task 修改活動Rule()
+    {
+        var fakePromotionServiceClient = Substitute.For<IPromotionServiceClient>();
+
+        var sut = new UpdatePromotionRuleCommandService(fakePromotionServiceClient);
+
+        var promotionId = Guid.NewGuid();
+
+        var command = new UpdatePromotionRuleCommand(
+            promotionId,
+            JsonDocument.Parse("{}"),
+            new[] { 1, 2, 3 },
+            "User1");
+
+        await sut.ExecuteAsync(command);
+
+        _ = fakePromotionServiceClient.Received(1)
+            .SetPromotionRuleAsync(
+                Arg.Is(promotionId),
+                Arg.Any<JsonDocument>(),
+                Arg.Is(command.Modifier),
+                Arg.Any<CancellationToken>());
+
+        _ = fakePromotionServiceClient.Received(1)
+            .SetPromotionVipLevelsAsync(
+                Arg.Is(promotionId),
+                Arg.Is<IEnumerable<int>>(x => x.SequenceEqual(command.VipLevels)),
+                Arg.Is(command.Modifier),
+                Arg.Any<CancellationToken>());
+    }
 }

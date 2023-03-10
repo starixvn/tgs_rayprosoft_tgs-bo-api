@@ -377,7 +377,7 @@ public class PromotionController : BaseContextController
 
     [HttpPatch("rule/{promotionId}", Name = "UpdatePromotionRule")]
     public async ValueTask<MessageResponse> UpdatePromotionRuleAsync(
-        [FromServices] IPromotionServiceClient promotionServiceClient,
+        [FromServices] ICommandService<UpdatePromotionRuleCommand> commandService,
         Guid promotionId,
         UpdatePromotionRuleViewModel viewModel)
     {
@@ -388,28 +388,17 @@ public class PromotionController : BaseContextController
             viewModel.VipLevels
         }, PromotionUtility.SerializerOptions);
 
-        if (viewModel.Rule == null)
-        {
-            await promotionServiceClient.SetPromotionRuleAsync(
-                promotionId,
-                baseRule,
-                Username,
-                HttpContext.RequestAborted).ConfigureAwait(false);
-        }
-        else
-        {
-            await promotionServiceClient.SetPromotionRuleAsync(
-                promotionId,
-                JsonMergePatch.ApplyMergePatch(baseRule.RootElement, viewModel.Rule.RootElement),
-                Username,
-                HttpContext.RequestAborted).ConfigureAwait(false);
-        }
+        var rule = viewModel.Rule is null
+            ? baseRule
+            : JsonMergePatch.ApplyMergePatch(baseRule.RootElement, viewModel.Rule.RootElement);
 
-        await promotionServiceClient.SetPromotionVipLevelsAsync(
+        var command = new UpdatePromotionRuleCommand(
             promotionId,
+            rule,
             viewModel.VipLevels,
-            Username,
-            HttpContext.RequestAborted).ConfigureAwait(false);
+            Username);
+
+        await commandService.ExecuteAsync(command).ConfigureAwait(false);
 
         return new MessageResponse
         {
@@ -417,7 +406,7 @@ public class PromotionController : BaseContextController
         };
     }
 
-    [HttpPatch("main/{promotionId}", Name = "UpdatePromotionMain")]
+    [HttpPatch("main/{promotionId}", Name = "UpdatePromotionMainInfo")]
     public async ValueTask<MessageResponse> UpdatePromotionMainInfoAsync(
         [FromServices] ICommandService<UpdatePromotionMainInfoCommand> commandService,
         Guid promotionId,
@@ -433,7 +422,6 @@ public class PromotionController : BaseContextController
             viewModel.TotalAmountLimit,
             viewModel.AutoSentPlayerBonus,
             Username);
-
 
         await commandService.ExecuteAsync(command, HttpContext.RequestAborted)
             .ConfigureAwait(false);
