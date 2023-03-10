@@ -57,59 +57,38 @@ public class PromotionController : BaseContextController
     [Description("Create a promotion")]
     public async Task<MessageResponse> CreatePromotionAsync(
         [FromServices] IPromotionServiceClient promotionServiceClient,
-        [FromServices] IBrandServiceClient brandServiceClient,
+        [FromServices] IGetService<CreatePromotionMainInfoCommand, Guid> createMainInfoCommandService,
+        [FromServices] ICommandService<UpdatePromotionContentCommand> updateContentCommandService,
+        [FromServices] ICommandService<UpdatePromotionRuleCommand> updateRuleCommandService,
         [FromBody] CreatePromotionRequest request)
     {
-        var from = new DateTimeOffset(request.From.ToDateTime(TimeOnly.MinValue), TimeSpan.FromHours(8));
-        var to = new DateTimeOffset(request.To.ToDateTime(TimeOnly.MinValue), TimeSpan.FromHours(8));
-
-        if (_promotionTypes.Contains(request.PromotionType))
-        {
-            var brandInfo = await brandServiceClient.GetBrandInfoAsync(request.BrandId)
-                .ConfigureAwait(false);
-
-            var timeSpanMinutes = (int)brandInfo?.TimeSpanMinutes!;
-
-            from = new DateTimeOffset(request.From.ToDateTime(TimeOnly.MinValue), TimeSpan.FromMinutes(timeSpanMinutes));
-            to = new DateTimeOffset(request.To.ToDateTime(TimeOnly.MinValue), TimeSpan.FromMinutes(timeSpanMinutes));
-        }
-
-        var createInfo = new CreatePromotionMainInfo
-        {
-            Name = request.Name,
-            EventDuring = (from.UtcDateTime, to.UtcDateTime),
-            PromotionType = request.PromotionType,
-            IsAutoSent = request.AutoSentPlayerBonus,
-            PromotionLimitAmount = request.Unlimited ? null : request.TotalAmountLimit
-        };
-
-        var promotionId = await promotionServiceClient.CreatePromotionAsync(
+        var createMainInfoCommand = new CreatePromotionMainInfoCommand(
             request.BrandId,
-            createInfo,
-            Username,
-            HttpContext.RequestAborted).ConfigureAwait(false);
+            request.Name,
+            request.PromotionType,
+            request.From,
+            request.To,
+            request.Unlimited,
+            request.TotalAmountLimit,
+            request.AutoSentPlayerBonus,
+            Username);
 
-        await promotionServiceClient.SetPromotionVipLevelsAsync(
+        var promotionId = await createMainInfoCommandService
+            .GetAsync(createMainInfoCommand, HttpContext.RequestAborted)
+            .ConfigureAwait(false);
+
+        var updateContentCommand = new UpdatePromotionContentCommand(
             promotionId,
-            request.VipLevels,
-            Username,
-            HttpContext.RequestAborted).ConfigureAwait(false);
+            request.SubSubject,
+            request.Content,
+            request.Localization ?? JsonDocument.Parse("{}"),
+            request.DesktopBanner,
+            request.MobileBanner,
+            request.Terms,
+            Username);
 
-        var content = new PromotionContent
-        {
-            Content = request.Content,
-            Convention = request.Terms,
-            Localization = request.Localization,
-            MobileBanner = request.MobileBanner,
-            PersonalComputerBanner = request.DesktopBanner,
-            SubSubject = request.SubSubject
-        };
-
-        await promotionServiceClient.SetPromotionContentAsync(
-            promotionId,
-            content,
-            Username,
-            HttpContext.RequestAborted).ConfigureAwait(false);
+        await updateContentCommandService.ExecuteAsync(updateContentCommand, HttpContext.RequestAborted)
+            .ConfigureAwait(false);
 
         var baseRule = JsonSerializer.SerializeToDocument(new
         {
@@ -121,22 +100,18 @@ public class PromotionController : BaseContextController
             request.VipLevels
         }, PromotionUtility.SerializerOptions);
 
-        if (request.Rule == null)
-        {
-            await promotionServiceClient.SetPromotionRuleAsync(
-                promotionId,
-                baseRule,
-                Username,
-                HttpContext.RequestAborted).ConfigureAwait(false);
-        }
-        else
-        {
-            await promotionServiceClient.SetPromotionRuleAsync(
-                promotionId,
-                JsonMergePatch.ApplyMergePatch(baseRule.RootElement, request.Rule.RootElement),
-                Username,
-                HttpContext.RequestAborted).ConfigureAwait(false);
-        }
+        var rule = request.Rule is null
+            ? baseRule
+            : JsonMergePatch.ApplyMergePatch(baseRule.RootElement, request.Rule.RootElement);
+
+        var updateRuleCommand = new UpdatePromotionRuleCommand(
+            promotionId,
+            rule,
+            request.VipLevels,
+            Username);
+
+        await updateRuleCommandService.ExecuteAsync(updateRuleCommand, HttpContext.RequestAborted)
+            .ConfigureAwait(false);
 
         await promotionServiceClient.SetPromotionStatusAsync(
             promotionId,
@@ -281,61 +256,38 @@ public class PromotionController : BaseContextController
     [Description("Update a promotion")]
     public async Task<MessageResponse> UpdatePromotionAsync(
         [FromServices] IPromotionServiceClient promotionServiceClient,
-        [FromServices] IBrandServiceClient brandServiceClient,
+        [FromServices] ICommandService<UpdatePromotionMainInfoCommand> updateMainInfoCommandService,
+        [FromServices] ICommandService<UpdatePromotionContentCommand> updateContentCommandService,
+        [FromServices] ICommandService<UpdatePromotionRuleCommand> updateRuleCommandService,
         Guid promotionId,
         [FromBody] UpdatePromotionRequest request)
     {
-        var from = new DateTimeOffset(request.From.ToDateTime(TimeOnly.MinValue), TimeSpan.FromHours(8));
-        var to = new DateTimeOffset(request.To.ToDateTime(TimeOnly.MinValue), TimeSpan.FromHours(8));
-
-        if (_promotionTypes.Contains(request.PromotionType))
-        {
-            var promotion = await promotionServiceClient.GetPromotionMainInfoAsync(promotionId).ConfigureAwait(false);
-
-            var brandInfo = await brandServiceClient.GetBrandInfoAsync(promotion.BrandId)
-                .ConfigureAwait(false);
-
-            var timeSpanMinutes = (int)brandInfo?.TimeSpanMinutes!;
-
-            from = new DateTimeOffset(request.From.ToDateTime(TimeOnly.MinValue), TimeSpan.FromMinutes(timeSpanMinutes));
-            to = new DateTimeOffset(request.To.ToDateTime(TimeOnly.MinValue), TimeSpan.FromMinutes(timeSpanMinutes));
-        }
-
-        var updateInfo = new CreatePromotionMainInfo
-        {
-            Name = request.Name,
-            EventDuring = (from.UtcDateTime, to.UtcDateTime),
-            PromotionType = request.PromotionType,
-            IsAutoSent = request.AutoSentPlayerBonus,
-            PromotionLimitAmount = request.Unlimited ? null : request.TotalAmountLimit
-        };
-
-        await promotionServiceClient.UpdatePromotionMainInfoAsync(
+        var updateMainInfoCommand = new UpdatePromotionMainInfoCommand(
             promotionId,
-            updateInfo,
-            Username,
-            HttpContext.RequestAborted).ConfigureAwait(false);
+            request.Name,
+            request.PromotionType,
+            request.From,
+            request.To,
+            request.Unlimited,
+            request.TotalAmountLimit,
+            request.AutoSentPlayerBonus,
+            Username);
 
-        await promotionServiceClient.SetPromotionVipLevelsAsync(
-            promotionId,
-            request.VipLevels,
-            Username,
-            HttpContext.RequestAborted).ConfigureAwait(false);
+        await updateMainInfoCommandService.ExecuteAsync(updateMainInfoCommand, HttpContext.RequestAborted)
+            .ConfigureAwait(false);
 
-        var content = new PromotionContent
-        {
-            Content = request.Content,
-            Convention = request.Terms,
-            Localization = request.Localization,
-            MobileBanner = request.MobileBanner,
-            PersonalComputerBanner = request.DesktopBanner,
-            SubSubject = request.SubSubject
-        };
-        await promotionServiceClient.SetPromotionContentAsync(
+        var updateContentCommand = new UpdatePromotionContentCommand(
             promotionId,
-            content,
-            Username,
-            HttpContext.RequestAborted).ConfigureAwait(false);
+            request.SubSubject,
+            request.Content,
+            request.Localization ?? JsonDocument.Parse("{}"),
+            request.DesktopBanner,
+            request.MobileBanner,
+            request.Terms,
+            Username);
+
+        await updateContentCommandService.ExecuteAsync(updateContentCommand, HttpContext.RequestAborted)
+            .ConfigureAwait(false);
 
         var baseRule = JsonSerializer.SerializeToDocument(new
         {
@@ -347,22 +299,18 @@ public class PromotionController : BaseContextController
             request.VipLevels
         }, PromotionUtility.SerializerOptions);
 
-        if (request.Rule == null)
-        {
-            await promotionServiceClient.SetPromotionRuleAsync(
-                promotionId,
-                baseRule,
-                Username,
-                HttpContext.RequestAborted).ConfigureAwait(false);
-        }
-        else
-        {
-            await promotionServiceClient.SetPromotionRuleAsync(
-                promotionId,
-                JsonMergePatch.ApplyMergePatch(baseRule.RootElement, request.Rule.RootElement),
-                Username,
-                HttpContext.RequestAborted).ConfigureAwait(false);
-        }
+        var rule = request.Rule is null
+            ? baseRule
+            : JsonMergePatch.ApplyMergePatch(baseRule.RootElement, request.Rule.RootElement);
+
+        var updateRuleCommand = new UpdatePromotionRuleCommand(
+            promotionId,
+            rule,
+            request.VipLevels,
+            Username);
+
+        await updateRuleCommandService.ExecuteAsync(updateRuleCommand, HttpContext.RequestAborted)
+            .ConfigureAwait(false);
 
         await promotionServiceClient.SetPromotionStatusAsync(
             promotionId,
@@ -459,6 +407,7 @@ public class PromotionController : BaseContextController
             Valid = true
         };
     }
+
     [HttpPut("{promotionId:guid}/{status}", Name = "UpdatePromotionStatus")]
     [Description("change a Promotion's status")]
     public async Task<MessageResponse> UpdatePromotionStatusAsync(

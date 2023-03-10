@@ -109,7 +109,7 @@ public class PromotionTests
     }
 
     [Test]
-    public async Task 修改活動MainInfo_特定活動類型會取得Brand時區設定()
+    public async Task 修改活動MainInfo_特定活動類型會套用Brand時區設定()
     {
         var fakePromotionServiceClient = Substitute.For<IPromotionServiceClient>();
         var fakeBrandServiceClient = Substitute.For<IBrandServiceClient>();
@@ -284,7 +284,7 @@ public class PromotionTests
     }
 
     [Test]
-    public async Task 新增活動MainInfo_特定活動類型會取得Brand時區設定()
+    public async Task 新增活動MainInfo_特定活動類型會套用Brand時區設定()
     {
         var fakePromotionServiceClient = Substitute.For<IPromotionServiceClient>();
         var fakeBrandServiceClient = Substitute.For<IBrandServiceClient>();
