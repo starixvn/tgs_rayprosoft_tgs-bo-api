@@ -4,11 +4,13 @@ using AutoFixture;
 using FluentAssertions;
 using MockQueryable.Moq;
 using Moq;
+using NSubstitute;
 using Tgs.Core.Infrastructures.Security;
 using TGS.Apis.BackendOffice.Controllers;
 using TGS.Apis.BackendOffice.Controllers.Messages.Users;
 using TGS.Core.DataServices.Base.Interfaces;
 using TGS.Core.DataServices.Tgs.Models;
+using TGS.Core.Models.Enums;
 
 namespace TGS.Tests.BackendOffice.UnitTests.Controllers;
 
@@ -360,6 +362,21 @@ public class UserControllerTests : BaseTests
         _userQueriesMock.Verify(s => s.GetSingleAsync(It.IsAny<Expression<Func<User, bool>>>(),
             It.IsAny<Func<IQueryable<User>, IQueryable<User>>>()));
         _userCommandsMock.Verify(p => p.UpdateAsync(user), Times.Never);
+    }
+
+    [Test]
+    public async Task Cannot_Create_Admin_User()
+    {
+        var request = new Fixture().Create<CreateUserRequest>();
+
+        _ = _roleQueriesMock.Setup(s => s.GetSingleAsync(It.IsAny<Expression<Func<Role, bool>>>(),
+                It.IsAny<Func<IQueryable<Role>, IQueryable<Role>>>()))
+            .Returns(Task.FromResult<Role>(new Role{RoleType = RoleType.Admin}));
+
+        var response = await _controller.CreateAsync(request);
+        _ = response.Valid.Should().BeTrue();
+
+        _userCommandsMock.Verify(x => x.CreateAsync(It.IsAny<User>()), Times.Never);
     }
 
     [SetUp]
