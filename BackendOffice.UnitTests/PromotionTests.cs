@@ -1,4 +1,5 @@
-﻿using NSubstitute;
+﻿using System.Text.Json;
+using NSubstitute;
 using Tgs.Promotion.Clients;
 using TGS.Services.BackOffice.ApplicationServices.Promotion;
 using TGS.Services.BackOffice.Domain;
@@ -59,5 +60,32 @@ public class PromotionTests
 
         _ = fakePromotionServiceClient.Received(1)
             .GetPromotionRuleAsync<PromotionRuleInfo>(Arg.Is(query.PromotionId));
+    }
+
+    [Test]
+    public async Task 修改活動內容()
+    {
+        var fakePromotionServiceClient = Substitute.For<IPromotionServiceClient>();
+
+        var sut = new UpdatePromotionContentCommandService(fakePromotionServiceClient);
+
+        var command = new UpdatePromotionContentCommand(
+            Guid.NewGuid(),
+            "TestSubject",
+            "TestContent",
+            JsonDocument.Parse("{}"),
+            null, 
+            null,
+            null,
+            "User1");
+
+        await sut.ExecuteAsync(command);
+
+        _ = fakePromotionServiceClient.Received(1)
+            .SetPromotionContentAsync(
+                Arg.Is(command.PromotionId),
+                Arg.Is<PromotionContent>(x => x.SubSubject == command.SubSubject),
+                Arg.Is(command.Modifier),
+                Arg.Any<CancellationToken>());
     }
 }

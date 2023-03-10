@@ -352,25 +352,22 @@ public class PromotionController : BaseContextController
 
     [HttpPatch("content/{promotionId}", Name = "UpdatePromotionContent")]
     public async ValueTask<MessageResponse> UpdatePromotionContentAsync(
-        [FromServices] IPromotionServiceClient promotionServiceClient,
+        [FromServices] ICommandService<UpdatePromotionContentCommand> commandService,
         Guid promotionId,
         UpdatePromotionContentViewModel viewModel)
     {
-        var content = new PromotionContent
-        {
-            Content = viewModel.Content,
-            Convention = viewModel.Terms,
-            Localization = viewModel.Localization ?? JsonDocument.Parse("{}"),
-            MobileBanner = viewModel.MobileBanner,
-            PersonalComputerBanner = viewModel.DesktopBanner,
-            SubSubject = viewModel.SubSubject
-        };
-
-        await promotionServiceClient.SetPromotionContentAsync(
+        var command = new UpdatePromotionContentCommand(
             promotionId,
-            content,
-            Username,
-            HttpContext.RequestAborted).ConfigureAwait(false);
+            viewModel.SubSubject,
+            viewModel.Content,
+            viewModel.Localization ?? JsonDocument.Parse("{}"),
+            viewModel.DesktopBanner,
+            viewModel.MobileBanner,
+            viewModel.Terms,
+            Username);
+
+        await commandService.ExecuteAsync(command, HttpContext.RequestAborted)
+            .ConfigureAwait(false);
 
         return new MessageResponse
         {
