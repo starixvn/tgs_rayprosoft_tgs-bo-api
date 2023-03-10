@@ -8,7 +8,7 @@ using Tgs.ServiceUtility;
 
 namespace TGS.Services.BackOffice.ApplicationServices.Promotion;
 
-public record UpdatePromotionMainInfoCommandService : ICommandService<UpdatePromotionMainInfoCommand>
+internal record UpdatePromotionMainInfoCommandService : ICommandService<UpdatePromotionMainInfoCommand>
 {
     private readonly IPromotionServiceClient _promotionServiceClient;
     private readonly IBrandServiceClient _brandServiceClient;
