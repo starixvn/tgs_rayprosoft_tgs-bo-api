@@ -12,6 +12,7 @@ using Tgs.Promotion;
 using Tgs.Promotion.Clients;
 using Tgs.ServiceUtility;
 using TGS.Apis.BackendOffice.Controllers.Messages.Promotion;
+using TGS.Apis.BackendOffice.ViewModels;
 using TGS.Core.Models.Enums;
 using TGS.Core.Models.Messages;
 using TGS.Services.BackOffice.ApplicationServices.Promotion;
@@ -347,6 +348,34 @@ public class PromotionController : BaseContextController
             HttpContext.RequestAborted).ConfigureAwait(false);
 
         return new MessageResponse { Valid = true };
+    }
+
+    [HttpPut("{promotionId}:content", Name = "UpdatePromotionContent")]
+    public async ValueTask<MessageResponse> UpdatePromotionContentAsync(
+        [FromServices] IPromotionServiceClient promotionServiceClient,
+        Guid promotionId,
+        UpdatePromotionContentViewModel viewModel)
+    {
+        var content = new PromotionContent
+        {
+            Content = viewModel.Content,
+            Convention = viewModel.Terms,
+            Localization = viewModel.Localization ?? JsonDocument.Parse("{}"),
+            MobileBanner = viewModel.MobileBanner,
+            PersonalComputerBanner = viewModel.DesktopBanner,
+            SubSubject = viewModel.SubSubject
+        };
+
+        await promotionServiceClient.SetPromotionContentAsync(
+            promotionId,
+            content,
+            Username,
+            HttpContext.RequestAborted).ConfigureAwait(false);
+
+        return new MessageResponse
+        {
+            Valid = true
+        };
     }
 
     [HttpPut("{promotionId:guid}/{status}", Name = "UpdatePromotionStatus")]

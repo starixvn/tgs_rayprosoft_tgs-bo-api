@@ -320,4 +320,12 @@ export default class BackOfficeService {
             .put(`/api/offline-deposit-reward/${brandId}:create`, request)
             .then(res => res.data);
     }
+
+    public updatePromotionContent(
+        promotionId: string,
+        request: UpdatePromotionContentRequest): Promise<MessageResponse> {
+        return this.http
+            .put(`/api/promotion/${promotionId}:content`, request)
+            .then(res => res.data);
+    }
 }
