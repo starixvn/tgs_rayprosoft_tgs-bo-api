@@ -7,7 +7,6 @@ using System.Text.Json;
 using System.Threading.Tasks;
 using JsonCons.Utilities;
 using Microsoft.AspNetCore.Mvc;
-using Tgs.BrandCertificate.Clients;
 using Tgs.Promotion;
 using Tgs.Promotion.Clients;
 using Tgs.ServiceUtility;
@@ -25,15 +24,6 @@ namespace TGS.Apis.BackendOffice.Controllers.Promotion;
 [ApiController]
 public class PromotionController : BaseContextController
 {
-    private readonly ImmutableArray<string> _promotionTypes = new string[]
-    {
-        "ReliefMoneyDaily",
-        "ReliefMoneyWeekly",
-        "ReliefMoneyMonthly",
-        "TurnoverRebate",
-        "TurnoverRebateWeekly"
-    }.ToImmutableArray();
-
     [HttpPut("ChangeOrders", Name = "ChangeOrder")]
     [Description("Change Promotion Display Order")]
     public async Task<MessageResponse> ChangeOrderAsync(
@@ -73,9 +63,9 @@ public class PromotionController : BaseContextController
             request.AutoSentPlayerBonus,
             Username);
 
-        var promotionId = await createMainInfoCommandService
-            .GetAsync(createMainInfoCommand, HttpContext.RequestAborted)
-            .ConfigureAwait(false);
+        var promotionId = await createMainInfoCommandService.GetAsync(
+            createMainInfoCommand,
+            HttpContext.RequestAborted).ConfigureAwait(false);
 
         var updateContentCommand = new UpdatePromotionContentCommand(
             promotionId,
@@ -87,8 +77,9 @@ public class PromotionController : BaseContextController
             request.Terms,
             Username);
 
-        await updateContentCommandService.ExecuteAsync(updateContentCommand, HttpContext.RequestAborted)
-            .ConfigureAwait(false);
+        await updateContentCommandService.ExecuteAsync(
+            updateContentCommand,
+            HttpContext.RequestAborted).ConfigureAwait(false);
 
         var baseRule = JsonSerializer.SerializeToDocument(new
         {
@@ -110,8 +101,9 @@ public class PromotionController : BaseContextController
             request.VipLevels,
             Username);
 
-        await updateRuleCommandService.ExecuteAsync(updateRuleCommand, HttpContext.RequestAborted)
-            .ConfigureAwait(false);
+        await updateRuleCommandService.ExecuteAsync(
+            updateRuleCommand,
+            HttpContext.RequestAborted).ConfigureAwait(false);
 
         await promotionServiceClient.SetPromotionStatusAsync(
             promotionId,
@@ -144,9 +136,9 @@ public class PromotionController : BaseContextController
             viewModel.AutoSentPlayerBonus,
             Username);
 
-        var promotionId = await getService
-            .GetAsync(command, HttpContext.RequestAborted)
-            .ConfigureAwait(false);
+        var promotionId = await getService.GetAsync(
+            command,
+            HttpContext.RequestAborted).ConfigureAwait(false);
 
         return new ResponseViewModel<Guid?>
         {
@@ -273,8 +265,9 @@ public class PromotionController : BaseContextController
             request.AutoSentPlayerBonus,
             Username);
 
-        await updateMainInfoCommandService.ExecuteAsync(updateMainInfoCommand, HttpContext.RequestAborted)
-            .ConfigureAwait(false);
+        await updateMainInfoCommandService.ExecuteAsync(
+            updateMainInfoCommand,
+            HttpContext.RequestAborted).ConfigureAwait(false);
 
         var updateContentCommand = new UpdatePromotionContentCommand(
             promotionId,
@@ -368,8 +361,9 @@ public class PromotionController : BaseContextController
             viewModel.AutoSentPlayerBonus,
             Username);
 
-        await commandService.ExecuteAsync(command, HttpContext.RequestAborted)
-            .ConfigureAwait(false);
+        await commandService.ExecuteAsync(
+            command,
+            HttpContext.RequestAborted).ConfigureAwait(false);
 
         return new MessageResponse
         {

@@ -82,6 +82,13 @@ public class PromotionTests
             true,
             "User1");
 
+        _ = fakePromotionServiceClient.GetPromotionMainInfoAsync(Arg.Is(command.PromotionId))
+            .Returns(new PromotionMainInfo
+            {
+                Id = command.PromotionId,
+                BrandId = Guid.NewGuid()
+            });
+
         var expectedCreateInfo = new CreatePromotionMainInfo
         {
             Name = "TestPromotion",

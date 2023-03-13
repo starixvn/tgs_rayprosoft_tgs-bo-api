@@ -1,5 +1,5 @@
 ﻿using System;
-using System.Collections.Immutable;
+using System.Collections.Generic;
 using System.Threading;
 using System.Threading.Tasks;
 using Tgs.BrandCertificate.Clients;
@@ -10,17 +10,17 @@ namespace TGS.Services.BackOffice.ApplicationServices.Promotion;
 
 internal class CreatePromotionMainInfoCommandService : IGetService<CreatePromotionMainInfoCommand, Guid>
 {
-    private readonly IPromotionServiceClient _promotionServiceClient;
     private readonly IBrandServiceClient _brandServiceClient;
-    
-    private readonly ImmutableArray<string> _promotionTypes = new[]
+    private readonly IPromotionServiceClient _promotionServiceClient;
+
+    private readonly static HashSet<string> _PromotionTypes = new(5)
     {
         "ReliefMoneyDaily",
         "ReliefMoneyWeekly",
         "ReliefMoneyMonthly",
         "TurnoverRebate",
         "TurnoverRebateWeekly"
-    }.ToImmutableArray();
+    };
 
     public CreatePromotionMainInfoCommandService(
         IPromotionServiceClient promotionServiceClient,
@@ -31,22 +31,22 @@ internal class CreatePromotionMainInfoCommandService : IGetService<CreatePromoti
     }
 
     public async ValueTask<Guid> GetAsync(
-        CreatePromotionMainInfoCommand command, 
+        CreatePromotionMainInfoCommand command,
         CancellationToken cancellationToken = default)
     {
-        var timeSpan = TimeSpan.FromHours(8);
-       
-        if (_promotionTypes.Contains(command.PromotionType))
+        var offset = TimeSpan.FromHours(8);
+
+        if (_PromotionTypes.Contains(command.PromotionType))
         {
             var brandInfo = await _brandServiceClient.GetBrandInfoAsync(command.BrandId, cancellationToken)
                 .ConfigureAwait(false);
-            
-            timeSpan = TimeSpan.FromMinutes(brandInfo!.TimeSpanMinutes!.Value);
+
+            offset = TimeSpan.FromMinutes(brandInfo!.TimeSpanMinutes!.Value);
         }
 
-        var from = new DateTimeOffset(command.From.ToDateTime(TimeOnly.MinValue), timeSpan).UtcDateTime;
-        var to = new DateTimeOffset(command.To.ToDateTime(TimeOnly.MinValue), timeSpan).UtcDateTime;
-        
+        var from = new DateTimeOffset(command.From.ToDateTime(TimeOnly.MinValue), offset).UtcDateTime;
+        var to = new DateTimeOffset(command.To.ToDateTime(TimeOnly.MinValue), offset).UtcDateTime;
+
         var createInfo = new CreatePromotionMainInfo
         {
             Name = command.Name,

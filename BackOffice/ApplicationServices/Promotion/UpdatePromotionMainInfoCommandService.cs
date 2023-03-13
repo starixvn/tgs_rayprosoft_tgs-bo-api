@@ -1,5 +1,5 @@
 ﻿using System;
-using System.Collections.Immutable;
+using System.Collections.Generic;
 using System.Threading;
 using System.Threading.Tasks;
 using Tgs.BrandCertificate.Clients;
@@ -13,14 +13,14 @@ internal record UpdatePromotionMainInfoCommandService : ICommandService<UpdatePr
     private readonly IPromotionServiceClient _promotionServiceClient;
     private readonly IBrandServiceClient _brandServiceClient;
 
-    private readonly ImmutableArray<string> _promotionTypes = new[]
+    private static readonly HashSet<string> _PromotionTypes = new(5)
     {
         "ReliefMoneyDaily",
         "ReliefMoneyWeekly",
         "ReliefMoneyMonthly",
         "TurnoverRebate",
         "TurnoverRebateWeekly"
-    }.ToImmutableArray();
+    };
 
     public UpdatePromotionMainInfoCommandService(
         IPromotionServiceClient promotionServiceClient,
@@ -31,26 +31,29 @@ internal record UpdatePromotionMainInfoCommandService : ICommandService<UpdatePr
     }
 
     public async ValueTask ExecuteAsync(
-    UpdatePromotionMainInfoCommand command,
+        UpdatePromotionMainInfoCommand command,
         CancellationToken cancellationToken = default)
     {
-        var timeSpan = TimeSpan.FromHours(8);
+        var promotion = await _promotionServiceClient.GetPromotionMainInfoAsync(
+            command.PromotionId,
+            cancellationToken).ConfigureAwait(false);
 
-        if (_promotionTypes.Contains(command.PromotionType))
+        if (promotion is null)
+            return;
+
+        var offset = TimeSpan.FromHours(8);
+
+        if (_PromotionTypes.Contains(command.PromotionType))
         {
-            var promotion = await _promotionServiceClient
-                .GetPromotionMainInfoAsync(command.PromotionId, cancellationToken)
-                .ConfigureAwait(false);
-
             var brandInfo = await _brandServiceClient
                 .GetBrandInfoAsync(promotion!.BrandId, cancellationToken)
                 .ConfigureAwait(false);
-            
-            timeSpan = TimeSpan.FromMinutes(brandInfo!.TimeSpanMinutes!.Value);
+
+            offset = TimeSpan.FromMinutes(brandInfo!.TimeSpanMinutes!.Value);
         }
 
-        var from = new DateTimeOffset(command.From.ToDateTime(TimeOnly.MinValue), timeSpan).UtcDateTime;
-        var to = new DateTimeOffset(command.To.ToDateTime(TimeOnly.MinValue), timeSpan).UtcDateTime;
+        var from = new DateTimeOffset(command.From.ToDateTime(TimeOnly.MinValue), offset).UtcDateTime;
+        var to = new DateTimeOffset(command.To.ToDateTime(TimeOnly.MinValue), offset).UtcDateTime;
 
         var updateInfo = new CreatePromotionMainInfo
         {

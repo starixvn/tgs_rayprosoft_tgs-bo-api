@@ -49,8 +49,6 @@ public class PromotionTests
 
         await web.StartAsync();
 
-        var promotionId = Guid.NewGuid();
-
         var request = new UpdatePromotionMainInfoViewModel
         {
             Name = "TestPromotion",
@@ -60,6 +58,17 @@ public class PromotionTests
             AutoSentPlayerBonus = false,
             Unlimited = true,
         };
+
+        var promotionId = Guid.NewGuid();
+
+        _ = fakePromotionServiceClient.GetPromotionMainInfoAsync(
+            Arg.Is(promotionId),
+            Arg.Any<CancellationToken>())
+            .Returns(new PromotionMainInfo
+            {
+                Id = promotionId,
+                BrandId = Guid.NewGuid()
+            });
 
         var isWindows = RuntimeInformation.IsOSPlatform(OSPlatform.Windows) ? "true" : "false";
 
@@ -98,8 +107,7 @@ public class PromotionTests
             PromotionLimitAmount = request.Unlimited ? null : request.TotalAmountLimit
         };
 
-        _ = fakePromotionServiceClient
-            .Received(1)
+        _ = fakePromotionServiceClient.Received(1)
             .UpdatePromotionMainInfoAsync(
                 Arg.Is(promotionId),
                 Arg.Is(updateInfo),
@@ -115,7 +123,7 @@ public class PromotionTests
         var userId = Guid.NewGuid();
 
         var fakePromotionServiceClient = Substitute.For<IPromotionServiceClient>();
-        
+
         using var web = TestBackendOfficeApplication.Builder
             .UseTestChannelServer(channelName)
             .ConfigureLogging(logging => logging.AddXUnit(_testOutputHelper))
@@ -138,7 +146,7 @@ public class PromotionTests
 
         var request = new UpdatePromotionContentViewModel
         {
-            SubSubject = "TestPromotion", 
+            SubSubject = "TestPromotion",
             Content = "TestPromotionContent",
             DesktopBanner = "http://abc.com/desktop.jpg",
             Localization = JsonDocument.Parse("{}")
@@ -164,7 +172,7 @@ public class PromotionTests
         var actual = await StaticNodeJSService.InvokeFromStringAsync<MessageResponse>(
             nodeModule,
             args: new object[] { promotionId, request });
-        
+
         // Assert
         Assert.NotNull(actual);
         Assert.True(actual.Valid);
@@ -209,9 +217,9 @@ public class PromotionTests
 
         var request = new UpdatePromotionRuleViewModel
         {
-            GameProviderIds = new[] { Guid.NewGuid()},
+            GameProviderIds = new[] { Guid.NewGuid() },
             Rule = JsonDocument.Parse("{}"),
-            VipLevels = new [] {1, 2, 3}
+            VipLevels = new[] { 1, 2, 3 }
         };
 
         var isWindows = RuntimeInformation.IsOSPlatform(OSPlatform.Windows) ? "true" : "false";
