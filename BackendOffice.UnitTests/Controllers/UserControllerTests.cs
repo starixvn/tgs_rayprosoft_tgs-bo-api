@@ -9,6 +9,7 @@ using TGS.Apis.BackendOffice.Controllers;
 using TGS.Apis.BackendOffice.Controllers.Messages.Users;
 using TGS.Core.DataServices.Base.Interfaces;
 using TGS.Core.DataServices.Tgs.Models;
+using TGS.Core.Models.Enums;
 
 namespace TGS.Tests.BackendOffice.UnitTests.Controllers;
 
@@ -16,38 +17,46 @@ namespace TGS.Tests.BackendOffice.UnitTests.Controllers;
 [Parallelizable]
 public class UserControllerTests : BaseTests
 {
-    private readonly Mock<ITgsQueries<Department>> _departmentQueriesMock = new();
-
-    private readonly Mock<IPasswordHandler> _passwordHandlerMock = new();
-
-    private readonly Mock<ITgsQueries<Role>> _roleQueriesMock = new();
-
-    private readonly Mock<ITgsCommands<User>> _userCommandsMock = new();
-
-    private readonly Mock<ITgsQueries<User>> _userQueriesMock = new();
-
-    private UserController _controller = default!;
 
     [Test]
     public async Task Can_Create_User()
     {
+        var roleQueriesMock = new Mock<ITgsQueries<Role>>();
+        var userQueriesMock = new Mock<ITgsQueries<User>>();
+        var userCommandsMock = new Mock<ITgsCommands<User>>();
+        var departmentQueriesMock = new Mock<ITgsQueries<Department>>();
+        var passwordHandlerMock = new Mock<IPasswordHandler>();
+
+        var controller = new UserController(
+            passwordHandlerMock.Object,
+            userQueriesMock.Object,
+            departmentQueriesMock.Object,
+            roleQueriesMock.Object,
+            userCommandsMock.Object)
+        {
+            ControllerContext =
+            {
+                HttpContext = HttpContextMock.Object
+            }
+        };
+
         var request = new Fixture().Create<CreateUserRequest>();
         var users = CreateUserFixture().CreateMany<User>(10).AsQueryable().BuildMock();
 
-        _ = _userQueriesMock.Setup(x => x.GetQueries()).Returns(users);
+        _ = userQueriesMock.Setup(x => x.GetQueries()).Returns(users);
 
-        _ = _roleQueriesMock.Setup(s => s.GetSingleAsync(It.IsAny<Expression<Func<Role, bool>>>(),
+        _ = roleQueriesMock.Setup(s => s.GetSingleAsync(It.IsAny<Expression<Func<Role, bool>>>(),
                 It.IsAny<Func<IQueryable<Role>, IQueryable<Role>>>()))
-            .Returns(Task.FromResult(new Role()));
+            .Returns(Task.FromResult(new Role{RoleType = RoleType.Reseller}));
 
-        _ = _departmentQueriesMock.Setup(s => s.GetSingleAsync(It.IsAny<Expression<Func<Department, bool>>>(),
+        _ = departmentQueriesMock.Setup(s => s.GetSingleAsync(It.IsAny<Expression<Func<Department, bool>>>(),
                 It.IsAny<Func<IQueryable<Department>, IQueryable<Department>>>()))
             .Returns(Task.FromResult(new Department()));
 
-        var response = await _controller.CreateAsync(request);
+        var response = await controller.CreateAsync(request);
         _ = response.Valid.Should().BeTrue();
 
-        _userCommandsMock.Verify(s => s.CreateAsync(It.Is<User>(p =>
+        userCommandsMock.Verify(s => s.CreateAsync(It.Is<User>(p =>
             p.Name == request.Name &&
             p.Username == request.Username &&
             p.RoleId == request.RoleId &&
@@ -57,6 +66,25 @@ public class UserControllerTests : BaseTests
     [Test]
     public async Task Can_Get_All_Users()
     {
+        var roleQueriesMock = new Mock<ITgsQueries<Role>>();
+        var userQueriesMock = new Mock<ITgsQueries<User>>();
+        var userCommandsMock = new Mock<ITgsCommands<User>>();
+        var departmentQueriesMock = new Mock<ITgsQueries<Department>>();
+        var passwordHandlerMock = new Mock<IPasswordHandler>();
+
+        var controller = new UserController(
+            passwordHandlerMock.Object,
+            userQueriesMock.Object,
+            departmentQueriesMock.Object,
+            roleQueriesMock.Object,
+            userCommandsMock.Object)
+        {
+            ControllerContext =
+            {
+                HttpContext = HttpContextMock.Object
+            }
+        };
+
         var request = new GetUsersRequest
         {
             Page = 1,
@@ -80,10 +108,10 @@ public class UserControllerTests : BaseTests
 
         var expectedUsers = orderedUsers.ToArray();
 
-        _ = _userQueriesMock.Setup(x => x.GetQueries())
+        _ = userQueriesMock.Setup(x => x.GetQueries())
             .Returns(users);
 
-        var response = await _controller.GetListAsync(request);
+        var response = await controller.GetListAsync(request);
         _ = response.Valid.Should().BeTrue();
 
         for (var i = 0; i < response.Items.Length; i++)
@@ -99,12 +127,31 @@ public class UserControllerTests : BaseTests
             _ = response.Items[i].CreatedOn.Should().Be(expectedUsers[i].CreatedOn);
         }
 
-        _userQueriesMock.Verify(p => p.GetQueries());
+        userQueriesMock.Verify(p => p.GetQueries());
     }
 
     [Test]
     public async Task Can_Get_Page_Users()
     {
+        var roleQueriesMock = new Mock<ITgsQueries<Role>>();
+        var userQueriesMock = new Mock<ITgsQueries<User>>();
+        var userCommandsMock = new Mock<ITgsCommands<User>>();
+        var departmentQueriesMock = new Mock<ITgsQueries<Department>>();
+        var passwordHandlerMock = new Mock<IPasswordHandler>();
+
+        var controller = new UserController(
+            passwordHandlerMock.Object,
+            userQueriesMock.Object,
+            departmentQueriesMock.Object,
+            roleQueriesMock.Object,
+            userCommandsMock.Object)
+        {
+            ControllerContext =
+            {
+                HttpContext = HttpContextMock.Object
+            }
+        };
+
         var request = new GetUsersRequest
         {
             Page = 1,
@@ -124,10 +171,10 @@ public class UserControllerTests : BaseTests
 
         var expectedUsers = orderedUsers.Skip(skip).Take(take).ToArray();
 
-        _ = _userQueriesMock.Setup(x => x.GetQueries())
+        _ = userQueriesMock.Setup(x => x.GetQueries())
             .Returns(users);
 
-        var response = await _controller.GetListAsync(request);
+        var response = await controller.GetListAsync(request);
         _ = response.Valid.Should().BeTrue();
 
         for (var i = 0; i < response.Items.Length; i++)
@@ -143,36 +190,74 @@ public class UserControllerTests : BaseTests
             _ = response.Items[i].CreatedOn.Should().Be(expectedUsers[i].CreatedOn);
         }
 
-        _userQueriesMock.Verify(p => p.GetQueries());
+        userQueriesMock.Verify(p => p.GetQueries());
     }
 
     [Test]
     public async Task Can_Update_User()
     {
+        var roleQueriesMock = new Mock<ITgsQueries<Role>>();
+        var userQueriesMock = new Mock<ITgsQueries<User>>();
+        var userCommandsMock = new Mock<ITgsCommands<User>>();
+        var departmentQueriesMock = new Mock<ITgsQueries<Department>>();
+        var passwordHandlerMock = new Mock<IPasswordHandler>();
+
+        var controller = new UserController(
+            passwordHandlerMock.Object,
+            userQueriesMock.Object,
+            departmentQueriesMock.Object,
+            roleQueriesMock.Object,
+            userCommandsMock.Object)
+        {
+            ControllerContext =
+            {
+                HttpContext = HttpContextMock.Object
+            }
+        };
+
         var user = CreateUserFixture().Create<User>();
         var request = new Fixture().Create<UpdateUserRequest>();
 
-        _ = _userQueriesMock.Setup(s => s.GetSingleAsync(It.IsAny<Expression<Func<User, bool>>>(),
+        _ = userQueriesMock.Setup(s => s.GetSingleAsync(It.IsAny<Expression<Func<User, bool>>>(),
                 It.IsAny<Func<IQueryable<User>, IQueryable<User>>>()))
             .Returns(Task.FromResult(user));
 
-        _ = _roleQueriesMock.Setup(s => s.GetSingleAsync(It.IsAny<Expression<Func<Role, bool>>>(),
+        _ = roleQueriesMock.Setup(s => s.GetSingleAsync(It.IsAny<Expression<Func<Role, bool>>>(),
                 It.IsAny<Func<IQueryable<Role>, IQueryable<Role>>>()))
             .Returns(Task.FromResult(new Role()));
 
-        _ = _departmentQueriesMock.Setup(s => s.GetSingleAsync(It.IsAny<Expression<Func<Department, bool>>>(),
+        _ = departmentQueriesMock.Setup(s => s.GetSingleAsync(It.IsAny<Expression<Func<Department, bool>>>(),
                 It.IsAny<Func<IQueryable<Department>, IQueryable<Department>>>()))
             .Returns(Task.FromResult(new Department()));
 
-        var response = await _controller.UpdateAsync(user.Id, request);
+        var response = await controller.UpdateAsync(user.Id, request);
 
         _ = response.Valid.Should().BeTrue();
-        _userCommandsMock.Verify(p => p.UpdateAsync(It.Is<User>(u => u.Name == request.Name)));
+        userCommandsMock.Verify(p => p.UpdateAsync(It.Is<User>(u => u.Name == request.Name)));
     }
 
     [Test]
     public async Task Can_Update_User_Password()
     {
+        var roleQueriesMock = new Mock<ITgsQueries<Role>>();
+        var userQueriesMock = new Mock<ITgsQueries<User>>();
+        var userCommandsMock = new Mock<ITgsCommands<User>>();
+        var departmentQueriesMock = new Mock<ITgsQueries<Department>>();
+        var passwordHandlerMock = new Mock<IPasswordHandler>();
+
+        var controller = new UserController(
+            passwordHandlerMock.Object,
+            userQueriesMock.Object,
+            departmentQueriesMock.Object,
+            roleQueriesMock.Object,
+            userCommandsMock.Object)
+        {
+            ControllerContext =
+            {
+                HttpContext = HttpContextMock.Object
+            }
+        };
+
         var user = CreateUserFixture().Create<User>();
         var password = Generator.RandomString(6);
 
@@ -182,36 +267,61 @@ public class UserControllerTests : BaseTests
             ConfirmPassword = password
         };
 
-        _ = _userQueriesMock.Setup(s => s.GetSingleAsync(It.IsAny<Expression<Func<User, bool>>>(),
+        _ = userQueriesMock.Setup(s => s.GetSingleAsync(It.IsAny<Expression<Func<User, bool>>>(),
                 It.IsAny<Func<IQueryable<User>, IQueryable<User>>>()))
             .Returns(Task.FromResult(user));
 
-        var response = await _controller.UpdatePasswordAsync(user.Id, request);
+        var response = await controller.UpdatePasswordAsync(user.Id, request);
 
         _ = response.Valid.Should().BeTrue();
 
-        _userQueriesMock.Verify(s => s.GetSingleAsync(It.IsAny<Expression<Func<User, bool>>>(),
+        userQueriesMock.Verify(s => s.GetSingleAsync(It.IsAny<Expression<Func<User, bool>>>(),
             It.IsAny<Func<IQueryable<User>, IQueryable<User>>>()));
-        _userCommandsMock.Verify(p => p.UpdateAsync(user));
+        userCommandsMock.Verify(p => p.UpdateAsync(user));
     }
 
     [Test]
     public async Task Cannot_Create_User_With_Department_Not_Found()
     {
+        var roleQueriesMock = new Mock<ITgsQueries<Role>>();
+        var userQueriesMock = new Mock<ITgsQueries<User>>();
+        var userCommandsMock = new Mock<ITgsCommands<User>>();
+        var departmentQueriesMock = new Mock<ITgsQueries<Department>>();
+        var passwordHandlerMock = new Mock<IPasswordHandler>();
+
+        var controller = new UserController(
+            passwordHandlerMock.Object,
+            userQueriesMock.Object,
+            departmentQueriesMock.Object,
+            roleQueriesMock.Object,
+            userCommandsMock.Object)
+        {
+            ControllerContext =
+            {
+                HttpContext = HttpContextMock.Object
+            }
+        };
+
         var request = new Fixture().Create<CreateUserRequest>();
 
-        _ = _userQueriesMock.Setup(s => s.ExistsAsync(It.IsAny<Expression<Func<User, bool>>>()))
+        var users = CreateUserFixture().CreateMany<User>(10).AsQueryable()
+            .BuildMock();
+
+        _ = userQueriesMock.Setup(s => s.GetQueries())
+            .Returns(users);
+
+        _ = userQueriesMock.Setup(s => s.ExistsAsync(It.IsAny<Expression<Func<User, bool>>>()))
             .Returns(Task.FromResult(false));
 
-        _ = _roleQueriesMock.Setup(s => s.GetSingleAsync(It.IsAny<Expression<Func<Role, bool>>>(),
+        _ = roleQueriesMock.Setup(s => s.GetSingleAsync(It.IsAny<Expression<Func<Role, bool>>>(),
                 It.IsAny<Func<IQueryable<Role>, IQueryable<Role>>>()))
-            .Returns(Task.FromResult(new Role()));
+            .Returns(Task.FromResult(new Role{RoleType= RoleType.Reseller}));
 
-        _ = _departmentQueriesMock.Setup(s => s.GetSingleAsync(It.IsAny<Expression<Func<Department, bool>>>(),
+        _ = departmentQueriesMock.Setup(s => s.GetSingleAsync(It.IsAny<Expression<Func<Department, bool>>>(),
                 It.IsAny<Func<IQueryable<Department>, IQueryable<Department>>>()))
             .Returns(Task.FromResult<Department>(default!));
 
-        var response = await _controller.CreateAsync(request);
+        var response = await controller.CreateAsync(request);
         _ = response.Valid.Should().BeFalse();
         _ = response.Message.Should().Be(Apis.BackendOffice.Resources.Department.NotFound);
     }
@@ -219,9 +329,29 @@ public class UserControllerTests : BaseTests
     [Test]
     public async Task Cannot_Create_User_With_Name_Exists()
     {
+        var roleQueriesMock = new Mock<ITgsQueries<Role>>();
+        var userQueriesMock = new Mock<ITgsQueries<User>>();
+        var userCommandsMock = new Mock<ITgsCommands<User>>();
+        var departmentQueriesMock = new Mock<ITgsQueries<Department>>();
+        var passwordHandlerMock = new Mock<IPasswordHandler>();
+
+        var controller = new UserController(
+            passwordHandlerMock.Object,
+            userQueriesMock.Object,
+            departmentQueriesMock.Object,
+            roleQueriesMock.Object,
+            userCommandsMock.Object)
+        {
+            ControllerContext =
+            {
+                HttpContext = HttpContextMock.Object
+            }
+        };
+
         var role = new Role
         {
-            Id = Guid.NewGuid()
+            Id = Guid.NewGuid(),
+            RoleType = RoleType.Reseller
         };
 
         var request = new Fixture().Create<CreateUserRequest>();
@@ -235,14 +365,14 @@ public class UserControllerTests : BaseTests
         firstUser.RoleId = role.Id;
         firstUser.Username = "username";
 
-        _ = _userQueriesMock.Setup(s => s.GetQueries())
+        _ = userQueriesMock.Setup(s => s.GetQueries())
             .Returns(users);
 
-        _ = _roleQueriesMock.Setup(s => s.GetSingleAsync(It.IsAny<Expression<Func<Role, bool>>>(),
+        _ = roleQueriesMock.Setup(s => s.GetSingleAsync(It.IsAny<Expression<Func<Role, bool>>>(),
                 It.IsAny<Func<IQueryable<Role>, IQueryable<Role>>>()))
             .Returns(Task.FromResult(role));
 
-        var response = await _controller.CreateAsync(request);
+        var response = await controller.CreateAsync(request);
         _ = response.Valid.Should().BeFalse();
         _ = response.Message.Should().Be(Apis.BackendOffice.Resources.User.UsernameExistedAlready);
     }
@@ -250,16 +380,35 @@ public class UserControllerTests : BaseTests
     [Test]
     public async Task Cannot_Create_User_With_Role_Not_Found()
     {
+        var roleQueriesMock = new Mock<ITgsQueries<Role>>();
+        var userQueriesMock = new Mock<ITgsQueries<User>>();
+        var userCommandsMock = new Mock<ITgsCommands<User>>();
+        var departmentQueriesMock = new Mock<ITgsQueries<Department>>();
+        var passwordHandlerMock = new Mock<IPasswordHandler>();
+
+        var controller = new UserController(
+            passwordHandlerMock.Object,
+            userQueriesMock.Object,
+            departmentQueriesMock.Object,
+            roleQueriesMock.Object,
+            userCommandsMock.Object)
+        {
+            ControllerContext =
+            {
+                HttpContext = HttpContextMock.Object
+            }
+        };
+
         var request = new Fixture().Create<CreateUserRequest>();
 
-        _ = _userQueriesMock.Setup(s => s.ExistsAsync(It.IsAny<Expression<Func<User, bool>>>()))
+        _ = userQueriesMock.Setup(s => s.ExistsAsync(It.IsAny<Expression<Func<User, bool>>>()))
             .Returns(Task.FromResult(false));
 
-        _ = _roleQueriesMock.Setup(s => s.GetSingleAsync(It.IsAny<Expression<Func<Role, bool>>>(),
+        _ = roleQueriesMock.Setup(s => s.GetSingleAsync(It.IsAny<Expression<Func<Role, bool>>>(),
                 It.IsAny<Func<IQueryable<Role>, IQueryable<Role>>>()))
             .Returns(Task.FromResult<Role>(default!));
 
-        var response = await _controller.CreateAsync(request);
+        var response = await controller.CreateAsync(request);
         _ = response.Valid.Should().BeFalse();
         _ = response.Message.Should().Be(Apis.BackendOffice.Resources.Role.NotFound);
     }
@@ -267,26 +416,64 @@ public class UserControllerTests : BaseTests
     [Test]
     public async Task Cannot_Update_User_Not_Found()
     {
+        var roleQueriesMock = new Mock<ITgsQueries<Role>>();
+        var userQueriesMock = new Mock<ITgsQueries<User>>();
+        var userCommandsMock = new Mock<ITgsCommands<User>>();
+        var departmentQueriesMock = new Mock<ITgsQueries<Department>>();
+        var passwordHandlerMock = new Mock<IPasswordHandler>();
+
+        var controller = new UserController(
+            passwordHandlerMock.Object,
+            userQueriesMock.Object,
+            departmentQueriesMock.Object,
+            roleQueriesMock.Object,
+            userCommandsMock.Object)
+        {
+            ControllerContext =
+            {
+                HttpContext = HttpContextMock.Object
+            }
+        };
+
         var user = CreateUserFixture().Create<User>();
         var request = new Fixture().Create<UpdateUserRequest>();
 
-        _ = _userQueriesMock.Setup(s => s.GetSingleAsync(It.IsAny<Expression<Func<User, bool>>>(),
+        _ = userQueriesMock.Setup(s => s.GetSingleAsync(It.IsAny<Expression<Func<User, bool>>>(),
                 It.IsAny<Func<IQueryable<User>, IQueryable<User>>>()))
             .Returns(Task.FromResult<User>(default!));
 
-        var response = await _controller.UpdateAsync(user.Id, request);
+        var response = await controller.UpdateAsync(user.Id, request);
 
         _ = response.Valid.Should().BeFalse();
         _ = response.Message.Should().Be(Apis.BackendOffice.Resources.User.NotFound);
 
-        _userQueriesMock.Verify(s => s.GetSingleAsync(It.IsAny<Expression<Func<User, bool>>>(),
+        userQueriesMock.Verify(s => s.GetSingleAsync(It.IsAny<Expression<Func<User, bool>>>(),
             It.IsAny<Func<IQueryable<User>, IQueryable<User>>>()));
-        _userCommandsMock.Verify(p => p.UpdateAsync(user), Times.Never);
+        userCommandsMock.Verify(p => p.UpdateAsync(user), Times.Never);
     }
 
     [Test]
     public async Task Cannot_Update_User_Password_With_User_Not_Found()
     {
+        var roleQueriesMock = new Mock<ITgsQueries<Role>>();
+        var userQueriesMock = new Mock<ITgsQueries<User>>();
+        var userCommandsMock = new Mock<ITgsCommands<User>>();
+        var departmentQueriesMock = new Mock<ITgsQueries<Department>>();
+        var passwordHandlerMock = new Mock<IPasswordHandler>();
+
+        var controller = new UserController(
+            passwordHandlerMock.Object,
+            userQueriesMock.Object,
+            departmentQueriesMock.Object,
+            roleQueriesMock.Object,
+            userCommandsMock.Object)
+        {
+            ControllerContext =
+            {
+                HttpContext = HttpContextMock.Object
+            }
+        };
+
         var user = CreateUserFixture().Create<User>();
         var password = Generator.RandomString(6);
 
@@ -296,70 +483,142 @@ public class UserControllerTests : BaseTests
             ConfirmPassword = password
         };
 
-        _ = _userQueriesMock.Setup(s => s.GetSingleAsync(It.IsAny<Expression<Func<User, bool>>>(),
+        _ = userQueriesMock.Setup(s => s.GetSingleAsync(It.IsAny<Expression<Func<User, bool>>>(),
                 It.IsAny<Func<IQueryable<User>, IQueryable<User>>>()))
             .Returns(Task.FromResult<User>(default!));
 
-        var response = await _controller.UpdatePasswordAsync(user.Id, request);
+        var response = await controller.UpdatePasswordAsync(user.Id, request);
 
         _ = response.Valid.Should().BeFalse();
         _ = response.Message.Should().Be(Apis.BackendOffice.Resources.User.NotFound);
 
-        _userQueriesMock.Verify(s => s.GetSingleAsync(It.IsAny<Expression<Func<User, bool>>>(),
+        userQueriesMock.Verify(s => s.GetSingleAsync(It.IsAny<Expression<Func<User, bool>>>(),
             It.IsAny<Func<IQueryable<User>, IQueryable<User>>>()));
-        _userCommandsMock.Verify(p => p.UpdateAsync(user), Times.Never);
+        userCommandsMock.Verify(p => p.UpdateAsync(user), Times.Never);
     }
 
     [Test]
     public async Task Cannot_Update_User_With_Department_Not_Found()
     {
+        var roleQueriesMock = new Mock<ITgsQueries<Role>>();
+        var userQueriesMock = new Mock<ITgsQueries<User>>();
+        var userCommandsMock = new Mock<ITgsCommands<User>>();
+        var departmentQueriesMock = new Mock<ITgsQueries<Department>>();
+        var passwordHandlerMock = new Mock<IPasswordHandler>();
+
+        var controller = new UserController(
+            passwordHandlerMock.Object,
+            userQueriesMock.Object,
+            departmentQueriesMock.Object,
+            roleQueriesMock.Object,
+            userCommandsMock.Object)
+        {
+            ControllerContext =
+            {
+                HttpContext = HttpContextMock.Object
+            }
+        };
+
         var user = CreateUserFixture().Create<User>();
         var request = new Fixture().Create<UpdateUserRequest>();
 
-        _ = _userQueriesMock.Setup(s => s.GetSingleAsync(It.IsAny<Expression<Func<User, bool>>>(),
+        _ = userQueriesMock.Setup(s => s.GetSingleAsync(It.IsAny<Expression<Func<User, bool>>>(),
                 It.IsAny<Func<IQueryable<User>, IQueryable<User>>>()))
             .Returns(Task.FromResult(user));
 
-        _ = _roleQueriesMock.Setup(s => s.GetSingleAsync(It.IsAny<Expression<Func<Role, bool>>>(),
+        _ = roleQueriesMock.Setup(s => s.GetSingleAsync(It.IsAny<Expression<Func<Role, bool>>>(),
                 It.IsAny<Func<IQueryable<Role>, IQueryable<Role>>>()))
             .Returns(Task.FromResult(new Role()));
 
-        _ = _departmentQueriesMock.Setup(s => s.GetSingleAsync(It.IsAny<Expression<Func<Department, bool>>>(),
+        _ = departmentQueriesMock.Setup(s => s.GetSingleAsync(It.IsAny<Expression<Func<Department, bool>>>(),
                 It.IsAny<Func<IQueryable<Department>, IQueryable<Department>>>()))
             .Returns(Task.FromResult<Department>(default!));
 
-        var response = await _controller.UpdateAsync(user.Id, request);
+        var response = await controller.UpdateAsync(user.Id, request);
 
         _ = response.Valid.Should().BeFalse();
         _ = response.Message.Should().Be(Apis.BackendOffice.Resources.Department.NotFound);
 
-        _userQueriesMock.Verify(s => s.GetSingleAsync(It.IsAny<Expression<Func<User, bool>>>(),
+        userQueriesMock.Verify(s => s.GetSingleAsync(It.IsAny<Expression<Func<User, bool>>>(),
             It.IsAny<Func<IQueryable<User>, IQueryable<User>>>()));
-        _userCommandsMock.Verify(p => p.UpdateAsync(user), Times.Never);
+        userCommandsMock.Verify(p => p.UpdateAsync(user), Times.Never);
     }
 
     [Test]
     public async Task Cannot_Update_User_With_Role_Not_Found()
     {
+        var roleQueriesMock = new Mock<ITgsQueries<Role>>();
+        var userQueriesMock = new Mock<ITgsQueries<User>>();
+        var userCommandsMock = new Mock<ITgsCommands<User>>();
+        var departmentQueriesMock = new Mock<ITgsQueries<Department>>();
+        var passwordHandlerMock = new Mock<IPasswordHandler>();
+
+        var controller = new UserController(
+            passwordHandlerMock.Object,
+            userQueriesMock.Object,
+            departmentQueriesMock.Object,
+            roleQueriesMock.Object,
+            userCommandsMock.Object)
+        {
+            ControllerContext =
+            {
+                HttpContext = HttpContextMock.Object
+            }
+        };
+
         var user = CreateUserFixture().Create<User>();
         var request = new Fixture().Create<UpdateUserRequest>();
 
-        _ = _userQueriesMock.Setup(s => s.GetSingleAsync(It.IsAny<Expression<Func<User, bool>>>(),
+        _ = userQueriesMock.Setup(s => s.GetSingleAsync(It.IsAny<Expression<Func<User, bool>>>(),
                 It.IsAny<Func<IQueryable<User>, IQueryable<User>>>()))
             .Returns(Task.FromResult(user));
 
-        _ = _roleQueriesMock.Setup(s => s.GetSingleAsync(It.IsAny<Expression<Func<Role, bool>>>(),
+        _ = roleQueriesMock.Setup(s => s.GetSingleAsync(It.IsAny<Expression<Func<Role, bool>>>(),
                 It.IsAny<Func<IQueryable<Role>, IQueryable<Role>>>()))
             .Returns(Task.FromResult<Role>(default!));
 
-        var response = await _controller.UpdateAsync(user.Id, request);
+        var response = await controller.UpdateAsync(user.Id, request);
 
         _ = response.Valid.Should().BeFalse();
         _ = response.Message.Should().Be(Apis.BackendOffice.Resources.Role.NotFound);
 
-        _userQueriesMock.Verify(s => s.GetSingleAsync(It.IsAny<Expression<Func<User, bool>>>(),
+        userQueriesMock.Verify(s => s.GetSingleAsync(It.IsAny<Expression<Func<User, bool>>>(),
             It.IsAny<Func<IQueryable<User>, IQueryable<User>>>()));
-        _userCommandsMock.Verify(p => p.UpdateAsync(user), Times.Never);
+        userCommandsMock.Verify(p => p.UpdateAsync(user), Times.Never);
+    }
+
+    [Test]
+    public async Task Cannot_Create_Admin_User()
+    {
+        var roleQueriesMock = new Mock<ITgsQueries<Role>>();
+        var userQueriesMock = new Mock<ITgsQueries<User>>();
+        var userCommandsMock = new Mock<ITgsCommands<User>>();
+        var departmentQueriesMock = new Mock<ITgsQueries<Department>>();
+        var passwordHandlerMock = new Mock<IPasswordHandler>();
+
+        var controller = new UserController(
+            passwordHandlerMock.Object,
+            userQueriesMock.Object,
+            departmentQueriesMock.Object,
+            roleQueriesMock.Object,
+            userCommandsMock.Object)
+        {
+            ControllerContext =
+            {
+                HttpContext = HttpContextMock.Object
+            }
+        };
+
+        var request = new Fixture().Create<CreateUserRequest>();
+
+        _ = roleQueriesMock.Setup(s => s.GetSingleAsync(It.IsAny<Expression<Func<Role, bool>>>(),
+                It.IsAny<Func<IQueryable<Role>, IQueryable<Role>>>()))
+            .Returns(Task.FromResult<Role>(new Role{RoleType = RoleType.Admin}));
+
+        var response = await controller.CreateAsync(request);
+        _ = response.Valid.Should().BeTrue();
+
+        userCommandsMock.Verify(x => x.CreateAsync(It.IsAny<User>()), Times.Never);
     }
 
     [SetUp]
@@ -367,13 +626,6 @@ public class UserControllerTests : BaseTests
     {
         base.Setup();
 
-        _controller = new(
-            _passwordHandlerMock.Object,
-            _userQueriesMock.Object,
-            _departmentQueriesMock.Object,
-            _roleQueriesMock.Object,
-            _userCommandsMock.Object);
-        _controller.ControllerContext.HttpContext = HttpContextMock.Object;
     }
 
     private static Fixture CreateUserFixture()
