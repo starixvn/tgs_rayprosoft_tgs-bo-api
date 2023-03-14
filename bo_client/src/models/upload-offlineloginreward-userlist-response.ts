@@ -1,4 +1,4 @@
-interface uploadOfflineLoginRewardUserListResponse {
+interface UploadOfflineLoginRewardUserListResponse {
     errors: string[];
     message: string;
     valid: boolean;

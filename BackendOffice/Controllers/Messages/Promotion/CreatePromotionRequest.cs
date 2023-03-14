@@ -8,49 +8,47 @@ namespace TGS.Apis.BackendOffice.Controllers.Messages.Promotion;
 
 public class CreatePromotionRequest
 {
-    public bool AutoSentPlayerBonus { get; set; }
+    public bool AutoSentPlayerBonus { get; init; }
 
-    public decimal BonusAmountLimit { get; set; }
+    public decimal BonusAmountLimit { get; init; }
 
-    public Guid BrandId { get; set; }
+    public Guid BrandId { get; init; }
 
-    public string? Content { get; set; }
+    public string? Content { get; init; }
 
-    public string? DesktopBanner { get; set; }
+    public string? DesktopBanner { get; init; }
+    
+    public DateOnly From { get; init; } = default!;
 
-    public string? EditorUsername { get; set; }
+    public Guid[]? GameProviderIds { get; init; }
 
-    public DateOnly From { get; set; } = default!;
+    public GameType? GameType { get; init; }
 
-    public Guid[]? GameProviderIds { get; set; }
+    public JsonDocument? Localization { get; init; }
 
-    public GameType? GameType { get; set; }
+    public string? MobileBanner { get; init; }
 
-    public JsonDocument? Localization { get; set; }
+    public string Name { get; init; } = default!;
 
-    public string? MobileBanner { get; set; }
+    public decimal Percentage { get; init; }
 
-    public string Name { get; set; } = default!;
+    public string PromotionType { get; init; } = default!;
 
-    public decimal Percentage { get; set; }
+    public JsonDocument? Rule { get; init; }
 
-    public string PromotionType { get; set; } = default!;
+    public SwitchStatus Status { get; init; }
 
-    public JsonDocument? Rule { get; set; }
+    public string SubSubject { get; init; } = default!;
 
-    public SwitchStatus Status { get; set; }
+    public string? Terms { get; init; }
 
-    public string SubSubject { get; set; } = default!;
+    public DateOnly To { get; init; } = default!;
 
-    public string? Terms { get; set; }
+    public decimal? TotalAmountLimit { get; init; }
 
-    public DateOnly To { get; set; } = default!;
+    public decimal TurnoverMultiple { get; init; }
 
-    public decimal? TotalAmountLimit { get; set; }
+    public bool Unlimited { get; init; }
 
-    public decimal TurnoverMultiple { get; set; }
-
-    public bool Unlimited { get; set; }
-
-    public int[] VipLevels { get; set; } = default!;
+    public int[] VipLevels { get; init; } = default!;
 }

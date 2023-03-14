@@ -1,17 +1,16 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Collections.Immutable;
 using System.ComponentModel;
 using System.Linq;
 using System.Text.Json;
 using System.Threading.Tasks;
 using JsonCons.Utilities;
 using Microsoft.AspNetCore.Mvc;
-using Tgs.BrandCertificate.Clients;
 using Tgs.Promotion;
 using Tgs.Promotion.Clients;
 using Tgs.ServiceUtility;
 using TGS.Apis.BackendOffice.Controllers.Messages.Promotion;
+using TGS.Apis.BackendOffice.ViewModels;
 using TGS.Core.Models.Enums;
 using TGS.Core.Models.Messages;
 using TGS.Services.BackOffice.ApplicationServices.Promotion;
@@ -24,15 +23,6 @@ namespace TGS.Apis.BackendOffice.Controllers.Promotion;
 [ApiController]
 public class PromotionController : BaseContextController
 {
-    private readonly ImmutableArray<string> _promotionTypes = new string[]
-    {
-        "ReliefMoneyDaily",
-        "ReliefMoneyWeekly",
-        "ReliefMoneyMonthly",
-        "TurnoverRebate",
-        "TurnoverRebateWeekly"
-    }.ToImmutableArray();
-
     [HttpPut("ChangeOrders", Name = "ChangeOrder")]
     [Description("Change Promotion Display Order")]
     public async Task<MessageResponse> ChangeOrderAsync(
@@ -56,58 +46,38 @@ public class PromotionController : BaseContextController
     [Description("Create a promotion")]
     public async Task<MessageResponse> CreatePromotionAsync(
         [FromServices] IPromotionServiceClient promotionServiceClient,
-        [FromServices] IBrandServiceClient brandServiceClient,
+        [FromServices] IGetService<CreatePromotionMainInfoCommand, Guid> createMainInfoCommandService,
+        [FromServices] ICommandService<UpdatePromotionContentCommand> updateContentCommandService,
+        [FromServices] ICommandService<UpdatePromotionRuleCommand> updateRuleCommandService,
         [FromBody] CreatePromotionRequest request)
     {
-        var from = new DateTimeOffset(request.From.ToDateTime(TimeOnly.MinValue), TimeSpan.FromHours(8));
-        var to = new DateTimeOffset(request.To.ToDateTime(TimeOnly.MinValue), TimeSpan.FromHours(8));
-
-        if (_promotionTypes.Contains(request.PromotionType))
-        {
-            var brandInfo = await brandServiceClient.GetBrandInfoAsync(request.BrandId)
-                .ConfigureAwait(false);
-
-            var timeSpanMinutes = (int)brandInfo?.TimeSpanMinutes!;
-
-            from = new DateTimeOffset(request.From.ToDateTime(TimeOnly.MinValue), TimeSpan.FromMinutes(timeSpanMinutes));
-            to = new DateTimeOffset(request.To.ToDateTime(TimeOnly.MinValue), TimeSpan.FromMinutes(timeSpanMinutes));
-        }
-
-        var createInfo = new CreatePromotionMainInfo
-        {
-            Name = request.Name,
-            EventDuring = (from.UtcDateTime, to.UtcDateTime),
-            PromotionType = request.PromotionType,
-            IsAutoSent = request.AutoSentPlayerBonus,
-            PromotionLimitAmount = request.Unlimited ? null : request.TotalAmountLimit
-        };
-
-        var promotionId = await promotionServiceClient.CreatePromotionAsync(
+        var createMainInfoCommand = new CreatePromotionMainInfoCommand(
             request.BrandId,
-            createInfo,
-            Username,
+            request.Name,
+            request.PromotionType,
+            request.From,
+            request.To,
+            request.Unlimited,
+            request.TotalAmountLimit,
+            request.AutoSentPlayerBonus,
+            Username);
+
+        var promotionId = await createMainInfoCommandService.GetAsync(
+            createMainInfoCommand,
             HttpContext.RequestAborted).ConfigureAwait(false);
 
-        await promotionServiceClient.SetPromotionVipLevelsAsync(
+        var updateContentCommand = new UpdatePromotionContentCommand(
             promotionId,
-            request.VipLevels,
-            Username,
-            HttpContext.RequestAborted).ConfigureAwait(false);
+            request.SubSubject,
+            request.Content,
+            request.Localization ?? JsonDocument.Parse("{}"),
+            request.DesktopBanner,
+            request.MobileBanner,
+            request.Terms,
+            Username);
 
-        var content = new PromotionContent
-        {
-            Content = request.Content,
-            Convention = request.Terms,
-            Localization = request.Localization,
-            MobileBanner = request.MobileBanner,
-            PersonalComputerBanner = request.DesktopBanner,
-            SubSubject = request.SubSubject
-        };
-
-        await promotionServiceClient.SetPromotionContentAsync(
-            promotionId,
-            content,
-            Username,
+        await updateContentCommandService.ExecuteAsync(
+            updateContentCommand,
             HttpContext.RequestAborted).ConfigureAwait(false);
 
         var baseRule = JsonSerializer.SerializeToDocument(new
@@ -120,22 +90,19 @@ public class PromotionController : BaseContextController
             request.VipLevels
         }, PromotionUtility.SerializerOptions);
 
-        if (request.Rule == null)
-        {
-            await promotionServiceClient.SetPromotionRuleAsync(
-                promotionId,
-                baseRule,
-                Username,
-                HttpContext.RequestAborted).ConfigureAwait(false);
-        }
-        else
-        {
-            await promotionServiceClient.SetPromotionRuleAsync(
-                promotionId,
-                JsonMergePatch.ApplyMergePatch(baseRule.RootElement, request.Rule.RootElement),
-                Username,
-                HttpContext.RequestAborted).ConfigureAwait(false);
-        }
+        var rule = request.Rule is null
+            ? baseRule
+            : JsonMergePatch.ApplyMergePatch(baseRule.RootElement, request.Rule.RootElement);
+
+        var updateRuleCommand = new UpdatePromotionRuleCommand(
+            promotionId,
+            rule,
+            request.VipLevels,
+            Username);
+
+        await updateRuleCommandService.ExecuteAsync(
+            updateRuleCommand,
+            HttpContext.RequestAborted).ConfigureAwait(false);
 
         await promotionServiceClient.SetPromotionStatusAsync(
             promotionId,
@@ -149,6 +116,34 @@ public class PromotionController : BaseContextController
             HttpContext.RequestAborted).ConfigureAwait(false);
 
         return new MessageResponse { Valid = true };
+    }
+
+    [HttpPut("main/{brandId}", Name = "CreatePromotionMainInfo")]
+    public async ValueTask<ResponseViewModel<Guid?>> CreatePromotionMainInfoAsync(
+        [FromServices] IGetService<CreatePromotionMainInfoCommand, Guid> getService,
+        Guid brandId,
+        CreatePromotionMainInfoViewModel viewModel)
+    {
+        var command = new CreatePromotionMainInfoCommand(
+            brandId,
+            viewModel.Name,
+            viewModel.PromotionType,
+            viewModel.From,
+            viewModel.To,
+            viewModel.Unlimited,
+            viewModel.TotalAmountLimit,
+            viewModel.AutoSentPlayerBonus,
+            Username);
+
+        var promotionId = await getService.GetAsync(
+            command,
+            HttpContext.RequestAborted).ConfigureAwait(false);
+
+        return new ResponseViewModel<Guid?>
+        {
+            Valid = true,
+            Data = promotionId
+        };
     }
 
     [HttpGet("rule/{promotionId}", Name = "GetPromotionRule")]
@@ -231,7 +226,7 @@ public class PromotionController : BaseContextController
         [FromServices] IPromotionServiceClient promotionServiceClient,
         [FromQuery] ListPlayerPromotionsRequest request)
     {
-        var allowPlayerSelectPromotionTypes = new string[] {
+        var allowPlayerSelectPromotionTypes = new[] {
             "FirstDeposit",
             "DailySecondDeposit",
             "DailyFirstDeposit"
@@ -252,61 +247,39 @@ public class PromotionController : BaseContextController
     [Description("Update a promotion")]
     public async Task<MessageResponse> UpdatePromotionAsync(
         [FromServices] IPromotionServiceClient promotionServiceClient,
-        [FromServices] IBrandServiceClient brandServiceClient,
+        [FromServices] ICommandService<UpdatePromotionMainInfoCommand> updateMainInfoCommandService,
+        [FromServices] ICommandService<UpdatePromotionContentCommand> updateContentCommandService,
+        [FromServices] ICommandService<UpdatePromotionRuleCommand> updateRuleCommandService,
         Guid promotionId,
         [FromBody] UpdatePromotionRequest request)
     {
-        var from = new DateTimeOffset(request.From.ToDateTime(TimeOnly.MinValue), TimeSpan.FromHours(8));
-        var to = new DateTimeOffset(request.To.ToDateTime(TimeOnly.MinValue), TimeSpan.FromHours(8));
-
-        if (_promotionTypes.Contains(request.PromotionType))
-        {
-            var promotion = await promotionServiceClient.GetPromotionMainInfoAsync(promotionId).ConfigureAwait(false);
-
-            var brandInfo = await brandServiceClient.GetBrandInfoAsync(promotion.BrandId)
-                .ConfigureAwait(false);
-
-            var timeSpanMinutes = (int)brandInfo?.TimeSpanMinutes!;
-
-            from = new DateTimeOffset(request.From.ToDateTime(TimeOnly.MinValue), TimeSpan.FromMinutes(timeSpanMinutes));
-            to = new DateTimeOffset(request.To.ToDateTime(TimeOnly.MinValue), TimeSpan.FromMinutes(timeSpanMinutes));
-        }
-
-        var updateInfo = new CreatePromotionMainInfo
-        {
-            Name = request.Name,
-            EventDuring = (from.UtcDateTime, to.UtcDateTime),
-            PromotionType = request.PromotionType,
-            IsAutoSent = request.AutoSentPlayerBonus,
-            PromotionLimitAmount = request.Unlimited ? null : request.TotalAmountLimit
-        };
-
-        await promotionServiceClient.UpdatePromotionMainInfoAsync(
+        var updateMainInfoCommand = new UpdatePromotionMainInfoCommand(
             promotionId,
-            updateInfo,
-            Username,
+            request.Name,
+            request.PromotionType,
+            request.From,
+            request.To,
+            request.Unlimited,
+            request.TotalAmountLimit,
+            request.AutoSentPlayerBonus,
+            Username);
+
+        await updateMainInfoCommandService.ExecuteAsync(
+            updateMainInfoCommand,
             HttpContext.RequestAborted).ConfigureAwait(false);
 
-        await promotionServiceClient.SetPromotionVipLevelsAsync(
+        var updateContentCommand = new UpdatePromotionContentCommand(
             promotionId,
-            request.VipLevels,
-            Username,
-            HttpContext.RequestAborted).ConfigureAwait(false);
+            request.SubSubject,
+            request.Content,
+            request.Localization ?? JsonDocument.Parse("{}"),
+            request.DesktopBanner,
+            request.MobileBanner,
+            request.Terms,
+            Username);
 
-        var content = new PromotionContent
-        {
-            Content = request.Content,
-            Convention = request.Terms,
-            Localization = request.Localization,
-            MobileBanner = request.MobileBanner,
-            PersonalComputerBanner = request.DesktopBanner,
-            SubSubject = request.SubSubject
-        };
-        await promotionServiceClient.SetPromotionContentAsync(
-            promotionId,
-            content,
-            Username,
-            HttpContext.RequestAborted).ConfigureAwait(false);
+        await updateContentCommandService.ExecuteAsync(updateContentCommand, HttpContext.RequestAborted)
+            .ConfigureAwait(false);
 
         var baseRule = JsonSerializer.SerializeToDocument(new
         {
@@ -318,22 +291,18 @@ public class PromotionController : BaseContextController
             request.VipLevels
         }, PromotionUtility.SerializerOptions);
 
-        if (request.Rule == null)
-        {
-            await promotionServiceClient.SetPromotionRuleAsync(
-                promotionId,
-                baseRule,
-                Username,
-                HttpContext.RequestAborted).ConfigureAwait(false);
-        }
-        else
-        {
-            await promotionServiceClient.SetPromotionRuleAsync(
-                promotionId,
-                JsonMergePatch.ApplyMergePatch(baseRule.RootElement, request.Rule.RootElement),
-                Username,
-                HttpContext.RequestAborted).ConfigureAwait(false);
-        }
+        var rule = request.Rule is null
+            ? baseRule
+            : JsonMergePatch.ApplyMergePatch(baseRule.RootElement, request.Rule.RootElement);
+
+        var updateRuleCommand = new UpdatePromotionRuleCommand(
+            promotionId,
+            rule,
+            request.VipLevels,
+            Username);
+
+        await updateRuleCommandService.ExecuteAsync(updateRuleCommand, HttpContext.RequestAborted)
+            .ConfigureAwait(false);
 
         await promotionServiceClient.SetPromotionStatusAsync(
             promotionId,
@@ -347,6 +316,89 @@ public class PromotionController : BaseContextController
             HttpContext.RequestAborted).ConfigureAwait(false);
 
         return new MessageResponse { Valid = true };
+    }
+
+    [HttpPatch("content/{promotionId}", Name = "UpdatePromotionContent")]
+    public async ValueTask<MessageResponse> UpdatePromotionContentAsync(
+        [FromServices] ICommandService<UpdatePromotionContentCommand> commandService,
+        Guid promotionId,
+        UpdatePromotionContentViewModel viewModel)
+    {
+        var command = new UpdatePromotionContentCommand(
+            promotionId,
+            viewModel.SubSubject,
+            viewModel.Content,
+            viewModel.Localization ?? JsonDocument.Parse("{}"),
+            viewModel.DesktopBanner,
+            viewModel.MobileBanner,
+            viewModel.Terms,
+            Username);
+
+        await commandService.ExecuteAsync(command, HttpContext.RequestAborted)
+            .ConfigureAwait(false);
+
+        return new MessageResponse
+        {
+            Valid = true
+        };
+    }
+
+    [HttpPatch("main/{promotionId}", Name = "UpdatePromotionMainInfo")]
+    public async ValueTask<MessageResponse> UpdatePromotionMainInfoAsync(
+        [FromServices] ICommandService<UpdatePromotionMainInfoCommand> commandService,
+        Guid promotionId,
+        UpdatePromotionMainInfoViewModel viewModel)
+    {
+        var command = new UpdatePromotionMainInfoCommand(
+            promotionId,
+            viewModel.Name,
+            viewModel.PromotionType,
+            viewModel.From,
+            viewModel.To,
+            viewModel.Unlimited,
+            viewModel.TotalAmountLimit,
+            viewModel.AutoSentPlayerBonus,
+            Username);
+
+        await commandService.ExecuteAsync(
+            command,
+            HttpContext.RequestAborted).ConfigureAwait(false);
+
+        return new MessageResponse
+        {
+            Valid = true
+        };
+    }
+
+    [HttpPatch("rule/{promotionId}", Name = "UpdatePromotionRule")]
+    public async ValueTask<MessageResponse> UpdatePromotionRuleAsync(
+        [FromServices] ICommandService<UpdatePromotionRuleCommand> commandService,
+        Guid promotionId,
+        UpdatePromotionRuleViewModel viewModel)
+    {
+        var baseRule = JsonSerializer.SerializeToDocument(new
+        {
+            viewModel.GameProviderIds,
+            viewModel.GameType,
+            viewModel.VipLevels
+        }, PromotionUtility.SerializerOptions);
+
+        var rule = viewModel.Rule is null
+            ? baseRule
+            : JsonMergePatch.ApplyMergePatch(baseRule.RootElement, viewModel.Rule.RootElement);
+
+        var command = new UpdatePromotionRuleCommand(
+            promotionId,
+            rule,
+            viewModel.VipLevels,
+            Username);
+
+        await commandService.ExecuteAsync(command).ConfigureAwait(false);
+
+        return new MessageResponse
+        {
+            Valid = true
+        };
     }
 
     [HttpPut("{promotionId:guid}/{status}", Name = "UpdatePromotionStatus")]

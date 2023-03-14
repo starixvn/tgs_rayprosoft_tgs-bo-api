@@ -290,7 +290,7 @@ export default class BackOfficeService {
 
     public uploadOfflineUserList(
         brandId: string,
-        filePath: string): Promise<uploadOfflineLoginRewardUserListResponse> {
+        filePath: string): Promise<UploadOfflineLoginRewardUserListResponse> {
 
         let stream = fs.readFileSync(filePath);
 
@@ -319,5 +319,52 @@ export default class BackOfficeService {
         return this.http
             .put(`/api/offline-deposit-reward/${brandId}:create`, request)
             .then(res => res.data);
+    }
+
+    public updatePromotionContent(
+        promotionId: string,
+        request: UpdatePromotionContentRequest): Promise<MessageResponse> {
+        return this.http
+            .patch(`/api/promotion/content/${promotionId}`, request)
+            .then(res => res.data);
+    }
+
+    public updatePromotionRule(
+        promotionId: string,
+        request: UpdatePromotionRuleRequest): Promise<MessageResponse> {
+        return this.http
+            .patch(`/api/promotion/rule/${promotionId}`, request)
+            .then(res => res.data);
+    }
+
+    public updatePromotionMainInfo(
+        promotionId: string,
+        request: UpdatePromotionMainInfoRequest) : Promise<MessageResponse> {
+        return this.http
+            .patch(`/api/promotion/main/${promotionId}`, request)
+            .then(res => res.data);       
+    }    
+    
+    public createPromotionMainInfo(
+        brandId: string,
+        request: CreatePromotionMainInfoRequest) : Promise<MessageResponse> {
+        return this.http
+            .put(`/api/promotion/main/${brandId}`, request)
+            .then(res => res.data);       
+    }   
+    
+    public createPromotion(
+        request: CreatePromotionRequest) : Promise<MessageResponse> {
+        return this.http
+            .post('/api/promotion', request)
+            .then(res => res.data);       
+    }
+
+    public updatePromotion(
+        promotionId: string,
+        request: UpdatePromotionRequest) : Promise<MessageResponse> {
+        return this.http
+            .put(`/api/promotion/${promotionId}`, request)
+            .then(res => res.data);       
     }
 }
