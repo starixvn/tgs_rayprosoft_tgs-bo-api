@@ -147,7 +147,7 @@ public class PromotionController : BaseContextController
     }
 
     [HttpGet("rule/{promotionId}", Name = "GetPromotionRule")]
-    public async Task<JsonDocument> GetPromotionRuleAsync(
+    public async ValueTask<JsonDocument> GetPromotionRuleAsync(
         [FromServices] IGetService<GetPromotionRuleQuery, PromotionRuleInfo> getService,
         Guid promotionId)
     {
@@ -155,7 +155,17 @@ public class PromotionController : BaseContextController
 
         var rule = await getService.GetAsync(query).ConfigureAwait(false);
 
-        return rule?.CompaignDetail;
+        if (rule is null)
+            return null;
+
+        var campaignDetail = JsonMergePatch.ApplyMergePatch(
+            rule.CompaignDetail.RootElement,
+            JsonSerializer.SerializeToElement(new
+            {
+               rule.VipLevels
+            }, PromotionUtility.SerializerOptions));
+
+        return campaignDetail;
     }
 
     [HttpGet(Name = "GetPromotions")]

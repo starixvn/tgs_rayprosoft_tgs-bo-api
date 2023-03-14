@@ -10,6 +10,8 @@ using TGS.Apis.BackendOffice.Controllers.Messages.Promotion;
 using TGS.Apis.BackendOffice.ViewModels;
 using TGS.Core.Models.Enums;
 using TGS.Core.Models.Messages;
+using Tgs.Promotion;
+using TGS.Services.BackOffice.Domain;
 using Xunit.Abstractions;
 
 namespace BackendOffice.IntegrationTests;
@@ -608,5 +610,90 @@ public class PromotionTests
                 Arg.Is<IEnumerable<int>>(x => x.SequenceEqual(request.VipLevels)),
                 Arg.Any<string>(),
                 Arg.Any<CancellationToken>());
+    }
+
+    [Fact]
+    public async Task 取得活動規則()
+    {
+        // Arrange
+        var channelName = Guid.NewGuid().ToString();
+        var userId = Guid.NewGuid();
+
+        var fakePromotionServiceClient = Substitute.For<IPromotionServiceClient>();
+
+        using var web = TestBackendOfficeApplication.Builder
+            .UseTestChannelServer(channelName)
+            .ConfigureLogging(logging => logging.AddXUnit(_testOutputHelper))
+            .ConfigureServices(services => services
+                .AddAuthentication("Fake")
+                .AddScheme<FakeAuthenticationSchemaOptions, FakeAuthenticationHandler>(
+                    "Fake",
+                    options =>
+                    {
+                        options.UserId = userId;
+                        options.UserName = "system";
+                    })
+                .Services
+                .AddSingleton(fakePromotionServiceClient))
+            .Build();
+
+        await web.StartAsync();
+
+        var promotionId = Guid.NewGuid();
+
+        var rule = new PromotionRuleInfo(
+            JsonDocument.Parse(
+"""
+{  
+    "bonusAmount": 1000 
+}
+"""),
+            1000m,
+            10m,
+            1m,
+            null,
+            new[] { 1, 2, 3 });
+
+        _ = fakePromotionServiceClient.GetPromotionRuleAsync<PromotionRuleInfo>(
+                Arg.Is(promotionId),
+                Arg.Any<CancellationToken>())
+            .Returns(rule);
+
+        var isWindows = RuntimeInformation.IsOSPlatform(OSPlatform.Windows) ? "true" : "false";
+
+        var nodeModule = $$"""
+            const axiosConfigFactory = require('./models/axios-configuration.js').default;
+            const BackOfficeService = require('./services/bo-service.js').default;
+
+            module.exports = async (promotionId) =>
+            {
+                let instance = axiosConfigFactory("{{channelName}}", {{isWindows}});
+
+                let svc = new BackOfficeService(instance);
+
+                return await svc.getPromotionRule(promotionId);
+            };
+        """;
+
+        var expected = JsonDocument.Parse(
+"""
+{  
+    "bonusAmount": 1000,
+    "vipLevels": [1,2,3]
+}
+""");
+
+        // Act
+        var actual = await StaticNodeJSService.InvokeFromStringAsync<JsonDocument>(
+            nodeModule,
+            args: new object[] { promotionId });
+
+        // Assert
+        Assert.NotNull(actual);
+
+        expected
+            .ToExpectedObject(ctx =>
+                ctx.PushStrategy<JsonDocumentComparisionStrategy>())
+            .ShouldMatch(actual);
     }
 }

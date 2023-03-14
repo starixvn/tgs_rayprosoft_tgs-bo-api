@@ -367,4 +367,11 @@ export default class BackOfficeService {
             .put(`/api/promotion/${promotionId}`, request)
             .then(res => res.data);       
     }
+
+    public getPromotionRule(
+        promotionId: string) : Promise<string> {
+        return this.http
+            .get(`/api/promotion/rule/${promotionId}`)
+            .then(res => res.data);
+    }
 }
