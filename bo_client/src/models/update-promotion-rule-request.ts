@@ -1,5 +1,5 @@
 interface UpdatePromotionRuleRequest {
-    gameProviderIds?: number[];
+    gameProviderIds?: string[];
     gameType?: string;
     rule?: string;
     vipLevels?: number[]

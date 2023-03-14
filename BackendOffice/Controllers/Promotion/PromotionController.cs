@@ -1,6 +1,5 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Collections.Immutable;
 using System.ComponentModel;
 using System.Linq;
 using System.Text.Json;
@@ -227,7 +226,7 @@ public class PromotionController : BaseContextController
         [FromServices] IPromotionServiceClient promotionServiceClient,
         [FromQuery] ListPlayerPromotionsRequest request)
     {
-        var allowPlayerSelectPromotionTypes = new string[] {
+        var allowPlayerSelectPromotionTypes = new[] {
             "FirstDeposit",
             "DailySecondDeposit",
             "DailyFirstDeposit"

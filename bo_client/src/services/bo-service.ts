@@ -351,5 +351,20 @@ export default class BackOfficeService {
         return this.http
             .put(`/api/promotion/main/${brandId}`, request)
             .then(res => res.data);       
-    }    
+    }   
+    
+    public createPromotion(
+        request: CreatePromotionRequest) : Promise<MessageResponse> {
+        return this.http
+            .post('/api/promotion', request)
+            .then(res => res.data);       
+    }
+
+    public updatePromotion(
+        promotionId: string,
+        request: UpdatePromotionRequest) : Promise<MessageResponse> {
+        return this.http
+            .put(`/api/promotion/${promotionId}`, request)
+            .then(res => res.data);       
+    }
 }
