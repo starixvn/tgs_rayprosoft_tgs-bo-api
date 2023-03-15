@@ -146,6 +146,27 @@ public class PromotionController : BaseContextController
         };
     }
 
+    [HttpGet("content/{promotionId}", Name = "GetPromotionContent")]
+    public async ValueTask<PromotionContentViewModel> GetPromotionContentAsync(
+        [FromServices] IGetService<GetPromotionContentQuery, PromotionContent> queryService,
+        Guid promotionId)
+    {
+        var query = new GetPromotionContentQuery(promotionId);
+
+        var content = await queryService.GetAsync(query, HttpContext.RequestAborted)
+            .ConfigureAwait(false);
+
+        return content is null ? null : new PromotionContentViewModel
+        {
+            SubSubject = content.SubSubject,
+            Content = content.Content,
+            DesktopBanner = content.PersonalComputerBanner,
+            MobileBanner = content.MobileBanner,
+            Localization = content.Localization,
+            Terms = content.Convention
+        };
+    }
+
     [HttpGet("rule/{promotionId}", Name = "GetPromotionRule")]
     public async ValueTask<JsonDocument> GetPromotionRuleAsync(
         [FromServices] IGetService<GetPromotionRuleQuery, PromotionRuleInfo> getService,
@@ -162,7 +183,7 @@ public class PromotionController : BaseContextController
             rule.CompaignDetail.RootElement,
             JsonSerializer.SerializeToElement(new
             {
-               rule.VipLevels
+                rule.VipLevels
             }, PromotionUtility.SerializerOptions));
 
         return campaignDetail;
