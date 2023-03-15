@@ -388,4 +388,11 @@ export default class BackOfficeService {
             .get(`/api/promotion/main/${promotionId}`)
             .then(res => res.data);
     }
+
+    public duplicatePromotion(
+        basePromotionId: string) : Promise<ApiResponse<string>> {
+        return this.http
+            .put(`/api/promotion/${basePromotionId}:duplicate`)
+            .then(res => res.data);
+    }
 }

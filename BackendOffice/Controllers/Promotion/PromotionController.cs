@@ -477,4 +477,23 @@ public class PromotionController : BaseContextController
 
         return new MessageResponse { Valid = true };
     }
+
+    [HttpPut("{basePromotionId}:duplicate", Name = "DuplicatePromotion")]
+    [Description("duplicate a promotion")]
+    public async Task<ResponseViewModel<Guid?>> DuplicatePromotionAsync(
+        [FromServices] IGetService<DuplicatePromotionCommand, Guid> commandService,
+        Guid basePromotionId)
+    {
+        var duplicatePromotionId = await commandService.GetAsync(
+            new DuplicatePromotionCommand(
+                basePromotionId,
+                Username),
+            HttpContext.RequestAborted).ConfigureAwait(false);
+
+        return new ResponseViewModel<Guid?>
+        {
+            Valid = true,
+            Data = duplicatePromotionId
+        };
+    }
 }

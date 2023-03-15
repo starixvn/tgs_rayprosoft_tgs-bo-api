@@ -5,13 +5,18 @@ using Jering.Javascript.NodeJS;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
+using Microsoft.Extensions.Logging.Abstractions;
 using NSubstitute;
 using Tgs.Promotion.Clients;
 using TGS.Apis.BackendOffice.Controllers.Messages.Promotion;
 using TGS.Apis.BackendOffice.ViewModels;
+using Tgs.BrandCertificate.Clients;
 using TGS.Core.Models.Enums;
 using TGS.Core.Models.Messages;
+using TGS.Services.BackOffice;
+using TGS.Services.BackOffice.ApplicationServices.Promotion;
 using TGS.Services.BackOffice.Domain;
+using Tgs.ServiceUtility;
 using Xunit.Abstractions;
 
 namespace BackendOffice.IntegrationTests;
@@ -482,6 +487,155 @@ public class PromotionTests
             .CreatePromotionAsync(
                 Arg.Is(brandId),
                 Arg.Is(createInfo),
+                Arg.Any<string>(),
+                Arg.Any<CancellationToken>());
+    }
+
+    [Fact]
+    public async Task 複製活動()
+    {
+        // Arrange
+        var channelName = Guid.NewGuid().ToString();
+        var userId = Guid.NewGuid();
+
+        var fakePromotionServiceClient = Substitute.For<IPromotionServiceClient>();
+        var fakeBrandServiceClient = Substitute.For<IBrandServiceClient>();
+        var fakeSystemClock = Substitute.For<ISystemClock>();
+        var fakeGetMainInfoService = Substitute.For<IGetService<GetPromotionMainInfoQuery, PromotionMainInfo>>();
+        var fakeGetRuleService = Substitute.For<IGetService<GetPromotionRuleQuery, PromotionRuleInfo>>();
+        var fakeGetContentService = Substitute.For<IGetService<GetPromotionContentQuery, PromotionContent>>();
+        var fakeCreateMainInfoService = Substitute.For<IGetService<CreatePromotionMainInfoCommand, Guid>>();
+        var fakeUpdateContentService = Substitute.For<ICommandService<UpdatePromotionContentCommand>>();
+        var fakeUpdateRuleService = Substitute.For<ICommandService<UpdatePromotionRuleCommand>>();
+        var fakeLogger = NullLogger<DuplicatePromotionCommandService>.Instance;
+
+        using var web = TestBackendOfficeApplication.Builder
+            .UseTestChannelServer(channelName)
+            .ConfigureLogging(logging => logging.AddXUnit(_testOutputHelper))
+            .ConfigureServices(services => services
+                .AddAuthentication("Fake")
+                .AddScheme<FakeAuthenticationSchemaOptions, FakeAuthenticationHandler>(
+                    "Fake",
+                    options =>
+                    {
+                        options.UserId = userId;
+                        options.UserName = "system";
+                    })
+                .Services
+                .AddSingleton(fakePromotionServiceClient)
+                .AddSingleton(fakeBrandServiceClient)
+                .AddSingleton(fakeGetMainInfoService)
+                .AddSingleton(fakeGetRuleService)
+                .AddSingleton(fakeGetContentService)
+                .AddSingleton(fakeCreateMainInfoService)
+                .AddSingleton(fakeUpdateRuleService)
+                .AddSingleton(fakeUpdateContentService)
+                .AddSingleton(fakeLogger)
+                .AddSingleton(fakeSystemClock))
+            .Build();
+
+        await web.StartAsync();
+
+        var brandId = Guid.NewGuid();
+        var basePromotionId = Guid.NewGuid();
+
+        _ = fakeGetMainInfoService.GetAsync(
+                Arg.Is(new GetPromotionMainInfoQuery(basePromotionId)),
+                Arg.Any<CancellationToken>())
+            .Returns(new PromotionMainInfo
+            {
+                Id = basePromotionId,
+                BrandId = brandId,
+                Name = "TestPromotion",
+                EventDuring = new During(
+                    DateTime.Parse("2023-03-13 16:00:00"),
+                    DateTime.Parse("2023-03-15 16:00:00")),
+                IsAutoSent = false,
+                PromotionLimitAmount = null,
+                PromotionType = "TestPromotion"
+            });
+
+        _ = fakeGetRuleService.GetAsync(
+                Arg.Is(new GetPromotionRuleQuery(basePromotionId)),
+                Arg.Any<CancellationToken>())
+            .Returns(new PromotionRuleInfo(
+                JsonDocument.Parse("{}"),
+                1000m,
+                10m,
+                1m,
+                null,
+                new[] { 1, 2, 3 }));
+
+        _ = fakeGetContentService.GetAsync(
+                Arg.Is(new GetPromotionContentQuery(basePromotionId)),
+                Arg.Any<CancellationToken>())
+            .Returns(new PromotionContent
+            {
+                SubSubject = "TestSubject",
+                Localization = JsonDocument.Parse("{}")
+            });
+
+        var expectedPromotionId = Guid.NewGuid();
+
+        var utcNow = DateTimeOffset.Parse("2023-03-16 16:00:00+00:00");
+        _ = fakeSystemClock.UtcNow.Returns(utcNow);
+
+        var createInfoCommand = new CreatePromotionMainInfoCommand(
+            brandId,
+            "TestPromotion",
+            "TestPromotion",
+            DateOnly.Parse("2023-03-18"),
+            DateOnly.Parse("2023-03-20"),
+            true, 
+            null,
+            false,
+            "system");
+
+        _ = fakeCreateMainInfoService.GetAsync(
+                Arg.Is(createInfoCommand),
+                Arg.Any<CancellationToken>())
+            .Returns(expectedPromotionId);
+
+        var isWindows = RuntimeInformation.IsOSPlatform(OSPlatform.Windows) ? "true" : "false";
+
+        var nodeModule = $$"""
+            const axiosConfigFactory = require('./models/axios-configuration.js').default;
+            const BackOfficeService = require('./services/bo-service.js').default;
+
+            module.exports = async (basePromotionId) =>
+            {
+                let instance = axiosConfigFactory("{{channelName}}", {{isWindows}});
+
+                let svc = new BackOfficeService(instance);
+
+                return await svc.duplicatePromotion(basePromotionId);
+            };
+        """;
+
+        // Act
+        var actual = await StaticNodeJSService.InvokeFromStringAsync<ResponseViewModel<Guid?>>(
+            nodeModule,
+            args: new object[] { basePromotionId });
+
+        // Assert
+        Assert.NotNull(actual);
+        Assert.True(actual.Valid);
+        Assert.Equal(expectedPromotionId, actual.Data);
+
+        _ = fakeUpdateRuleService.Received(1)
+            .ExecuteAsync(
+                Arg.Is<UpdatePromotionRuleCommand>(x => x.PromotionId == expectedPromotionId),
+                Arg.Any<CancellationToken>());
+        
+        _ = fakeUpdateContentService.Received(1)
+            .ExecuteAsync(
+                Arg.Is<UpdatePromotionContentCommand>(x => x.PromotionId == expectedPromotionId),
+                Arg.Any<CancellationToken>());
+
+        _ = fakePromotionServiceClient.Received(1)
+            .SetPromotionStatusAsync(
+                Arg.Is(expectedPromotionId),
+                Arg.Is(Tgs.Promotion.Clients.PromotionStatus.Disabled),
                 Arg.Any<string>(),
                 Arg.Any<CancellationToken>());
     }

@@ -13,7 +13,7 @@ internal class CreatePromotionMainInfoCommandService : IGetService<CreatePromoti
     private readonly IBrandServiceClient _brandServiceClient;
     private readonly IPromotionServiceClient _promotionServiceClient;
 
-    private readonly static HashSet<string> _PromotionTypes = new(5)
+    private static readonly HashSet<string> _PromotionTypes = new(5)
     {
         "ReliefMoneyDaily",
         "ReliefMoneyWeekly",
