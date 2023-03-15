@@ -1,4 +1,6 @@
-﻿using System;
+﻿#nullable enable
+
+using System;
 using System.Threading;
 using System.Threading.Tasks;
 using Tgs.Promotion.Clients;
@@ -16,7 +18,7 @@ internal class GetPromotionContentQueryService : IGetService<GetPromotionContent
         _promotionServiceClient = promotionServiceClient ?? throw new ArgumentNullException(nameof(promotionServiceClient));
     }
 
-    public ValueTask<PromotionContent> GetAsync(
+    public ValueTask<PromotionContent?> GetAsync(
         GetPromotionContentQuery query,
         CancellationToken cancellationToken = default) 
         => _promotionServiceClient.GetPromotionContentAsync(query.PromotionId, cancellationToken);

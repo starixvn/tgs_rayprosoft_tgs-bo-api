@@ -146,6 +146,29 @@ public class PromotionController : BaseContextController
         };
     }
 
+    [HttpGet("main/{promotionId}", Name = "GetPromotionMainInfo")]
+    public async ValueTask<PromotionMainInfoViewModel> GetPromotionMainInfoAsync(
+        [FromServices] IGetService<GetPromotionMainInfoQuery, PromotionMainInfo> queryService,
+        Guid promotionId)
+    {
+        var query = new GetPromotionMainInfoQuery(promotionId);
+
+        var mainInfo = await queryService.GetAsync(query, HttpContext.RequestAborted)
+            .ConfigureAwait(false);
+
+        return mainInfo is null ? null : new PromotionMainInfoViewModel
+        {
+            Id = mainInfo.Id,
+            BrandId = mainInfo.BrandId,
+            Name = mainInfo.Name,
+            From = mainInfo.EventDuring.From,
+            To = mainInfo.EventDuring.To,
+            PromotionType = mainInfo.PromotionType,
+            PromotionLimitAmount = mainInfo.PromotionLimitAmount,
+            AutoSentPlayerBonus = mainInfo.IsAutoSent
+        };
+    }
+
     [HttpGet("content/{promotionId}", Name = "GetPromotionContent")]
     public async ValueTask<PromotionContentViewModel> GetPromotionContentAsync(
         [FromServices] IGetService<GetPromotionContentQuery, PromotionContent> queryService,

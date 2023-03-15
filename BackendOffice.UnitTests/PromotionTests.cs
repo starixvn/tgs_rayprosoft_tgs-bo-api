@@ -64,6 +64,23 @@ public class PromotionTests
     }
 
     [Test]
+    public async Task 取得活動MainInfo()
+    {
+        var fakePromotionServiceClient = Substitute.For<IPromotionServiceClient>();
+
+        var sut = new GetPromotionMainInfoQueryService(fakePromotionServiceClient);
+
+        var query = new GetPromotionMainInfoQuery(Guid.NewGuid());
+
+        _ = await sut.GetAsync(query);
+
+        _ = fakePromotionServiceClient.Received(1)
+            .GetPromotionMainInfoAsync(
+                Arg.Is(query.PromotionId),
+                Arg.Any<CancellationToken>());
+    }
+
+    [Test]
     public async Task 取得活動內容()
     {
         var fakePromotionServiceClient = Substitute.For<IPromotionServiceClient>();
