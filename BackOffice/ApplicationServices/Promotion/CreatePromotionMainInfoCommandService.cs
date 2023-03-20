@@ -1,4 +1,6 @@
-﻿using System;
+﻿#nullable enable
+
+using System;
 using System.Collections.Generic;
 using System.Threading;
 using System.Threading.Tasks;
@@ -10,9 +12,6 @@ namespace TGS.Services.BackOffice.ApplicationServices.Promotion;
 
 internal class CreatePromotionMainInfoCommandService : IGetService<CreatePromotionMainInfoCommand, Guid>
 {
-    private readonly IBrandServiceClient _brandServiceClient;
-    private readonly IPromotionServiceClient _promotionServiceClient;
-
     private static readonly HashSet<string> _PromotionTypes = new(5)
     {
         "ReliefMoneyDaily",
@@ -22,12 +21,15 @@ internal class CreatePromotionMainInfoCommandService : IGetService<CreatePromoti
         "TurnoverRebateWeekly"
     };
 
+    private readonly IGetService<GetBrandInfoQuery, BrandInfo?> _getBranInfoService;
+    private readonly IPromotionServiceClient _promotionServiceClient;
+
     public CreatePromotionMainInfoCommandService(
         IPromotionServiceClient promotionServiceClient,
-        IBrandServiceClient brandServiceClient)
+        IGetService<GetBrandInfoQuery, BrandInfo?> getBranInfoService)
     {
         _promotionServiceClient = promotionServiceClient ?? throw new ArgumentNullException(nameof(promotionServiceClient));
-        _brandServiceClient = brandServiceClient ?? throw new ArgumentNullException(nameof(brandServiceClient));
+        _getBranInfoService = getBranInfoService ?? throw new ArgumentNullException(nameof(getBranInfoService));
     }
 
     public async ValueTask<Guid> GetAsync(
@@ -38,8 +40,9 @@ internal class CreatePromotionMainInfoCommandService : IGetService<CreatePromoti
 
         if (_PromotionTypes.Contains(command.PromotionType))
         {
-            var brandInfo = await _brandServiceClient.GetBrandInfoAsync(command.BrandId, cancellationToken)
-                .ConfigureAwait(false);
+            var brandInfo = await _getBranInfoService.GetAsync(
+                new GetBrandInfoQuery(command.BrandId),
+                cancellationToken).ConfigureAwait(false);
 
             offset = TimeSpan.FromMinutes(brandInfo!.TimeSpanMinutes!.Value);
         }

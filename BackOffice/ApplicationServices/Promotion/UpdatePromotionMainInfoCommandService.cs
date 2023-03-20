@@ -1,4 +1,5 @@
-﻿using System;
+﻿#nullable enable
+using System;
 using System.Collections.Generic;
 using System.Threading;
 using System.Threading.Tasks;
@@ -11,7 +12,7 @@ namespace TGS.Services.BackOffice.ApplicationServices.Promotion;
 internal record UpdatePromotionMainInfoCommandService : ICommandService<UpdatePromotionMainInfoCommand>
 {
     private readonly IPromotionServiceClient _promotionServiceClient;
-    private readonly IBrandServiceClient _brandServiceClient;
+    private readonly IGetService<GetBrandInfoQuery, BrandInfo?> _getBrandInfoService;
 
     private static readonly HashSet<string> _PromotionTypes = new(5)
     {
@@ -24,10 +25,10 @@ internal record UpdatePromotionMainInfoCommandService : ICommandService<UpdatePr
 
     public UpdatePromotionMainInfoCommandService(
         IPromotionServiceClient promotionServiceClient,
-        IBrandServiceClient brandServiceClient)
+        IGetService<GetBrandInfoQuery, BrandInfo?> getBrandInfoService)
     {
         _promotionServiceClient = promotionServiceClient ?? throw new ArgumentNullException(nameof(promotionServiceClient));
-        _brandServiceClient = brandServiceClient ?? throw new ArgumentNullException(nameof(brandServiceClient));
+        _getBrandInfoService = getBrandInfoService ?? throw new ArgumentNullException(nameof(getBrandInfoService));
     }
 
     public async ValueTask ExecuteAsync(
@@ -45,8 +46,8 @@ internal record UpdatePromotionMainInfoCommandService : ICommandService<UpdatePr
 
         if (_PromotionTypes.Contains(command.PromotionType))
         {
-            var brandInfo = await _brandServiceClient.GetBrandInfoAsync(
-                promotion!.BrandId, 
+            var brandInfo = await _getBrandInfoService.GetAsync(
+                new GetBrandInfoQuery(promotion.BrandId), 
                 cancellationToken).ConfigureAwait(false);
 
             offset = TimeSpan.FromMinutes(brandInfo!.TimeSpanMinutes!.Value);

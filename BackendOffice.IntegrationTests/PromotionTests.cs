@@ -18,6 +18,7 @@ using TGS.Services.BackOffice.ApplicationServices.Promotion;
 using TGS.Services.BackOffice.Domain;
 using Tgs.ServiceUtility;
 using Xunit.Abstractions;
+using TGS.Services.BackOffice.ApplicationServices;
 
 namespace BackendOffice.IntegrationTests;
 
@@ -493,7 +494,7 @@ public class PromotionTests
         var userId = Guid.NewGuid();
 
         var fakePromotionServiceClient = Substitute.For<IPromotionServiceClient>();
-        var fakeBrandServiceClient = Substitute.For<IBrandServiceClient>();
+        var fakeGetBrandInfoService = Substitute.For<IGetService<GetBrandInfoQuery, BrandInfo?>>();
         var fakeSystemClock = Substitute.For<ISystemClock>();
         var fakeGetMainInfoService = Substitute.For<IGetService<GetPromotionMainInfoQuery, PromotionMainInfo>>();
         var fakeGetRuleService = Substitute.For<IGetService<GetPromotionRuleQuery, PromotionRuleInfo>>();
@@ -517,7 +518,7 @@ public class PromotionTests
                     })
                 .Services
                 .AddSingleton(fakePromotionServiceClient)
-                .AddSingleton(fakeBrandServiceClient)
+                .AddSingleton(fakeGetBrandInfoService)
                 .AddSingleton(fakeGetMainInfoService)
                 .AddSingleton(fakeGetRuleService)
                 .AddSingleton(fakeGetContentService)
@@ -569,10 +570,17 @@ public class PromotionTests
                 Localization = JsonDocument.Parse("{}")
             });
 
-        var expectedPromotionId = Guid.NewGuid();
-
         var utcNow = DateTimeOffset.Parse("2023-03-16 16:00:00+00:00");
         _ = fakeSystemClock.UtcNow.Returns(utcNow);
+
+        _ = fakeGetBrandInfoService.GetAsync(
+            Arg.Is(new GetBrandInfoQuery(brandId)), 
+            Arg.Any<CancellationToken>())
+            .Returns(new BrandInfo
+            {
+                Id = brandId,
+                TimeSpanMinutes = 480
+            });
 
         var createInfoCommand = new CreatePromotionMainInfoCommand(
             brandId,
@@ -584,6 +592,8 @@ public class PromotionTests
             null,
             false,
             "system");
+
+        var expectedPromotionId = Guid.NewGuid();
 
         _ = fakeCreateMainInfoService.GetAsync(
             Arg.Is(createInfoCommand), 

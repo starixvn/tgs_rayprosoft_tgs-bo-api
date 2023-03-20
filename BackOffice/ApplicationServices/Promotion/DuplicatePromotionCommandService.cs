@@ -1,4 +1,6 @@
-﻿using System;
+﻿#nullable enable
+
+using System;
 using System.Collections.Generic;
 using System.Threading;
 using System.Threading.Tasks;
@@ -27,8 +29,8 @@ internal class DuplicatePromotionCommandService : IGetService<DuplicatePromotion
         "TurnoverRebateWeekly"
     };
 
-    private readonly IBrandServiceClient _brandServiceClient;
     private readonly IGetService<CreatePromotionMainInfoCommand, Guid> _createMainInfoService;
+    private readonly IGetService<GetBrandInfoQuery, BrandInfo?> _getBrandInfoService;
     private readonly IGetService<GetPromotionContentQuery, PromotionContent> _getContentService;
     private readonly IGetService<GetPromotionMainInfoQuery, PromotionMainInfo> _getMainInfoService;
     private readonly IGetService<GetPromotionRuleQuery, PromotionRuleInfo> _getRuleService;
@@ -40,7 +42,7 @@ internal class DuplicatePromotionCommandService : IGetService<DuplicatePromotion
 
     public DuplicatePromotionCommandService(ISystemClock systemClock,
         IPromotionServiceClient promotionServiceClient,
-        IBrandServiceClient brandServiceClient,
+        IGetService<GetBrandInfoQuery, BrandInfo?> getBrandInfoService,
         IGetService<GetPromotionMainInfoQuery, PromotionMainInfo> getMainInfoService,
         IGetService<GetPromotionRuleQuery, PromotionRuleInfo> getRuleService,
         IGetService<GetPromotionContentQuery, PromotionContent> getContentService,
@@ -51,7 +53,7 @@ internal class DuplicatePromotionCommandService : IGetService<DuplicatePromotion
     {
         _systemClock = systemClock ?? throw new ArgumentNullException(nameof(systemClock));
         _promotionServiceClient = promotionServiceClient ?? throw new ArgumentNullException(nameof(promotionServiceClient));
-        _brandServiceClient = brandServiceClient ?? throw new ArgumentNullException(nameof(brandServiceClient));
+        _getBrandInfoService = getBrandInfoService ?? throw new ArgumentNullException(nameof(getBrandInfoService));
         _getMainInfoService = getMainInfoService ?? throw new ArgumentNullException(nameof(getMainInfoService));
         _getRuleService = getRuleService ?? throw new ArgumentNullException(nameof(getRuleService));
         _getContentService = getContentService ?? throw new ArgumentNullException(nameof(getContentService));
@@ -66,16 +68,14 @@ internal class DuplicatePromotionCommandService : IGetService<DuplicatePromotion
         CancellationToken cancellationToken = default)
     {
         var mainInfo = await _getMainInfoService.GetAsync(
-            new GetPromotionMainInfoQuery(command.BasePromotionId), 
-            cancellationToken).ConfigureAwait(false);
-
-        if (mainInfo is null)
-            throw new InvalidOperationException("Base promotion is not found");
+            new GetPromotionMainInfoQuery(command.BasePromotionId),
+            cancellationToken).ConfigureAwait(false)
+            ?? throw new InvalidOperationException("Base promotion is not found");
 
         if (_OfflinePromotionTypes.Contains(mainInfo.PromotionType))
         {
             _logger.LogInformation("Can't duplicate promotion with type '{promotionType}', id: {promotionId}", mainInfo.PromotionType, mainInfo.Id);
-            throw new InvalidOperationException("Invalid Operations");
+            throw new InvalidOperationException("Can't duplicate offline promotion");
         }
 
         var rule = await _getRuleService.GetAsync(
@@ -90,8 +90,8 @@ internal class DuplicatePromotionCommandService : IGetService<DuplicatePromotion
 
         if (_PromotionTypes.Contains(mainInfo.PromotionType))
         {
-            var brandInfo = await _brandServiceClient.GetBrandInfoAsync(
-                mainInfo.BrandId,
+            var brandInfo = await _getBrandInfoService.GetAsync(
+                new GetBrandInfoQuery(mainInfo.BrandId),
                 cancellationToken).ConfigureAwait(false);
 
             offset = TimeSpan.FromMinutes(brandInfo!.TimeSpanMinutes!.Value);

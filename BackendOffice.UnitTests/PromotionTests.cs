@@ -5,6 +5,7 @@ using Tgs.BrandCertificate.Clients;
 using Tgs.Promotion.Clients;
 using Tgs.ServiceUtility;
 using TGS.Services.BackOffice;
+using TGS.Services.BackOffice.ApplicationServices;
 using TGS.Services.BackOffice.ApplicationServices.Promotion;
 using TGS.Services.BackOffice.Domain;
 
@@ -104,9 +105,9 @@ public class PromotionTests
     public async Task 修改活動MainInfo()
     {
         var fakePromotionServiceClient = Substitute.For<IPromotionServiceClient>();
-        var fakeBrandServiceClient = Substitute.For<IBrandServiceClient>();
+        var fakeGetBrandInfoService = Substitute.For<IGetService<GetBrandInfoQuery, BrandInfo?>>();
 
-        var sut = new UpdatePromotionMainInfoCommandService(fakePromotionServiceClient, fakeBrandServiceClient);
+        var sut = new UpdatePromotionMainInfoCommandService(fakePromotionServiceClient, fakeGetBrandInfoService);
 
         var command = new UpdatePromotionMainInfoCommand(
             Guid.NewGuid(),
@@ -146,9 +147,9 @@ public class PromotionTests
                 Arg.Is(command.Modifier),
                 Arg.Any<CancellationToken>());
 
-        _ = fakeBrandServiceClient.DidNotReceive()
-            .GetBrandInfoAsync(
-                Arg.Any<Guid>(),
+        _ = fakeGetBrandInfoService.DidNotReceive()
+            .GetAsync(
+                Arg.Any<GetBrandInfoQuery>(),
                 Arg.Any<CancellationToken>());
     }
 
@@ -156,9 +157,9 @@ public class PromotionTests
     public async Task 修改活動MainInfo_特定活動類型會套用Brand時區設定()
     {
         var fakePromotionServiceClient = Substitute.For<IPromotionServiceClient>();
-        var fakeBrandServiceClient = Substitute.For<IBrandServiceClient>();
+        var fakeGetBrandInfoService = Substitute.For<IGetService<GetBrandInfoQuery, BrandInfo?>>();
 
-        var sut = new UpdatePromotionMainInfoCommandService(fakePromotionServiceClient, fakeBrandServiceClient);
+        var sut = new UpdatePromotionMainInfoCommandService(fakePromotionServiceClient, fakeGetBrandInfoService);
 
         var promotionId = Guid.NewGuid();
         var brandId = Guid.NewGuid();
@@ -192,9 +193,9 @@ public class PromotionTests
                 Arg.Any<CancellationToken>())
             .Returns(promotionInfo);
 
-        _ = fakeBrandServiceClient.GetBrandInfoAsync(
-                Arg.Is(brandId),
-                Arg.Any<CancellationToken>())
+        _ = fakeGetBrandInfoService.GetAsync(
+            Arg.Is(new GetBrandInfoQuery(brandId)),
+            Arg.Any<CancellationToken>())
             .Returns(brandInfo);
 
         var expectedCreateInfo = new CreatePromotionMainInfo
@@ -217,9 +218,9 @@ public class PromotionTests
                 Arg.Is(command.Modifier),
                 Arg.Any<CancellationToken>());
 
-        _ = fakeBrandServiceClient.Received(1)
-            .GetBrandInfoAsync(
-                Arg.Is(brandId),
+        _ = fakeGetBrandInfoService.Received(1)
+            .GetAsync(
+                Arg.Is(new GetBrandInfoQuery(brandId)),
                 Arg.Any<CancellationToken>());
     }
 
@@ -286,9 +287,9 @@ public class PromotionTests
     public async Task 新增活動MainInfo()
     {
         var fakePromotionServiceClient = Substitute.For<IPromotionServiceClient>();
-        var fakeBrandServiceClient = Substitute.For<IBrandServiceClient>();
+        var fakeGetBrandInfoService = Substitute.For<IGetService<GetBrandInfoQuery, BrandInfo?>>();
 
-        var sut = new CreatePromotionMainInfoCommandService(fakePromotionServiceClient, fakeBrandServiceClient);
+        var sut = new CreatePromotionMainInfoCommandService(fakePromotionServiceClient, fakeGetBrandInfoService);
 
         var command = new CreatePromotionMainInfoCommand(
             Guid.NewGuid(),
@@ -321,9 +322,9 @@ public class PromotionTests
                 Arg.Is(command.Modifier),
                 Arg.Any<CancellationToken>());
 
-        _ = fakeBrandServiceClient.DidNotReceive()
-            .GetBrandInfoAsync(
-                Arg.Any<Guid>(),
+        _ = fakeGetBrandInfoService.DidNotReceive()
+            .GetAsync(
+                Arg.Is(new GetBrandInfoQuery(command.BrandId)),
                 Arg.Any<CancellationToken>());
     }
 
@@ -331,9 +332,9 @@ public class PromotionTests
     public async Task 新增活動MainInfo_特定活動類型會套用Brand時區設定()
     {
         var fakePromotionServiceClient = Substitute.For<IPromotionServiceClient>();
-        var fakeBrandServiceClient = Substitute.For<IBrandServiceClient>();
+        var fakeGetBrandInfoService = Substitute.For<IGetService<GetBrandInfoQuery, BrandInfo?>>();
 
-        var sut = new CreatePromotionMainInfoCommandService(fakePromotionServiceClient, fakeBrandServiceClient);
+        var sut = new CreatePromotionMainInfoCommandService(fakePromotionServiceClient, fakeGetBrandInfoService);
 
         var brandId = Guid.NewGuid();
 
@@ -354,9 +355,9 @@ public class PromotionTests
             TimeSpanMinutes = 420
         };
 
-        _ = fakeBrandServiceClient.GetBrandInfoAsync(
-                Arg.Is(brandId),
-                Arg.Any<CancellationToken>())
+        _ = fakeGetBrandInfoService.GetAsync(
+            Arg.Is(new GetBrandInfoQuery(brandId)),
+            Arg.Any<CancellationToken>())
             .Returns(brandInfo);
 
         var expectedCreateInfo = new CreatePromotionMainInfo
@@ -379,9 +380,9 @@ public class PromotionTests
                 Arg.Is(command.Modifier),
                 Arg.Any<CancellationToken>());
 
-        _ = fakeBrandServiceClient.Received(1)
-            .GetBrandInfoAsync(
-                Arg.Is(brandId),
+        _ = fakeGetBrandInfoService.Received(1)
+            .GetAsync(
+                Arg.Is(new GetBrandInfoQuery(brandId)),
                 Arg.Any<CancellationToken>());
     }
 
@@ -390,7 +391,7 @@ public class PromotionTests
     {
         var fakeSystemClock = Substitute.For<ISystemClock>();
         var fakePromotionServiceClient = Substitute.For<IPromotionServiceClient>();
-        var fakeBrandServiceClient = Substitute.For<IBrandServiceClient>();
+        var fakeGetBrandInfoService = Substitute.For<IGetService<GetBrandInfoQuery, BrandInfo?>>();
         var fakeGetMainInfoService = Substitute.For<IGetService<GetPromotionMainInfoQuery, PromotionMainInfo>>();
         var fakeGetRuleService = Substitute.For<IGetService<GetPromotionRuleQuery, PromotionRuleInfo>>();
         var fakeGetContentService = Substitute.For<IGetService<GetPromotionContentQuery, PromotionContent>>();
@@ -402,7 +403,7 @@ public class PromotionTests
         var sut = new DuplicatePromotionCommandService(
             fakeSystemClock,
             fakePromotionServiceClient,
-            fakeBrandServiceClient,
+            fakeGetBrandInfoService,
             fakeGetMainInfoService,
             fakeGetRuleService,
             fakeGetContentService,
@@ -423,8 +424,8 @@ public class PromotionTests
 
         _ = fakeSystemClock.UtcNow.Returns(utcNow);
 
-        _ = fakeBrandServiceClient.GetBrandInfoAsync(
-            Arg.Is(brandId),
+        _ = fakeGetBrandInfoService.GetAsync(
+            Arg.Is(new GetBrandInfoQuery(brandId)),
             Arg.Any<CancellationToken>())
             .Returns(new BrandInfo
             {
@@ -511,7 +512,7 @@ public class PromotionTests
     {
         var fakeSystemClock = Substitute.For<ISystemClock>();
         var fakePromotionServiceClient = Substitute.For<IPromotionServiceClient>();
-        var fakeBrandServiceClient = Substitute.For<IBrandServiceClient>();
+        var fakeGetBrandInfoService = Substitute.For<IGetService<GetBrandInfoQuery, BrandInfo?>>();
         var fakeGetMainInfoService = Substitute.For<IGetService<GetPromotionMainInfoQuery, PromotionMainInfo>>();
         var fakeGetRuleService = Substitute.For<IGetService<GetPromotionRuleQuery, PromotionRuleInfo>>();
         var fakeGetContentService = Substitute.For<IGetService<GetPromotionContentQuery, PromotionContent>>();
@@ -523,7 +524,7 @@ public class PromotionTests
         var sut = new DuplicatePromotionCommandService(
             fakeSystemClock,
             fakePromotionServiceClient,
-            fakeBrandServiceClient,
+            fakeGetBrandInfoService,
             fakeGetMainInfoService,
             fakeGetRuleService,
             fakeGetContentService,
@@ -544,8 +545,8 @@ public class PromotionTests
 
         _ = fakeSystemClock.UtcNow.Returns(utcNow);
 
-        _ = fakeBrandServiceClient.GetBrandInfoAsync(
-            Arg.Is(brandId),
+        _ = fakeGetBrandInfoService.GetAsync(
+            Arg.Is(new GetBrandInfoQuery(brandId)),
             Arg.Any<CancellationToken>())
             .Returns(new BrandInfo
             {
@@ -608,9 +609,9 @@ public class PromotionTests
 
         Assert.AreEqual(expectedPromotionId, actual);
 
-        _ = fakeBrandServiceClient.DidNotReceive()
-            .GetBrandInfoAsync(
-                Arg.Is(brandId),
+        _ = fakeGetBrandInfoService.DidNotReceive()
+            .GetAsync(
+                Arg.Is(new GetBrandInfoQuery(brandId)),
                 Arg.Any<CancellationToken>());
 
         _ = fakeUpdateRuleService.Received(1)
@@ -636,7 +637,7 @@ public class PromotionTests
     {
         var fakeSystemClock = Substitute.For<ISystemClock>();
         var fakePromotionServiceClient = Substitute.For<IPromotionServiceClient>();
-        var fakeBrandServiceClient = Substitute.For<IBrandServiceClient>();
+        var fakeGetBrandInfoService = Substitute.For<IGetService<GetBrandInfoQuery, BrandInfo?>>();
         var fakeGetMainInfoService = Substitute.For<IGetService<GetPromotionMainInfoQuery, PromotionMainInfo>>();
         var fakeGetRuleService = Substitute.For<IGetService<GetPromotionRuleQuery, PromotionRuleInfo>>();
         var fakeGetContentService = Substitute.For<IGetService<GetPromotionContentQuery, PromotionContent>>();
@@ -648,7 +649,7 @@ public class PromotionTests
         var sut = new DuplicatePromotionCommandService(
             fakeSystemClock,
             fakePromotionServiceClient,
-            fakeBrandServiceClient,
+            fakeGetBrandInfoService,
             fakeGetMainInfoService,
             fakeGetRuleService,
             fakeGetContentService,
@@ -669,8 +670,8 @@ public class PromotionTests
 
         _ = fakeSystemClock.UtcNow.Returns(utcNow);
 
-        _ = fakeBrandServiceClient.GetBrandInfoAsync(
-            Arg.Is(brandId),
+        _ = fakeGetBrandInfoService.GetAsync(
+            Arg.Is(new GetBrandInfoQuery(brandId)),
             Arg.Any<CancellationToken>())
             .Returns(new BrandInfo
             {
@@ -734,9 +735,9 @@ public class PromotionTests
 
         Assert.AreEqual(expectedPromotionId, actual);
 
-        _ = fakeBrandServiceClient.Received(1)
-            .GetBrandInfoAsync(
-                Arg.Is(brandId),
+        _ = fakeGetBrandInfoService.Received(1)
+            .GetAsync(
+                Arg.Is(new GetBrandInfoQuery(brandId)),
                 Arg.Any<CancellationToken>());
 
         _ = fakeUpdateRuleService.Received(1)
