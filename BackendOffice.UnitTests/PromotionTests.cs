@@ -424,8 +424,8 @@ public class PromotionTests
         _ = fakeSystemClock.UtcNow.Returns(utcNow);
 
         _ = fakeBrandServiceClient.GetBrandInfoAsync(
-                Arg.Is(brandId),
-                Arg.Any<CancellationToken>())
+            Arg.Is(brandId),
+            Arg.Any<CancellationToken>())
             .Returns(new BrandInfo
             {
                 Id = brandId,
@@ -433,8 +433,8 @@ public class PromotionTests
             });
 
         _ = fakeGetMainInfoService.GetAsync(
-                Arg.Is(new GetPromotionMainInfoQuery(basePromotionId)),
-                Arg.Any<CancellationToken>())
+            Arg.Is(new GetPromotionMainInfoQuery(basePromotionId)),
+            Arg.Any<CancellationToken>())
             .Returns(new PromotionMainInfo
             {
                 Id = basePromotionId,
@@ -449,8 +449,8 @@ public class PromotionTests
             });
 
         _ = fakeGetRuleService.GetAsync(
-                Arg.Is(new GetPromotionRuleQuery(basePromotionId)),
-                Arg.Any<CancellationToken>())
+            Arg.Is(new GetPromotionRuleQuery(basePromotionId)),
+            Arg.Any<CancellationToken>())
             .Returns(new PromotionRuleInfo(
                 JsonDocument.Parse("{}"),
                 1000m,
@@ -460,8 +460,8 @@ public class PromotionTests
                 new[] { 1, 2, 3 }));
 
         _ = fakeGetContentService.GetAsync(
-                Arg.Is(new GetPromotionContentQuery(basePromotionId)),
-                Arg.Any<CancellationToken>())
+            Arg.Is(new GetPromotionContentQuery(basePromotionId)),
+            Arg.Any<CancellationToken>())
             .Returns(new PromotionContent
             {
                 SubSubject = "TestSubject",
@@ -480,8 +480,8 @@ public class PromotionTests
             command.Modifier);
 
         _ = fakeCreateMainInfoService.GetAsync(
-                Arg.Is(createInfoCommand),
-                Arg.Any<CancellationToken>())
+            Arg.Is(createInfoCommand),
+            Arg.Any<CancellationToken>())
             .Returns(expectedPromotionId);
 
         var actual = await sut.GetAsync(command);
@@ -545,8 +545,8 @@ public class PromotionTests
         _ = fakeSystemClock.UtcNow.Returns(utcNow);
 
         _ = fakeBrandServiceClient.GetBrandInfoAsync(
-                Arg.Is(brandId),
-                Arg.Any<CancellationToken>())
+            Arg.Is(brandId),
+            Arg.Any<CancellationToken>())
             .Returns(new BrandInfo
             {
                 Id = brandId,
@@ -554,8 +554,8 @@ public class PromotionTests
             });
 
         _ = fakeGetMainInfoService.GetAsync(
-                Arg.Is(new GetPromotionMainInfoQuery(basePromotionId)),
-                Arg.Any<CancellationToken>())
+            Arg.Is(new GetPromotionMainInfoQuery(basePromotionId)),
+            Arg.Any<CancellationToken>())
             .Returns(new PromotionMainInfo
             {
                 Id = basePromotionId,
@@ -570,8 +570,8 @@ public class PromotionTests
             });
 
         _ = fakeGetRuleService.GetAsync(
-                Arg.Is(new GetPromotionRuleQuery(basePromotionId)),
-                Arg.Any<CancellationToken>())
+            Arg.Is(new GetPromotionRuleQuery(basePromotionId)),
+            Arg.Any<CancellationToken>())
             .Returns(new PromotionRuleInfo(
                 JsonDocument.Parse("{}"),
                 1000m,
@@ -581,9 +581,8 @@ public class PromotionTests
                 new[] { 1, 2, 3 }));
 
         _ = fakeGetContentService.GetAsync(
-                Arg.Is(new GetPromotionContentQuery(basePromotionId)),
-                Arg.Any<CancellationToken>())
-            .Returns(new PromotionContent
+            Arg.Is(new GetPromotionContentQuery(basePromotionId)),
+            Arg.Any<CancellationToken>()).Returns(new PromotionContent
             {
                 SubSubject = "TestSubject",
                 Localization = JsonDocument.Parse("{}")
@@ -601,8 +600,8 @@ public class PromotionTests
             command.Modifier);
 
         _ = fakeCreateMainInfoService.GetAsync(
-                Arg.Is(createInfoCommand),
-                Arg.Any<CancellationToken>())
+            Arg.Is(createInfoCommand),
+            Arg.Any<CancellationToken>())
             .Returns(expectedPromotionId);
 
         var actual = await sut.GetAsync(command);
@@ -671,8 +670,8 @@ public class PromotionTests
         _ = fakeSystemClock.UtcNow.Returns(utcNow);
 
         _ = fakeBrandServiceClient.GetBrandInfoAsync(
-                Arg.Is(brandId),
-                Arg.Any<CancellationToken>())
+            Arg.Is(brandId),
+            Arg.Any<CancellationToken>())
             .Returns(new BrandInfo
             {
                 Id = brandId,
@@ -680,8 +679,8 @@ public class PromotionTests
             });
 
         _ = fakeGetMainInfoService.GetAsync(
-                Arg.Is(new GetPromotionMainInfoQuery(basePromotionId)),
-                Arg.Any<CancellationToken>())
+            Arg.Is(new GetPromotionMainInfoQuery(basePromotionId)),
+            Arg.Any<CancellationToken>())
             .Returns(new PromotionMainInfo
             {
                 Id = basePromotionId,
@@ -696,8 +695,8 @@ public class PromotionTests
             });
 
         _ = fakeGetRuleService.GetAsync(
-                Arg.Is(new GetPromotionRuleQuery(basePromotionId)),
-                Arg.Any<CancellationToken>())
+            Arg.Is(new GetPromotionRuleQuery(basePromotionId)),
+            Arg.Any<CancellationToken>())
             .Returns(new PromotionRuleInfo(
                 JsonDocument.Parse("{}"),
                 1000m,
@@ -707,8 +706,8 @@ public class PromotionTests
                 new[] { 1, 2, 3 }));
 
         _ = fakeGetContentService.GetAsync(
-                Arg.Is(new GetPromotionContentQuery(basePromotionId)),
-                Arg.Any<CancellationToken>())
+            Arg.Is(new GetPromotionContentQuery(basePromotionId)),
+            Arg.Any<CancellationToken>())
             .Returns(new PromotionContent
             {
                 SubSubject = "TestSubject",
@@ -727,8 +726,8 @@ public class PromotionTests
             command.Modifier);
 
         _ = fakeCreateMainInfoService.GetAsync(
-                Arg.Is(createInfoCommand),
-                Arg.Any<CancellationToken>())
+            Arg.Is(createInfoCommand),
+            Arg.Any<CancellationToken>())
             .Returns(expectedPromotionId);
 
         var actual = await sut.GetAsync(command);

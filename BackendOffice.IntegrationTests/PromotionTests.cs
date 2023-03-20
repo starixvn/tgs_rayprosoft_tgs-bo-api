@@ -62,8 +62,8 @@ public class PromotionTests
         var now = DateTime.UtcNow;
 
         _ = fakePromotionServiceClient.GetPromotionMainInfoAsync(
-                Arg.Is(promotionId),
-                Arg.Any<CancellationToken>())
+            Arg.Is(promotionId),
+            Arg.Any<CancellationToken>())
             .Returns(new PromotionMainInfo
             {
                 Id = promotionId,
@@ -234,8 +234,8 @@ public class PromotionTests
             new[] { 1, 2, 3 });
 
         _ = fakePromotionServiceClient.GetPromotionRuleAsync<PromotionRuleInfo>(
-                Arg.Is(promotionId),
-                Arg.Any<CancellationToken>())
+            Arg.Is(promotionId),
+            Arg.Any<CancellationToken>())
             .Returns(rule);
 
         var isWindows = RuntimeInformation.IsOSPlatform(OSPlatform.Windows) ? "true" : "false";
@@ -365,40 +365,35 @@ public class PromotionTests
         Assert.NotNull(actual);
         Assert.True(actual.Valid);
 
-        _ = fakePromotionServiceClient
-            .Received(1)
+        _ = fakePromotionServiceClient.Received(1)
             .CreatePromotionAsync(
                 Arg.Is(brandId),
                 Arg.Is(createInfo),
                 Arg.Any<string>(),
                 Arg.Any<CancellationToken>());
 
-        _ = fakePromotionServiceClient
-            .Received(1)
+        _ = fakePromotionServiceClient.Received(1)
             .SetPromotionRuleAsync(
                 Arg.Is(promotionId),
                 Arg.Any<JsonDocument>(),
                 Arg.Any<string>(),
                 Arg.Any<CancellationToken>());
 
-        _ = fakePromotionServiceClient
-            .Received(1)
+        _ = fakePromotionServiceClient.Received(1)
             .SetPromotionContentAsync(
                 Arg.Is(promotionId),
                 Arg.Any<PromotionContent>(),
                 Arg.Any<string>(),
                 Arg.Any<CancellationToken>());
 
-        _ = fakePromotionServiceClient
-            .Received(1)
+        _ = fakePromotionServiceClient.Received(1)
             .SetPromotionVipLevelsAsync(
                 Arg.Is(promotionId),
                 Arg.Is<IEnumerable<int>>(x => x.SequenceEqual(request.VipLevels)),
                 Arg.Any<string>(),
                 Arg.Any<CancellationToken>());
 
-        _ = fakePromotionServiceClient
-            .Received(1)
+        _ = fakePromotionServiceClient.Received(1)
             .SetPromotionStatusAsync(
                 Arg.Is(promotionId),
                 Arg.Is(Tgs.Promotion.Clients.PromotionStatus.Enabled),
@@ -482,8 +477,7 @@ public class PromotionTests
             PromotionLimitAmount = request.Unlimited ? null : request.TotalAmountLimit
         };
 
-        _ = fakePromotionServiceClient
-            .Received(1)
+        _ = fakePromotionServiceClient.Received(1)
             .CreatePromotionAsync(
                 Arg.Is(brandId),
                 Arg.Is(createInfo),
@@ -540,8 +534,8 @@ public class PromotionTests
         var basePromotionId = Guid.NewGuid();
 
         _ = fakeGetMainInfoService.GetAsync(
-                Arg.Is(new GetPromotionMainInfoQuery(basePromotionId)),
-                Arg.Any<CancellationToken>())
+            Arg.Is(new GetPromotionMainInfoQuery(basePromotionId)),
+            Arg.Any<CancellationToken>())
             .Returns(new PromotionMainInfo
             {
                 Id = basePromotionId,
@@ -556,8 +550,8 @@ public class PromotionTests
             });
 
         _ = fakeGetRuleService.GetAsync(
-                Arg.Is(new GetPromotionRuleQuery(basePromotionId)),
-                Arg.Any<CancellationToken>())
+            Arg.Is(new GetPromotionRuleQuery(basePromotionId)), 
+            Arg.Any<CancellationToken>())
             .Returns(new PromotionRuleInfo(
                 JsonDocument.Parse("{}"),
                 1000m,
@@ -567,8 +561,8 @@ public class PromotionTests
                 new[] { 1, 2, 3 }));
 
         _ = fakeGetContentService.GetAsync(
-                Arg.Is(new GetPromotionContentQuery(basePromotionId)),
-                Arg.Any<CancellationToken>())
+            Arg.Is(new GetPromotionContentQuery(basePromotionId)), 
+            Arg.Any<CancellationToken>())
             .Returns(new PromotionContent
             {
                 SubSubject = "TestSubject",
@@ -592,8 +586,8 @@ public class PromotionTests
             "system");
 
         _ = fakeCreateMainInfoService.GetAsync(
-                Arg.Is(createInfoCommand),
-                Arg.Any<CancellationToken>())
+            Arg.Is(createInfoCommand), 
+            Arg.Any<CancellationToken>())
             .Returns(expectedPromotionId);
 
         var isWindows = RuntimeInformation.IsOSPlatform(OSPlatform.Windows) ? "true" : "false";
@@ -729,40 +723,35 @@ public class PromotionTests
             PromotionLimitAmount = request.Unlimited ? null : request.TotalAmountLimit
         };
 
-        _ = fakePromotionServiceClient
-            .Received(1)
+        _ = fakePromotionServiceClient.Received(1)
             .UpdatePromotionMainInfoAsync(
                 Arg.Is(promotionId),
                 Arg.Is(updateMainInfo),
                 Arg.Any<string>(),
                 Arg.Any<CancellationToken>());
 
-        _ = fakePromotionServiceClient
-            .Received(1)
+        _ = fakePromotionServiceClient.Received(1)
             .SetPromotionRuleAsync(
                 Arg.Is(promotionId),
                 Arg.Any<JsonDocument>(),
                 Arg.Any<string>(),
                 Arg.Any<CancellationToken>());
 
-        _ = fakePromotionServiceClient
-            .Received(1)
+        _ = fakePromotionServiceClient.Received(1)
             .SetPromotionContentAsync(
                 Arg.Is(promotionId),
                 Arg.Any<PromotionContent>(),
                 Arg.Any<string>(),
                 Arg.Any<CancellationToken>());
 
-        _ = fakePromotionServiceClient
-            .Received(1)
+        _ = fakePromotionServiceClient.Received(1)
             .SetPromotionVipLevelsAsync(
                 Arg.Is(promotionId),
                 Arg.Is<IEnumerable<int>>(x => x.SequenceEqual(request.VipLevels)),
                 Arg.Any<string>(),
                 Arg.Any<CancellationToken>());
 
-        _ = fakePromotionServiceClient
-            .Received(1)
+        _ = fakePromotionServiceClient.Received(1)
             .SetPromotionStatusAsync(
                 Arg.Is(promotionId),
                 Arg.Is(Tgs.Promotion.Clients.PromotionStatus.Enabled),
@@ -925,8 +914,7 @@ public class PromotionTests
         Assert.NotNull(actual);
         Assert.True(actual.Valid);
 
-        _ = fakePromotionServiceClient
-            .Received(1)
+        _ = fakePromotionServiceClient.Received(1)
             .SetPromotionContentAsync(
                 Arg.Is(promotionId),
                 Arg.Is<PromotionContent>(x => x.Content == request.Content),
@@ -995,16 +983,14 @@ public class PromotionTests
         Assert.NotNull(actual);
         Assert.True(actual.Valid);
 
-        _ = fakePromotionServiceClient
-            .Received(1)
+        _ = fakePromotionServiceClient.Received(1)
             .SetPromotionRuleAsync(
                 Arg.Is(promotionId),
                 Arg.Any<JsonDocument>(),
                 Arg.Any<string>(),
                 Arg.Any<CancellationToken>());
 
-        _ = fakePromotionServiceClient
-            .Received(1)
+        _ = fakePromotionServiceClient.Received(1)
             .SetPromotionVipLevelsAsync(
                 Arg.Is(promotionId),
                 Arg.Is<IEnumerable<int>>(x => x.SequenceEqual(request.VipLevels)),

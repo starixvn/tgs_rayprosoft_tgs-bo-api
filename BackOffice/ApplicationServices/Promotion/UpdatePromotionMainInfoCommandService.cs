@@ -45,9 +45,9 @@ internal record UpdatePromotionMainInfoCommandService : ICommandService<UpdatePr
 
         if (_PromotionTypes.Contains(command.PromotionType))
         {
-            var brandInfo = await _brandServiceClient
-                .GetBrandInfoAsync(promotion!.BrandId, cancellationToken)
-                .ConfigureAwait(false);
+            var brandInfo = await _brandServiceClient.GetBrandInfoAsync(
+                promotion!.BrandId, 
+                cancellationToken).ConfigureAwait(false);
 
             offset = TimeSpan.FromMinutes(brandInfo!.TimeSpanMinutes!.Value);
         }

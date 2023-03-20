@@ -66,8 +66,8 @@ internal class DuplicatePromotionCommandService : IGetService<DuplicatePromotion
         CancellationToken cancellationToken = default)
     {
         var mainInfo = await _getMainInfoService.GetAsync(
-                new GetPromotionMainInfoQuery(command.BasePromotionId), cancellationToken)
-            .ConfigureAwait(false);
+            new GetPromotionMainInfoQuery(command.BasePromotionId), 
+            cancellationToken).ConfigureAwait(false);
 
         if (mainInfo is null)
             throw new InvalidOperationException("Base promotion is not found");
@@ -79,14 +79,12 @@ internal class DuplicatePromotionCommandService : IGetService<DuplicatePromotion
         }
 
         var rule = await _getRuleService.GetAsync(
-                new GetPromotionRuleQuery(mainInfo.Id),
-                cancellationToken)
-            .ConfigureAwait(false);
+            new GetPromotionRuleQuery(mainInfo.Id),
+            cancellationToken).ConfigureAwait(false);
 
         var content = await _getContentService.GetAsync(
-                new GetPromotionContentQuery(mainInfo.Id),
-                cancellationToken)
-            .ConfigureAwait(false);
+            new GetPromotionContentQuery(mainInfo.Id),
+            cancellationToken).ConfigureAwait(false);
 
         var offset = TimeSpan.FromHours(8D);
 
