@@ -284,6 +284,28 @@ public class PromotionTests
     }
 
     [Test]
+    public async Task 修改活動狀態()
+    {
+        var fakePromotionServiceClient = Substitute.For<IPromotionServiceClient>();
+
+        var command = new UpdatePromotionStatusCommand(
+            Guid.NewGuid(),
+            PromotionStatus.Enabled,
+            "User1");
+
+        var sut = new UpdatePromotionStatusCommandService(fakePromotionServiceClient);
+
+        await sut.ExecuteAsync(command);
+
+        _ = fakePromotionServiceClient.Received(1)
+            .SetPromotionStatusAsync(
+                Arg.Is(command.PromotionId),
+                Arg.Is(command.Status),
+                Arg.Any<string>(),
+                Arg.Any<CancellationToken>());
+    }
+
+    [Test]
     public async Task 新增活動MainInfo()
     {
         var fakePromotionServiceClient = Substitute.For<IPromotionServiceClient>();
@@ -390,7 +412,6 @@ public class PromotionTests
     public async Task 複製活動_活動結束時間大於目前時間()
     {
         var fakeSystemClock = Substitute.For<ISystemClock>();
-        var fakePromotionServiceClient = Substitute.For<IPromotionServiceClient>();
         var fakeGetBrandInfoService = Substitute.For<IGetService<GetBrandInfoQuery, BrandInfo?>>();
         var fakeGetMainInfoService = Substitute.For<IGetService<GetPromotionMainInfoQuery, PromotionMainInfo>>();
         var fakeGetRuleService = Substitute.For<IGetService<GetPromotionRuleQuery, PromotionRuleInfo>>();
@@ -398,11 +419,11 @@ public class PromotionTests
         var fakeCreateMainInfoService = Substitute.For<IGetService<CreatePromotionMainInfoCommand, Guid>>();
         var fakeUpdateContentService = Substitute.For<ICommandService<UpdatePromotionContentCommand>>();
         var fakeUpdateRuleService = Substitute.For<ICommandService<UpdatePromotionRuleCommand>>();
+        var fakeUpdateStatusService = Substitute.For<ICommandService<UpdatePromotionStatusCommand>>();
         var fakeLogger = NullLogger<DuplicatePromotionCommandService>.Instance;
 
         var sut = new DuplicatePromotionCommandService(
             fakeSystemClock,
-            fakePromotionServiceClient,
             fakeGetBrandInfoService,
             fakeGetMainInfoService,
             fakeGetRuleService,
@@ -410,6 +431,7 @@ public class PromotionTests
             fakeCreateMainInfoService,
             fakeUpdateRuleService,
             fakeUpdateContentService,
+            fakeUpdateStatusService,
             fakeLogger);
 
         var basePromotionId = Guid.NewGuid();
@@ -499,11 +521,12 @@ public class PromotionTests
                  Arg.Is<UpdatePromotionContentCommand>(x => x.PromotionId == expectedPromotionId),
                  Arg.Any<CancellationToken>());
 
-        _ = fakePromotionServiceClient.Received(1)
-            .SetPromotionStatusAsync(
-                Arg.Is(expectedPromotionId),
-                Arg.Is(PromotionStatus.Disabled),
-                Arg.Is(command.Modifier),
+        _ = fakeUpdateStatusService.Received(1)
+            .ExecuteAsync(
+                Arg.Is(new UpdatePromotionStatusCommand(
+                    expectedPromotionId,
+                    PromotionStatus.Disabled,
+                    command.Modifier)),
                 Arg.Any<CancellationToken>());
     }
 
@@ -511,7 +534,6 @@ public class PromotionTests
     public async Task 複製活動_活動結束時間小於目前時間()
     {
         var fakeSystemClock = Substitute.For<ISystemClock>();
-        var fakePromotionServiceClient = Substitute.For<IPromotionServiceClient>();
         var fakeGetBrandInfoService = Substitute.For<IGetService<GetBrandInfoQuery, BrandInfo?>>();
         var fakeGetMainInfoService = Substitute.For<IGetService<GetPromotionMainInfoQuery, PromotionMainInfo>>();
         var fakeGetRuleService = Substitute.For<IGetService<GetPromotionRuleQuery, PromotionRuleInfo>>();
@@ -519,11 +541,11 @@ public class PromotionTests
         var fakeCreateMainInfoService = Substitute.For<IGetService<CreatePromotionMainInfoCommand, Guid>>();
         var fakeUpdateContentService = Substitute.For<ICommandService<UpdatePromotionContentCommand>>();
         var fakeUpdateRuleService = Substitute.For<ICommandService<UpdatePromotionRuleCommand>>();
+        var fakeUpdateStatusService = Substitute.For<ICommandService<UpdatePromotionStatusCommand>>();
         var fakeLogger = NullLogger<DuplicatePromotionCommandService>.Instance;
 
         var sut = new DuplicatePromotionCommandService(
             fakeSystemClock,
-            fakePromotionServiceClient,
             fakeGetBrandInfoService,
             fakeGetMainInfoService,
             fakeGetRuleService,
@@ -531,6 +553,7 @@ public class PromotionTests
             fakeCreateMainInfoService,
             fakeUpdateRuleService,
             fakeUpdateContentService,
+            fakeUpdateStatusService,
             fakeLogger);
 
         var basePromotionId = Guid.NewGuid();
@@ -624,11 +647,12 @@ public class PromotionTests
                 Arg.Is<UpdatePromotionContentCommand>(x => x.PromotionId == expectedPromotionId),
                 Arg.Any<CancellationToken>());
 
-        _ = fakePromotionServiceClient.Received(1)
-            .SetPromotionStatusAsync(
-                Arg.Is(expectedPromotionId),
-                Arg.Is(PromotionStatus.Disabled),
-                Arg.Is(command.Modifier),
+        _ = fakeUpdateStatusService.Received(1)
+            .ExecuteAsync(
+                Arg.Is(new UpdatePromotionStatusCommand(
+                    expectedPromotionId,
+                    PromotionStatus.Disabled,
+                    command.Modifier)),
                 Arg.Any<CancellationToken>());
     }
 
@@ -636,7 +660,6 @@ public class PromotionTests
     public async Task 複製活動_活動結束時間小於目前時間_特定活動類型會套用Brand時區設定()
     {
         var fakeSystemClock = Substitute.For<ISystemClock>();
-        var fakePromotionServiceClient = Substitute.For<IPromotionServiceClient>();
         var fakeGetBrandInfoService = Substitute.For<IGetService<GetBrandInfoQuery, BrandInfo?>>();
         var fakeGetMainInfoService = Substitute.For<IGetService<GetPromotionMainInfoQuery, PromotionMainInfo>>();
         var fakeGetRuleService = Substitute.For<IGetService<GetPromotionRuleQuery, PromotionRuleInfo>>();
@@ -644,11 +667,11 @@ public class PromotionTests
         var fakeCreateMainInfoService = Substitute.For<IGetService<CreatePromotionMainInfoCommand, Guid>>();
         var fakeUpdateContentService = Substitute.For<ICommandService<UpdatePromotionContentCommand>>();
         var fakeUpdateRuleService = Substitute.For<ICommandService<UpdatePromotionRuleCommand>>();
+        var fakeUpdateStatusService = Substitute.For<ICommandService<UpdatePromotionStatusCommand>>();
         var fakeLogger = NullLogger<DuplicatePromotionCommandService>.Instance;
 
         var sut = new DuplicatePromotionCommandService(
             fakeSystemClock,
-            fakePromotionServiceClient,
             fakeGetBrandInfoService,
             fakeGetMainInfoService,
             fakeGetRuleService,
@@ -656,6 +679,7 @@ public class PromotionTests
             fakeCreateMainInfoService,
             fakeUpdateRuleService,
             fakeUpdateContentService,
+            fakeUpdateStatusService,
             fakeLogger);
 
         var basePromotionId = Guid.NewGuid();
@@ -750,11 +774,12 @@ public class PromotionTests
                 Arg.Is<UpdatePromotionContentCommand>(x => x.PromotionId == expectedPromotionId),
                 Arg.Any<CancellationToken>());
 
-        _ = fakePromotionServiceClient.Received(1)
-            .SetPromotionStatusAsync(
-                Arg.Is(expectedPromotionId),
-                Arg.Is(PromotionStatus.Disabled),
-                Arg.Is(command.Modifier),
+        _ = fakeUpdateStatusService.Received(1)
+            .ExecuteAsync(
+                Arg.Is(new UpdatePromotionStatusCommand(
+                    expectedPromotionId,
+                    PromotionStatus.Disabled,
+                    command.Modifier)),
                 Arg.Any<CancellationToken>());
     }
 }

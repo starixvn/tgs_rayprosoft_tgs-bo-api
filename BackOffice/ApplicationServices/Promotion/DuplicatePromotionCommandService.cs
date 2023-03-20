@@ -35,13 +35,12 @@ internal class DuplicatePromotionCommandService : IGetService<DuplicatePromotion
     private readonly IGetService<GetPromotionMainInfoQuery, PromotionMainInfo> _getMainInfoService;
     private readonly IGetService<GetPromotionRuleQuery, PromotionRuleInfo> _getRuleService;
     private readonly ILogger<DuplicatePromotionCommandService> _logger;
-    private readonly IPromotionServiceClient _promotionServiceClient;
     private readonly ISystemClock _systemClock;
     private readonly ICommandService<UpdatePromotionContentCommand> _updateContentService;
+    private readonly ICommandService<UpdatePromotionStatusCommand> _updateStatusService;
     private readonly ICommandService<UpdatePromotionRuleCommand> _updateRuleService;
 
     public DuplicatePromotionCommandService(ISystemClock systemClock,
-        IPromotionServiceClient promotionServiceClient,
         IGetService<GetBrandInfoQuery, BrandInfo?> getBrandInfoService,
         IGetService<GetPromotionMainInfoQuery, PromotionMainInfo> getMainInfoService,
         IGetService<GetPromotionRuleQuery, PromotionRuleInfo> getRuleService,
@@ -49,10 +48,10 @@ internal class DuplicatePromotionCommandService : IGetService<DuplicatePromotion
         IGetService<CreatePromotionMainInfoCommand, Guid> createMainInfoService,
         ICommandService<UpdatePromotionRuleCommand> updateRuleService,
         ICommandService<UpdatePromotionContentCommand> updateContentService,
+        ICommandService<UpdatePromotionStatusCommand> updateStatusService,
         ILogger<DuplicatePromotionCommandService> logger)
     {
         _systemClock = systemClock ?? throw new ArgumentNullException(nameof(systemClock));
-        _promotionServiceClient = promotionServiceClient ?? throw new ArgumentNullException(nameof(promotionServiceClient));
         _getBrandInfoService = getBrandInfoService ?? throw new ArgumentNullException(nameof(getBrandInfoService));
         _getMainInfoService = getMainInfoService ?? throw new ArgumentNullException(nameof(getMainInfoService));
         _getRuleService = getRuleService ?? throw new ArgumentNullException(nameof(getRuleService));
@@ -60,6 +59,7 @@ internal class DuplicatePromotionCommandService : IGetService<DuplicatePromotion
         _createMainInfoService = createMainInfoService ?? throw new ArgumentNullException(nameof(createMainInfoService));
         _updateRuleService = updateRuleService ?? throw new ArgumentNullException(nameof(updateRuleService));
         _updateContentService = updateContentService ?? throw new ArgumentNullException(nameof(updateContentService));
+        _updateStatusService = updateStatusService ?? throw new ArgumentNullException(nameof(updateStatusService));
         _logger = logger ?? throw new ArgumentNullException(nameof(logger));
     }
 
@@ -147,10 +147,11 @@ internal class DuplicatePromotionCommandService : IGetService<DuplicatePromotion
             updateContentCommand,
             cancellationToken).ConfigureAwait(false);
 
-        await _promotionServiceClient.SetPromotionStatusAsync(
-            promotionId,
-            PromotionStatus.Disabled,
-            command.Modifier,
+        await _updateStatusService.ExecuteAsync(
+            new UpdatePromotionStatusCommand(
+                promotionId, 
+                PromotionStatus.Disabled, 
+                command.Modifier), 
             cancellationToken).ConfigureAwait(false);
 
         return promotionId;

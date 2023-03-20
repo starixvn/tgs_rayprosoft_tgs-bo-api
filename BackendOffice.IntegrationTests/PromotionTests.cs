@@ -7,18 +7,19 @@ using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Logging.Abstractions;
 using NSubstitute;
+using Tgs.BrandCertificate.Clients;
 using Tgs.Promotion.Clients;
+using Tgs.ServiceUtility;
 using TGS.Apis.BackendOffice.Controllers.Messages.Promotion;
 using TGS.Apis.BackendOffice.ViewModels;
-using Tgs.BrandCertificate.Clients;
 using TGS.Core.Models.Enums;
 using TGS.Core.Models.Messages;
 using TGS.Services.BackOffice;
+using TGS.Services.BackOffice.ApplicationServices;
 using TGS.Services.BackOffice.ApplicationServices.Promotion;
 using TGS.Services.BackOffice.Domain;
-using Tgs.ServiceUtility;
 using Xunit.Abstractions;
-using TGS.Services.BackOffice.ApplicationServices;
+using PromotionStatus = Tgs.Promotion.Clients.PromotionStatus;
 
 namespace BackendOffice.IntegrationTests;
 
@@ -551,7 +552,7 @@ public class PromotionTests
             });
 
         _ = fakeGetRuleService.GetAsync(
-            Arg.Is(new GetPromotionRuleQuery(basePromotionId)), 
+            Arg.Is(new GetPromotionRuleQuery(basePromotionId)),
             Arg.Any<CancellationToken>())
             .Returns(new PromotionRuleInfo(
                 JsonDocument.Parse("{}"),
@@ -562,7 +563,7 @@ public class PromotionTests
                 new[] { 1, 2, 3 }));
 
         _ = fakeGetContentService.GetAsync(
-            Arg.Is(new GetPromotionContentQuery(basePromotionId)), 
+            Arg.Is(new GetPromotionContentQuery(basePromotionId)),
             Arg.Any<CancellationToken>())
             .Returns(new PromotionContent
             {
@@ -574,7 +575,7 @@ public class PromotionTests
         _ = fakeSystemClock.UtcNow.Returns(utcNow);
 
         _ = fakeGetBrandInfoService.GetAsync(
-            Arg.Is(new GetBrandInfoQuery(brandId)), 
+            Arg.Is(new GetBrandInfoQuery(brandId)),
             Arg.Any<CancellationToken>())
             .Returns(new BrandInfo
             {
@@ -588,7 +589,7 @@ public class PromotionTests
             "TestPromotion",
             DateOnly.Parse("2023-03-18"),
             DateOnly.Parse("2023-03-20"),
-            true, 
+            true,
             null,
             false,
             "system");
@@ -596,7 +597,7 @@ public class PromotionTests
         var expectedPromotionId = Guid.NewGuid();
 
         _ = fakeCreateMainInfoService.GetAsync(
-            Arg.Is(createInfoCommand), 
+            Arg.Is(createInfoCommand),
             Arg.Any<CancellationToken>())
             .Returns(expectedPromotionId);
 
@@ -630,7 +631,7 @@ public class PromotionTests
             .ExecuteAsync(
                 Arg.Is<UpdatePromotionRuleCommand>(x => x.PromotionId == expectedPromotionId),
                 Arg.Any<CancellationToken>());
-        
+
         _ = fakeUpdateContentService.Received(1)
             .ExecuteAsync(
                 Arg.Is<UpdatePromotionContentCommand>(x => x.PromotionId == expectedPromotionId),
@@ -928,6 +929,69 @@ public class PromotionTests
             .SetPromotionContentAsync(
                 Arg.Is(promotionId),
                 Arg.Is<PromotionContent>(x => x.Content == request.Content),
+                Arg.Any<string>(),
+                Arg.Any<CancellationToken>());
+    }
+
+    [Fact]
+    public async Task 變更活動狀態()
+    {
+        // Arrange
+        var channelName = Guid.NewGuid().ToString();
+        var userId = Guid.NewGuid();
+
+        var fakePromotionServiceClient = Substitute.For<IPromotionServiceClient>();
+
+        using var web = TestBackendOfficeApplication.Builder
+            .UseTestChannelServer(channelName)
+            .ConfigureLogging(logging => logging.AddXUnit(_testOutputHelper))
+            .ConfigureServices(services => services
+                .AddAuthentication("Fake")
+                .AddScheme<FakeAuthenticationSchemaOptions, FakeAuthenticationHandler>(
+                    "Fake",
+                    options =>
+                    {
+                        options.UserId = userId;
+                        options.UserName = "system";
+                    })
+                .Services
+                .AddSingleton(fakePromotionServiceClient))
+            .Build();
+
+        await web.StartAsync();
+
+        var promotionId = Guid.NewGuid();
+        var status = TGS.Core.Models.Enums.PromotionStatus.Enabled;
+
+        var isWindows = RuntimeInformation.IsOSPlatform(OSPlatform.Windows) ? "true" : "false";
+
+        var nodeModule = $$"""
+            const axiosConfigFactory = require('./models/axios-configuration.js').default;
+            const BackOfficeService = require('./services/bo-service.js').default;
+
+            module.exports = async (promotionId, status) =>
+            {
+                let instance = axiosConfigFactory("{{channelName}}", {{isWindows}});
+
+                let svc = new BackOfficeService(instance);
+
+                return await svc.updatePromotionStatus(promotionId, status);
+            };
+        """;
+
+        // Act
+        var actual = await StaticNodeJSService.InvokeFromStringAsync<MessageResponse>(
+            nodeModule,
+            args: new object[] { promotionId, status });
+
+        // Assert
+        Assert.NotNull(actual);
+        Assert.True(actual.Valid);
+
+        _ = fakePromotionServiceClient.Received(1)
+            .SetPromotionStatusAsync(
+                Arg.Is(promotionId),
+                Arg.Is(PromotionStatus.Enabled),
                 Arg.Any<string>(),
                 Arg.Any<CancellationToken>());
     }

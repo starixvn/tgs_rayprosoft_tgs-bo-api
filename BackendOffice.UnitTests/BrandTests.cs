@@ -4,7 +4,6 @@ using TGS.Services.BackOffice.ApplicationServices;
 
 namespace TGS.Tests.BackendOffice.UnitTests;
 
-
 [TestFixture]
 internal class BrandTests
 {

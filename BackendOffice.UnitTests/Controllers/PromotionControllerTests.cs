@@ -20,12 +20,12 @@ public class PromotionControllerTests : BaseTests
         base.Setup();
 
         var controller = new PromotionController();
-        var promotionServiceClientMock = new Mock<IPromotionServiceClient>();
 
         var createMainInfoServiceMock = new Mock<IGetService<CreatePromotionMainInfoCommand, Guid>>();
         var updateContentServiceMock = new Mock<ICommandService<UpdatePromotionContentCommand>>();
         var updateRuleServiceMock = new Mock<ICommandService<UpdatePromotionRuleCommand>>();
-
+        var updateStatusServiceMock = new Mock<ICommandService<UpdatePromotionStatusCommand>>();
+        
         controller.ControllerContext.HttpContext = HttpContextMock.Object;
 
         var brandId = Guid.NewGuid();
@@ -50,10 +50,10 @@ public class PromotionControllerTests : BaseTests
             .ReturnsAsync(promotionId);
         
         var response = await controller.CreatePromotionAsync(
-            promotionServiceClientMock.Object,
             createMainInfoServiceMock.Object,
             updateContentServiceMock.Object,
             updateRuleServiceMock.Object,
+            updateStatusServiceMock.Object,
             request);
 
         _ = response.Valid.Should().BeTrue();
@@ -66,10 +66,9 @@ public class PromotionControllerTests : BaseTests
             It.Is<UpdatePromotionRuleCommand>(x => x.PromotionId == promotionId),
             It.IsAny<CancellationToken>()));
 
-        promotionServiceClientMock.Verify(s => s.SetPromotionStatusAsync(
-            It.Is<Guid>(x => x == promotionId),
-            It.Is<PromotionStatus>(x => x == PromotionStatus.Enabled),
-            It.IsAny<string>(),
+        updateStatusServiceMock.Verify(s => s.ExecuteAsync(
+            It.Is<UpdatePromotionStatusCommand>(x => 
+                x.PromotionId == promotionId && x.Status == PromotionStatus.Enabled),
             It.IsAny<CancellationToken>()));
     }
 
@@ -80,11 +79,11 @@ public class PromotionControllerTests : BaseTests
         base.Setup();
 
         var controller = new PromotionController();
-        var promotionServiceClientMock = new Mock<IPromotionServiceClient>();
-
+    
         var updateMainInfoServiceMock = new Mock<ICommandService<UpdatePromotionMainInfoCommand>>();
         var updateContentServiceMock = new Mock<ICommandService<UpdatePromotionContentCommand>>();
         var updateRuleServiceMock = new Mock<ICommandService<UpdatePromotionRuleCommand>>();
+        var updateStatusServiceMock = new Mock<ICommandService<UpdatePromotionStatusCommand>>();
 
         controller.ControllerContext.HttpContext = HttpContextMock.Object;
 
@@ -101,10 +100,10 @@ public class PromotionControllerTests : BaseTests
         var promotionId = Guid.NewGuid();
 
         var response = await controller.UpdatePromotionAsync(
-            promotionServiceClientMock.Object,
             updateMainInfoServiceMock.Object,
             updateContentServiceMock.Object,
             updateRuleServiceMock.Object,
+            updateStatusServiceMock.Object,
             promotionId,
             request);
 
@@ -124,10 +123,9 @@ public class PromotionControllerTests : BaseTests
             It.Is<UpdatePromotionRuleCommand>(x => x.PromotionId == promotionId),
             It.IsAny<CancellationToken>()));
 
-        promotionServiceClientMock.Verify(s => s.SetPromotionStatusAsync(
-            It.Is<Guid>(x => x == promotionId),
-            It.Is<PromotionStatus>(x => x == PromotionStatus.Enabled),
-            It.IsAny<string>(),
+        updateStatusServiceMock.Verify(s => s.ExecuteAsync(
+            It.Is<UpdatePromotionStatusCommand>(x => 
+                x.PromotionId == promotionId && x.Status == PromotionStatus.Enabled),
             It.IsAny<CancellationToken>()));
     }
 }
