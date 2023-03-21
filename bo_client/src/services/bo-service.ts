@@ -337,6 +337,14 @@ export default class BackOfficeService {
             .then(res => res.data);
     }
 
+    public updatePromotionStatus(
+        promotionId: string,
+        status: string) : Promise<MessageResponse> {
+        return this.http
+            .put(`/api/promotion/${promotionId}/${status}`)
+            .then(res => res.data);
+    }
+
     public updatePromotionMainInfo(
         promotionId: string,
         request: UpdatePromotionMainInfoRequest) : Promise<MessageResponse> {
@@ -366,5 +374,33 @@ export default class BackOfficeService {
         return this.http
             .put(`/api/promotion/${promotionId}`, request)
             .then(res => res.data);       
+    }
+
+    public getPromotionRule(
+        promotionId: string) : Promise<string> {
+        return this.http
+            .get(`/api/promotion/rule/${promotionId}`)
+            .then(res => res.data);
+    }
+
+    public getPromotionContent(
+        promotionId: string) : Promise<PromtionContent> {
+        return this.http
+            .get(`/api/promotion/content/${promotionId}`)
+            .then(res => res.data);       
+    }
+
+    public getPromotionMainInfo(
+        promotionId: string) : Promise<PromotionMainInfo> {
+        return this.http
+            .get(`/api/promotion/main/${promotionId}`)
+            .then(res => res.data);
+    }
+
+    public duplicatePromotion(
+        basePromotionId: string) : Promise<ApiResponse<string>> {
+        return this.http
+            .put(`/api/promotion/${basePromotionId}:duplicate`)
+            .then(res => res.data);
     }
 }

@@ -45,10 +45,10 @@ public class PromotionController : BaseContextController
     [HttpPost(Name = "CreatePromotion")]
     [Description("Create a promotion")]
     public async Task<MessageResponse> CreatePromotionAsync(
-        [FromServices] IPromotionServiceClient promotionServiceClient,
         [FromServices] IGetService<CreatePromotionMainInfoCommand, Guid> createMainInfoCommandService,
         [FromServices] ICommandService<UpdatePromotionContentCommand> updateContentCommandService,
         [FromServices] ICommandService<UpdatePromotionRuleCommand> updateRuleCommandService,
+        [FromServices] ICommandService<UpdatePromotionStatusCommand> updateStatusCommandService,
         [FromBody] CreatePromotionRequest request)
     {
         var createMainInfoCommand = new CreatePromotionMainInfoCommand(
@@ -104,18 +104,22 @@ public class PromotionController : BaseContextController
             updateRuleCommand,
             HttpContext.RequestAborted).ConfigureAwait(false);
 
-        await promotionServiceClient.SetPromotionStatusAsync(
-            promotionId,
-            request.Status switch
-            {
-                SwitchStatus.Enabled => Tgs.Promotion.Clients.PromotionStatus.Enabled,
-                SwitchStatus.Disabled => Tgs.Promotion.Clients.PromotionStatus.Disabled,
-                _ => throw new NotImplementedException()
-            },
-            Username,
-            HttpContext.RequestAborted).ConfigureAwait(false);
+        await updateStatusCommandService.ExecuteAsync(
+            new UpdatePromotionStatusCommand(
+                promotionId,
+                request.Status switch
+                {
+                    SwitchStatus.Enabled => Tgs.Promotion.Clients.PromotionStatus.Enabled,
+                    SwitchStatus.Disabled => Tgs.Promotion.Clients.PromotionStatus.Disabled,
+                    _ => throw new NotImplementedException()
+                },
+                Username),
+                HttpContext.RequestAborted).ConfigureAwait(false);
 
-        return new MessageResponse { Valid = true };
+        return new MessageResponse
+        {
+            Valid = true
+        };
     }
 
     [HttpPut("main/{brandId}", Name = "CreatePromotionMainInfo")]
@@ -146,8 +150,71 @@ public class PromotionController : BaseContextController
         };
     }
 
+    [HttpPut("{basePromotionId}:duplicate", Name = "DuplicatePromotion")]
+    [Description("duplicate a promotion")]
+    public async Task<ResponseViewModel<Guid?>> DuplicatePromotionAsync(
+        [FromServices] IGetService<DuplicatePromotionCommand, Guid> commandService,
+        Guid basePromotionId)
+    {
+        var duplicatePromotionId = await commandService.GetAsync(
+            new DuplicatePromotionCommand(
+                basePromotionId,
+                Username),
+            HttpContext.RequestAborted).ConfigureAwait(false);
+
+        return new ResponseViewModel<Guid?>
+        {
+            Valid = true,
+            Data = duplicatePromotionId
+        };
+    }
+
+    [HttpGet("content/{promotionId}", Name = "GetPromotionContent")]
+    public async ValueTask<PromotionContentViewModel> GetPromotionContentAsync(
+        [FromServices] IGetService<GetPromotionContentQuery, PromotionContent> queryService,
+        Guid promotionId)
+    {
+        var query = new GetPromotionContentQuery(promotionId);
+
+        var content = await queryService.GetAsync(query, HttpContext.RequestAborted)
+            .ConfigureAwait(false);
+
+        return content is null ? null : new PromotionContentViewModel
+        {
+            SubSubject = content.SubSubject,
+            Content = content.Content,
+            DesktopBanner = content.PersonalComputerBanner,
+            MobileBanner = content.MobileBanner,
+            Localization = content.Localization,
+            Terms = content.Convention
+        };
+    }
+
+    [HttpGet("main/{promotionId}", Name = "GetPromotionMainInfo")]
+    public async ValueTask<PromotionMainInfoViewModel> GetPromotionMainInfoAsync(
+        [FromServices] IGetService<GetPromotionMainInfoQuery, PromotionMainInfo> queryService,
+        Guid promotionId)
+    {
+        var query = new GetPromotionMainInfoQuery(promotionId);
+
+        var mainInfo = await queryService.GetAsync(query, HttpContext.RequestAborted)
+            .ConfigureAwait(false);
+
+        return mainInfo is null ? null : new PromotionMainInfoViewModel
+        {
+            Id = mainInfo.Id,
+            BrandId = mainInfo.BrandId,
+            Name = mainInfo.Name,
+            From = mainInfo.EventDuring.From,
+            To = mainInfo.EventDuring.To,
+            PromotionType = mainInfo.PromotionType,
+            PromotionLimitAmount = mainInfo.PromotionLimitAmount,
+            AutoSentPlayerBonus = mainInfo.IsAutoSent
+        };
+    }
+
     [HttpGet("rule/{promotionId}", Name = "GetPromotionRule")]
-    public async Task<JsonDocument> GetPromotionRuleAsync(
+    public async ValueTask<JsonDocument> GetPromotionRuleAsync(
         [FromServices] IGetService<GetPromotionRuleQuery, PromotionRuleInfo> getService,
         Guid promotionId)
     {
@@ -155,7 +222,17 @@ public class PromotionController : BaseContextController
 
         var rule = await getService.GetAsync(query).ConfigureAwait(false);
 
-        return rule?.CompaignDetail;
+        if (rule is null)
+            return null;
+
+        var campaignDetail = JsonMergePatch.ApplyMergePatch(
+            rule.CompaignDetail.RootElement,
+            JsonSerializer.SerializeToElement(new
+            {
+                rule.VipLevels
+            }, PromotionUtility.SerializerOptions));
+
+        return campaignDetail;
     }
 
     [HttpGet(Name = "GetPromotions")]
@@ -246,10 +323,10 @@ public class PromotionController : BaseContextController
     [HttpPut("{promotionId}", Name = "UpdatePromotion")]
     [Description("Update a promotion")]
     public async Task<MessageResponse> UpdatePromotionAsync(
-        [FromServices] IPromotionServiceClient promotionServiceClient,
         [FromServices] ICommandService<UpdatePromotionMainInfoCommand> updateMainInfoCommandService,
         [FromServices] ICommandService<UpdatePromotionContentCommand> updateContentCommandService,
         [FromServices] ICommandService<UpdatePromotionRuleCommand> updateRuleCommandService,
+        [FromServices] ICommandService<UpdatePromotionStatusCommand> updateStatusCommandService,
         Guid promotionId,
         [FromBody] UpdatePromotionRequest request)
     {
@@ -304,18 +381,22 @@ public class PromotionController : BaseContextController
         await updateRuleCommandService.ExecuteAsync(updateRuleCommand, HttpContext.RequestAborted)
             .ConfigureAwait(false);
 
-        await promotionServiceClient.SetPromotionStatusAsync(
-            promotionId,
-            request.Status switch
-            {
-                SwitchStatus.Enabled => Tgs.Promotion.Clients.PromotionStatus.Enabled,
-                SwitchStatus.Disabled => Tgs.Promotion.Clients.PromotionStatus.Disabled,
-                _ => throw new NotImplementedException()
-            },
-            Username,
+        await updateStatusCommandService.ExecuteAsync(
+            new UpdatePromotionStatusCommand(
+                promotionId,
+                request.Status switch
+                {
+                    SwitchStatus.Enabled => Tgs.Promotion.Clients.PromotionStatus.Enabled,
+                    SwitchStatus.Disabled => Tgs.Promotion.Clients.PromotionStatus.Disabled,
+                    _ => throw new NotImplementedException()
+                },
+                Username),
             HttpContext.RequestAborted).ConfigureAwait(false);
 
-        return new MessageResponse { Valid = true };
+        return new MessageResponse
+        {
+            Valid = true
+        };
     }
 
     [HttpPatch("content/{promotionId}", Name = "UpdatePromotionContent")]
@@ -404,11 +485,12 @@ public class PromotionController : BaseContextController
     [HttpPut("{promotionId:guid}/{status}", Name = "UpdatePromotionStatus")]
     [Description("change a Promotion's status")]
     public async Task<MessageResponse> UpdatePromotionStatusAsync(
-        [FromServices] IPromotionServiceClient promotionServiceClient,
+        [FromServices] ICommandService<UpdatePromotionStatusCommand> commandService,
         Guid promotionId,
         PromotionStatus status)
     {
-        await promotionServiceClient.SetPromotionStatusAsync(
+        await commandService.ExecuteAsync(
+            new UpdatePromotionStatusCommand(
                 promotionId,
                 status switch
                 {
@@ -417,10 +499,12 @@ public class PromotionController : BaseContextController
                     PromotionStatus.Archived => Tgs.Promotion.Clients.PromotionStatus.Archived,
                     _ => throw new NotImplementedException()
                 },
-                Username,
-                HttpContext.RequestAborted)
-            .ConfigureAwait(false);
-
-        return new MessageResponse { Valid = true };
+                Username),
+            HttpContext.RequestAborted).ConfigureAwait(false);
+        
+        return new MessageResponse
+        {
+            Valid = true
+        };
     }
 }

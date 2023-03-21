@@ -61,7 +61,7 @@ public class OfflineController : BaseContextController
         [FromServices] IGetService<SaveOfflineTempUserBatchCommand, Guid> saveService,
         [FromServices] IMessageSender messageSender,
         Guid brandId,
-        string? cleintToken,
+        string? clientToken,
         [FromForm(Name = "file")] IFormFile excelFile)
     {
         await using var fs = excelFile.OpenReadStream();
@@ -83,7 +83,7 @@ public class OfflineController : BaseContextController
         var batchId = await saveService
             .GetAsync(new(
                 brandId,
-                cleintToken,
+                clientToken,
                 userNames,
                 Guid.Parse(UserId)), HttpContext.RequestAborted)
             .ConfigureAwait(false);
