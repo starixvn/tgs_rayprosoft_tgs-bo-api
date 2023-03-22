@@ -15,7 +15,7 @@ public static class ServiceCollectionExtensions
     public static IServiceCollection AddBackOfficeApplicationServices(this IServiceCollection services)
     {
         _ = services.RegisterAllServiceUtilityTypes(Assembly.GetExecutingAssembly(), ServiceLifetime.Transient);
-        _ = services.AddMediatR(Assembly.GetExecutingAssembly());
+        _ = services.AddMediatR(r => r.RegisterServicesFromAssembly(Assembly.GetExecutingAssembly()));
         _ = services.AddValidatorsFromAssembly(Assembly.GetExecutingAssembly());
         _ = services.AddScoped(typeof(IPipelineBehavior<,>), typeof(PipelineBehavior<,>));
         _ = services.AddTransient<IBetLimitService, BetLimitService>();
