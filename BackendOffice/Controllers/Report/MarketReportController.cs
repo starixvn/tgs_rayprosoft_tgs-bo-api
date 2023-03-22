@@ -5,6 +5,7 @@ using Microsoft.AspNetCore.Mvc;
 using Tgs.Report.Client.Models.Market;
 using Tgs.ServiceUtility;
 using TGS.Apis.BackendOffice.Attributes;
+using TGS.Core.Models.Messages;
 using TGS.Services.BackOffice.Application.Models.ReportMarket;
 
 namespace TGS.Apis.BackendOffice.Controllers.Report;
@@ -42,6 +43,16 @@ public class MarketReportController : BaseContextController
         [FromServices] IGetService<GetMarketsReportRequest, GetMarketsReportResponse>
             marketsService,
         [FromQuery] GetMarketsReportRequest request)
+        => await marketsService
+            .GetAsync(request)
+            .ConfigureAwait(false);
+
+    [HttpGet("agentProfit")]
+    [Description("Get agent profits report")]
+    public async Task<PagedResponse<MarketAgentProfitReportModel>> GetMarketAgentProfitAsync(
+        [FromServices] IGetService<GetMarketAgentProfitsReportRequest, PagedResponse<MarketAgentProfitReportModel>>
+            marketsService,
+        [FromQuery] GetMarketAgentProfitsReportRequest request)
         => await marketsService
             .GetAsync(request)
             .ConfigureAwait(false);

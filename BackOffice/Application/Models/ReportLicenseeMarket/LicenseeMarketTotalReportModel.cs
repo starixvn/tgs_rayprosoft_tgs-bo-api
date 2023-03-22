@@ -32,4 +32,7 @@ public record LicenseeMarketTotalReportModel
 
     [JsonPropertyName("netProfit")]
     public decimal NetProfitSummary { get; init; }
+
+    [property: JsonPropertyName("agentProfit")]
+    public decimal AgentProfitSummary { get; init; }
 }

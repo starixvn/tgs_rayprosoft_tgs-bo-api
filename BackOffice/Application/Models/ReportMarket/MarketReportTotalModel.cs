@@ -21,4 +21,5 @@ public record MarketReportTotalModel(
     [property: JsonPropertyName("netProfit")] decimal NetProfitSummary,
     [property: JsonPropertyName("additionalExpenses")] decimal AdditionalExpensesSummary,
     [property: JsonPropertyName("platformCoveredBonus")] decimal PlatformCoveredBonusSummary,
-    [property: JsonPropertyName("platformCoveredBonusAdjust")] decimal PlatformCoveredBonusAdjustSummary);
+    [property: JsonPropertyName("platformCoveredBonusAdjust")] decimal PlatformCoveredBonusAdjustSummary,
+    [property: JsonPropertyName("agentProfit")] decimal AgentProfitSummary);

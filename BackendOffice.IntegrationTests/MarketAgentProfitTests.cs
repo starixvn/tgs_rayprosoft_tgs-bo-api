@@ -1,0 +1,118 @@
+﻿using System.Data.SqlClient;
+using System.Runtime.InteropServices;
+using ExpectedObjects;
+using Jering.Javascript.NodeJS;
+using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.Hosting;
+using Microsoft.Extensions.Logging;
+using NSubstitute;
+using Tgs.ServiceUtility;
+using TGS.Core.Models.Messages;
+using TGS.Services.BackOffice.Application.Models.ReportMarket;
+using TGS.Services.BackOffice.ApplicationServices;
+using Xunit.Abstractions;
+
+namespace BackendOffice.IntegrationTests;
+
+public class MarketAgentProfitTests
+{
+    private readonly ITestOutputHelper _testOutputHelper;
+
+    public MarketAgentProfitTests(ITestOutputHelper testOutputHelper)
+    {
+        _testOutputHelper = testOutputHelper ?? throw new ArgumentNullException(nameof(testOutputHelper));
+    }
+
+    [Fact]
+    public async Task Get_Market_Agent_Profit_Report()
+    {
+        // Arrange
+        var channelName = Guid.NewGuid().ToString();
+        var userId = Guid.NewGuid();
+
+        var fakeService = Substitute.For<IGetService<GetMarketAgentProfitsReportRequest, PagedResponse<MarketAgentProfitReportModel>>>();
+
+        using var web = TestBackendOfficeApplication.Builder
+            .UseTestChannelServer(channelName)
+            .ConfigureLogging(logging => logging.AddXUnit(_testOutputHelper))
+            .ConfigureServices(services => services
+                .AddAuthentication("Fake")
+                .AddScheme<FakeAuthenticationSchemaOptions, FakeAuthenticationHandler>(
+                    "Fake",
+                    options =>
+                    {
+                        options.UserId = userId;
+                        options.UserName = "system";
+                    })
+                .Services
+                .AddSingleton(fakeService))
+            .Build();
+
+        await web.StartAsync();
+
+        var brandId = Guid.NewGuid();
+        var date = DateTimeOffset.Now;
+        var page = 1;
+        var rows = 20;
+        var sortby = "MasterAgentName";
+        var orderby = SortOrder.Descending;
+        var showAll = false;
+
+        var query = new GetMarketAgentProfitsReportRequest
+        {
+            BrandId = brandId,
+            Page = page,
+            Rows = rows,
+            SortBy = sortby,
+            OrderBy = orderby,
+            ShowAll = showAll
+        };
+        var response = new PagedResponse<MarketAgentProfitReportModel>()
+        {
+            TotalCount = 2,
+            Valid = true,
+            Items = new[] {
+                new MarketAgentProfitReportModel{
+                    MasterAgentName="agentName",
+                    Percentage=10M }
+            }
+        };
+        _ = fakeService.GetAsync(
+            Arg.Any<GetMarketAgentProfitsReportRequest>(),
+            cancellationToken: Arg.Any<CancellationToken>())
+            .Returns(response);
+
+        var isWindows = RuntimeInformation.IsOSPlatform(OSPlatform.Windows) ? "true" : "false";
+
+        var nodeModule = $$"""
+            const axiosConfigFactory = require('./models/axios-configuration.js').default;
+            const BackOfficeService = require('./services/bo-service.js').default;
+
+            module.exports = async (brandId, date, page, rows, sortby, orderby, showAll) =>
+            {
+                let instance = axiosConfigFactory("{{channelName}}", {{isWindows}});
+
+                let svc = new BackOfficeService(instance);
+
+                return await svc.getMarketAgentProfitsReport(
+                    brandId,
+                    date,
+                    page,
+                    rows,
+                    sortby,
+                    orderby,
+                    showAll);
+            };
+        """;
+
+        // Act
+        var actual = await StaticNodeJSService.InvokeFromStringAsync<PagedResponse<MarketAgentProfitReportModel>>(
+            nodeModule,
+            args: new object[] { brandId, date, page, rows, sortby, orderby, showAll });
+
+        // Assert
+        Assert.True(actual!.Valid);
+        Assert.Equal(2, actual!.TotalCount);
+        response.Items.ToExpectedObject().ShouldMatch(actual!.Items);
+    }
+}
