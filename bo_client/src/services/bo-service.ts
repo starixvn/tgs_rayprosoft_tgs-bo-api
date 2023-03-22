@@ -40,7 +40,11 @@ export default class BackOfficeService {
     public getMarketAgentProfitsReport(request: GetMarketAgentProfitsReportRequest): Promise<PagedResponse<GetMarketAgentProfitsReportModel>> {
         return this.http
             .get(
-                `/api/marketreport/agentprofit`,request)
+                `/api/marketreport/agentprofit`,{
+                    params: {
+                        ...request
+                    }
+                })
             .then(res => res.data);
     }
 
