@@ -37,6 +37,13 @@ export default class BackOfficeService {
             .then(res => res.data);
     }
 
+    public getMarketAgentProfitsReport(request: GetMarketAgentProfitsReportRequest): Promise<PagedResponse<GetMarketAgentProfitsReportModel>> {
+        return this.http
+            .get(
+                `/api/marketreport/agentprofit`,request)
+            .then(res => res.data);
+    }
+
     public getPlayerPaymentOverview(playerCode: string): Promise<any> {
         return this.http
             .get(`/api/player/payment/${playerCode}`, {})

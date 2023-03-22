@@ -58,9 +58,10 @@ public class MarketAgentProfitTests
         var orderby = SortOrder.Descending;
         var showAll = false;
 
-        var query = new GetMarketAgentProfitsReportRequest
+        var request = new GetMarketAgentProfitsReportRequest
         {
             BrandId = brandId,
+            Date = date,
             Page = page,
             Rows = rows,
             SortBy = sortby,
@@ -88,31 +89,24 @@ public class MarketAgentProfitTests
             const axiosConfigFactory = require('./models/axios-configuration.js').default;
             const BackOfficeService = require('./services/bo-service.js').default;
 
-            module.exports = async (brandId, date, page, rows, sortby, orderby, showAll) =>
+            module.exports = async (request) =>
             {
                 let instance = axiosConfigFactory("{{channelName}}", {{isWindows}});
 
                 let svc = new BackOfficeService(instance);
 
-                return await svc.getMarketAgentProfitsReport(
-                    brandId,
-                    date,
-                    page,
-                    rows,
-                    sortby,
-                    orderby,
-                    showAll);
+                return await svc.getMarketAgentProfitsReport(request);
             };
         """;
 
         // Act
         var actual = await StaticNodeJSService.InvokeFromStringAsync<PagedResponse<MarketAgentProfitReportModel>>(
             nodeModule,
-            args: new object[] { brandId, date, page, rows, sortby, orderby, showAll });
+            args: new object[] { request });
 
         // Assert
         Assert.True(actual!.Valid);
-        Assert.Equal(2, actual!.TotalCount);
+        Assert.Equal(1, actual!.TotalCount);
         response.Items.ToExpectedObject().ShouldMatch(actual!.Items);
     }
 }
