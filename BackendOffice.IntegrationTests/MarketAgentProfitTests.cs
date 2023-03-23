@@ -70,7 +70,7 @@ public class MarketAgentProfitTests
         };
         var response = new PagedResponse<MarketAgentProfitReportModel>()
         {
-            TotalCount = 2,
+            TotalCount = 1,
             Valid = true,
             Items = new[] {
                 new MarketAgentProfitReportModel{
