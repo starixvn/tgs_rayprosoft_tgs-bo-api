@@ -284,9 +284,9 @@ builder.Services.AddSwaggerGen(c =>
 
 builder.Services
     .AddOpenTelemetry()
-    .WithTracing(builder => builder
-        .SetResourceBuilder(ResourceBuilder.CreateDefault()
-            .AddEnvironmentVariableDetector())
+    .ConfigureResource(_ => ResourceBuilder.CreateDefault()
+        .AddEnvironmentVariableDetector())
+    .WithTracing(tracerProviderBuilder => tracerProviderBuilder
         .AddSource("Tgs.*")
         .AddSource("TGS.*")
         .AddAspNetCoreInstrumentation()
@@ -297,11 +297,10 @@ builder.Services
         })
         .AddProfileViewExporter()
         .AddOtlpExporter())
-    .WithMetrics(builder => builder
+    .WithMetrics(meterProviderBuilder => meterProviderBuilder
         .AddAspNetCoreInstrumentation()
         .AddRuntimeInstrumentation()
         .AddOtlpExporter())
-    .StartWithHost()
     .Services
     .Configure<AspNetCoreInstrumentationOptions>(options =>
     {
