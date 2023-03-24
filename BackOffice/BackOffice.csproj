@@ -55,7 +55,8 @@
     <PackageReference Include="System.Linq.Async" Version="6.0.1" />
     <PackageReference Include="Tgs.BrandCertificateClient" Version="0.0.22" />
     <PackageReference Include="Tgs.CashService.Client" Version="0.1.6" />
-    <PackageReference Include="Tgs.Core" Version="1.0.17" />
+    <PackageReference Include="Tgs.Core" Version="1.0.18" />
+    <PackageReference Include="TGS.Core.Infrastructures.Json" Version="0.0.1" />
     <PackageReference Include="Tgs.Core.Infrastructures.Security" Version="0.0.2" />
     <PackageReference Include="Tgs.Core.Infrastructures.Utility" Version="0.0.3" />
     <PackageReference Include="Tgs.DepositAccumulateRoulette.Client" Version="0.0.5" />
