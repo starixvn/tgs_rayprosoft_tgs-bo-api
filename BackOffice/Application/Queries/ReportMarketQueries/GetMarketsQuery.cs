@@ -65,7 +65,8 @@ public class
                     NetProfitSummary: 0,
                     AdditionalExpensesSummary: 0,
                     PlatformCoveredBonusSummary: 0,
-                    PlatformCoveredBonusAdjustSummary: 0)
+                    PlatformCoveredBonusAdjustSummary: 0,
+                    AgentProfitSummary: 0)
             };
         }
 
@@ -92,6 +93,7 @@ public class
                 AdditionalExpenses = x.AdditionalExpenses,
                 PlatformCoveredBonus = x.PlatformCoveredBonus,
                 PlatformCoveredBonusAdjust = x.PlatformCoveredBonusAdjust,
+                AgentProfit = x.AgentProfit
             })
             .AsQueryable()
             .CreatePagedResponse(
@@ -122,7 +124,8 @@ public class
             NetProfitSummary: response.Items.Sum(x => x.NetProfit),
             AdditionalExpensesSummary: response.Items.Sum(x => x.AdditionalExpenses),
             PlatformCoveredBonusSummary: response.Items.Sum(x => x.PlatformCoveredBonus),
-            PlatformCoveredBonusAdjustSummary: response.Items.Sum(x => x.PlatformCoveredBonusAdjust));
+            PlatformCoveredBonusAdjustSummary: response.Items.Sum(x => x.PlatformCoveredBonusAdjust),
+            AgentProfitSummary: response.Items.Sum(x => x.AgentProfit));
 
         return new GetMarketsReportResponse
         {
