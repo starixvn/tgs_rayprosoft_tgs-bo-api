@@ -5,7 +5,6 @@ using System.Linq.Expressions;
 using System.Threading.Tasks;
 using System.Transactions;
 using Microsoft.EntityFrameworkCore;
-using Tgs.Core.Infrastructures.Utility;
 using TGS.Core.DataServices.Base;
 using TGS.Core.DataServices.Base.Extensions;
 using TGS.Core.DataServices.Tgs;
@@ -20,25 +19,6 @@ using TGS.Services.BackOffice.Infrastructure.Services;
 using IsolationLevel = System.Data.IsolationLevel;
 
 namespace TGS.Services.BackOffice.Infrastructure.DataService;
-
-public interface IBrandService
-{
-    Task ChangeStatusAsync(Brand brand, UpdateBrandStatusRequest request);
-
-    Task CreateBrandAsync(CreateBrandRequest request);
-
-    Task<bool> ExistsAsync(Expression<Func<Brand, bool>> predicate);
-
-    Task<Brand> GetBrandAsync(Expression<Func<Brand, bool>> predicate,
-                                Func<IQueryable<Brand>, IQueryable<Brand>> preQuery = null);
-
-    IQueryable<Brand> GetBrandQueries(Func<IQueryable<Brand>, IQueryable<Brand>> preQuery = null,
-        bool tracking = false);
-
-    Task SyncBrandGamesAsync(Guid brandId);
-
-    Task UpdateBrandAsync(Brand brand, UpdateBrandRequest request);
-}
 
 public class BrandService : BaseRepositoryOperations<ITgsRepository>, IBrandService
 {
