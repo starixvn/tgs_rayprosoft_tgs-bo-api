@@ -414,4 +414,19 @@ export default class BackOfficeService {
             .put(`/api/promotion/${basePromotionId}:duplicate`)
             .then(res => res.data);
     }
+
+    public getBrandList(
+        request: GetBrandsRequest,
+        paging: PageableRequest) : Promise<PagedResponse<BrandListItem>> {
+        return this.http
+            .get('/api/brand',
+                {
+                    params: {
+                        ...request,
+                        ...paging
+                    }
+                }
+            )
+            .then(res => res.data);
+    }
 }

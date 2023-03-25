@@ -1,8 +1,13 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.ComponentModel;
+using System.Linq;
 using System.Threading.Tasks;
 using MediatR;
 using Microsoft.AspNetCore.Mvc;
+using Tgs.BrandCertificate;
+using Tgs.BrandCertificate.Clients;
+using Tgs.Paging;
 using Tgs.ServiceUtility;
 using TGS.Apis.BackendOffice.Controllers.Messages;
 using TGS.Apis.BackendOffice.Controllers.Messages.BrandToken;
@@ -12,6 +17,7 @@ using TGS.Services.BackOffice.Application.Models.Brand;
 using TGS.Services.BackOffice.Application.Queries.BrandToken;
 using TGS.Services.BackOffice.ApplicationServices;
 using TGS.Services.BackOffice.Domain;
+using BrandListQuery = TGS.Services.BackOffice.ApplicationServices.BrandListQuery;
 
 namespace TGS.Apis.BackendOffice.Controllers.Brand;
 
@@ -69,10 +75,10 @@ public partial class BrandController : BaseContextController
             };
     }
 
-    [HttpGet(Name = "GetBrands")]
-    [Description("Get brands: 品牌商列表")]
-    public Task<PagedResponse<BrandModel>> GetBrandsAsync([FromQuery] GetBrandsRequest request)
-        => _mediator.Send(request);
+    //[HttpGet(Name = "GetBrands")]
+    //[Description("Get brands: 品牌商列表")]
+    //public Task<PagedResponse<BrandModel>> GetBrandsAsync([FromQuery] GetBrandsRequest request)
+    //    => _mediator.Send(request);
 
     [HttpGet("token/{brandId}", Name = "GetBrandToken")]
     [Description("Get a brand's token")]
@@ -104,6 +110,130 @@ public partial class BrandController : BaseContextController
             Username);
 
         return modifyService.ExecuteAsync(command, HttpContext.RequestAborted);
+    }
+
+    [HttpGet(Name = "QueryBrandList")]
+    [Description("Query brands: 品牌商列表")]
+    public async ValueTask<PagedResponse<BrandListItemViewModel>> QueryBrandListAsync(
+        [FromServices] IQueryService<BrandListQuery, BrandListItem> brandListQueryService,
+        [FromServices] IQueryService<BrandRelationQuery, BrandRelationInfo> brandRelationQueryService,
+        [FromQuery] BrandListQueryViewModel viewModel,
+        [FromQuery] PageableRequest pagingRequest)
+    {
+        var brandRelations = await brandRelationQueryService
+            .QueryAsync(new BrandRelationQuery(), HttpContext.RequestAborted)
+            .ToArrayAsync(HttpContext.RequestAborted)
+            .ConfigureAwait(false);
+
+        var brandIds = new HashSet<Guid>();
+
+        if (viewModel.ResellerId.HasValue)
+        {
+            var ids = brandRelations
+                .Where(b => b.ResellerId == viewModel.ResellerId.Value)
+                .Select(b => b.BrandId);
+
+            brandIds.UnionWith(ids);
+        }
+
+        if (viewModel.LicenseeId.HasValue)
+        {
+            var ids = brandRelations
+                .Where(b => b.LicenseeId == viewModel.LicenseeId.Value)
+                .Select(b => b.BrandId);
+
+            brandIds.UnionWith(ids);
+        }
+
+        if (viewModel.BrandId.HasValue)
+           _ = brandIds.Add(viewModel.BrandId.Value);
+
+        var query = new BrandListQuery(
+            brandIds,
+            viewModel.Keyword,
+            viewModel.Status);
+
+        var items = brandListQueryService
+            .QueryAsync(query, HttpContext.RequestAborted);
+
+        if (viewModel.Status is null)
+            items = items.Where(b => b.Status is BrandStatus.Active or BrandStatus.Maintenance);
+
+        var brands = items.Select(item =>
+        {
+            var brand = brandRelations.First(b => b.BrandId == item.BrandId);
+
+            return new
+            {
+                item.BrandId,
+                brand.BrandCode,
+                brand.BrandName,
+                brand.LicenseeId,
+                brand.LicenseeName,
+                brand.ResellerId,
+                brand.ResellerName,
+                Status = item.Status switch
+                {
+                    BrandStatus.Active => Core.Models.Enums.BrandStatus.Active,
+                    BrandStatus.Archived => Core.Models.Enums.BrandStatus.Archived,
+                    BrandStatus.Inactive => Core.Models.Enums.BrandStatus.Inactive,
+                    BrandStatus.Maintenance => Core.Models.Enums.BrandStatus.Maintenance,
+                    _ => throw new NotImplementedException()
+                },
+                item.Description,
+                item.OperationalEmail,
+                item.CreatedOn,
+                item.UpdatedOn
+            };
+        });
+
+        var totalCount = await brands.CountAsync().ConfigureAwait(false);
+
+        var paging = brands.CreatePaging()
+            .MapProperty(nameof(BrandListItemViewModel.Code), item => item.BrandCode)
+            .MapProperty(nameof(BrandListItemViewModel.Name), item => item.BrandName)
+            .MapProperty(nameof(BrandListItemViewModel.Status), item => item.Status)
+            .MapProperty(nameof(BrandListItemViewModel.CreatedOn), item => item.CreatedOn)
+            .MapProperty(nameof(BrandListItemViewModel.UpdatedOn), item => item.UpdatedOn);
+
+        if (!string.IsNullOrWhiteSpace(pagingRequest.SortBy))
+            paging.SortByPropertyName(pagingRequest.SortBy, pagingRequest.IsDesc);
+
+        if (pagingRequest.ShowAll)
+        {
+            paging.Page = 1;
+            paging.RowCount = totalCount;
+        }
+        else
+        {
+            paging.Page = pagingRequest.Page;
+            paging.RowCount = pagingRequest.Rows;
+        }
+
+        brands = brands
+            .ApplyOrderBy(paging)
+            .ApplyPaging(paging);
+
+        return new PagedResponse<BrandListItemViewModel>
+        {
+            Valid = true,
+            TotalCount = totalCount,
+            Items = await brands.Select(item => new BrandListItemViewModel
+            {
+                Id = item.BrandId,
+                Code = item.BrandCode,
+                Name = item.BrandName,
+                LicenseeId = item.LicenseeId,
+                LicenseeName = item.LicenseeName,
+                ResellerId = item.ResellerId,
+                ResellerName = item.ResellerName,
+                Status = item.Status,
+                Description = item.Description,
+                OperationalEmail = item.OperationalEmail,
+                CreatedOn = item.CreatedOn,
+                UpdatedOn = item.UpdatedOn
+            }).ToArrayAsync().ConfigureAwait(false)
+        };
     }
 
     [HttpGet("{id}/syncGames", Name = "SyncBrandGames")]
