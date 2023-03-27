@@ -5,7 +5,7 @@ namespace TGS.Services.BackOffice;
 public static class DateGenerator
 {
     public static DateTimeOffset GetFirstDayOfMonth(DateTimeOffset date)
-        => new DateTimeOffset(date.Year, date.Month, 1, 0, 0, 0, date.Offset);
+        => new(date.Year, date.Month, 1, 0, 0, 0, date.Offset);
 
     public static DateTimeOffset GetLastDayOfMonth(DateTimeOffset date)
     {
@@ -20,5 +20,5 @@ public static class DateGenerator
         => date.Subtract(new TimeSpan((int) date.DayOfWeek - 7, 0, 0, 0));
 
     public static DateTimeOffset GetSpecifyDayOfMonth(DateTimeOffset date, int day)
-        => new DateTimeOffset(date.Year, date.Month, day, 0, 0, 0, date.Offset);
+        => new(date.Year, date.Month, day, 0, 0, 0, date.Offset);
 }
