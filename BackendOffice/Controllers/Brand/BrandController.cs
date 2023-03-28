@@ -75,11 +75,6 @@ public partial class BrandController : BaseContextController
             };
     }
 
-    //[HttpGet(Name = "GetBrands")]
-    //[Description("Get brands: 品牌商列表")]
-    //public Task<PagedResponse<BrandModel>> GetBrandsAsync([FromQuery] GetBrandsRequest request)
-    //    => _mediator.Send(request);
-
     [HttpGet("token/{brandId}", Name = "GetBrandToken")]
     [Description("Get a brand's token")]
     public async Task<GetBrandTokenResponse> GetBrandTokenAsync(

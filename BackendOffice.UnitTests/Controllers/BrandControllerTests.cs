@@ -1,5 +1,4 @@
-﻿using System.Data.SqlClient;
-using AutoFixture;
+﻿using AutoFixture;
 using FluentAssertions;
 using MediatR;
 using Moq;
@@ -32,49 +31,7 @@ public class BrandControllerTests : BaseTests
 
         _mediatorMock.Verify(x => x.Send(It.IsAny<CreateBrandRequest>(), It.IsAny<CancellationToken>()));
     }
-
-    //[TestCase(true)]
-    //[TestCase(false)]
-    //public async Task Can_Get_Brands(bool showAll)
-    //{
-    //    var list = CreateBrandModelFixture()
-    //        .CreateMany<BrandModel>(99)
-    //        .ToArray();
-
-    //    var request = new GetBrandsRequest
-    //    {
-    //        Keyword = "keyword",
-    //        Page = 1,
-    //        Rows = 10,
-    //        SortBy = "updatedOn",
-    //        OrderBy = SortOrder.Descending,
-    //        ShowAll = showAll
-    //    };
-    //    var (skip, take) = GetPage(request);
-    //    var orderedRoles = list.OrderByDescending(p => p.UpdatedOn);
-
-    //    var expectedRoles = showAll ? orderedRoles.ToArray() : orderedRoles.Skip(skip).Take(take).ToArray();
-
-    //    _ = _mediatorMock
-    //        .Setup(m => m.Send(It.IsAny<GetBrandsRequest>(), It.IsAny<CancellationToken>()))
-    //        .ReturnsAsync(new PagedResponse<BrandModel>
-    //        {
-    //            Valid = true,
-    //            Items = expectedRoles
-    //        });
-
-    //    var response = await _controller.GetBrandsAsync(request);
-    //    _ = response.Valid.Should().BeTrue();
-
-    //    for (var i = 0; i < response.Items.Length; i++)
-    //    {
-    //        _ = response.Items[i].Id.Should().Be(expectedRoles[i].Id);
-    //        _ = response.Items[i].Name.Should().Be(expectedRoles[i].Name);
-    //    }
-
-    //    _mediatorMock.Verify(x => x.Send(It.IsAny<GetBrandsRequest>(), It.IsAny<CancellationToken>()));
-    //}
-
+    
     [Test]
     public async Task Can_Update_Brand()
     {
