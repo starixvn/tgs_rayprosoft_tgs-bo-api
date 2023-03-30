@@ -1,0 +1,943 @@
+﻿using System.Data.SqlClient;
+using System.Runtime.InteropServices;
+using System.Text.Json;
+using ExpectedObjects;
+using Jering.Javascript.NodeJS;
+using Microsoft.AspNetCore.Mvc;
+using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.Hosting;
+using Microsoft.Extensions.Logging;
+using Microsoft.Extensions.Options;
+using NSubstitute;
+using Tgs.BrandCertificate;
+using Tgs.BrandCertificate.Clients;
+using TGS.Apis.BackendOffice.ViewModels;
+using TGS.Core.Models.Messages;
+using Xunit.Abstractions;
+using Enums = TGS.Core.Models.Enums;
+
+namespace BackendOffice.IntegrationTests;
+
+public class BrandTests
+{
+    private readonly ITestOutputHelper _testOutputHelper;
+
+    public BrandTests(ITestOutputHelper testOutputHelper)
+    {
+        _testOutputHelper = testOutputHelper ?? throw new ArgumentNullException(nameof(testOutputHelper));
+    }
+
+    [Fact]
+    public async Task 以BrandId查詢Brand列表()
+    {
+        // Arrange
+        var channelName = Guid.NewGuid().ToString();
+        var userId = Guid.NewGuid();
+
+        var fakeBrandServiceClient = Substitute.For<IBrandServiceClient>();
+
+        using var web = TestBackendOfficeApplication.Builder
+            .UseTestChannelServer(channelName)
+            .ConfigureLogging(logging => logging.AddXUnit(_testOutputHelper))
+            .ConfigureServices(services => services
+                .AddAuthentication("Fake")
+                .AddScheme<FakeAuthenticationSchemaOptions, FakeAuthenticationHandler>(
+                    "Fake",
+                    options =>
+                    {
+                        options.UserId = userId;
+                        options.UserName = "system";
+                    })
+                .Services
+                .AddSingleton(fakeBrandServiceClient))
+            .Build();
+
+        await web.StartAsync();
+
+        var brandId = Guid.Parse("4e86719f-243f-46f6-b010-5c758b7285af");
+
+        var page = 1;
+        var rows = 20;
+        var sortby = "code";
+        var orderby = SortOrder.Ascending;
+        var showAll = false;
+
+        _ = fakeBrandServiceClient.QueryBrandListAsync(
+            Arg.Any<BrandListQuery>(),
+            Arg.Any<CancellationToken>())
+            .Returns(new[]
+            {
+                new BrandListItem(
+                    BrandId: brandId,
+                    Status: BrandStatus.Active,
+                    null,
+                    null,
+                    CreatedOn: DateTime.Parse("2023-01-01 10:00:00"),
+                    UpdatedOn: DateTime.Parse("2023-01-01 10:00:00"))
+            }.ToAsyncEnumerable());
+
+        _ = fakeBrandServiceClient.GetBrandRelationsAsync(
+                Arg.Any<CancellationToken>())
+            .Returns(new[]
+            {
+                new BrandRelationInfo(
+                    brandId,
+                    "GPI",
+                    "Game Integration",
+                    Guid.Parse("66c5fef5-217b-4929-9a08-72c2479a8f4e"),
+                    "GPI",
+                    "GPI",
+                    Guid.Parse("b5a2c708-ab70-4316-9f4d-5d2ad0e77460"),
+                    "TGS",
+                    "TGS")
+            }.ToAsyncEnumerable());
+
+        var isWindows = RuntimeInformation.IsOSPlatform(OSPlatform.Windows) ? "true" : "false";
+
+        var nodeModule = $$"""
+            const axiosConfigFactory = require('./models/axios-configuration.js').default;
+            const BackOfficeService = require('./services/bo-service.js').default;
+
+            module.exports = async (request, paging) =>
+            {
+                let instance = axiosConfigFactory("{{channelName}}", {{isWindows}});
+
+                let svc = new BackOfficeService(instance);
+
+                return await svc.getBrandList(request, paging);
+            };
+        """;
+
+        var request = new BrandListQueryViewModel
+        {
+            BrandId = brandId
+        };
+
+        var paging = new PageableRequest
+        {
+            OrderBy = orderby,
+            Page = page,
+            Rows = rows,
+            SortBy = sortby,
+            ShowAll = showAll
+        };
+
+        var expected = new PagedResponse<BrandListItemViewModel>
+        {
+            TotalCount = 1,
+            Valid = true,
+            Items = new[]
+            {
+                new BrandListItemViewModel
+                {
+                    Id =  Guid.Parse("4e86719f-243f-46f6-b010-5c758b7285af"),
+                    Code= "GPI",
+                    Name= "Game Integration",
+                    LicenseeId= Guid.Parse("66c5fef5-217b-4929-9a08-72c2479a8f4e"),
+                    LicenseeName= "GPI",
+                    ResellerId = Guid.Parse("b5a2c708-ab70-4316-9f4d-5d2ad0e77460"),
+                    ResellerName = "TGS",
+                    Status= Enums.BrandStatus.Active,
+                    Description = null,
+                    OperationalEmail = null,
+                    CreatedOn = DateTime.Parse("2023-01-01 10:00:00"),
+                    UpdatedOn =  DateTime.Parse("2023-01-01 10:00:00")
+                }
+            }
+        };
+
+        // Act
+        var actual = await StaticNodeJSService.InvokeFromStringAsync<string>(
+            nodeModule,
+            args: new object[] { request, paging });
+
+        // Assert
+        Assert.NotNull(actual);
+
+        var jsonOptions = web.Services.GetRequiredService<IOptions<JsonOptions>>().Value;
+        var result = JsonSerializer.Deserialize<PagedResponse<BrandListItemViewModel>>(
+            actual!,
+            jsonOptions.JsonSerializerOptions);
+
+        Assert.True(result?.Valid);
+        Assert.Equal(1, result?.TotalCount);
+        expected.Items.ToExpectedObject().ShouldEqual(result?.Items);
+    }
+
+    [Fact]
+    public async Task 以BrandStatus查詢Brand列表()
+    {
+        // Arrange
+        var channelName = Guid.NewGuid().ToString();
+        var userId = Guid.NewGuid();
+
+        var fakeBrandServiceClient = Substitute.For<IBrandServiceClient>();
+
+        using var web = TestBackendOfficeApplication.Builder
+            .UseTestChannelServer(channelName)
+            .ConfigureLogging(logging => logging.AddXUnit(_testOutputHelper))
+            .ConfigureServices(services => services
+                .AddAuthentication("Fake")
+                .AddScheme<FakeAuthenticationSchemaOptions, FakeAuthenticationHandler>(
+                    "Fake",
+                    options =>
+                    {
+                        options.UserId = userId;
+                        options.UserName = "system";
+                    })
+                .Services
+                .AddSingleton(fakeBrandServiceClient))
+            .Build();
+
+        await web.StartAsync();
+
+        var brandId = Guid.Parse("4e86719f-243f-46f6-b010-5c758b7285af");
+
+        var page = 1;
+        var rows = 20;
+        var sortby = "code";
+        var orderby = SortOrder.Ascending;
+        var showAll = false;
+
+        _ = fakeBrandServiceClient.QueryBrandListAsync(
+            Arg.Any<BrandListQuery>(),
+            Arg.Any<CancellationToken>())
+            .Returns(new[]
+            {
+                new BrandListItem(
+                    BrandId: brandId,
+                    Status: BrandStatus.Archived,
+                    null,
+                    null,
+                    CreatedOn: DateTime.Parse("2023-01-01 10:00:00"),
+                    UpdatedOn: DateTime.Parse("2023-01-01 10:00:00"))
+            }.ToAsyncEnumerable());
+
+        _ = fakeBrandServiceClient.GetBrandRelationsAsync(
+                Arg.Any<CancellationToken>())
+            .Returns(new[]
+            {
+                new BrandRelationInfo(
+                    brandId,
+                    "GPI",
+                    "Game Integration",
+                    Guid.Parse("66c5fef5-217b-4929-9a08-72c2479a8f4e"),
+                    "GPI",
+                    "GPI",
+                    Guid.Parse("b5a2c708-ab70-4316-9f4d-5d2ad0e77460"),
+                    "TGS",
+                    "TGS")
+            }.ToAsyncEnumerable());
+
+        var isWindows = RuntimeInformation.IsOSPlatform(OSPlatform.Windows) ? "true" : "false";
+
+        var nodeModule = $$"""
+            const axiosConfigFactory = require('./models/axios-configuration.js').default;
+            const BackOfficeService = require('./services/bo-service.js').default;
+
+            module.exports = async (request, paging) =>
+            {
+                let instance = axiosConfigFactory("{{channelName}}", {{isWindows}});
+
+                let svc = new BackOfficeService(instance);
+
+                return await svc.getBrandList(request, paging);
+            };
+        """;
+
+        var request = new BrandListQueryViewModel
+        {
+            Status = Enums.BrandStatus.Archived
+        };
+
+        var paging = new PageableRequest
+        {
+            OrderBy = orderby,
+            Page = page,
+            Rows = rows,
+            SortBy = sortby,
+            ShowAll = showAll
+        };
+
+        var expected = new PagedResponse<BrandListItemViewModel>
+        {
+            TotalCount = 1,
+            Valid = true,
+            Items = new[]
+            {
+                new BrandListItemViewModel
+                {
+                    Id =  Guid.Parse("4e86719f-243f-46f6-b010-5c758b7285af"),
+                    Code= "GPI",
+                    Name= "Game Integration",
+                    LicenseeId= Guid.Parse("66c5fef5-217b-4929-9a08-72c2479a8f4e"),
+                    LicenseeName= "GPI",
+                    ResellerId= Guid.Parse("b5a2c708-ab70-4316-9f4d-5d2ad0e77460"),
+                    ResellerName= "TGS",
+                    Status= Enums.BrandStatus.Archived,
+                    Description = null,
+                    OperationalEmail = null,
+                    CreatedOn = DateTime.Parse("2023-01-01 10:00:00"),
+                    UpdatedOn =  DateTime.Parse("2023-01-01 10:00:00")
+                }
+            }
+        };
+
+        // Act
+        var actual = await StaticNodeJSService.InvokeFromStringAsync<string>(
+            nodeModule,
+            args: new object[] { request, paging });
+
+        // Assert
+        Assert.NotNull(actual);
+
+        var jsonOptions = web.Services.GetRequiredService<IOptions<JsonOptions>>().Value;
+        var result = JsonSerializer.Deserialize<PagedResponse<BrandListItemViewModel>>(
+            actual!,
+            jsonOptions.JsonSerializerOptions);
+
+        Assert.True(result?.Valid);
+        Assert.Equal(1, result?.TotalCount);
+        expected.Items.ToExpectedObject().ShouldEqual(result?.Items);
+    }
+
+    [Fact]
+    public async Task 以Keyword查詢Brand列表()
+    {
+        // Arrange
+        var channelName = Guid.NewGuid().ToString();
+        var userId = Guid.NewGuid();
+
+        var fakeBrandServiceClient = Substitute.For<IBrandServiceClient>();
+
+        using var web = TestBackendOfficeApplication.Builder
+            .UseTestChannelServer(channelName)
+            .ConfigureLogging(logging => logging.AddXUnit(_testOutputHelper))
+            .ConfigureServices(services => services
+                .AddAuthentication("Fake")
+                .AddScheme<FakeAuthenticationSchemaOptions, FakeAuthenticationHandler>(
+                    "Fake",
+                    options =>
+                    {
+                        options.UserId = userId;
+                        options.UserName = "system";
+                    })
+                .Services
+                .AddSingleton(fakeBrandServiceClient))
+            .Build();
+
+        await web.StartAsync();
+
+        var page = 1;
+        var rows = 20;
+        var sortby = "code";
+        var orderby = SortOrder.Ascending;
+        var showAll = false;
+
+        _ = fakeBrandServiceClient.QueryBrandListAsync(
+            Arg.Any<BrandListQuery>(),
+            Arg.Any<CancellationToken>())
+            .Returns(new[]
+            {
+                new BrandListItem(
+                    BrandId: Guid.Parse("4e86719f-243f-46f6-b010-5c758b7285af"),                  
+                    Status: BrandStatus.Active,
+                    null,
+                    null,
+                    CreatedOn: DateTime.Parse("2023-01-01 10:00:00"),
+                    UpdatedOn: DateTime.Parse("2023-01-01 10:00:00"))
+            }.ToAsyncEnumerable());
+
+        _ = fakeBrandServiceClient.GetBrandRelationsAsync(
+                Arg.Any<CancellationToken>())
+            .Returns(new[]
+            {
+                new BrandRelationInfo(
+                    Guid.Parse("4e86719f-243f-46f6-b010-5c758b7285af"),
+                    "GPI",
+                    "Game Integration",
+                    Guid.Parse("66c5fef5-217b-4929-9a08-72c2479a8f4e"),
+                    "GPI",
+                    "GPI",
+                    Guid.Parse("b5a2c708-ab70-4316-9f4d-5d2ad0e77460"),
+                    "TGS",
+                    "TGS")
+            }.ToAsyncEnumerable());
+
+        var isWindows = RuntimeInformation.IsOSPlatform(OSPlatform.Windows) ? "true" : "false";
+
+        var nodeModule = $$"""
+            const axiosConfigFactory = require('./models/axios-configuration.js').default;
+            const BackOfficeService = require('./services/bo-service.js').default;
+
+            module.exports = async (request, paging) =>
+            {
+                let instance = axiosConfigFactory("{{channelName}}", {{isWindows}});
+
+                let svc = new BackOfficeService(instance);
+
+                return await svc.getBrandList(request, paging);
+            };
+        """;
+
+        var request = new BrandListQueryViewModel
+        {
+            Keyword = "GPI"
+        };
+
+        var paging = new PageableRequest
+        {
+            OrderBy = orderby,
+            Page = page,
+            Rows = rows,
+            SortBy = sortby,
+            ShowAll = showAll
+        };
+
+        var expected = new PagedResponse<BrandListItemViewModel>
+        {
+            TotalCount = 1,
+            Valid = true,
+            Items = new[]
+            {
+                new BrandListItemViewModel
+                {
+                    Id =  Guid.Parse("4e86719f-243f-46f6-b010-5c758b7285af"),
+                    Code= "GPI",
+                    Name= "Game Integration",
+                    LicenseeId= Guid.Parse("66c5fef5-217b-4929-9a08-72c2479a8f4e"),
+                    LicenseeName= "GPI",
+                    ResellerId= Guid.Parse("b5a2c708-ab70-4316-9f4d-5d2ad0e77460"),
+                    ResellerName= "TGS",
+                    Status= Enums.BrandStatus.Active,
+                    Description = null,
+                    OperationalEmail = null,
+                    CreatedOn = DateTime.Parse("2023-01-01 10:00:00"),
+                    UpdatedOn =  DateTime.Parse("2023-01-01 10:00:00")
+                }
+            }
+        };
+
+        // Act
+        var actual = await StaticNodeJSService.InvokeFromStringAsync<string>(
+            nodeModule,
+            args: new object[] { request, paging });
+
+        // Assert
+        Assert.NotNull(actual);
+
+        var jsonOptions = web.Services.GetRequiredService<IOptions<JsonOptions>>().Value;
+        var result = JsonSerializer.Deserialize<PagedResponse<BrandListItemViewModel>>(
+            actual!,
+            jsonOptions.JsonSerializerOptions);
+
+        Assert.True(result?.Valid);
+        Assert.Equal(1, result?.TotalCount);
+        expected.Items.ToExpectedObject().ShouldEqual(result?.Items);
+    }
+
+    [Fact]
+    public async Task 以LicenseeId查詢Brand列表()
+    {
+        // Arrange
+        var channelName = Guid.NewGuid().ToString();
+        var userId = Guid.NewGuid();
+
+        var fakeBrandServiceClient = Substitute.For<IBrandServiceClient>();
+
+        using var web = TestBackendOfficeApplication.Builder
+            .UseTestChannelServer(channelName)
+            .ConfigureLogging(logging => logging.AddXUnit(_testOutputHelper))
+            .ConfigureServices(services => services
+                .AddAuthentication("Fake")
+                .AddScheme<FakeAuthenticationSchemaOptions, FakeAuthenticationHandler>(
+                    "Fake",
+                    options =>
+                    {
+                        options.UserId = userId;
+                        options.UserName = "system";
+                    })
+                .Services
+                .AddSingleton(fakeBrandServiceClient))
+            .Build();
+
+        await web.StartAsync();
+
+        var licenseeId = Guid.Parse("66c5fef5-217b-4929-9a08-72c2479a8f4e");
+
+        var page = 1;
+        var rows = 20;
+        var sortby = "code";
+        var orderby = SortOrder.Ascending;
+        var showAll = false;
+
+        _ = fakeBrandServiceClient.QueryBrandListAsync(
+            Arg.Any<BrandListQuery>(),
+            Arg.Any<CancellationToken>())
+            .Returns(new[]
+            {
+                new BrandListItem(
+                    BrandId: Guid.Parse("4e86719f-243f-46f6-b010-5c758b7285af"),
+                    Status: BrandStatus.Active,
+                    null,
+                    null,
+                    CreatedOn: DateTime.Parse("2023-01-01 10:00:00"),
+                    UpdatedOn: DateTime.Parse("2023-01-01 10:00:00"))
+            }.ToAsyncEnumerable());
+
+        _ = fakeBrandServiceClient.GetBrandRelationsAsync(
+                Arg.Any<CancellationToken>())
+            .Returns(new[]
+            {
+                new BrandRelationInfo(
+                    Guid.Parse("4e86719f-243f-46f6-b010-5c758b7285af"),
+                    "GPI",
+                    "Game Integration",
+                    licenseeId,
+                    "GPI",
+                    "GPI",
+                    Guid.Parse("b5a2c708-ab70-4316-9f4d-5d2ad0e77460"),
+                    "TGS",
+                    "TGS")
+            }.ToAsyncEnumerable());
+
+        var isWindows = RuntimeInformation.IsOSPlatform(OSPlatform.Windows) ? "true" : "false";
+
+        var nodeModule = $$"""
+            const axiosConfigFactory = require('./models/axios-configuration.js').default;
+            const BackOfficeService = require('./services/bo-service.js').default;
+
+            module.exports = async (request, paging) =>
+            {
+                let instance = axiosConfigFactory("{{channelName}}", {{isWindows}});
+
+                let svc = new BackOfficeService(instance);
+
+                return await svc.getBrandList(request, paging);
+            };
+        """;
+
+        var request = new BrandListQueryViewModel
+        {
+            LicenseeId = licenseeId
+        };
+
+        var paging = new PageableRequest
+        {
+            OrderBy = orderby,
+            Page = page,
+            Rows = rows,
+            SortBy = sortby,
+            ShowAll = showAll
+        };
+
+        var expected = new PagedResponse<BrandListItemViewModel>
+        {
+            TotalCount = 1,
+            Valid = true,
+            Items = new[]
+            {
+                new BrandListItemViewModel
+                {
+                    Id =  Guid.Parse("4e86719f-243f-46f6-b010-5c758b7285af"),
+                    Code= "GPI",
+                    Name= "Game Integration",
+                    LicenseeId= Guid.Parse("66c5fef5-217b-4929-9a08-72c2479a8f4e"),
+                    LicenseeName= "GPI",
+                    ResellerId= Guid.Parse("b5a2c708-ab70-4316-9f4d-5d2ad0e77460"),
+                    ResellerName= "TGS",
+                    Status= Enums.BrandStatus.Active,
+                    Description = null,
+                    OperationalEmail = null,
+                    CreatedOn = DateTime.Parse("2023-01-01 10:00:00"),
+                    UpdatedOn =  DateTime.Parse("2023-01-01 10:00:00")
+                }
+            }
+        };
+
+        // Act
+        var actual = await StaticNodeJSService.InvokeFromStringAsync<string>(
+            nodeModule,
+            args: new object[] { request, paging });
+
+        // Assert
+        Assert.NotNull(actual);
+
+        var jsonOptions = web.Services.GetRequiredService<IOptions<JsonOptions>>().Value;
+        var result = JsonSerializer.Deserialize<PagedResponse<BrandListItemViewModel>>(
+            actual!,
+            jsonOptions.JsonSerializerOptions);
+
+        Assert.True(result?.Valid);
+        Assert.Equal(1, result?.TotalCount);
+        expected.Items.ToExpectedObject().ShouldEqual(result?.Items);
+    }
+
+    [Fact]
+    public async Task 以ResellerId查詢Brand列表()
+    {
+        // Arrange
+        var channelName = Guid.NewGuid().ToString();
+        var userId = Guid.NewGuid();
+
+        var fakeBrandServiceClient = Substitute.For<IBrandServiceClient>();
+
+        using var web = TestBackendOfficeApplication.Builder
+            .UseTestChannelServer(channelName)
+            .ConfigureLogging(logging => logging.AddXUnit(_testOutputHelper))
+            .ConfigureServices(services => services
+                .AddAuthentication("Fake")
+                .AddScheme<FakeAuthenticationSchemaOptions, FakeAuthenticationHandler>(
+                    "Fake",
+                    options =>
+                    {
+                        options.UserId = userId;
+                        options.UserName = "system";
+                    })
+                .Services
+                .AddSingleton(fakeBrandServiceClient))
+            .Build();
+
+        await web.StartAsync();
+
+        var resellerId = Guid.Parse("b5a2c708-ab70-4316-9f4d-5d2ad0e77460");
+
+        var page = 1;
+        var rows = 20;
+        var sortby = "code";
+        var orderby = SortOrder.Ascending;
+        var showAll = false;
+
+        _ = fakeBrandServiceClient.QueryBrandListAsync(
+            Arg.Any<BrandListQuery>(),
+            Arg.Any<CancellationToken>())
+            .Returns(new[]
+            {
+                new BrandListItem(
+                    BrandId: Guid.Parse("4e86719f-243f-46f6-b010-5c758b7285af"),
+                    Status: BrandStatus.Active,
+                    null,
+                    null,
+                    CreatedOn: DateTime.Parse("2023-01-01 10:00:00"),
+                    UpdatedOn: DateTime.Parse("2023-01-01 10:00:00")),
+                new BrandListItem(
+                    BrandId: Guid.Parse("9f1ecf19-38cd-474f-b0d2-93638dc07d21"),
+                    Status: BrandStatus.Active,
+                    null,
+                    null,
+                    CreatedOn: DateTime.Parse("2023-01-10 10:00:00"),
+                    UpdatedOn: DateTime.Parse("2023-01-10 10:00:00"))
+            }.ToAsyncEnumerable());
+
+        _ = fakeBrandServiceClient.GetBrandRelationsAsync(
+                Arg.Any<CancellationToken>())
+            .Returns(new[]
+            {
+                new BrandRelationInfo(
+                    Guid.Parse("4e86719f-243f-46f6-b010-5c758b7285af"),
+                    "GPI",
+                    "Game Integration",
+                    Guid.Parse("66c5fef5-217b-4929-9a08-72c2479a8f4e"),
+                    "GPI",
+                    "GPI",
+                    resellerId,
+                    "TGS",
+                    "TGS"),
+                new BrandRelationInfo(
+                    Guid.Parse("9f1ecf19-38cd-474f-b0d2-93638dc07d21"),
+                    "GPI_HKD",
+                    "Game Integration HKD",
+                    Guid.Parse("66c5fef5-217b-4929-9a08-72c2479a8f4e"),
+                    "GPI",
+                    "GPI",
+                    resellerId,
+                    "TGS",
+                    "TGS")
+            }.ToAsyncEnumerable());
+
+        var isWindows = RuntimeInformation.IsOSPlatform(OSPlatform.Windows) ? "true" : "false";
+
+        var nodeModule = $$"""
+            const axiosConfigFactory = require('./models/axios-configuration.js').default;
+            const BackOfficeService = require('./services/bo-service.js').default;
+
+            module.exports = async (request, paging) =>
+            {
+                let instance = axiosConfigFactory("{{channelName}}", {{isWindows}});
+
+                let svc = new BackOfficeService(instance);
+
+                return await svc.getBrandList(request, paging);
+            };
+        """;
+
+        var request = new BrandListQueryViewModel
+        {
+            ResellerId = resellerId
+        };
+
+        var paging = new PageableRequest
+        {
+            OrderBy = orderby,
+            Page = page,
+            Rows = rows,
+            SortBy = sortby,
+            ShowAll = showAll
+        };
+
+        var expected = new PagedResponse<BrandListItemViewModel>
+        {
+            TotalCount = 2,
+            Valid = true,
+            Items = new[]
+            {
+                new BrandListItemViewModel
+                {
+                    Id =  Guid.Parse("4e86719f-243f-46f6-b010-5c758b7285af"),
+                    Code= "GPI",
+                    Name= "Game Integration",
+                    LicenseeId= Guid.Parse("66c5fef5-217b-4929-9a08-72c2479a8f4e"),
+                    LicenseeName= "GPI",
+                    ResellerId= Guid.Parse("b5a2c708-ab70-4316-9f4d-5d2ad0e77460"),
+                    ResellerName = "TGS",
+                    Status= Enums.BrandStatus.Active,
+                    Description = null,
+                    OperationalEmail = null,
+                    CreatedOn = DateTime.Parse("2023-01-01 10:00:00"),
+                    UpdatedOn =  DateTime.Parse("2023-01-01 10:00:00")
+                },
+                new BrandListItemViewModel
+                {
+                    Id = Guid.Parse("9f1ecf19-38cd-474f-b0d2-93638dc07d21"),
+                    Code= "GPI_HKD",
+                    Name= "Game Integration HKD",
+                    LicenseeId= Guid.Parse("66c5fef5-217b-4929-9a08-72c2479a8f4e"),
+                    LicenseeName= "GPI",
+                    ResellerId= Guid.Parse("b5a2c708-ab70-4316-9f4d-5d2ad0e77460"),
+                    ResellerName= "TGS",
+                    Status= Enums.BrandStatus.Active,
+                    Description = null,
+                    OperationalEmail = null,
+                    CreatedOn= DateTime.Parse("2023-01-10 10:00:00"),
+                    UpdatedOn= DateTime.Parse("2023-01-10 10:00:00")
+                }
+            }
+        };
+
+        // Act
+        var actual = await StaticNodeJSService.InvokeFromStringAsync<string>(
+            nodeModule,
+            args: new object[] { request, paging });
+
+        // Assert
+        Assert.NotNull(actual);
+
+        var jsonOptions = web.Services.GetRequiredService<IOptions<JsonOptions>>().Value;
+        var result = JsonSerializer.Deserialize<PagedResponse<BrandListItemViewModel>>(
+            actual!,
+            jsonOptions.JsonSerializerOptions);
+
+        Assert.True(result?.Valid);
+        Assert.Equal(2, result?.TotalCount);
+        expected.Items.ToExpectedObject().ShouldEqual(result?.Items);
+    }
+
+    [Fact]
+    public async Task 若沒有傳入Status條件Brand列表只會顯示Active與Maintenance的資料()
+    {
+        // Arrange
+        var channelName = Guid.NewGuid().ToString();
+        var userId = Guid.NewGuid();
+
+        var fakeBrandServiceClient = Substitute.For<IBrandServiceClient>();
+
+        using var web = TestBackendOfficeApplication.Builder
+            .UseTestChannelServer(channelName)
+            .ConfigureLogging(logging => logging.AddXUnit(_testOutputHelper))
+            .ConfigureServices(services => services
+                .AddAuthentication("Fake")
+                .AddScheme<FakeAuthenticationSchemaOptions, FakeAuthenticationHandler>(
+                    "Fake",
+                    options =>
+                    {
+                        options.UserId = userId;
+                        options.UserName = "system";
+                    })
+                .Services
+                .AddSingleton(fakeBrandServiceClient))
+            .Build();
+
+        await web.StartAsync();
+
+        var page = 1;
+        var rows = 20;
+        var sortby = "code";
+        var orderby = SortOrder.Ascending;
+        var showAll = false;
+
+        _ = fakeBrandServiceClient.QueryBrandListAsync(
+            Arg.Any<BrandListQuery>(),
+            Arg.Any<CancellationToken>())
+            .Returns(new[]
+            {
+                new BrandListItem(
+                    BrandId: Guid.Parse("4e86719f-243f-46f6-b010-5c758b7285af"),
+                    Status: BrandStatus.Active,
+                    null,
+                    null,
+                    CreatedOn: DateTime.Parse("2023-01-01 10:00:00"),
+                    UpdatedOn: DateTime.Parse("2023-01-01 10:00:00")),
+                new BrandListItem(
+                    BrandId: Guid.Parse("9f1ecf19-38cd-474f-b0d2-93638dc07d21"),
+                    Status: BrandStatus.Maintenance,
+                    null,
+                    null,
+                    CreatedOn: DateTime.Parse("2023-01-10 10:00:00"),
+                    UpdatedOn: DateTime.Parse("2023-01-10 10:00:00")),
+                new BrandListItem(
+                    BrandId: Guid.Parse("d71ac5ed-b7d9-49f2-a129-8709fa4cc02a"),
+                    Status: BrandStatus.Inactive,
+                    null,
+                    null,
+                    CreatedOn: DateTime.Parse("2023-01-02 10:00:00"),
+                    UpdatedOn: DateTime.Parse("2023-01-02 10:00:00")),
+                new BrandListItem(
+                    BrandId: Guid.Parse("c0e1b447-cb16-41b4-b5dc-7935a46c2350"),
+                    Status: BrandStatus.Archived,
+                    null,
+                    null,
+                    CreatedOn: DateTime.Parse("2023-01-11 10:00:00"),
+                    UpdatedOn: DateTime.Parse("2023-01-11 10:00:00"))
+            }.ToAsyncEnumerable());
+
+        _ = fakeBrandServiceClient.GetBrandRelationsAsync(
+                Arg.Any<CancellationToken>())
+            .Returns(new[]
+            {
+                new BrandRelationInfo(
+                    Guid.Parse("4e86719f-243f-46f6-b010-5c758b7285af"),
+                    "GPI",
+                    "Game Integration",
+                    Guid.Parse("66c5fef5-217b-4929-9a08-72c2479a8f4e"), 
+                    "GPI",
+                    "GPI",
+                    Guid.Parse("b5a2c708-ab70-4316-9f4d-5d2ad0e77460"),
+                    "TGS",
+                    "TGS"),
+                new BrandRelationInfo(
+                    Guid.Parse("9f1ecf19-38cd-474f-b0d2-93638dc07d21"),
+                    "GPI_HKD",
+                    "Game Integration HKD",
+                    Guid.Parse("66c5fef5-217b-4929-9a08-72c2479a8f4e"),
+                    "GPI",
+                    "GPI",
+                    Guid.Parse("b5a2c708-ab70-4316-9f4d-5d2ad0e77460"),
+                    "TGS",
+                    "TGS"),
+                new BrandRelationInfo(
+                    Guid.Parse("d71ac5ed-b7d9-49f2-a129-8709fa4cc02a"),
+                    "GPI_Inactive",
+                    "Game Integration InActive",
+                    Guid.Parse("66c5fef5-217b-4929-9a08-72c2479a8f4e"),
+                    "GPI",
+                    "GPI",
+                    Guid.Parse("b5a2c708-ab70-4316-9f4d-5d2ad0e77460"),
+                    "TGS",
+                    "TGS"),
+                new BrandRelationInfo(
+                    Guid.Parse("c0e1b447-cb16-41b4-b5dc-7935a46c2350"),
+                    "GPI_Archived",
+                    "Game Integration Archived",
+                    Guid.Parse("66c5fef5-217b-4929-9a08-72c2479a8f4e"),
+                    "GPI",
+                    "GPI",
+                    Guid.Parse("b5a2c708-ab70-4316-9f4d-5d2ad0e77460"),
+                    "TGS",
+                    "TGS"),
+            }.ToAsyncEnumerable());
+
+
+        var isWindows = RuntimeInformation.IsOSPlatform(OSPlatform.Windows) ? "true" : "false";
+
+        var nodeModule = $$"""
+            const axiosConfigFactory = require('./models/axios-configuration.js').default;
+            const BackOfficeService = require('./services/bo-service.js').default;
+
+            module.exports = async (request, paging) =>
+            {
+                let instance = axiosConfigFactory("{{channelName}}", {{isWindows}});
+
+                let svc = new BackOfficeService(instance);
+
+                return await svc.getBrandList(request, paging);
+            };
+        """;
+
+        var request = new BrandListQueryViewModel();
+
+        var paging = new PageableRequest
+        {
+            OrderBy = orderby,
+            Page = page,
+            Rows = rows,
+            SortBy = sortby,
+            ShowAll = showAll
+        };
+
+        var expected = new PagedResponse<BrandListItemViewModel>
+        {
+            TotalCount = 2,
+            Valid = true,
+            Items = new[]
+            {
+                new BrandListItemViewModel
+                {
+                    Id =  Guid.Parse("4e86719f-243f-46f6-b010-5c758b7285af"),
+                    Code= "GPI",
+                    Name= "Game Integration",
+                    LicenseeId= Guid.Parse("66c5fef5-217b-4929-9a08-72c2479a8f4e"),
+                    LicenseeName= "GPI",
+                    ResellerId= Guid.Parse("b5a2c708-ab70-4316-9f4d-5d2ad0e77460"),
+                    ResellerName = "TGS",
+                    Status= Enums.BrandStatus.Active,
+                    Description = null,
+                    OperationalEmail = null,
+                    CreatedOn = DateTime.Parse("2023-01-01 10:00:00"),
+                    UpdatedOn =  DateTime.Parse("2023-01-01 10:00:00")
+                },
+                new BrandListItemViewModel
+                {
+                    Id = Guid.Parse("9f1ecf19-38cd-474f-b0d2-93638dc07d21"),
+                    Code= "GPI_HKD",
+                    Name= "Game Integration HKD",
+                    LicenseeId= Guid.Parse("66c5fef5-217b-4929-9a08-72c2479a8f4e"),
+                    LicenseeName= "GPI",
+                    ResellerId= Guid.Parse("b5a2c708-ab70-4316-9f4d-5d2ad0e77460"),
+                    ResellerName= "TGS",
+                    Status= Enums.BrandStatus.Maintenance,
+                    Description = null,
+                    OperationalEmail = null,
+                    CreatedOn= DateTime.Parse("2023-01-10 10:00:00"),
+                    UpdatedOn= DateTime.Parse("2023-01-10 10:00:00")
+                }
+            }
+        };
+
+        // Act
+        var actual = await StaticNodeJSService.InvokeFromStringAsync<string>(
+            nodeModule,
+            args: new object[] { request, paging });
+
+        // Assert
+        Assert.NotNull(actual);
+
+        var jsonOptions = web.Services.GetRequiredService<IOptions<JsonOptions>>().Value;
+        var result = JsonSerializer.Deserialize<PagedResponse<BrandListItemViewModel>>(
+            actual!,
+            jsonOptions.JsonSerializerOptions);
+
+        Assert.True(result?.Valid);
+        Assert.Equal(2, result?.TotalCount);
+        expected.Items.ToExpectedObject().ShouldEqual(result?.Items);
+    }
+}
