@@ -17,7 +17,6 @@ using TGS.Core.Models;
 using TGS.Core.Models.Enums;
 using TGS.Services.BackOffice.Application.Models.Brand;
 using TGS.Services.BackOffice.Domain;
-using TGS.Services.BackOffice.Infrastructure.RedisServices;
 using TGS.Services.BackOffice.Infrastructure.Services;
 using IsolationLevel = System.Data.IsolationLevel;
 
@@ -27,7 +26,6 @@ public class BrandService : BaseRepositoryOperations<ITgsRepository>, IBrandServ
 {
     private readonly IRedisCacheManager _cacheManager;
     private readonly ICredentialGenerator _credentialGenerator;
-    private readonly IMaintenanceRedisService _maintenanceRedisService;
     private readonly ITgsRepository _repository;
     private readonly ISerialNumberGenerator _serialNumberGenerator;
 
@@ -35,14 +33,12 @@ public class BrandService : BaseRepositoryOperations<ITgsRepository>, IBrandServ
         ITgsRepository tgsRepository,
         ICredentialGenerator credentialGenerator,
         IRedisCacheManager cacheManager,
-        IMaintenanceRedisService maintenanceRedisService,
         ISerialNumberGenerator serialNumberGenerator)
         : base(tgsRepository)
     {
         _repository = tgsRepository ?? throw new ArgumentNullException(nameof(tgsRepository));
         _credentialGenerator = credentialGenerator ?? throw new ArgumentNullException(nameof(credentialGenerator));
         _cacheManager = cacheManager ?? throw new ArgumentNullException(nameof(cacheManager));
-        _maintenanceRedisService = maintenanceRedisService ?? throw new ArgumentNullException(nameof(maintenanceRedisService));
         _serialNumberGenerator = serialNumberGenerator ?? throw new ArgumentNullException(nameof(serialNumberGenerator));
     }
 
