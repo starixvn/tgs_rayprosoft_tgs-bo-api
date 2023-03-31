@@ -208,7 +208,8 @@ public class PromotionController : BaseContextController
             From = mainInfo.EventDuring.From,
             To = mainInfo.EventDuring.To,
             PromotionType = mainInfo.PromotionType,
-            PromotionLimitAmount = mainInfo.PromotionLimitAmount,
+            Unlimited = mainInfo.PromotionLimitAmount is null,
+            TotalAmountLimit = mainInfo.PromotionLimitAmount,
             AutoSentPlayerBonus = mainInfo.IsAutoSent
         };
     }
