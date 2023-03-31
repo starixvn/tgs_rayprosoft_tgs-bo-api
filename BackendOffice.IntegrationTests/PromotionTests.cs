@@ -73,7 +73,7 @@ public class PromotionTests
                 BrandId = brandId,
                 EventDuring = new During(now.AddDays(-1), now.AddDays(1)),
                 PromotionType = "TestPromotion",
-                PromotionLimitAmount = null,
+                PromotionLimitAmount = 1000m,
                 IsAutoSent = true
             });
 
@@ -101,7 +101,8 @@ public class PromotionTests
             From = now.AddDays(-1),
             To = now.AddDays(1),
             PromotionType = "TestPromotion",
-            PromotionLimitAmount = null,
+            Unlimited = false,
+            TotalAmountLimit = 1000m,
             AutoSentPlayerBonus = true
         };
 
