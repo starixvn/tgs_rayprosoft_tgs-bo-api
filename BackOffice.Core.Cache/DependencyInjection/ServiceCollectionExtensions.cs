@@ -1,5 +1,6 @@
 ﻿using Tgs.BrandCertificate.Clients;
 using Tgs.MarketingReport.Client;
+using TGS.Services.BackOffice;
 using Tgs.ServiceUtility;
 using TGS.Services.BackOffice.Application.Services;
 using TGS.Services.BackOffice.ApplicationServices;
@@ -25,6 +26,6 @@ public static class ServiceCollectionExtensions
             .Decorate<IQueryService<AgentPlayerRegisterDetailQuery, PlayerRegisterDetail>,
                 CachedAgentPlayerRegisterDetailQueryService>()
             .Decorate<IQueryService<AllAgentsByBrandQuery, AgentInfo>, CachedAllAgentsByBrandQueryService>()
-            .Decorate<IQueryService<BrandRelationQuery, BrandRelationInfo>, CachedBrandRelationQueryService>();
-
+            .Decorate<IQueryService<BrandRelationQuery, BrandRelationInfo>, CachedBrandRelationQueryService>()
+            .AddTransient<IClearBrandRelationCacheService, CachedBrandRelationQueryService>();
 }

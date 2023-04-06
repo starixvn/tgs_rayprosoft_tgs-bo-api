@@ -1,5 +1,6 @@
 ﻿using NSubstitute;
 using Tgs.BrandCertificate.Clients;
+using TGS.Services.BackOffice;
 using TGS.Services.BackOffice.ApplicationServices;
 using BrandListQuery = TGS.Services.BackOffice.ApplicationServices.BrandListQuery;
 
@@ -60,5 +61,20 @@ internal class BrandTests
                 Arg.Is<Tgs.BrandCertificate.Clients.BrandListQuery>(x => 
                     x.BrandIds.SequenceEqual(query.BrandIs)),
                 Arg.Any<CancellationToken>());
+    }
+
+    [Test]
+    public async Task Brand建立後會清除Brand關聯表快取()
+    {
+        var fakeClearCacheService = Substitute.For<IClearBrandRelationCacheService>();
+
+        var sut = new ProcessBrandCreatedCommandService(fakeClearCacheService);
+
+        var command = new ProcessBrandCreatedCommand(Guid.NewGuid());
+
+        await sut.ExecuteAsync(command);
+
+        _ = fakeClearCacheService.Received(1)
+            .ClearAsync(Arg.Any<CancellationToken>());
     }
 }

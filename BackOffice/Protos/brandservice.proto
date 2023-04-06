@@ -31,3 +31,7 @@ message NotifyEvent {
 	repeated Tag tags = 1;
 	string data = 2;
 }
+
+message BrandCreatedEvent {
+	phoenix.protobuf.GuidValue brand_id = 1;	
+}

@@ -13,10 +13,12 @@ using TGS.Core.Infrastructures.Extensions;
 using TGS.Core.Infrastructures.Redis;
 using TGS.Core.Models;
 using TGS.Core.Models.Enums;
+using Tgs.SerialNumberGenerator;
 using TGS.Services.BackOffice.Application.Models.Brand;
 using TGS.Services.BackOffice.Infrastructure.RedisServices;
 using TGS.Services.BackOffice.Infrastructure.Services;
 using IsolationLevel = System.Data.IsolationLevel;
+using System.Threading;
 
 namespace TGS.Services.BackOffice.Infrastructure.DataService;
 
@@ -25,20 +27,23 @@ public class BrandService : BaseRepositoryOperations<ITgsRepository>, IBrandServ
     private readonly IRedisCacheManager _cacheManager;
     private readonly ICredentialGenerator _credentialGenerator;
     private readonly IMaintenanceRedisService _maintenanceRedisService;
+    private readonly ISerialNumberGenerator _serialNumberGenerator;
     private readonly ITgsRepository _repository;
 
     public BrandService(
         ITgsRepository tgsRepository,
         ICredentialGenerator credentialGenerator,
         IRedisCacheManager cacheManager,
-        IMaintenanceRedisService maintenanceRedisService) : base(
-        tgsRepository)
+        IMaintenanceRedisService maintenanceRedisService,
+        ISerialNumberGenerator serialNumberGenerator) 
+        : base(tgsRepository)
     {
         _repository = tgsRepository;
         _credentialGenerator = credentialGenerator;
         _cacheManager = cacheManager;
         _maintenanceRedisService = maintenanceRedisService ??
             throw new ArgumentNullException(nameof(maintenanceRedisService));
+        _serialNumberGenerator = serialNumberGenerator ?? throw new ArgumentNullException(nameof(serialNumberGenerator));
     }
 
     async Task IBrandService.ChangeStatusAsync(Brand brand, UpdateBrandStatusRequest request)
@@ -66,7 +71,7 @@ public class BrandService : BaseRepositoryOperations<ITgsRepository>, IBrandServ
         }
     }
 
-    async Task IBrandService.CreateBrandAsync(CreateBrandRequest request)
+    async Task<Guid> IBrandService.CreateBrandAsync(CreateBrandRequest request, CancellationToken cancellationToken)
     {
         using var scope = new TransactionScope(TransactionScopeAsyncFlowOption.Enabled);
 
@@ -80,7 +85,9 @@ public class BrandService : BaseRepositoryOperations<ITgsRepository>, IBrandServ
 
         var brand = new Brand
         {
-            Id = Guid.NewGuid(),
+            Id = await _serialNumberGenerator
+                .GenerateAsync(cancellationToken)
+                .ConfigureAwait(false),
             LicenseeId = request.LicenseeId,
             Code = request.Code,
             Name = request.Name,
@@ -151,9 +158,11 @@ public class BrandService : BaseRepositoryOperations<ITgsRepository>, IBrandServ
         await CreateEntityAsync(vipLevel);
 
         scope.Complete();
+
+        return brand.Id;
     }
 
-    Task<bool> IBrandService.ExistsAsync(Expression<Func<Brand, bool>> predicate) => ExistsAsync(predicate);
+    Task<bool> IBrandService.ExistsAsync(Expression<Func<Brand, bool>> predicate) => base.ExistsAsync(predicate);
 
     Task<Brand> IBrandService.GetBrandAsync(Expression<Func<Brand, bool>> predicate,
                 Func<IQueryable<Brand>, IQueryable<Brand>> preQuery) =>

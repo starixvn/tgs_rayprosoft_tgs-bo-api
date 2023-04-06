@@ -40,7 +40,7 @@ public partial class BrandController : BaseContextController
     [HttpGet("{id}", Name = "GetBrand")]
     [Description("Get a Brand")]
     public Task<GetBrandResponse> GetBrandAsync(Guid id)
-        => _mediator.Send(new GetBrandRequest(id));
+        => _mediator.Send(new GetBrandRequest(id), HttpContext.RequestAborted);
 
     [HttpGet("logo/{brandId}", Name = "GetBrandLogoInfo")]
     public async ValueTask<ResponseViewModel<BrandLogoInfoViewModel>> GetBrandLogoInfoAsync(
