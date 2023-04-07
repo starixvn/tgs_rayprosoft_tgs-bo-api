@@ -2,9 +2,11 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Linq.Expressions;
+using System.Threading;
 using System.Threading.Tasks;
 using System.Transactions;
 using Microsoft.EntityFrameworkCore;
+using Tgs.SerialNumberGenerator;
 using TGS.Core.DataServices.Base;
 using TGS.Core.DataServices.Base.Extensions;
 using TGS.Core.DataServices.Tgs;
@@ -14,6 +16,7 @@ using TGS.Core.Infrastructures.Redis;
 using TGS.Core.Models;
 using TGS.Core.Models.Enums;
 using TGS.Services.BackOffice.Application.Models.Brand;
+using TGS.Services.BackOffice.Domain;
 using TGS.Services.BackOffice.Infrastructure.RedisServices;
 using TGS.Services.BackOffice.Infrastructure.Services;
 using IsolationLevel = System.Data.IsolationLevel;
@@ -26,22 +29,24 @@ public class BrandService : BaseRepositoryOperations<ITgsRepository>, IBrandServ
     private readonly ICredentialGenerator _credentialGenerator;
     private readonly IMaintenanceRedisService _maintenanceRedisService;
     private readonly ITgsRepository _repository;
+    private readonly ISerialNumberGenerator _serialNumberGenerator;
 
     public BrandService(
         ITgsRepository tgsRepository,
         ICredentialGenerator credentialGenerator,
         IRedisCacheManager cacheManager,
-        IMaintenanceRedisService maintenanceRedisService) : base(
-        tgsRepository)
+        IMaintenanceRedisService maintenanceRedisService,
+        ISerialNumberGenerator serialNumberGenerator)
+        : base(tgsRepository)
     {
-        _repository = tgsRepository;
-        _credentialGenerator = credentialGenerator;
-        _cacheManager = cacheManager;
-        _maintenanceRedisService = maintenanceRedisService ??
-            throw new ArgumentNullException(nameof(maintenanceRedisService));
+        _repository = tgsRepository ?? throw new ArgumentNullException(nameof(tgsRepository));
+        _credentialGenerator = credentialGenerator ?? throw new ArgumentNullException(nameof(credentialGenerator));
+        _cacheManager = cacheManager ?? throw new ArgumentNullException(nameof(cacheManager));
+        _maintenanceRedisService = maintenanceRedisService ?? throw new ArgumentNullException(nameof(maintenanceRedisService));
+        _serialNumberGenerator = serialNumberGenerator ?? throw new ArgumentNullException(nameof(serialNumberGenerator));
     }
 
-    async Task IBrandService.ChangeStatusAsync(Brand brand, UpdateBrandStatusRequest request)
+    public async Task ChangeStatusAsync(Brand brand, UpdateBrandStatusRequest request)
     {
         brand.Status = request.Status;
         brand.UpdatedOn = DateTimeOffset.Now;
@@ -66,7 +71,7 @@ public class BrandService : BaseRepositoryOperations<ITgsRepository>, IBrandServ
         }
     }
 
-    async Task IBrandService.CreateBrandAsync(CreateBrandRequest request)
+    public async ValueTask<Guid> CreateBrandAsync(CreateBrandInfo createInfo, CancellationToken cancellationToken = default)
     {
         using var scope = new TransactionScope(TransactionScopeAsyncFlowOption.Enabled);
 
@@ -76,14 +81,16 @@ public class BrandService : BaseRepositoryOperations<ITgsRepository>, IBrandServ
             0, 0, timeSpan);
 
         var (currentFromDate, currentToDate, nextFromDate, nextToDate) =
-            GetInterval(request.SettlementIntervalType, now, request.SettlementDay, now);
+            GetInterval(createInfo.SettlementIntervalType, now, createInfo.SettlementDay, now);
 
         var brand = new Brand
         {
-            Id = Guid.NewGuid(),
-            LicenseeId = request.LicenseeId,
-            Code = request.Code,
-            Name = request.Name,
+            Id = await _serialNumberGenerator
+                .GenerateAsync(cancellationToken)
+                .ConfigureAwait(false),
+            LicenseeId = createInfo.LicenseeId,
+            Code = createInfo.Code,
+            Name = createInfo.Name,
             PreviousSettlementFrom = currentFromDate,
             PreviousSettlementTo = currentToDate,
             CurrentSettlementFrom = currentFromDate,
@@ -93,35 +100,35 @@ public class BrandService : BaseRepositoryOperations<ITgsRepository>, IBrandServ
             AutoSentAgentBonus = true,
             AutoSentPlayerBonus = true,
             Status = BrandStatus.Active,
-            AgentDividendType = request.AgentDividendType,
-            Description = request.Description,
-            OperationalEmail = request.OperationalEmail,
-            SettlementDay = request.SettlementDay,
-            SettlementIntervalType = request.SettlementIntervalType,
+            AgentDividendType = createInfo.AgentDividendType,
+            Description = createInfo.Description,
+            OperationalEmail = createInfo.OperationalEmail,
+            SettlementDay = createInfo.SettlementDay,
+            SettlementIntervalType = createInfo.SettlementIntervalType,
             ApiKey = _credentialGenerator.GetApiKey(),
-            ClientId = request.Code,
+            ClientId = createInfo.Code,
             SecretKey = _credentialGenerator.GetSecretKey(),
-            CreatedByUsername = request.EditorUsername,
-            UpdatedByUsername = request.EditorUsername,
+            CreatedByUsername = createInfo.Modifier,
+            UpdatedByUsername = createInfo.Modifier,
             CreatedOn = DateTimeOffset.Now,
             UpdatedOn = DateTimeOffset.Now,
-            PlatformCharge = request.PlatformCharge,
-            CheckDividendActiveCount = request.CheckDividendActiveCount,
-            EnablePlayerIdentity = request.EnablePlayerIdentity,
-            AutoClearWageringRequirement = request.AutoClearWageringRequirement,
-            AutoClearWageringRequirementBalance = request.AutoClearWageringRequirementBalance,
-            DepositHandlingFeeRateTenPercentile = request.DepositHandlingFeeRateTenPercentile,
-            WithdrawHandlingFeeRateTenPercentile = request.WithdrawHandlingFeeRateTenPercentile,
-            TimeSpanMinutes = request.TimeSpanMinutes,
+            PlatformCharge = createInfo.PlatformCharge,
+            CheckDividendActiveCount = createInfo.CheckDividendActiveCount,
+            EnablePlayerIdentity = createInfo.EnablePlayerIdentity,
+            AutoClearWageringRequirement = createInfo.AutoClearWageringRequirement,
+            AutoClearWageringRequirementBalance = createInfo.AutoClearWageringRequirementBalance,
+            DepositHandlingFeeRateTenPercentile = createInfo.DepositHandlingFeeRateTenPercentile,
+            WithdrawHandlingFeeRateTenPercentile = createInfo.WithdrawHandlingFeeRateTenPercentile,
+            TimeSpanMinutes = createInfo.TimeSpanMinutes,
         };
 
-        brand.Languages = await GenerateBrandLanguagesAsync(brand, request.Languages);
-        brand.Currencies = GenerateBrandCurrencies(brand, request.CurrencyCodes);
-        brand.GameProviders = await GenerateAddBrandGameProvidersAsync(brand, request.GameProviders);
-        brand.BetLimits = await GenerateBetLimitsAsync(brand, request.BetLimits);
+        brand.Languages = await GenerateBrandLanguagesAsync(brand, createInfo.Languages.ToArray());
+        brand.Currencies = GenerateBrandCurrencies(brand, createInfo.CurrencyCodes.ToArray());
+        brand.GameProviders = await GenerateAddBrandGameProvidersAsync(brand, createInfo.GameProviders.ToArray());
+        brand.BetLimits = await GenerateBetLimitsAsync(brand, createInfo.BetLimits.ToArray());
         brand.Games = await GenerateWithCreateGamesAsync(brand);
-        brand.BrandGroups = GenerateWithCreateGroups(brand, request.EditorUsername);
-        brand.Domains = GenerateBrandDomains(brand, request.Domains);
+        brand.BrandGroups = GenerateWithCreateGroups(brand, createInfo.Modifier);
+        brand.Domains = GenerateBrandDomains(brand, createInfo.Domains.ToArray());
 
         await CreateEntityAsync(brand);
 
@@ -130,8 +137,8 @@ public class BrandService : BaseRepositoryOperations<ITgsRepository>, IBrandServ
             BrandId = brand.Id,
             Credit = 0,
             Balance = 0,
-            CreatedByUsername = request.EditorUsername,
-            UpdatedByUsername = request.EditorUsername,
+            CreatedByUsername = createInfo.Modifier,
+            UpdatedByUsername = createInfo.Modifier,
             CreatedOn = DateTimeOffset.Now,
             UpdatedOn = DateTimeOffset.Now
         };
@@ -142,8 +149,8 @@ public class BrandService : BaseRepositoryOperations<ITgsRepository>, IBrandServ
         {
             BrandId = brand.Id,
             Level = 1,
-            CreatedByUsername = request.EditorUsername,
-            UpdatedByUsername = request.EditorUsername,
+            CreatedByUsername = createInfo.Modifier,
+            UpdatedByUsername = createInfo.Modifier,
             CreatedOn = DateTimeOffset.Now,
             UpdatedOn = DateTimeOffset.Now
         };
@@ -151,19 +158,24 @@ public class BrandService : BaseRepositoryOperations<ITgsRepository>, IBrandServ
         await CreateEntityAsync(vipLevel);
 
         scope.Complete();
+
+        return brand.Id;
     }
 
-    Task<bool> IBrandService.ExistsAsync(Expression<Func<Brand, bool>> predicate) => ExistsAsync(predicate);
+    public Task<bool> ExistsAsync(Expression<Func<Brand, bool>> predicate)
+        => base.ExistsAsync(predicate);
 
-    Task<Brand> IBrandService.GetBrandAsync(Expression<Func<Brand, bool>> predicate,
-                Func<IQueryable<Brand>, IQueryable<Brand>> preQuery) =>
-        GetEntityFirstOrDefaultAsync(predicate, preQuery);
+    public Task<Brand> GetBrandAsync(
+        Expression<Func<Brand, bool>> predicate,
+        Func<IQueryable<Brand>, IQueryable<Brand>> preQuery)
+        => GetEntityFirstOrDefaultAsync(predicate, preQuery);
 
-    IQueryable<Brand> IBrandService.GetBrandQueries(Func<IQueryable<Brand>, IQueryable<Brand>> preQuery,
-        bool tracking) =>
-        GetQueriesAsync(preQuery, tracking);
+    public IQueryable<Brand> GetBrandQueries(
+        Func<IQueryable<Brand>, IQueryable<Brand>> preQuery,
+        bool tracking)
+        => GetQueriesAsync(preQuery, tracking);
 
-    async Task IBrandService.SyncBrandGamesAsync(Guid brandId)
+    public async Task SyncBrandGamesAsync(Guid brandId)
     {
         var brand = await _repository.Brands.AsQueryable().FirstOrDefaultAsync(x => x.Id == brandId);
 
@@ -197,7 +209,7 @@ public class BrandService : BaseRepositoryOperations<ITgsRepository>, IBrandServ
         await _cacheManager.ClearCacheAsync(RedisCacheType.BrandGames, brand.Id, true);
     }
 
-    async Task IBrandService.UpdateBrandAsync(Brand brand, UpdateBrandRequest request)
+    public async Task UpdateBrandAsync(Brand brand, UpdateBrandRequest request)
     {
         if (request.SettlementIntervalType != brand.SettlementIntervalType)
         {
@@ -489,7 +501,10 @@ public class BrandService : BaseRepositoryOperations<ITgsRepository>, IBrandServ
     }
 
     private static (DateTimeOffset, DateTimeOffset, DateTimeOffset, DateTimeOffset) GetInterval(
-            SettlementIntervalType type, DateTimeOffset startDate, int? dayOfMonth, DateTimeOffset currentFromDate)
+        SettlementIntervalType type,
+        DateTimeOffset startDate,
+        int? dayOfMonth,
+        DateTimeOffset currentFromDate)
     {
         switch (type)
         {
@@ -531,7 +546,8 @@ public class BrandService : BaseRepositoryOperations<ITgsRepository>, IBrandServ
     }
 
     private async Task<HashSet<BrandGameProvider>> GenerateAddBrandGameProvidersAsync(
-        Brand brand, BrandGameProviderModel[] brandGameProviderModels)
+        Brand brand,
+        BrandGameProviderModel[] brandGameProviderModels)
     {
         var gameProviderIds =
             brandGameProviderModels.Where(x => x.Id == null).Select(x => x.GameProviderId).ToArray();
@@ -573,7 +589,9 @@ public class BrandService : BaseRepositoryOperations<ITgsRepository>, IBrandServ
         return new(brandGameProviders);
     }
 
-    private async Task<HashSet<BrandBetLimit>> GenerateBetLimitsAsync(Brand brand, BrandBetLimitModel[] brandBetLimitModels)
+    private async Task<HashSet<BrandBetLimit>> GenerateBetLimitsAsync(
+        Brand brand,
+        BrandBetLimitModel[] brandBetLimitModels)
     {
         var betLimits = await _repository.BetLimits.AsQueryable()
             .Where(x => brandBetLimitModels.Select(b => b.Id).Contains(x.Id)).ToArrayAsync();
@@ -588,7 +606,9 @@ public class BrandService : BaseRepositoryOperations<ITgsRepository>, IBrandServ
         return new(brandBetLimits);
     }
 
-    private HashSet<BrandCurrency> GenerateBrandCurrencies(Brand brand, string[] currencyCodes)
+    private HashSet<BrandCurrency> GenerateBrandCurrencies(
+        Brand brand,
+        string[] currencyCodes)
     {
         var brandCurrencies = _repository.Currencies.AsQueryable()
             .Where(x => currencyCodes.Contains(x.Code)).Select(x =>
@@ -601,7 +621,9 @@ public class BrandService : BaseRepositoryOperations<ITgsRepository>, IBrandServ
         return new(brandCurrencies);
     }
 
-    private async Task<HashSet<BrandLanguage>> GenerateBrandLanguagesAsync(Brand brand, BrandLanguageModel[] languageModels)
+    private async Task<HashSet<BrandLanguage>> GenerateBrandLanguagesAsync(
+        Brand brand,
+        BrandLanguageModel[] languageModels)
     {
         var cultureCodes = languageModels.Select(c => c.CultureCode);
         var languages = await _repository.Languages.AsQueryable()
@@ -641,7 +663,8 @@ public class BrandService : BaseRepositoryOperations<ITgsRepository>, IBrandServ
         return new(games);
     }
 
-    private async Task<HashSet<BrandGame>> GenerateWithUpdateGamesAsync(Brand brand,
+    private async Task<HashSet<BrandGame>> GenerateWithUpdateGamesAsync(
+        Brand brand,
         BrandGameProviderModel[] brandGameProviderModels)
     {
         var gameProviderIds = brandGameProviderModels.Select(x => x.GameProviderId);

@@ -138,7 +138,8 @@ builder.Services
             "tgs.bo.background.offline-promotion",
             "tgs.bo.background.offline-promotion")
         .AddHandler<BackgroundNotifyHandler>("tgs.bo.notify")
-        .AddHandler<CleanBucketsHandler>("tgs.bucket.clean-form.created", "tgs.bo.clean-form"))
+        .AddHandler<CleanBucketsHandler>("tgs.bucket.clean-form.created", "tgs.bo.clean-form")
+        .AddHandler<ClearBrandRelationCacheHandler>("tgs.bo.cache.brand-relation.clear"))
     .AddNatsGlobPatternExchange("*");
 
 builder.Services

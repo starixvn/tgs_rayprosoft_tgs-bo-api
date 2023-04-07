@@ -6,7 +6,9 @@ using Tgs.ServiceUtility;
 
 namespace TGS.Services.BackOffice.Cache;
 
-internal class CachedBrandRelationQueryService : IQueryService<BrandRelationQuery, BrandRelationInfo>
+internal class CachedBrandRelationQueryService : 
+    IQueryService<BrandRelationQuery, BrandRelationInfo>,
+    IClearBrandRelationCacheService
 {
     private readonly IQueryService<BrandRelationQuery, BrandRelationInfo> _sourceService;
     private readonly IMemoryCache _memoryCache;
@@ -39,5 +41,14 @@ internal class CachedBrandRelationQueryService : IQueryService<BrandRelationQuer
 
         foreach (var item in result!)
             yield return item;
+    }
+
+    public ValueTask ClearAsync(CancellationToken cancellationToken = default)
+    {
+        var key = "BrandRelations";
+
+        _memoryCache.Remove(key);
+
+        return ValueTask.CompletedTask;
     }
 }
