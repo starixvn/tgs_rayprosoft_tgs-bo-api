@@ -429,4 +429,11 @@ export default class BackOfficeService {
             )
             .then(res => res.data);
     }
+
+    public createBrand(
+        request: CreateBrandRequest) : Promise<MessageResponse> {
+        return this.http
+            .post('/api/brand', request)
+            .then(res => res.data);
+    }
 }

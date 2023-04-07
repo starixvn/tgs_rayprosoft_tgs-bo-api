@@ -3,10 +3,13 @@ using System.Collections.Generic;
 using System.ComponentModel;
 using System.Linq;
 using System.Threading.Tasks;
+using Google.Protobuf;
 using MediatR;
 using Microsoft.AspNetCore.Mvc;
 using Tgs.BrandCertificate;
 using Tgs.BrandCertificate.Clients;
+using Tgs.BrandService.Protos;
+using Tgs.MessageQueue;
 using Tgs.Paging;
 using Tgs.ServiceUtility;
 using TGS.Apis.BackendOffice.Controllers.Messages;
@@ -18,6 +21,7 @@ using TGS.Services.BackOffice.Application.Queries.BrandToken;
 using TGS.Services.BackOffice.ApplicationServices;
 using TGS.Services.BackOffice.Domain;
 using BrandListQuery = TGS.Services.BackOffice.ApplicationServices.BrandListQuery;
+using Resource = TGS.Services.BackOffice.Application.Resources;
 
 namespace TGS.Apis.BackendOffice.Controllers.Brand;
 
@@ -34,8 +38,70 @@ public partial class BrandController : BaseContextController
 
     [HttpPost(Name = "CreateBrand")]
     [Description("Create a Brand")]
-    public Task<MessageResponse> CreateBrandAsync(CreateBrandRequest request)
-        => _mediator.Send(request);
+    public async ValueTask<MessageResponse> CreateBrandAsync(
+        [FromServices] IBrandServiceClient brandServiceClient,
+        [FromServices] IGetService<CreateBrandCommand, Guid> createBrandCommandService,
+        [FromServices] IMessageSender messageSender,
+        CreateBrandRequest request)
+    {
+        var brands = await brandServiceClient
+            .GetBrandRelationsAsync(HttpContext.RequestAborted)
+            .ToArrayAsync(HttpContext.RequestAborted)
+            .ConfigureAwait(false);
+
+        if (brands.Any(x => x.BrandName == request.Name))
+            return new MessageResponse
+            {
+                Valid = false,
+                Message = Resource.Brand.NameExisted
+            };
+
+        if (brands.Any(x => x.BrandCode.Equals(request.Code, StringComparison.OrdinalIgnoreCase)))
+            return new MessageResponse
+            {
+                Valid = false,
+                Message = Resource.Brand.CodeExisted
+            };
+
+        var createBrandCommand = new CreateBrandCommand(
+            request.Code,
+            request.Name,
+            request.Description,
+            request.OperationalEmail,
+            request.PlatformCharge,
+            request.TimeSpanMinutes,
+            request.EnablePlayerIdentity,
+            request.LicenseeId,
+            request.CurrencyCodes,
+            request.Languages,
+            request.SettlementIntervalType,
+            request.SettlementDay,
+            request.GameProviders,
+            request.AgentDividendType,
+            request.CheckDividendActiveCount,
+            request.AutoClearWageringRequirement,
+            request.AutoClearWageringRequirementBalance,
+            request.DepositHandlingFeeRateTenPercentile,
+            request.WithdrawHandlingFeeRateTenPercentile,
+            request.Domains,
+            request.BetLimits,
+            Username);
+
+        _ = await createBrandCommandService
+            .GetAsync(createBrandCommand, HttpContext.RequestAborted)
+            .ConfigureAwait(false);
+
+        await messageSender.PublishAsync(
+            "tgs.bo.cache.brand-relation.clear",
+            new ClearBrandRelationCacheEvent().ToByteArray(),
+            HttpContext.RequestAborted)
+            .ConfigureAwait(false);
+
+        return new MessageResponse
+        {
+            Valid = true
+        };
+    }
 
     [HttpGet("{id}", Name = "GetBrand")]
     [Description("Get a Brand")]
@@ -141,7 +207,7 @@ public partial class BrandController : BaseContextController
         }
 
         if (viewModel.BrandId.HasValue)
-           _ = brandIds.Add(viewModel.BrandId.Value);
+            _ = brandIds.Add(viewModel.BrandId.Value);
 
         var query = new BrandListQuery(
             brandIds,

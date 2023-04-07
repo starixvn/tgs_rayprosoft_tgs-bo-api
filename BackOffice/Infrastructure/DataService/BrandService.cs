@@ -16,6 +16,7 @@ using TGS.Core.Infrastructures.Redis;
 using TGS.Core.Models;
 using TGS.Core.Models.Enums;
 using TGS.Services.BackOffice.Application.Models.Brand;
+using TGS.Services.BackOffice.Domain;
 using TGS.Services.BackOffice.Infrastructure.RedisServices;
 using TGS.Services.BackOffice.Infrastructure.Services;
 using IsolationLevel = System.Data.IsolationLevel;
@@ -45,7 +46,7 @@ public class BrandService : BaseRepositoryOperations<ITgsRepository>, IBrandServ
         _serialNumberGenerator = serialNumberGenerator ?? throw new ArgumentNullException(nameof(serialNumberGenerator));
     }
 
-    async Task IBrandService.ChangeStatusAsync(Brand brand, UpdateBrandStatusRequest request)
+    public async Task ChangeStatusAsync(Brand brand, UpdateBrandStatusRequest request)
     {
         brand.Status = request.Status;
         brand.UpdatedOn = DateTimeOffset.Now;
@@ -70,7 +71,7 @@ public class BrandService : BaseRepositoryOperations<ITgsRepository>, IBrandServ
         }
     }
 
-    async Task<Guid> IBrandService.CreateBrandAsync(CreateBrandRequest request, CancellationToken cancellationToken)
+    public async ValueTask<Guid> CreateBrandAsync(CreateBrandInfo createInfo, CancellationToken cancellationToken = default)
     {
         using var scope = new TransactionScope(TransactionScopeAsyncFlowOption.Enabled);
 
@@ -80,16 +81,16 @@ public class BrandService : BaseRepositoryOperations<ITgsRepository>, IBrandServ
             0, 0, timeSpan);
 
         var (currentFromDate, currentToDate, nextFromDate, nextToDate) =
-            GetInterval(request.SettlementIntervalType, now, request.SettlementDay, now);
+            GetInterval(createInfo.SettlementIntervalType, now, createInfo.SettlementDay, now);
 
         var brand = new Brand
         {
             Id = await _serialNumberGenerator
                 .GenerateAsync(cancellationToken)
                 .ConfigureAwait(false),
-            LicenseeId = request.LicenseeId,
-            Code = request.Code,
-            Name = request.Name,
+            LicenseeId = createInfo.LicenseeId,
+            Code = createInfo.Code,
+            Name = createInfo.Name,
             PreviousSettlementFrom = currentFromDate,
             PreviousSettlementTo = currentToDate,
             CurrentSettlementFrom = currentFromDate,
@@ -99,35 +100,35 @@ public class BrandService : BaseRepositoryOperations<ITgsRepository>, IBrandServ
             AutoSentAgentBonus = true,
             AutoSentPlayerBonus = true,
             Status = BrandStatus.Active,
-            AgentDividendType = request.AgentDividendType,
-            Description = request.Description,
-            OperationalEmail = request.OperationalEmail,
-            SettlementDay = request.SettlementDay,
-            SettlementIntervalType = request.SettlementIntervalType,
+            AgentDividendType = createInfo.AgentDividendType,
+            Description = createInfo.Description,
+            OperationalEmail = createInfo.OperationalEmail,
+            SettlementDay = createInfo.SettlementDay,
+            SettlementIntervalType = createInfo.SettlementIntervalType,
             ApiKey = _credentialGenerator.GetApiKey(),
-            ClientId = request.Code,
+            ClientId = createInfo.Code,
             SecretKey = _credentialGenerator.GetSecretKey(),
-            CreatedByUsername = request.EditorUsername,
-            UpdatedByUsername = request.EditorUsername,
+            CreatedByUsername = createInfo.Modifier,
+            UpdatedByUsername = createInfo.Modifier,
             CreatedOn = DateTimeOffset.Now,
             UpdatedOn = DateTimeOffset.Now,
-            PlatformCharge = request.PlatformCharge,
-            CheckDividendActiveCount = request.CheckDividendActiveCount,
-            EnablePlayerIdentity = request.EnablePlayerIdentity,
-            AutoClearWageringRequirement = request.AutoClearWageringRequirement,
-            AutoClearWageringRequirementBalance = request.AutoClearWageringRequirementBalance,
-            DepositHandlingFeeRateTenPercentile = request.DepositHandlingFeeRateTenPercentile,
-            WithdrawHandlingFeeRateTenPercentile = request.WithdrawHandlingFeeRateTenPercentile,
-            TimeSpanMinutes = request.TimeSpanMinutes,
+            PlatformCharge = createInfo.PlatformCharge,
+            CheckDividendActiveCount = createInfo.CheckDividendActiveCount,
+            EnablePlayerIdentity = createInfo.EnablePlayerIdentity,
+            AutoClearWageringRequirement = createInfo.AutoClearWageringRequirement,
+            AutoClearWageringRequirementBalance = createInfo.AutoClearWageringRequirementBalance,
+            DepositHandlingFeeRateTenPercentile = createInfo.DepositHandlingFeeRateTenPercentile,
+            WithdrawHandlingFeeRateTenPercentile = createInfo.WithdrawHandlingFeeRateTenPercentile,
+            TimeSpanMinutes = createInfo.TimeSpanMinutes,
         };
 
-        brand.Languages = await GenerateBrandLanguagesAsync(brand, request.Languages);
-        brand.Currencies = GenerateBrandCurrencies(brand, request.CurrencyCodes);
-        brand.GameProviders = await GenerateAddBrandGameProvidersAsync(brand, request.GameProviders);
-        brand.BetLimits = await GenerateBetLimitsAsync(brand, request.BetLimits);
+        brand.Languages = await GenerateBrandLanguagesAsync(brand, createInfo.Languages.ToArray());
+        brand.Currencies = GenerateBrandCurrencies(brand, createInfo.CurrencyCodes.ToArray());
+        brand.GameProviders = await GenerateAddBrandGameProvidersAsync(brand, createInfo.GameProviders.ToArray());
+        brand.BetLimits = await GenerateBetLimitsAsync(brand, createInfo.BetLimits.ToArray());
         brand.Games = await GenerateWithCreateGamesAsync(brand);
-        brand.BrandGroups = GenerateWithCreateGroups(brand, request.EditorUsername);
-        brand.Domains = GenerateBrandDomains(brand, request.Domains);
+        brand.BrandGroups = GenerateWithCreateGroups(brand, createInfo.Modifier);
+        brand.Domains = GenerateBrandDomains(brand, createInfo.Domains.ToArray());
 
         await CreateEntityAsync(brand);
 
@@ -136,8 +137,8 @@ public class BrandService : BaseRepositoryOperations<ITgsRepository>, IBrandServ
             BrandId = brand.Id,
             Credit = 0,
             Balance = 0,
-            CreatedByUsername = request.EditorUsername,
-            UpdatedByUsername = request.EditorUsername,
+            CreatedByUsername = createInfo.Modifier,
+            UpdatedByUsername = createInfo.Modifier,
             CreatedOn = DateTimeOffset.Now,
             UpdatedOn = DateTimeOffset.Now
         };
@@ -148,8 +149,8 @@ public class BrandService : BaseRepositoryOperations<ITgsRepository>, IBrandServ
         {
             BrandId = brand.Id,
             Level = 1,
-            CreatedByUsername = request.EditorUsername,
-            UpdatedByUsername = request.EditorUsername,
+            CreatedByUsername = createInfo.Modifier,
+            UpdatedByUsername = createInfo.Modifier,
             CreatedOn = DateTimeOffset.Now,
             UpdatedOn = DateTimeOffset.Now
         };
@@ -161,20 +162,20 @@ public class BrandService : BaseRepositoryOperations<ITgsRepository>, IBrandServ
         return brand.Id;
     }
 
-    Task<bool> IBrandService.ExistsAsync(Expression<Func<Brand, bool>> predicate)
-        => ExistsAsync(predicate);
+    public Task<bool> ExistsAsync(Expression<Func<Brand, bool>> predicate)
+        => base.ExistsAsync(predicate);
 
-    Task<Brand> IBrandService.GetBrandAsync(
+    public Task<Brand> GetBrandAsync(
         Expression<Func<Brand, bool>> predicate,
         Func<IQueryable<Brand>, IQueryable<Brand>> preQuery)
         => GetEntityFirstOrDefaultAsync(predicate, preQuery);
 
-    IQueryable<Brand> IBrandService.GetBrandQueries(
+    public IQueryable<Brand> GetBrandQueries(
         Func<IQueryable<Brand>, IQueryable<Brand>> preQuery,
         bool tracking)
         => GetQueriesAsync(preQuery, tracking);
 
-    async Task IBrandService.SyncBrandGamesAsync(Guid brandId)
+    public async Task SyncBrandGamesAsync(Guid brandId)
     {
         var brand = await _repository.Brands.AsQueryable().FirstOrDefaultAsync(x => x.Id == brandId);
 
@@ -208,7 +209,7 @@ public class BrandService : BaseRepositoryOperations<ITgsRepository>, IBrandServ
         await _cacheManager.ClearCacheAsync(RedisCacheType.BrandGames, brand.Id, true);
     }
 
-    async Task IBrandService.UpdateBrandAsync(Brand brand, UpdateBrandRequest request)
+    public async Task UpdateBrandAsync(Brand brand, UpdateBrandRequest request)
     {
         if (request.SettlementIntervalType != brand.SettlementIntervalType)
         {

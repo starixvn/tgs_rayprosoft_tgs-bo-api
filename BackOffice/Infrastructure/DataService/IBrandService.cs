@@ -5,6 +5,7 @@ using System.Threading;
 using System.Threading.Tasks;
 using TGS.Core.DataServices.Tgs.Models;
 using TGS.Services.BackOffice.Application.Models.Brand;
+using TGS.Services.BackOffice.Domain;
 
 namespace TGS.Services.BackOffice.Infrastructure.DataService;
 
@@ -12,7 +13,7 @@ public interface IBrandService
 {
     Task ChangeStatusAsync(Brand brand, UpdateBrandStatusRequest request);
 
-    Task<Guid> CreateBrandAsync(CreateBrandRequest request, CancellationToken cancellationToken = default);
+    ValueTask<Guid> CreateBrandAsync(CreateBrandInfo createInfo, CancellationToken cancellationToken = default);
 
     Task<bool> ExistsAsync(Expression<Func<Brand, bool>> predicate);
 

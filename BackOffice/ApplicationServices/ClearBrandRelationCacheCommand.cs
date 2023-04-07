@@ -2,4 +2,4 @@
 
 namespace TGS.Services.BackOffice.ApplicationServices;
 
-public record ProcessBrandCreatedCommand(Guid BrandId);
+public record ClearBrandRelationCacheCommand;
