@@ -1,10 +1,9 @@
 ﻿using System;
 using System.Threading;
 using System.Threading.Tasks;
-using Tgs.BrandService.Protos;
 using Tgs.MessageQueue;
-using TGS.Services.BackOffice.ApplicationServices;
 using Tgs.ServiceUtility;
+using TGS.Services.BackOffice.ApplicationServices;
 
 namespace TGS.Apis.BackendOffice.MessageQueue;
 
@@ -22,8 +21,6 @@ public class ClearBrandRelationCacheHandler : IMessageHandler
         ReadOnlyMemory<byte> data, 
         CancellationToken cancellationToken = default)
     {
-        _ = ClearBrandRelationCacheEvent.Parser.ParseFrom(data.ToArray());
-
         var command = new ClearBrandRelationCacheCommand();
 
         return _commandService.ExecuteAsync(command, cancellationToken);

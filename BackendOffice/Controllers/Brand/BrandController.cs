@@ -4,11 +4,11 @@ using System.ComponentModel;
 using System.Linq;
 using System.Threading.Tasks;
 using Google.Protobuf;
+using Google.Protobuf.WellKnownTypes;
 using MediatR;
 using Microsoft.AspNetCore.Mvc;
 using Tgs.BrandCertificate;
 using Tgs.BrandCertificate.Clients;
-using Tgs.BrandService.Protos;
 using Tgs.MessageQueue;
 using Tgs.Paging;
 using Tgs.ServiceUtility;
@@ -39,13 +39,13 @@ public partial class BrandController : BaseContextController
     [HttpPost(Name = "CreateBrand")]
     [Description("Create a Brand")]
     public async ValueTask<MessageResponse> CreateBrandAsync(
-        [FromServices] IBrandServiceClient brandServiceClient,
+        [FromServices] IQueryService<BrandRelationQuery, BrandRelationInfo> brandRelationQueryService,
         [FromServices] IGetService<CreateBrandCommand, Guid> createBrandCommandService,
         [FromServices] IMessageSender messageSender,
         CreateBrandRequest request)
     {
-        var brands = await brandServiceClient
-            .GetBrandRelationsAsync(HttpContext.RequestAborted)
+        var brands = await brandRelationQueryService
+            .QueryAsync(new BrandRelationQuery(), HttpContext.RequestAborted)
             .ToArrayAsync(HttpContext.RequestAborted)
             .ConfigureAwait(false);
 
@@ -93,7 +93,7 @@ public partial class BrandController : BaseContextController
 
         await messageSender.PublishAsync(
             "tgs.bo.cache.brand-relation.clear",
-            new ClearBrandRelationCacheEvent().ToByteArray(),
+            new Empty().ToByteArray(),
             HttpContext.RequestAborted)
             .ConfigureAwait(false);
 
