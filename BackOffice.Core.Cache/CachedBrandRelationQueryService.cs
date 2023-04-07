@@ -25,7 +25,7 @@ internal class CachedBrandRelationQueryService :
         BrandRelationQuery query, 
         [EnumeratorCancellation] CancellationToken cancellationToken = default)
     {
-        var key = "BrandRelations";
+        var key = "Tgs:Brand:Relations";
 
         var result = await _memoryCache.GetOrCreateAsync(
             key,
@@ -45,7 +45,7 @@ internal class CachedBrandRelationQueryService :
 
     public ValueTask ClearAsync(CancellationToken cancellationToken = default)
     {
-        var key = "BrandRelations";
+        var key = "Tgs:Brand:Relations";
 
         _memoryCache.Remove(key);
 
