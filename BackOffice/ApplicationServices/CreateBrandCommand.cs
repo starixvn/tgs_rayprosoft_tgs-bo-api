@@ -1,7 +1,7 @@
-﻿using System;
-using System.Collections.Generic;
-#nullable enable 
+﻿#nullable enable
 
+using System;
+using System.Collections.Generic;
 using TGS.Core.Models.Enums;
 using TGS.Services.BackOffice.Application.Models.Brand;
 
