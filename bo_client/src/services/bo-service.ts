@@ -444,4 +444,10 @@ export default class BackOfficeService {
             .put(`/api/brand/${brandId}/${status}`)
             .then(res => res.data);
     }
+
+    public setAllBrandsMaintenance() : Promise<MessageResponse> {
+        return this.http
+            .put('/api/brandmaintenance/allmaintain')
+            .then(res => res.data);
+    }
 }
