@@ -1,9 +1,10 @@
 ﻿using NSubstitute;
 using Tgs.BrandCertificate.Clients;
+using Tgs.ServiceUtility;
 using TGS.Core.Infrastructures.Redis;
 using TGS.Core.Models.Enums;
-using TGS.Services.BackOffice.Application.Models.Brand;
 using TGS.Services.BackOffice;
+using TGS.Services.BackOffice.Application.Models.Brand;
 using TGS.Services.BackOffice.ApplicationServices;
 using TGS.Services.BackOffice.Domain;
 using TGS.Services.BackOffice.Infrastructure.DataService;
@@ -19,13 +20,11 @@ internal class BrandTests
     public async Task 更新BrandStatus()
     {
         var fakeBrandServiceClient = Substitute.For<IBrandServiceClient>();
-        var fakeRedisCacheManager = Substitute.For<IRedisCacheManager>();
-        var fakeMaintenanceRedisService = Substitute.For<IMaintenanceRedisService>();
+        var fakeStatusChangedCommandService = Substitute.For<ICommandService<HandleBrandStatusChangedCommand>>();
 
         var sut = new UpdateBrandStatusCommandService(
             fakeBrandServiceClient,
-            fakeRedisCacheManager,
-            fakeMaintenanceRedisService);
+            fakeStatusChangedCommandService);
 
         var command = new UpdateBrandStatusCommand(
             Guid.NewGuid(),
@@ -40,6 +39,11 @@ internal class BrandTests
                 Arg.Is(Tgs.BrandCertificate.BrandStatus.Inactive),
                 Arg.Is(command.Modifier),
                 Arg.Any<CancellationToken>());
+
+        _ = fakeStatusChangedCommandService.Received(1)
+            .ExecuteAsync(
+                Arg.Is(new HandleBrandStatusChangedCommand(command.BrandId, command.Status)),
+                Arg.Any<CancellationToken>());
     }
 
     [Test]
@@ -49,15 +53,14 @@ internal class BrandTests
         var fakeRedisCacheManager = Substitute.For<IRedisCacheManager>();
         var fakeMaintenanceRedisService = Substitute.For<IMaintenanceRedisService>();
 
-        var sut = new UpdateBrandStatusCommandService(
+        var sut = new HandleBrandStatusChangedCommandService(
             fakeBrandServiceClient,
             fakeRedisCacheManager,
             fakeMaintenanceRedisService);
 
-        var command = new UpdateBrandStatusCommand(
+        var command = new HandleBrandStatusChangedCommand(
             Guid.NewGuid(),
-            BrandStatus.Inactive,
-            "User1");
+            BrandStatus.Inactive);
 
         await sut.ExecuteAsync(command);
 
@@ -74,15 +77,14 @@ internal class BrandTests
         var fakeRedisCacheManager = Substitute.For<IRedisCacheManager>();
         var fakeMaintenanceRedisService = Substitute.For<IMaintenanceRedisService>();
 
-        var sut = new UpdateBrandStatusCommandService(
+        var sut = new HandleBrandStatusChangedCommandService(
             fakeBrandServiceClient,
             fakeRedisCacheManager,
             fakeMaintenanceRedisService);
 
-        var command = new UpdateBrandStatusCommand(
+        var command = new HandleBrandStatusChangedCommand(
             Guid.NewGuid(),
-            BrandStatus.Active,
-            "User1");
+            BrandStatus.Active);
 
         _ = fakeBrandServiceClient.GetBrandStatusAsync(
                 Arg.Is(command.BrandId),
@@ -90,13 +92,6 @@ internal class BrandTests
             .Returns(Tgs.BrandCertificate.BrandStatus.Active);
 
         await sut.ExecuteAsync(command);
-
-        _ = fakeBrandServiceClient.Received(1)
-            .UpdateBrandStatusAsync(
-                Arg.Is(command.BrandId),
-                Arg.Is(Tgs.BrandCertificate.BrandStatus.Active),
-                Arg.Is(command.Modifier),
-                Arg.Any<CancellationToken>());
 
         _ = fakeMaintenanceRedisService.Received(1)
             .ClearBrandMaintenanceAsync(
@@ -110,15 +105,14 @@ internal class BrandTests
         var fakeRedisCacheManager = Substitute.For<IRedisCacheManager>();
         var fakeMaintenanceRedisService = Substitute.For<IMaintenanceRedisService>();
 
-        var sut = new UpdateBrandStatusCommandService(
+        var sut = new HandleBrandStatusChangedCommandService(
             fakeBrandServiceClient,
             fakeRedisCacheManager,
             fakeMaintenanceRedisService);
 
-        var command = new UpdateBrandStatusCommand(
+        var command = new HandleBrandStatusChangedCommand(
             Guid.NewGuid(),
-            BrandStatus.Maintenance,
-            "User1");
+            BrandStatus.Maintenance);
 
         _ = fakeBrandServiceClient.GetBrandStatusAsync(
                 Arg.Is(command.BrandId),
@@ -126,13 +120,6 @@ internal class BrandTests
             .Returns(Tgs.BrandCertificate.BrandStatus.Maintenance);
 
         await sut.ExecuteAsync(command);
-
-        _ = fakeBrandServiceClient.Received(1)
-            .UpdateBrandStatusAsync(
-                Arg.Is(command.BrandId),
-                Arg.Is(Tgs.BrandCertificate.BrandStatus.Maintenance),
-                Arg.Is(command.Modifier),
-                Arg.Any<CancellationToken>());
 
         _ = fakeMaintenanceRedisService.Received(1)
             .AddBrandMaintenanceAsync(
@@ -194,21 +181,6 @@ internal class BrandTests
     }
 
     [Test]
-    public async Task 清除Brand關聯表快取()
-    {
-        var fakeClearCacheService = Substitute.For<IClearBrandRelationCacheService>();
-
-        var sut = new ClearBrandRelationCacheCommandService(fakeClearCacheService);
-
-        var command = new ClearBrandRelationCacheCommand();
-
-        await sut.ExecuteAsync(command);
-
-        _ = fakeClearCacheService.Received(1)
-            .ClearAsync(Arg.Any<CancellationToken>());
-    }
-
-    [Test]
     public async Task 建立Brand()
     {
         var fakeBrandService = Substitute.For<IBrandService>();
@@ -265,5 +237,20 @@ internal class BrandTests
                     x.Code == command.Code
                     && x.LicenseeId == command.LicenseeId),
                 Arg.Any<CancellationToken>());
+    }
+
+    [Test]
+    public async Task 清除Brand關聯表快取()
+    {
+        var fakeClearCacheService = Substitute.For<IClearBrandRelationCacheService>();
+
+        var sut = new ClearBrandRelationCacheCommandService(fakeClearCacheService);
+
+        var command = new ClearBrandRelationCacheCommand();
+
+        await sut.ExecuteAsync(command);
+
+        _ = fakeClearCacheService.Received(1)
+            .ClearAsync(Arg.Any<CancellationToken>());
     }
 }
