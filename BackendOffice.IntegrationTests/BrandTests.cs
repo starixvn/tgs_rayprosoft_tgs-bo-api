@@ -1421,7 +1421,7 @@ public class BrandTests
     }
 
     [Fact]
-    public async Task 若Brand已經Archived則不可更新Brand狀態()
+    public async Task 若Brand已經Archived則不會更新Brand狀態()
     {
         // Arrange
         var channelName = Guid.NewGuid().ToString();
@@ -1482,7 +1482,13 @@ public class BrandTests
 
         // Assert
         Assert.NotNull(actual);
-        Assert.False(actual.Valid);
-        Assert.Contains("archived", actual.Message);
+        Assert.True(actual.Valid);
+
+        _ = fakeBrandServiceClient.DidNotReceive()
+            .UpdateBrandStatusAsync(
+                Arg.Is(brandId),
+                Arg.Is(BrandStatus.Maintenance),
+                Arg.Any<string>(),
+                Arg.Any<CancellationToken>());
     }
 }

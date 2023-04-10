@@ -9,7 +9,6 @@ using Tgs.ServiceUtility;
 using TGS.Core.Models.Enums;
 using TGS.Core.Models.Messages;
 using TGS.Services.BackOffice.ApplicationServices;
-using Resource = TGS.Services.BackOffice.Application.Resources;
 
 namespace TGS.Apis.BackendOffice.Controllers.Brand;
 
@@ -23,21 +22,20 @@ public partial class BrandController
         Guid brandId, 
         BrandStatus status)
     {
-        var brandInfo = await getBrandService.GetAsync(new GetBrandInfoQuery(brandId), HttpContext.RequestAborted)
-            .ConfigureAwait(false);
+        var brandInfo = await getBrandService.GetAsync(
+                new GetBrandInfoQuery(brandId), 
+                HttpContext.RequestAborted).ConfigureAwait(false);
 
         if (brandInfo is null)
             return new MessageResponse
             {
-                Valid = false,
-                Message = Resource.Brand.NotFound
+                Valid = true
             };
 
         if (brandInfo.Status is Tgs.BrandCertificate.BrandStatus.Archived)
             return new MessageResponse
             {
-                Valid = false,
-                Message = "An archived brand cannot change status"
+                Valid = true
             };
 
         var command = new UpdateBrandStatusCommand(
