@@ -99,7 +99,7 @@ internal class BrandTests
                 Arg.Any<CancellationToken>());
 
         _ = fakeMaintenanceRedisService.Received(1)
-            .CleartBrandMaintenanceAsync(
+            .ClearBrandMaintenanceAsync(
                 Arg.Is(command.BrandId));
     }
 

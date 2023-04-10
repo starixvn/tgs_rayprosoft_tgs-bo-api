@@ -64,9 +64,9 @@ public class ResellerService : IResellerService
             {
                 await _maintenanceRedisService.ClearResellerMaintenanceAsync(reseller.Id).ConfigureAwait(false);
 
-                await _maintenanceRedisService.CleartLicenseeMaintenancesAsync(licensees.Select(x => x.Id).ToArray()).ConfigureAwait(false);
+                await _maintenanceRedisService.ClearLicenseeMaintenancesAsync(licensees.Select(x => x.Id).ToArray()).ConfigureAwait(false);
 
-                await _maintenanceRedisService.CleartBrandMaintenancesAsync(brands.Select(x => x.Id).ToArray()).ConfigureAwait(false);
+                await _maintenanceRedisService.ClearBrandMaintenancesAsync(brands.Select(x => x.Id).ToArray()).ConfigureAwait(false);
             }
             else
             {

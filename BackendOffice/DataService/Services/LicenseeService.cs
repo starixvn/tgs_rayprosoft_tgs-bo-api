@@ -61,8 +61,8 @@ public class LicenseeService : ILicenseeService
             var isMaintenance = reseller.Status is Status.Active && status is Status.Active;
             if (isMaintenance)
             {
-                await _maintenanceRedisService.CleartLicenseeMaintenanceAsync(licensee.Id).ConfigureAwait(false);
-                await _maintenanceRedisService.CleartBrandMaintenancesAsync(brands.Select(x => x.Id).ToArray()).ConfigureAwait(false);
+                await _maintenanceRedisService.ClearLicenseeMaintenanceAsync(licensee.Id).ConfigureAwait(false);
+                await _maintenanceRedisService.ClearBrandMaintenancesAsync(brands.Select(x => x.Id).ToArray()).ConfigureAwait(false);
             }
             else
             {

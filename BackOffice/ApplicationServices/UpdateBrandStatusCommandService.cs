@@ -54,7 +54,7 @@ internal class UpdateBrandStatusCommandService : ICommandService<UpdateBrandStat
                 .ConfigureAwait(false);
 
             if (brandStatus == ClientBrandStatus.Active)
-                await _maintenanceRedisService.CleartBrandMaintenanceAsync(command.BrandId).ConfigureAwait(false);
+                await _maintenanceRedisService.ClearBrandMaintenanceAsync(command.BrandId).ConfigureAwait(false);
             else
                 await _maintenanceRedisService.AddBrandMaintenanceAsync(command.BrandId).ConfigureAwait(false);
         }

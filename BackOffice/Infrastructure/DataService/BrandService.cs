@@ -58,7 +58,7 @@ public class BrandService : BaseRepositoryOperations<ITgsRepository>, IBrandServ
                 request.Status is BrandStatus.Active;
             if (isActive)
             {
-                await _maintenanceRedisService.CleartBrandMaintenanceAsync(brand.Id).ConfigureAwait(false);
+                await _maintenanceRedisService.ClearBrandMaintenanceAsync(brand.Id).ConfigureAwait(false);
             }
             else
             {
