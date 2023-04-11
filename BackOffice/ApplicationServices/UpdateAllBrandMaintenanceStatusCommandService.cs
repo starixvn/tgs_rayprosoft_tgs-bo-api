@@ -34,14 +34,13 @@ internal class UpdateAllBrandMaintenanceStatusCommandService : ICommandService<U
                 cancellationToken)
             .ToArrayAsync(cancellationToken).ConfigureAwait(false);
 
-        foreach (var brand in brands)
-        {
-            await _updateStatusCommandService.ExecuteAsync(
-                new UpdateBrandStatusCommand(
-                    brand.BrandId,
-                    BrandStatus.Maintenance,
-                    command.EditorUsername),
-                cancellationToken).ConfigureAwait(false);
-        }
+        var tasks = brands.Select(brand => _updateStatusCommandService.ExecuteAsync(
+            new UpdateBrandStatusCommand(
+                brand.BrandId,
+                BrandStatus.Maintenance,
+                command.EditorUsername),
+            cancellationToken).AsTask());
+
+        await Task.WhenAll(tasks).ConfigureAwait(false);
     }
 }
