@@ -11,8 +11,6 @@ namespace TGS.Services.BackOffice.Infrastructure.DataService;
 
 public interface IBrandService
 {
-    Task ChangeStatusAsync(Brand brand, UpdateBrandStatusRequest request);
-
     ValueTask<Guid> CreateBrandAsync(CreateBrandInfo createInfo, CancellationToken cancellationToken = default);
 
     Task<bool> ExistsAsync(Expression<Func<Brand, bool>> predicate);

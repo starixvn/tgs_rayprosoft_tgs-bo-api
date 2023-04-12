@@ -2,40 +2,45 @@
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
-using Microsoft.EntityFrameworkCore;
+using Tgs.BrandCertificate.Clients;
 using Tgs.ServiceUtility;
 using TGS.Core.Models.Enums;
-using TGS.Services.BackOffice.Application.Models.Brand;
-using TGS.Services.BackOffice.Infrastructure.DataService;
 
 namespace TGS.Services.BackOffice.ApplicationServices;
 
 internal class UpdateAllBrandMaintenanceStatusCommandService : ICommandService<UpdateAllBrandMaintenanceStatusCommand>
 {
-    private readonly IBrandService _service;
+    private readonly IQueryService<BrandListQuery, BrandListItem> _brandListQueryService;
+    private readonly ICommandService<UpdateBrandStatusCommand> _updateStatusCommandService;
 
-    public UpdateAllBrandMaintenanceStatusCommandService(IBrandService service)
+    public UpdateAllBrandMaintenanceStatusCommandService(
+        IQueryService<BrandListQuery, BrandListItem> brandListQueryService,
+        ICommandService<UpdateBrandStatusCommand> updateStatusCommandService)
     {
-        _service = service ?? throw new ArgumentNullException(nameof(service));
+        _brandListQueryService = brandListQueryService ?? throw new ArgumentNullException(nameof(brandListQueryService));
+        _updateStatusCommandService = updateStatusCommandService ?? throw new ArgumentNullException(nameof(updateStatusCommandService));
     }
 
-    public async ValueTask ExecuteAsync(UpdateAllBrandMaintenanceStatusCommand command, CancellationToken cancellationToken = default)
+    public async ValueTask ExecuteAsync(
+        UpdateAllBrandMaintenanceStatusCommand command, 
+        CancellationToken cancellationToken = default)
     {
-        var brands = await _service
-            .GetBrandQueries(brand => brand.Where(b => b.Status == BrandStatus.Active))
-            .ToArrayAsync(cancellationToken: cancellationToken)
-            .ConfigureAwait(false);
+        var brands = await _brandListQueryService
+            .QueryAsync(
+                new BrandListQuery(
+                    Enumerable.Empty<Guid>(),
+                    null,
+                    BrandStatus.Active),
+                cancellationToken)
+            .ToArrayAsync(cancellationToken).ConfigureAwait(false);
 
-        foreach (var brand in brands)
-        {
-            var request = new UpdateBrandStatusRequest(brand.Id, BrandStatus.Maintenance)
-            {
-                EditorUsername = command.EditorUsername
-            };
+        var tasks = brands.Select(brand => _updateStatusCommandService.ExecuteAsync(
+            new UpdateBrandStatusCommand(
+                brand.BrandId,
+                BrandStatus.Maintenance,
+                command.EditorUsername),
+            cancellationToken).AsTask());
 
-            await _service
-                .ChangeStatusAsync(brand, request)
-                .ConfigureAwait(false);
-        }
+        await Task.WhenAll(tasks).ConfigureAwait(false);
     }
 }

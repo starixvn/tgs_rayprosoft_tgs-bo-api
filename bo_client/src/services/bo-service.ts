@@ -436,4 +436,18 @@ export default class BackOfficeService {
             .post('/api/brand', request)
             .then(res => res.data);
     }
+
+    public updateBrandStatus(
+        brandId: string,
+        status: string) : Promise<MessageResponse> {
+        return this.http
+            .put(`/api/brand/${brandId}/${status}`)
+            .then(res => res.data);
+    }
+
+    public setAllBrandsMaintenance() : Promise<MessageResponse> {
+        return this.http
+            .put('/api/brandmaintenance/allmaintain')
+            .then(res => res.data);
+    }
 }

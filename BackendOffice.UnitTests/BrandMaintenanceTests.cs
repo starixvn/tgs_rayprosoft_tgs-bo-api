@@ -1,10 +1,9 @@
-﻿using MockQueryable.Moq;
-using Moq;
-using TGS.Core.DataServices.Tgs.Models;
+﻿using NSubstitute;
+using Tgs.BrandCertificate.Clients;
+using Tgs.ServiceUtility;
 using TGS.Core.Models.Enums;
-using TGS.Services.BackOffice.Application.Models.Brand;
 using TGS.Services.BackOffice.ApplicationServices;
-using TGS.Services.BackOffice.Infrastructure.DataService;
+using BrandListQuery = TGS.Services.BackOffice.ApplicationServices.BrandListQuery;
 
 namespace TGS.Tests.BackendOffice.UnitTests;
 
@@ -14,36 +13,43 @@ public class BrandMaintenanceTests
     [Test]
     public async Task User_Can_Update_All_Brand_To_Maintenance_Status()
     {
-        var moqBrandSerivce = new Mock<IBrandService>();
+        var fakeBrandListQueryService = Substitute.For<IQueryService<BrandListQuery, BrandListItem>>();
+        var fakeUpdateBrandStatusCommandService = Substitute.For<ICommandService<UpdateBrandStatusCommand>>();
 
-        var sut = new UpdateAllBrandMaintenanceStatusCommandService(moqBrandSerivce.Object);
+        var sut = new UpdateAllBrandMaintenanceStatusCommandService(
+            fakeBrandListQueryService, 
+            fakeUpdateBrandStatusCommandService);
 
         var command = new UpdateAllBrandMaintenanceStatusCommand("editorUserName");
 
-        var list = new Brand[]
+        var brands = new[]
         {
-            new Brand
-            {
-                Status = BrandStatus.Active
-            },
-            new Brand
-            {
-                Status = BrandStatus.Active
-            }
-        }
-           .AsQueryable()
-           .BuildMock();
+            new BrandListItem(
+                Guid.NewGuid(),
+                Tgs.BrandCertificate.BrandStatus.Active,
+                null,
+                null,
+                DateTime.Parse("2023-01-01 00:00:00"),
+                DateTime.Parse("2023-01-01 00:00:00")),
+            new BrandListItem(
+                Guid.NewGuid(),
+                Tgs.BrandCertificate.BrandStatus.Active,
+                null,
+                null,
+                DateTime.Parse("2023-01-10 00:00:00"),
+                DateTime.Parse("2023-01-10 00:00:00"))
+        };
 
-        _ = moqBrandSerivce
-            .Setup(b => b.GetBrandQueries(It.IsAny<Func<IQueryable<Brand>, IQueryable<Brand>>>(), false))
-            .Returns(list);
+        _ = fakeBrandListQueryService.QueryAsync(
+                Arg.Is<BrandListQuery>(x => x.Status == BrandStatus.Active),
+                Arg.Any<CancellationToken>())
+            .Returns(brands.ToAsyncEnumerable());
 
         await sut.ExecuteAsync(command);
-
-        moqBrandSerivce.Verify(
-            fake => fake.ChangeStatusAsync(
-                It.IsAny<Brand>(),
-                It.IsAny<UpdateBrandStatusRequest>()),
-            Times.Exactly(2));
+        
+        _ = fakeUpdateBrandStatusCommandService.Received(2)
+            .ExecuteAsync(
+                Arg.Is<UpdateBrandStatusCommand>(x => x.Status == BrandStatus.Maintenance),
+                Arg.Any<CancellationToken>());
     }
 }

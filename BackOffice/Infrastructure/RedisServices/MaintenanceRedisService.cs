@@ -6,39 +6,6 @@ using TGS.Core.Infrastructures.Redis;
 
 namespace TGS.Services.BackOffice.Infrastructure.RedisServices;
 
-public interface IMaintenanceRedisService
-{
-    ValueTask AddBrandMaintenanceAsync(Guid id);
-
-    ValueTask AddBrandMaintenancesAsync(Guid[] ids);
-
-    ValueTask AddLicenseeMaintenanceAsync(Guid id);
-
-    ValueTask AddLicenseeMaintenancesAsync(Guid[] ids);
-
-    ValueTask AddResellerMaintenanceAsync(Guid id);
-
-    ValueTask AddResellerMaintenancesAsync(Guid[] ids);
-
-    ValueTask ClearResellerMaintenanceAsync(Guid id);
-
-    ValueTask ClearResellerMaintenancesAsync(Guid[] ids);
-
-    ValueTask CleartBrandMaintenanceAsync(Guid id);
-
-    ValueTask CleartBrandMaintenancesAsync(Guid[] ids);
-
-    ValueTask CleartLicenseeMaintenanceAsync(Guid id);
-
-    ValueTask CleartLicenseeMaintenancesAsync(Guid[] ids);
-
-    ValueTask<string> GetBrandMaintenanceAsync(Guid id);
-
-    ValueTask<string> GetLicenseeMaintenanceAsync(Guid id);
-
-    ValueTask<string> GetResellerMaintenanceAsync(Guid ids);
-}
-
 public sealed class MaintenanceRedisService : IMaintenanceRedisService
 {
     private const string Brands = "Brands";
@@ -93,12 +60,12 @@ public sealed class MaintenanceRedisService : IMaintenanceRedisService
         await ClearMaintenancesAsync(Resellers, ids).ConfigureAwait(false);
     }
 
-    async ValueTask IMaintenanceRedisService.CleartBrandMaintenanceAsync(Guid id)
+    async ValueTask IMaintenanceRedisService.ClearBrandMaintenanceAsync(Guid id)
     {
         await ClearMaintenanceAsync(Brands, id).ConfigureAwait(false);
     }
 
-    async ValueTask IMaintenanceRedisService.CleartBrandMaintenancesAsync(Guid[] ids)
+    async ValueTask IMaintenanceRedisService.ClearBrandMaintenancesAsync(Guid[] ids)
     {
         if (ids == null || ids.Length == 0)
         {
@@ -108,12 +75,12 @@ public sealed class MaintenanceRedisService : IMaintenanceRedisService
         await ClearMaintenancesAsync(Brands, ids).ConfigureAwait(false);
     }
 
-    async ValueTask IMaintenanceRedisService.CleartLicenseeMaintenanceAsync(Guid id)
+    async ValueTask IMaintenanceRedisService.ClearLicenseeMaintenanceAsync(Guid id)
     {
         await ClearMaintenanceAsync(Licensees, id).ConfigureAwait(false);
     }
 
-    async ValueTask IMaintenanceRedisService.CleartLicenseeMaintenancesAsync(Guid[] ids)
+    async ValueTask IMaintenanceRedisService.ClearLicenseeMaintenancesAsync(Guid[] ids)
     {
         if (ids == null || ids.Length == 0)
         {

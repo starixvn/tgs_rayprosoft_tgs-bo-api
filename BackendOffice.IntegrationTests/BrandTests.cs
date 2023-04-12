@@ -1354,4 +1354,141 @@ public class BrandTests
         Assert.Equal(2, result?.TotalCount);
         expected.Items.ToExpectedObject().ShouldEqual(result?.Items);
     }
+    
+    [Fact]
+    public async Task 更新Brand狀態()
+    {
+        // Arrange
+        var channelName = Guid.NewGuid().ToString();
+        var userId = Guid.NewGuid();
+
+        var fakeBrandServiceClient = Substitute.For<IBrandServiceClient>();
+
+        using var web = TestBackendOfficeApplication.Builder
+            .UseTestChannelServer(channelName)
+            .ConfigureLogging(logging => logging.AddXUnit(_testOutputHelper))
+            .ConfigureServices(services => services
+                .AddAuthentication("Fake")
+                .AddScheme<FakeAuthenticationSchemaOptions, FakeAuthenticationHandler>(
+                    "Fake",
+                    options =>
+                    {
+                        options.UserId = userId;
+                        options.UserName = "system";
+                    })
+                .Services
+                .AddSingleton(fakeBrandServiceClient))
+            .Build();
+
+        await web.StartAsync();
+
+        var brandId = Guid.NewGuid();
+
+        _ = fakeBrandServiceClient.GetBrandInfoAsync(
+                Arg.Is(brandId),
+                Arg.Any<CancellationToken>())
+            .Returns(new BrandInfo
+            {
+                Id = brandId, 
+                Code = "GPI", 
+                Status = BrandStatus.Active
+            });
+
+        var isWindows = RuntimeInformation.IsOSPlatform(OSPlatform.Windows) ? "true" : "false";
+
+        var nodeModule = $$"""
+            const axiosConfigFactory = require('./models/axios-configuration.js').default;
+            const BackOfficeService = require('./services/bo-service.js').default;
+
+            module.exports = async (brandId, status) =>
+            {
+                let instance = axiosConfigFactory("{{channelName}}", {{isWindows}});
+
+                let svc = new BackOfficeService(instance);
+
+                return await svc.updateBrandStatus(brandId, status);
+            };
+        """;
+        
+        // Act
+        var actual = await StaticNodeJSService.InvokeFromStringAsync<MessageResponse>(
+            nodeModule,
+            args: new object[] { brandId, Enums.BrandStatus.Maintenance.ToString() });
+
+        // Assert
+        Assert.NotNull(actual);
+        Assert.True(actual.Valid);
+    }
+
+    [Fact]
+    public async Task 若Brand已經Archived則不會更新Brand狀態()
+    {
+        // Arrange
+        var channelName = Guid.NewGuid().ToString();
+        var userId = Guid.NewGuid();
+
+        var fakeBrandServiceClient = Substitute.For<IBrandServiceClient>();
+
+        using var web = TestBackendOfficeApplication.Builder
+            .UseTestChannelServer(channelName)
+            .ConfigureLogging(logging => logging.AddXUnit(_testOutputHelper))
+            .ConfigureServices(services => services
+                .AddAuthentication("Fake")
+                .AddScheme<FakeAuthenticationSchemaOptions, FakeAuthenticationHandler>(
+                    "Fake",
+                    options =>
+                    {
+                        options.UserId = userId;
+                        options.UserName = "system";
+                    })
+                .Services
+                .AddSingleton(fakeBrandServiceClient))
+            .Build();
+
+        await web.StartAsync();
+
+        var brandId = Guid.NewGuid();
+
+        _ = fakeBrandServiceClient.GetBrandInfoAsync(
+                Arg.Is(brandId),
+                Arg.Any<CancellationToken>())
+            .Returns(new BrandInfo
+            {
+                Id = brandId,
+                Code = "GPI",
+                Status = BrandStatus.Archived
+            });
+
+        var isWindows = RuntimeInformation.IsOSPlatform(OSPlatform.Windows) ? "true" : "false";
+
+        var nodeModule = $$"""
+            const axiosConfigFactory = require('./models/axios-configuration.js').default;
+            const BackOfficeService = require('./services/bo-service.js').default;
+
+            module.exports = async (brandId, status) =>
+            {
+                let instance = axiosConfigFactory("{{channelName}}", {{isWindows}});
+
+                let svc = new BackOfficeService(instance);
+
+                return await svc.updateBrandStatus(brandId, status);
+            };
+        """;
+
+        // Act
+        var actual = await StaticNodeJSService.InvokeFromStringAsync<MessageResponse>(
+            nodeModule,
+            args: new object[] { brandId, Enums.BrandStatus.Maintenance.ToString() });
+
+        // Assert
+        Assert.NotNull(actual);
+        Assert.True(actual.Valid);
+
+        _ = fakeBrandServiceClient.DidNotReceive()
+            .UpdateBrandStatusAsync(
+                Arg.Is(brandId),
+                Arg.Is(BrandStatus.Maintenance),
+                Arg.Any<string>(),
+                Arg.Any<CancellationToken>());
+    }
 }
