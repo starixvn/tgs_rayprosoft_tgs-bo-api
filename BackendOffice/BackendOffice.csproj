@@ -63,8 +63,8 @@
     <PackageReference Include="OpenTelemetry.Instrumentation.AspNetCore" Version="1.0.0-rc9.14" />
     <PackageReference Include="OpenTelemetry.Instrumentation.Http" Version="1.0.0-rc9.14" />
     <PackageReference Include="ProfileViewer.OpenTelemetry.Exporter" Version="0.2.1" />
-    <PackageReference Include="Tgs.Promotion.Client" Version="1.0.41" />
-    <PackageReference Include="Tgs.WebApi.Toolkits" Version="0.1.1" />
+    <PackageReference Include="Tgs.Promotion.Client" Version="1.0.42" />
+    <PackageReference Include="Tgs.WebApi.Toolkits" Version="0.2.0" />
   </ItemGroup>
 
   <ItemGroup>
