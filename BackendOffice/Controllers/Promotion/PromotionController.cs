@@ -6,6 +6,7 @@ using System.Text.Json;
 using System.Threading.Tasks;
 using JsonCons.Utilities;
 using Microsoft.AspNetCore.Mvc;
+using Tgs.Paging;
 using Tgs.Promotion;
 using Tgs.Promotion.Clients;
 using Tgs.ServiceUtility;
@@ -238,64 +239,70 @@ public class PromotionController : BaseContextController
 
     [HttpGet(Name = "GetPromotions")]
     [Description("Get promotions")]
-    public async Task<PagedResponse<PromotionModel>> GetPromotionsAsync(
-        [FromServices] IPromotionClient promotionClient,
-        [FromQuery] GetPromotionsRequest request)
+    public async ValueTask<PagedResponse<PromotionListItemViewModel>> GetPromotionsAsync(
+        [FromServices] IQueryService<PromotionListQuery, PromotionView> queryService,
+        [FromQuery] PromotionListQueryViewModel viewModel,
+        [FromQuery] PageableRequest pagingRequest)
     {
-        var promotionRequest = new Tgs.Promotion.Clients.Models.Promotion.GetPromotionsRequest
-        {
-            BrandId = request.BrandId,
-            Name = request.Name,
-            From = request.From,
-            To = request.To,
-            Status = (short?)request.Status,
-            Type = request.Type,
-            Page = request.Page,
-            Rows = request.Rows,
-            OrderBy = (short)request.OrderBy,
-            SortBy = request.SortBy,
-            ShowAll = request.ShowAll
-        };
+        var query = new PromotionListQuery(
+            viewModel.BrandId,
+            viewModel.Name,
+            viewModel.From,
+            viewModel.To,
+            viewModel.Status,
+            viewModel.PromotionType);
 
-        var response = await promotionClient.GetPromotionsAsync(promotionRequest)
-            .ConfigureAwait(false);
+        var promotions = queryService.QueryAsync(query, HttpContext.RequestAborted);
 
-        return new PagedResponse<PromotionModel>
+        var totalCount = await promotions.CountAsync(HttpContext.RequestAborted).ConfigureAwait(false);
+
+        var paging = promotions.CreatePaging()
+            .MapProperty(nameof(PromotionListItemViewModel.Number), item => item.Order)
+            .MapProperty(nameof(PromotionListItemViewModel.Name), item => item.Name)
+            .MapProperty(nameof(PromotionListItemViewModel.Status), item => item.Status)
+            .MapProperty(nameof(PromotionListItemViewModel.PromotionType), item => item.PromotionType);
+
+        if (!string.IsNullOrWhiteSpace(pagingRequest.SortBy))
+            paging.SortByPropertyName(pagingRequest.SortBy, pagingRequest.IsDesc);
+
+        if (pagingRequest.ShowAll)
         {
-            Valid = response.Valid,
-            Message = response.Message,
-            TotalCount = response.TotalCount,
-            Items = response.Items.Select(x => new PromotionModel
+            paging.Page = 1;
+            paging.RowCount = totalCount;
+        }
+        else
+        {
+            paging.Page = pagingRequest.Page;
+            paging.RowCount = pagingRequest.Rows;
+        }
+
+        promotions = promotions
+            .ApplyOrderBy(paging)
+            .ApplyPaging(paging);
+
+        return new PagedResponse<PromotionListItemViewModel>
+        {
+            Valid = true,
+            TotalCount = totalCount,
+            Items = await promotions.Select(p => new PromotionListItemViewModel
             {
-                AmountUsed = x.AmountUsed,
-                AutoSentPlayerBonus = x.AutoSentPlayerBonus,
-                BonusAmountLimit = x.BonusAmountLimit,
-                BrandId = x.BrandId,
-                Content = x.Content,
-                CreatedByUsername = x.CreatedByUsername,
-                CreatedOn = x.CreatedOn,
-                DesktopBanner = x.DesktopBanner,
-                From = x.From,
-                GameProviderIds = x.GameProviderIds,
-                GameType = (GameType?)x.GameType,
-                Id = x.Id,
-                Localization = x.Localization,
-                MobileBanner = x.MobileBanner,
-                Name = x.Name,
-                Percentage = x.Percentage,
-                PromotionType = x.PromotionType,
-                Status = (SwitchStatus)x.Status,
-                SubSubject = x.SubSubject,
-                Terms = x.Terms,
-                To = x.To,
-                TotalAmountLimit = x.TotalAmountLimit,
-                TurnoverMultiple = x.TurnoverMultiple,
-                Unlimited = x.Unlimited,
-                UpdatedByUsername = x.UpdatedByUsername,
-                UpdatedOn = x.UpdatedOn,
-                VipLevels = x.VipLevels,
-                Number = x.Number
-            }).ToArray()
+                Id = p.Id,
+                Name = p.Name,
+                PromotionType = p.PromotionType,
+                AmountUsed = p.UsedAmount,
+                From = p.EventDuring.From,
+                To = p.EventDuring.To,
+                Status = p.Status switch
+                {
+                    Tgs.Promotion.Clients.PromotionStatus.Enabled => SwitchStatus.Enabled,
+                    Tgs.Promotion.Clients.PromotionStatus.Disabled => SwitchStatus.Disabled,
+                    _ => throw new NotImplementedException()
+                },
+                TotalAmountLimit = p.PromotionLimitAmount,
+                Unlimited = p.PromotionLimitAmount is null,
+                VipLevels = p.VipLevels,
+                Number = p.Order
+            }).ToArrayAsync(HttpContext.RequestAborted).ConfigureAwait(false)
         };
     }
 
@@ -502,7 +509,7 @@ public class PromotionController : BaseContextController
                 },
                 Username),
             HttpContext.RequestAborted).ConfigureAwait(false);
-        
+
         return new MessageResponse
         {
             Valid = true

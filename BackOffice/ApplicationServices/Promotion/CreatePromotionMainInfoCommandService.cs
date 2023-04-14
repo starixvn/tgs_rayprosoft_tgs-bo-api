@@ -36,7 +36,7 @@ internal class CreatePromotionMainInfoCommandService : IGetService<CreatePromoti
         CreatePromotionMainInfoCommand command,
         CancellationToken cancellationToken = default)
     {
-        var offset = TimeSpan.FromHours(8);
+        var offset = TimeSpan.FromHours(8D);
 
         if (_PromotionTypes.Contains(command.PromotionType))
         {
