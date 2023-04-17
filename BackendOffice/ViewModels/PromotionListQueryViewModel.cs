@@ -1,19 +1,21 @@
-﻿using System;
+﻿#nullable enable
+
+using System;
 using TGS.Core.Models.Enums;
 
 namespace TGS.Apis.BackendOffice.ViewModels;
 
 public class PromotionListQueryViewModel
 {
-    public Guid BrandId { get; set; }
+    public Guid BrandId { get; init; }
 
-    public DateOnly? From { get; set; }
+    public string? Name { get; init; }
 
-    public string Name { get; set; }
+    public SwitchStatus? Status { get; init; }
 
-    public SwitchStatus? Status { get; set; }
+    public string? PromotionType { get; init; }
 
-    public DateOnly? To { get; set; }
+    public DateOnlyViewModel? From { get; init; }
 
-    public string PromotionType { get; set; }
+    public DateOnlyViewModel? To { get; init; }
 }

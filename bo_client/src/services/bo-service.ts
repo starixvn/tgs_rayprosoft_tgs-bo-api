@@ -452,14 +452,12 @@ export default class BackOfficeService {
     }
 
     public getPromotionList(
-        request: GetPromotionsRequest,
-        paging: PageableRequest) : Promise<PagedResponse<PromotionModel>> {
+        request: GetPromotionsRequest) : Promise<PagedResponse<PromotionModel>> {
         return this.http
             .get('/api/promotion',
                 {
                     params: {
-                        ...request,
-                        ...paging
+                        ...request
                     }
                 }
             )

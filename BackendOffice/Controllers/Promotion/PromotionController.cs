@@ -247,8 +247,8 @@ public class PromotionController : BaseContextController
         var query = new PromotionListQuery(
             viewModel.BrandId,
             viewModel.Name,
-            viewModel.From,
-            viewModel.To,
+            From: viewModel.From?.Date,
+            To: viewModel.To?.Date,
             viewModel.Status,
             viewModel.PromotionType);
 

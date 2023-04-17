@@ -1,4 +1,4 @@
-interface GetPromotionsRequest {
+interface GetPromotionsRequest extends PageableRequest {
     brandId: string;
     from?: Date;
     to?: Date;
