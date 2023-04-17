@@ -3,9 +3,7 @@ using System.ComponentModel;
 using System.Threading.Tasks;
 using MediatR;
 using Microsoft.AspNetCore.Mvc;
-using TGS.Core.Models.Enums;
 using TGS.Core.Models.Messages;
-using TGS.Services.BackOffice.Application.Models.GameProvider;
 using TGS.Services.BackOffice.Application.Models.GameProviderConfiguration;
 
 namespace TGS.Apis.BackendOffice.Controllers.GameProvider;
@@ -46,9 +44,4 @@ public class GameProviderConfigurationController : BaseContextController
         request.Id = id;
         return _mediator.Send(request);
     }
-
-    [HttpPut("{id:guid}/{status}")]
-    [Description("change a game provider status")]
-    public Task<MessageResponse> UpdateGameProviderStatusAsync(Guid id, Status status) =>
-        _mediator.Send(new UpdateGameProviderStatusRequest(id, status));
 }
