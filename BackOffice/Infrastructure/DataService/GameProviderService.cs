@@ -23,7 +23,7 @@ public interface IGameProviderService
     Task<bool> ExistsAsync(Expression<Func<GameProvider, bool>> predicate);
 
     Task<GameProvider> GetGameProviderAsync(
-                    Expression<Func<GameProvider, bool>> predicate,
+        Expression<Func<GameProvider, bool>> predicate,
         Func<IQueryable<GameProvider>, IQueryable<GameProvider>> preQuery =
             null);
 
@@ -91,7 +91,7 @@ public class GameProviderService : BaseRepositoryOperations<ITgsRepository>, IGa
         ExistsAsync(predicate);
 
     Task<GameProvider> IGameProviderService.GetGameProviderAsync(
-                    Expression<Func<GameProvider, bool>> predicate,
+        Expression<Func<GameProvider, bool>> predicate,
         Func<IQueryable<GameProvider>, IQueryable<GameProvider>> preQuery) =>
         GetEntityFirstOrDefaultAsync(predicate, preQuery);
 
