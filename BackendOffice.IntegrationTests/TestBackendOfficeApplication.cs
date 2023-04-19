@@ -19,7 +19,11 @@ internal static class TestBackendOfficeApplication
 {
     public static IHostBuilder Builder => new BoApplication()
         .Builder
-        .ConfigureLogging((_, logging) => logging.ClearProviders())
+        .ConfigureLogging((ctx, logging) =>
+        {
+            _ = logging.ClearProviders();
+            _ = logging.AddFilter("Microsoft.AspNetCore.HttpLogging", LogLevel.Information);
+        })
         .ConfigureServices(services => services
             .AddFakeNatsMessageQueue()
             .AddSingleton(Substitute.For<IRedisConnectionFactory>())
