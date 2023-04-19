@@ -68,7 +68,7 @@ deploy-dev:
       artifacts: true
   only:
     - main
-  when: always
+  when: on_success
 
 deploy-staging:
   extends: .deploy-template
