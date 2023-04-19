@@ -3,6 +3,7 @@ using System.Runtime.InteropServices;
 using System.Text.Json;
 using ExpectedObjects;
 using Jering.Javascript.NodeJS;
+using MediatR;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
@@ -177,6 +178,74 @@ public class PlayerTests
     }
 
     [Fact]
+    public async Task 更新玩家生日資訊()
+    {
+        // Arrange
+        var channelName = Guid.NewGuid().ToString();
+        var userId = Guid.NewGuid();
+
+        var fakeMediator = Substitute.For<IMediator>();
+
+        using var web = TestBackendOfficeApplication.Builder
+            .UseTestChannelServer(channelName)
+            .ConfigureLogging(logging => logging.AddXUnit(_testOutputHelper))
+            .ConfigureServices(services => services
+                .AddAuthentication("Fake")
+                .AddScheme<FakeAuthenticationSchemaOptions, FakeAuthenticationHandler>(
+                    "Fake",
+                    options =>
+                    {
+                        options.UserId = userId;
+                        options.UserName = "system";
+                    })
+                .Services
+                .AddSingleton(fakeMediator))
+            .Build();
+
+        await web.StartAsync();
+
+        var playerCode = "test1";
+        var birthdate = DateOnly.Parse("2023-04-19");
+
+        _ = fakeMediator.Send(Arg.Any<UpdatePlayerRequest>())
+            .Returns(new MessageResponse
+            {
+                Valid = true
+            });
+
+        var isWindows = RuntimeInformation.IsOSPlatform(OSPlatform.Windows) ? "true" : "false";
+
+        var nodeModule = $$"""
+            const axiosConfigFactory = require('./models/axios-configuration.js').default;
+            const BackOfficeService = require('./services/bo-service.js').default;
+
+            module.exports = async (playerCode, birthdate) =>
+            {
+                let instance = axiosConfigFactory("{{channelName}}", {{isWindows}});
+
+                let svc = new BackOfficeService(instance);
+
+                return await svc.updatePlayer(
+                    playerCode,
+                    "info",
+                    {
+                        status: "Enabled",
+                        birthdate
+                    });
+            };
+            """;
+
+        // Act
+        var actual = await StaticNodeJSService.InvokeFromStringAsync<string>(
+            nodeModule,
+            args: new object[] { playerCode, birthdate.ToString("yyyy/MM/dd") });
+
+        // Assert
+        Assert.NotNull(actual);
+        //Assert.True(actual.Valid);
+    }
+
+    [Fact]
     public async Task 使用BrandId與玩家代碼查詢玩家列表()
     {
         // Arrange
@@ -225,7 +294,7 @@ public class PlayerTests
         var vipId1 = Guid.NewGuid();
 
         _ = fakeVipLevelServiceClient.GetBrandAllVipLevelsAsync(
-                Arg.Is(brandId), 
+                Arg.Is(brandId),
                 Arg.Any<CancellationToken>())
             .Returns(new VipLevelInfo[] {
                 new VipLevelInfo(vipId1,1,brandId, 0M,0M,0M,0M,false,0M,0M,0M,0M,0M,0M,0M,0M,0M),
