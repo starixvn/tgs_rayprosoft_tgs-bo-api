@@ -207,7 +207,7 @@ public class PlayerTests
         var playerCode = "test1";
         var birthdate = DateOnly.Parse("2023-04-19");
 
-        _ = fakeMediator.Send(Arg.Any<UpdatePlayerRequest>())
+        _ = fakeMediator.Send(Arg.Any<UpdatePlayerRequest>(), Arg.Any<CancellationToken>())
             .Returns(new MessageResponse
             {
                 Valid = true
@@ -236,13 +236,13 @@ public class PlayerTests
             """;
 
         // Act
-        var actual = await StaticNodeJSService.InvokeFromStringAsync<string>(
+        var actual = await StaticNodeJSService.InvokeFromStringAsync<MessageResponse>(
             nodeModule,
             args: new object[] { playerCode, birthdate.ToString("yyyy/MM/dd") });
 
         // Assert
         Assert.NotNull(actual);
-        //Assert.True(actual.Valid);
+        Assert.True(actual.Valid);
     }
 
     [Fact]
