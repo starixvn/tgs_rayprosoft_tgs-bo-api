@@ -128,7 +128,7 @@ public class OfflineDepositRewardTests
 
                 return await svc.createOfflineDepositRewardPromotion(brandId, request);
             };
-        """;
+            """;
 
         // Act
         var actual = await StaticNodeJSService.InvokeFromStringAsync<MessageResponse>(
