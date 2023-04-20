@@ -26,6 +26,8 @@ build-code:
 
 unit-test:
   extends: .unit-test-template
+  script:
+    - dotnet test -c $BuildConfiguration -l:"junit;LogFilePath=../TestReports/{assembly}-TestReport.xml"
 
 push-docker-image:
   extends: .push-docker-image-template
@@ -68,7 +70,7 @@ deploy-dev:
       artifacts: true
   only:
     - main
-  when: always
+  when: on_success
 
 deploy-staging:
   extends: .deploy-template

@@ -8,6 +8,7 @@ using System.Reflection;
 using System.Text.Json.Serialization;
 using System.Threading.Tasks;
 using Dapper;
+using DateOnlyTimeOnly.AspNet.Converters;
 using FluentdForward.OpenTelemetry.MessagePack;
 using FluentValidation;
 using FluentValidation.AspNetCore;
@@ -19,13 +20,13 @@ using Microsoft.AspNetCore.DataProtection.KeyManagement;
 using Microsoft.AspNetCore.DataProtection.StackExchangeRedis;
 using Microsoft.AspNetCore.Diagnostics.HealthChecks;
 using Microsoft.AspNetCore.Http;
+using Microsoft.AspNetCore.HttpLogging;
 using Microsoft.AspNetCore.Mvc.Authorization;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 using Microsoft.OpenApi.Models;
-using OpenTelemetry;
 using OpenTelemetry.Instrumentation.AspNetCore;
 using OpenTelemetry.Metrics;
 using OpenTelemetry.Resources;
@@ -194,10 +195,15 @@ builder.Services
     .AddJsonOptions(options =>
     {
         options.JsonSerializerOptions.Converters.Add(new JsonStringEnumConverter());
+        options.JsonSerializerOptions.Converters.Add(new DateOnlyJsonConverter());
         options.JsonSerializerOptions.DefaultIgnoreCondition = JsonIgnoreCondition.WhenWritingNull;
     });
 
 builder.Services
+    .AddHttpLogging(logging =>
+    {
+        logging.LoggingFields = HttpLoggingFields.All;
+    })
     .AddHealthChecks();
 
 builder.Services
@@ -333,6 +339,7 @@ builder.Services
 
 var app = builder.Build();
 
+app.UseHttpLogging();
 app.UseRequestLocalization(options =>
 {
     options.SupportedCultures.Clear();

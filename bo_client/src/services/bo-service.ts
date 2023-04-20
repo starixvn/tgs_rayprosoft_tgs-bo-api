@@ -37,14 +37,20 @@ export default class BackOfficeService {
             .then(res => res.data);
     }
 
+    public updatePlayer(playerCode: string, type: string, request: UpdatePlayerRequest): Promise<MessageResponse> {
+        return this.http
+            .put(`/api/player/${playerCode}/${type}`, request)
+            .then(res => res.data);
+    }
+
     public getMarketAgentProfitsReport(request: GetMarketAgentProfitsReportRequest): Promise<PagedResponse<GetMarketAgentProfitsReportModel>> {
         return this.http
             .get(
-                `/api/marketreport/agentprofit`,{
-                    params: {
-                        ...request
-                    }
-                })
+                `/api/marketreport/agentprofit`, {
+                params: {
+                    ...request
+                }
+            })
             .then(res => res.data);
     }
 
@@ -350,7 +356,7 @@ export default class BackOfficeService {
 
     public updatePromotionStatus(
         promotionId: string,
-        status: string) : Promise<MessageResponse> {
+        status: string): Promise<MessageResponse> {
         return this.http
             .put(`/api/promotion/${promotionId}/${status}`)
             .then(res => res.data);
@@ -358,58 +364,58 @@ export default class BackOfficeService {
 
     public updatePromotionMainInfo(
         promotionId: string,
-        request: UpdatePromotionMainInfoRequest) : Promise<MessageResponse> {
+        request: UpdatePromotionMainInfoRequest): Promise<MessageResponse> {
         return this.http
             .patch(`/api/promotion/main/${promotionId}`, request)
-            .then(res => res.data);       
-    }    
-    
+            .then(res => res.data);
+    }
+
     public createPromotionMainInfo(
         brandId: string,
-        request: CreatePromotionMainInfoRequest) : Promise<MessageResponse> {
+        request: CreatePromotionMainInfoRequest): Promise<MessageResponse> {
         return this.http
             .put(`/api/promotion/main/${brandId}`, request)
-            .then(res => res.data);       
-    }   
-    
+            .then(res => res.data);
+    }
+
     public createPromotion(
-        request: CreatePromotionRequest) : Promise<MessageResponse> {
+        request: CreatePromotionRequest): Promise<MessageResponse> {
         return this.http
             .post('/api/promotion', request)
-            .then(res => res.data);       
+            .then(res => res.data);
     }
 
     public updatePromotion(
         promotionId: string,
-        request: UpdatePromotionRequest) : Promise<MessageResponse> {
+        request: UpdatePromotionRequest): Promise<MessageResponse> {
         return this.http
             .put(`/api/promotion/${promotionId}`, request)
-            .then(res => res.data);       
+            .then(res => res.data);
     }
 
     public getPromotionRule(
-        promotionId: string) : Promise<string> {
+        promotionId: string): Promise<string> {
         return this.http
             .get(`/api/promotion/rule/${promotionId}`)
             .then(res => res.data);
     }
 
     public getPromotionContent(
-        promotionId: string) : Promise<PromtionContent> {
+        promotionId: string): Promise<PromtionContent> {
         return this.http
             .get(`/api/promotion/content/${promotionId}`)
-            .then(res => res.data);       
+            .then(res => res.data);
     }
 
     public getPromotionMainInfo(
-        promotionId: string) : Promise<PromotionMainInfo> {
+        promotionId: string): Promise<PromotionMainInfo> {
         return this.http
             .get(`/api/promotion/main/${promotionId}`)
             .then(res => res.data);
     }
 
     public duplicatePromotion(
-        basePromotionId: string) : Promise<ApiResponse<string>> {
+        basePromotionId: string): Promise<ApiResponse<string>> {
         return this.http
             .put(`/api/promotion/${basePromotionId}:duplicate`)
             .then(res => res.data);
@@ -417,7 +423,7 @@ export default class BackOfficeService {
 
     public getBrandList(
         request: GetBrandsRequest,
-        paging: PageableRequest) : Promise<PagedResponse<BrandListItem>> {
+        paging: PageableRequest): Promise<PagedResponse<BrandListItem>> {
         return this.http
             .get('/api/brand',
                 {
@@ -431,7 +437,7 @@ export default class BackOfficeService {
     }
 
     public createBrand(
-        request: CreateBrandRequest) : Promise<MessageResponse> {
+        request: CreateBrandRequest): Promise<MessageResponse> {
         return this.http
             .post('/api/brand', request)
             .then(res => res.data);
@@ -439,20 +445,20 @@ export default class BackOfficeService {
 
     public updateBrandStatus(
         brandId: string,
-        status: string) : Promise<MessageResponse> {
+        status: string): Promise<MessageResponse> {
         return this.http
             .put(`/api/brand/${brandId}/${status}`)
             .then(res => res.data);
     }
 
-    public setAllBrandsMaintenance() : Promise<MessageResponse> {
+    public setAllBrandsMaintenance(): Promise<MessageResponse> {
         return this.http
             .put('/api/brandmaintenance/allmaintain')
             .then(res => res.data);
     }
 
     public getPromotionList(
-        request: GetPromotionsRequest) : Promise<PagedResponse<PromotionModel>> {
+        request: GetPromotionsRequest): Promise<PagedResponse<PromotionModel>> {
         return this.http
             .get('/api/promotion',
                 {
