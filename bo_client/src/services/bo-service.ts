@@ -456,4 +456,17 @@ export default class BackOfficeService {
             .put('/api/brandmaintenance/allmaintain')
             .then(res => res.data);
     }
+
+    public getPromotionList(
+        request: GetPromotionsRequest): Promise<PagedResponse<PromotionModel>> {
+        return this.http
+            .get('/api/promotion',
+                {
+                    params: {
+                        ...request
+                    }
+                }
+            )
+            .then(res => res.data);
+    }
 }

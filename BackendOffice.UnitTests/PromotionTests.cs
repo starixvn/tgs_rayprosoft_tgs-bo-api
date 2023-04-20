@@ -102,6 +102,34 @@ public class PromotionTests
     }
 
     [Test]
+    public async Task 查詢活動列表()
+    {
+        var fakePromotionServiceClient = Substitute.For<IPromotionServiceClient>();
+
+        var sut = new PromotionListQueryService(fakePromotionServiceClient);
+
+        var query = new PromotionListQuery(
+            Guid.NewGuid(),
+            null,
+            null,
+            null,
+            null,
+
+           null);
+
+        _ = await sut.QueryAsync(query).ToArrayAsync();
+
+        _ = fakePromotionServiceClient.Received(1)
+            .ListPromotionsAsync(
+                Arg.Is(query.BrandId),
+                Arg.Is((During?)null),
+                Arg.Is(query.Name),
+                Arg.Is(query.PromotionType),
+                Arg.Is((PromotionStatus?)null),
+                Arg.Any<CancellationToken>());
+    }
+
+    [Test]
     public async Task 修改活動MainInfo()
     {
         var fakePromotionServiceClient = Substitute.For<IPromotionServiceClient>();
