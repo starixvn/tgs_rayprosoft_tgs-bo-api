@@ -140,6 +140,7 @@ public class
                     Id = x.Id,
                     Username = x.Username,
                     MemberType = x.MemberType,
+                    RoundCount = x.RoundCount,
                     Turnover = x.Turnover,
                     WinLoss = x.WinLoss,
                     AgentWinLoss = x.AgentWinLoss,
@@ -162,6 +163,7 @@ public class
 
         var total = new AgentWinLossReportTotalModel
         {
+            RoundCount = response.Items.Sum(x => x.RoundCount),
             Turnover = response.Items.Sum(x => x.Turnover),
             WinLoss = response.Items.Sum(x => x.WinLoss),
             AgentWinLoss = response.Items.Sum(x => x.AgentWinLoss),

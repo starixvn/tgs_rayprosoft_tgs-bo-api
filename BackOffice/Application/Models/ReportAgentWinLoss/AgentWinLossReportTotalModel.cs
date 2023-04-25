@@ -2,6 +2,7 @@
 
 public record AgentWinLossReportTotalModel
 {
+    public int RoundCount { get; set; }
     public decimal Turnover { get; set; }
     public decimal WinLoss { get; set; }
     public decimal AgentWinLoss { get; set; }
