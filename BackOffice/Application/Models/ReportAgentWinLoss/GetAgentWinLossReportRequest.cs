@@ -1,4 +1,5 @@
 ﻿using System;
+using TGS.Core.Models.Enums;
 using TGS.Core.Models.Messages;
 
 namespace TGS.Services.BackOffice.Application.Models.ReportAgentWinLoss;
@@ -6,7 +7,9 @@ namespace TGS.Services.BackOffice.Application.Models.ReportAgentWinLoss;
 public class GetAgentWinLossReportRequest : PageableRequest
 {
     public Guid BrandId { get; init; }
-    public Guid AgentId { get; init; }
+    public string Username { get; init; }
+    public AccountType UserType { get; init; }
+    public bool DownLine { get; init; }
     public DateTimeOffset From { get; init; }
     public DateTimeOffset To { get; init; }
 }
