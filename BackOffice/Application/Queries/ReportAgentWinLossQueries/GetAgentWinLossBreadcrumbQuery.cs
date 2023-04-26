@@ -35,13 +35,13 @@ public class
         GetAgentWinLossBreadcrumbReportRequest request,
         CancellationToken cancellationToken = default)
     {
-        var agentId = !string.IsNullOrEmpty(request.Username) && request.UserType == AccountType.Agent
+        var agentId = !string.IsNullOrEmpty(request.Username) && request.MemberType == AccountType.Agent
             ? await _agentService.GetAgentQueries()
                 .Where(x => x.BrandId == request.BrandId && x.Username == request.Username)
                 .Select(x => x.Id).FirstOrDefaultAsync(cancellationToken)
             : (Guid?)null;
 
-        var playerCode = !string.IsNullOrEmpty(request.Username) && request.UserType == AccountType.Player
+        var playerCode = !string.IsNullOrEmpty(request.Username) && request.MemberType == AccountType.Player
             ? await _playerService.GetPlayerQueries()
                 .Where(x => x.BrandId == request.BrandId && x.Username == request.Username)
                 .Select(x => x.PlayerCode)
