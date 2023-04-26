@@ -58,7 +58,7 @@ public class
                     ShowAll = request.ShowAll
                 });
                 break;
-            case false when !request.DownLine && request.UserType == AccountType.Agent:
+            case false when !request.DownLine && request.MemberType == AccountType.Agent:
                 var agentId = await _agentService.GetAgentQueries()
                     .Where(x => x.BrandId == request.BrandId && x.Username == request.Username)
                     .Select(x => x.Id).FirstOrDefaultAsync(cancellationToken);
@@ -77,7 +77,7 @@ public class
                     ShowAll = request.ShowAll
                 });
                 break;
-            case false when request.DownLine && request.UserType == AccountType.Agent:
+            case false when request.DownLine && request.MemberType == AccountType.Agent:
                 var downLineAgentId = await _agentService.GetAgentQueries()
                     .Where(x => x.BrandId == request.BrandId && x.Username == request.Username)
                     .Select(x => x.Id).FirstOrDefaultAsync(cancellationToken);
@@ -96,7 +96,7 @@ public class
                     ShowAll = request.ShowAll
                 });
                 break;
-            case false when request.UserType == AccountType.Player:
+            case false when request.MemberType == AccountType.Player:
                 var playerCode = await _playerService.GetPlayerQueries()
                     .Where(x => x.BrandId == request.BrandId && x.Username == request.Username)
                     .Select(x => x.PlayerCode)

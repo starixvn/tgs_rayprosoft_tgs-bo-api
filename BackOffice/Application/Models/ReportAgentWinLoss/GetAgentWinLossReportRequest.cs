@@ -8,7 +8,7 @@ public class GetAgentWinLossReportRequest : PageableRequest
 {
     public Guid BrandId { get; init; }
     public string Username { get; init; }
-    public AccountType UserType { get; init; }
+    public AccountType MemberType { get; init; }
     public bool DownLine { get; init; }
     public DateTimeOffset From { get; init; }
     public DateTimeOffset To { get; init; }
