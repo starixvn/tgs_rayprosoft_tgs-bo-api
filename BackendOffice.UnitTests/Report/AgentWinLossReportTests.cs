@@ -74,7 +74,7 @@ public class AgentWinLossReportTests
         {
             BrandId = brandId,
             Username = "Username",
-            UserType = Core.Models.Enums.AccountType.Agent
+            MemberType = Core.Models.Enums.AccountType.Agent
         };
 
         _ = fakeBrandService.GetBrandQueries().Returns(new Brand[]
@@ -118,7 +118,7 @@ public class AgentWinLossReportTests
         {
             BrandId = brandId,
             Username = "Username",
-            UserType = Core.Models.Enums.AccountType.Agent,
+            MemberType = Core.Models.Enums.AccountType.Agent,
             DownLine = true
         };
 
@@ -162,7 +162,7 @@ public class AgentWinLossReportTests
         {
             BrandId = brandId,
             Username = "Username",
-            UserType = Core.Models.Enums.AccountType.Player
+            MemberType = Core.Models.Enums.AccountType.Player
         };
 
         _ = fakeBrandService.GetBrandQueries().Returns(new Brand[]

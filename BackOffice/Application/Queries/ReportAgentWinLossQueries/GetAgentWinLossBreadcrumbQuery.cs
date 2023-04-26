@@ -61,7 +61,7 @@ public class
         {
             Name = x.Name,
             Id = x.Id,
-            Type = x.Type
+            MemberType = x.Type
         });
     }
 }
