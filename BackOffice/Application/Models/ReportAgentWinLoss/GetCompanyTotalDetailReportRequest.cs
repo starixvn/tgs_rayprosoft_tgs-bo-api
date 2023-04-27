@@ -2,7 +2,7 @@
 
 namespace TGS.Services.BackOffice.Application.Models.ReportAgentWinLoss;
 
-public record GetCompanySpecialDetailReportRequest
+public record GetCompanyTotalDetailReportRequest
 {
     public Guid BrandId { get; init; }
     public Guid AgentId { get; init; }

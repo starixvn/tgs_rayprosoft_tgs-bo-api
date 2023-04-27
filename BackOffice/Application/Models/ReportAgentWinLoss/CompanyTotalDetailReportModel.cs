@@ -2,7 +2,7 @@
 
 namespace TGS.Services.BackOffice.Application.Models.ReportAgentWinLoss;
 
-public record CompanySpecialDetailReportModel
+public record CompanyTotalDetailReportModel
 {
     public DateTimeOffset From { get; set; }
     public DateTimeOffset To { get; set; }
