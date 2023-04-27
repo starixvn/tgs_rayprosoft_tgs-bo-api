@@ -54,6 +54,40 @@ public class StationLetterV2Controller : ControllerBase
         };
     }
 
+    [HttpPut("{brandId}/{letterId}:reply", Name = "ReplyLetter")]
+    public async Task ReplyLetterAsync(
+        [FromServices] IGetService<GetBrandInfoQuery, BrandInfo?> getBrandService,
+        [FromServices] IGetService<GetLetterByIdQuery, StationLetter?> getLetterService,
+        [FromServices] ICommandService<ReplyLetterCommand> replyService,
+        Guid brandId,
+        Guid letterId,
+        ReplyStationLetterViewModel viewModel)
+    {
+        var brandInfo = await getBrandService.GetAsync(
+            new GetBrandInfoQuery(brandId),
+            HttpContext.RequestAborted).ConfigureAwait(false);
+
+        if (brandInfo is null)
+            return;
+
+        var letter = await getLetterService.GetAsync(
+            new GetLetterByIdQuery(letterId),
+            HttpContext.RequestAborted).ConfigureAwait(false);
+
+        if (letter is null || letter.Receiver != brandInfo.Code)
+            return;
+
+        var command = new ReplyLetterCommand(
+            brandInfo.Code,
+            letter.Sender,
+            letterId,
+            viewModel.Content);
+
+        await replyService.ExecuteAsync(
+            command,
+            HttpContext.RequestAborted).ConfigureAwait(false);
+    }
+
     [HttpPut("{brandId}", Name = "SendLetter")]
     public async Task SendLetterAsync(
         [FromServices] IGetService<GetBrandInfoQuery, BrandInfo?> getBrandService,

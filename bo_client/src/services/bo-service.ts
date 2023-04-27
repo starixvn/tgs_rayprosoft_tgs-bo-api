@@ -488,4 +488,9 @@ export default class BackOfficeService {
         await this.http
             .put(`/api/station-letter/${brandId}`, request);
     }
+
+    public async replyBrandLetter(brandId: string, letterId: string, content: string): Promise<void> {
+        await this.http
+            .put(`/api/station-letter/${brandId}/${letterId}:reply`, { content });
+    }
 }

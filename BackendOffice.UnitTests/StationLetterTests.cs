@@ -1,5 +1,4 @@
 ﻿using NSubstitute;
-using NUnit.Framework;
 using Tgs.StationLetterService.Client;
 using TGS.Services.BackOffice.ApplicationServices.StationLetters;
 
@@ -7,6 +6,30 @@ namespace TGS.Tests.BackendOffice.UnitTests;
 
 public class StationLetterTests
 {
+    [Test]
+    public async Task 回覆玩家信件()
+    {
+        var fakeStationLetterClient = Substitute.For<IStationLetterClient>();
+
+        var sut = new ReplyLetterCommandService(fakeStationLetterClient);
+
+        var command = new ReplyLetterCommand(
+            "GPI",
+            "test1",
+            Guid.NewGuid(),
+            "reply");
+
+        await sut.ExecuteAsync(command);
+
+        _ = fakeStationLetterClient.Received(1)
+            .ReplyStationLetterAsync(
+                Arg.Is(command.LetterId),
+                Arg.Is(new ReplyStationLetterRequest(
+                    command.BrandCode,
+                    command.PlayerCode,
+                    command.Content)));
+    }
+
     [Test]
     public async Task 取得Brand收到的站內信()
     {
@@ -20,6 +43,21 @@ public class StationLetterTests
 
         _ = fakeStationLetterClient.Received(1)
             .ListStationLettersAsync(Arg.Is(query.BrandCode));
+    }
+
+    [Test]
+    public async Task 取得站內信資料()
+    {
+        var fakeStationLetterClient = Substitute.For<IStationLetterClient>();
+
+        var sut = new GetLetterByIdQueryService(fakeStationLetterClient);
+
+        var query = new GetLetterByIdQuery(Guid.NewGuid());
+
+        _ = await sut.GetAsync(query);
+
+        _ = fakeStationLetterClient.Received(1)
+            .GetStationLetterAsync(Arg.Is(query.LetterId));
     }
 
     [Test]
