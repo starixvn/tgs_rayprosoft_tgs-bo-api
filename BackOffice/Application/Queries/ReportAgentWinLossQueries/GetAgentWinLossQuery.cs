@@ -65,6 +65,7 @@ public class
                 {
                     return new()
                     {
+                        Valid = true,
                         Items = Array.Empty<AgentWinLossReportModel>(),
                         Total = new()
                     };
@@ -91,6 +92,7 @@ public class
                 {
                     return new()
                     {
+                        Valid = true,
                         Items = Array.Empty<AgentWinLossReportModel>(),
                         Total = new()
                     };
@@ -120,6 +122,7 @@ public class
                 {
                     return new()
                     {
+                        Valid = true,
                         Items = Array.Empty<AgentWinLossReportModel>(),
                         Total = new()
                     };

@@ -12,6 +12,7 @@ using Tgs.Report.Client;
 using Tgs.Report.Client.Models;
 using TGS.Services.BackOffice.Application.Models.ReportAgentWinLoss;
 using Tgs.Report.Client.Models.AgentWinLoss;
+using System.Linq.Expressions;
 
 namespace TGS.Tests.BackendOffice.UnitTests.Report;
 
@@ -82,10 +83,7 @@ public class AgentWinLossReportTests
             new Brand { Id = brandId,PlatformCharge=0 }
         }.AsQueryable().BuildMock());
 
-        _ = fakeAgentService.GetAgentQueries().Returns(new Agent[]
-        {
-            new Agent { Id = agentId }
-        }.AsQueryable().BuildMock());
+        _ = fakeAgentService.GetAgentAsync(Arg.Any<Expression<Func<Agent,bool>>>()).Returns(new Agent { Id = agentId });
 
         fakeReportClient.GetAgentWinLossAsync(Arg.Any<GetAgentWinLossRequest>())
             .Returns(new PagedResponse<AgentWinLossModel> { Valid = true });
@@ -127,10 +125,7 @@ public class AgentWinLossReportTests
             new Brand { Id = brandId,PlatformCharge=0 }
         }.AsQueryable().BuildMock());
 
-        _ = fakeAgentService.GetAgentQueries().Returns(new Agent[]
-        {
-            new Agent { Id = agentId }
-        }.AsQueryable().BuildMock());
+        _ = fakeAgentService.GetAgentAsync(Arg.Any<Expression<Func<Agent, bool>>>()).Returns(new Agent { Id = agentId });
 
         fakeReportClient.GetDownLineAgentWinLossAsync(Arg.Any<GetDownLineAgentWinLossRequest>())
             .Returns(new PagedResponse<AgentWinLossModel> { Valid = true });
@@ -172,7 +167,7 @@ public class AgentWinLossReportTests
 
         _ = fakePlayerService.GetPlayerQueries().Returns(new Player[]
         {
-            new Player { PlayerCode = "PlayerCode" }
+            new Player { BrandId = brandId, PlayerCode = "PlayerCode", Username = "Username" }
         }.AsQueryable().BuildMock());
 
         fakeReportClient.GetAgentPlayerWinLossAsync(Arg.Any<GetPlayerWinLossRequest>())
