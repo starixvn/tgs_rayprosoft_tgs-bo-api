@@ -59,7 +59,7 @@ public class
 
         return response.Select(x => new AgentWinLossBreadcrumbReportModel
         {
-            Name = x.Name,
+            UserName = x.Name,
             Id = x.Id,
             MemberType = x.Type
         });
