@@ -1,0 +1,56 @@
+﻿#nullable enable
+
+using System;
+using System.Linq;
+using System.Threading.Tasks;
+using Microsoft.AspNetCore.Http;
+using Microsoft.AspNetCore.Mvc;
+using Tgs.BrandCertificate.Clients;
+using Tgs.ServiceUtility;
+using Tgs.StationLetterService.Client;
+using TGS.Apis.BackendOffice.ViewModels;
+using TGS.Core.Models.Messages;
+using TGS.Services.BackOffice.ApplicationServices;
+using TGS.Services.BackOffice.ApplicationServices.StationLetters;
+
+namespace TGS.Apis.BackendOffice.Controllers;
+
+[Route("api/station-letter")]
+[ApiController]
+public class StationLetterV2Controller : ControllerBase
+{
+    [HttpGet("{brandId}", Name = "GetBrandLetters")]
+    public async Task<PagedResponse<StationLetterListItemViewModel>> GetBrandLettersAsync(
+        [FromServices] IGetService<GetBrandInfoQuery, BrandInfo?> getBrandService,
+        [FromServices] IQueryService<GetBrandLettersQuery, StationLetter> queryService,
+        Guid brandId,
+        [FromQuery(Name = "page")] int page = 1,
+        [FromQuery(Name = "rows")] int rows = 10)
+    {
+        var result = await getBrandService.GetAsync(
+            new GetBrandInfoQuery(brandId),
+            HttpContext.RequestAborted)
+            .AsTask()
+            .ToAsyncEnumerable()
+            .Where(brandInfo => brandInfo is not null)
+            .SelectMany(brandInfo => queryService.QueryAsync(
+                new GetBrandLettersQuery(brandInfo!.Code),
+                HttpContext.RequestAborted))
+            .Select(letter => new StationLetterListItemViewModel
+            {
+                Id = letter.Id,
+                Sender = letter.Sender,
+                Subject = letter.Subject,
+                SentOn = letter.SentOn
+            })
+            .ToArrayAsync(HttpContext.RequestAborted)
+            .ConfigureAwait(false);
+
+        return new PagedResponse<StationLetterListItemViewModel>
+        {
+            Valid = true,
+            TotalCount = result.Length,
+            Items = result.Chunk(rows).Skip(page - 1).FirstOrDefault()
+        };
+    }
+}

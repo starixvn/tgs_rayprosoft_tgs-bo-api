@@ -469,4 +469,17 @@ export default class BackOfficeService {
             )
             .then(res => res.data);
     }
+
+    public getBrandLetters(brandId: string, page: number, rows: number): Promise<PagedResponse<StationLetterListItem>> {
+        return this.http
+            .get(
+                `/api/station-letter/${brandId}`,
+                {
+                    params: {
+                        page,
+                        rows
+                    }
+                })
+            .then(res => res.data);
+    }
 }
