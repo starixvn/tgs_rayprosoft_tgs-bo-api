@@ -2,6 +2,7 @@
 import fs from 'fs';
 import FormData from 'form-data';
 import path from 'path';
+import { promises } from "dns";
 
 export default class BackOfficeService {
     constructor(private http: AxiosInstance) { }
@@ -481,5 +482,10 @@ export default class BackOfficeService {
                     }
                 })
             .then(res => res.data);
+    }
+
+    public async sendBrandLetter(brandId: string, request: CreateStationLetterRequest): Promise<void> {
+        await this.http
+            .put(`/api/station-letter/${brandId}`, request);
     }
 }

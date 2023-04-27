@@ -53,4 +53,29 @@ public class StationLetterV2Controller : ControllerBase
             Items = result.Chunk(rows).Skip(page - 1).FirstOrDefault()
         };
     }
+
+    [HttpPut("{brandId}", Name = "SendLetter")]
+    public async Task SendLetterAsync(
+        [FromServices] IGetService<GetBrandInfoQuery, BrandInfo?> getBrandService,
+        [FromServices] ICommandService<SendLetterCommand> sendLetterService,
+        Guid brandId,
+        [FromBody] CreateStationLetterViewModel viewModel)
+    {
+        var brandInfo = await getBrandService.GetAsync(
+            new GetBrandInfoQuery(brandId),
+            HttpContext.RequestAborted).ConfigureAwait(false);
+
+        if (brandInfo == null)
+            return;
+
+        var command = new SendLetterCommand(
+            brandInfo.Code,
+            viewModel.Receivers,
+            viewModel.Subject,
+            viewModel.Content);
+
+        await sendLetterService.ExecuteAsync(
+            command,
+            HttpContext.RequestAborted).ConfigureAwait(false);
+    }
 }
