@@ -46,7 +46,7 @@ public class
         {
             Bonus = response.Bonus,
             BonusAdjust = response.BonusAdjust,
-            Special = response.Special
+            ProductFee = response.ProductFee
         };
     }
 }

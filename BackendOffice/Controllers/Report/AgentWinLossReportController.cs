@@ -46,25 +46,25 @@ public class AgentWinLossReportController : BaseContextController
             .GetAsync(request)
             .ConfigureAwait(false);
 
-    [HttpGet("agentSpecialDetail")]
-    [Description("Get Agent Special Detail")]
-    public async Task<IEnumerable<AgentSpecialDetailReportModel>>
+    [HttpGet("agentTotalDetail")]
+    [Description("Get Agent Total Detail")]
+    public async Task<IEnumerable<AgentTotalDetailReportModel>>
         GetAgentSpecialDetailAsync(
-            [FromServices] IGetService<GetAgentSpecialDetailReportRequest, IEnumerable<AgentSpecialDetailReportModel>>
+            [FromServices] IGetService<GetAgentTotalDetailReportRequest, IEnumerable<AgentTotalDetailReportModel>>
                 agentSpecialService,
-            [FromQuery] GetAgentSpecialDetailReportRequest request)
+            [FromQuery] GetAgentTotalDetailReportRequest request)
         => await agentSpecialService
             .GetAsync(request)
             .ConfigureAwait(false);
 
-    [HttpGet("companySpecialDetail")]
-    [Description("Get Company Special Detail")]
-    public async Task<IEnumerable<CompanySpecialDetailReportModel>>
+    [HttpGet("companyTotalDetail")]
+    [Description("Get Company Total Detail")]
+    public async Task<IEnumerable<CompanyTotalDetailReportModel>>
         GetCompanySpecialDetailAsync(
             [FromServices]
-            IGetService<GetCompanySpecialDetailReportRequest, IEnumerable<CompanySpecialDetailReportModel>>
+            IGetService<GetCompanyTotalDetailReportRequest, IEnumerable<CompanyTotalDetailReportModel>>
                 companySpecialService,
-            [FromQuery] GetCompanySpecialDetailReportRequest request)
+            [FromQuery] GetCompanyTotalDetailReportRequest request)
         => await companySpecialService
             .GetAsync(request)
             .ConfigureAwait(false);

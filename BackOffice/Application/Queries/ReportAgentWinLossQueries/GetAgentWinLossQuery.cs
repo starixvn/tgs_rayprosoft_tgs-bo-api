@@ -59,14 +59,21 @@ public class
                 });
                 break;
             case false when !request.DownLine && request.MemberType == AccountType.Agent:
-                var agentId = await _agentService.GetAgentQueries()
-                    .Where(x => x.BrandId == request.BrandId && x.Username == request.Username)
-                    .Select(x => x.Id).FirstOrDefaultAsync(cancellationToken);
+                var agent = await _agentService.GetAgentAsync(x => x.BrandId == request.BrandId && x.Username == request.Username);
+
+                if (agent == null)
+                {
+                    return new()
+                    {
+                        Items = Array.Empty<AgentWinLossReportModel>(),
+                        Total = new()
+                    };
+                }
 
                 response = await _reportClient.GetAgentWinLossAsync(new()
                 {
                     BrandId = request.BrandId,
-                    AgentId = agentId,
+                    AgentId = agent.Id,
                     PlatformCharge = platformCharge,
                     From = request.From,
                     To = request.To,
@@ -78,14 +85,21 @@ public class
                 });
                 break;
             case false when request.DownLine && request.MemberType == AccountType.Agent:
-                var downLineAgentId = await _agentService.GetAgentQueries()
-                    .Where(x => x.BrandId == request.BrandId && x.Username == request.Username)
-                    .Select(x => x.Id).FirstOrDefaultAsync(cancellationToken);
+                var downLineAgent = await _agentService.GetAgentAsync(x => x.BrandId == request.BrandId && x.Username == request.Username);
+
+                if (downLineAgent == null)
+                {
+                    return new()
+                    {
+                        Items = Array.Empty<AgentWinLossReportModel>(),
+                        Total = new()
+                    };
+                }
 
                 response = await _reportClient.GetDownLineAgentWinLossAsync(new()
                 {
                     BrandId = request.BrandId,
-                    AgentId = downLineAgentId,
+                    AgentId = downLineAgent.Id,
                     PlatformCharge = platformCharge,
                     From = request.From,
                     To = request.To,
@@ -102,6 +116,15 @@ public class
                     .Select(x => x.PlayerCode)
                     .FirstOrDefaultAsync(cancellationToken);
 
+                if (playerCode == null)
+                {
+                    return new()
+                    {
+                        Items = Array.Empty<AgentWinLossReportModel>(),
+                        Total = new()
+                    };
+                }
+
                 response = await _reportClient.GetAgentPlayerWinLossAsync(new GetPlayerWinLossRequest
                 {
                     PlayerCode = playerCode,
@@ -117,18 +140,13 @@ public class
                 break;
         }
 
-        if (response == null)
-        {
-            return default;
-        }
-
-        if (!response.Valid)
+        if (response == null || !response.Valid)
         {
             return new()
             {
-                Valid = response.Valid,
-                Message = response.Message,
-                TotalCount = response.TotalCount,
+                Valid = response?.Valid ?? false,
+                Message = response?.Message,
+                TotalCount = response?.TotalCount ?? 0,
                 Items = Array.Empty<AgentWinLossReportModel>(),
                 Total = new()
             };

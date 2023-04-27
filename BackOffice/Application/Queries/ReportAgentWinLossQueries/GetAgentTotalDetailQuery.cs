@@ -12,13 +12,13 @@ using Tgs.ServiceUtility;
 namespace TGS.Services.BackOffice.Application.Queries.ReportAgentWinLossQueries;
 
 public class
-    GetAgentSpecialDetailQuery : IGetService<GetAgentSpecialDetailReportRequest,
-        IEnumerable<AgentSpecialDetailReportModel>>
+    GetAgentTotalDetailQuery : IGetService<GetAgentTotalDetailReportRequest,
+        IEnumerable<AgentTotalDetailReportModel>>
 {
     private readonly IBrandService _brandService;
     private readonly IReportClient _reportClient;
 
-    public GetAgentSpecialDetailQuery(
+    public GetAgentTotalDetailQuery(
         IReportClient reportClient,
         IBrandService brandService)
     {
@@ -26,14 +26,14 @@ public class
         _brandService = brandService ?? throw new ArgumentNullException(nameof(brandService));
     }
 
-    public async ValueTask<IEnumerable<AgentSpecialDetailReportModel>> GetAsync(
-        GetAgentSpecialDetailReportRequest request,
+    public async ValueTask<IEnumerable<AgentTotalDetailReportModel>> GetAsync(
+        GetAgentTotalDetailReportRequest request,
         CancellationToken cancellationToken = default)
     {
         var platformCharge = await _brandService.GetBrandQueries().Where(x => x.Id == request.BrandId)
             .Select(x => x.PlatformCharge).FirstOrDefaultAsync(cancellationToken);
 
-        var response = await _reportClient.GetAgentSpecialDetailAsync(new()
+        var response = await _reportClient.GetAgentTotalDetailAsync(new()
         {
             BrandId = request.BrandId,
             AgentId = request.AgentId,
@@ -42,7 +42,7 @@ public class
             To = request.To
         });
 
-        return response.Select(x => new AgentSpecialDetailReportModel
+        return response.Select(x => new AgentTotalDetailReportModel
         {
             From = x.From,
             To = x.To,
