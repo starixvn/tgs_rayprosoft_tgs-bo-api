@@ -69,10 +69,10 @@
     <PackageReference Include="Tgs.PlayerBucket.Client" Version="0.0.16" />
     <PackageReference Include="Tgs.PlayerService.Client" Version="0.0.29" />
     <PackageReference Include="Tgs.Promotion.Client" Version="1.0.42" />
-    <PackageReference Include="Tgs.Report.Client" Version="0.0.53" />
+    <PackageReference Include="Tgs.Report.Client" Version="0.0.56" />
     <PackageReference Include="Tgs.SerialNumberGenerator" Version="1.0.0" />
     <PackageReference Include="TGS.ServiceUtility" Version="0.2.0" />
-    <PackageReference Include="Tgs.StationLetter.Client" Version="0.0.3-alpha" />
+    <PackageReference Include="Tgs.StationLetter.Client" Version="0.0.4" />
     <PackageReference Include="Tgs.VipLevelService.Client" Version="0.0.7" />
   </ItemGroup>
 

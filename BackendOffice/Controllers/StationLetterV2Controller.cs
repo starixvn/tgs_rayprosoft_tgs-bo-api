@@ -54,6 +54,40 @@ public class StationLetterV2Controller : ControllerBase
         };
     }
 
+    [HttpGet("{brandId}/{letterId}")]
+    public async Task<StationLetterViewModel?> GetLetterAsync(
+        [FromServices] IGetService<GetBrandInfoQuery, BrandInfo?> getBrandService,
+        [FromServices] IGetService<GetLetterByIdQuery, StationLetter?> getLetterService,
+        Guid brandId,
+        Guid letterId)
+    {
+        var brandInfo = await getBrandService.GetAsync(
+            new GetBrandInfoQuery(brandId),
+            HttpContext.RequestAborted).ConfigureAwait(false);
+
+        if (brandInfo == null)
+            return null;
+
+        var letter = await getLetterService.GetAsync(
+            new GetLetterByIdQuery(letterId),
+            HttpContext.RequestAborted).ConfigureAwait(false);
+
+        return letter is null || letter.Receiver != brandInfo.Code
+            ? null
+            : new StationLetterViewModel
+            {
+                Id = letter.Id,
+                Content = letter.Content,
+                HaveRead = letter.HaveRead,
+                Quotation = letter.Quotation,
+                Receiver = letter.Receiver,
+                Replied = letter.Replied,
+                Sender = letter.Sender,
+                SentOn = letter.SentOn,
+                Subject = letter.Subject
+            };
+    }
+
     [HttpPut("{brandId}/{letterId}:reply", Name = "ReplyLetter")]
     public async Task ReplyLetterAsync(
         [FromServices] IGetService<GetBrandInfoQuery, BrandInfo?> getBrandService,

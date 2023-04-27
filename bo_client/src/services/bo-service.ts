@@ -493,4 +493,10 @@ export default class BackOfficeService {
         await this.http
             .put(`/api/station-letter/${brandId}/${letterId}:reply`, { content });
     }
+
+    public getBrandLetter(brandId: string, letterId: string): Promise<StationLetter | null> {
+        return this.http
+            .get(`/api/station-letter/${brandId}/${letterId}`)
+            .then(res => res.data);
+    }
 }
