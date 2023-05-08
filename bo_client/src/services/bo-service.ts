@@ -511,4 +511,10 @@ export default class BackOfficeService {
                 })
             .then(res => res.data);
     }
+
+    public getDeliveryLetter(brandId: string, deliveryId: string): Promise<DeliveryLetter | null> {
+        return this.http
+            .get(`/api/delivery-box/${brandId}/${deliveryId}`)
+            .then(res => res.data);
+    }
 }

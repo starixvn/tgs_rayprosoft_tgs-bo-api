@@ -55,4 +55,37 @@ public class DeliveryLetterController : ControllerBase
             Items = result.Chunk(rows).Skip(page - 1).FirstOrDefault() ?? Array.Empty<DeliveryLetterListItemViewModel>()
         };
     }
+
+    [HttpGet("{brandId}/{deliveryId}", Name = "GetDeliveryLetterById")]
+    public async Task<DeliveryLetterViewModel?> GetDeliveryLetterAsync(
+        [FromServices] IGetService<GetBrandInfoQuery, BrandInfo?> getBrandService,
+        [FromServices] IGetService<GetDeliveryLetterByIdQuery, DeliveryLetter?> getLetterService,
+        Guid brandId,
+        Guid deliveryId)
+    {
+        var brandInfo = await getBrandService.GetAsync(
+            new GetBrandInfoQuery(brandId),
+            HttpContext.RequestAborted).ConfigureAwait(false);
+
+        if (brandInfo == null)
+            return null;
+
+        var letter = await getLetterService.GetAsync(
+            new GetDeliveryLetterByIdQuery(deliveryId),
+            HttpContext.RequestAborted).ConfigureAwait(false);
+
+        return letter is null || letter.Sender != brandInfo.Code
+            ? null
+            : new DeliveryLetterViewModel
+            {
+                Id = letter.Id,
+                Content = letter.Content,
+                ReceiverType = letter.ReceiverType.ToString(),
+                Receiver = letter.Receiver,
+                Sender = letter.Sender,
+                SentOn = letter.SentOn,
+                Subject = letter.Subject,
+                ComeFrom = letter.ComeFrom
+            };
+    }
 }

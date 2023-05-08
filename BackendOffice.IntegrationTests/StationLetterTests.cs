@@ -517,6 +517,96 @@ public class StationLetterTests
     }
 
     [Fact]
+    public async Task 取得寄件備份內容()
+    {
+        // Arrange
+        var channelName = Guid.NewGuid().ToString();
+        var userId = Guid.NewGuid();
+
+        var fakeBrandServiceClient = Substitute.For<IBrandServiceClient>();
+        var fakeStationLetterClient = Substitute.For<IStationLetterClient>();
+
+        using var web = TestBackendOfficeApplication.Builder
+            .UseTestChannelServer(channelName)
+            .ConfigureLogging(logging => logging.AddXUnit(_testOutputHelper))
+            .ConfigureServices(services => services
+                .AddAuthentication("Fake")
+                .AddScheme<FakeAuthenticationSchemaOptions, FakeAuthenticationHandler>(
+                    "Fake",
+                    options =>
+                    {
+                        options.UserId = userId;
+                        options.UserName = "system";
+                    })
+                .Services
+                .AddSingleton(fakeBrandServiceClient)
+                .AddSingleton(fakeStationLetterClient))
+            .Build();
+
+        await web.StartAsync();
+
+        var brandId = Guid.NewGuid();
+        var deliveryId = Guid.NewGuid();
+
+        _ = fakeBrandServiceClient.GetBrandInfoAsync(
+            Arg.Is(brandId),
+            Arg.Any<CancellationToken>())
+            .Returns(new BrandInfo
+            {
+                Id = brandId,
+                Code = "GPI"
+            });
+
+        var letter = new DeliveryLetter(
+            deliveryId,
+            "GPI",
+            ReceiverType.Receivers,
+            JsonDocument.Parse("""["test1"]"""),
+            "ttt",
+            "abcdee",
+            null,
+            DateTime.UtcNow);
+
+        _ = fakeStationLetterClient.GetDeliveryLetterAsync(Arg.Is(deliveryId), Arg.Any<CancellationToken>())
+            .Returns(letter);
+
+        var expected = new
+        {
+            Id = deliveryId,
+            letter.Sender,
+            letter.Content,
+            ReceiverType = letter.ReceiverType.ToString(),
+            letter.SentOn,
+            letter.Subject
+        };
+
+        var isWindows = RuntimeInformation.IsOSPlatform(OSPlatform.Windows) ? "true" : "false";
+
+        var nodeModule = $$"""
+            const axiosConfigFactory = require('./models/axios-configuration.js').default;
+            const BackOfficeService = require('./services/bo-service.js').default;
+
+            module.exports = async (brandId, deliveryId) =>
+            {
+                let instance = axiosConfigFactory("{{channelName}}", {{isWindows}});
+
+                let svc = new BackOfficeService(instance);
+
+                return await svc.getDeliveryLetter(brandId, deliveryId);
+            };
+            """;
+
+        // Act
+        var actual = await StaticNodeJSService.InvokeFromStringAsync<DeliveryLetterViewModel>(
+            nodeModule,
+            args: new object[] { brandId, deliveryId });
+
+        // Assert
+        Assert.NotNull(actual);
+        expected.ToExpectedObject().ShouldMatch(actual);
+    }
+
+    [Fact]
     public async Task 傳送站內信給玩家()
     {
         // Arrange
