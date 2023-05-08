@@ -61,6 +61,21 @@ public class StationLetterTests
     }
 
     [Test]
+    public async Task 取得寄件匣列表()
+    {
+        var fakeStationLetterClient = Substitute.For<IStationLetterClient>();
+
+        var sut = new GetDeliveryLettersQueryService(fakeStationLetterClient);
+
+        var query = new GetDeliveryLettersQuery("GPI");
+
+        _ = await sut.QueryAsync(query).ToArrayAsync();
+
+        _ = fakeStationLetterClient.Received(1)
+            .ListDeliverLettersAsync(Arg.Is(query.BrandCode));
+    }
+
+    [Test]
     public async Task 輸入玩家代碼送出站內信()
     {
         var fakeStationLetterClient = Substitute.For<IStationLetterClient>();

@@ -1,0 +1,4 @@
+﻿#nullable enable
+
+namespace TGS.Services.BackOffice.ApplicationServices.StationLetters;
+public record GetDeliveryLettersQuery(string BrandCode);

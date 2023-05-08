@@ -499,4 +499,16 @@ export default class BackOfficeService {
             .get(`/api/station-letter/${brandId}/${letterId}`)
             .then(res => res.data);
     }
+
+    public getDeliveryLetters(brandId: string, page: number, rows: number): Promise<PagedResponse<DeliveryLetterListItem>> {
+        return this.http
+            .get(
+                `/api/delivery-box/${brandId}`,
+                {
+                    params: {
+                        page, rows
+                    }
+                })
+            .then(res => res.data);
+    }
 }
