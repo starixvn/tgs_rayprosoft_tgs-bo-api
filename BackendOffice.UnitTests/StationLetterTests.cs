@@ -1,4 +1,5 @@
 ﻿using NSubstitute;
+using NUnit.Framework;
 using Tgs.StationLetterService.Client;
 using TGS.Services.BackOffice.ApplicationServices.StationLetters;
 
@@ -58,6 +59,36 @@ public class StationLetterTests
 
         _ = fakeStationLetterClient.Received(1)
             .GetStationLetterAsync(Arg.Is(query.LetterId));
+    }
+
+    [Test]
+    public async Task 取得寄件匣列表()
+    {
+        var fakeStationLetterClient = Substitute.For<IStationLetterClient>();
+
+        var sut = new GetDeliveryLettersQueryService(fakeStationLetterClient);
+
+        var query = new GetDeliveryLettersQuery("GPI");
+
+        _ = await sut.QueryAsync(query).ToArrayAsync();
+
+        _ = fakeStationLetterClient.Received(1)
+            .ListDeliverLettersAsync(Arg.Is(query.BrandCode));
+    }
+
+    [Test]
+    public async Task 取得寄件內容()
+    {
+        var fakeStationLetterClient = Substitute.For<IStationLetterClient>();
+
+        var sut = new GetDeliveryLetterByIdQueryService(fakeStationLetterClient);
+
+        var query = new GetDeliveryLetterByIdQuery(Guid.NewGuid());
+
+        _ = await sut.GetAsync(query);
+
+        _ = fakeStationLetterClient.Received(1)
+            .GetDeliveryLetterAsync(Arg.Is(query.DeliveryId));
     }
 
     [Test]
