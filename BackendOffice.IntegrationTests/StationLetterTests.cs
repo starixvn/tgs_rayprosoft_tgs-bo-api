@@ -390,7 +390,6 @@ public class StationLetterTests
         {
             letters[1].Id,
             letters[1].Sender,
-            ReceiverType = ReceiverType.Receivers.ToString(),
             letters[1].Subject,
             letters[1].SentOn
         };
