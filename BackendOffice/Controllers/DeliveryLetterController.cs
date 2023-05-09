@@ -41,8 +41,6 @@ public class DeliveryLetterController : ControllerBase
                 Id = letter.Id,
                 Sender = letter.Sender,
                 Subject = letter.Subject,
-                Receiver = letter.Receiver,
-                ReceiverType = letter.ReceiverType.ToString(),
                 SentOn = letter.SentOn
             })
             .ToArrayAsync(HttpContext.RequestAborted)
