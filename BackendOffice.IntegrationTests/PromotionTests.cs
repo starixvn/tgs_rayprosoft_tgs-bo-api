@@ -227,12 +227,11 @@ public class PromotionTests
         var promotionId = Guid.NewGuid();
 
         var rule = new PromotionRuleInfo(
-            JsonDocument.Parse(
-"""
-{
-    "bonusAmount": 1000
-}
-"""),
+            JsonDocument.Parse("""
+                {
+                    "bonusAmount": 1000
+                }
+                """),
             1000m,
             10m,
             1m,
@@ -260,13 +259,12 @@ public class PromotionTests
             };
         """;
 
-        var expected = JsonDocument.Parse(
-"""
-{
-    "bonusAmount": 1000,
-    "vipLevels": [1,2,3]
-}
-""");
+        var expected = JsonDocument.Parse("""
+            {
+                "bonusAmount": 1000,
+                "vipLevels": [1,2,3]
+            }
+            """);
 
         // Act
         var actual = await StaticNodeJSService.InvokeFromStringAsync<JsonDocument>(
@@ -1416,7 +1414,7 @@ public class PromotionTests
             SortBy = sortby,
             ShowAll = showAll
         };
-        
+
         var expected = new PagedResponse<PromotionListItemViewModel>
         {
             TotalCount = 1,
@@ -1487,7 +1485,7 @@ public class PromotionTests
         await web.StartAsync();
 
         var brandId = Guid.Parse("4e86719f-243f-46f6-b010-5c758b7285af");
-        
+
         var page = 1;
         var rows = 20;
         var sortby = "name";

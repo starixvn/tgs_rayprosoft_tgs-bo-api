@@ -32,6 +32,7 @@ using OpenTelemetry.Metrics;
 using OpenTelemetry.Resources;
 using OpenTelemetry.Trace;
 using Tgs.PlayerBucket.Clients.DependencyInjection;
+using Tgs.StationLetterService.Client.DependencyInjection;
 using TGS.Apis.BackendOffice.Filters;
 using TGS.Apis.BackendOffice.MessageQueue;
 using TGS.Apis.BackendOffice.Middlewares;
@@ -168,7 +169,10 @@ builder.Services
 
             http.BaseAddress = config.GetValue<Uri>("BackOffice:VipLevelServiceBaseUrl");
         })
-        .AddLoggingHandler<Program>());
+        .AddLoggingHandler<Program>())
+    .AddStationLetterClient(httpClientBuiler => httpClientBuiler
+        .ConfigureHttpClient(httpClient => httpClient.BaseAddress =
+            builder.Configuration.GetValue<Uri>("BackOffice:StationLetterBaseUrl")));
 
 builder.Services
     .AddLocalization(options => options.ResourcesPath = "Resources");

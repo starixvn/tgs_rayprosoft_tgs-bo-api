@@ -2,6 +2,7 @@
 import fs from 'fs';
 import FormData from 'form-data';
 import path from 'path';
+import { promises } from "dns";
 
 export default class BackOfficeService {
     constructor(private http: AxiosInstance) { }
@@ -467,6 +468,53 @@ export default class BackOfficeService {
                     }
                 }
             )
+            .then(res => res.data);
+    }
+
+    public getBrandLetters(brandId: string, page: number, rows: number): Promise<PagedResponse<StationLetterListItem>> {
+        return this.http
+            .get(
+                `/api/station-letter/${brandId}`,
+                {
+                    params: {
+                        page,
+                        rows
+                    }
+                })
+            .then(res => res.data);
+    }
+
+    public async sendBrandLetter(brandId: string, request: CreateStationLetterRequest): Promise<void> {
+        await this.http
+            .put(`/api/station-letter/${brandId}`, request);
+    }
+
+    public async replyBrandLetter(brandId: string, letterId: string, content: string): Promise<void> {
+        await this.http
+            .put(`/api/station-letter/${brandId}/${letterId}:reply`, { content });
+    }
+
+    public getBrandLetter(brandId: string, letterId: string): Promise<StationLetter | null> {
+        return this.http
+            .get(`/api/station-letter/${brandId}/${letterId}`)
+            .then(res => res.data);
+    }
+
+    public getDeliveryLetters(brandId: string, page: number, rows: number): Promise<PagedResponse<DeliveryLetterListItem>> {
+        return this.http
+            .get(
+                `/api/delivery-box/${brandId}`,
+                {
+                    params: {
+                        page, rows
+                    }
+                })
+            .then(res => res.data);
+    }
+
+    public getDeliveryLetter(brandId: string, deliveryId: string): Promise<DeliveryLetter | null> {
+        return this.http
+            .get(`/api/delivery-box/${brandId}/${deliveryId}`)
             .then(res => res.data);
     }
 }
