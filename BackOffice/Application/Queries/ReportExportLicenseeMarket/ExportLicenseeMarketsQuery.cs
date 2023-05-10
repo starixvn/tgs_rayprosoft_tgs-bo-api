@@ -7,7 +7,7 @@ using Tgs.Report.Client.Models.LicenseeMarket;
 using Tgs.ServiceUtility;
 using TGS.Services.BackOffice.Application.Models.ReportLicenseeMarket;
 
-namespace TGS.Services.BackOffice.Application.Commands.ReportExportLicenseeMarket;
+namespace TGS.Services.BackOffice.Application.Queries.ReportExportLicenseeMarket;
 
 public class
     ExportLicenseeMarketsQuery : IGetService<GetLicenseeMarketsReportRequest,

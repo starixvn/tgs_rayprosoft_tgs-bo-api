@@ -1,7 +1,9 @@
 ﻿using System.Collections.Generic;
 using System.ComponentModel;
+using System.IO;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Mvc;
+using TGS.Apis.BackendOffice.Attributes;
 using TGS.Services.BackOffice.Application.Models.ReportAgentWinLoss;
 using Tgs.ServiceUtility;
 
@@ -68,4 +70,18 @@ public class AgentWinLossReportController : BaseContextController
         => await companySpecialService
             .GetAsync(request)
             .ConfigureAwait(false);
+
+    [HttpGet("exportAgentWinLoss")]
+    [Description("export agent winLoss")]
+    [ByPassAdminLog]
+    public async Task<IActionResult> ExportAgentDividendsFileAsync(
+        [FromServices] IGetService<ExportAgentWinLossRequest, Stream>
+            exportAgentWinLossService,
+        [FromQuery] ExportAgentWinLossRequest request)
+        => File(
+            await exportAgentWinLossService
+                .GetAsync(request)
+                .ConfigureAwait(false),
+            "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
+            "AgentWinLoss.xlsx");
 }

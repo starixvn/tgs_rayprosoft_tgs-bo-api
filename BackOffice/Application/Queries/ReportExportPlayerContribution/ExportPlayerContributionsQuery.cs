@@ -6,7 +6,7 @@ using Tgs.Report.Client;
 using Tgs.Report.Client.Models.Player;
 using Tgs.ServiceUtility;
 
-namespace TGS.Services.BackOffice.Application.Commands.ReportExportPlayerContribution;
+namespace TGS.Services.BackOffice.Application.Queries.ReportExportPlayerContribution;
 
 public class
     ExportPlayerContributionsQuery : IGetService<ExportPlayerContributionsRequest,
