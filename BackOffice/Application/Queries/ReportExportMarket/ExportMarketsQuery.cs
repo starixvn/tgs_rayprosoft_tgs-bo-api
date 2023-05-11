@@ -6,7 +6,7 @@ using Tgs.Report.Client;
 using Tgs.Report.Client.Models.Market;
 using Tgs.ServiceUtility;
 
-namespace TGS.Services.BackOffice.Application.Commands.ReportExportMarket;
+namespace TGS.Services.BackOffice.Application.Queries.ReportExportMarket;
 
 public class
     ExportMarketsQuery : IGetService<ExportMarketsRequest,
