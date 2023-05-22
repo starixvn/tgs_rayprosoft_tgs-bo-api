@@ -29,7 +29,8 @@ data:
         "MarketingReportBaseUrl": "http://marketing-report-api",
         "VipLevelServiceBaseUrl": "http://tgs-viplevel",
         "PlayerBucketBaseUrl": "http://tgs-playerbucket-service",
-        "DepositAccumulateRouletteServiceBaseUrl": "http://tgs-deposit-accumulate-roulette"
+        "DepositAccumulateRouletteServiceBaseUrl": "http://tgs-deposit-accumulate-roulette",
+        "StationLetterBaseUrl": "http://tgs-station-letter"
       },
       "TGSGameProvidersKickPlayerApi": {
         "BaseUrl": "http://game-kickplayer-server"
