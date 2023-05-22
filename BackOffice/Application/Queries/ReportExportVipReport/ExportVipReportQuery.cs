@@ -6,7 +6,7 @@ using Tgs.Report.Client;
 using Tgs.Report.Client.Models.Vip;
 using Tgs.ServiceUtility;
 
-namespace TGS.Services.BackOffice.Application.Commands.ReportExportVipReport;
+namespace TGS.Services.BackOffice.Application.Queries.ReportExportVipReport;
 
 public class
     ExportVipReportQuery : IGetService<ExportVipReportRequest,

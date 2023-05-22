@@ -45,13 +45,25 @@ public class RoundReportController : BaseContextController
             }, HttpContext.RequestAborted);
 
     [HttpGet("exportSystemRounds")]
-    [Description("Export rounds")]
+    [Description("Export system rounds")]
     [ByPassAdminLog]
     public async Task<IActionResult> ExportSystemRoundsAsync(
         [FromServices] IReportClient client,
         [FromQuery] ExportSystemRoundsRequest request)
         => File(await client
                 .ExportSystemRoundsAsync(request)
+                .ConfigureAwait(false),
+            "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
+            "SystemRounds.xlsx");
+
+    [HttpGet("exportRounds")]
+    [Description("Export rounds")]
+    [ByPassAdminLog]
+    public async Task<IActionResult> ExportRoundsAsync(
+        [FromServices] IReportClient client,
+        [FromQuery] ExportRoundsRequest request)
+        => File(await client
+                .ExportRoundsAsync(request)
                 .ConfigureAwait(false),
             "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
             "Rounds.xlsx");

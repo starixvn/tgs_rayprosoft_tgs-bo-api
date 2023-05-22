@@ -6,7 +6,7 @@ using Tgs.Report.Client;
 using Tgs.Report.Client.Models.Agent;
 using Tgs.ServiceUtility;
 
-namespace TGS.Services.BackOffice.Application.Commands.ReportExportAgent;
+namespace TGS.Services.BackOffice.Application.Queries.ReportExportAgent;
 
 public class
     ExportAgentDividendsTrialCalculationQuery : IGetService<ExportAgentDividendsTrialCalculationRequest,
