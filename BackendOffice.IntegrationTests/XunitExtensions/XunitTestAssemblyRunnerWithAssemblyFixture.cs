@@ -37,13 +37,13 @@ public class XunitTestAssemblyRunnerWithAssemblyFixture : XunitTestAssemblyRunne
                         "../../../..",
                         "bo_client")));
             StaticNodeJSService.Configure<OutOfProcessNodeJSServiceOptions>(
-                 processOptions =>
-                 {
-                     processOptions.Concurrency = Concurrency.MultiProcess;
-                     //processOptions.TimeoutMS = 3000;
-                     processOptions.NumRetries = 0;
-                     processOptions.NumProcessRetries = 0;
-                 });
+                processOptions =>
+                {
+                    processOptions.Concurrency = Concurrency.MultiProcess;
+                    //processOptions.TimeoutMS = 3000;
+                    processOptions.NumRetries = 0;
+                    processOptions.NumProcessRetries = 0;
+                });
         });
     }
 
