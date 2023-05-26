@@ -171,15 +171,6 @@ public class
                     CompanySpecial = x.CompanySpecial,
                     AgentTotal = x.AgentTotal,
                     CompanyTotal = x.CompanyTotal
-                })
-            .AsQueryable()
-            .CreatePagedResponse(
-                new()
-                {
-                    Page = request.Page,
-                    Rows = request.Rows,
-                    OrderBy = request.OrderBy,
-                    SortBy = request.SortBy
                 });
 
         var total = new AgentWinLossReportTotalModel
@@ -200,7 +191,7 @@ public class
         {
             Valid = true,
             TotalCount = response.TotalCount,
-            Items = pageArray.Items,
+            Items = pageArray.ToArray(),
             Total = total
         };
     }
