@@ -41,7 +41,8 @@ public class StationLetterV2Controller : ControllerBase
                 Id = letter.Id,
                 Sender = letter.Sender,
                 Subject = letter.Subject,
-                SentOn = letter.SentOn
+                SentOn = letter.SentOn,
+                Replied = letter.Replied
             })
             .ToArrayAsync(HttpContext.RequestAborted)
             .ConfigureAwait(false);

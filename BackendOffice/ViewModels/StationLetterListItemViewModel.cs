@@ -8,6 +8,8 @@ public class StationLetterListItemViewModel
 {
     public Guid Id { get; set; }
 
+    public bool Replied { get; set; }
+
     public required string Sender { get; set; }
 
     public DateTime SentOn { get; set; }
