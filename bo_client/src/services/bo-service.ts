@@ -486,7 +486,12 @@ export default class BackOfficeService {
 
     public async sendBrandLetter(brandId: string, request: CreateStationLetterRequest): Promise<void> {
         await this.http
-            .put(`/api/station-letter/${brandId}`, request);
+            .put(`/api/station-letter/player/${brandId}`, request);
+    }
+
+    public async sendAllPlayersBrandLetter(brandId: string, request: CreateAllPlayersStationLetterRequest): Promise<void> {
+        await this.http
+            .put(`/api/station-letter/all/${brandId}`, request);
     }
 
     public async replyBrandLetter(brandId: string, letterId: string, content: string): Promise<void> {

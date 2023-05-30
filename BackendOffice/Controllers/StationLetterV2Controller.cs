@@ -123,7 +123,31 @@ public class StationLetterV2Controller : ControllerBase
             HttpContext.RequestAborted).ConfigureAwait(false);
     }
 
-    [HttpPut("{brandId}", Name = "SendLetter")]
+    [HttpPut("all/{brandId}", Name = "SendAllPlayersLetter")]
+    public async Task SendAllPlayersLetterAsync(
+        [FromServices] IGetService<GetBrandInfoQuery, BrandInfo?> getBrandService,
+        [FromServices] ICommandService<SendAllPlayersLetterCommand> sendLetterService,
+        Guid brandId,
+        [FromBody] CreateAllPlayersStationLetterViewModel viewModel)
+    {
+        var brandInfo = await getBrandService.GetAsync(
+            new GetBrandInfoQuery(brandId),
+            HttpContext.RequestAborted).ConfigureAwait(false);
+
+        if (brandInfo == null)
+            return;
+
+        var command = new SendAllPlayersLetterCommand(
+            brandInfo.Code,
+            viewModel.Subject,
+            viewModel.Content);
+
+        await sendLetterService.ExecuteAsync(
+            command,
+            HttpContext.RequestAborted).ConfigureAwait(false);
+    }
+
+    [HttpPut("player/{brandId}", Name = "SendLetterByPlayers")]
     public async Task SendLetterAsync(
         [FromServices] IGetService<GetBrandInfoQuery, BrandInfo?> getBrandService,
         [FromServices] ICommandService<SendLetterCommand> sendLetterService,
