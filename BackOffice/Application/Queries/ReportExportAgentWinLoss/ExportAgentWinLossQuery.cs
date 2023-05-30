@@ -4,17 +4,15 @@ using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 using Microsoft.EntityFrameworkCore;
-using TGS.Core.Models.Enums;
 using Tgs.Report.Client;
+using Tgs.ServiceUtility;
+using TGS.Core.Models.Enums;
 using TGS.Services.BackOffice.Application.Models.ReportAgentWinLoss;
 using TGS.Services.BackOffice.Infrastructure.DataService;
-using Tgs.ServiceUtility;
 
 namespace TGS.Services.BackOffice.Application.Queries.ReportExportAgentWinLoss;
 
-public class
-    ExportAgentWinLossQuery : IGetService<ExportAgentWinLossRequest,
-        Stream>
+public class ExportAgentWinLossQuery : IGetService<ExportAgentWinLossRequest, Stream>
 {
     private readonly IAgentService _agentService;
     private readonly IBrandService _brandService;
@@ -33,7 +31,6 @@ public class
         _playerService = playerService ?? throw new ArgumentNullException(nameof(playerService));
     }
 
-
     public async ValueTask<Stream> GetAsync(ExportAgentWinLossRequest request,
         CancellationToken cancellationToken = default)
     {
@@ -49,6 +46,7 @@ public class
                     request.From,
                     request.To
                 ));
+
             case false when !request.DownLine && request.MemberType == AccountType.Agent:
                 var agent = await _agentService.GetAgentAsync(x
                     => x.BrandId == request.BrandId && x.Username == request.Username);
@@ -60,6 +58,7 @@ public class
                     request.From,
                     request.To
                 ));
+
             case false when request.DownLine && request.MemberType == AccountType.Agent:
                 var downLineAgent = await _agentService.GetAgentAsync(x
                     => x.BrandId == request.BrandId && x.Username == request.Username);
@@ -71,6 +70,7 @@ public class
                     request.From,
                     request.To
                 ));
+
             case false when request.MemberType == AccountType.Player:
                 var playerCode = await _playerService.GetPlayerQueries()
                     .Where(x => x.BrandId == request.BrandId && x.Username == request.Username)

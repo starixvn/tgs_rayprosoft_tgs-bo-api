@@ -44,7 +44,7 @@ public class AgentWinLossReportTests
             new Brand { Id = brandId,PlatformCharge=0 }
         }.AsQueryable().BuildMock());
 
-        fakeReportClient.GetMasterAgentWinLossAsync(Arg.Any<GetMasterAgentWinLossRequest>())
+        _ = fakeReportClient.GetMasterAgentWinLossAsync(Arg.Any<GetMasterAgentWinLossRequest>())
             .Returns(new PagedResponse<AgentWinLossModel> { Valid = true });
 
         var response = await sut.GetAsync(request, default);
@@ -83,9 +83,9 @@ public class AgentWinLossReportTests
             new Brand { Id = brandId,PlatformCharge=0 }
         }.AsQueryable().BuildMock());
 
-        _ = fakeAgentService.GetAgentAsync(Arg.Any<Expression<Func<Agent,bool>>>()).Returns(new Agent { Id = agentId });
+        _ = fakeAgentService.GetAgentAsync(Arg.Any<Expression<Func<Agent, bool>>>()).Returns(new Agent { Id = agentId });
 
-        fakeReportClient.GetAgentWinLossAsync(Arg.Any<GetAgentWinLossRequest>())
+        _ = fakeReportClient.GetAgentWinLossAsync(Arg.Any<GetAgentWinLossRequest>())
             .Returns(new PagedResponse<AgentWinLossModel> { Valid = true });
 
         var response = await sut.GetAsync(request, default);
@@ -127,7 +127,7 @@ public class AgentWinLossReportTests
 
         _ = fakeAgentService.GetAgentAsync(Arg.Any<Expression<Func<Agent, bool>>>()).Returns(new Agent { Id = agentId });
 
-        fakeReportClient.GetDownLineAgentWinLossAsync(Arg.Any<GetDownLineAgentWinLossRequest>())
+        _ = fakeReportClient.GetDownLineAgentWinLossAsync(Arg.Any<GetDownLineAgentWinLossRequest>())
             .Returns(new PagedResponse<AgentWinLossModel> { Valid = true });
 
         var response = await sut.GetAsync(request, default);
@@ -170,7 +170,7 @@ public class AgentWinLossReportTests
             new Player { BrandId = brandId, PlayerCode = "PlayerCode", Username = "Username" }
         }.AsQueryable().BuildMock());
 
-        fakeReportClient.GetAgentPlayerWinLossAsync(Arg.Any<GetPlayerWinLossRequest>())
+        _ = fakeReportClient.GetAgentPlayerWinLossAsync(Arg.Any<GetPlayerWinLossRequest>())
             .Returns(new PagedResponse<AgentWinLossModel> { Valid = true });
 
         var response = await sut.GetAsync(request, default);

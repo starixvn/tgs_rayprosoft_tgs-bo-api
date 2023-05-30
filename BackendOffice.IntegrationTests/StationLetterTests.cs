@@ -12,6 +12,7 @@ using Tgs.StationLetterService;
 using Tgs.StationLetterService.Client;
 using TGS.Apis.BackendOffice.ViewModels;
 using TGS.Core.Models.Messages;
+using Xunit;
 using Xunit.Abstractions;
 
 namespace BackendOffice.IntegrationTests;
@@ -686,6 +687,85 @@ public class StationLetterTests
         _ = fakeStationLetterClient.Received(1)
             .SendStationLetterAsync(
                 Arg.Is<StationLetterRequest>(req => requestExpected.Equals(req)),
+                Arg.Any<CancellationToken>());
+    }
+
+    [Fact]
+    public async Task 傳送站內信給全部玩家()
+    {
+        // Arrange
+        var channelName = Guid.NewGuid().ToString();
+        var userId = Guid.NewGuid();
+
+        var fakeBrandServiceClient = Substitute.For<IBrandServiceClient>();
+        var fakeStationLetterClient = Substitute.For<IStationLetterClient>();
+
+        using var web = TestBackendOfficeApplication.Builder
+            .UseTestChannelServer(channelName)
+            .ConfigureLogging(logging => logging.AddXUnit(_testOutputHelper))
+            .ConfigureServices(services => services
+                .AddAuthentication("Fake")
+                .AddScheme<FakeAuthenticationSchemaOptions, FakeAuthenticationHandler>(
+                    "Fake",
+                    options =>
+                    {
+                        options.UserId = userId;
+                        options.UserName = "system";
+                    })
+                .Services
+                .AddSingleton(fakeBrandServiceClient)
+                .AddSingleton(fakeStationLetterClient))
+            .Build();
+
+        await web.StartAsync();
+
+        var brandId = Guid.NewGuid();
+
+        var request = new CreateAllPlayersStationLetterViewModel
+        {
+            Subject = "ttt",
+            Content = "abcde"
+        };
+
+        _ = fakeBrandServiceClient.GetBrandInfoAsync(
+            Arg.Is(brandId),
+            Arg.Any<CancellationToken>())
+            .Returns(new BrandInfo
+            {
+                Id = brandId,
+                Code = "GPI"
+            });
+
+        var isWindows = RuntimeInformation.IsOSPlatform(OSPlatform.Windows) ? "true" : "false";
+
+        var nodeModule = $$"""
+            const axiosConfigFactory = require('./models/axios-configuration.js').default;
+            const BackOfficeService = require('./services/bo-service.js').default;
+
+            module.exports = async (brandId, request) =>
+            {
+                let instance = axiosConfigFactory("{{channelName}}", {{isWindows}});
+
+                let svc = new BackOfficeService(instance);
+
+                return await svc.sendAllPlayersBrandLetter(brandId, request);
+            };
+            """;
+
+        // Act
+        await StaticNodeJSService.InvokeFromStringAsync(
+            nodeModule,
+            args: new object[] { brandId, request });
+
+        // Assert
+        var requestExpected = new BrandAllPlayersStationLetterRequest(
+            "GPI",
+            request.Subject,
+            request.Content);
+
+        _ = fakeStationLetterClient.Received(1)
+            .SendBrandAllPlayersStationLetterAsync(
+                Arg.Is(requestExpected),
                 Arg.Any<CancellationToken>());
     }
 }

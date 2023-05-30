@@ -1,5 +1,4 @@
 ﻿using NSubstitute;
-using NUnit.Framework;
 using Tgs.StationLetterService.Client;
 using TGS.Services.BackOffice.ApplicationServices.StationLetters;
 
@@ -62,6 +61,21 @@ public class StationLetterTests
     }
 
     [Test]
+    public async Task 取得寄件內容()
+    {
+        var fakeStationLetterClient = Substitute.For<IStationLetterClient>();
+
+        var sut = new GetDeliveryLetterByIdQueryService(fakeStationLetterClient);
+
+        var query = new GetDeliveryLetterByIdQuery(Guid.NewGuid());
+
+        _ = await sut.GetAsync(query);
+
+        _ = fakeStationLetterClient.Received(1)
+            .GetDeliveryLetterAsync(Arg.Is(query.DeliveryId));
+    }
+
+    [Test]
     public async Task 取得寄件匣列表()
     {
         var fakeStationLetterClient = Substitute.For<IStationLetterClient>();
@@ -77,18 +91,24 @@ public class StationLetterTests
     }
 
     [Test]
-    public async Task 取得寄件內容()
+    public async Task 送出站內信給全部玩家()
     {
         var fakeStationLetterClient = Substitute.For<IStationLetterClient>();
 
-        var sut = new GetDeliveryLetterByIdQueryService(fakeStationLetterClient);
+        var sut = new SendAllPlayersLetterCommandService(fakeStationLetterClient);
 
-        var query = new GetDeliveryLetterByIdQuery(Guid.NewGuid());
+        var command = new SendAllPlayersLetterCommand(
+            "GPI",
+            "title",
+            "aabbcc");
 
-        _ = await sut.GetAsync(query);
+        await sut.ExecuteAsync(command);
 
         _ = fakeStationLetterClient.Received(1)
-            .GetDeliveryLetterAsync(Arg.Is(query.DeliveryId));
+            .SendBrandAllPlayersStationLetterAsync(Arg.Is(new BrandAllPlayersStationLetterRequest(
+                command.BrandCode,
+                command.Subject,
+                command.Content)));
     }
 
     [Test]
