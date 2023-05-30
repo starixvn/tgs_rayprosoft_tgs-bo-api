@@ -43,12 +43,6 @@ public partial class PlayerController : BaseContextController
         _client = client;
     }
 
-    [HttpPut("{playerCode}/clear", Name = "ClearPlayerBuckets")]
-    [Description("Clear player buckets")]
-    [Obsolete("淘汱Api，取代為 delete api/player/bucket/{playerCode}")]
-    public Task<ClearPlayerBucketsResponse> ClearPlayerBucketsAsync(string playerCode) =>
-        _mediator.Send(new ClearPlayerBucketsRequest(playerCode));
-
     [HttpPost("{playerCode}/fundin/all", Name = "FundInAllPlayerGameProvider")]
     [Description("FundIn All Player GameProvider")]
     public async ValueTask<MessageResponse> FundInAllPlayerGameProviderAsync(
