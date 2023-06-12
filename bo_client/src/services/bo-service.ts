@@ -511,7 +511,8 @@ export default class BackOfficeService {
                 `/api/delivery-box/${brandId}`,
                 {
                     params: {
-                        page, rows
+                        page,
+                        rows
                     }
                 })
             .then(res => res.data);
@@ -520,6 +521,19 @@ export default class BackOfficeService {
     public getDeliveryLetter(brandId: string, deliveryId: string): Promise<DeliveryLetter | null> {
         return this.http
             .get(`/api/delivery-box/${brandId}/${deliveryId}`)
+            .then(res => res.data);
+    }
+
+    public queryAdjustSummaries(from: Date, to: Date): Promise<Iterable<AdjustSummaryListItem>> {
+        return this.http
+            .get(
+                '/api/adjust-wallet',
+                {
+                    params: {
+                        from,
+                        to
+                    }
+                })
             .then(res => res.data);
     }
 }
