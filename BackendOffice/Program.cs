@@ -31,6 +31,7 @@ using OpenTelemetry.Instrumentation.AspNetCore;
 using OpenTelemetry.Metrics;
 using OpenTelemetry.Resources;
 using OpenTelemetry.Trace;
+using Tgs.CashQueryService.Client;
 using Tgs.PlayerBucket.Clients.DependencyInjection;
 using Tgs.StationLetterService.Client;
 using Tgs.StationLetterService.Client.DependencyInjection;
@@ -174,7 +175,11 @@ builder.Services
     .AddStationLetterClient(httpClientBuiler => httpClientBuiler
         .ConfigureHttpClient(httpClient => httpClient.BaseAddress =
             builder.Configuration.GetValue<Uri>("BackOffice:StationLetterBaseUrl"))
-        .AddLoggingHandler<IStationLetterClient>());
+        .AddLoggingHandler<IStationLetterClient>())
+    .AddCashQueryClient(httpClientBuilder => httpClientBuilder
+        .ConfigureHttpClient(httpClient => httpClient.BaseAddress =
+            builder.Configuration.GetValue<Uri>("BackOffice:CashQueryBaseUrl"))
+        .AddLoggingHandler<ICashQueryClient>());
 
 builder.Services
     .AddLocalization(options => options.ResourcesPath = "Resources");
