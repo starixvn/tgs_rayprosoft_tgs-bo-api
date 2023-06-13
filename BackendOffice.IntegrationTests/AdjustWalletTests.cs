@@ -1,14 +1,18 @@
 ﻿using System.Runtime.InteropServices;
+using System.Text.Json;
 using ExpectedObjects;
 using Jering.Javascript.NodeJS;
+using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
+using Microsoft.Extensions.Options;
 using NSubstitute;
 using Tgs.BrandCertificate.Clients;
 using Tgs.CashQueryService.Client;
 using Tgs.ServiceUtility;
 using TGS.Apis.BackendOffice.ViewModels;
+using TGS.Services.BackOffice.Application.Models.Brand;
 using TGS.Services.BackOffice.ApplicationServices;
 using Xunit.Abstractions;
 
@@ -68,7 +72,7 @@ public class AdjustWalletTests
             null,
             null);
 
-        _ = fakeCashQueryClient.QueryPlayerAdjustSummariesAsync(Arg.Is(expectedCondition))
+        _ = fakeCashQueryClient.QueryPlayerAdjustSummariesAsync(Arg.Is(expectedCondition), Arg.Any<CancellationToken>())
             .Returns(new[] {
                 new AdjustSummaryListItem(
                     brandId1,
@@ -87,7 +91,7 @@ public class AdjustWalletTests
                     1,
                     0)
             }.ToAsyncEnumerable());
-        _ = fakeCashQueryClient.QueryAgentAdjustSummariesAsync(Arg.Is(expectedCondition))
+        _ = fakeCashQueryClient.QueryAgentAdjustSummariesAsync(Arg.Is(expectedCondition), Arg.Any<CancellationToken>())
             .Returns(new[]
             {
                 new AdjustSummaryListItem(
@@ -99,7 +103,7 @@ public class AdjustWalletTests
                     0,
                     7),
             }.ToAsyncEnumerable());
-        fakeBrandRelationQueryService.QueryAsync(Arg.Any<BrandRelationQuery>())
+        _ = fakeBrandRelationQueryService.QueryAsync(Arg.Any<BrandRelationQuery>(), Arg.Any<CancellationToken>())
             .Returns(new[] {
                 new BrandRelationInfo(
                     brandId1,
@@ -170,6 +174,127 @@ public class AdjustWalletTests
         var actual = await StaticNodeJSService.InvokeFromStringAsync<AdjustSummaryListItemViewModel[]>(
             nodeModule,
             args: new object[] { from, to });
+
+        // Assert
+        expected.ToExpectedObject().ShouldEqual(actual);
+    }
+
+    [Fact]
+    public async Task 查詢玩家調帳記錄()
+    {
+        // Arrange
+        var channelName = Guid.NewGuid().ToString();
+        var userId = Guid.NewGuid();
+
+        var fakeBrandServiceClient = Substitute.For<IBrandServiceClient>();
+        var fakeCashQueryClient = Substitute.For<ICashQueryClient>();
+        var fakeBrandRelationQueryService = Substitute.For<IQueryService<BrandRelationQuery, BrandRelationInfo>>();
+
+        using var web = TestBackendOfficeApplication.Builder
+            .UseTestChannelServer(channelName)
+            .ConfigureLogging(logging => logging.AddXUnit(_testOutputHelper))
+            .ConfigureServices(services => services
+                .AddAuthentication("Fake")
+                .AddScheme<FakeAuthenticationSchemaOptions, FakeAuthenticationHandler>(
+                    "Fake",
+                    options =>
+                    {
+                        options.UserId = userId;
+                        options.UserName = "system";
+                    })
+                .Services
+                .AddSingleton(fakeBrandServiceClient)
+                .AddSingleton(fakeCashQueryClient)
+                .AddSingleton(fakeBrandRelationQueryService))
+            .Build();
+
+        await web.StartAsync();
+
+        var brandId = Guid.NewGuid();
+        var brandCode = "Test";
+        var queryViewModel = new AdjustRecordQueryViewModel
+        {
+            From = DateTime.Now.AddDays(-1D),
+            To = DateTime.Now
+        };
+
+        var queryRecords = new[] {
+            new AdjustRecordListItem(
+                Guid.NewGuid(),
+                brandId,
+                "test1",
+                Tgs.CashQueryService.AdjustType.CompanyAdjust,
+                10M,
+                20M,
+                "manager",
+                "test123",
+                queryViewModel.From,
+                Tgs.CashQueryService.UserType.Player)
+        };
+
+        _ = fakeCashQueryClient.QueryPlayerAdjustRecordsAsync(
+            Arg.Is(brandId),
+            Arg.Is(new AdjustRecordQueryCondition(
+                (queryViewModel.From.ToUniversalTime(), queryViewModel.To.ToUniversalTime()),
+                queryViewModel.SearchTypes,
+                queryViewModel.UserId,
+                queryViewModel.Operator)),
+            Arg.Is(0),
+            Arg.Any<CancellationToken>())
+            .Returns(queryRecords.ToAsyncEnumerable());
+
+        _ = fakeBrandRelationQueryService.QueryAsync(Arg.Any<BrandRelationQuery>(), Arg.Any<CancellationToken>())
+            .Returns(new[] {
+                new BrandRelationInfo(
+                brandId,
+                    brandCode,
+                    brandCode,
+                    Guid.NewGuid(),
+                    string.Empty,
+                    string.Empty,
+                    Guid.NewGuid(),
+                    string.Empty,
+                    string.Empty)
+            }.ToAsyncEnumerable());
+
+        var expected = queryRecords.Select(record => new AdjustRecordListItemViewModel
+        {
+            Id = record.Id,
+            AdjustType = record.AdjustType,
+            Amount = record.Amount,
+            BrandCode = brandCode,
+            BrandId = brandId,
+            BucketAmount = record.BucketAmount,
+            CreatedOn = record.CreatedOn,
+            Operator = record.Operator,
+            UserId = record.UserId,
+            UserType = record.UserType,
+            Remark = record.Remark
+        }).ToArray();
+
+        var isWindows = RuntimeInformation.IsOSPlatform(OSPlatform.Windows) ? "true" : "false";
+
+        var nodeModule = $$"""
+            const axiosConfigFactory = require('./models/axios-configuration.js').default;
+            const BackOfficeService = require('./services/bo-service.js').default;
+
+            module.exports = async (brandId, codition, page, rows) =>
+            {
+                let instance = axiosConfigFactory("{{channelName}}", {{isWindows}});
+
+                let svc = new BackOfficeService(instance);
+
+                return await svc.queryPlayerAdjustRecords(brandId, codition, page, rows);
+            };
+            """;
+
+        // Act
+        var responseString = await StaticNodeJSService.InvokeFromStringAsync<string>(
+            nodeModule,
+            args: new object[] { brandId, queryViewModel, 1, 10 });
+        var actual = JsonSerializer.Deserialize<AdjustRecordListItemViewModel[]>(
+            responseString!,
+            web.Services.GetRequiredService<IOptions<JsonOptions>>().Value.JsonSerializerOptions);
 
         // Assert
         expected.ToExpectedObject().ShouldEqual(actual);
