@@ -554,4 +554,22 @@ export default class BackOfficeService {
                 })
             .then(res => res.data);
     }
+
+    public queryAgentAdjustRecords(
+        brandId: string,
+        condition: AdjustPlayerAmountRequest,
+        page: number,
+        rows: number): Promise<Iterable<AdjustRecordListItem>> {
+        return this.http
+            .get(
+                `/api/adjust-wallet/agent/${brandId}`,
+                {
+                    params: {
+                        ...condition,
+                        page,
+                        rows
+                    }
+                })
+            .then(res => res.data);
+    }
 }

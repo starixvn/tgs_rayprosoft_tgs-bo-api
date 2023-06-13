@@ -1,7 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
-using DocumentFormat.OpenXml.EMMA;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Tgs.BrandCertificate.Clients;
@@ -45,6 +44,45 @@ public class AdjustWalletController : ControllerBase
                 }))
             .OrderBy(model => model.Licensee)
             .ThenBy(model => model.Brand);
+
+    [HttpGet("agent/{brandId}", Name = "QueryAgentAdjustRecords")]
+    public IAsyncEnumerable<AdjustRecordListItemViewModel> QueryAgentAdjustRecordsAsync(
+        [FromServices] IQueryService<BrandRelationQuery, BrandRelationInfo> brandRelationQueryService,
+        [FromServices] IQueryService<AgentAdjustRecordsQuery, AdjustRecordListItem> queryService,
+        Guid brandId,
+        [FromQuery] AdjustRecordQueryViewModel queryViewModel,
+        [FromQuery(Name = "page")] int page = 1,
+        [FromQuery(Name = "rows")] int rows = 10)
+        => brandRelationQueryService.QueryAsync(new(), HttpContext.RequestAborted)
+            .ToDictionaryAsync(info => info.BrandId, HttpContext.RequestAborted)
+            .AsTask()
+            .ToAsyncEnumerable()
+            .SelectMany(dict => queryService
+                .QueryAsync(new AgentAdjustRecordsQuery(
+                    brandId,
+                    (queryViewModel.From, queryViewModel.To),
+                    queryViewModel.SearchTypes,
+                    string.IsNullOrWhiteSpace(queryViewModel.UserId)
+                        ? null
+                        : Guid.Parse(queryViewModel.UserId),
+                    queryViewModel.Operator,
+                    (page - 1) * rows), HttpContext.RequestAborted)
+                .Select(item => (Record: item, Info: dict[item.BrandId]))
+                .Select(tup => new AdjustRecordListItemViewModel
+                {
+                    Id = tup.Record.Id,
+                    BrandId = tup.Record.BrandId,
+                    AdjustType = tup.Record.AdjustType,
+                    Amount = tup.Record.Amount,
+                    BrandCode = tup.Info.BrandCode,
+                    BucketAmount = tup.Record.BucketAmount,
+                    CreatedOn = tup.Record.CreatedOn,
+                    Operator = tup.Record.Operator,
+                    UserId = tup.Record.UserId,
+                    UserType = tup.Record.UserType,
+                    Remark = tup.Record.Remark
+                }))
+        .Take(rows);
 
     [HttpGet("player/{brandId}", Name = "QueryPlayerAdjustRecords")]
     public IAsyncEnumerable<AdjustRecordListItemViewModel> QueryPlayerAdjustRecordsAsync(
