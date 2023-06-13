@@ -2,6 +2,6 @@ interface AdjustRecordQueryRequest {
     from: Date;
     to: Date;
     type?: string[];
-    userId?: string;
+    user?: string;
     operator?: string;
 }
