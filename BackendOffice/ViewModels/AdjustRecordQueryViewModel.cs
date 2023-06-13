@@ -21,6 +21,6 @@ public class AdjustRecordQueryViewModel
     [FromQuery(Name = "to")]
     public required DateTime To { get; set; }
 
-    [FromQuery(Name = "userId")]
-    public string? UserId { get; set; }
+    [FromQuery(Name = "user")]
+    public string? UserName { get; set; }
 }

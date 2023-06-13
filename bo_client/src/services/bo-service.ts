@@ -557,7 +557,7 @@ export default class BackOfficeService {
 
     public queryAgentAdjustRecords(
         brandId: string,
-        condition: AdjustPlayerAmountRequest,
+        condition: AdjustRecordQueryRequest,
         page: number,
         rows: number): Promise<Iterable<AdjustRecordListItem>> {
         return this.http

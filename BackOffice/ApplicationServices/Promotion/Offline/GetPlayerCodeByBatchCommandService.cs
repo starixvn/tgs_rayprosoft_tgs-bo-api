@@ -14,8 +14,7 @@ using TGS.Services.BackOffice.Domain;
 
 namespace TGS.Services.BackOffice.ApplicationServices.Promotion.Offline;
 
-internal class GetPlayerCodeByBatchCommandService
-    : ICommandService<GetPlayerCodeByBatchCommand>
+internal class GetPlayerCodeByBatchCommandService : ICommandService<GetPlayerCodeByBatchCommand>
 {
     private static readonly int _SegmentCount = 500;
 

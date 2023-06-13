@@ -31,7 +31,8 @@ data:
         "PlayerBucketBaseUrl": "http://tgs-playerbucket-service",
         "DepositAccumulateRouletteServiceBaseUrl": "http://tgs-deposit-accumulate-roulette",
         "StationLetterBaseUrl": "http://tgs-station-letter",
-        "CashQueryBaseUrl": "http://tgs-cashservice-query"
+        "CashQueryBaseUrl": "http://tgs-cashservice-query",
+        "AgentBaseUrl": "http://agent-service"
       },
       "TGSGameProvidersKickPlayerApi": {
         "BaseUrl": "http://game-kickplayer-server"
