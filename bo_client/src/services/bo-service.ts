@@ -511,7 +511,8 @@ export default class BackOfficeService {
                 `/api/delivery-box/${brandId}`,
                 {
                     params: {
-                        page, rows
+                        page,
+                        rows
                     }
                 })
             .then(res => res.data);
@@ -520,6 +521,55 @@ export default class BackOfficeService {
     public getDeliveryLetter(brandId: string, deliveryId: string): Promise<DeliveryLetter | null> {
         return this.http
             .get(`/api/delivery-box/${brandId}/${deliveryId}`)
+            .then(res => res.data);
+    }
+
+    public queryAdjustSummaries(from: Date, to: Date): Promise<Iterable<AdjustSummaryListItem>> {
+        return this.http
+            .get(
+                '/api/adjust-wallet/summary',
+                {
+                    params: {
+                        from,
+                        to
+                    }
+                })
+            .then(res => res.data);
+    }
+
+    public queryPlayerAdjustRecords(
+        brandId: string,
+        condition: AdjustRecordQueryRequest,
+        page: number,
+        rows: number): Promise<Iterable<AdjustRecordListItem>> {
+        return this.http
+            .get(
+                `/api/adjust-wallet/player/${brandId}`,
+                {
+                    params: {
+                        ...condition,
+                        page,
+                        rows
+                    }
+                })
+            .then(res => res.data);
+    }
+
+    public queryAgentAdjustRecords(
+        brandId: string,
+        condition: AdjustPlayerAmountRequest,
+        page: number,
+        rows: number): Promise<Iterable<AdjustRecordListItem>> {
+        return this.http
+            .get(
+                `/api/adjust-wallet/agent/${brandId}`,
+                {
+                    params: {
+                        ...condition,
+                        page,
+                        rows
+                    }
+                })
             .then(res => res.data);
     }
 }
