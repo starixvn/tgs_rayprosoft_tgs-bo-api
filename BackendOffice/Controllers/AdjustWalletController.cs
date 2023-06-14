@@ -7,6 +7,7 @@ using System.Threading;
 using System.Threading.Tasks;
 using DocumentFormat.OpenXml.Spreadsheet;
 using Microsoft.AspNetCore.Http;
+using Microsoft.AspNetCore.Http.Features;
 using Microsoft.AspNetCore.Mvc;
 using Tgs.Agent.Client;
 using Tgs.BrandCertificate.Clients;
@@ -144,20 +145,13 @@ public class AdjustWalletController : ControllerBase
                 .Select(item => (Record: item, Info: requestTuple.First[item.BrandId])))
             .Take(rows)
             .Buffer(rows)
-            .SelectMany(items => playerServiceClient.GetPlayerCodesByUserNamesAsync(
+            .SelectMany(items => playerServiceClient.QueryPlayerInfoListAsync(
                 brandId,
-                items.Select(tup => tup.Record.UserId),
+                items.Select(item => item.Record.UserId),
                 HttpContext.RequestAborted)
-                .ToArrayAsync(HttpContext.RequestAborted)
+                .ToDictionaryAsync(playerInfo => playerInfo.PlayerCode)
                 .AsTask()
                 .ToAsyncEnumerable()
-                .SelectMany(playerCodes => playerServiceClient.QueryPlayerInfoListAsync(
-                    brandId,
-                    playerCodes,
-                    HttpContext.RequestAborted)
-                    .ToDictionaryAsync(playerInfo => playerInfo.PlayerCode)
-                    .AsTask()
-                    .ToAsyncEnumerable())
                 .SelectMany(dict => items.ToAsyncEnumerable()
                     .Select(item => (item.Record, item.Info, PlayerMap: dict)))
                 .Select(tup => new AdjustRecordListItemViewModel
@@ -175,4 +169,29 @@ public class AdjustWalletController : ControllerBase
                     Remark = tup.Record.Remark
                 }))
             .Take(rows);
+
+    [HttpGet("player/{brandId}:export", Name = "ExportPlayerAdjustRecordsExcel")]
+    public async Task ExportPlayerAdjustRecordsExcelAsync(
+        [FromServices] ICommandService<ExportPlayerAdjustRecordsCommand> exportService,
+        Guid brandId,
+        [FromQuery] AdjustSummaryQueryViewModel queryViewModel)
+    {
+        var responseFeature = HttpContext.Features.Get<IHttpResponseFeature>();
+        var responseBodyFeature = HttpContext.Features.Get<IHttpResponseBodyFeature>();
+
+        if (responseFeature is not null && responseBodyFeature is not null)
+        {
+            responseFeature.Headers.ContentType = "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet";
+            responseFeature.Headers.ContentDisposition = "attachment; filename=PlayerAdjustRecords.xlsx";
+
+            var command = new ExportPlayerAdjustRecordsCommand(
+                brandId,
+                (queryViewModel.From, queryViewModel.To),
+                responseBodyFeature.Stream);
+
+            await exportService.ExecuteAsync(
+                command,
+                HttpContext.RequestAborted).ConfigureAwait(false);
+        }
+    }
 }
