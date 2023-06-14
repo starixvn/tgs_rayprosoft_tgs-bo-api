@@ -572,4 +572,20 @@ export default class BackOfficeService {
                 })
             .then(res => res.data);
     }
+
+    public exportPlayerAdjustRecords(
+        brandId: string,
+        from: Date,
+        to: Date): Promise<string | undefined> {
+        return this.http
+            .get(
+                `/api/adjust-wallet/player/${brandId}:export`,
+                {
+                    params: {
+                        from,
+                        to
+                    }
+                })
+            .then<string | undefined>(res => res.headers["content-type"]);
+    }
 }
