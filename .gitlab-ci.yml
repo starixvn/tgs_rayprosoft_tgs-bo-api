@@ -7,7 +7,7 @@ variables:
   ImageName: pgtgs/backoffice-api
   TgsSettingKey: backoffice-api
   HelmTemplateFolderName: backoffice-api
-  BuildCacheKey: Tgs.BoApi.$CI_PIPELINE_IID
+  BuildCacheKey: Tgs.Bo-Api.$CI_PIPELINE_IID
 
 stages:
   - build
