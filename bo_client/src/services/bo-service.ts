@@ -576,7 +576,8 @@ export default class BackOfficeService {
     public exportPlayerAdjustRecords(
         brandId: string,
         from: Date,
-        to: Date): Promise<string | undefined> {
+        to: Date
+    ): Promise<string | undefined> {
         return this.http
             .get(
                 `/api/adjust-wallet/player/${brandId}:export`,
@@ -587,5 +588,22 @@ export default class BackOfficeService {
                     }
                 })
             .then<string | undefined>(res => res.headers["content-type"]);
+    }
+
+    public exportAgentAdjustRecords(
+        brandId: string,
+        from: Date,
+        to: Date
+    ): Promise<string | undefined> {
+        return this.http
+            .get(
+                `/api/adjust-wallet/agent/${brandId}:export`,
+                {
+                    params: {
+                        from,
+                        to
+                    }
+                })
+            .then(res => res.headers["content-type"]);
     }
 }

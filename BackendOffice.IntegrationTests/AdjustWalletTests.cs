@@ -17,7 +17,6 @@ using Tgs.PlayerService.Client;
 using Tgs.ServiceUtility;
 using TGS.Apis.BackendOffice.ViewModels;
 using TGS.Services.BackOffice.ApplicationServices;
-using Xunit;
 using Xunit.Abstractions;
 
 namespace BackendOffice.IntegrationTests;
@@ -519,6 +518,131 @@ public class AdjustWalletTests
 
         // Assert
         expected.ToExpectedObject().ShouldEqual(actual);
+    }
+
+    [Fact]
+    public async Task 匯出代理調帳記錄()
+    {
+        // Arrange
+        var channelName = Guid.NewGuid().ToString();
+        var userId = Guid.NewGuid();
+
+        var fakeBrandServiceClient = Substitute.For<IBrandServiceClient>();
+        var fakeCashQueryClient = Substitute.For<ICashQueryClient>();
+        var fakeBrandRelationQueryService = Substitute.For<IQueryService<BrandRelationQuery, BrandRelationInfo>>();
+        var fakeAgentClient = Substitute.For<IAgentClient>();
+
+        using var web = TestBackendOfficeApplication.Builder
+            .UseTestChannelServer(channelName)
+            .ConfigureLogging(logging => logging.AddXUnit(_testOutputHelper))
+            .ConfigureServices(services => services
+                .AddAuthentication("Fake")
+                .AddScheme<FakeAuthenticationSchemaOptions, FakeAuthenticationHandler>(
+                    "Fake",
+                    options =>
+                    {
+                        options.UserId = userId;
+                        options.UserName = "system";
+                    })
+                .Services
+                .AddSingleton(fakeBrandServiceClient)
+                .AddSingleton(fakeCashQueryClient)
+                .AddSingleton(fakeBrandRelationQueryService)
+                .AddSingleton(fakeAgentClient))
+            .Build();
+
+        await web.StartAsync();
+
+        var brandId = Guid.NewGuid();
+        var brandCode = "Test";
+        var (from, to) = (DateTime.Now.AddDays(-1D), DateTime.Now);
+        var agentId = Guid.NewGuid();
+
+        var queryRecords = new[] {
+            new AdjustRecordListItem(
+                Guid.NewGuid(),
+                brandId,
+                agentId.ToString(),
+                Tgs.CashQueryService.AdjustType.AgentOther,
+                10M,
+                20M,
+                "manager",
+                "test123",
+                from,
+                Tgs.CashQueryService.UserType.Agent)
+        };
+
+        _ = fakeCashQueryClient.QueryAgentAdjustRecordsAsync(
+            Arg.Is(brandId),
+            Arg.Is(new AdjustRecordQueryCondition(
+                (from.ToUniversalTime(), to.ToUniversalTime()),
+                null,
+                null,
+                null)),
+            Arg.Is(0),
+            Arg.Any<CancellationToken>())
+            .Returns(queryRecords.ToAsyncEnumerable());
+
+        _ = fakeBrandRelationQueryService.QueryAsync(Arg.Any<BrandRelationQuery>(), Arg.Any<CancellationToken>())
+            .Returns(new[] {
+                new BrandRelationInfo(
+                    brandId,
+                    brandCode,
+                    brandCode,
+                    Guid.NewGuid(),
+                    string.Empty,
+                    string.Empty,
+                    Guid.NewGuid(),
+                    string.Empty,
+                    string.Empty)
+            }.ToAsyncEnumerable());
+
+        _ = fakeAgentClient.GetAgentInfoAsync(Arg.Is(new GetAgentInfoRequest(agentId)))
+            .Returns(new AgentInfoModel(
+                agentId,
+                "agent1",
+                null,
+                null,
+                null,
+                null,
+                null,
+                string.Empty,
+                null,
+                DateTimeOffset.Now,
+                AgentStatus.Enabled,
+                AgentType.Cash,
+                AgentLevelType.Agent,
+                0M,
+                0,
+                0M));
+
+        var isWindows = RuntimeInformation.IsOSPlatform(OSPlatform.Windows) ? "true" : "false";
+
+        var nodeModule = $$"""
+            const axiosConfigFactory = require('./models/axios-configuration.js').default;
+            const BackOfficeService = require('./services/bo-service.js').default;
+
+            module.exports = async (brandId, from, to) =>
+            {
+                let instance = axiosConfigFactory("{{channelName}}", {{isWindows}});
+
+                let svc = new BackOfficeService(instance);
+
+                return await svc.exportAgentAdjustRecords(brandId, from, to);
+            };
+            """;
+
+        // Act
+        var actual = await StaticNodeJSService.InvokeFromStringAsync<string>(
+            nodeModule,
+            args: new object[] {
+                brandId,
+                from,
+                to
+            });
+
+        // Assert
+        Assert.Equal("application/vnd.openxmlformats-officedocument.spreadsheetml.sheet", actual);
     }
 
     [Fact]

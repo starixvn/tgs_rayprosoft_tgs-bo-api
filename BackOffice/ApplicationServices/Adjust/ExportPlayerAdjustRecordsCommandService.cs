@@ -30,30 +30,35 @@ internal class ExportPlayerAdjustRecordsCommandService : ICommandService<ExportP
 
     public async ValueTask ExecuteAsync(ExportPlayerAdjustRecordsCommand command, CancellationToken cancellationToken = default)
     {
-        var records = _brandRelationQueryService.QueryAsync(new(), cancellationToken)
-            .ToDictionaryAsync(info => info.BrandId, cancellationToken)
-            .AsTask()
-            .ToAsyncEnumerable()
-            .SelectMany(dict => AsyncEnumerableEx.Return(new Dictionary<string, string>())
-                .SelectMany(map => _cashQueryClient.QueryPlayerAdjustRecordsAsync(
-                    command.BrandId,
-                    new AdjustRecordQueryCondition(
-                        command.CreatedOnRange,
-                        null,
-                        null,
-                        null),
-                    cancellationToken: cancellationToken)
-                .Select(item => (Record: item, Info: dict[item.BrandId], PlayerMap: map))
+        var brandCodeMap = await _brandRelationQueryService.QueryAsync(new(), cancellationToken)
+            .ToDictionaryAsync(
+                info => info.BrandId,
+                info => info.BrandCode,
+                cancellationToken)
+            .ConfigureAwait(false);
+
+        var brandCode = brandCodeMap[command.BrandId];
+
+        var records = AsyncEnumerableEx.Return(new Dictionary<string, string>())
+            .SelectMany(map => _cashQueryClient.QueryPlayerAdjustRecordsAsync(
+                command.BrandId,
+                new AdjustRecordQueryCondition(
+                    command.CreatedOnRange,
+                    null,
+                    null,
+                    null),
+                cancellationToken: cancellationToken)
+                .Select(item => (Record: item, BrandCode: brandCodeMap[item.BrandId]))
                 .Buffer(100)
                 .SelectMany(items => _playerServiceClient
                     .QueryPlayerInfoListAsync(
                         command.BrandId,
                         items.Select(item => item.Record.UserId).Distinct()
-                            .Where(playerCode => !items.First().PlayerMap.ContainsKey(playerCode)),
+                            .Where(playerCode => map.ContainsKey(playerCode)),
                         cancellationToken)
-                    .ForEachAsync(info => items.First().PlayerMap.Add(info.PlayerCode, info.UserName), cancellationToken)
+                    .ForEachAsync(info => map.Add(info.PlayerCode, info.UserName), cancellationToken)
                     .ContinueWith(
-                        t => items.First().PlayerMap,
+                        t => map,
                         cancellationToken,
                         TaskContinuationOptions.None,
                         TaskScheduler.Default)
@@ -62,14 +67,14 @@ internal class ExportPlayerAdjustRecordsCommandService : ICommandService<ExportP
                     .Select(tup => new
                     {
                         tup.Record.CreatedOn,
-                        Brand = tup.Info.BrandCode,
-                        UserName = tup.PlayerMap[tup.Record.UserId],
+                        Brand = tup.BrandCode,
+                        UserName = map[tup.Record.UserId],
                         UserType = tup.Record.UserType.ToString(),
                         AdjustType = tup.Record.AdjustType.ToString(),
                         tup.Record.Amount,
                         tup.Record.Operator,
                         tup.Record.Remark
-                    }))));
+                    })));
 
         using var xlsxWriter = new XlsxWriter(command.OutputStream);
 
@@ -81,7 +86,7 @@ internal class ExportPlayerAdjustRecordsCommandService : ICommandService<ExportP
             XlsxAlignment.Default);
 
         _ = xlsxWriter
-            .BeginWorksheet("PlayerAdjust")
+            .BeginWorksheet(brandCode)
             .SetDefaultStyle(headerStyle)
             .BeginRow()
             .Write("SN.")

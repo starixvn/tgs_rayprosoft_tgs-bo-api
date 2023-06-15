@@ -3,16 +3,13 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Threading;
 using System.Threading.Tasks;
-using DocumentFormat.OpenXml.Spreadsheet;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Http.Features;
 using Microsoft.AspNetCore.Mvc;
 using Tgs.Agent.Client;
 using Tgs.BrandCertificate.Clients;
 using Tgs.CashQueryService.Client;
-using Tgs.Payment.Clients;
 using Tgs.PlayerService.Client;
 using Tgs.ServiceUtility;
 using TGS.Apis.BackendOffice.ViewModels;
@@ -25,6 +22,56 @@ namespace TGS.Apis.BackendOffice.Controllers;
 [ApiController]
 public class AdjustWalletController : ControllerBase
 {
+    [HttpGet("agent/{brandId}:export", Name = "ExportAgentAdjustRecordsExcel")]
+    public async Task ExportAgentAdjustRecordsExcelAsync(
+        [FromServices] ICommandService<ExportAgentAdjustRecordsCommand> exportService,
+        Guid brandId,
+        [FromQuery] AdjustSummaryQueryViewModel queryViewModel)
+    {
+        var responseFeature = HttpContext.Features.Get<IHttpResponseFeature>();
+        var responseBodyFeature = HttpContext.Features.Get<IHttpResponseBodyFeature>();
+
+        if (responseFeature is not null && responseBodyFeature is not null)
+        {
+            responseFeature.Headers.ContentType = "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet";
+            responseFeature.Headers.ContentDisposition = "attachment; filename=PlayerAdjustRecords.xlsx";
+
+            var command = new ExportAgentAdjustRecordsCommand(
+                brandId,
+                (queryViewModel.From, queryViewModel.To),
+                responseBodyFeature.Stream);
+
+            await exportService.ExecuteAsync(
+                command,
+                HttpContext.RequestAborted).ConfigureAwait(false);
+        }
+    }
+
+    [HttpGet("player/{brandId}:export", Name = "ExportPlayerAdjustRecordsExcel")]
+    public async Task ExportPlayerAdjustRecordsExcelAsync(
+        [FromServices] ICommandService<ExportPlayerAdjustRecordsCommand> exportService,
+        Guid brandId,
+        [FromQuery] AdjustSummaryQueryViewModel queryViewModel)
+    {
+        var responseFeature = HttpContext.Features.Get<IHttpResponseFeature>();
+        var responseBodyFeature = HttpContext.Features.Get<IHttpResponseBodyFeature>();
+
+        if (responseFeature is not null && responseBodyFeature is not null)
+        {
+            responseFeature.Headers.ContentType = "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet";
+            responseFeature.Headers.ContentDisposition = "attachment; filename=PlayerAdjustRecords.xlsx";
+
+            var command = new ExportPlayerAdjustRecordsCommand(
+                brandId,
+                (queryViewModel.From, queryViewModel.To),
+                responseBodyFeature.Stream);
+
+            await exportService.ExecuteAsync(
+                command,
+                HttpContext.RequestAborted).ConfigureAwait(false);
+        }
+    }
+
     [HttpGet("summary", Name = "QueryAdjustSummaries")]
     public IAsyncEnumerable<AdjustSummaryListItemViewModel> QueryAdjustSummariesAsync(
         [FromServices] IQueryService<BrandRelationQuery, BrandRelationInfo> brandRelationQueryService,
@@ -169,29 +216,4 @@ public class AdjustWalletController : ControllerBase
                     Remark = tup.Record.Remark
                 }))
             .Take(rows);
-
-    [HttpGet("player/{brandId}:export", Name = "ExportPlayerAdjustRecordsExcel")]
-    public async Task ExportPlayerAdjustRecordsExcelAsync(
-        [FromServices] ICommandService<ExportPlayerAdjustRecordsCommand> exportService,
-        Guid brandId,
-        [FromQuery] AdjustSummaryQueryViewModel queryViewModel)
-    {
-        var responseFeature = HttpContext.Features.Get<IHttpResponseFeature>();
-        var responseBodyFeature = HttpContext.Features.Get<IHttpResponseBodyFeature>();
-
-        if (responseFeature is not null && responseBodyFeature is not null)
-        {
-            responseFeature.Headers.ContentType = "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet";
-            responseFeature.Headers.ContentDisposition = "attachment; filename=PlayerAdjustRecords.xlsx";
-
-            var command = new ExportPlayerAdjustRecordsCommand(
-                brandId,
-                (queryViewModel.From, queryViewModel.To),
-                responseBodyFeature.Stream);
-
-            await exportService.ExecuteAsync(
-                command,
-                HttpContext.RequestAborted).ConfigureAwait(false);
-        }
-    }
 }
