@@ -260,13 +260,20 @@ public class AdjustWalletTests
                 0,
                 0M));
 
+        var queryCondition = new AdjustRecordQueryCondition(
+            (queryViewModel.From.ToUniversalTime(), queryViewModel.To.ToUniversalTime()),
+            queryViewModel.SearchTypes,
+            agentId.ToString(),
+            queryViewModel.Operator);
+        _ = fakeCashQueryClient.CountAgentAdjustRecordsAsync(
+            Arg.Is(brandId),
+            Arg.Is(queryCondition),
+            Arg.Any<CancellationToken>())
+            .Returns(1);
         _ = fakeCashQueryClient.QueryAgentAdjustRecordsAsync(
             Arg.Is(brandId),
-            Arg.Is(new AdjustRecordQueryCondition(
-                (queryViewModel.From.ToUniversalTime(), queryViewModel.To.ToUniversalTime()),
-                queryViewModel.SearchTypes,
-                agentId.ToString(),
-                queryViewModel.Operator)),
+            Arg.Is(queryCondition),
+            Arg.Is(1),
             Arg.Is(0),
             Arg.Any<CancellationToken>())
             .Returns(queryRecords.ToAsyncEnumerable());
@@ -427,13 +434,20 @@ public class AdjustWalletTests
                 BrandId = brandId
             });
 
+        var queryCondition = new AdjustRecordQueryCondition(
+            (queryViewModel.From.ToUniversalTime(), queryViewModel.To.ToUniversalTime()),
+            queryViewModel.SearchTypes,
+            "test1",
+            queryViewModel.Operator);
+        _ = fakeCashQueryClient.CountPlayerAdjustRecordsAsync(
+            Arg.Is(brandId),
+            Arg.Is(queryCondition),
+            Arg.Any<CancellationToken>())
+            .Returns(1);
         _ = fakeCashQueryClient.QueryPlayerAdjustRecordsAsync(
             Arg.Is(brandId),
-            Arg.Is(new AdjustRecordQueryCondition(
-                (queryViewModel.From.ToUniversalTime(), queryViewModel.To.ToUniversalTime()),
-                queryViewModel.SearchTypes,
-                "test1",
-                queryViewModel.Operator)),
+            Arg.Is(queryCondition),
+            Arg.Is(1),
             Arg.Is(0),
             Arg.Any<CancellationToken>())
             .Returns(queryRecords.ToAsyncEnumerable());
@@ -579,6 +593,7 @@ public class AdjustWalletTests
                 null,
                 null,
                 null)),
+            Arg.Is(3),
             Arg.Is(0),
             Arg.Any<CancellationToken>())
             .Returns(queryRecords.ToAsyncEnumerable());
@@ -703,6 +718,7 @@ public class AdjustWalletTests
                 null,
                 null,
                 null)),
+            Arg.Is(1),
             Arg.Is(0),
             Arg.Any<CancellationToken>())
             .Returns(queryRecords.ToAsyncEnumerable());

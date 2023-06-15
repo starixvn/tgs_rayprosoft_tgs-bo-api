@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.Threading;
 using Tgs.CashQueryService.Client;
 using Tgs.ServiceUtility;
@@ -18,13 +19,21 @@ internal class PlayerAdjustRecordsQueryService : IQueryService<PlayerAdjustRecor
     public IAsyncEnumerable<AdjustRecordListItem> QueryAsync(
         PlayerAdjustRecordsQuery query,
         CancellationToken cancellationToken = default)
-        => _cashQueryClient.QueryPlayerAdjustRecordsAsync(
-            query.BrandId,
-            new AdjustRecordQueryCondition(
-                query.CreatedOnRange,
-                query.SearchTypes,
-                query.PlayerCode,
-                query.Operator),
-            query.Skip,
-            cancellationToken);
+        => AsyncEnumerableEx.Return(new AdjustRecordQueryCondition(
+            query.CreatedOnRange,
+            query.SearchTypes,
+            query.PlayerCode,
+            query.Operator))
+            .SelectMany(condition => _cashQueryClient.CountPlayerAdjustRecordsAsync(
+                query.BrandId,
+                condition,
+                cancellationToken)
+                .AsTask()
+                .ToAsyncEnumerable()
+                .SelectMany(count => _cashQueryClient.QueryPlayerAdjustRecordsAsync(
+                    query.BrandId,
+                    condition,
+                    count,
+                    query.Skip,
+                    cancellationToken)));
 }
