@@ -597,7 +597,7 @@ public class AdjustWalletTests
                     string.Empty)
             }.ToAsyncEnumerable());
 
-        _ = fakeAgentClient.GetAgentInfoAsync(Arg.Is(new GetAgentInfoRequest(agentId)))
+        _ = fakeAgentClient.GetAgentInfoAsync(Arg.Is(new GetAgentInfoRequest(agentId)), Arg.Any<CancellationToken>())
             .Returns(new AgentInfoModel(
                 agentId,
                 "agent1",
