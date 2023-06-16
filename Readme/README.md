@@ -63,11 +63,11 @@ stop to convert to windows style when git pull branch
 1. install NodeJs
 https://nodejs.org/en
 
-2. open command line in folder ~\tgs-bo-api\bo_client
-
-3. run below script
+2. run below script
+**In Terminal Console:** (in folder ~\tgs-bo-api\bo_client) 
+```
 npm ci
+
 npm run build
-
-4. run tests with Test Explorer
-
+```
+3. run tests with Test Explorer
