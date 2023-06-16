@@ -58,5 +58,16 @@ stop to convert to windows style when git pull branch
 1. git config --global core.autocrlf false
 #reference https://docs.github.com/en/github/using-git/configuring-git-to-handle-line-endings#global-settings-for-line-endings
 
+## StartUp Integration Tests
 
+1. install NodeJs
+https://nodejs.org/en
+
+2. open command line in folder ~\tgs-bo-api\bo_client
+
+3. run below script
+npm ci
+npm run build
+
+4. run tests with Test Explorer
 
