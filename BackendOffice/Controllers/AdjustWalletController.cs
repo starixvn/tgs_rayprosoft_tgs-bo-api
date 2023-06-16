@@ -98,10 +98,11 @@ public class AdjustWalletController : ControllerBase
         }
     }
 
-    [HttpGet("summary", Name = "QueryAdjustSummaries")]
+    [HttpGet("summary/{resellerId}", Name = "QueryAdjustSummaries")]
     public IAsyncEnumerable<AdjustSummaryListItemViewModel> QueryAdjustSummariesAsync(
         [FromServices] IQueryService<BrandRelationQuery, BrandRelationInfo> brandRelationQueryService,
         [FromServices] IQueryService<AdjustSummariesQuery, AdjustSummaryListItem> queryService,
+        Guid resellerId,
         [FromQuery] AdjustSummaryQueryViewModel queryViewModel)
         => brandRelationQueryService.QueryAsync(new(), HttpContext.RequestAborted)
             .ToDictionaryAsync(info => info.BrandId, HttpContext.RequestAborted)
@@ -112,6 +113,7 @@ public class AdjustWalletController : ControllerBase
                     new((queryViewModel.From, queryViewModel.To)),
                     HttpContext.RequestAborted)
                 .Select(record => (Record: record, Info: dict[record.BrandId]))
+                .Where(tup => tup.Info.ResellerId == resellerId)
                 .Select(tup => new AdjustSummaryListItemViewModel
                 {
                     BrandId = tup.Record.BrandId,
@@ -122,7 +124,11 @@ public class AdjustWalletController : ControllerBase
                     System = tup.Record.System,
                     Transfer = tup.Record.Transfer,
                     Bonus = tup.Record.Bonus,
-                    AgentOther = tup.Record.AgentOther
+                    AgentOther = tup.Record.AgentOther,
+                    PlayerAdjustAmount = tup.Record.CompanyAmount + tup.Record.AgentAmount
+                        + tup.Record.SystemAmount + tup.Record.TransferAmount
+                        + tup.Record.BonusAmount,
+                    AgentAdjustAmount = tup.Record.AgentOtherAmount
                 }))
             .OrderBy(model => model.Licensee)
             .ThenBy(model => model.Brand);

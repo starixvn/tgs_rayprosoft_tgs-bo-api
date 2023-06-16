@@ -56,13 +56,13 @@
     <PackageReference Include="System.Linq.Async" Version="6.0.1" />
     <PackageReference Include="Tgs.Agent.Client" Version="0.0.8" />
     <PackageReference Include="Tgs.BrandCertificateClient" Version="0.0.26" />
-    <PackageReference Include="Tgs.CashQuery.Client" Version="0.0.3" />
+    <PackageReference Include="Tgs.CashQuery.Client" Version="0.0.4" />
     <PackageReference Include="Tgs.CashService.Client" Version="0.1.6" />
     <PackageReference Include="Tgs.Core" Version="1.0.18" />
     <PackageReference Include="TGS.Core.Infrastructures.Json" Version="0.0.1" />
     <PackageReference Include="Tgs.Core.Infrastructures.Security" Version="0.0.2" />
     <PackageReference Include="Tgs.DepositAccumulateRoulette.Client" Version="0.0.6" />
-    <PackageReference Include="Tgs.GameProviders.Pluggable.Client" Version="0.0.30" />
+    <PackageReference Include="Tgs.GameProviders.Pluggable.Client" Version="0.0.31" />
     <PackageReference Include="Tgs.DomainSetting.Client" Version="0.0.6" />
     <PackageReference Include="Tgs.MarketingReport.Client" Version="0.0.8" />
     <PackageReference Include="Tgs.Paging.AsyncEnumerable" Version="1.2.1" />

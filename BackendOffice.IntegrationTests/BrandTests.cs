@@ -1,4 +1,5 @@
 ﻿using System.Data.SqlClient;
+using System.Globalization;
 using System.Runtime.InteropServices;
 using System.Text.Json;
 using ExpectedObjects;
@@ -912,6 +913,8 @@ public class BrandTests
 
         await web.StartAsync();
 
+        Brand.Culture = CultureInfo.GetCultureInfo("en-US");
+
         var brandId = Guid.NewGuid();
 
         _ = fakeBrandServiceClient.GetBrandRelationsAsync(
@@ -1048,6 +1051,8 @@ public class BrandTests
             .Build();
 
         await web.StartAsync();
+
+        Brand.Culture = CultureInfo.GetCultureInfo("en-US");
 
         var brandId = Guid.NewGuid();
 
@@ -1354,7 +1359,7 @@ public class BrandTests
         Assert.Equal(2, result?.TotalCount);
         expected.Items.ToExpectedObject().ShouldEqual(result?.Items);
     }
-    
+
     [Fact]
     public async Task 更新Brand狀態()
     {
@@ -1389,8 +1394,8 @@ public class BrandTests
                 Arg.Any<CancellationToken>())
             .Returns(new BrandInfo
             {
-                Id = brandId, 
-                Code = "GPI", 
+                Id = brandId,
+                Code = "GPI",
                 Status = BrandStatus.Active
             });
 
@@ -1409,7 +1414,7 @@ public class BrandTests
                 return await svc.updateBrandStatus(brandId, status);
             };
         """;
-        
+
         // Act
         var actual = await StaticNodeJSService.InvokeFromStringAsync<MessageResponse>(
             nodeModule,
