@@ -122,7 +122,7 @@ public class AdjustWalletController : ControllerBase
                     System = tup.Record.System,
                     Transfer = tup.Record.Transfer,
                     Bonus = tup.Record.Bonus,
-                    AgentOther = tup.Record.AgentOther
+                    AgentOther = tup.Record.AgentOther,
                 }))
             .OrderBy(model => model.Licensee)
             .ThenBy(model => model.Brand);
