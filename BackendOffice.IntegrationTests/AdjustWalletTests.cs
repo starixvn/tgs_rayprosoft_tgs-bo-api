@@ -16,7 +16,9 @@ using Tgs.CashQueryService.Client;
 using Tgs.PlayerService.Client;
 using Tgs.ServiceUtility;
 using TGS.Apis.BackendOffice.ViewModels;
+using TGS.Core.Models.Messages;
 using TGS.Services.BackOffice.ApplicationServices;
+using Xunit;
 using Xunit.Abstractions;
 
 namespace BackendOffice.IntegrationTests;
@@ -359,12 +361,24 @@ public class AdjustWalletTests
                 1,
                 10
             });
-        var actual = JsonSerializer.Deserialize<AdjustRecordListItemViewModel[]>(
+        var actual = JsonSerializer.Deserialize<PagedResponse<AdjustRecordListItemViewModel>>(
             responseString!,
             web.Services.GetRequiredService<IOptions<JsonOptions>>().Value.JsonSerializerOptions);
 
         // Assert
-        expected.ToExpectedObject().ShouldEqual(actual);
+        expected.ToExpectedObject().ShouldEqual(actual?.Items);
+    }
+
+    [Fact]
+    public void 取得代理調帳記錄筆數()
+    {
+        // Arrange
+
+
+        // Act
+
+        // Assert
+
     }
 
     [Fact]
@@ -526,12 +540,12 @@ public class AdjustWalletTests
                 1,
                 10
             });
-        var actual = JsonSerializer.Deserialize<AdjustRecordListItemViewModel[]>(
+        var actual = JsonSerializer.Deserialize<PagedResponse<AdjustRecordListItemViewModel>>(
             responseString!,
             web.Services.GetRequiredService<IOptions<JsonOptions>>().Value.JsonSerializerOptions);
 
         // Assert
-        expected.ToExpectedObject().ShouldEqual(actual);
+        expected.ToExpectedObject().ShouldEqual(actual?.Items);
     }
 
     [Fact]

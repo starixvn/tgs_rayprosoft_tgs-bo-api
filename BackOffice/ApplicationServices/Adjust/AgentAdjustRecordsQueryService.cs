@@ -2,12 +2,15 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading;
+using System.Threading.Tasks;
 using Tgs.CashQueryService.Client;
 using Tgs.ServiceUtility;
 
 namespace TGS.Services.BackOffice.ApplicationServices.Adjust;
 
-internal class AgentAdjustRecordsQueryService : IQueryService<AgentAdjustRecordsQuery, AdjustRecordListItem>
+internal class AgentAdjustRecordsQueryService
+    : IQueryService<AgentAdjustRecordsQuery, AdjustRecordListItem>,
+    IGetService<AgentAdjustRecordsQuery, int>
 {
     private readonly ICashQueryClient _cashQueryClient;
 
@@ -16,8 +19,18 @@ internal class AgentAdjustRecordsQueryService : IQueryService<AgentAdjustRecords
         _cashQueryClient = cashQueryClient ?? throw new ArgumentNullException(nameof(cashQueryClient));
     }
 
+    public ValueTask<int> GetAsync(AgentAdjustRecordsQuery query, CancellationToken cancellationToken = default)
+        => _cashQueryClient.CountAgentAdjustRecordsAsync(
+            query.BrandId,
+            new AdjustRecordQueryCondition(
+                query.CreatedOnRange,
+                query.SearchTypes,
+                query.AgentId?.ToString(),
+                query.Operator),
+            cancellationToken);
+
     public IAsyncEnumerable<AdjustRecordListItem> QueryAsync(AgentAdjustRecordsQuery query, CancellationToken cancellationToken = default)
-        => AsyncEnumerableEx.Return(new AdjustRecordQueryCondition(
+            => AsyncEnumerableEx.Return(new AdjustRecordQueryCondition(
             query.CreatedOnRange,
             query.SearchTypes,
             query.AgentId?.ToString(),

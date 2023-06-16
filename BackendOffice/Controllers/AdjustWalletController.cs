@@ -13,6 +13,7 @@ using Tgs.CashQueryService.Client;
 using Tgs.PlayerService.Client;
 using Tgs.ServiceUtility;
 using TGS.Apis.BackendOffice.ViewModels;
+using TGS.Core.Models.Messages;
 using TGS.Services.BackOffice.ApplicationServices;
 using TGS.Services.BackOffice.ApplicationServices.Adjust;
 
@@ -22,6 +23,31 @@ namespace TGS.Apis.BackendOffice.Controllers;
 [ApiController]
 public class AdjustWalletController : ControllerBase
 {
+    public async Task<int> CountPlayerAdjustRecordsAsync(
+        [FromServices] IGetService<PlayerAdjustRecordsQuery, int> countService,
+        [FromServices] IPlayerServiceClient playerServiceClient,
+        Guid brandId,
+        [FromQuery] AdjustRecordQueryViewModel queryViewModel)
+    {
+        var playerInfo = string.IsNullOrWhiteSpace(queryViewModel.UserName)
+            ? null
+            : await playerServiceClient.GetPlayerInfoByUserNameAsync(
+                    brandId,
+                    queryViewModel.UserName,
+                    HttpContext.RequestAborted).ConfigureAwait(false);
+
+        var query = new PlayerAdjustRecordsQuery(
+            brandId,
+            (queryViewModel.From, queryViewModel.To),
+            queryViewModel.SearchTypes,
+            playerInfo?.UserName,
+            queryViewModel.Operator);
+
+        return await countService.GetAsync(
+            query,
+            HttpContext.RequestAborted).ConfigureAwait(false);
+    }
+
     [HttpGet("agent/{brandId}:export", Name = "ExportAgentAdjustRecordsExcel")]
     public async Task ExportAgentAdjustRecordsExcelAsync(
         [FromServices] ICommandService<ExportAgentAdjustRecordsCommand> exportService,
@@ -102,118 +128,142 @@ public class AdjustWalletController : ControllerBase
             .ThenBy(model => model.Brand);
 
     [HttpGet("agent/{brandId}", Name = "QueryAgentAdjustRecords")]
-    public IAsyncEnumerable<AdjustRecordListItemViewModel> QueryAgentAdjustRecordsAsync(
+    public async Task<PagedResponse<AdjustRecordListItemViewModel>> QueryAgentAdjustRecordsAsync(
         [FromServices] IQueryService<BrandRelationQuery, BrandRelationInfo> brandRelationQueryService,
         [FromServices] IQueryService<AgentAdjustRecordsQuery, AdjustRecordListItem> queryService,
+        [FromServices] IGetService<AgentAdjustRecordsQuery, int> countService,
         [FromServices] IAgentClient agentClient,
         Guid brandId,
         [FromQuery] AdjustRecordQueryViewModel queryViewModel,
         [FromQuery(Name = "page")] int page = 1,
         [FromQuery(Name = "rows")] int rows = 10)
-        => AsyncEnumerable.Zip(
-            brandRelationQueryService.QueryAsync(new(), HttpContext.RequestAborted)
-                .ToDictionaryAsync(info => info.BrandId, HttpContext.RequestAborted)
-                .AsTask()
-                .ToAsyncEnumerable(),
-            string.IsNullOrWhiteSpace(queryViewModel.UserName)
-                ? AsyncEnumerableEx.Return(default(Guid?))
-                : agentClient.GetAgentInfoByUsernameAsync(
-                    new(brandId, queryViewModel.UserName),
-                    HttpContext.RequestAborted)
-                    .AsTask()
-                    .ToAsyncEnumerable()
-                    .Select(info => info?.Id))
-            .SelectMany(requestTuple => queryService
-                .QueryAsync(new AgentAdjustRecordsQuery(
-                    brandId,
-                    (queryViewModel.From, queryViewModel.To),
-                    queryViewModel.SearchTypes,
-                    requestTuple.Second,
-                    queryViewModel.Operator,
-                    (page - 1) * rows), HttpContext.RequestAborted)
-                .Select(item => (Record: item, Info: requestTuple.First[item.BrandId])))
-            .Take(rows)
-            .Buffer(rows)
-            .SelectMany(items => items.ToAsyncEnumerable()
-                .Select(tup => agentClient.GetAgentInfoAsync(
-                    new(Guid.Parse(tup.Record.UserId)),
-                    HttpContext.RequestAborted)
-                    .AsTask()
-                    .ToAsyncEnumerable()
-                    .Select(agentInfo => (tup.Record, BrandInfo: tup.Info, AgentInfo: agentInfo))))
-            .Concat()
-            .Select(tup => new AdjustRecordListItemViewModel
-            {
-                Id = tup.Record.Id,
-                BrandId = tup.Record.BrandId,
-                AdjustType = tup.Record.AdjustType,
-                Amount = tup.Record.Amount,
-                BrandCode = tup.BrandInfo.BrandCode,
-                BucketAmount = tup.Record.BucketAmount,
-                CreatedOn = tup.Record.CreatedOn,
-                Operator = tup.Record.Operator,
-                UserName = tup.AgentInfo?.Username ?? string.Empty,
-                UserType = tup.Record.UserType,
-                Remark = tup.Record.Remark
-            })
-            .Take(rows);
+    {
+        var agentInfo = string.IsNullOrWhiteSpace(queryViewModel.UserName)
+            ? null
+            : await agentClient.GetAgentInfoByUsernameAsync(
+                new(brandId, queryViewModel.UserName),
+                HttpContext.RequestAborted).ConfigureAwait(false);
 
-    [HttpGet("player/{brandId}", Name = "QueryPlayerAdjustRecords")]
-    public IAsyncEnumerable<AdjustRecordListItemViewModel> QueryPlayerAdjustRecordsAsync(
-        [FromServices] IQueryService<BrandRelationQuery, BrandRelationInfo> brandRelationQueryService,
-        [FromServices] IQueryService<PlayerAdjustRecordsQuery, AdjustRecordListItem> queryService,
-        [FromServices] IPlayerServiceClient playerServiceClient,
-        Guid brandId,
-        [FromQuery] AdjustRecordQueryViewModel queryViewModel,
-        [FromQuery(Name = "page")] int page = 1,
-        [FromQuery(Name = "rows")] int rows = 10)
-        => AsyncEnumerable.Zip(
-            brandRelationQueryService.QueryAsync(new(), HttpContext.RequestAborted)
+        var query = new AgentAdjustRecordsQuery(
+            brandId,
+            (queryViewModel.From, queryViewModel.To),
+            queryViewModel.SearchTypes,
+            agentInfo?.Id,
+            queryViewModel.Operator,
+            (page - 1) * rows);
+
+        var totalCount = await countService.GetAsync(
+            query,
+            HttpContext.RequestAborted).ConfigureAwait(false);
+
+        return new PagedResponse<AdjustRecordListItemViewModel>
+        {
+            Valid = true,
+            TotalCount = totalCount,
+            Items = await brandRelationQueryService.QueryAsync(new(), HttpContext.RequestAborted)
                 .ToDictionaryAsync(info => info.BrandId, HttpContext.RequestAborted)
-                .AsTask()
-                .ToAsyncEnumerable(),
-            string.IsNullOrEmpty(queryViewModel.UserName)
-                ? AsyncEnumerableEx.Return(default(string))
-                : playerServiceClient.GetPlayerInfoByUserNameAsync(
-                    brandId,
-                    queryViewModel.UserName,
-                    HttpContext.RequestAborted)
-                    .AsTask()
-                    .ToAsyncEnumerable()
-                    .Select(info => info?.PlayerCode))
-            .SelectMany(requestTuple => queryService
-                .QueryAsync(new PlayerAdjustRecordsQuery(
-                    brandId,
-                    (queryViewModel.From, queryViewModel.To),
-                    queryViewModel.SearchTypes,
-                    requestTuple.Second,
-                    queryViewModel.Operator,
-                    (page - 1) * rows), HttpContext.RequestAborted)
-                .Select(item => (Record: item, Info: requestTuple.First[item.BrandId])))
-            .Take(rows)
-            .Buffer(rows)
-            .SelectMany(items => playerServiceClient.QueryPlayerInfoListAsync(
-                brandId,
-                items.Select(item => item.Record.UserId),
-                HttpContext.RequestAborted)
-                .ToDictionaryAsync(playerInfo => playerInfo.PlayerCode)
                 .AsTask()
                 .ToAsyncEnumerable()
-                .SelectMany(dict => items.ToAsyncEnumerable()
-                    .Select(item => (item.Record, item.Info, PlayerMap: dict)))
+                .SelectMany(brandMap => queryService.QueryAsync(query, HttpContext.RequestAborted)
+                    .Select(item => (Record: item, Info: brandMap[item.BrandId])))
+                .Take(rows)
+                .Buffer(rows)
+                .SelectMany(items => items.ToAsyncEnumerable()
+                    .Select(tup => agentClient.GetAgentInfoAsync(
+                        new(Guid.Parse(tup.Record.UserId)),
+                        HttpContext.RequestAborted)
+                        .AsTask()
+                        .ToAsyncEnumerable()
+                        .Select(agentInfo => (tup.Record, BrandInfo: tup.Info, AgentInfo: agentInfo))))
+                .Concat()
                 .Select(tup => new AdjustRecordListItemViewModel
                 {
                     Id = tup.Record.Id,
                     BrandId = tup.Record.BrandId,
                     AdjustType = tup.Record.AdjustType,
                     Amount = tup.Record.Amount,
-                    BrandCode = tup.Info.BrandCode,
+                    BrandCode = tup.BrandInfo.BrandCode,
                     BucketAmount = tup.Record.BucketAmount,
                     CreatedOn = tup.Record.CreatedOn,
                     Operator = tup.Record.Operator,
-                    UserName = tup.PlayerMap[tup.Record.UserId].UserName,
+                    UserName = tup.AgentInfo?.Username ?? string.Empty,
                     UserType = tup.Record.UserType,
                     Remark = tup.Record.Remark
-                }))
-            .Take(rows);
+                })
+                .Take(rows)
+                .ToArrayAsync(HttpContext.RequestAborted)
+                .ConfigureAwait(false)
+        };
+    }
+
+    [HttpGet("player/{brandId}", Name = "QueryPlayerAdjustRecords")]
+    public async Task<PagedResponse<AdjustRecordListItemViewModel>> QueryPlayerAdjustRecordsAsync(
+        [FromServices] IQueryService<BrandRelationQuery, BrandRelationInfo> brandRelationQueryService,
+        [FromServices] IQueryService<PlayerAdjustRecordsQuery, AdjustRecordListItem> queryService,
+        [FromServices] IGetService<PlayerAdjustRecordsQuery, int> countService,
+        [FromServices] IPlayerServiceClient playerServiceClient,
+        Guid brandId,
+        [FromQuery] AdjustRecordQueryViewModel queryViewModel,
+        [FromQuery(Name = "page")] int page = 1,
+        [FromQuery(Name = "rows")] int rows = 10)
+    {
+        var playerInfo = string.IsNullOrEmpty(queryViewModel.UserName)
+            ? null
+            : await playerServiceClient.GetPlayerInfoByUserNameAsync(
+                brandId,
+                queryViewModel.UserName,
+                HttpContext.RequestAborted).ConfigureAwait(false);
+
+        var query = new PlayerAdjustRecordsQuery(
+            brandId,
+            (queryViewModel.From, queryViewModel.To),
+            queryViewModel.SearchTypes,
+            playerInfo?.PlayerCode,
+            queryViewModel.Operator,
+            (page - 1) * rows);
+
+        var totalCount = await countService.GetAsync(
+            query,
+           HttpContext.RequestAborted).ConfigureAwait(false);
+
+        return new PagedResponse<AdjustRecordListItemViewModel>
+        {
+            Valid = true,
+            TotalCount = totalCount,
+            Items = await brandRelationQueryService.QueryAsync(new(), HttpContext.RequestAborted)
+                .ToDictionaryAsync(info => info.BrandId, HttpContext.RequestAborted)
+                .AsTask()
+                .ToAsyncEnumerable()
+                .SelectMany(brandMap => queryService.QueryAsync(query, HttpContext.RequestAborted)
+                    .Select(item => (Record: item, Info: brandMap[item.BrandId])))
+                .Take(rows)
+                .Buffer(rows)
+                .SelectMany(items => playerServiceClient.QueryPlayerInfoListAsync(
+                    brandId,
+                    items.Select(item => item.Record.UserId),
+                    HttpContext.RequestAborted)
+                    .ToDictionaryAsync(playerInfo => playerInfo.PlayerCode)
+                    .AsTask()
+                    .ToAsyncEnumerable()
+                    .SelectMany(dict => items.ToAsyncEnumerable()
+                        .Select(item => (item.Record, item.Info, PlayerMap: dict)))
+                    .Select(tup => new AdjustRecordListItemViewModel
+                    {
+                        Id = tup.Record.Id,
+                        BrandId = tup.Record.BrandId,
+                        AdjustType = tup.Record.AdjustType,
+                        Amount = tup.Record.Amount,
+                        BrandCode = tup.Info.BrandCode,
+                        BucketAmount = tup.Record.BucketAmount,
+                        CreatedOn = tup.Record.CreatedOn,
+                        Operator = tup.Record.Operator,
+                        UserName = tup.PlayerMap[tup.Record.UserId].UserName,
+                        UserType = tup.Record.UserType,
+                        Remark = tup.Record.Remark
+                    }))
+                .Take(rows)
+                .ToArrayAsync(HttpContext.RequestAborted)
+                .ConfigureAwait(false)
+        };
+    }
 }
