@@ -16,7 +16,9 @@ using Tgs.CashQueryService.Client;
 using Tgs.PlayerService.Client;
 using Tgs.ServiceUtility;
 using TGS.Apis.BackendOffice.ViewModels;
+using TGS.Core.Models.Messages;
 using TGS.Services.BackOffice.ApplicationServices;
+using Xunit;
 using Xunit.Abstractions;
 
 namespace BackendOffice.IntegrationTests;
@@ -260,13 +262,20 @@ public class AdjustWalletTests
                 0,
                 0M));
 
+        var queryCondition = new AdjustRecordQueryCondition(
+            (queryViewModel.From.ToUniversalTime(), queryViewModel.To.ToUniversalTime()),
+            queryViewModel.SearchTypes,
+            agentId.ToString(),
+            queryViewModel.Operator);
+        _ = fakeCashQueryClient.CountAgentAdjustRecordsAsync(
+            Arg.Is(brandId),
+            Arg.Is(queryCondition),
+            Arg.Any<CancellationToken>())
+            .Returns(1);
         _ = fakeCashQueryClient.QueryAgentAdjustRecordsAsync(
             Arg.Is(brandId),
-            Arg.Is(new AdjustRecordQueryCondition(
-                (queryViewModel.From.ToUniversalTime(), queryViewModel.To.ToUniversalTime()),
-                queryViewModel.SearchTypes,
-                agentId.ToString(),
-                queryViewModel.Operator)),
+            Arg.Is(queryCondition),
+            Arg.Is(1),
             Arg.Is(0),
             Arg.Any<CancellationToken>())
             .Returns(queryRecords.ToAsyncEnumerable());
@@ -352,12 +361,24 @@ public class AdjustWalletTests
                 1,
                 10
             });
-        var actual = JsonSerializer.Deserialize<AdjustRecordListItemViewModel[]>(
+        var actual = JsonSerializer.Deserialize<PagedResponse<AdjustRecordListItemViewModel>>(
             responseString!,
             web.Services.GetRequiredService<IOptions<JsonOptions>>().Value.JsonSerializerOptions);
 
         // Assert
-        expected.ToExpectedObject().ShouldEqual(actual);
+        expected.ToExpectedObject().ShouldEqual(actual?.Items);
+    }
+
+    [Fact]
+    public void 取得代理調帳記錄筆數()
+    {
+        // Arrange
+
+
+        // Act
+
+        // Assert
+
     }
 
     [Fact]
@@ -427,13 +448,20 @@ public class AdjustWalletTests
                 BrandId = brandId
             });
 
+        var queryCondition = new AdjustRecordQueryCondition(
+            (queryViewModel.From.ToUniversalTime(), queryViewModel.To.ToUniversalTime()),
+            queryViewModel.SearchTypes,
+            "test1",
+            queryViewModel.Operator);
+        _ = fakeCashQueryClient.CountPlayerAdjustRecordsAsync(
+            Arg.Is(brandId),
+            Arg.Is(queryCondition),
+            Arg.Any<CancellationToken>())
+            .Returns(1);
         _ = fakeCashQueryClient.QueryPlayerAdjustRecordsAsync(
             Arg.Is(brandId),
-            Arg.Is(new AdjustRecordQueryCondition(
-                (queryViewModel.From.ToUniversalTime(), queryViewModel.To.ToUniversalTime()),
-                queryViewModel.SearchTypes,
-                "test1",
-                queryViewModel.Operator)),
+            Arg.Is(queryCondition),
+            Arg.Is(1),
             Arg.Is(0),
             Arg.Any<CancellationToken>())
             .Returns(queryRecords.ToAsyncEnumerable());
@@ -512,12 +540,12 @@ public class AdjustWalletTests
                 1,
                 10
             });
-        var actual = JsonSerializer.Deserialize<AdjustRecordListItemViewModel[]>(
+        var actual = JsonSerializer.Deserialize<PagedResponse<AdjustRecordListItemViewModel>>(
             responseString!,
             web.Services.GetRequiredService<IOptions<JsonOptions>>().Value.JsonSerializerOptions);
 
         // Assert
-        expected.ToExpectedObject().ShouldEqual(actual);
+        expected.ToExpectedObject().ShouldEqual(actual?.Items);
     }
 
     [Fact]
@@ -579,6 +607,7 @@ public class AdjustWalletTests
                 null,
                 null,
                 null)),
+            Arg.Is(3),
             Arg.Is(0),
             Arg.Any<CancellationToken>())
             .Returns(queryRecords.ToAsyncEnumerable());
@@ -703,6 +732,7 @@ public class AdjustWalletTests
                 null,
                 null,
                 null)),
+            Arg.Is(1),
             Arg.Is(0),
             Arg.Any<CancellationToken>())
             .Returns(queryRecords.ToAsyncEnumerable());

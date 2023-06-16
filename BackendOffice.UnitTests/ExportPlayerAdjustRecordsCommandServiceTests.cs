@@ -30,7 +30,12 @@ public class ExportPlayerAdjustRecordsCommandServiceTests
             (DateTime.Now.AddDays(-1D), DateTime.Now),
             fs);
 
-        _ = fakeCashQueryClient.QueryPlayerAdjustRecordsAsync(Arg.Is(command.BrandId), Arg.Any<AdjustRecordQueryCondition>())
+        _ = fakeCashQueryClient.CountPlayerAdjustRecordsAsync(Arg.Is(command.BrandId), Arg.Any<AdjustRecordQueryCondition>())
+            .Returns(1);
+        _ = fakeCashQueryClient.QueryPlayerAdjustRecordsAsync(
+            Arg.Is(command.BrandId),
+            Arg.Any<AdjustRecordQueryCondition>(),
+            Arg.Any<int>())
             .Returns(new[]
             {
                 new AdjustRecordListItem(

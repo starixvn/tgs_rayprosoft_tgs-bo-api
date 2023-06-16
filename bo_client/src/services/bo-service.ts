@@ -541,7 +541,7 @@ export default class BackOfficeService {
         brandId: string,
         condition: AdjustRecordQueryRequest,
         page: number,
-        rows: number): Promise<Iterable<AdjustRecordListItem>> {
+        rows: number): Promise<PagedResponse<Iterable<AdjustRecordListItem>>> {
         return this.http
             .get(
                 `/api/adjust-wallet/player/${brandId}`,
@@ -559,7 +559,7 @@ export default class BackOfficeService {
         brandId: string,
         condition: AdjustRecordQueryRequest,
         page: number,
-        rows: number): Promise<Iterable<AdjustRecordListItem>> {
+        rows: number): Promise<PagedResponse<Iterable<AdjustRecordListItem>>> {
         return this.http
             .get(
                 `/api/adjust-wallet/agent/${brandId}`,

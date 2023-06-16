@@ -38,7 +38,14 @@ public class ExportAgentAdjustRecordsCommandServiceTests
 
         var agentId = Guid.NewGuid();
 
-        _ = fakeCashQueryClient.QueryAgentAdjustRecordsAsync(Arg.Is(command.BrandId), Arg.Any<AdjustRecordQueryCondition>())
+        _ = fakeCashQueryClient.CountAgentAdjustRecordsAsync(
+            Arg.Is(command.BrandId),
+            Arg.Any<AdjustRecordQueryCondition>())
+            .Returns(1);
+        _ = fakeCashQueryClient.QueryAgentAdjustRecordsAsync(
+            Arg.Is(command.BrandId),
+            Arg.Any<AdjustRecordQueryCondition>(),
+            Arg.Any<int>())
             .Returns(new[]
             {
                 new AdjustRecordListItem(

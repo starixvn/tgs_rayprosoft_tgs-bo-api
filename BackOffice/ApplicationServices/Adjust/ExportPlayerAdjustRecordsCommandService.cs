@@ -40,14 +40,26 @@ internal class ExportPlayerAdjustRecordsCommandService : ICommandService<ExportP
         var brandCode = brandCodeMap[command.BrandId];
 
         var records = AsyncEnumerableEx.Return(new Dictionary<string, string>())
-            .SelectMany(map => _cashQueryClient.QueryPlayerAdjustRecordsAsync(
-                command.BrandId,
-                new AdjustRecordQueryCondition(
-                    command.CreatedOnRange,
-                    null,
-                    null,
-                    null),
-                cancellationToken: cancellationToken)
+            .SelectMany(map => AsyncEnumerableEx.Return(new AdjustRecordQueryCondition(
+                command.CreatedOnRange,
+                null,
+                null,
+                null))
+                .SelectMany(condition => _cashQueryClient.CountPlayerAdjustRecordsAsync(
+                    command.BrandId,
+                    condition,
+                    cancellationToken)
+                    .AsTask()
+                    .ToAsyncEnumerable()
+                    .SelectMany(count => _cashQueryClient.QueryPlayerAdjustRecordsAsync(
+                        command.BrandId,
+                        new AdjustRecordQueryCondition(
+                            command.CreatedOnRange,
+                            null,
+                            null,
+                            null),
+                        count,
+                        cancellationToken: cancellationToken)))
                 .Select(item => (Record: item, BrandCode: brandCodeMap[item.BrandId]))
                 .Buffer(100)
                 .SelectMany(items => _playerServiceClient
