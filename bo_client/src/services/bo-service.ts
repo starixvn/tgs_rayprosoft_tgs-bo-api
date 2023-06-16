@@ -524,10 +524,10 @@ export default class BackOfficeService {
             .then(res => res.data);
     }
 
-    public queryAdjustSummaries(from: Date, to: Date): Promise<Iterable<AdjustSummaryListItem>> {
+    public queryAdjustSummaries(resellerId: string, from: Date, to: Date): Promise<Iterable<AdjustSummaryListItem>> {
         return this.http
             .get(
-                '/api/adjust-wallet/summary',
+                `/api/adjust-wallet/summary/${resellerId}`,
                 {
                     params: {
                         from,

@@ -98,10 +98,11 @@ public class AdjustWalletController : ControllerBase
         }
     }
 
-    [HttpGet("summary", Name = "QueryAdjustSummaries")]
+    [HttpGet("summary/{resellerId}", Name = "QueryAdjustSummaries")]
     public IAsyncEnumerable<AdjustSummaryListItemViewModel> QueryAdjustSummariesAsync(
         [FromServices] IQueryService<BrandRelationQuery, BrandRelationInfo> brandRelationQueryService,
         [FromServices] IQueryService<AdjustSummariesQuery, AdjustSummaryListItem> queryService,
+        Guid resellerId,
         [FromQuery] AdjustSummaryQueryViewModel queryViewModel)
         => brandRelationQueryService.QueryAsync(new(), HttpContext.RequestAborted)
             .ToDictionaryAsync(info => info.BrandId, HttpContext.RequestAborted)
@@ -112,6 +113,7 @@ public class AdjustWalletController : ControllerBase
                     new((queryViewModel.From, queryViewModel.To)),
                     HttpContext.RequestAborted)
                 .Select(record => (Record: record, Info: dict[record.BrandId]))
+                .Where(tup => tup.Info.ResellerId == resellerId)
                 .Select(tup => new AdjustSummaryListItemViewModel
                 {
                     BrandId = tup.Record.BrandId,

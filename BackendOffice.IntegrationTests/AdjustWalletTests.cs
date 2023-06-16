@@ -70,6 +70,7 @@ public class AdjustWalletTests
         var brandCode2 = "Test2";
         var licenseeId = Guid.NewGuid();
         var licensee = "L1";
+        var resellerId = Guid.NewGuid();
 
         var expectedCondition = new AdjustRecordQueryCondition(
             (from.ToUniversalTime(), to.ToUniversalTime()),
@@ -135,7 +136,7 @@ public class AdjustWalletTests
                     licenseeId,
                     licensee,
                     licensee,
-                    Guid.NewGuid(),
+                    resellerId,
                     string.Empty,
                     string.Empty),
                 new BrandRelationInfo(
@@ -145,7 +146,7 @@ public class AdjustWalletTests
                     licenseeId,
                     licensee,
                     licensee,
-                    Guid.NewGuid(),
+                    resellerId,
                     string.Empty,
                     string.Empty)
             }.ToAsyncEnumerable());
@@ -186,20 +187,20 @@ public class AdjustWalletTests
             const axiosConfigFactory = require('./models/axios-configuration.js').default;
             const BackOfficeService = require('./services/bo-service.js').default;
 
-            module.exports = async (from, to) =>
+            module.exports = async (resellerId, from, to) =>
             {
                 let instance = axiosConfigFactory("{{channelName}}", {{isWindows}});
 
                 let svc = new BackOfficeService(instance);
 
-                return await svc.queryAdjustSummaries(from, to);
+                return await svc.queryAdjustSummaries(resellerId, from, to);
             };
             """;
 
         // Act
         var actual = await StaticNodeJSService.InvokeFromStringAsync<AdjustSummaryListItemViewModel[]>(
             nodeModule,
-            args: new object[] { from, to });
+            args: new object[] { resellerId, from, to });
 
         // Assert
         expected.ToExpectedObject().ShouldEqual(actual);
