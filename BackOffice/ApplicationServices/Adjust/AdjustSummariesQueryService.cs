@@ -37,7 +37,13 @@ internal class AdjustSummariesQueryService : IQueryService<AdjustSummariesQuery,
                     0,
                     0,
                     0,
-                    0),
+                    0,
+                    0M,
+                    0M,
+                    0M,
+                    0M,
+                    0M,
+                    0M),
                 (seed, item) => seed with
                 {
                     Company = seed.Company + item.Company,
@@ -45,7 +51,13 @@ internal class AdjustSummariesQueryService : IQueryService<AdjustSummariesQuery,
                     System = seed.System + item.System,
                     Bonus = seed.Bonus + item.Bonus,
                     Transfer = seed.Transfer + item.Transfer,
-                    AgentOther = seed.AgentOther + item.AgentOther
+                    AgentOther = seed.AgentOther + item.AgentOther,
+                    CompanyAmount = seed.CompanyAmount + item.CompanyAmount,
+                    AgentAmount = seed.AgentAmount + item.AgentAmount,
+                    SystemAmount = seed.SystemAmount + item.SystemAmount,
+                    TransferAmount = seed.TransferAmount + item.TransferAmount,
+                    BonusAmount = seed.BonusAmount + item.BonusAmount,
+                    AgentOtherAmount = seed.AgentOtherAmount + item.AgentOtherAmount
                 },
                 cancellationToken)
                 .AsTask()

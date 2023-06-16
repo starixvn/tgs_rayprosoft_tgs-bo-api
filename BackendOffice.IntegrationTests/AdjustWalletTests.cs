@@ -86,7 +86,13 @@ public class AdjustWalletTests
                     3,
                     4,
                     5,
-                    0),
+                    0,
+                    10M,
+                    20M,
+                    30M,
+                    40M,
+                    50M,
+                    0M),
                 new AdjustSummaryListItem(
                     brandId2,
                     5,
@@ -94,7 +100,13 @@ public class AdjustWalletTests
                     3,
                     2,
                     1,
-                    0)
+                    0,
+                    50M,
+                    40M,
+                    30M,
+                    20M,
+                    10M,
+                    0M)
             }.ToAsyncEnumerable());
         _ = fakeCashQueryClient.QueryAgentAdjustSummariesAsync(Arg.Is(expectedCondition), Arg.Any<CancellationToken>())
             .Returns(new[]
@@ -106,7 +118,13 @@ public class AdjustWalletTests
                     0,
                     0,
                     0,
-                    7),
+                    7,
+                    0M,
+                    0M,
+                    0M,
+                    0M,
+                    0M,
+                    70M),
             }.ToAsyncEnumerable());
         _ = fakeBrandRelationQueryService.QueryAsync(Arg.Any<BrandRelationQuery>(), Arg.Any<CancellationToken>())
             .Returns(new[] {
@@ -143,7 +161,9 @@ public class AdjustWalletTests
                 System = 3,
                 Transfer = 4,
                 Bonus = 5,
-                AgentOther = 7
+                AgentOther = 7,
+                PlayerAdjustAmount = 150M,
+                AgentAdjustAmount = 70M
             },
             new AdjustSummaryListItemViewModel
             {
@@ -155,7 +175,8 @@ public class AdjustWalletTests
                 System = 3,
                 Transfer = 2,
                 Bonus = 1,
-                AgentOther = 0
+                AgentOther = 0,
+                PlayerAdjustAmount = 150M
             }
         };
 
