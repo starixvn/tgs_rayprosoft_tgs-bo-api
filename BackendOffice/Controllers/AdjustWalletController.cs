@@ -23,31 +23,6 @@ namespace TGS.Apis.BackendOffice.Controllers;
 [ApiController]
 public class AdjustWalletController : ControllerBase
 {
-    public async Task<int> CountPlayerAdjustRecordsAsync(
-        [FromServices] IGetService<PlayerAdjustRecordsQuery, int> countService,
-        [FromServices] IPlayerServiceClient playerServiceClient,
-        Guid brandId,
-        [FromQuery] AdjustRecordQueryViewModel queryViewModel)
-    {
-        var playerInfo = string.IsNullOrWhiteSpace(queryViewModel.UserName)
-            ? null
-            : await playerServiceClient.GetPlayerInfoByUserNameAsync(
-                    brandId,
-                    queryViewModel.UserName,
-                    HttpContext.RequestAborted).ConfigureAwait(false);
-
-        var query = new PlayerAdjustRecordsQuery(
-            brandId,
-            (queryViewModel.From, queryViewModel.To),
-            queryViewModel.SearchTypes,
-            playerInfo?.UserName,
-            queryViewModel.Operator);
-
-        return await countService.GetAsync(
-            query,
-            HttpContext.RequestAborted).ConfigureAwait(false);
-    }
-
     [HttpGet("agent/{brandId}:export", Name = "ExportAgentAdjustRecordsExcel")]
     public async Task ExportAgentAdjustRecordsExcelAsync(
         [FromServices] ICommandService<ExportAgentAdjustRecordsCommand> exportService,
