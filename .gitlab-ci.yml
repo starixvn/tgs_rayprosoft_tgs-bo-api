@@ -27,7 +27,7 @@ build-code:
 unit-test:
   extends: .unit-test-template
   script:
-    - dotnet test -c $BuildConfiguration -l:"junit;LogFilePath=../TestReports/{assembly}-TestReport.xml"
+    - dotnet test "**/bin/$BuildConfiguration/*/*Tests.dll" -l:"junit;LogFilePath=../TestReports/{assembly}-TestReport.xml"
 
 push-docker-image:
   extends: .push-docker-image-template
