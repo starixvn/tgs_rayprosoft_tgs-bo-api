@@ -207,6 +207,15 @@ public class PlayerBucketTests
             })
             .ToArray();
 
+        _ = fakePlayerServiceClient.GetPlayerInfoAsync(Arg.Is(playerCode), Arg.Any<CancellationToken>())
+            .Returns(new PlayerInfo());
+
+        _ = fakePlayerBucketClient.QueryCleanBucketFomsAsync(
+            Arg.Is(playerCode),
+            Arg.Is(CleanFlowStatus.Completed),
+            Arg.Any<CancellationToken>())
+            .Returns(forms.ToAsyncEnumerable());
+
         var nodeModule = $$"""
             const axiosConfigFactory = require('./models/axios-configuration.js').default;
             const BackOfficeService = require('./services/bo-service.js').default;
@@ -224,25 +233,14 @@ public class PlayerBucketTests
             };
         """;
 
-        _ = fakePlayerServiceClient.GetPlayerInfoAsync(Arg.Is(playerCode), Arg.Any<CancellationToken>())
-            .Returns(new PlayerInfo());
-
-        _ = fakePlayerBucketClient.QueryCleanBucketFomsAsync(
-            Arg.Is(playerCode),
-            Arg.Is(CleanFlowStatus.Completed),
-            Arg.Any<CancellationToken>())
-            .Returns(forms.ToAsyncEnumerable());
-
         // Act
         var actual = await StaticNodeJSService.InvokeFromStringAsync<CleanBucketFormViewModel[]>(
             nodeModule,
             args: new object[] { playerCode, CleanFlowStatus.Completed });
 
         // Assert
-        expected
-            .ToExpectedObject(ctx => ctx
-                .ArrayMemberShouldMatch(o => o))
-            .ShouldEqual(actual);
+        expected.ToExpectedObject(ctx => ctx
+            .ArrayMemberShouldMatch(o => o)).ShouldEqual(actual);
     }
 
     [Fact]
