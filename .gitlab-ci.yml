@@ -28,6 +28,10 @@ unit-test:
   extends: .unit-test-template
   script:
     - dotnet test "**/bin/$BuildConfiguration/*/*Tests.dll" -l:"junit;LogFilePath=TestReports/TestResults.xml"
+  artifacts:
+    reports:
+      junit: ./TestReports/TestResults.xml
+
 
 push-docker-image:
   extends: .push-docker-image-template
