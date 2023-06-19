@@ -87,7 +87,7 @@ public class PlayerPaymentTests
 
                 return await svc.getPlayerPaymentOverview(playerCode);
             };
-        """;
+            """;
 
         // Act
         var actual = await StaticNodeJSService.InvokeFromStringAsync<PaymentOverviewViewModel>(
