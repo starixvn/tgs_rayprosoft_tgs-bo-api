@@ -419,7 +419,7 @@ public class StationLetterTests
         var expected = new
         {
             letters[1].Id,
-            letters[1].Sender,
+            ReceiverType = letters[1].ReceiverType.ToString(),
             letters[1].Subject,
             letters[1].SentOn
         };

@@ -2,10 +2,12 @@
 
 using System;
 using System.Linq;
+using System.Linq.Dynamic.Core;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Tgs.BrandCertificate.Clients;
+using Tgs.PlayerService.Client;
 using Tgs.Promotion.Clients.Models;
 using Tgs.ServiceUtility;
 using Tgs.StationLetterService.Client;
@@ -23,6 +25,7 @@ public class DeliveryLetterController : ControllerBase
     public async Task<PagedResponse<DeliveryLetterListItemViewModel>> GetBrandDeliveryLettersAsync(
         [FromServices] IGetService<GetBrandInfoQuery, BrandInfo?> getBrandService,
         [FromServices] IQueryService<GetDeliveryLettersQuery, DeliveryLetter> queryService,
+        [FromServices] IPlayerServiceClient playerServiceClient,
         Guid brandId,
         [FromQuery(Name = "page")] int page = 1,
         [FromQuery(Name = "rows")] int rows = 10)
@@ -39,7 +42,7 @@ public class DeliveryLetterController : ControllerBase
             .Select(letter => new DeliveryLetterListItemViewModel
             {
                 Id = letter.Id,
-                Sender = letter.Sender,
+                ReceiverType = letter.ReceiverType.ToString(),
                 Subject = letter.Subject,
                 SentOn = letter.SentOn
             })
