@@ -8,6 +8,7 @@ using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
 using NSubstitute;
 using Tgs.BrandCertificate.Clients;
+using Tgs.PlayerService.Client;
 using Tgs.StationLetterService;
 using Tgs.StationLetterService.Client;
 using TGS.Apis.BackendOffice.ViewModels;
@@ -119,6 +120,7 @@ public class StationLetterTests
 
         var fakeBrandServiceClient = Substitute.For<IBrandServiceClient>();
         var fakeStationLetterClient = Substitute.For<IStationLetterClient>();
+        var fakePlayerServiceClient = Substitute.For<IPlayerServiceClient>();
 
         using var web = TestBackendOfficeApplication.Builder
             .UseTestChannelServer(channelName)
@@ -134,7 +136,8 @@ public class StationLetterTests
                     })
                 .Services
                 .AddSingleton(fakeBrandServiceClient)
-                .AddSingleton(fakeStationLetterClient))
+                .AddSingleton(fakeStationLetterClient)
+                .AddSingleton(fakePlayerServiceClient))
             .Build();
 
         await web.StartAsync();
@@ -167,10 +170,22 @@ public class StationLetterTests
                 letter
             }.ToAsyncEnumerable());
 
+        _ = fakePlayerServiceClient.QueryPlayerInfoListAsync(
+            Arg.Is(brandId),
+            Arg.Any<IEnumerable<string>>(),
+            Arg.Any<CancellationToken>())
+            .Returns(new[] {
+                new PlayerInfo
+                {
+                    PlayerCode = "test1",
+                    UserName = "Player1"
+                }
+            }.ToAsyncEnumerable());
+
         var expected = new StationLetterListItemViewModel
         {
             Id = letter.Id,
-            Sender = letter.Sender,
+            Sender = "Player1",
             Subject = letter.Subject,
             SentOn = letter.SentOn
         };
@@ -211,6 +226,7 @@ public class StationLetterTests
 
         var fakeBrandServiceClient = Substitute.For<IBrandServiceClient>();
         var fakeStationLetterClient = Substitute.For<IStationLetterClient>();
+        var fakePlayerServiceClient = Substitute.For<IPlayerServiceClient>();
 
         using var web = TestBackendOfficeApplication.Builder
             .UseTestChannelServer(channelName)
@@ -226,7 +242,8 @@ public class StationLetterTests
                     })
                 .Services
                 .AddSingleton(fakeBrandServiceClient)
-                .AddSingleton(fakeStationLetterClient))
+                .AddSingleton(fakeStationLetterClient)
+                .AddSingleton(fakePlayerServiceClient))
             .Build();
 
         await web.StartAsync();
@@ -280,10 +297,22 @@ public class StationLetterTests
         _ = fakeStationLetterClient.ListStationLettersAsync(Arg.Is("GPI"), Arg.Any<CancellationToken>())
             .Returns(letters.ToAsyncEnumerable());
 
+        _ = fakePlayerServiceClient.QueryPlayerInfoListAsync(
+            Arg.Is(brandId),
+            Arg.Any<IEnumerable<string>>(),
+            Arg.Any<CancellationToken>())
+            .Returns(new[] {
+                new PlayerInfo
+                {
+                    PlayerCode = "test2",
+                    UserName = "Player2"
+                }
+            }.ToAsyncEnumerable());
+
         var expected = new StationLetterListItemViewModel
         {
             Id = letters[1].Id,
-            Sender = letters[1].Sender,
+            Sender = "Player2",
             Subject = letters[1].Subject,
             SentOn = letters[1].SentOn
         };
