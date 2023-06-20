@@ -26,6 +26,7 @@ public class StationLetterV2Controller : ControllerBase
         [FromServices] IQueryService<GetBrandLettersQuery, StationLetter> queryService,
         [FromServices] IPlayerServiceClient playerServiceClient,
         Guid brandId,
+        [FromQuery(Name = "player")] string? playerCode,
         [FromQuery(Name = "page")] int page = 1,
         [FromQuery(Name = "rows")] int rows = 10)
     {
@@ -38,6 +39,7 @@ public class StationLetterV2Controller : ControllerBase
             .SelectMany(brandInfo => queryService.QueryAsync(
                 new GetBrandLettersQuery(brandInfo!.Code),
                 HttpContext.RequestAborted))
+            .Where(letter => string.IsNullOrEmpty(playerCode) || letter.Sender == playerCode)
             .Buffer(rows)
             .SelectMany(letters => playerServiceClient.QueryPlayerInfoListAsync(
                 brandId,
