@@ -6,6 +6,7 @@ using System.Threading.Tasks;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Tgs.BrandCertificate.Clients;
+using Tgs.PlayerService.Client;
 using Tgs.ServiceUtility;
 using Tgs.StationLetterService.Client;
 using TGS.Apis.BackendOffice.ViewModels;
@@ -23,6 +24,7 @@ public class StationLetterV2Controller : ControllerBase
     public async Task<PagedResponse<StationLetterListItemViewModel>> GetBrandLettersAsync(
         [FromServices] IGetService<GetBrandInfoQuery, BrandInfo?> getBrandService,
         [FromServices] IQueryService<GetBrandLettersQuery, StationLetter> queryService,
+        [FromServices] IPlayerServiceClient playerServiceClient,
         Guid brandId,
         [FromQuery(Name = "page")] int page = 1,
         [FromQuery(Name = "rows")] int rows = 10)
@@ -36,14 +38,25 @@ public class StationLetterV2Controller : ControllerBase
             .SelectMany(brandInfo => queryService.QueryAsync(
                 new GetBrandLettersQuery(brandInfo!.Code),
                 HttpContext.RequestAborted))
-            .Select(letter => new StationLetterListItemViewModel
-            {
-                Id = letter.Id,
-                Sender = letter.Sender,
-                Subject = letter.Subject,
-                SentOn = letter.SentOn,
-                Replied = letter.Replied
-            })
+            .Buffer(rows)
+            .SelectMany(letters => playerServiceClient.QueryPlayerInfoListAsync(
+                brandId,
+                letters.Select(letter => letter.Sender),
+                HttpContext.RequestAborted)
+                .ToDictionaryAsync(info => info.PlayerCode, HttpContext.RequestAborted)
+                .AsTask()
+                .ToAsyncEnumerable()
+                .SelectMany(playerMap => letters.ToAsyncEnumerable()
+                    .Select(letter => new StationLetterListItemViewModel
+                    {
+                        Id = letter.Id,
+                        Sender = playerMap.TryGetValue(letter.Sender, out var info)
+                            ? info.UserName
+                            : letter.Sender,
+                        Subject = letter.Subject,
+                        SentOn = letter.SentOn,
+                        Replied = letter.Replied
+                    })))
             .ToArrayAsync(HttpContext.RequestAborted)
             .ConfigureAwait(false);
 
