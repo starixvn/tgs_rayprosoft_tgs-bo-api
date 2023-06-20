@@ -8,7 +8,7 @@ public class DeliveryLetterListItemViewModel
 {
     public required Guid Id { get; set; }
 
-    public required string Sender { get; set; }
+    public required string ReceiverType { get; set; }
 
     public DateTime SentOn { get; set; }
 
