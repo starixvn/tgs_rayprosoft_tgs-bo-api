@@ -392,18 +392,6 @@ public class AdjustWalletTests
     }
 
     [Fact]
-    public void 取得代理調帳記錄筆數()
-    {
-        // Arrange
-
-
-        // Act
-
-        // Assert
-
-    }
-
-    [Fact]
     public async Task 查詢玩家調帳記錄()
     {
         // Arrange

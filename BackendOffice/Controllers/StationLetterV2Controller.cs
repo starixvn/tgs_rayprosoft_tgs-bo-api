@@ -131,7 +131,8 @@ public class StationLetterV2Controller : ControllerBase
             brandInfo.Code,
             letter.Sender,
             letterId,
-            viewModel.Content);
+            viewModel.Content,
+            HttpContext.User.GetUserName()!);
 
         await replyService.ExecuteAsync(
             command,
@@ -155,7 +156,8 @@ public class StationLetterV2Controller : ControllerBase
         var command = new SendAllPlayersLetterCommand(
             brandInfo.Code,
             viewModel.Subject,
-            viewModel.Content);
+            viewModel.Content,
+            HttpContext.User.GetUserName()!);
 
         await sendLetterService.ExecuteAsync(
             command,
@@ -180,7 +182,8 @@ public class StationLetterV2Controller : ControllerBase
             brandInfo.Code,
             viewModel.Receivers,
             viewModel.Subject,
-            viewModel.Content);
+            viewModel.Content,
+            HttpContext.User.GetUserName()!);
 
         await sendLetterService.ExecuteAsync(
             command,

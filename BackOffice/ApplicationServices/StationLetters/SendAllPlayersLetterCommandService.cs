@@ -22,7 +22,8 @@ internal class SendAllPlayersLetterCommandService : ICommandService<SendAllPlaye
         var request = new BrandAllPlayersStationLetterRequest(
             command.BrandCode,
             command.Subject,
-            command.Content);
+            command.Content,
+            command.Operator);
 
         return _stationLetterClient.SendBrandAllPlayersStationLetterAsync(request, cancellationToken);
     }

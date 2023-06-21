@@ -7,7 +7,6 @@ using System.Threading.Tasks;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Tgs.BrandCertificate.Clients;
-using Tgs.PlayerService.Client;
 using Tgs.Promotion.Clients.Models;
 using Tgs.ServiceUtility;
 using Tgs.StationLetterService.Client;
@@ -25,8 +24,8 @@ public class DeliveryLetterController : ControllerBase
     public async Task<PagedResponse<DeliveryLetterListItemViewModel>> GetBrandDeliveryLettersAsync(
         [FromServices] IGetService<GetBrandInfoQuery, BrandInfo?> getBrandService,
         [FromServices] IQueryService<GetDeliveryLettersQuery, DeliveryLetter> queryService,
-        [FromServices] IPlayerServiceClient playerServiceClient,
         Guid brandId,
+        [FromQuery(Name = "operator")] string? operatorUser,
         [FromQuery(Name = "page")] int page = 1,
         [FromQuery(Name = "rows")] int rows = 10)
     {
@@ -39,12 +38,15 @@ public class DeliveryLetterController : ControllerBase
             .SelectMany(brandInfo => queryService.QueryAsync(
                 new GetDeliveryLettersQuery(brandInfo!.Code),
                 HttpContext.RequestAborted))
+            .Where(letter => string.IsNullOrEmpty(operatorUser)
+                || string.Equals(letter.Operator, operatorUser, StringComparison.OrdinalIgnoreCase))
             .Select(letter => new DeliveryLetterListItemViewModel
             {
                 Id = letter.Id,
                 ReceiverType = letter.ReceiverType.ToString(),
                 Subject = letter.Subject,
-                SentOn = letter.SentOn
+                SentOn = letter.SentOn,
+                Operator = letter.Operator
             })
             .ToArrayAsync(HttpContext.RequestAborted)
             .ConfigureAwait(false);
@@ -86,7 +88,8 @@ public class DeliveryLetterController : ControllerBase
                 Sender = letter.Sender,
                 SentOn = letter.SentOn,
                 Subject = letter.Subject,
-                ComeFrom = letter.ComeFrom
+                ComeFrom = letter.ComeFrom,
+                Operator = letter.Operator
             };
     }
 }
