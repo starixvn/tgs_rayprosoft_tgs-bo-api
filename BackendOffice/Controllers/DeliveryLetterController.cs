@@ -25,7 +25,6 @@ public class DeliveryLetterController : ControllerBase
     public async Task<PagedResponse<DeliveryLetterListItemViewModel>> GetBrandDeliveryLettersAsync(
         [FromServices] IGetService<GetBrandInfoQuery, BrandInfo?> getBrandService,
         [FromServices] IQueryService<GetDeliveryLettersQuery, DeliveryLetter> queryService,
-        [FromServices] IPlayerServiceClient playerServiceClient,
         Guid brandId,
         [FromQuery(Name = "page")] int page = 1,
         [FromQuery(Name = "rows")] int rows = 10)
