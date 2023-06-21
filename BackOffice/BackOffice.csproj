@@ -63,7 +63,7 @@
     <PackageReference Include="Tgs.Core.Infrastructures.Security" Version="0.0.2" />
     <PackageReference Include="Tgs.DepositAccumulateRoulette.Client" Version="0.0.6" />
     <PackageReference Include="Tgs.GameProviders.Pluggable.Client" Version="0.0.31" />
-    <PackageReference Include="Tgs.DomainSetting.Client" Version="0.0.6" />
+    <PackageReference Include="Tgs.DomainSetting.Client" Version="0.0.7" />
     <PackageReference Include="Tgs.MarketingReport.Client" Version="0.0.8" />
     <PackageReference Include="Tgs.Paging.AsyncEnumerable" Version="1.2.1" />
     <PackageReference Include="Tgs.Payment.Client" Version="0.4.8" />
@@ -75,7 +75,7 @@
     <PackageReference Include="Tgs.Report.Client" Version="0.0.58" />
     <PackageReference Include="Tgs.SerialNumberGenerator" Version="1.0.0" />
     <PackageReference Include="TGS.ServiceUtility" Version="0.2.0" />
-    <PackageReference Include="Tgs.StationLetter.Client" Version="0.0.6" />
+    <PackageReference Include="Tgs.StationLetter.Client" Version="0.0.7" />
     <PackageReference Include="Tgs.VipLevelService.Client" Version="0.0.7" />
   </ItemGroup>
 

@@ -13,6 +13,8 @@ public class DeliveryLetterViewModel
 
     public required Guid Id { get; set; }
 
+    public required string Operator { get; set; }
+
     public JsonDocument? Receiver { get; set; }
 
     public required string ReceiverType { get; set; }

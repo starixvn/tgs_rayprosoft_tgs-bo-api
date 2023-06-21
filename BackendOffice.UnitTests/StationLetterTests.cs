@@ -17,7 +17,8 @@ public class StationLetterTests
             "GPI",
             "test1",
             Guid.NewGuid(),
-            "reply");
+            "reply",
+            "operator");
 
         await sut.ExecuteAsync(command);
 
@@ -27,7 +28,8 @@ public class StationLetterTests
                 Arg.Is(new ReplyStationLetterRequest(
                     command.BrandCode,
                     command.PlayerCode,
-                    command.Content)));
+                    command.Content,
+                    command.Operator)));
     }
 
     [Test]
@@ -100,7 +102,8 @@ public class StationLetterTests
         var command = new SendAllPlayersLetterCommand(
             "GPI",
             "title",
-            "aabbcc");
+            "aabbcc",
+            "operator");
 
         await sut.ExecuteAsync(command);
 
@@ -108,7 +111,8 @@ public class StationLetterTests
             .SendBrandAllPlayersStationLetterAsync(Arg.Is(new BrandAllPlayersStationLetterRequest(
                 command.BrandCode,
                 command.Subject,
-                command.Content)));
+                command.Content,
+                command.Operator)));
     }
 
     [Test]
@@ -122,7 +126,8 @@ public class StationLetterTests
             "GPI",
             new[] { "player1", "player2" },
             "title",
-            "aabcc");
+            "aabcc",
+            "operator");
 
         await sut.ExecuteAsync(command);
 
@@ -131,6 +136,7 @@ public class StationLetterTests
                 command.BrandCode,
                 command.PlayerCodes,
                 command.Subject,
-                command.Content)));
+                command.Content,
+                command.Operator)));
     }
 }

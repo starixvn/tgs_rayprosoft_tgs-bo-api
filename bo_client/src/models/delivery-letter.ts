@@ -7,4 +7,5 @@ interface DeliveryLetter {
     content: string;
     comeFrom?: string;
     sentOn: Date;
+    operator: string;
 }

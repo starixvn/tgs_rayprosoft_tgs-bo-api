@@ -5,4 +5,5 @@ interface DeliveryLetterListItem {
     receiver?: {};
     subject: string;
     sentOn: Date;
+    operator: string;
 }

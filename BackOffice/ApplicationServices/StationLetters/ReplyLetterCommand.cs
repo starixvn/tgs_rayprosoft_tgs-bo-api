@@ -5,4 +5,5 @@ public record ReplyLetterCommand(
     string BrandCode,
     string PlayerCode,
     Guid LetterId,
-    string Content);
+    string Content,
+    string Operator);

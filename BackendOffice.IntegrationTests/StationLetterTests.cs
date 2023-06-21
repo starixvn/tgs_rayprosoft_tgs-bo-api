@@ -107,7 +107,7 @@ public class StationLetterTests
         _ = fakeStationLetterClient.Received(1)
             .ReplyStationLetterAsync(
                 Arg.Is(letterId),
-                Arg.Is(new ReplyStationLetterRequest("GPI", "test1", content)),
+                Arg.Is(new ReplyStationLetterRequest("GPI", "test1", content, "system")),
                 Arg.Any<CancellationToken>());
     }
 
@@ -521,7 +521,8 @@ public class StationLetterTests
                 "test1",
                 "aaabdfasfdasfd",
                 null,
-                DateTime.UtcNow),
+                DateTime.UtcNow,
+                "system"),
             new DeliveryLetter(
                 Guid.NewGuid(),
                 "tes2",
@@ -530,7 +531,8 @@ public class StationLetterTests
                 "test2",
                 "fafdsafasf",
                 null,
-                DateTime.UtcNow),
+                DateTime.UtcNow,
+                "system"),
             new DeliveryLetter(
                 Guid.NewGuid(),
                 "test3",
@@ -539,7 +541,8 @@ public class StationLetterTests
                 "test3",
                 "pppppppp",
                 null,
-                DateTime.UtcNow)
+                DateTime.UtcNow,
+                "system")
         };
         _ = fakeStationLetterClient.ListDeliverLettersAsync(Arg.Is("GPI"), Arg.Any<CancellationToken>())
             .Returns(letters.ToAsyncEnumerable());
@@ -549,7 +552,8 @@ public class StationLetterTests
             letters[1].Id,
             ReceiverType = letters[1].ReceiverType.ToString(),
             letters[1].Subject,
-            letters[1].SentOn
+            letters[1].SentOn,
+            letters[1].Operator
         };
 
         var isWindows = RuntimeInformation.IsOSPlatform(OSPlatform.Windows) ? "true" : "false";
@@ -722,7 +726,8 @@ public class StationLetterTests
             "ttt",
             "abcdee",
             null,
-            DateTime.UtcNow);
+            DateTime.UtcNow,
+            "system");
 
         _ = fakeStationLetterClient.GetDeliveryLetterAsync(Arg.Is(deliveryId), Arg.Any<CancellationToken>())
             .Returns(letter);
@@ -734,7 +739,8 @@ public class StationLetterTests
             letter.Content,
             ReceiverType = letter.ReceiverType.ToString(),
             letter.SentOn,
-            letter.Subject
+            letter.Subject,
+            letter.Operator
         };
 
         var isWindows = RuntimeInformation.IsOSPlatform(OSPlatform.Windows) ? "true" : "false";
@@ -836,7 +842,8 @@ public class StationLetterTests
             "GPI",
             request.Receivers,
             request.Subject,
-            request.Content).ToExpectedObject(ctx =>
+            request.Content,
+            "system").ToExpectedObject(ctx =>
             {
                 _ = ctx.IgnoreEqualsOverride();
                 _ = ctx.ArrayMemberShouldEqual(o => o.Receivers);
@@ -918,7 +925,8 @@ public class StationLetterTests
         var requestExpected = new BrandAllPlayersStationLetterRequest(
             "GPI",
             request.Subject,
-            request.Content);
+            request.Content,
+            "system");
 
         _ = fakeStationLetterClient.Received(1)
             .SendBrandAllPlayersStationLetterAsync(

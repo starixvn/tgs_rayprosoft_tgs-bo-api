@@ -7,7 +7,6 @@ using System.Threading.Tasks;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Tgs.BrandCertificate.Clients;
-using Tgs.PlayerService.Client;
 using Tgs.Promotion.Clients.Models;
 using Tgs.ServiceUtility;
 using Tgs.StationLetterService.Client;
@@ -43,7 +42,8 @@ public class DeliveryLetterController : ControllerBase
                 Id = letter.Id,
                 ReceiverType = letter.ReceiverType.ToString(),
                 Subject = letter.Subject,
-                SentOn = letter.SentOn
+                SentOn = letter.SentOn,
+                Operator = letter.Operator
             })
             .ToArrayAsync(HttpContext.RequestAborted)
             .ConfigureAwait(false);
@@ -85,7 +85,8 @@ public class DeliveryLetterController : ControllerBase
                 Sender = letter.Sender,
                 SentOn = letter.SentOn,
                 Subject = letter.Subject,
-                ComeFrom = letter.ComeFrom
+                ComeFrom = letter.ComeFrom,
+                Operator = letter.Operator
             };
     }
 }
