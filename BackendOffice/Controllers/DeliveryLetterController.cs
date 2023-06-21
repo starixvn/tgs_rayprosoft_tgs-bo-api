@@ -25,6 +25,7 @@ public class DeliveryLetterController : ControllerBase
         [FromServices] IGetService<GetBrandInfoQuery, BrandInfo?> getBrandService,
         [FromServices] IQueryService<GetDeliveryLettersQuery, DeliveryLetter> queryService,
         Guid brandId,
+        [FromQuery(Name = "operator")] string? operatorUser,
         [FromQuery(Name = "page")] int page = 1,
         [FromQuery(Name = "rows")] int rows = 10)
     {
@@ -37,6 +38,8 @@ public class DeliveryLetterController : ControllerBase
             .SelectMany(brandInfo => queryService.QueryAsync(
                 new GetDeliveryLettersQuery(brandInfo!.Code),
                 HttpContext.RequestAborted))
+            .Where(letter => string.IsNullOrEmpty(operatorUser)
+                || string.Equals(letter.Operator, operatorUser, StringComparison.OrdinalIgnoreCase))
             .Select(letter => new DeliveryLetterListItemViewModel
             {
                 Id = letter.Id,

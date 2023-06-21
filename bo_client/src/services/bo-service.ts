@@ -511,12 +511,18 @@ export default class BackOfficeService {
             .then(res => res.data);
     }
 
-    public getDeliveryLetters(brandId: string, page: number, rows: number): Promise<PagedResponse<DeliveryLetterListItem>> {
+    public getDeliveryLetters(
+        brandId: string,
+        operator: string | null,
+        page: number,
+        rows: number
+    ): Promise<PagedResponse<DeliveryLetterListItem>> {
         return this.http
             .get(
                 `/api/delivery-box/${brandId}`,
                 {
                     params: {
+                        operator,
                         page,
                         rows
                     }

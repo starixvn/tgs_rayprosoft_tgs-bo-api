@@ -568,7 +568,7 @@ public class StationLetterTests
 
                 let svc = new BackOfficeService(instance);
 
-                return await svc.getDeliveryLetters(brandId, page, rows);
+                return await svc.getDeliveryLetters(brandId, null, page, rows);
             };
             """;
 
@@ -580,6 +580,118 @@ public class StationLetterTests
         // Assert
         Assert.NotNull(actual);
         Assert.Equal(3, actual.TotalCount);
+        expected.ToExpectedObject().ShouldMatch(actual.Items.First());
+    }
+
+    [Fact]
+    public async Task 依照Operator過濾寄件匣列表()
+    {
+        // Arrange
+        var channelName = Guid.NewGuid().ToString();
+        var userId = Guid.NewGuid();
+
+        var fakeBrandServiceClient = Substitute.For<IBrandServiceClient>();
+        var fakeStationLetterClient = Substitute.For<IStationLetterClient>();
+
+        using var web = TestBackendOfficeApplication.Builder
+            .UseTestChannelServer(channelName)
+            .ConfigureLogging(logging => logging.AddXUnit(_testOutputHelper))
+            .ConfigureServices(services => services
+                .AddAuthentication("Fake")
+                .AddScheme<FakeAuthenticationSchemaOptions, FakeAuthenticationHandler>(
+                    "Fake",
+                    options =>
+                    {
+                        options.UserId = userId;
+                        options.UserName = "system";
+                    })
+                .Services
+                .AddSingleton(fakeBrandServiceClient)
+                .AddSingleton(fakeStationLetterClient))
+            .Build();
+
+        await web.StartAsync();
+
+        var brandId = Guid.NewGuid();
+        var operatorUser = "system2";
+
+        _ = fakeBrandServiceClient.GetBrandInfoAsync(
+            Arg.Is(brandId),
+            Arg.Any<CancellationToken>())
+            .Returns(new BrandInfo
+            {
+                Id = brandId,
+                Code = "GPI"
+            });
+
+        var letters = new[]{
+            new DeliveryLetter(
+                Guid.NewGuid(),
+                "test1",
+                ReceiverType.Receivers,
+                JsonDocument.Parse("""["GPI"]"""),
+                "test1",
+                "aaabdfasfdasfd",
+                null,
+                DateTime.UtcNow,
+                "system1"),
+            new DeliveryLetter(
+                Guid.NewGuid(),
+                "tes2",
+                ReceiverType.Receivers,
+                JsonDocument.Parse("""["GPI"]"""),
+                "test2",
+                "fafdsafasf",
+                null,
+                DateTime.UtcNow,
+                "system2"),
+            new DeliveryLetter(
+                Guid.NewGuid(),
+                "test3",
+                ReceiverType.Receivers,
+                JsonDocument.Parse("""["GPI"]"""),
+                "test3",
+                "pppppppp",
+                null,
+                DateTime.UtcNow,
+                "system3")
+        };
+        _ = fakeStationLetterClient.ListDeliverLettersAsync(Arg.Is("GPI"), Arg.Any<CancellationToken>())
+            .Returns(letters.ToAsyncEnumerable());
+
+        var expected = new
+        {
+            letters[1].Id,
+            ReceiverType = letters[1].ReceiverType.ToString(),
+            letters[1].Subject,
+            letters[1].SentOn,
+            letters[1].Operator
+        };
+
+        var isWindows = RuntimeInformation.IsOSPlatform(OSPlatform.Windows) ? "true" : "false";
+
+        var nodeModule = $$"""
+            const axiosConfigFactory = require('./models/axios-configuration.js').default;
+            const BackOfficeService = require('./services/bo-service.js').default;
+
+            module.exports = async (brandId, operator, page, rows) =>
+            {
+                let instance = axiosConfigFactory("{{channelName}}", {{isWindows}});
+
+                let svc = new BackOfficeService(instance);
+
+                return await svc.getDeliveryLetters(brandId, operator, page, rows);
+            };
+            """;
+
+        // Act
+        var actual = await StaticNodeJSService.InvokeFromStringAsync<PagedResponse<DeliveryLetterListItemViewModel>>(
+            nodeModule,
+            args: new object[] { brandId, operatorUser, 1, 10 });
+
+        // Assert
+        Assert.NotNull(actual);
+        Assert.Equal(1, actual.TotalCount);
         expected.ToExpectedObject().ShouldMatch(actual.Items.First());
     }
 
