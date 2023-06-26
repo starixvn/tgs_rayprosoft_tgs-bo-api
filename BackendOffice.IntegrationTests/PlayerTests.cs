@@ -1,6 +1,7 @@
 ﻿using System.Data.SqlClient;
 using System.Runtime.InteropServices;
 using System.Text.Json;
+using ClosedXML.Report.Utils;
 using ExpectedObjects;
 using Jering.Javascript.NodeJS;
 using MediatR;
@@ -17,6 +18,7 @@ using TGS.Core.Models.Enums;
 using TGS.Core.Models.Messages;
 using TGS.Services.BackOffice.Application.Models.Player;
 using TGS.Services.BackOffice.Domain;
+using Xunit;
 using Xunit.Abstractions;
 
 namespace BackendOffice.IntegrationTests;
@@ -374,5 +376,81 @@ public class PlayerTests
         Assert.True(result?.Valid);
         Assert.Equal(1, result?.TotalCount);
         expected.Items.ToExpectedObject().ShouldEqual(result?.Items);
+    }
+
+    [Fact]
+    public async Task 依據UserName前置查詢PlayerCodes()
+    {
+        // Arrange
+        var channelName = Guid.NewGuid().ToString();
+        var userId = Guid.NewGuid();
+
+        var fakePlayerServiceClient = Substitute.For<IPlayerServiceClient>();
+
+        using var web = TestBackendOfficeApplication.Builder
+            .UseTestChannelServer(channelName)
+            .ConfigureLogging(logging => logging.AddXUnit(_testOutputHelper))
+            .ConfigureServices(services => services
+                .AddAuthentication("Fake")
+                .AddScheme<FakeAuthenticationSchemaOptions, FakeAuthenticationHandler>(
+                    "Fake",
+                    options =>
+                    {
+                        options.UserId = userId;
+                        options.UserName = "system";
+                    })
+                .Services
+                .AddSingleton(fakePlayerServiceClient))
+            .Build();
+
+        await web.StartAsync();
+
+        var brandId = Guid.NewGuid();
+        var userNamePrefix = "prefix";
+
+        _ = fakePlayerServiceClient.ListPlayerCodesByUserNameAsync(
+            Arg.Is(brandId),
+            Arg.Is(userNamePrefix),
+            Arg.Any<CancellationToken>())
+            .Returns(new[]
+            {
+                new KeyValuePair<string, string>("username1", "player1"),
+                new KeyValuePair<string, string>("username2", "player2")
+            }.ToAsyncEnumerable());
+
+        var expected = new[]
+        {
+            new KeyValuePair<string, string>("player1", "username1"),
+            new KeyValuePair<string, string>("player2", "username2")
+        };
+
+        var isWindows = RuntimeInformation.IsOSPlatform(OSPlatform.Windows) ? "true" : "false";
+
+        var nodeModule = $$"""
+            const axiosConfigFactory = require('./models/axios-configuration.js').default;
+            const BackOfficeService = require('./services/bo-service.js').default;
+
+            module.exports = async (brandId, userNamePrefix) =>
+            {
+                let instance = axiosConfigFactory("{{channelName}}", {{isWindows}});
+
+                let svc = new BackOfficeService(instance);
+
+                return await svc.listPlayerCodesByUserNamePrefix(brandId, userNamePrefix);
+            };
+        """;
+
+        // Act
+        var actual = await StaticNodeJSService.InvokeFromStringAsync<JsonDocument[]>(
+            nodeModule,
+            args: new object[] { brandId, userNamePrefix });
+
+        // Assert
+        Assert.NotNull(actual);
+        Assert.Equal(expected, actual.SelectMany(doc => doc.RootElement
+            .EnumerateObject()
+            .Select(prop => new KeyValuePair<string, string>(
+                prop.Name,
+                prop.Value.GetString()!))));
     }
 }

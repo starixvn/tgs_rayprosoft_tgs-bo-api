@@ -54,22 +54,22 @@ internal class PlayerTests
         CollectionAssert.AreEquivalent(expected, actual);
     }
 
-    [Test] 
+    [Test]
     public async Task 以多筆UserName查詢玩家資料_若找不到玩家則回傳空資料()
     {
         var fakePlayerServiceClient = Substitute.For<IPlayerServiceClient>();
 
         var brandId = Guid.NewGuid();
         var userNames = new[] { "username1", "username2" };
-        
+
         var sut = new PlayerInfosByUserNamesQueryService(fakePlayerServiceClient);
-        
+
         _ = fakePlayerServiceClient.GetPlayerCodesByUserNamesAsync(
                 Arg.Is(brandId),
                 Arg.Is<IEnumerable<string>>(x => userNames.SequenceEqual(x)),
                 Arg.Any<CancellationToken>())
             .Returns(Array.Empty<string>().ToAsyncEnumerable());
-        
+
         var query = new PlayerInfosByUserNamesQuery(brandId, userNames);
 
         var actual = await sut.QueryAsync(query).ToArrayAsync();
@@ -82,6 +82,22 @@ internal class PlayerTests
                 Arg.Is(brandId),
                 Arg.Any<IEnumerable<string>>(),
                 Arg.Any<CancellationToken>());
+    }
 
+    [Test]
+    public async Task 依據UserName前置取得玩家PlayerCode列表()
+    {
+        var fakePlayerServiceClient = Substitute.For<IPlayerServiceClient>();
+
+        var sut = new ListPlayerCodesByUserNamePrefixQueryService(fakePlayerServiceClient);
+
+        var query = new ListPlayerCodesByUserNamePrefixQuery(Guid.NewGuid(), "prefix");
+
+        _ = await sut.QueryAsync(query).ToArrayAsync();
+
+        _ = fakePlayerServiceClient.Received(1)
+            .ListPlayerCodesByUserNameAsync(
+                Arg.Is(query.BrandId),
+                Arg.Is(query.UserNamePrefix));
     }
 }

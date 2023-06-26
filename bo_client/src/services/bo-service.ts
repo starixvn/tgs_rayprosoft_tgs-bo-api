@@ -618,4 +618,13 @@ export default class BackOfficeService {
                 })
             .then(res => res.headers["content-type"]);
     }
+
+    public listPlayerCodesByUserNamePrefix(
+        brandId: string,
+        userNamePrefix: string
+    ): Promise<Iterable<{}>> {
+        return this.http
+            .get(`/api/player/${brandId}/${userNamePrefix}`)
+            .then(res => res.data);
+    }
 }
