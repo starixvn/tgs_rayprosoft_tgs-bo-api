@@ -455,6 +455,19 @@ public partial class PlayerController : BaseContextController
         };
     }
 
+    [HttpGet("{brandId:Guid}/{userNamePrefix}", Name = "ListPlayerCodesByUserNamePrefix")]
+    public IAsyncEnumerable<JsonDocument> ListPlayerCodesByUserNamePrefixAsync(
+        [FromServices] IQueryService<ListPlayerCodesByUserNamePrefixQuery, KeyValuePair<string, string>> queryService,
+        Guid brandId,
+        string userNamePrefix)
+    {
+        var query = new ListPlayerCodesByUserNamePrefixQuery(brandId, userNamePrefix);
+
+        return queryService.QueryAsync(query, HttpContext.RequestAborted)
+            .Take(10)
+            .Select(info => JsonDocument.Parse($$"""{"{{info.Value}}":"{{info.Key}}"}"""));
+    }
+
     [HttpPut("{playerCode}/{type}", Name = "UpdatePlayer")]
     [Description("Update player")]
     [TgsAction("UpdatePlayer")]
