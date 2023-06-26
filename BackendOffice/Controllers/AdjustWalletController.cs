@@ -119,19 +119,33 @@ public class AdjustWalletController : ControllerBase
         [FromQuery(Name = "page")] int page = 1,
         [FromQuery(Name = "rows")] int rows = 10)
     {
-        var agentInfo = string.IsNullOrWhiteSpace(queryViewModel.UserName)
-            ? null
-            : await agentClient.GetAgentInfoByUsernameAsync(
-                new(brandId, queryViewModel.UserName),
-                HttpContext.RequestAborted).ConfigureAwait(false);
-
         var query = new AgentAdjustRecordsQuery(
             brandId,
             (queryViewModel.From, queryViewModel.To),
             queryViewModel.SearchTypes,
-            agentInfo?.Id,
+            null,
             queryViewModel.Operator,
             (page - 1) * rows);
+
+        if (!string.IsNullOrWhiteSpace(queryViewModel.UserName))
+        {
+            var agentInfo = await agentClient.GetAgentInfoByUsernameAsync(
+               new(brandId, queryViewModel.UserName),
+               HttpContext.RequestAborted).ConfigureAwait(false);
+
+            if (agentInfo is null)
+                return new PagedResponse<AdjustRecordListItemViewModel>
+                {
+                    Valid = true,
+                    TotalCount = 0,
+                    Items = Array.Empty<AdjustRecordListItemViewModel>()
+                };
+
+            query = query with
+            {
+                AgentId = agentInfo.Id
+            };
+        }
 
         var totalCount = await countService.GetAsync(
             query,
@@ -188,24 +202,38 @@ public class AdjustWalletController : ControllerBase
         [FromQuery(Name = "page")] int page = 1,
         [FromQuery(Name = "rows")] int rows = 10)
     {
-        var playerInfo = string.IsNullOrEmpty(queryViewModel.UserName)
-            ? null
-            : await playerServiceClient.GetPlayerInfoByUserNameAsync(
-                brandId,
-                queryViewModel.UserName,
-                HttpContext.RequestAborted).ConfigureAwait(false);
-
         var query = new PlayerAdjustRecordsQuery(
             brandId,
             (queryViewModel.From, queryViewModel.To),
             queryViewModel.SearchTypes,
-            playerInfo?.PlayerCode,
+            null,
             queryViewModel.Operator,
             (page - 1) * rows);
 
+        if (!string.IsNullOrEmpty(queryViewModel.UserName))
+        {
+            var playerInfo = await playerServiceClient.GetPlayerInfoByUserNameAsync(
+                brandId,
+                queryViewModel.UserName,
+                HttpContext.RequestAborted).ConfigureAwait(false);
+
+            if (playerInfo is null)
+                return new PagedResponse<AdjustRecordListItemViewModel>
+                {
+                    Valid = true,
+                    TotalCount = 0,
+                    Items = Array.Empty<AdjustRecordListItemViewModel>()
+                };
+
+            query = query with
+            {
+                PlayerCode = playerInfo.PlayerCode
+            };
+        }
+
         var totalCount = await countService.GetAsync(
             query,
-           HttpContext.RequestAborted).ConfigureAwait(false);
+            HttpContext.RequestAborted).ConfigureAwait(false);
 
         return new PagedResponse<AdjustRecordListItemViewModel>
         {
