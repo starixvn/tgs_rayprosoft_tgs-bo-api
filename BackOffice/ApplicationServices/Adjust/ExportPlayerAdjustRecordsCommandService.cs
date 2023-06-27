@@ -96,6 +96,7 @@ internal class ExportPlayerAdjustRecordsCommandService : ICommandService<ExportP
             XlsxStyle.Default.Border,
             XlsxStyle.Default.NumberFormat,
             XlsxAlignment.Default);
+        var dateStyle = XlsxStyle.Default.With(XlsxNumberFormat.ShortDateTime);
 
         _ = xlsxWriter
             .BeginWorksheet(brandCode)
@@ -119,7 +120,7 @@ internal class ExportPlayerAdjustRecordsCommandService : ICommandService<ExportP
             _ = xlsxWriter
                 .BeginRow()
                 .Write(idx)
-                .Write(row.CreatedOn)
+                .Write(row.CreatedOn, dateStyle)
                 .Write(row.Brand)
                 .Write(row.UserName)
                 .Write(row.UserType)
