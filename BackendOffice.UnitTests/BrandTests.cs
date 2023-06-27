@@ -181,6 +181,21 @@ internal class BrandTests
     }
 
     [Test]
+    public async Task 取得全部Brand的幣別()
+    {
+        var fakeBrandServiceClient = Substitute.For<IBrandServiceClient>();
+
+        var sut = new AllBrandCurrenciesQueryService(fakeBrandServiceClient);
+
+        var query = new AllBrandCurrenciesQuery();
+
+        _ = await sut.QueryAsync(query).ToArrayAsync();
+
+        _ = fakeBrandServiceClient.Received(1)
+            .GetAllBrandCurrenciesAsync();
+    }
+
+    [Test]
     public async Task 建立Brand()
     {
         var fakeBrandService = Substitute.For<IBrandService>();

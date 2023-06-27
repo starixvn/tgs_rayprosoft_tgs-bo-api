@@ -9,4 +9,5 @@ interface AdjustSummaryListItem {
     bonus: number;
     playerAdjustAmount: number;
     agentAdjustAmount: number;
+    currency: string;
 }
