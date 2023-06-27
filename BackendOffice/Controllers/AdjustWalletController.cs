@@ -62,6 +62,7 @@ public class AdjustWalletController : ControllerBase
 
         if (responseFeature is not null && responseBodyFeature is not null)
         {
+            responseFeature.Headers.ContentType = "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet";
             responseFeature.Headers.ContentDisposition = "attachment; filename=PlayerAdjustRecords.xlsx";
 
             var command = new ExportPlayerAdjustRecordsCommand(
