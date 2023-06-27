@@ -24,6 +24,8 @@ namespace TGS.Apis.BackendOffice.Controllers;
 public class AdjustWalletController : ControllerBase
 {
     [HttpGet("agent/{brandId}:export", Name = "ExportAgentAdjustRecordsExcel")]
+    [Produces("application/vnd.openxmlformats-officedocument.spreadsheetml.sheet")]
+
     public async Task ExportAgentAdjustRecordsExcelAsync(
         [FromServices] ICommandService<ExportAgentAdjustRecordsCommand> exportService,
         Guid brandId,
@@ -49,6 +51,7 @@ public class AdjustWalletController : ControllerBase
     }
 
     [HttpGet("player/{brandId}:export", Name = "ExportPlayerAdjustRecordsExcel")]
+    [Produces("application/vnd.openxmlformats-officedocument.spreadsheetml.sheet")]
     public async Task ExportPlayerAdjustRecordsExcelAsync(
         [FromServices] ICommandService<ExportPlayerAdjustRecordsCommand> exportService,
         Guid brandId,
