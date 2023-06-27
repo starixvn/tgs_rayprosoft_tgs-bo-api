@@ -77,6 +77,13 @@ public class AdjustWalletTests
             null,
             null);
 
+        _ = fakeBrandServiceClient.GetAllBrandCurrenciesAsync(Arg.Any<CancellationToken>())
+            .Returns(new[]
+            {
+                new BrandCurrencyInfo(brandId1, "CNY"),
+                new BrandCurrencyInfo(brandId2, "CNY")
+            }.ToAsyncEnumerable());
+
         _ = fakeCashQueryClient.QueryPlayerAdjustSummariesAsync(Arg.Is(expectedCondition), Arg.Any<CancellationToken>())
             .Returns(new[] {
                 new AdjustSummaryListItem(
@@ -163,7 +170,8 @@ public class AdjustWalletTests
                 Bonus = 5,
                 AgentOther = 7,
                 PlayerAdjustAmount = 150M,
-                AgentAdjustAmount = 70M
+                AgentAdjustAmount = 70M,
+                Currency = "CNY"
             },
             new AdjustSummaryListItemViewModel
             {
@@ -176,7 +184,8 @@ public class AdjustWalletTests
                 Transfer = 2,
                 Bonus = 1,
                 AgentOther = 0,
-                PlayerAdjustAmount = 150M
+                PlayerAdjustAmount = 150M,
+                Currency = "CNY"
             }
         };
 

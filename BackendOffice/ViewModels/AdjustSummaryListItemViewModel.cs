@@ -18,6 +18,8 @@ public class AdjustSummaryListItemViewModel
 
     public int Company { get; set; }
 
+    public required string Currency { get; set; }
+
     public required string Licensee { get; set; }
 
     public decimal PlayerAdjustAmount { get; set; }

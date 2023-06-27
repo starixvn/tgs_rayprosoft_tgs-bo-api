@@ -76,6 +76,7 @@ public class AdjustWalletController : ControllerBase
     [HttpGet("summary/{resellerId}", Name = "QueryAdjustSummaries")]
     public IAsyncEnumerable<AdjustSummaryListItemViewModel> QueryAdjustSummariesAsync(
         [FromServices] IQueryService<BrandRelationQuery, BrandRelationInfo> brandRelationQueryService,
+        [FromServices] IQueryService<AllBrandCurrenciesQuery, BrandCurrencyInfo> brandCurrenciesQueryService,
         [FromServices] IQueryService<AdjustSummariesQuery, AdjustSummaryListItem> queryService,
         Guid resellerId,
         [FromQuery] AdjustSummaryQueryViewModel queryViewModel)
@@ -83,11 +84,20 @@ public class AdjustWalletController : ControllerBase
             .ToDictionaryAsync(info => info.BrandId, HttpContext.RequestAborted)
             .AsTask()
             .ToAsyncEnumerable()
-            .SelectMany(dict => queryService
+            .Zip(brandCurrenciesQueryService.QueryAsync(
+                new AllBrandCurrenciesQuery(),
+                HttpContext.RequestAborted)
+                .ToDictionaryAsync(info => info.BrandId, info => info.CurrencyCode)
+                .AsTask()
+                .ToAsyncEnumerable())
+            .SelectMany(dictTup => queryService
                 .QueryAsync(
                     new((queryViewModel.From, queryViewModel.To)),
                     HttpContext.RequestAborted)
-                .Select(record => (Record: record, Info: dict[record.BrandId]))
+                .Select(record => (
+                    Record: record,
+                    Info: dictTup.First[record.BrandId],
+                    Currency: dictTup.Second[record.BrandId]))
                 .Where(tup => tup.Info.ResellerId == resellerId)
                 .Select(tup => new AdjustSummaryListItemViewModel
                 {
@@ -103,7 +113,8 @@ public class AdjustWalletController : ControllerBase
                     PlayerAdjustAmount = tup.Record.CompanyAmount + tup.Record.AgentAmount
                         + tup.Record.SystemAmount + tup.Record.TransferAmount
                         + tup.Record.BonusAmount,
-                    AgentAdjustAmount = tup.Record.AgentOtherAmount
+                    AgentAdjustAmount = tup.Record.AgentOtherAmount,
+                    Currency = tup.Currency
                 }))
             .OrderBy(model => model.Licensee)
             .ThenBy(model => model.Brand);
