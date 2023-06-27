@@ -66,7 +66,7 @@ internal class ExportPlayerAdjustRecordsCommandService : ICommandService<ExportP
                     .QueryPlayerInfoListAsync(
                         command.BrandId,
                         items.Select(item => item.Record.UserId).Distinct()
-                            .Where(playerCode => map.ContainsKey(playerCode)),
+                            .Where(playerCode => !map.ContainsKey(playerCode)),
                         cancellationToken)
                     .ForEachAsync(info => map.Add(info.PlayerCode, info.UserName), cancellationToken)
                     .ContinueWith(
