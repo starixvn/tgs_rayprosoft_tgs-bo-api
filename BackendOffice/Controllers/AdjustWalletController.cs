@@ -25,7 +25,6 @@ public class AdjustWalletController : ControllerBase
 {
     [HttpGet("agent/{brandId}:export", Name = "ExportAgentAdjustRecordsExcel")]
     [Produces("application/vnd.openxmlformats-officedocument.spreadsheetml.sheet")]
-
     public async Task ExportAgentAdjustRecordsExcelAsync(
         [FromServices] ICommandService<ExportAgentAdjustRecordsCommand> exportService,
         Guid brandId,
@@ -41,6 +40,44 @@ public class AdjustWalletController : ControllerBase
 
             var command = new ExportAgentAdjustRecordsCommand(
                 brandId,
+                (queryViewModel.From, queryViewModel.To),
+                responseBodyFeature.Stream);
+
+            await exportService.ExecuteAsync(
+                command,
+                HttpContext.RequestAborted).ConfigureAwait(false);
+        }
+    }
+
+    [HttpGet("summary/{resellerId}:export", Name = "ExportAllAdjustRecordsExcel")]
+    public async Task ExportAllAdjustRecordsExcelAsync(
+        [FromServices] IQueryService<BrandRelationQuery, BrandRelationInfo> brandRelationQueryService,
+        [FromServices] IQueryService<AdjustSummariesQuery, AdjustSummaryListItem> queryService,
+        [FromServices] ICommandService<ExportAllAdjustRecordsCommand> exportService,
+        Guid resellerId,
+        [FromQuery] AdjustSummaryQueryViewModel queryViewModel)
+    {
+        var responseFeature = HttpContext.Features.Get<IHttpResponseFeature>();
+        var responseBodyFeature = HttpContext.Features.Get<IHttpResponseBodyFeature>();
+
+        if (responseFeature is not null && responseBodyFeature is not null)
+        {
+            responseFeature.Headers.ContentType = "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet";
+            responseFeature.Headers.ContentDisposition = "attachment; filename=PlayerAdjustRecords.xlsx";
+
+            var relationMap = await brandRelationQueryService.QueryAsync(
+                new(),
+                HttpContext.RequestAborted)
+                .ToDictionaryAsync(info => info.BrandId, HttpContext.RequestAborted)
+                .ConfigureAwait(false);
+
+            var summaries = queryService.QueryAsync(
+                new((queryViewModel.From, queryViewModel.To)),
+                HttpContext.RequestAborted)
+                .Where(item => relationMap[item.BrandId].ResellerId == resellerId);
+
+            var command = new ExportAllAdjustRecordsCommand(
+                summaries.Select(s => s.BrandId).ToEnumerable(),
                 (queryViewModel.From, queryViewModel.To),
                 responseBodyFeature.Stream);
 
@@ -74,11 +111,6 @@ public class AdjustWalletController : ControllerBase
                 command,
                 HttpContext.RequestAborted).ConfigureAwait(false);
         }
-    }
-
-    public void ExportAllAdjustRecordsExcel()
-    {
-
     }
 
     [HttpGet("summary/{resellerId}", Name = "QueryAdjustSummaries")]
