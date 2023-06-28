@@ -76,6 +76,11 @@ public class AdjustWalletController : ControllerBase
         }
     }
 
+    public void ExportAllAdjustRecordsExcel()
+    {
+
+    }
+
     [HttpGet("summary/{resellerId}", Name = "QueryAdjustSummaries")]
     public IAsyncEnumerable<AdjustSummaryListItemViewModel> QueryAdjustSummariesAsync(
         [FromServices] IQueryService<BrandRelationQuery, BrandRelationInfo> brandRelationQueryService,

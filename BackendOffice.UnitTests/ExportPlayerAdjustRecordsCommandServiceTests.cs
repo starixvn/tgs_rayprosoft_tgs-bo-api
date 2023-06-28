@@ -1,5 +1,5 @@
-﻿using System.Runtime.InteropServices;
-using NSubstitute;
+﻿using NSubstitute;
+using Tgs.Agent.Client;
 using Tgs.BrandCertificate.Clients;
 using Tgs.CashQueryService.Client;
 using Tgs.PlayerService.Client;
@@ -16,11 +16,13 @@ public class ExportPlayerAdjustRecordsCommandServiceTests
     {
         var fakeCashQueryClient = Substitute.For<ICashQueryClient>();
         var fakeBrandRelationQueryService = Substitute.For<IQueryService<BrandRelationQuery, BrandRelationInfo>>();
+        var fakeAgentClient = Substitute.For<IAgentClient>();
         var fakePlayerServiceClient = Substitute.For<IPlayerServiceClient>();
 
-        var sut = new ExportPlayerAdjustRecordsCommandService(
+        var sut = new ExportAdjustRecordsCommandService(
             fakeCashQueryClient,
             fakeBrandRelationQueryService,
+            fakeAgentClient,
             fakePlayerServiceClient);
 
         using var fs = new StubWriteStream();

@@ -23,11 +23,13 @@ public class ExportAgentAdjustRecordsCommandServiceTests
         var fakeCashQueryClient = Substitute.For<ICashQueryClient>();
         var fakeBrandRelationQueryService = Substitute.For<IQueryService<BrandRelationQuery, BrandRelationInfo>>();
         var fakeAgentClient = Substitute.For<IAgentClient>();
+        var fakePlayerServiceClient = Substitute.For<IPlayerServiceClient>();
 
-        var sut = new ExportAgentAdjustRecordsCommandService(
+        var sut = new ExportAdjustRecordsCommandService(
             fakeCashQueryClient,
             fakeBrandRelationQueryService,
-            fakeAgentClient);
+            fakeAgentClient,
+            fakePlayerServiceClient);
 
         using var fs = new StubWriteStream();
 
