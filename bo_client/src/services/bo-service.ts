@@ -619,6 +619,23 @@ export default class BackOfficeService {
             .then(res => res.headers["content-type"]);
     }
 
+    public exportAllAdjustRecords(
+        resellerId: string,
+        from: Date,
+        to: Date
+    ): Promise<string | undefined> {
+        return this.http
+            .get(
+                `/api/adjust-wallet/summary/${resellerId}:export`,
+                {
+                    params: {
+                        from,
+                        to
+                    }
+                })
+            .then(res => res.headers["content-type"]);
+    }
+
     public listPlayerCodesByUserNamePrefix(
         brandId: string,
         userNamePrefix: string
