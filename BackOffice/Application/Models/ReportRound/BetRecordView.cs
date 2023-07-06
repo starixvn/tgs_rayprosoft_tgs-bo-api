@@ -60,4 +60,8 @@ public class BetRecordView
     public decimal? ValidBetAmount { get; set; }
 
     public decimal? WinLoss { get; set; }
+
+    public decimal EffectiveBettingPercentage { get; set; }
+
+    public decimal? OriginalTurnover { get; set; }
 }

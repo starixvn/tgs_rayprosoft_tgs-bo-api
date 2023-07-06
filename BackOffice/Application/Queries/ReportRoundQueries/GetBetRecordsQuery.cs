@@ -124,7 +124,9 @@ public class
                          UpdatedOn = model.UpdatedOn,
                          ValidBetAmount = model.ValidBetAmount,
                          Turnover = model.Turnover,
-                         WinLoss = model.WinLoss
+                         WinLoss = model.WinLoss,
+                         EffectiveBettingPercentage = model.EffectiveBettingPercentage,
+                         OriginalTurnover = model.OriginalTurnover
                      }).ToArray()
         };
     }
