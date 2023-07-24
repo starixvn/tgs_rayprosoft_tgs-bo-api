@@ -7,7 +7,7 @@ using TGS.Apis.BackendOffice.ViewModels;
 
 namespace TGS.Apis.BackendOffice.Controllers;
 
-[Route("api/users")]
+[Route("api/status")]
 [ApiController]
 public class StatusController : BaseContextController
 {
