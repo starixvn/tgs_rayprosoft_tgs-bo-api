@@ -44,4 +44,8 @@ public class SystemRoundView
     public decimal? ValidBetAmount { get; set; }
 
     public decimal? WinLoss { get; set; }
+
+    public decimal? OriginalTurnover { get; init; }
+
+    public decimal EffectiveBettingPercentage { get; init; }
 }
