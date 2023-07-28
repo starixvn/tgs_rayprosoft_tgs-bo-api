@@ -144,7 +144,9 @@ internal class GetSystemRoundsQueryService : IGetService<GetSystemRoundsReportRe
                          SettleAmount = model.SettleAmount,
                          WinLoss = model.WinLoss,
                          AdditionalData = model.AdditionalData,
-                         GameProviderCode = model.GameProviderCode
+                         GameProviderCode = model.GameProviderCode,
+                         EffectiveBettingPercentage = model.EffectiveBettingPercentage,
+                         OriginalTurnover = model.OriginalTurnover
                      }).ToArray()
         };
     }
