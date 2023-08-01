@@ -36,8 +36,10 @@ internal class GetPlayerGameProviderBalanceQueryService : IQueryService<GetPlaye
     {
         var gameProviderBalances = new List<GetPlayerGameProviderBalanceResponse>();
 
-        var player = await _playerService.GetPlayerAsync(
-            p => p.PlayerCode == query.PlayerCode).ConfigureAwait(false);
+        var player = await _playerService
+            .GetPlayerAsync(
+            p => p.PlayerCode == query.PlayerCode)
+            .ConfigureAwait(false);
 
         var brandGameProviders = await _brandGameProviderService
             .GetBrandGameProviderQueries(preQuery => preQuery.Where(
@@ -63,12 +65,15 @@ internal class GetPlayerGameProviderBalanceQueryService : IQueryService<GetPlaye
             {
                 try
                 {
-                    var balance = default(decimal?);
-
-                    balance = await _gameProvidersBackofficePluggableClient
-                        .GetBalanceAsync(
-                            player.PlayerCode,
-                            brandGameProvider.GameProviderCode)
+                    var playerBalanceInfo = await _gameProvidersBackofficePluggableClient
+                        .GetBalanceInfoAsync(
+                        playerCode: player.PlayerCode,
+                        gameProviderCode: brandGameProvider.GameProviderCode,
+                        cancellationToken: cancellationToken)
+                        .AsTask()
+                        .WaitAsync(
+                        timeout: TimeSpan.FromSeconds(15),
+                        cancellationToken: cancellationToken)
                         .ConfigureAwait(false);
 
                     gameProviderBalances.Add(new GetPlayerGameProviderBalanceResponse(
@@ -76,7 +81,9 @@ internal class GetPlayerGameProviderBalanceQueryService : IQueryService<GetPlaye
                         GameProviderName: brandGameProvider.GameProviderName,
                         IsMainWallet: false,
                         IsMaintain: false,
-                        Balance: balance));
+                        Balance: playerBalanceInfo.Balance,
+                        FreeBalance: playerBalanceInfo.FreeBalance,
+                        OutstandingBalance: playerBalanceInfo.OutstandingBalance));
                 }
                 catch
                 {
@@ -85,7 +92,9 @@ internal class GetPlayerGameProviderBalanceQueryService : IQueryService<GetPlaye
                         GameProviderName: brandGameProvider.GameProviderName,
                         IsMainWallet: false,
                         IsMaintain: true,
-                        Balance: null));
+                        Balance: null,
+                        FreeBalance: null,
+                        OutstandingBalance: null));
                 }
             }, cancellationToken: cancellationToken));
         }

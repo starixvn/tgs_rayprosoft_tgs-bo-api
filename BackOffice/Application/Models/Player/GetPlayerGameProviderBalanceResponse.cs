@@ -5,4 +5,6 @@ public record GetPlayerGameProviderBalanceResponse(
     string GameProviderName,
     bool IsMainWallet = false,
     bool IsMaintain = true,
-    decimal? Balance = null);
+    decimal? Balance=null,
+    decimal? FreeBalance= null,
+    decimal? OutstandingBalance= null);
