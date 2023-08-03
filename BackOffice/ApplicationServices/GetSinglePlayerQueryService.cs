@@ -139,7 +139,8 @@ public class GetSinglePlayerQueryService : IGetService<GetSinglePlayerQuery, Pla
             ParentUsername = parentUsername,
             Birthdate = playerBirthdate is not null
                 ? DateOnly.Parse(playerBirthdate).ToString("yyyy/MM/dd")
-                : null
+                : null,
+            IdentityAuthentication = player.IdentityAuthentication
         };
     }
 }
