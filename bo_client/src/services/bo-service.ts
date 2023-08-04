@@ -651,4 +651,12 @@ export default class BackOfficeService {
             .get(`/api/player/${playerCode}`)
             .then(res => res.data);
     }
+
+    public async updatePlayerIdentityAuthentication(
+        playerCode:string,
+        identityAuthentication: boolean
+    ): Promise<void>{
+        await this.http
+            .put(`/api/player/identityauth/${playerCode}/${identityAuthentication}`);            
+    }
 }

@@ -1,4 +1,5 @@
-﻿using NSubstitute;
+﻿using System.Collections.Immutable;
+using NSubstitute;
 using Tgs.PlayerService.Client;
 using TGS.Services.BackOffice.ApplicationServices;
 
@@ -99,5 +100,20 @@ internal class PlayerTests
             .ListPlayerCodesByUserNameAsync(
                 Arg.Is(query.BrandId),
                 Arg.Is(query.UserNamePrefix));
+    }
+
+    [Test]
+    public async Task 修改玩家身分審核()
+    {
+        var fakePlayerSerivceClient = Substitute.For<IPlayerServiceClient>();
+
+        var sut = new UpdatePlayerIdentityAuthenticationCommandService(fakePlayerSerivceClient);
+
+        var command = new UpdatePlayerIdentityAuthenticationCommand("playerCode", true);
+
+        await sut.ExecuteAsync(command);
+
+        _ = fakePlayerSerivceClient.Received(1)
+            .SetPlayerPropertiesAsync(Arg.Is(command.PlayerCode), Arg.Any<IImmutableDictionary<PlayerPropertyName, string?>>());
     }
 }

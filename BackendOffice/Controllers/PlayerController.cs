@@ -504,6 +504,21 @@ public partial class PlayerController : BaseContextController
         return _mediator.Send(updatePlayerModel);
     }
 
+    [HttpPut("identityauth/{playerCode}/{identityAuthentication}")]
+    [Description("Update player identity authentication")]
+    [TgsAction("UpdatePlayerIdentityAuthentication")]
+    public async Task UpdatePlayerIdentityAuthenticationAsync(
+        string playerCode,
+        bool identityAuthentication,
+        [FromServices] ICommandService<UpdatePlayerIdentityAuthenticationCommand> updateIdentityAuthService)
+    {
+        var command = new UpdatePlayerIdentityAuthenticationCommand(playerCode, identityAuthentication);
+
+        await updateIdentityAuthService
+            .ExecuteAsync(command)
+            .ConfigureAwait(false);
+    }
+
     private static string GetRemark(TransactionType? transactionType, string description)
     {
         switch (transactionType)
