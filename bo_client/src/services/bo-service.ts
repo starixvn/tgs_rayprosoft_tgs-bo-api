@@ -188,7 +188,7 @@ export default class BackOfficeService {
 
     public getPlayerList(
         request: GetPlayersRequest
-    ): Promise<PagedResponse<PlayerModel>> {
+    ): Promise<PagedResponse<PlayersModel>> {
         return this.http
             .get('/api/player',
                 {
@@ -643,5 +643,20 @@ export default class BackOfficeService {
         return this.http
             .get(`/api/player/${brandId}/${userNamePrefix}`)
             .then(res => res.data);
+    }
+
+    public getSinglePlayer(
+        playerCode: string): Promise<GetPlayerResponse> {
+        return this.http
+            .get(`/api/player/${playerCode}`)
+            .then(res => res.data);
+    }
+
+    public async updatePlayerIdentityAuthentication(
+        playerCode:string,
+        identityAuthentication: boolean
+    ): Promise<void>{
+        await this.http
+            .put(`/api/player/identityauth/${playerCode}/${identityAuthentication}`);            
     }
 }

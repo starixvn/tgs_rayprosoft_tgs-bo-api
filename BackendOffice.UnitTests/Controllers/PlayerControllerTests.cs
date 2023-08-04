@@ -61,7 +61,8 @@ public class PlayerControllerTests : BaseTests
             Phone = "456789",
             Balance = 500M,
             Birthdate = "2022/11/09",
-            Email = "test@test.com"
+            Email = "test@test.com",
+            IdentityAuthentication = false
         };
 
         _ = fakePlayerServiceClient.GetPlayerInfoAsync(
@@ -71,7 +72,8 @@ public class PlayerControllerTests : BaseTests
                 PlayerCode = query.PlayerCode,
                 BrandId = Guid.NewGuid(),
                 UserName = "tester",
-                RegisteredOn = DateTime.UtcNow
+                RegisteredOn = DateTime.UtcNow,
+                IdentityAuthentication = false
             });
 
         _ = fakePlayerServiceClient.GetPlayerPropertiesAsync(Arg.Is(query.PlayerCode))

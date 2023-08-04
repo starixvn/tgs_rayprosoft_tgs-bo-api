@@ -1,7 +1,7 @@
-﻿using System.Data.SqlClient;
+﻿using System.Collections.Immutable;
+using System.Data.SqlClient;
 using System.Runtime.InteropServices;
 using System.Text.Json;
-using ClosedXML.Report.Utils;
 using ExpectedObjects;
 using Jering.Javascript.NodeJS;
 using MediatR;
@@ -11,15 +11,19 @@ using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 using NSubstitute;
+using Tgs.CashService.Client;
 using Tgs.Payment.Clients;
 using Tgs.PlayerService.Client;
+using Tgs.Service.PlayerBuckets;
+using Tgs.ServiceUtility;
 using Tgs.VipLevelService.Clients;
 using TGS.Core.Models.Enums;
 using TGS.Core.Models.Messages;
 using TGS.Services.BackOffice.Application.Models.Player;
+using TGS.Services.BackOffice.ApplicationServices;
 using TGS.Services.BackOffice.Domain;
-using Xunit;
 using Xunit.Abstractions;
+using static TGS.Services.BackOffice.Application.Models.Player.PlayerModel;
 
 namespace BackendOffice.IntegrationTests;
 
@@ -376,6 +380,165 @@ public class PlayerTests
         Assert.True(result?.Valid);
         Assert.Equal(1, result?.TotalCount);
         expected.Items.ToExpectedObject().ShouldEqual(result?.Items);
+    }
+
+    [Fact]
+    public async Task 依據PlayerCode查詢Player資料()
+    {
+        // Arrange
+        var channelName = Guid.NewGuid().ToString();
+        var userId = Guid.NewGuid();
+
+        var fakePlayerServiceClient = Substitute.For<IPlayerServiceClient>();
+        var fakePaymentSerivceClient = Substitute.For<IPaymentServiceClient>();
+        var fakePlayerBucketClient = Substitute.For<IPlayerBucketClient>();
+        var fakeVipLevelsQueryService = Substitute.For<IQueryService<AllVipLevelsQuery, VipLevelInfo>>();
+        var fakeCashServiceClient = Substitute.For<ICashServiceClient>();
+
+        using var web = TestBackendOfficeApplication.Builder
+            .UseTestChannelServer(channelName)
+            .ConfigureLogging(logging => logging.AddXUnit(_testOutputHelper))
+            .ConfigureServices(services => services
+                .AddAuthentication("Fake")
+                .AddScheme<FakeAuthenticationSchemaOptions, FakeAuthenticationHandler>(
+                    "Fake",
+                    options =>
+                    {
+                        options.UserId = userId;
+                        options.UserName = "system";
+                    })
+                .Services
+                .AddSingleton(fakePlayerServiceClient)
+                .AddSingleton(fakePaymentSerivceClient)
+                .AddSingleton(fakePlayerBucketClient)
+                .AddSingleton(fakeVipLevelsQueryService)
+                .AddSingleton(fakeCashServiceClient))
+            .Build();
+
+        await web.StartAsync();
+
+        var playerCode = "4ucmqplxb029";
+        var brandId = Guid.Parse("4e86719f-243f-46f6-b010-5c758b7285af");
+        var vipLevelId = Guid.Parse("bcd5a809-8b90-ec11-a746-ac82478e2af1");
+
+        _ = fakePlayerServiceClient.GetPlayerInfoAsync(
+            Arg.Is(playerCode),
+            Arg.Any<CancellationToken>())
+            .Returns(new Tgs.PlayerService.Client.PlayerInfo
+            {
+                PlayerCode = playerCode,
+                IdentityAuthentication = true,
+                BrandId = brandId,
+                IsSetPayPassword = true,
+                EmailAuthentication = true,
+                PhoneAuthentication = true,
+                RegisteredOn = null,
+                UserName = "4ucmqplxb029",
+                VipLevelId = vipLevelId
+            });
+
+        _ = fakePlayerServiceClient.GetPlayerLoginInfoAsync(
+            Arg.Is(playerCode),
+            Arg.Any<CancellationToken>())
+            .Returns(new PlayerLoginInfo(null, null, null, null));
+
+        _ = fakePlayerServiceClient.GetParentPlayerInfoAsync(
+            Arg.Is(playerCode),
+            Arg.Any<CancellationToken>())
+            .Returns(new Tgs.PlayerService.Client.PlayerInfo
+            {
+                UserName = "parentUsername"
+            });
+
+        _ = fakePlayerServiceClient.GetPlayerPropertiesAsync(
+            Arg.Is(playerCode),
+            Arg.Any<CancellationToken>())
+            .Returns(new[]
+            {
+                new KeyValuePair<string, string>("RealName", ""),
+                new KeyValuePair<string, string>("DefaultWalletId", "36a6cdef-094f-eb11-8d88-70b5e82b6b8d"),
+                new KeyValuePair<string, string>("Birthdate", "2000-04-28")
+            }.ToImmutableDictionary());
+
+        _ = fakePaymentSerivceClient.GetPlayerBankInfosAsync(
+            Arg.Is(playerCode),
+            Arg.Any<CancellationToken>())
+            .Returns(Array.Empty<PlayerBankInfo>().ToAsyncEnumerable());
+
+        _ = fakeVipLevelsQueryService.QueryAsync(
+            Arg.Is(new AllVipLevelsQuery(brandId)),
+            Arg.Any<CancellationToken>())
+            .Returns(new VipLevelInfo[]
+            {
+                new VipLevelInfo(vipLevelId,1,brandId,0M,0M,0M,0M,true,0M,0M,0M,0M,0M,0M,0M,0M,0M)
+            }.ToAsyncEnumerable());
+
+        _ = fakePlayerBucketClient.ReadBucketsAsync(
+            Arg.Is(playerCode),
+            Arg.Any<CancellationToken>())
+            .Returns(new ReadBucketResult(0, null));
+
+        _ = fakePlayerServiceClient.GetPlayerStatusAsync(
+            Arg.Is(playerCode),
+            Arg.Any<CancellationToken>())
+            .Returns(Tgs.PlayerService.Client.PlayerStatus.Enabled);
+
+        var expected = new
+        {
+            Errors = Array.Empty<string>(),
+            Message = "",
+            Valid = true,
+            Player = new
+            {
+                Balance = 0M,
+                Banks = Array.Empty<BankModel>(),
+                Birthdate = "2000/04/28",
+                LastLoginIp = "",
+                ParentUsename = "parentUsername",
+                PlayerCode = playerCode,
+                RealName = "",
+                RegisterHost = "",
+                RegisterIp = "",
+                Status = "Enabled",
+                StatusName = "Enabled",
+                Username = playerCode,
+                VipId = "bcd5a809-8b90-ec11-a746-ac82478e2af1",
+                VipLevel = 1,
+                WageringRequirement = 0,
+                IdentityAuthentication = true,
+            },
+        };
+
+        var isWindows = RuntimeInformation.IsOSPlatform(OSPlatform.Windows) ? "true" : "false";
+
+        var nodeModule = $$"""
+            const axiosConfigFactory = require('./models/axios-configuration.js').default;
+            const BackOfficeService = require('./services/bo-service.js').default;
+
+            module.exports = async (playerCode) =>
+            {
+                let instance = axiosConfigFactory("{{channelName}}", {{isWindows}});
+
+                let svc = new BackOfficeService(instance);
+
+                return await svc.getSinglePlayer(playerCode);
+            };
+        """;
+
+        // Act
+        var actual = await StaticNodeJSService.InvokeFromStringAsync<string>(
+            nodeModule,
+            args: new object[] { playerCode });
+
+        var jsonOptions = web.Services.GetRequiredService<IOptions<JsonOptions>>().Value;
+        var result = JsonSerializer.Deserialize<GetPlayerResponse>(
+            actual!,
+            jsonOptions.JsonSerializerOptions);
+
+        // Assert
+        Assert.NotNull(actual);
+        Assert.True(result!.Player.IdentityAuthentication);
+        Assert.Equal(playerCode, result!.Player.PlayerCode);
     }
 
     [Fact]

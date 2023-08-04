@@ -1,4 +1,4 @@
-interface PlayerModel {
+interface PlayersModel {
     playerCode: string;
     parentUsername: string;
     status: string;
