@@ -9,6 +9,8 @@ public class AdjustRecordListItemViewModel
 {
     public required AdjustType AdjustType { get; set; }
 
+    public required OperationMode OperationMode { get; set; }
+
     public required decimal Amount { get; set; }
 
     public required string BrandCode { get; set; }
