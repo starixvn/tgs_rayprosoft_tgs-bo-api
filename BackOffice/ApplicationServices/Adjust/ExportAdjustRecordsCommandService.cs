@@ -87,7 +87,7 @@ internal class ExportAdjustRecordsCommandService
         {
             idx++;
 
-            var displayAmount = row.OperationMode == OperationMode.Add.ToString()
+            var displayAmount = Enum.Parse<OperationMode>(row.OperationMode) == OperationMode.Add
                 ? row.Amount
                 : -row.Amount;
 
@@ -154,7 +154,7 @@ internal class ExportAdjustRecordsCommandService
         {
             idx++;
 
-            var displayAmount = row.OperationMode == OperationMode.Add.ToString()
+            var displayAmount = Enum.Parse<OperationMode>(row.OperationMode) == OperationMode.Add
                     ? row.Amount
                     : -row.Amount;
 
@@ -230,7 +230,7 @@ internal class ExportAdjustRecordsCommandService
             {
                 idx++;
 
-                var displayAmount = row.OperationMode == OperationMode.Add.ToString()
+                var displayAmount = Enum.Parse<OperationMode>(row.OperationMode) == OperationMode.Add
                     ? row.Amount
                     : -row.Amount;
 
