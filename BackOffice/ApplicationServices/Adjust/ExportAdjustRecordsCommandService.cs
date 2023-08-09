@@ -9,6 +9,7 @@ using System.Threading.Tasks;
 using LargeXlsx;
 using Tgs.Agent.Client;
 using Tgs.BrandCertificate.Clients;
+using Tgs.CashQueryService;
 using Tgs.CashQueryService.Client;
 using Tgs.PlayerService.Client;
 using Tgs.ServiceUtility;
@@ -85,6 +86,11 @@ internal class ExportAdjustRecordsCommandService
             .ConfigureAwait(false))
         {
             idx++;
+
+            var displayAmount = row.OperationMode == OperationMode.Add.ToString()
+                ? row.Amount
+                : -row.Amount;
+
             _ = xlsxWriter
                 .BeginRow()
                 .Write(idx)
@@ -93,7 +99,7 @@ internal class ExportAdjustRecordsCommandService
                 .Write(row.UserName)
                 .Write(row.UserType)
                 .Write(row.AdjustType)
-                .Write(row.Amount)
+                .Write(displayAmount)
                 .Write(row.Operator)
                 .Write(row.Remark);
         }
@@ -147,6 +153,11 @@ internal class ExportAdjustRecordsCommandService
             .ConfigureAwait(false))
         {
             idx++;
+
+            var displayAmount = row.OperationMode == OperationMode.Add.ToString()
+                    ? row.Amount
+                    : -row.Amount;
+
             _ = xlsxWriter
                 .BeginRow()
                 .Write(idx)
@@ -155,7 +166,7 @@ internal class ExportAdjustRecordsCommandService
                 .Write(row.UserName)
                 .Write(row.UserType)
                 .Write(row.AdjustType)
-                .Write(row.Amount)
+                .Write(displayAmount)
                 .Write(row.Operator)
                 .Write(row.Remark);
         }
@@ -218,6 +229,11 @@ internal class ExportAdjustRecordsCommandService
                 .ConfigureAwait(false))
             {
                 idx++;
+
+                var displayAmount = row.OperationMode == OperationMode.Add.ToString()
+                    ? row.Amount
+                    : -row.Amount;
+
                 _ = xlsxWriter
                     .BeginRow()
                     .Write(idx)
@@ -226,7 +242,7 @@ internal class ExportAdjustRecordsCommandService
                     .Write(row.UserName)
                     .Write(row.UserType)
                     .Write(row.AdjustType)
-                    .Write(row.Amount)
+                    .Write(displayAmount)
                     .Write(row.Operator)
                     .Write(row.Remark);
             }
@@ -270,6 +286,7 @@ internal class ExportAdjustRecordsCommandService
                 tup.AgentName,
                 tup.Record.UserType.ToString(),
                 tup.Record.AdjustType.ToString(),
+                tup.Record.OperationMode.ToString(),
                 tup.Record.Amount,
                 tup.Record.Operator,
                 tup.Record.Remark));
@@ -321,6 +338,7 @@ internal class ExportAdjustRecordsCommandService
                         map[item.UserId],
                         item.UserType.ToString(),
                         item.AdjustType.ToString(),
+                        item.OperationMode.ToString(),
                         item.Amount,
                         item.Operator,
                         item.Remark))));
@@ -331,6 +349,7 @@ internal class ExportAdjustRecordsCommandService
         string UserName,
         string UserType,
         string AdjustType,
+        string OperationMode,
         decimal Amount,
         string Operator,
         string? Remark);
