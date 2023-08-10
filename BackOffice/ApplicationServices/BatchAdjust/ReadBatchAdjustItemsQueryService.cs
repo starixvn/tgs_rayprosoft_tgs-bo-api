@@ -63,7 +63,7 @@ internal class ReadBatchAdjustItemsQueryService : IQueryService<ReadBatchAdjustI
                 playerInfo.PlayerCode,
                 playerInfo.UserName,
                 adjustAmount,
-                turnover,
+                turnover < 0M ? 0M : turnover,
                 remark);
 
             yield return item;
