@@ -57,7 +57,7 @@
     <PackageReference Include="Tgs.Agent.Client" Version="0.0.8" />
     <PackageReference Include="Tgs.BrandCertificateClient" Version="0.0.27" />
     <PackageReference Include="Tgs.CashQuery.Client" Version="0.0.7" />
-    <PackageReference Include="Tgs.CashService.Client" Version="0.1.6" />
+    <PackageReference Include="Tgs.CashService.Client" Version="0.1.7" />
     <PackageReference Include="Tgs.Core" Version="1.0.18" />
     <PackageReference Include="TGS.Core.Infrastructures.Json" Version="0.0.1" />
     <PackageReference Include="Tgs.Core.Infrastructures.Security" Version="0.0.2" />
