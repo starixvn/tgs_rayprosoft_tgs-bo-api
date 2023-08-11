@@ -101,7 +101,7 @@ public partial class PlayerController : BaseContextController
                 GameActionId = x.GameActionId,
                 Amount = x.Amount,
                 Balance = x.Balance,
-                TransactionType = (TransactionType?)x.TransactionType,
+                TransactionType = (TGS.Services.BackOffice.Domain.Enums.TransactionType?)x.TransactionType,
                 GameActionType = (GameActionType?)x.GameActionType switch
                 {
                     GameActionType.PlaceBet => TransactionGameActionType.GameBet,
