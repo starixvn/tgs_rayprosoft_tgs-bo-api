@@ -659,4 +659,31 @@ export default class BackOfficeService {
         await this.http
             .put(`/api/player/identityauth/${playerCode}/${identityAuthentication}`);            
     }
+
+    public getAccountChanges(
+        request: GetPlayerAccountChangesReportRequest): Promise<PagedResponse<PlayerAccountChangeReportModel>>
+    {
+        return this.http
+            .get(
+                `/api/player/accountChanges`,
+                {
+                    params: {
+                        ...request
+                    }
+                })
+            .then(res => res.data);
+    }
+
+    public getAccountChangesTotalAmount(request: GetPlayerAccountChangesReportTotalAmountRequest): Promise<PlayerAccountChangesTotalModel>
+    {
+        return this.http
+        .get(
+            `/api/player/accountChanges/totalAmount`,
+            {
+                params: {
+                    ...request
+                }
+            })
+        .then(res => res.data);
+    }
 }

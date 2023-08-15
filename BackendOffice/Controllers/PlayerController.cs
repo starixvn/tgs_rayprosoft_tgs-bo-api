@@ -7,12 +7,12 @@ using System.Threading;
 using System.Threading.Tasks;
 using MediatR;
 using Microsoft.AspNetCore.Mvc;
+using Tgs.CashQueryService.Client;
+using Tgs.CashService.Client;
 using Tgs.Paging;
 using Tgs.Payment.Clients;
 using Tgs.PlayerService.Client;
 using Tgs.Promotion.Clients;
-using Tgs.Report.Client;
-using Tgs.Report.Client.Models.Player;
 using Tgs.ServiceUtility;
 using Tgs.VipLevelService.Clients;
 using TGS.Apis.BackendOffice.Attributes;
@@ -72,37 +72,89 @@ public partial class PlayerController : BaseContextController
     [HttpGet("accountChanges", Name = "GetPlayerAccountChanges")]
     [Description("Get player account changes")]
     public async Task<PagedResponse<PlayerAccountChangeReportModel>> GetAccountChangesAsync(
-        [FromServices] IReportClient client,
-        [FromQuery] GetPlayerAccountChangesReportRequest request)
+        [FromQuery] GetPlayerAccountChangesReportRequest request,
+        [FromServices] IPlayerServiceClient playerServiceClient,
+        [FromServices] IGetService<AccountChangesQuery, Tgs.CashService.Client.PagingResponse<TransactionLog>> getService,
+        [FromServices] ICashQueryClient cashQueryClient)
     {
-        var reportRequest = new GetPlayerAccountChangesRequest
+        var playerProps = await playerServiceClient
+            .GetPlayerPropertiesAsync(request.PlayerCode, HttpContext.RequestAborted)
+            .ConfigureAwait(false);
+
+        var playerWalletId = Guid.Parse(playerProps["DefaultWalletId"]!);
+
+        var queryTransactionTypes = Array.Empty<int>();
+
+        if (request.AccountChangeType is null)
         {
-            BrandId = request.BrandId,
-            PlayerCode = request.PlayerCode,
-            AccountChangeType = (short?)request.AccountChangeType,
-            From = request.From,
-            To = request.To,
-            Page = request.Page,
-            Rows = request.Rows,
-            OrderBy = (short)request.OrderBy,
-            SortBy = request.SortBy,
-            ShowAll = request.ShowAll
-        };
-        var response = await client.GetPlayerAccountChangesAsync(reportRequest);
+            queryTransactionTypes = Enum
+                .GetValues(typeof(TGS.Services.BackOffice.Domain.Enums.TransactionType))
+                .Cast<TGS.Services.BackOffice.Domain.Enums.TransactionType>()
+                .Where(x => x != TGS.Services.BackOffice.Domain.Enums.TransactionType.WithdrawCommit
+                    || x != TGS.Services.BackOffice.Domain.Enums.TransactionType.TransferCommit)
+                .Select(x => (int)x)
+                .ToArray();
+        }
+        else
+        {
+            switch (request.AccountChangeType.Value)
+            {
+                case TGS.Services.BackOffice.Domain.Enums.TransactionType.Deposit:
+                    queryTransactionTypes = new int[] {
+                        (int)TGS.Services.BackOffice.Domain.Enums.TransactionType.Deposit,
+                        (int)TGS.Services.BackOffice.Domain.Enums.TransactionType.Deposited 
+                    };
+                    break;
+
+                case TGS.Services.BackOffice.Domain.Enums.TransactionType.Withdrawal:
+                    queryTransactionTypes = new int[] {
+                        (int)TGS.Services.BackOffice.Domain.Enums.TransactionType.Withdrawal,
+                        (int)TGS.Services.BackOffice.Domain.Enums.TransactionType.WithdrawLock
+                    };
+                    break;
+
+                case TGS.Services.BackOffice.Domain.Enums.TransactionType.CancelWithdrawal:
+                    queryTransactionTypes = new int[] {
+                        (int)TGS.Services.BackOffice.Domain.Enums.TransactionType.CancelWithdrawal,
+                        (int)TGS.Services.BackOffice.Domain.Enums.TransactionType.WithdrawRollback
+                    };
+                    break;
+
+                default:
+                    break;
+            }
+        }
+
+        var query = new AccountChangesQuery(
+            playerWalletId,
+            request.From.DateTime,
+            request.To.DateTime,
+            queryTransactionTypes,
+            new PagingConditions(request.Page, request.Rows));
+
+        var result = await getService
+            .GetAsync(query)
+            .ConfigureAwait(false);
+
+        var transactionIds = result.Items.Select(tl => tl.Id);
+
+        var adjustPlayerRecords = await cashQueryClient
+            .QueryPlayerAdjustIncludeInNetProfitRecordsAsync(transactionIds, HttpContext.RequestAborted)
+            .ToArrayAsync(HttpContext.RequestAborted);
 
         return new()
         {
-            Valid = response.Valid,
-            Message = response.Message,
-            TotalCount = response.TotalCount,
-            Items = response.Items?.Select(x => new PlayerAccountChangeReportModel
+            Valid = true,
+            Message = string.Empty,
+            TotalCount = result.TotalCount,
+            Items = result.Items?.Select(x => new PlayerAccountChangeReportModel
             {
-                TransactionId = x.TransactionId,
-                GameActionId = x.GameActionId,
+                TransactionId = x.Id,
+                GameActionId = null,
                 Amount = x.Amount,
                 Balance = x.Balance,
                 TransactionType = (TGS.Services.BackOffice.Domain.Enums.TransactionType?)x.TransactionType,
-                GameActionType = (GameActionType?)x.GameActionType switch
+                GameActionType = (GameActionType?)x.TransactionType switch
                 {
                     GameActionType.PlaceBet => TransactionGameActionType.GameBet,
                     GameActionType.WinBet => TransactionGameActionType.GameSettleWin,
@@ -116,9 +168,9 @@ public partial class PlayerController : BaseContextController
                     _ => null
                 },
                 RecordedOn = x.RecordedOn,
-                IncludeInNetProfit = x.IncludeInNetProfit,
+                IncludeInNetProfit = adjustPlayerRecords.FirstOrDefault(apr => apr.TransactionId == x.Id).IncludeInNetProfit,
                 Remark = GetRemark((TransactionType?)x.TransactionType, x.Description),
-                ExternalTransactionId = x.ExternalTransactionId
+                ExternalTransactionId = x.ExternalId
             }).ToArray()
         };
     }
@@ -126,20 +178,63 @@ public partial class PlayerController : BaseContextController
     [HttpGet("accountChanges/totalAmount", Name = "GetAccountChangesTotalAmount")]
     [Description("Get player account changes Total Amount")]
     public async Task<PlayerAccountChangesTotalModel> GetAccountChangesTotalAmountAsync(
-        [FromServices] IReportClient client,
+        [FromServices] IPlayerServiceClient playerServiceClient,
+        [FromServices] ICashServiceClient cashSerivceClient,
         [FromQuery] GetPlayerAccountChangesReportTotalAmountRequest request)
     {
-        var reportRequest = new GetPlayerAccountChangesTotalRequest
-        {
-            BrandId = request.BrandId,
-            PlayerCode = request.PlayerCode,
-            AccountChangeType = (short?)request.AccountChangeType,
-            From = request.From,
-            To = request.To
-        };
-        var response = await client.GetPlayerAccountChangesTotalAmountAsync(reportRequest);
+        var playerProps = await playerServiceClient
+            .GetPlayerPropertiesAsync(request.PlayerCode, HttpContext.RequestAborted)
+            .ConfigureAwait(false);
 
-        return new PlayerAccountChangesTotalModel { Amount = response };
+        var playerWalletId = Guid.Parse(playerProps["DefaultWalletId"]!);
+
+        var queryTransactionTypes = Array.Empty<int>();
+
+        if (request.AccountChangeType is null)
+        {
+            queryTransactionTypes = Enum
+                .GetValues(typeof(TGS.Services.BackOffice.Domain.Enums.TransactionType))
+                .Cast<TGS.Services.BackOffice.Domain.Enums.TransactionType>()
+                .Where(x => x != TGS.Services.BackOffice.Domain.Enums.TransactionType.WithdrawCommit
+                    || x != TGS.Services.BackOffice.Domain.Enums.TransactionType.TransferCommit)
+                .Select(x => (int)x)
+                .ToArray();
+        }
+        else
+        {
+            switch (request.AccountChangeType.Value)
+            {
+                case TGS.Services.BackOffice.Domain.Enums.TransactionType.Deposit:
+                    queryTransactionTypes = new int[] {
+                        (int)TGS.Services.BackOffice.Domain.Enums.TransactionType.Deposit,
+                        (int)TGS.Services.BackOffice.Domain.Enums.TransactionType.Deposited
+                    };
+                    break;
+
+                case TGS.Services.BackOffice.Domain.Enums.TransactionType.Withdrawal:
+                    queryTransactionTypes = new int[] {
+                        (int)TGS.Services.BackOffice.Domain.Enums.TransactionType.Withdrawal,
+                        (int)TGS.Services.BackOffice.Domain.Enums.TransactionType.WithdrawLock
+                    };
+                    break;
+
+                case TGS.Services.BackOffice.Domain.Enums.TransactionType.CancelWithdrawal:
+                    queryTransactionTypes = new int[] {
+                        (int)TGS.Services.BackOffice.Domain.Enums.TransactionType.CancelWithdrawal,
+                        (int)TGS.Services.BackOffice.Domain.Enums.TransactionType.WithdrawRollback
+                    };
+                    break;
+
+                default:
+                    break;
+            }
+        }
+
+        var response = await cashSerivceClient
+            .QueryTransactionTotalAmountAsync(playerWalletId, request.From.DateTime, request.To.DateTime, queryTransactionTypes, HttpContext.RequestAborted)
+            .ConfigureAwait(false);
+
+        return new PlayerAccountChangesTotalModel { Amount = response ?? 0M };
     }
 
     [HttpGet("{playerCode}/joinedPromotions", Name = "GetJoinedPromotions")]
