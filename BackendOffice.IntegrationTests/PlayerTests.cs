@@ -658,7 +658,7 @@ public class PlayerTests
         var brandId = Guid.Parse("4e86719f-243f-46f6-b010-5c758b7285af");
         var page = 1;
         var rows = 20;
-        var sortby = "registeredTime";
+        var sortby = "recordedOn";
         var orderby = SortOrder.Ascending;
         var showAll = false;
 
@@ -814,11 +814,6 @@ public class PlayerTests
         var to = DateTime.UtcNow;
 
         var brandId = Guid.Parse("4e86719f-243f-46f6-b010-5c758b7285af");
-        var page = 1;
-        var rows = 20;
-        var sortby = "registeredTime";
-        var orderby = SortOrder.Ascending;
-        var showAll = false;
 
         _ = fakePlayerServiceClient.GetPlayerPropertiesAsync(Arg.Is(playerCode))
             .Returns(new Dictionary<string, string>

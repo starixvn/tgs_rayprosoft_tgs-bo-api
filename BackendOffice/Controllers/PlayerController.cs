@@ -100,24 +100,24 @@ public partial class PlayerController : BaseContextController
             switch (request.AccountChangeType.Value)
             {
                 case TGS.Services.BackOffice.Domain.Enums.TransactionType.Deposit:
-                    _ = queryTransactionTypes.Concat(new[] {
+                    queryTransactionTypes = new int[] {
                         (int)TGS.Services.BackOffice.Domain.Enums.TransactionType.Deposit,
-                        (int)TGS.Services.BackOffice.Domain.Enums.TransactionType.Deposited
-                    });
+                        (int)TGS.Services.BackOffice.Domain.Enums.TransactionType.Deposited 
+                    };
                     break;
 
                 case TGS.Services.BackOffice.Domain.Enums.TransactionType.Withdrawal:
-                    _ = queryTransactionTypes.Concat(new int[] {
+                    queryTransactionTypes = new int[] {
                         (int)TGS.Services.BackOffice.Domain.Enums.TransactionType.Withdrawal,
                         (int)TGS.Services.BackOffice.Domain.Enums.TransactionType.WithdrawLock
-                    });
+                    };
                     break;
 
                 case TGS.Services.BackOffice.Domain.Enums.TransactionType.CancelWithdrawal:
-                    _ = queryTransactionTypes.Concat(new int[] {
+                    queryTransactionTypes = new int[] {
                         (int)TGS.Services.BackOffice.Domain.Enums.TransactionType.CancelWithdrawal,
                         (int)TGS.Services.BackOffice.Domain.Enums.TransactionType.WithdrawRollback
-                    });
+                    };
                     break;
 
                 default:
@@ -205,24 +205,24 @@ public partial class PlayerController : BaseContextController
             switch (request.AccountChangeType.Value)
             {
                 case TGS.Services.BackOffice.Domain.Enums.TransactionType.Deposit:
-                    _ = queryTransactionTypes.Concat(new[] {
+                    queryTransactionTypes = new int[] {
                         (int)TGS.Services.BackOffice.Domain.Enums.TransactionType.Deposit,
                         (int)TGS.Services.BackOffice.Domain.Enums.TransactionType.Deposited
-                    });
+                    };
                     break;
 
                 case TGS.Services.BackOffice.Domain.Enums.TransactionType.Withdrawal:
-                    _ = queryTransactionTypes.Concat(new int[] {
+                    queryTransactionTypes = new int[] {
                         (int)TGS.Services.BackOffice.Domain.Enums.TransactionType.Withdrawal,
                         (int)TGS.Services.BackOffice.Domain.Enums.TransactionType.WithdrawLock
-                    });
+                    };
                     break;
 
                 case TGS.Services.BackOffice.Domain.Enums.TransactionType.CancelWithdrawal:
-                    _ = queryTransactionTypes.Concat(new int[] {
+                    queryTransactionTypes = new int[] {
                         (int)TGS.Services.BackOffice.Domain.Enums.TransactionType.CancelWithdrawal,
                         (int)TGS.Services.BackOffice.Domain.Enums.TransactionType.WithdrawRollback
-                    });
+                    };
                     break;
 
                 default:
