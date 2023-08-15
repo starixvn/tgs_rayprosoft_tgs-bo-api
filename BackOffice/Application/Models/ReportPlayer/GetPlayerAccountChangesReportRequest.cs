@@ -1,12 +1,13 @@
 ﻿using System;
-using TGS.Core.Models.Enums;
+
 using TGS.Core.Models.Messages;
+using TGS.Services.BackOffice.Domain.Enums;
 
 namespace TGS.Services.BackOffice.Application.Models.ReportPlayer;
 
 public class GetPlayerAccountChangesReportRequest : PageableRequest
 {
-    public AccountChangeType? AccountChangeType { get; init; }
+    public TransactionType? AccountChangeType { get; init; }
 
     public Guid BrandId { get; init; }
 
