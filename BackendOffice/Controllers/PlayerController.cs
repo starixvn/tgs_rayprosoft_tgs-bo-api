@@ -361,7 +361,8 @@ public partial class PlayerController : BaseContextController
             RowCount = request.Rows
         };
 
-        var totalCount = await result.CountAsync(HttpContext.RequestAborted).ConfigureAwait(false);
+        var totalCount = await result.CountAsync(
+            HttpContext.RequestAborted).ConfigureAwait(false);
 
         result = result.ApplyPaging(paging);
 
@@ -380,8 +381,8 @@ public partial class PlayerController : BaseContextController
             .ConfigureAwait(false);
 
         var pagedView = await result
-                .ToArrayAsync(HttpContext.RequestAborted)
-                .ConfigureAwait(false);
+            .ToArrayAsync(HttpContext.RequestAborted)
+            .ConfigureAwait(false);
 
         var parentPlayers = pagedView
             .Where(p => p.ParentPlayerCode is not null)
@@ -389,17 +390,12 @@ public partial class PlayerController : BaseContextController
             .Distinct();
 
         var parentPlayerDict = parentPlayers.Any()
-            ? await playerServiceClient
-                .QueryPlayerListAsync(
-                    request.BrandId,
-                    new PlayerListQuery
-                    {
-                        PlayerCodes = parentPlayers
-                    },
-                    HttpContext.RequestAborted)
+            ? await playerServiceClient.QueryPlayerInfoListAsync(
+                request.BrandId,
+                parentPlayers)
                 .ToDictionaryAsync(
-                    p => p.PlayerCode,
-                    p => p.UserName,
+                    info => info.PlayerCode,
+                    info => info.UserName,
                     HttpContext.RequestAborted)
                 .ConfigureAwait(false)
             : new Dictionary<string, string>();
