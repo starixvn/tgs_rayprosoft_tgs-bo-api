@@ -91,7 +91,7 @@ public partial class PlayerController : BaseContextController
                 .GetValues(typeof(TGS.Services.BackOffice.Domain.Enums.TransactionType))
                 .Cast<TGS.Services.BackOffice.Domain.Enums.TransactionType>()
                 .Where(x => x != TGS.Services.BackOffice.Domain.Enums.TransactionType.WithdrawCommit
-                    || x != TGS.Services.BackOffice.Domain.Enums.TransactionType.TransferCommit)
+                    && x != TGS.Services.BackOffice.Domain.Enums.TransactionType.TransferCommit)
                 .Select(x => (int)x)
                 .ToArray();
         }
@@ -196,7 +196,7 @@ public partial class PlayerController : BaseContextController
                 .GetValues(typeof(TGS.Services.BackOffice.Domain.Enums.TransactionType))
                 .Cast<TGS.Services.BackOffice.Domain.Enums.TransactionType>()
                 .Where(x => x != TGS.Services.BackOffice.Domain.Enums.TransactionType.WithdrawCommit
-                    || x != TGS.Services.BackOffice.Domain.Enums.TransactionType.TransferCommit)
+                    && x != TGS.Services.BackOffice.Domain.Enums.TransactionType.TransferCommit)
                 .Select(x => (int)x)
                 .ToArray();
         }
