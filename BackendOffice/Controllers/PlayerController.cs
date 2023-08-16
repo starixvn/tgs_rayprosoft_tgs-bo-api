@@ -102,7 +102,7 @@ public partial class PlayerController : BaseContextController
                 case TGS.Services.BackOffice.Domain.Enums.TransactionType.Deposit:
                     queryTransactionTypes = new int[] {
                         (int)TGS.Services.BackOffice.Domain.Enums.TransactionType.Deposit,
-                        (int)TGS.Services.BackOffice.Domain.Enums.TransactionType.Deposited 
+                        (int)TGS.Services.BackOffice.Domain.Enums.TransactionType.Deposited
                     };
                     break;
 
@@ -168,7 +168,9 @@ public partial class PlayerController : BaseContextController
                     _ => null
                 },
                 RecordedOn = x.RecordedOn,
-                IncludeInNetProfit = adjustPlayerRecords.FirstOrDefault(apr => apr.TransactionId == x.Id).IncludeInNetProfit,
+                IncludeInNetProfit = adjustPlayerRecords
+                    .FirstOrDefault(apr => apr.TransactionId == x.Id)?.IncludeInNetProfit
+                    ?? false,
                 Remark = GetRemark((TransactionType?)x.TransactionType, x.Description),
                 ExternalTransactionId = x.ExternalId
             }).ToArray()
