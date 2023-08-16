@@ -65,26 +65,20 @@ public class DepositAccumulateRouletteController : BaseContextController
 
         if (!string.IsNullOrEmpty(request.UserName))
         {
-            playerCodes = await playerServiceClient.QueryPlayerListAsync(
+            var player = await playerServiceClient.GetPlayerInfoByUserNameAsync(
                 brandId,
-                new PlayerListQuery
-                {
-                    UserName = request.UserName
-                },
-                HttpContext.RequestAborted)
-                .Select(item => item.PlayerCode)
-                .ToArrayAsync(HttpContext.RequestAborted)
-                .ConfigureAwait(false);
+                request.UserName,
+                HttpContext.RequestAborted).ConfigureAwait(false);
 
-            if (playerCodes.Length == 0)
-            {
+            if (player is null)
                 return new DepositAccumulateRouletteGameRecordsResponse
                 {
                     Valid = true,
                     TotalCount = 0,
                     Items = Array.Empty<DepositAccumulateRouletteGameRecordViewModel>()
                 };
-            }
+            else
+                playerCodes = new[] { player.PlayerCode };
         }
 
         var promotionIds = Array.Empty<Guid>();
@@ -138,25 +132,25 @@ public class DepositAccumulateRouletteController : BaseContextController
             .ApplyOrderBy(paging)
             .ApplyPaging(paging);
 
-        var playerUserNames = await playerServiceClient.QueryPlayerListAsync(
-                 brandId,
-                 new PlayerListQuery
-                 {
-                     PlayerCodes = rouletteRecords
-                         .Select(r => r.PlayerCode)
-                         .Distinct()
-                 },
-                 HttpContext.RequestAborted)
-             .ToDictionaryAsync(item => item.PlayerCode, item => item.UserName, HttpContext.RequestAborted)
-             .ConfigureAwait(false);
+        var playerUserNames = await playerServiceClient.QueryPlayerInfoListAsync(
+            brandId,
+            rouletteRecords
+                .Select(r => r.PlayerCode)
+                .Distinct(),
+            HttpContext.RequestAborted)
+            .ToDictionaryAsync(
+                info => info.PlayerCode,
+                info => info.UserName,
+                HttpContext.RequestAborted)
+            .ConfigureAwait(false);
 
         var promotionNames = (await promotionClient
-                .GetPromotionNamesAsync(new GetPromotionNamesRequest(
-                    rouletteRecords
-                        .Select(info => info.PromotionId)
-                        .Distinct()
-                        .ToArray()))
-                .ConfigureAwait(false))
+            .GetPromotionNamesAsync(new GetPromotionNamesRequest(
+                rouletteRecords
+                    .Select(info => info.PromotionId)
+                    .Distinct()
+                    .ToArray()))
+            .ConfigureAwait(false))
             .ToDictionary(model => model.Id, model => model.Name);
 
         return new DepositAccumulateRouletteGameRecordsResponse
