@@ -757,7 +757,7 @@ public class DepositFormTests
                 Arg.Is(command.Remark),
                 Arg.Is(formId.ToString()),
                 Arg.Is(Guid.Parse(command.ReviewUserId)));
-        _ = fakePlayerBucketClient.Received(0)
+        _ = fakePlayerBucketClient.Received(1)
             .CreateBucketAsync(
                 Arg.Is(playerCode),
                 Arg.Is((command.ActualAmount ?? 1000M) - 100M),

@@ -114,6 +114,14 @@ internal class ReviewDepositFormCommandService : ICommandService<ReviewDepositFo
 
         var walletId = Guid.Parse(playerProps["DefaultWalletId"]);
 
+        _ = await _playerBucketClient.CreateBucketAsync(
+            form.PlayerCode,
+            depositAmount,
+            BucketType.Deposit,
+            form.Id.ToString(),
+            command.Remark,
+            cancellationToken).ConfigureAwait(false);
+
         _ = await _cashServiceClient.DepositedAsync(
             walletId,
             depositAmount,
@@ -128,15 +136,7 @@ internal class ReviewDepositFormCommandService : ICommandService<ReviewDepositFo
                 form.PromotionId.Value,
                 cancellationToken).ConfigureAwait(false);
 
-        if (promotion is null || promotion.PromotionType == "DepositAccumulateRoulette")
-            _ = await _playerBucketClient.CreateBucketAsync(
-                form.PlayerCode,
-                depositAmount,
-                BucketType.Deposit,
-                form.Id.ToString(),
-                command.Remark,
-                cancellationToken).ConfigureAwait(false);
-        else if (_AllowDistributePromotionTypes.Contains(promotion.PromotionType))
+        if (promotion is not null && _AllowDistributePromotionTypes.Contains(promotion.PromotionType))
         {
             var subject = $"tgs.promotion.{promotion?.PromotionType.ToLower()}.distribute";
             var request = new CreatePlayerBucketWithDepositRequest(
