@@ -1,7 +1,10 @@
 ﻿using System.Collections.Immutable;
 using NSubstitute;
+using Tgs.CashService.Client;
 using Tgs.PlayerService.Client;
+using TGS.Services.BackOffice.Application.Queries.PlayerHandlers;
 using TGS.Services.BackOffice.ApplicationServices;
+using BoEnums = TGS.Services.BackOffice.Domain.Enums;
 
 namespace TGS.Tests.BackendOffice.UnitTests;
 
@@ -100,6 +103,298 @@ internal class PlayerTests
             .ListPlayerCodesByUserNameAsync(
                 Arg.Is(query.BrandId),
                 Arg.Is(query.UserNamePrefix));
+    }
+
+    [Test]
+    public async Task 取得玩家帳變紀錄_不指定交易類型時_須排除WithdrawCommit和TransferCommit查詢結果()
+    {
+        var fakePlayerServiceClient = Substitute.For<IPlayerServiceClient>();
+        var fakeCashServiceClient = Substitute.For<ICashServiceClient>();
+
+        var sut = new AccountChangesQueryService(fakePlayerServiceClient, fakeCashServiceClient);
+
+        var playerCode = "4ucmqplxb029";
+        var playerWalletId = Guid.Parse("36a6cdef-094f-eb11-8d88-70b5e82b6b8d");
+
+        _ = fakePlayerServiceClient
+            .GetPlayerPropertiesAsync(Arg.Is(playerCode))
+            .Returns(new Dictionary<string, string>
+            {
+                { "DefaultWalletId", playerWalletId.ToString() }
+            }.ToImmutableDictionary());
+
+        var query = new AccountChangesQuery(
+            playerCode,
+            DateTime.UtcNow.AddDays(-1),
+            DateTime.UtcNow,
+            null,
+            new PagingConditions(1, 20));
+
+        var actual = await sut.GetAsync(query);
+
+        var queryTransTypes = Enum
+                .GetValues(typeof(BoEnums.TransactionType))
+                .Cast<BoEnums.TransactionType>()
+                .Where(x => x is not BoEnums.TransactionType.WithdrawCommit
+                    and not BoEnums.TransactionType.TransferCommit)
+                .Select(x => (int)x)
+                .ToArray();
+
+        _ = fakeCashServiceClient.Received(1)
+            .QueryTransactionLogsAsync(
+                Arg.Is(playerWalletId),
+                Arg.Is(query.From),
+                Arg.Is(query.To),
+                Arg.Is<IEnumerable<int>>(x => x.SequenceEqual(queryTransTypes)),
+                Arg.Is(query.Paging));
+    }
+
+    [Test]
+    public async Task 取得玩家帳變紀錄_指定交易類型存款時_須包含Deposit和Deposited查詢結果()
+    {
+        var fakePlayerServiceClient = Substitute.For<IPlayerServiceClient>();
+        var fakeCashServiceClient = Substitute.For<ICashServiceClient>();
+
+        var sut = new AccountChangesQueryService(fakePlayerServiceClient, fakeCashServiceClient);
+
+        var playerCode = "4ucmqplxb029";
+        var playerWalletId = Guid.Parse("36a6cdef-094f-eb11-8d88-70b5e82b6b8d");
+
+        _ = fakePlayerServiceClient
+            .GetPlayerPropertiesAsync(Arg.Is(playerCode))
+            .Returns(new Dictionary<string, string>
+            {
+                { "DefaultWalletId", playerWalletId.ToString() }
+            }.ToImmutableDictionary());
+
+        var query = new AccountChangesQuery(
+            playerCode,
+            DateTime.UtcNow.AddDays(-1),
+            DateTime.UtcNow,
+            BoEnums.TransactionType.Deposit,
+            new PagingConditions(1, 20));
+
+        var actual = await sut.GetAsync(query);
+
+        var queryTransTypes = new int[]
+        {
+            (int)BoEnums.TransactionType.Deposit,
+            (int)BoEnums.TransactionType.Deposited
+        };
+
+        _ = fakeCashServiceClient.Received(1)
+            .QueryTransactionLogsAsync(
+                Arg.Is(playerWalletId),
+                Arg.Is(query.From),
+                Arg.Is(query.To),
+                Arg.Is<IEnumerable<int>>(x => x.SequenceEqual(queryTransTypes)),
+                Arg.Is(query.Paging));
+    }
+
+    [Test]
+    public async Task 取得玩家帳變紀錄_指定交易類型取消提款時_須包含CancelWithdrawal和WithdrawRollback查詢結果()
+    {
+        var fakePlayerServiceClient = Substitute.For<IPlayerServiceClient>();
+        var fakeCashServiceClient = Substitute.For<ICashServiceClient>();
+
+        var sut = new AccountChangesQueryService(fakePlayerServiceClient, fakeCashServiceClient);
+
+        var playerCode = "4ucmqplxb029";
+        var playerWalletId = Guid.Parse("36a6cdef-094f-eb11-8d88-70b5e82b6b8d");
+
+        _ = fakePlayerServiceClient
+            .GetPlayerPropertiesAsync(Arg.Is(playerCode))
+            .Returns(new Dictionary<string, string>
+            {
+                { "DefaultWalletId", playerWalletId.ToString() }
+            }.ToImmutableDictionary());
+
+        var query = new AccountChangesQuery(
+            playerCode,
+            DateTime.UtcNow.AddDays(-1),
+            DateTime.UtcNow,
+            BoEnums.TransactionType.CancelWithdrawal,
+            new PagingConditions(1, 20));
+
+        var actual = await sut.GetAsync(query);
+
+        var queryTransTypes = new int[]
+        {
+            (int)BoEnums.TransactionType.CancelWithdrawal,
+            (int)BoEnums.TransactionType.WithdrawRollback
+        };
+
+        _ = fakeCashServiceClient.Received(1)
+            .QueryTransactionLogsAsync(
+                Arg.Is(playerWalletId),
+                Arg.Is(query.From),
+                Arg.Is(query.To),
+                Arg.Is<IEnumerable<int>>(x => x.SequenceEqual(queryTransTypes)),
+                Arg.Is(query.Paging));
+    }
+
+    [Test]
+    public async Task 取得玩家帳變紀錄_指定交易類型提款時_須包含Withdrawal和WithdrawLock查詢結果()
+    {
+        var fakePlayerServiceClient = Substitute.For<IPlayerServiceClient>();
+        var fakeCashServiceClient = Substitute.For<ICashServiceClient>();
+
+        var sut = new AccountChangesQueryService(fakePlayerServiceClient, fakeCashServiceClient);
+
+        var playerCode = "4ucmqplxb029";
+        var playerWalletId = Guid.Parse("36a6cdef-094f-eb11-8d88-70b5e82b6b8d");
+
+        _ = fakePlayerServiceClient
+            .GetPlayerPropertiesAsync(Arg.Is(playerCode))
+            .Returns(new Dictionary<string, string>
+            {
+                { "DefaultWalletId", playerWalletId.ToString() }
+            }.ToImmutableDictionary());
+
+        var query = new AccountChangesQuery(
+            playerCode,
+            DateTime.UtcNow.AddDays(-1),
+            DateTime.UtcNow,
+            BoEnums.TransactionType.Withdrawal,
+            new PagingConditions(1, 20));
+
+        var actual = await sut.GetAsync(query);
+
+        var queryTransTypes = new int[]
+        {
+            (int)BoEnums.TransactionType.Withdrawal,
+            (int)BoEnums.TransactionType.WithdrawLock
+        };
+
+        _ = fakeCashServiceClient.Received(1)
+            .QueryTransactionLogsAsync(
+                Arg.Is(playerWalletId),
+                Arg.Is(query.From),
+                Arg.Is(query.To),
+                Arg.Is<IEnumerable<int>>(x => x.SequenceEqual(queryTransTypes)),
+                Arg.Is(query.Paging));
+    }
+
+    [Test]
+    public async Task 取得玩家帳變紀錄總金額_不指定交易類型時_須排除WithdrawCommit和TransferCommit查詢結果()
+    {
+        var fakePlayerServiceClient = Substitute.For<IPlayerServiceClient>();
+        var fakeCashServiceClient = Substitute.For<ICashServiceClient>();
+
+        var sut = new AccountChangesTotalAmountQueryService(fakePlayerServiceClient, fakeCashServiceClient);
+
+        var playerCode = "4ucmqplxb029";
+        var playerWalletId = Guid.Parse("36a6cdef-094f-eb11-8d88-70b5e82b6b8d");
+
+        _ = fakePlayerServiceClient
+            .GetPlayerPropertiesAsync(Arg.Is(playerCode))
+            .Returns(new Dictionary<string, string>
+            {
+                { "DefaultWalletId", playerWalletId.ToString() }
+            }.ToImmutableDictionary());
+
+        var query = new AccountChangesTotalAmountQuery(
+            playerCode,
+            DateTime.UtcNow.AddDays(-1),
+            DateTime.UtcNow,
+            null);
+
+        var actual = await sut.GetAsync(query);
+
+        var queryTransTypes = Enum
+                .GetValues(typeof(BoEnums.TransactionType))
+                .Cast<BoEnums.TransactionType>()
+                .Where(x => x is not BoEnums.TransactionType.WithdrawCommit
+                    and not BoEnums.TransactionType.TransferCommit)
+                .Select(x => (int)x)
+                .ToArray();
+
+        _ = fakeCashServiceClient.Received(1)
+            .QueryTransactionTotalAmountAsync(
+                Arg.Is(playerWalletId),
+                Arg.Is(query.From),
+                Arg.Is(query.To),
+                Arg.Is<IEnumerable<int>>(x => x.SequenceEqual(queryTransTypes)));
+    }
+
+    [Test]
+    public async Task 取得玩家帳變紀錄總金額_指定交易類型存款時_須包含Deposit和Deposited查詢結果()
+    {
+        var fakePlayerServiceClient = Substitute.For<IPlayerServiceClient>();
+        var fakeCashServiceClient = Substitute.For<ICashServiceClient>();
+
+        var sut = new AccountChangesTotalAmountQueryService(fakePlayerServiceClient, fakeCashServiceClient);
+
+        var playerCode = "4ucmqplxb029";
+        var playerWalletId = Guid.Parse("36a6cdef-094f-eb11-8d88-70b5e82b6b8d");
+
+        _ = fakePlayerServiceClient
+            .GetPlayerPropertiesAsync(Arg.Is(playerCode))
+            .Returns(new Dictionary<string, string>
+            {
+                { "DefaultWalletId", playerWalletId.ToString() }
+            }.ToImmutableDictionary());
+
+        var query = new AccountChangesTotalAmountQuery(
+            playerCode,
+            DateTime.UtcNow.AddDays(-1),
+            DateTime.UtcNow,
+            BoEnums.TransactionType.Deposit);
+
+        var actual = await sut.GetAsync(query);
+
+        var queryTransTypes = new int[]
+        {
+            (int) BoEnums.TransactionType.Deposit,
+            (int) BoEnums.TransactionType.Deposited,
+        };
+
+        _ = fakeCashServiceClient.Received(1)
+            .QueryTransactionTotalAmountAsync(
+                Arg.Is(playerWalletId),
+                Arg.Is(query.From),
+                Arg.Is(query.To),
+                Arg.Is<IEnumerable<int>>(x => x.SequenceEqual(queryTransTypes)));
+    }
+
+    [Test]
+    public async Task 取得玩家帳變紀錄總金額_指定交易類型提款時_須包含Withdrawal和WithdrawLock查詢結果()
+    {
+        var fakePlayerServiceClient = Substitute.For<IPlayerServiceClient>();
+        var fakeCashServiceClient = Substitute.For<ICashServiceClient>();
+
+        var sut = new AccountChangesTotalAmountQueryService(fakePlayerServiceClient, fakeCashServiceClient);
+
+        var playerCode = "4ucmqplxb029";
+        var playerWalletId = Guid.Parse("36a6cdef-094f-eb11-8d88-70b5e82b6b8d");
+
+        _ = fakePlayerServiceClient
+            .GetPlayerPropertiesAsync(Arg.Is(playerCode))
+            .Returns(new Dictionary<string, string>
+            {
+                { "DefaultWalletId", playerWalletId.ToString() }
+            }.ToImmutableDictionary());
+
+        var query = new AccountChangesTotalAmountQuery(
+            playerCode,
+            DateTime.UtcNow.AddDays(-1),
+            DateTime.UtcNow,
+            BoEnums.TransactionType.Withdrawal);
+
+        var actual = await sut.GetAsync(query);
+
+        var queryTransTypes = new int[]
+        {
+            (int) BoEnums.TransactionType.Withdrawal,
+            (int) BoEnums.TransactionType.WithdrawLock,
+        };
+
+        _ = fakeCashServiceClient.Received(1)
+            .QueryTransactionTotalAmountAsync(
+                Arg.Is(playerWalletId),
+                Arg.Is(query.From),
+                Arg.Is(query.To),
+                Arg.Is<IEnumerable<int>>(x => x.SequenceEqual(queryTransTypes)));
     }
 
     [Test]

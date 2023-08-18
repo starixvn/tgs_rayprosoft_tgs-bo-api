@@ -1,12 +1,11 @@
 ﻿using System;
-using System.Collections.Generic;
 using Tgs.CashService.Client;
 
 namespace TGS.Services.BackOffice.Application.Queries.PlayerHandlers;
 
 public record AccountChangesQuery(
-    Guid WalletId,
+    string PlayerCode,
     DateTime From,
     DateTime To,
-    IEnumerable<int> QueryTransactionTypes,
+    Domain.Enums.TransactionType? AccountChangeType,
     PagingConditions Paging);
