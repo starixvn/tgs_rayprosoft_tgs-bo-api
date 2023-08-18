@@ -27,6 +27,7 @@ using TGS.Services.BackOffice.Application.Queries.PlayerHandlers;
 using TGS.Services.BackOffice.ApplicationServices;
 using TGS.Services.BackOffice.ApplicationServices.Agents;
 using TGS.Services.BackOffice.Domain;
+using BoEnums = TGS.Services.BackOffice.Domain.Enums;
 
 namespace TGS.Apis.BackendOffice.Controllers;
 
@@ -88,10 +89,10 @@ public partial class PlayerController : BaseContextController
         if (request.AccountChangeType is null)
         {
             queryTransactionTypes = Enum
-                .GetValues(typeof(TGS.Services.BackOffice.Domain.Enums.TransactionType))
-                .Cast<TGS.Services.BackOffice.Domain.Enums.TransactionType>()
-                .Where(x => x != TGS.Services.BackOffice.Domain.Enums.TransactionType.WithdrawCommit
-                    && x != TGS.Services.BackOffice.Domain.Enums.TransactionType.TransferCommit)
+                .GetValues(typeof(BoEnums.TransactionType))
+                .Cast<BoEnums.TransactionType>()
+                .Where(x => x is not BoEnums.TransactionType.WithdrawCommit
+                    and not BoEnums.TransactionType.TransferCommit)
                 .Select(x => (int)x)
                 .ToArray();
         }
@@ -99,28 +100,31 @@ public partial class PlayerController : BaseContextController
         {
             switch (request.AccountChangeType.Value)
             {
-                case TGS.Services.BackOffice.Domain.Enums.TransactionType.Deposit:
+                case BoEnums.TransactionType.Deposit:
                     queryTransactionTypes = new int[] {
-                        (int)TGS.Services.BackOffice.Domain.Enums.TransactionType.Deposit,
-                        (int)TGS.Services.BackOffice.Domain.Enums.TransactionType.Deposited
+                        (int)BoEnums.TransactionType.Deposit,
+                        (int)BoEnums.TransactionType.Deposited
                     };
                     break;
 
-                case TGS.Services.BackOffice.Domain.Enums.TransactionType.Withdrawal:
+                case BoEnums.TransactionType.Withdrawal:
                     queryTransactionTypes = new int[] {
-                        (int)TGS.Services.BackOffice.Domain.Enums.TransactionType.Withdrawal,
-                        (int)TGS.Services.BackOffice.Domain.Enums.TransactionType.WithdrawLock
+                        (int)BoEnums.TransactionType.Withdrawal,
+                        (int)BoEnums.TransactionType.WithdrawLock
                     };
                     break;
 
-                case TGS.Services.BackOffice.Domain.Enums.TransactionType.CancelWithdrawal:
+                case BoEnums.TransactionType.CancelWithdrawal:
                     queryTransactionTypes = new int[] {
-                        (int)TGS.Services.BackOffice.Domain.Enums.TransactionType.CancelWithdrawal,
-                        (int)TGS.Services.BackOffice.Domain.Enums.TransactionType.WithdrawRollback
+                        (int)BoEnums.TransactionType.CancelWithdrawal,
+                        (int)BoEnums.TransactionType.WithdrawRollback
                     };
                     break;
 
                 default:
+                    queryTransactionTypes = new int[] {
+                        (int)request.AccountChangeType.Value
+                    };
                     break;
             }
         }
@@ -153,7 +157,7 @@ public partial class PlayerController : BaseContextController
                 GameActionId = null,
                 Amount = x.Amount,
                 Balance = x.Balance,
-                TransactionType = (TGS.Services.BackOffice.Domain.Enums.TransactionType?)x.TransactionType,
+                TransactionType = (BoEnums.TransactionType?)x.TransactionType,
                 GameActionType = (GameActionType?)x.TransactionType switch
                 {
                     GameActionType.PlaceBet => TransactionGameActionType.GameBet,
@@ -171,7 +175,7 @@ public partial class PlayerController : BaseContextController
                 IncludeInNetProfit = adjustPlayerRecords
                     .FirstOrDefault(apr => apr.TransactionId == x.Id)?.IncludeInNetProfit
                     ?? false,
-                Remark = GetRemark((TransactionType?)x.TransactionType, x.Description),
+                Remark = GetRemark((BoEnums.TransactionType?)x.TransactionType, x.Description),
                 ExternalTransactionId = x.ExternalId
             }).ToArray()
         };
@@ -195,10 +199,10 @@ public partial class PlayerController : BaseContextController
         if (request.AccountChangeType is null)
         {
             queryTransactionTypes = Enum
-                .GetValues(typeof(TGS.Services.BackOffice.Domain.Enums.TransactionType))
-                .Cast<TGS.Services.BackOffice.Domain.Enums.TransactionType>()
-                .Where(x => x != TGS.Services.BackOffice.Domain.Enums.TransactionType.WithdrawCommit
-                    && x != TGS.Services.BackOffice.Domain.Enums.TransactionType.TransferCommit)
+                .GetValues(typeof(BoEnums.TransactionType))
+                .Cast<BoEnums.TransactionType>()
+                .Where(x => x is not BoEnums.TransactionType.WithdrawCommit
+                    and not BoEnums.TransactionType.TransferCommit)
                 .Select(x => (int)x)
                 .ToArray();
         }
@@ -206,28 +210,31 @@ public partial class PlayerController : BaseContextController
         {
             switch (request.AccountChangeType.Value)
             {
-                case TGS.Services.BackOffice.Domain.Enums.TransactionType.Deposit:
+                case BoEnums.TransactionType.Deposit:
                     queryTransactionTypes = new int[] {
-                        (int)TGS.Services.BackOffice.Domain.Enums.TransactionType.Deposit,
-                        (int)TGS.Services.BackOffice.Domain.Enums.TransactionType.Deposited
+                        (int)BoEnums.TransactionType.Deposit,
+                        (int)BoEnums.TransactionType.Deposited
                     };
                     break;
 
-                case TGS.Services.BackOffice.Domain.Enums.TransactionType.Withdrawal:
+                case BoEnums.TransactionType.Withdrawal:
                     queryTransactionTypes = new int[] {
-                        (int)TGS.Services.BackOffice.Domain.Enums.TransactionType.Withdrawal,
-                        (int)TGS.Services.BackOffice.Domain.Enums.TransactionType.WithdrawLock
+                        (int)BoEnums.TransactionType.Withdrawal,
+                        (int)BoEnums.TransactionType.WithdrawLock
                     };
                     break;
 
-                case TGS.Services.BackOffice.Domain.Enums.TransactionType.CancelWithdrawal:
+                case BoEnums.TransactionType.CancelWithdrawal:
                     queryTransactionTypes = new int[] {
-                        (int)TGS.Services.BackOffice.Domain.Enums.TransactionType.CancelWithdrawal,
-                        (int)TGS.Services.BackOffice.Domain.Enums.TransactionType.WithdrawRollback
+                        (int)BoEnums.TransactionType.CancelWithdrawal,
+                        (int)BoEnums.TransactionType.WithdrawRollback
                     };
                     break;
 
                 default:
+                    queryTransactionTypes = new int[] {
+                        (int)request.AccountChangeType.Value
+                    };
                     break;
             }
         }
@@ -612,15 +619,15 @@ public partial class PlayerController : BaseContextController
             .ConfigureAwait(false);
     }
 
-    private static string GetRemark(TransactionType? transactionType, string description)
+    private static string GetRemark(BoEnums.TransactionType? transactionType, string description)
     {
         switch (transactionType)
         {
-            case TransactionType.CompanyAdjust:
-            case TransactionType.AgentAdjust:
-            case TransactionType.SystemAdjust:
-            case TransactionType.TransferAdjust:
-            case TransactionType.BonusAdjust:
+            case BoEnums.TransactionType.CompanyAdjust:
+            case BoEnums.TransactionType.AgentAdjust:
+            case BoEnums.TransactionType.SystemAdjust:
+            case BoEnums.TransactionType.TransferAdjust:
+            case BoEnums.TransactionType.BonusAdjust:
                 {
                     if (string.IsNullOrEmpty(description))
                     {
@@ -638,9 +645,9 @@ public partial class PlayerController : BaseContextController
                     }
                 }
 
-            case TransactionType.GameProviderFundOut:
-            case TransactionType.GameProviderFundIn:
-            case TransactionType.DividendAllAgentRebate:
+            case BoEnums.TransactionType.GameProviderFundOut:
+            case BoEnums.TransactionType.GameProviderFundIn:
+            case BoEnums.TransactionType.DividendAllAgentRebate:
                 return description;
 
             default:

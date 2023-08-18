@@ -26,6 +26,7 @@ using TGS.Services.BackOffice.ApplicationServices;
 using TGS.Services.BackOffice.Domain;
 using Xunit.Abstractions;
 using static TGS.Services.BackOffice.Application.Models.Player.PlayerModel;
+using BoEnums = TGS.Services.BackOffice.Domain.Enums;
 
 namespace BackendOffice.IntegrationTests;
 
@@ -687,7 +688,9 @@ public class PlayerTests
                 Arg.Is(defaultWalletId),
                 Arg.Is(from),
                 Arg.Is(to),
-                Arg.Any<IEnumerable<int>>(),
+                Arg.Is<IEnumerable<int>>(transTypes
+                    => transTypes.Any(t => t != (int)BoEnums.TransactionType.WithdrawCommit
+                    && t != (int)BoEnums.TransactionType.TransferCommit)),
                 Arg.Any<PagingConditions>(),
                 Arg.Any<CancellationToken>())
             .Returns(transactionLogs);
@@ -830,7 +833,9 @@ public class PlayerTests
                 Arg.Is(defaultWalletId),
                 Arg.Is(from),
                 Arg.Is(to),
-                Arg.Any<IEnumerable<int>>(),
+                Arg.Is<IEnumerable<int>>(transTypes
+                    => transTypes.Any(t => t != (int)BoEnums.TransactionType.WithdrawCommit
+                    && t != (int)BoEnums.TransactionType.TransferCommit)),
                 Arg.Any<CancellationToken>())
             .Returns(168000000M);
 
