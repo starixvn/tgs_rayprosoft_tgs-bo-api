@@ -74,70 +74,18 @@ public partial class PlayerController : BaseContextController
     [Description("Get player account changes")]
     public async Task<PagedResponse<PlayerAccountChangeReportModel>> GetAccountChangesAsync(
         [FromQuery] GetPlayerAccountChangesReportRequest request,
-        [FromServices] IPlayerServiceClient playerServiceClient,
         [FromServices] IGetService<AccountChangesQuery, Tgs.CashService.Client.PagingResponse<TransactionLog>> getService,
         [FromServices] ICashQueryClient cashQueryClient)
     {
-        var playerProps = await playerServiceClient
-            .GetPlayerPropertiesAsync(request.PlayerCode, HttpContext.RequestAborted)
-            .ConfigureAwait(false);
-
-        var playerWalletId = Guid.Parse(playerProps["DefaultWalletId"]!);
-
-        var queryTransactionTypes = Array.Empty<int>();
-
-        if (request.AccountChangeType is null)
-        {
-            queryTransactionTypes = Enum
-                .GetValues(typeof(BoEnums.TransactionType))
-                .Cast<BoEnums.TransactionType>()
-                .Where(x => x is not BoEnums.TransactionType.WithdrawCommit
-                    and not BoEnums.TransactionType.TransferCommit)
-                .Select(x => (int)x)
-                .ToArray();
-        }
-        else
-        {
-            switch (request.AccountChangeType.Value)
-            {
-                case BoEnums.TransactionType.Deposit:
-                    queryTransactionTypes = new int[] {
-                        (int)BoEnums.TransactionType.Deposit,
-                        (int)BoEnums.TransactionType.Deposited
-                    };
-                    break;
-
-                case BoEnums.TransactionType.Withdrawal:
-                    queryTransactionTypes = new int[] {
-                        (int)BoEnums.TransactionType.Withdrawal,
-                        (int)BoEnums.TransactionType.WithdrawLock
-                    };
-                    break;
-
-                case BoEnums.TransactionType.CancelWithdrawal:
-                    queryTransactionTypes = new int[] {
-                        (int)BoEnums.TransactionType.CancelWithdrawal,
-                        (int)BoEnums.TransactionType.WithdrawRollback
-                    };
-                    break;
-
-                default:
-                    queryTransactionTypes = new int[] {
-                        (int)request.AccountChangeType.Value
-                    };
-                    break;
-            }
-        }
-
         var query = new AccountChangesQuery(
-            playerWalletId,
+            request.PlayerCode,
             request.From.DateTime,
             request.To.DateTime,
-            queryTransactionTypes,
+            request.AccountChangeType,
             new PagingConditions(request.Page, request.Rows));
 
         var result = await getService
-            .GetAsync(query)
+            .GetAsync(query, HttpContext.RequestAborted)
             .ConfigureAwait(false);
 
         var transactionIds = result.Items.Select(tl => tl.Id);
@@ -184,63 +132,15 @@ public partial class PlayerController : BaseContextController
     [HttpGet("accountChanges/totalAmount", Name = "GetAccountChangesTotalAmount")]
     [Description("Get player account changes Total Amount")]
     public async Task<PlayerAccountChangesTotalModel> GetAccountChangesTotalAmountAsync(
-        [FromServices] IPlayerServiceClient playerServiceClient,
-        [FromServices] ICashServiceClient cashSerivceClient,
+        [FromServices] IGetService<AccountChangesTotalAmountQuery, decimal?> getService,
         [FromQuery] GetPlayerAccountChangesReportTotalAmountRequest request)
     {
-        var playerProps = await playerServiceClient
-            .GetPlayerPropertiesAsync(request.PlayerCode, HttpContext.RequestAborted)
-            .ConfigureAwait(false);
-
-        var playerWalletId = Guid.Parse(playerProps["DefaultWalletId"]!);
-
-        var queryTransactionTypes = Array.Empty<int>();
-
-        if (request.AccountChangeType is null)
-        {
-            queryTransactionTypes = Enum
-                .GetValues(typeof(BoEnums.TransactionType))
-                .Cast<BoEnums.TransactionType>()
-                .Where(x => x is not BoEnums.TransactionType.WithdrawCommit
-                    and not BoEnums.TransactionType.TransferCommit)
-                .Select(x => (int)x)
-                .ToArray();
-        }
-        else
-        {
-            switch (request.AccountChangeType.Value)
-            {
-                case BoEnums.TransactionType.Deposit:
-                    queryTransactionTypes = new int[] {
-                        (int)BoEnums.TransactionType.Deposit,
-                        (int)BoEnums.TransactionType.Deposited
-                    };
-                    break;
-
-                case BoEnums.TransactionType.Withdrawal:
-                    queryTransactionTypes = new int[] {
-                        (int)BoEnums.TransactionType.Withdrawal,
-                        (int)BoEnums.TransactionType.WithdrawLock
-                    };
-                    break;
-
-                case BoEnums.TransactionType.CancelWithdrawal:
-                    queryTransactionTypes = new int[] {
-                        (int)BoEnums.TransactionType.CancelWithdrawal,
-                        (int)BoEnums.TransactionType.WithdrawRollback
-                    };
-                    break;
-
-                default:
-                    queryTransactionTypes = new int[] {
-                        (int)request.AccountChangeType.Value
-                    };
-                    break;
-            }
-        }
-
-        var response = await cashSerivceClient
-            .QueryTransactionTotalAmountAsync(playerWalletId, request.From.DateTime, request.To.DateTime, queryTransactionTypes, HttpContext.RequestAborted)
+        var response = await getService
+            .GetAsync(new AccountChangesTotalAmountQuery(
+                request.PlayerCode,
+                request.From.DateTime,
+                request.To.DateTime,
+                request.AccountChangeType), HttpContext.RequestAborted)
             .ConfigureAwait(false);
 
         return new PlayerAccountChangesTotalModel { Amount = response ?? 0M };

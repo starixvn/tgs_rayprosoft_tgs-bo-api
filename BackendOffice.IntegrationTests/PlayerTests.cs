@@ -683,14 +683,20 @@ public class PlayerTests
             TotalCount: 2
         );
 
+        var queryTransTypes = Enum
+            .GetValues(typeof(BoEnums.TransactionType))
+            .Cast<BoEnums.TransactionType>()
+            .Where(x => x is not BoEnums.TransactionType.WithdrawCommit
+                and not BoEnums.TransactionType.TransferCommit)
+            .Select(x => (int)x)
+            .ToArray();
+
         _ = fakeCashServiceClient
             .QueryTransactionLogsAsync(
                 Arg.Is(defaultWalletId),
                 Arg.Is(from),
                 Arg.Is(to),
-                Arg.Is<IEnumerable<int>>(transTypes
-                    => transTypes.Any(t => t != (int)BoEnums.TransactionType.WithdrawCommit
-                    && t != (int)BoEnums.TransactionType.TransferCommit)),
+                Arg.Is<IEnumerable<int>>(x => x.SequenceEqual(queryTransTypes)),
                 Arg.Any<PagingConditions>(),
                 Arg.Any<CancellationToken>())
             .Returns(transactionLogs);
@@ -828,14 +834,20 @@ public class PlayerTests
                 { "DefaultWalletId", defaultWalletId.ToString() }
             }.ToImmutableDictionary());
 
+        var queryTransTypes = Enum
+            .GetValues(typeof(BoEnums.TransactionType))
+            .Cast<BoEnums.TransactionType>()
+            .Where(x => x is not BoEnums.TransactionType.WithdrawCommit
+                and not BoEnums.TransactionType.TransferCommit)
+            .Select(x => (int)x)
+            .ToArray();
+
         _ = fakeCashServiceClient
             .QueryTransactionTotalAmountAsync(
                 Arg.Is(defaultWalletId),
                 Arg.Is(from),
                 Arg.Is(to),
-                Arg.Is<IEnumerable<int>>(transTypes
-                    => transTypes.Any(t => t != (int)BoEnums.TransactionType.WithdrawCommit
-                    && t != (int)BoEnums.TransactionType.TransferCommit)),
+                Arg.Is<IEnumerable<int>>(x => x.SequenceEqual(queryTransTypes)),
                 Arg.Any<CancellationToken>())
             .Returns(168000000M);
 
