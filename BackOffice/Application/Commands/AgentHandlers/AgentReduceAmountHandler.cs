@@ -78,7 +78,7 @@ public class AgentReduceAmountHandler : Handler<CreateAgentReduceAmountRequest, 
         }
 
         var targetPlayer = IsTransferToPlayer(request)
-            ? await _playerService.GetPlayerAsync(x => x.Username == request.TargetName).ConfigureAwait(false)
+            ? await _playerService.GetPlayerAsync(x => x.Username == request.TargetName && x.BrandId == agent.BrandId).ConfigureAwait(false)
             : null;
 
         if (IsTransferToPlayer(request))
