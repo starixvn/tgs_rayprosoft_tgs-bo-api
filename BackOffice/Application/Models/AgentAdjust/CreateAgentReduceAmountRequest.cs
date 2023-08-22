@@ -1,11 +1,9 @@
 ﻿using System;
-using MediatR;
 using TGS.Core.Models.Enums;
-using TGS.Core.Models.Messages;
 
 namespace TGS.Services.BackOffice.Application.Models.AgentAdjust;
 
-public class CreateAgentReduceAmountRequest : IRequest<MessageResponse>
+public class CreateAgentReduceAmountRequest
 {
     public AccountType? AccountType { get; set; }
 

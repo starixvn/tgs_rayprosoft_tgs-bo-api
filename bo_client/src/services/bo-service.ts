@@ -686,4 +686,18 @@ export default class BackOfficeService {
             })
         .then(res => res.data);
     }
+
+    public createAgentReduceAmount(
+        id: string,
+        request: CreateAgentReduceAmountRequest): Promise<MessageResponse>
+    {
+        return this.http
+            .post(`api/Agent/${id}/adjust/reduce`,
+            {
+                params:{
+                    ...request
+                }
+            })
+            .then(res => res.data);
+    }
 }
