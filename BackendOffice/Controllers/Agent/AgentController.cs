@@ -6,11 +6,13 @@ using MediatR;
 using Microsoft.AspNetCore.Mvc;
 using Tgs.Report.Client;
 using Tgs.Report.Client.Models.Agent;
+using Tgs.ServiceUtility;
 using TGS.Core.Models.Enums;
 using TGS.Core.Models.Messages;
 using TGS.Services.BackOffice.Application.Models.Agent;
 using TGS.Services.BackOffice.Application.Models.AgentAdjust;
 using TGS.Services.BackOffice.Application.Models.ReportAgent;
+using TGS.Services.BackOffice.ApplicationServices.Agents;
 
 namespace TGS.Apis.BackendOffice.Controllers.Agent;
 
@@ -41,10 +43,27 @@ public partial class AgentController : BaseContextController
 
     [HttpPost("{id}/adjust/reduce")]
     [Description("Create an agent adjustment to reduce amount")]
-    public Task<MessageResponse> CreateAgentReduceAmountAsync(Guid id, CreateAgentReduceAmountRequest request)
-    {
-        request.AgentId = id;
-        return _mediator.Send(request);
+    public async Task<MessageResponse> CreateAgentReduceAmountAsync(
+        Guid id, 
+        CreateAgentReduceAmountRequest request,
+        [FromServices] IGetService<AgentReduceAmountQuery, AgentReduceAmountResult> getService)
+    {        
+        var result = await getService
+            .GetAsync(new AgentReduceAmountQuery(
+                AgentId: id, 
+                request.Amount, 
+                request.Remark,
+                request.TargetName, 
+                request.TransactionType, 
+                request.AccountType, 
+                Username, 
+                UserId))
+            .ConfigureAwait(false);
+
+
+        return result.Valid 
+            ? CreateValidResponse<MessageResponse>()
+            : CreateInvalidResponse<MessageResponse>(result.Message);
     }
 
     [HttpGet("accountChanges")]
