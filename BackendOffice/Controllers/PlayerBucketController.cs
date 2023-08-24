@@ -122,11 +122,17 @@ public class PlayerBucketController : BaseContextController
                 Id = form.Id,
                 PlayerCode = form.PlayerCode,
                 CleaningBalance = form.CleaningBalance,
-                CleaningBucketAmount = form.CleaningBucketAmount,
+                CleaningBucketAmount = form.CleaningBucketAmounts
+                    ?.FirstOrDefault(result => result.BucketType is null)
+                    ?.Result
+                    .Amount,
                 CreatedOn = form.CreatedOn,
                 DepositFormId = form.DepositFormId,
                 ReviewBalance = form.CurrentBalance,
-                ReviewBucketAmount = form.CurrentBucketAmount,
+                ReviewBucketAmount = form.CurrentBucketAmounts
+                    .First()
+                    .Result
+                    .Amount,
                 Status = form.Status.ToString()
             });
     }

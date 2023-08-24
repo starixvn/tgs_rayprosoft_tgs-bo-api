@@ -68,7 +68,12 @@ internal class ProcessCleanBucketsRequestCommandService : ICommandService<Proces
                     .ExecuteAsync(async () => await _playerBucketClient
                         .CleanBucketsAsync(
                             form.PlayerCode,
-                            form.BucketAnchorId,
+                            form.CurrentBucketAmounts
+                                .Where(result => result.BucketType is null)
+                                .First()
+                                .Result
+                                .AnchorBucketId
+                                .Value,
                             form.DepositFormId.ToString(),
                             null,
                             cancellationToken)
@@ -79,7 +84,12 @@ internal class ProcessCleanBucketsRequestCommandService : ICommandService<Proces
                     form.Id,
                     new ReviewCleanBucketRequest<GetPlayerGameProviderBalanceResponse[]>(
                         processingWalletBalance,
-                        processingBucketResult.Amount,
+                        new[]
+                        {
+                            new CleanFormBucketResult(
+                                null,
+                                processingBucketResult)
+                        },
                         playerAllBalances),
                     cancellationToken).ConfigureAwait(false);
             }
@@ -88,7 +98,12 @@ internal class ProcessCleanBucketsRequestCommandService : ICommandService<Proces
                     form.Id,
                     new ReviewCleanBucketRequest<GetPlayerGameProviderBalanceResponse[]>(
                         processingWalletBalance,
-                        processingBucketResult.Amount,
+                        new[]
+                        {
+                            new CleanFormBucketResult(
+                                null,
+                                processingBucketResult)
+                        },
                         playerAllBalances),
                     cancellationToken).ConfigureAwait(false);
         }
