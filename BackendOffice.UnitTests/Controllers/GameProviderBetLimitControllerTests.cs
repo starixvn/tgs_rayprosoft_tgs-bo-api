@@ -32,7 +32,7 @@ public class GameProviderBetLimitControllerTests : BaseTests
             x.Send(It.IsAny<CreateGameProviderBetLimitRequest>(), It.IsAny<CancellationToken>()));
     }
 
-    public async Task Can_Get_GameProviderBetLimits()
+    public async Task Can_Get_GameProviderBetLimitsAsync()
     {
         var list = CreateGameProviderBetLimitModelFixture()
             .CreateMany<GameProviderBetLimitModel>(99)

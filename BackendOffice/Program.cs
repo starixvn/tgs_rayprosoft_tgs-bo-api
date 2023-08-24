@@ -28,13 +28,11 @@ using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 using Microsoft.OpenApi.Models;
 using OpenTelemetry;
-using OpenTelemetry.Exporter;
 using OpenTelemetry.Instrumentation.AspNetCore;
 using OpenTelemetry.Metrics;
 using OpenTelemetry.Resources;
 using OpenTelemetry.Trace;
 using Tgs.CashQueryService.Client;
-using Tgs.PlayerBucket.Clients.DependencyInjection;
 using Tgs.StationLetterService.Client;
 using Tgs.StationLetterService.Client.DependencyInjection;
 using TGS.Apis.BackendOffice.Filters;
@@ -153,6 +151,7 @@ builder.Services
     .AddPlayerBucketClient(httpClientBuilder => httpClientBuilder
         .ConfigureHttpClient(httpClient => httpClient.BaseAddress =
             builder.Configuration.GetValue<Uri>("BackOffice:PlayerBucketBaseUrl")))
+    .AddPlayerBucketTypeClient()
     .AddPaymentServiceClient(httpClientBuilder => httpClientBuilder
         .ConfigureHttpClient((sp, http) =>
         {

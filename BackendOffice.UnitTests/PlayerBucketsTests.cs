@@ -1,7 +1,6 @@
 ﻿using ExpectedObjects;
 using Microsoft.Extensions.Logging.Abstractions;
 using NSubstitute;
-using NUnit.Framework;
 using Tgs.CashService.Client;
 using Tgs.PlayerService.Client;
 using Tgs.Service.PlayerBuckets;
@@ -68,6 +67,23 @@ public class PlayerBucketsTests
     }
 
     [Test]
+    public async Task 查詢清除流水表單()
+    {
+        var fakePlayerBucketClent = Substitute.For<IPlayerBucketClient>();
+
+        var sut = new GetCleanBucketFormListQueryService(fakePlayerBucketClent);
+
+        var query = new GetCleanBucketFormListQuery("test1", CleanFlowStatus.Completed);
+
+        _ = await sut.QueryAsync(query).ToArrayAsync();
+
+        _ = fakePlayerBucketClent.Received(1)
+            .QueryCleanBucketFomsAsync(
+                Arg.Is(query.PlayerCode),
+                Arg.Is(query.FlowStatus));
+    }
+
+    [Test]
     public async Task 清除流水依據PlayerCode及AnchorBucketId()
     {
         var fakePlayerServiceClient = Substitute.For<IPlayerServiceClient>();
@@ -107,28 +123,34 @@ public class PlayerBucketsTests
 
         var command = new ProcessCleanBucketsRequestCommand(Guid.NewGuid());
 
+        var bucketAnchorId = Guid.NewGuid();
         var form = new CleanBucketForm(
-                command.FormId,
-                "test1",
-                Guid.NewGuid(),
-                Guid.NewGuid(),
-                0M,
-                1000M,
-                Guid.NewGuid(),
-                Guid.NewGuid(),
-                5M,
-                null,
-                null,
-                CleanFlowStatus.Create,
-                DateTime.UtcNow);
+            command.FormId,
+            "test1",
+            Guid.NewGuid(),
+            Guid.NewGuid(),
+            0M,
+            new[]
+            {
+                new CleanFormBucketResult(
+                    null,
+                    new ReadBucketResult(1000M, bucketAnchorId))
+            },
+            Guid.NewGuid(),
+            5M,
+            null,
+            null,
+            CleanFlowStatus.Create,
+            DateTime.UtcNow);
 
         _ = fakePlayerBucketClient.GetCleanBucketFormAsync(Arg.Is(command.FormId))
             .Returns(form);
 
+        var cleaningBucketResult = new ReadBucketResult(
+            1000M,
+            Guid.NewGuid());
         _ = fakePlayerBucketClient.ReadBucketsAsync(Arg.Is("test1"))
-            .Returns(new ReadBucketResult(
-                1000M,
-                Guid.NewGuid()));
+            .Returns(cleaningBucketResult);
 
         _ = fakeCashServiceClient.GetBalanceAsync(Arg.Is(form.WalletId))
             .Returns(0M);
@@ -147,7 +169,12 @@ public class PlayerBucketsTests
         var expected = new
         {
             CleaningBalance = 0M,
-            CleaningBucketAmount = 1000M
+            CleaningBucketAmounts = new[]
+            {
+                new CleanFormBucketResult(
+                    null,
+                    cleaningBucketResult)
+            }
         };
 
         await sut.ExecuteAsync(command);
@@ -155,7 +182,7 @@ public class PlayerBucketsTests
         _ = fakePlayerBucketClient.Received(0)
                 .CleanBucketsAsync(
                     Arg.Is(form.PlayerCode),
-                    Arg.Is(form.BucketAnchorId),
+                    Arg.Is(bucketAnchorId),
                     Arg.Is(form.DepositFormId.ToString()),
                     Arg.Is(default(string)));
 
@@ -181,14 +208,20 @@ public class PlayerBucketsTests
 
         var command = new ProcessCleanBucketsRequestCommand(Guid.NewGuid());
 
+        var bucketAnchorId = Guid.NewGuid();
+
         var form = new CleanBucketForm(
                 command.FormId,
                 "test1",
                 Guid.NewGuid(),
                 Guid.NewGuid(),
                 0M,
-                1000M,
-                Guid.NewGuid(),
+                new[]
+                {
+                    new CleanFormBucketResult(
+                        null,
+                        new ReadBucketResult(1000M, bucketAnchorId))
+                },
                 Guid.NewGuid(),
                 5M,
                 null,
@@ -199,10 +232,11 @@ public class PlayerBucketsTests
         _ = fakePlayerBucketClient.GetCleanBucketFormAsync(Arg.Is(command.FormId))
             .Returns(form);
 
+        var cleaningBucketResult = new ReadBucketResult(
+            1000M,
+            Guid.NewGuid());
         _ = fakePlayerBucketClient.ReadBucketsAsync(Arg.Is("test1"))
-            .Returns(new ReadBucketResult(
-                1000M,
-                Guid.NewGuid()));
+            .Returns(cleaningBucketResult);
 
         _ = fakeCashServiceClient.GetBalanceAsync(Arg.Is(form.WalletId))
             .Returns(0M);
@@ -221,7 +255,12 @@ public class PlayerBucketsTests
         var expected = new
         {
             CleaningBalance = 0M,
-            CleaningBucketAmount = 1000M
+            CleaningBucketAmounts = new[]
+            {
+                new CleanFormBucketResult(
+                    null,
+                    cleaningBucketResult)
+            }
         };
 
         await sut.ExecuteAsync(command);
@@ -229,7 +268,7 @@ public class PlayerBucketsTests
         _ = fakePlayerBucketClient.Received(1)
             .CleanBucketsAsync(
                 Arg.Is(form.PlayerCode),
-                Arg.Is(form.BucketAnchorId),
+                Arg.Is(bucketAnchorId),
                 Arg.Is(form.DepositFormId.ToString()),
                 Arg.Is(default(string)));
 
@@ -261,8 +300,12 @@ public class PlayerBucketsTests
                 Guid.NewGuid(),
                 Guid.NewGuid(),
                 0M,
-                1000M,
-                Guid.NewGuid(),
+                new[]
+                {
+                    new  CleanFormBucketResult(
+                        null,
+                        new ReadBucketResult(1000M, Guid.NewGuid()))
+                },
                 Guid.NewGuid(),
                 5M,
                 null,
@@ -297,7 +340,7 @@ public class PlayerBucketsTests
         _ = fakePlayerBucketClient.Received(0)
             .CleanBucketsAsync(
                 Arg.Is(form.PlayerCode),
-                Arg.Is(form.BucketAnchorId),
+                Arg.Is(form.CurrentBucketAmounts.First().Result.AnchorBucketId!.Value),
                 Arg.Is(form.DepositFormId.ToString()),
                 Arg.Is(default(string)));
     }
@@ -352,22 +395,5 @@ public class PlayerBucketsTests
                 Arg.Is(BucketType.Adjustment),
                 Arg.Is(default(string)),
                 Arg.Is(command.Remark));
-    }
-
-    [Test]
-    public async Task 查詢清除流水表單()
-    {
-        var fakePlayerBucketClent = Substitute.For<IPlayerBucketClient>();
-
-        var sut = new GetCleanBucketFormListQueryService(fakePlayerBucketClent);
-
-        var query = new GetCleanBucketFormListQuery("test1", CleanFlowStatus.Completed);
-
-        _ = await sut.QueryAsync(query).ToArrayAsync();
-
-        _ = fakePlayerBucketClent.Received(1)
-            .QueryCleanBucketFomsAsync(
-                Arg.Is(query.PlayerCode),
-                Arg.Is(query.FlowStatus));
     }
 }

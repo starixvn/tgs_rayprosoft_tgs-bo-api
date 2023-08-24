@@ -1,6 +1,7 @@
 ﻿using System.Collections.Immutable;
 using System.Text;
 using System.Text.Json;
+using ExpectedObjects;
 using Microsoft.Extensions.Logging.Abstractions;
 using Moq;
 using NSubstitute;
@@ -551,19 +552,25 @@ public class DepositFormTests
             Arg.Any<ReadOnlyMemory<byte>>())
             .Returns(Encoding.UTF8.GetBytes(JsonSerializer.Serialize(promotionResponse)));
 
+        var expectedOrder = new CleanBucketOrder(
+            brandId,
+            walletId,
+            0M,
+            new[]
+            {
+                new CleanFormBucketResult(
+                    null,
+                    bucketResult)
+            },
+            formId,
+            0M).ToExpectedObject(ctx => ctx.IgnoreEqualsOverride());
+
         await sut.ExecuteAsync(command);
 
         _ = fakePlayerBucketClient.Received(1)
             .RequestCleanBucketsAsync(
                 Arg.Is(playerCode),
-                Arg.Is(new CleanBucketOrder(
-                    brandId,
-                    walletId,
-                    0M,
-                    1000M,
-                    bucketResult.AnchorBucketId!.Value,
-                    formId,
-                    0M)));
+                Arg.Is<CleanBucketOrder>(order => expectedOrder.Matches(order)));
     }
 
     [Test]

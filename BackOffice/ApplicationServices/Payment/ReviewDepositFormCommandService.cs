@@ -198,8 +198,12 @@ internal class ReviewDepositFormCommandService : ICommandService<ReviewDepositFo
                                 form.BrandId,
                                 walletId,
                                 walletBalance,
-                                bucketResult.Amount,
-                                bucketResult.AnchorBucketId!.Value,
+                                new[]
+                                {
+                                    new CleanFormBucketResult(
+                                        null,
+                                        bucketResult)
+                                },
                                 form.Id,
                                 brandPaymentSettings.ClearWageringRequirementBalance),
                             cancellationToken).ConfigureAwait(false);

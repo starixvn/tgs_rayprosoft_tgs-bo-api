@@ -44,24 +44,23 @@ public partial class AgentController : BaseContextController
     [HttpPost("{id}/adjust/reduce")]
     [Description("Create an agent adjustment to reduce amount")]
     public async Task<MessageResponse> CreateAgentReduceAmountAsync(
-        Guid id, 
+        Guid id,
         CreateAgentReduceAmountRequest request,
         [FromServices] IGetService<AgentReduceAmountQuery, AgentReduceAmountResult> getService)
-    {        
+    {
         var result = await getService
             .GetAsync(new AgentReduceAmountQuery(
-                AgentId: id, 
-                request.Amount, 
+                AgentId: id,
+                request.Amount,
                 request.Remark,
-                request.TargetName, 
-                request.TransactionType, 
-                request.AccountType, 
-                Username, 
+                request.TargetName,
+                request.TransactionType,
+                request.AccountType,
+                Username,
                 UserId))
             .ConfigureAwait(false);
 
-
-        return result.Valid 
+        return result.Valid
             ? CreateValidResponse<MessageResponse>()
             : CreateInvalidResponse<MessageResponse>(result.Message);
     }

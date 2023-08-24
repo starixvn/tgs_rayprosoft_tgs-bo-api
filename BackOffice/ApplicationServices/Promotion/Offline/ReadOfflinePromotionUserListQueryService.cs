@@ -2,6 +2,7 @@
 using System.Linq;
 using System.Threading;
 using ClosedXML.Excel;
+using ClosedXML.Graphics;
 using Tgs.ServiceUtility;
 
 namespace TGS.Services.BackOffice.ApplicationServices.Promotion.Offline;
@@ -12,7 +13,12 @@ internal class ReadOfflinePromotionUserListQueryService : IQueryService<ReadOffl
         ReadOfflinePromotionUserListQuery query,
         CancellationToken cancellationToken = default)
     {
-        using var reader = new XLWorkbook(query.ImportFile);
+        using var reader = new XLWorkbook(
+            query.ImportFile,
+            new LoadOptions
+            {
+                GraphicEngine = new DefaultGraphicEngine("DejaVu Sans")
+            });
 
         var sheet = reader.Worksheet(1);
 
