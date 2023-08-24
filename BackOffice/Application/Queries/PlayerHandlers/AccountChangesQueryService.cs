@@ -31,37 +31,32 @@ internal class AccountChangesQueryService : IGetService<AccountChangesQuery, Pag
 
         var queryTransactionTypes = Array.Empty<int>();
 
-        if (query.AccountChangeType is null)
-        {
-            queryTransactionTypes = Enum
+        queryTransactionTypes = query.AccountChangeType is null
+            ? Enum
                 .GetValues(typeof(Domain.Enums.TransactionType))
                 .Cast<Domain.Enums.TransactionType>()
                 .Where(x => x is not Domain.Enums.TransactionType.WithdrawCommit
                     and not Domain.Enums.TransactionType.TransferCommit)
                 .Select(x => (int)x)
-                .ToArray();
-        }
-        else
-        {
-            queryTransactionTypes = query.AccountChangeType.Value switch
+                .ToArray()
+            : query.AccountChangeType.Value switch
             {
                 Domain.Enums.TransactionType.Deposit => new int[] {
-                        (int)Domain.Enums.TransactionType.Deposit,
-                        (int)Domain.Enums.TransactionType.Deposited
-                    },
+                    (int)Domain.Enums.TransactionType.Deposit,
+                    (int)Domain.Enums.TransactionType.Deposited
+                },
                 Domain.Enums.TransactionType.Withdrawal => new int[] {
-                        (int)Domain.Enums.TransactionType.Withdrawal,
-                        (int)Domain.Enums.TransactionType.WithdrawLock
-                    },
+                    (int)Domain.Enums.TransactionType.Withdrawal,
+                    (int)Domain.Enums.TransactionType.WithdrawLock
+                },
                 Domain.Enums.TransactionType.CancelWithdrawal => new int[] {
-                        (int)Domain.Enums.TransactionType.CancelWithdrawal,
-                        (int)Domain.Enums.TransactionType.WithdrawRollback
-                    },
+                    (int)Domain.Enums.TransactionType.CancelWithdrawal,
+                    (int)Domain.Enums.TransactionType.WithdrawRollback
+                },
                 _ => new int[] {
-                        (int)query.AccountChangeType.Value
-                    },
+                    (int)query.AccountChangeType.Value
+                },
             };
-        }
 
         return await _cashServiceClient.QueryTransactionLogsAsync(
             playerWalletId,
