@@ -5,7 +5,7 @@ using Tgs.CashService.Client;
 using Tgs.PlayerService.Client;
 using Tgs.ServiceUtility;
 
-namespace TGS.Services.BackOffice.ApplicationServices;
+namespace TGS.Services.BackOffice.ApplicationServices.Players;
 
 internal class GetPlayerBalanceQueryService : IGetService<GetPlayerBalanceQuery, decimal>
 {

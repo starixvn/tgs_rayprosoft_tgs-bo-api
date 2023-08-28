@@ -50,7 +50,6 @@
       <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
     </PackageReference>
     <PackageReference Include="PhoenixToolkits.Protobuf.ExtendTypes" Version="0.0.6" />
-    <PackageReference Include="PlayerBucketType.Client" Version="0.0.5" />
     <PackageReference Include="Polly" Version="7.2.4" />
     <PackageReference Include="Scrutor" Version="4.2.2" />
     <PackageReference Include="System.Interactive.Async" Version="6.0.1" />
@@ -69,8 +68,9 @@
     <PackageReference Include="Tgs.Paging.AsyncEnumerable" Version="1.2.1" />
     <PackageReference Include="Tgs.Payment.Client" Version="0.4.8" />
     <PackageReference Include="Tgs.Payment.ManualDeposit" Version="0.1.14" />
-    <PackageReference Include="Tgs.PaymentService.Client" Version="0.6.24" />
-    <PackageReference Include="Tgs.PlayerBucket.Client" Version="0.1.0" />
+    <PackageReference Include="Tgs.PaymentService.Client" Version="0.6.25" />
+    <PackageReference Include="Tgs.PlayerBucket.Client" Version="0.1.1" />
+    <PackageReference Include="Tgs.PlayerBucketType.Client" Version="0.0.7" />
     <PackageReference Include="Tgs.PlayerService.Client" Version="0.0.34" />
     <PackageReference Include="Tgs.Promotion.Client" Version="1.0.42" />
     <PackageReference Include="Tgs.Report.Client" Version="0.0.61" />

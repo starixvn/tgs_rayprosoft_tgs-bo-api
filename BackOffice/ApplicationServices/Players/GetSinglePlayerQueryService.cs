@@ -15,7 +15,7 @@ using TGS.Services.BackOffice.Application.Models.Player;
 using TGS.Services.BackOffice.ApplicationServices.Agents;
 using TGS.Services.BackOffice.Domain;
 
-namespace TGS.Services.BackOffice.ApplicationServices;
+namespace TGS.Services.BackOffice.ApplicationServices.Players;
 
 public class GetSinglePlayerQueryService : IGetService<GetSinglePlayerQuery, PlayerModel?>
 {

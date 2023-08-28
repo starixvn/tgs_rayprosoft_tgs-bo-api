@@ -200,7 +200,7 @@ internal class ReviewDepositFormCommandService : ICommandService<ReviewDepositFo
                                 walletBalance,
                                 new[]
                                 {
-                                    new CleanFormBucketResult(
+                                    new TypeBucketResult(
                                         null,
                                         bucketResult)
                                 },

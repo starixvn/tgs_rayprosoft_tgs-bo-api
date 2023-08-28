@@ -9,7 +9,7 @@ using NSubstitute;
 using Tgs.ServiceUtility;
 using Tgs.VipLevelService.Clients;
 using TGS.Core.Models.Messages;
-using TGS.Services.BackOffice.ApplicationServices;
+using TGS.Services.BackOffice.ApplicationServices.Players;
 using Xunit.Abstractions;
 
 namespace BackendOffice.IntegrationTests;

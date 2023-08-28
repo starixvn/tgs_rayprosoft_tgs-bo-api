@@ -7,6 +7,7 @@ using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
 using NSubstitute;
 using Tgs.CashService.Client;
+using Tgs.PlayerBucket.Client;
 using Tgs.PlayerService.Client;
 using Tgs.Service.PlayerBuckets;
 using Tgs.Services.PlayerBucket.Protos;
@@ -14,8 +15,8 @@ using Tgs.ServiceUtility;
 using TGS.Apis.BackendOffice.MessageQueue;
 using TGS.Apis.BackendOffice.ViewModels;
 using TGS.Services.BackOffice.Application.Models.Player;
-using TGS.Services.BackOffice.ApplicationServices;
 using TGS.Services.BackOffice.ApplicationServices.PlayerBuckets;
+using TGS.Services.BackOffice.ApplicationServices.Players;
 using Xunit.Abstractions;
 
 namespace BackendOffice.IntegrationTests;
@@ -27,6 +28,188 @@ public class PlayerBucketTests
     public PlayerBucketTests(ITestOutputHelper testOutputHelper)
     {
         _testOutputHelper = testOutputHelper ?? throw new ArgumentNullException(nameof(testOutputHelper));
+    }
+
+    [Fact]
+    public async Task 取得玩家概括流水量()
+    {
+        // Arrange
+        var channelName = Guid.NewGuid().ToString();
+        var userId = Guid.NewGuid();
+
+        var fakePlayerServiceClient = Substitute.For<IPlayerServiceClient>();
+        var fakePlayerBucketClient = Substitute.For<IPlayerBucketClient>();
+        var fakePlayerBucketForTypesClient = Substitute.For<IPlayerBucketForTypesClient>();
+
+        using var web = TestBackendOfficeApplication.Builder
+            .UseTestChannelServer(channelName)
+            .ConfigureLogging(logging => logging.AddXUnit(_testOutputHelper))
+            .ConfigureServices(services => services
+                .AddAuthentication("Fake")
+                .AddScheme<FakeAuthenticationSchemaOptions, FakeAuthenticationHandler>(
+                    "Fake",
+                    options =>
+                    {
+                        options.UserId = userId;
+                        options.UserName = "system";
+                    })
+                .Services
+                .AddSingleton(fakePlayerServiceClient)
+                .AddSingleton(fakePlayerBucketClient)
+                .AddSingleton(fakePlayerBucketForTypesClient))
+            .Build();
+
+        await web.StartAsync();
+
+        var playerCode = "test1";
+        var brandId = Guid.NewGuid();
+
+        _ = fakePlayerServiceClient.GetPlayerInfoAsync(
+            Arg.Is(playerCode),
+            Arg.Any<CancellationToken>())
+            .Returns(new PlayerInfo
+            {
+                PlayerCode = playerCode,
+                BrandId = brandId
+            });
+
+        _ = fakePlayerBucketForTypesClient.ReadBucketsForBucketTypesAsync(
+            Arg.Is(playerCode),
+            Arg.Is<IEnumerable<string>>(types => types.Count() == 0))
+            .Returns(new[]
+            {
+                new TypeBucketResult(
+                    null,
+                    new ReadBucketResult(
+                        1000M,
+                        Guid.NewGuid()))
+            }.ToAsyncEnumerable());
+
+        var nodeModule = $$"""
+            const axiosConfigFactory = require('./models/axios-configuration.js').default;
+            const BackOfficeService = require('./services/bo-service.js').default;
+
+            module.exports = async (playerCode) =>
+            {
+                let instance = axiosConfigFactory("{{channelName}}", {{(
+                    RuntimeInformation.IsOSPlatform(OSPlatform.Windows)
+                        ? "true"
+                        : "false")}});
+
+                let svc = new BackOfficeService(instance);
+
+                return await svc.getPlayerBucketSummaryAmount(playerCode);
+            };
+        """;
+
+        // Act
+        var actual = await StaticNodeJSService.InvokeFromStringAsync<decimal>(
+            nodeModule,
+            args: new object[] { playerCode });
+
+        // Assert
+        Assert.Equal(1000M, actual);
+    }
+
+    [Fact]
+    public async Task 取得玩家概括流水量_多個值將會以最大的值回傳()
+    {
+        // Arrange
+        var channelName = Guid.NewGuid().ToString();
+        var userId = Guid.NewGuid();
+
+        var fakePlayerServiceClient = Substitute.For<IPlayerServiceClient>();
+        var fakePlayerBucketClient = Substitute.For<IPlayerBucketClient>();
+        var fakePlayerBucketForTypesClient = Substitute.For<IPlayerBucketForTypesClient>();
+
+        using var web = TestBackendOfficeApplication.Builder
+            .UseTestChannelServer(channelName)
+            .ConfigureLogging(logging => logging.AddXUnit(_testOutputHelper))
+            .ConfigureServices(services => services
+                .AddAuthentication("Fake")
+                .AddScheme<FakeAuthenticationSchemaOptions, FakeAuthenticationHandler>(
+                    "Fake",
+                    options =>
+                    {
+                        options.UserId = userId;
+                        options.UserName = "system";
+                    })
+                .Services
+                .AddSingleton(fakePlayerServiceClient)
+                .AddSingleton(fakePlayerBucketClient)
+                .AddSingleton(fakePlayerBucketForTypesClient))
+            .Build();
+
+        await web.StartAsync();
+
+        var playerCode = "test1";
+        var brandId = Guid.NewGuid();
+
+        _ = fakePlayerServiceClient.GetPlayerInfoAsync(
+            Arg.Is(playerCode),
+            Arg.Any<CancellationToken>())
+            .Returns(new PlayerInfo
+            {
+                PlayerCode = playerCode,
+                BrandId = brandId
+            });
+
+        _ = fakePlayerBucketClient.GetBrandBucketTypesAsync(
+            Arg.Is(brandId),
+            Arg.Any<CancellationToken>())
+            .Returns(new[]
+            {
+                "Game1",
+                "Game2"
+            }.ToAsyncEnumerable());
+
+        _ = fakePlayerBucketForTypesClient.ReadBucketsForBucketTypesAsync(
+            Arg.Is(playerCode),
+            Arg.Any<IEnumerable<string>>(),
+            Arg.Any<CancellationToken>())
+            .Returns(new[]
+            {
+                new TypeBucketResult(
+                    null,
+                    new ReadBucketResult(
+                        1000M,
+                        Guid.NewGuid())),
+                new TypeBucketResult(
+                    "Game1",
+                    new ReadBucketResult(
+                        5000M,
+                        Guid.NewGuid())),
+                new TypeBucketResult(
+                    "Game2",
+                    new ReadBucketResult(
+                        0M,
+                        Guid.NewGuid())),
+            }.ToAsyncEnumerable());
+
+        var nodeModule = $$"""
+            const axiosConfigFactory = require('./models/axios-configuration.js').default;
+            const BackOfficeService = require('./services/bo-service.js').default;
+
+            module.exports = async (playerCode) =>
+            {
+                let instance = axiosConfigFactory("{{channelName}}", {{(
+                    RuntimeInformation.IsOSPlatform(OSPlatform.Windows)
+                        ? "true"
+                        : "false")}});
+
+                let svc = new BackOfficeService(instance);
+
+                return await svc.getPlayerBucketSummaryAmount(playerCode);
+            };
+        """;
+
+        // Act
+        var actual = await StaticNodeJSService.InvokeFromStringAsync<decimal>(
+            nodeModule,
+            args: new object[] { playerCode });
+
+        // Assert
+        Assert.Equal(5000M, actual);
     }
 
     [Fact]
@@ -69,7 +252,7 @@ public class PlayerBucketTests
                 123M,
                 new[]
                 {
-                    new CleanFormBucketResult(
+                    new TypeBucketResult(
                         null,
                         new ReadBucketResult(10000M, Guid.NewGuid()))
                 },
@@ -78,7 +261,7 @@ public class PlayerBucketTests
                 124M,
                 new[]
                 {
-                    new CleanFormBucketResult(
+                    new TypeBucketResult(
                         null,
                         new ReadBucketResult(11000M, Guid.NewGuid()))
                 },
@@ -92,7 +275,7 @@ public class PlayerBucketTests
                 456M,
                 new[]
                 {
-                    new CleanFormBucketResult(
+                    new TypeBucketResult(
                         null,
                         new ReadBucketResult(20000M, Guid.NewGuid()))
                 },
@@ -203,7 +386,7 @@ public class PlayerBucketTests
                 123M,
                 new[]
                 {
-                    new CleanFormBucketResult(
+                    new TypeBucketResult(
                         null,
                         new ReadBucketResult(
                             10000M,
@@ -214,7 +397,7 @@ public class PlayerBucketTests
                 124M,
                 new[]
                 {
-                    new CleanFormBucketResult(
+                    new TypeBucketResult(
                         null,
                         new ReadBucketResult(
                             11000M,
@@ -384,7 +567,7 @@ public class PlayerBucketTests
             0M,
             new[]
             {
-                new CleanFormBucketResult(
+                new TypeBucketResult(
                     null,
                     new ReadBucketResult(
                         1000M,
@@ -425,7 +608,7 @@ public class PlayerBucketTests
             CleaningBalance = 0M,
             CleaningBucketAmounts = new[]
             {
-                new CleanFormBucketResult(
+                new TypeBucketResult(
                     null,
                     cleaningBucketResult)
             }

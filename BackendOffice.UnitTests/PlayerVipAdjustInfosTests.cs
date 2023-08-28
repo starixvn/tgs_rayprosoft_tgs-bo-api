@@ -1,6 +1,6 @@
 ﻿using NSubstitute;
 using Tgs.VipLevelService.Clients;
-using TGS.Services.BackOffice.ApplicationServices;
+using TGS.Services.BackOffice.ApplicationServices.Players;
 
 namespace TGS.Tests.BackendOffice.UnitTests;
 
@@ -9,7 +9,7 @@ public class PlayerVipAdjustInfosTests
     [Test]
     public async Task GetPlayerVipAdjustQueryService()
     {
-        var fakeClient = NSubstitute.Substitute.For<IVipLevelServiceClient>();
+        var fakeClient = Substitute.For<IVipLevelServiceClient>();
         var sut = new GetPlayerVipAdjustQueryService(fakeClient);
         _ = await sut.GetAsync(new GetPlayerVipAdjustQuery(
             "playerCode",

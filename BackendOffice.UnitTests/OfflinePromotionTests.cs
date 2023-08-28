@@ -8,6 +8,7 @@ using Tgs.ServiceUtility;
 using TGS.Services.BackOffice.ApplicationServices;
 using TGS.Services.BackOffice.ApplicationServices.Promotion.Offline;
 using TGS.Services.BackOffice.Domain;
+using TGS.Services.BackOffice.ApplicationServices.Players;
 
 namespace TGS.Tests.BackendOffice.UnitTests;
 

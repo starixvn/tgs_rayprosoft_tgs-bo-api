@@ -6,11 +6,13 @@ using System.Linq;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
+using Tgs.PlayerService.Client;
 using Tgs.Service.PlayerBuckets;
 using Tgs.ServiceUtility;
 using TGS.Apis.BackendOffice.ViewModels;
 using TGS.Services.BackOffice.ApplicationServices.Adjust;
 using TGS.Services.BackOffice.ApplicationServices.PlayerBuckets;
+using TGS.Services.BackOffice.ApplicationServices.Players;
 
 namespace TGS.Apis.BackendOffice.Controllers;
 
@@ -51,16 +53,32 @@ public class PlayerBucketController : BaseContextController
 
     [HttpGet("amount/{playerCode}", Name = "GetPlayerBucketAmount")]
     public async Task<decimal> GetPlayerBucketAmountAsync(
-        [FromServices] IGetService<GetPlayerBucketAmountQuery, ReadBucketResult> getService,
+        [FromServices] IGetService<GetPlayerInfoByPlayerCodeQuery, PlayerInfo?> getPlayerInfoService,
+        [FromServices] IQueryService<GetBrandBucketTypesQuery, string> getBrandBucketTypesService,
+        [FromServices] IQueryService<GetPlayerAllTypeBucketAmountsQuery, TypeBucketResult> getAllTypeBucketAmountsService,
         string playerCode)
     {
-        var query = new GetPlayerBucketAmountQuery(playerCode);
-
-        var result = await getService.GetAsync(
-            query,
+        var player = await getPlayerInfoService.GetAsync(
+            new(playerCode),
             HttpContext.RequestAborted).ConfigureAwait(false);
 
-        return result.Amount;
+        if (player is null)
+            return 0M;
+
+        var brandBucketTypes = await getBrandBucketTypesService
+            .QueryAsync(new(player.BrandId), HttpContext.RequestAborted)
+            .ToArrayAsync(HttpContext.RequestAborted)
+            .ConfigureAwait(false);
+
+        var query = new GetPlayerAllTypeBucketAmountsQuery(playerCode, brandBucketTypes);
+
+        var amount = await getAllTypeBucketAmountsService
+            .QueryAsync(query, HttpContext.RequestAborted)
+            .Select(result => result.Result.Amount)
+            .MaxAsync(HttpContext.RequestAborted)
+            .ConfigureAwait(false);
+
+        return amount;
     }
 
     [HttpGet("history/{bucketId}", Name = "GetPlayerBucketHistories2")]

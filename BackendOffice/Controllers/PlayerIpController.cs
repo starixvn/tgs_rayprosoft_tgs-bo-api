@@ -5,7 +5,7 @@ using Microsoft.AspNetCore.Mvc;
 using Tgs.ServiceUtility;
 using TGS.Core.Models.Messages;
 using TGS.Services.BackOffice.Application.Models.PlayerIp;
-using TGS.Services.BackOffice.ApplicationServices;
+using TGS.Services.BackOffice.ApplicationServices.Players;
 
 namespace TGS.Apis.BackendOffice.Controllers;
 

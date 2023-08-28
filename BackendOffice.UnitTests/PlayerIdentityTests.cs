@@ -5,7 +5,7 @@ using TGS.Core.DataServices.Tgs.Models;
 using TGS.Core.Models.Enums;
 using TGS.Services.BackOffice.Application.Commands.PlayerIdentity;
 using TGS.Services.BackOffice.Application.Models.Player;
-using TGS.Services.BackOffice.ApplicationServices;
+using TGS.Services.BackOffice.ApplicationServices.Players;
 using TGS.Services.BackOffice.Domain;
 using TGS.Services.BackOffice.Infrastructure.DataService;
 

@@ -6,9 +6,9 @@ using Tgs.PlayerService.Client;
 using Tgs.Service.PlayerBuckets;
 using Tgs.ServiceUtility;
 using TGS.Services.BackOffice.Application.Models.Player;
-using TGS.Services.BackOffice.ApplicationServices;
 using TGS.Services.BackOffice.ApplicationServices.Adjust;
 using TGS.Services.BackOffice.ApplicationServices.PlayerBuckets;
+using TGS.Services.BackOffice.ApplicationServices.Players;
 
 namespace TGS.Tests.BackendOffice.UnitTests;
 
@@ -132,7 +132,7 @@ public class PlayerBucketsTests
             0M,
             new[]
             {
-                new CleanFormBucketResult(
+                new TypeBucketResult(
                     null,
                     new ReadBucketResult(1000M, bucketAnchorId))
             },
@@ -171,7 +171,7 @@ public class PlayerBucketsTests
             CleaningBalance = 0M,
             CleaningBucketAmounts = new[]
             {
-                new CleanFormBucketResult(
+                new TypeBucketResult(
                     null,
                     cleaningBucketResult)
             }
@@ -218,7 +218,7 @@ public class PlayerBucketsTests
                 0M,
                 new[]
                 {
-                    new CleanFormBucketResult(
+                    new TypeBucketResult(
                         null,
                         new ReadBucketResult(1000M, bucketAnchorId))
                 },
@@ -257,7 +257,7 @@ public class PlayerBucketsTests
             CleaningBalance = 0M,
             CleaningBucketAmounts = new[]
             {
-                new CleanFormBucketResult(
+                new TypeBucketResult(
                     null,
                     cleaningBucketResult)
             }
@@ -302,7 +302,7 @@ public class PlayerBucketsTests
                 0M,
                 new[]
                 {
-                    new  CleanFormBucketResult(
+                    new  TypeBucketResult(
                         null,
                         new ReadBucketResult(1000M, Guid.NewGuid()))
                 },

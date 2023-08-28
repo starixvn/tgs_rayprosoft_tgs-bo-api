@@ -4,7 +4,7 @@ using System.Threading.Tasks;
 using Tgs.PlayerService.Client;
 using Tgs.ServiceUtility;
 
-namespace TGS.Services.BackOffice.ApplicationServices;
+namespace TGS.Services.BackOffice.ApplicationServices.Players;
 
 internal class GetPlayerRealNameQueryService : IGetService<GetPlayerRealNameQuery, string>
 {
