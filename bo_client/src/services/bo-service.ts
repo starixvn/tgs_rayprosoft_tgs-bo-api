@@ -700,4 +700,26 @@ export default class BackOfficeService {
             })
             .then(res => res.data);
     }
+
+    public getBrandAutoWithdrawSetting(brandId: string): Promise<AutoWithdrawInfo>
+    {
+        return this.http
+            .get(`api/brandpayment/autowithdraw/${brandId}`)
+            .then(res=>res.data);
+    }
+
+    public upsertBrandAutoWithdraw(
+        brandId: string,
+        request: UpsertBrandAutoWithdrawRequest
+    ): Promise<MessageResponse>
+    {
+        return this.http
+            .patch(`api/brandpayment/autowithdraw/${brandId}`,
+            {
+                params:{
+                    ...request
+                }
+            })
+            .then(res=>res.data);
+    }
 }
