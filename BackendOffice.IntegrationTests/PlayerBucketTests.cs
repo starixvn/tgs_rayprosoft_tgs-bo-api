@@ -75,7 +75,8 @@ public class PlayerBucketTests
 
         _ = fakePlayerBucketForTypesClient.ReadBucketsForBucketTypesAsync(
             Arg.Is(playerCode),
-            Arg.Is<IEnumerable<string>>(types => types.Count() == 0))
+            Arg.Is<IEnumerable<string>>(types => types.Count() == 0),
+            Arg.Any<CancellationToken>())
             .Returns(new[]
             {
                 new TypeBucketResult(
