@@ -4,6 +4,7 @@ using System.Runtime.CompilerServices;
 using System.Threading;
 using System.Threading.Tasks;
 using ClosedXML.Excel;
+using ClosedXML.Graphics;
 using Tgs.PlayerService.Client;
 using Tgs.ServiceUtility;
 using TGS.Services.BackOffice.Domain;
@@ -25,7 +26,12 @@ internal class ReadBatchAdjustItemsQueryService : IQueryService<ReadBatchAdjustI
         ReadBatchAdjustItemsQuery query,
         [EnumeratorCancellation] CancellationToken cancellationToken = default)
     {
-        using var reader = new XLWorkbook(query.ImportFile);
+        using var reader = new XLWorkbook(
+            query.ImportFile,
+            new LoadOptions
+            {
+                GraphicEngine = new DefaultGraphicEngine("DejaVu Sans")
+            });
 
         var sheet = reader.Worksheet(1);
 

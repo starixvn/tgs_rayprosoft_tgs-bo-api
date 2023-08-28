@@ -67,12 +67,21 @@ public class PlayerBucketTests
                 Guid.NewGuid(),
                 Guid.NewGuid(),
                 123M,
-                10000M,
-                Guid.NewGuid(),
+                new[]
+                {
+                    new CleanFormBucketResult(
+                        null,
+                        new ReadBucketResult(10000M, Guid.NewGuid()))
+                },
                 Guid.NewGuid(),
                 100M,
                 124M,
-                11000M,
+                new[]
+                {
+                    new CleanFormBucketResult(
+                        null,
+                        new ReadBucketResult(11000M, Guid.NewGuid()))
+                },
                 CleanFlowStatus.Completed,
                 DateTime.UtcNow),
             new CleanBucketForm(
@@ -81,8 +90,12 @@ public class PlayerBucketTests
                 Guid.NewGuid(),
                 Guid.NewGuid(),
                 456M,
-                20000M,
-                Guid.NewGuid(),
+                new[]
+                {
+                    new CleanFormBucketResult(
+                        null,
+                        new ReadBucketResult(20000M, Guid.NewGuid()))
+                },
                 Guid.NewGuid(),
                 100M,
                 null,
@@ -96,12 +109,18 @@ public class PlayerBucketTests
             {
                 Id = form.Id,
                 CleaningBalance = form.CleaningBalance,
-                CleaningBucketAmount = form.CleaningBucketAmount,
+                CleaningBucketAmount = form.CleaningBucketAmounts
+                    ?.FirstOrDefault()
+                    ?.Result
+                    .Amount,
                 CreatedOn = form.CreatedOn,
                 DepositFormId = form.DepositFormId,
                 PlayerCode = form.PlayerCode,
                 ReviewBalance = form.CurrentBalance,
-                ReviewBucketAmount = form.CurrentBucketAmount,
+                ReviewBucketAmount = form.CurrentBucketAmounts
+                    .First()
+                    .Result
+                    .Amount,
                 Status = form.Status.ToString()
             })
             .ToArray();
@@ -182,12 +201,25 @@ public class PlayerBucketTests
                 Guid.NewGuid(),
                 Guid.NewGuid(),
                 123M,
-                10000M,
-                Guid.NewGuid(),
+                new[]
+                {
+                    new CleanFormBucketResult(
+                        null,
+                        new ReadBucketResult(
+                            10000M,
+                            Guid.NewGuid()))
+                },
                 Guid.NewGuid(),
                 100M,
                 124M,
-                11000M,
+                new[]
+                {
+                    new CleanFormBucketResult(
+                        null,
+                        new ReadBucketResult(
+                            11000M,
+                            Guid.NewGuid()))
+                },
                 CleanFlowStatus.Completed,
                 DateTime.UtcNow)
         };
@@ -197,12 +229,18 @@ public class PlayerBucketTests
             {
                 Id = form.Id,
                 CleaningBalance = form.CleaningBalance,
-                CleaningBucketAmount = form.CleaningBucketAmount,
+                CleaningBucketAmount = form.CleaningBucketAmounts
+                    ?.FirstOrDefault(result => result.BucketType is null)
+                    ?.Result
+                    .Amount,
                 CreatedOn = form.CreatedOn,
                 DepositFormId = form.DepositFormId,
                 PlayerCode = form.PlayerCode,
                 ReviewBalance = form.CurrentBalance,
-                ReviewBucketAmount = form.CurrentBucketAmount,
+                ReviewBucketAmount = form.CurrentBucketAmounts
+                    .First()
+                    .Result
+                    .Amount,
                 Status = form.Status.ToString()
             })
             .ToArray();
@@ -336,28 +374,37 @@ public class PlayerBucketTests
             FormId = Guid.NewGuid()
         };
 
+        var anchorBucketId = Guid.NewGuid();
+
         var form = new CleanBucketForm(
-               request.FormId,
-               "test1",
-               Guid.NewGuid(),
-               Guid.NewGuid(),
-               0M,
-               1000M,
-               Guid.NewGuid(),
-               Guid.NewGuid(),
-               5M,
-               null,
-               null,
-               CleanFlowStatus.Create,
-               DateTime.UtcNow);
+            request.FormId,
+            "test1",
+            Guid.NewGuid(),
+            Guid.NewGuid(),
+            0M,
+            new[]
+            {
+                new CleanFormBucketResult(
+                    null,
+                    new ReadBucketResult(
+                        1000M,
+                        anchorBucketId))
+            },
+            Guid.NewGuid(),
+            5M,
+            null,
+            null,
+            CleanFlowStatus.Create,
+            DateTime.UtcNow);
 
         _ = fakePlayerBucketClient.GetCleanBucketFormAsync(Arg.Is(request.FormId.ToGuid()))
             .Returns(form);
 
+        var cleaningBucketResult = new ReadBucketResult(
+            1000M,
+            Guid.NewGuid());
         _ = fakePlayerBucketClient.ReadBucketsAsync(Arg.Is("test1"))
-            .Returns(new ReadBucketResult(
-                1000M,
-                Guid.NewGuid()));
+            .Returns(cleaningBucketResult);
 
         _ = fakeCashServiceClient.GetBalanceAsync(Arg.Is(form.WalletId))
             .Returns(0M);
@@ -376,7 +423,12 @@ public class PlayerBucketTests
         var expected = new
         {
             CleaningBalance = 0M,
-            CleaningBucketAmount = 1000M
+            CleaningBucketAmounts = new[]
+            {
+                new CleanFormBucketResult(
+                    null,
+                    cleaningBucketResult)
+            }
         };
 
         // Act
@@ -386,7 +438,7 @@ public class PlayerBucketTests
         _ = fakePlayerBucketClient.Received(1)
             .CleanBucketsAsync(
                 Arg.Is(form.PlayerCode),
-                Arg.Is(form.BucketAnchorId),
+                Arg.Is(anchorBucketId),
                 Arg.Is(form.DepositFormId.ToString()),
                 Arg.Is(default(string)));
 
