@@ -4,7 +4,7 @@ using System.Threading.Tasks;
 using Tgs.ServiceUtility;
 using Tgs.VipLevelService.Clients;
 
-namespace TGS.Services.BackOffice.ApplicationServices;
+namespace TGS.Services.BackOffice.ApplicationServices.Players;
 
 internal class GetPlayerVipAdjustQueryService : IGetService<GetPlayerVipAdjustQuery, PagingResponse<PlayerVipAdjustInfo>>
 {

@@ -1,6 +1,6 @@
 ﻿import { AxiosInstance } from "axios";
-import fs from 'fs';
 import FormData from 'form-data';
+import fs from 'fs';
 import path from 'path';
 import { promises } from "dns";
 
@@ -653,16 +653,15 @@ export default class BackOfficeService {
     }
 
     public async updatePlayerIdentityAuthentication(
-        playerCode:string,
+        playerCode: string,
         identityAuthentication: boolean
-    ): Promise<void>{
+    ): Promise<void> {
         await this.http
-            .put(`/api/player/identityauth/${playerCode}/${identityAuthentication}`);            
+            .put(`/api/player/identityauth/${playerCode}/${identityAuthentication}`);
     }
 
     public getAccountChanges(
-        request: GetPlayerAccountChangesReportRequest): Promise<PagedResponse<PlayerAccountChangeReportModel>>
-    {
+        request: GetPlayerAccountChangesReportRequest): Promise<PagedResponse<PlayerAccountChangeReportModel>> {
         return this.http
             .get(
                 `/api/player/accountChanges`,
@@ -674,30 +673,37 @@ export default class BackOfficeService {
             .then(res => res.data);
     }
 
-    public getAccountChangesTotalAmount(request: GetPlayerAccountChangesReportTotalAmountRequest): Promise<PlayerAccountChangesTotalModel>
-    {
+    public getAccountChangesTotalAmount(request: GetPlayerAccountChangesReportTotalAmountRequest)
+        : Promise<PlayerAccountChangesTotalModel> {
         return this.http
-        .get(
-            `/api/player/accountChanges/totalAmount`,
-            {
-                params: {
-                    ...request
-                }
-            })
-        .then(res => res.data);
+            .get(
+                `/api/player/accountChanges/totalAmount`,
+                {
+                    params: {
+                        ...request
+                    }
+                })
+            .then(res => res.data);
     }
 
     public createAgentReduceAmount(
         id: string,
-        request: CreateAgentReduceAmountRequest): Promise<MessageResponse>
-    {
+        request: CreateAgentReduceAmountRequest): Promise<MessageResponse> {
         return this.http
             .post(`api/Agent/${id}/adjust/reduce`,
-            {
-                params:{
-                    ...request
-                }
-            })
+                {
+                    params: {
+                        ...request
+                    }
+                })
+            .then(res => res.data);
+    }
+
+    public getPlayerBucketSummaryAmount(
+        playerCode: string
+    ): Promise<number> {
+        return this.http
+            .get(`/api/player/bucket/amount/${playerCode}`)
             .then(res => res.data);
     }
 

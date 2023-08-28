@@ -5,7 +5,7 @@ using TGS.Services.BackOffice.Domain;
 
 #nullable enable
 
-namespace TGS.Services.BackOffice.ApplicationServices;
+namespace TGS.Services.BackOffice.ApplicationServices.Players;
 
 public record GetPlayerIdentityAuthenticationFormsQuery(
     Guid BrandId,

@@ -10,7 +10,7 @@ using Tgs.ServiceUtility;
 using TGS.Services.BackOffice.Application.Models.Player;
 using TGS.Services.BackOffice.Infrastructure.DataService;
 
-namespace TGS.Services.BackOffice.ApplicationServices;
+namespace TGS.Services.BackOffice.ApplicationServices.Players;
 
 internal class GetPlayerGameProviderBalanceQueryService : IQueryService<GetPlayerGameProviderBalanceQuery, GetPlayerGameProviderBalanceResponse>
 {
@@ -102,9 +102,7 @@ internal class GetPlayerGameProviderBalanceQueryService : IQueryService<GetPlaye
         await Task.WhenAll(tasks);
 
         if (!gameProviderBalances.Any())
-        {
             yield break;
-        }
 
         foreach (var gameProviderBalance in gameProviderBalances)
         {

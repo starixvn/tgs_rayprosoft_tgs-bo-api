@@ -8,6 +8,7 @@ using Tgs.CashService.Client;
 using Tgs.Service.PlayerBuckets;
 using Tgs.ServiceUtility;
 using TGS.Services.BackOffice.Application.Models.Player;
+using TGS.Services.BackOffice.ApplicationServices.Players;
 
 namespace TGS.Services.BackOffice.ApplicationServices.PlayerBuckets;
 
@@ -86,7 +87,7 @@ internal class ProcessCleanBucketsRequestCommandService : ICommandService<Proces
                         processingWalletBalance,
                         new[]
                         {
-                            new CleanFormBucketResult(
+                            new TypeBucketResult(
                                 null,
                                 processingBucketResult)
                         },
@@ -100,7 +101,7 @@ internal class ProcessCleanBucketsRequestCommandService : ICommandService<Proces
                         processingWalletBalance,
                         new[]
                         {
-                            new CleanFormBucketResult(
+                            new TypeBucketResult(
                                 null,
                                 processingBucketResult)
                         },

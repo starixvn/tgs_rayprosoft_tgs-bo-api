@@ -558,7 +558,7 @@ public class DepositFormTests
             0M,
             new[]
             {
-                new CleanFormBucketResult(
+                new TypeBucketResult(
                     null,
                     bucketResult)
             },

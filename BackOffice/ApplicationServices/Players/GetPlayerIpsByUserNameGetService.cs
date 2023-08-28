@@ -8,7 +8,7 @@ using TGS.Core.DataServices.Base.Extensions;
 using TGS.Core.Models.Messages;
 using TGS.Services.BackOffice.Infrastructure.DataService;
 
-namespace TGS.Services.BackOffice.ApplicationServices;
+namespace TGS.Services.BackOffice.ApplicationServices.Players;
 
 internal class GetPlayerIpsByUserNameGetService : IGetService<GetPlayerIpsByUserNameQuery, PagedResponse<GetPlayerIpsByUserNameResult>>
 {
@@ -16,7 +16,7 @@ internal class GetPlayerIpsByUserNameGetService : IGetService<GetPlayerIpsByUser
 
     public GetPlayerIpsByUserNameGetService(IPlayerIpService service)
     {
-        _service = service ?? throw new System.ArgumentNullException(nameof(service));
+        _service = service ?? throw new ArgumentNullException(nameof(service));
     }
 
     public async ValueTask<PagedResponse<GetPlayerIpsByUserNameResult>> GetAsync(GetPlayerIpsByUserNameQuery query, CancellationToken cancellationToken = default)

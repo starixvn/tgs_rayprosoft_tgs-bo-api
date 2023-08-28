@@ -5,7 +5,7 @@ using Tgs.ServiceUtility;
 using TGS.Services.BackOffice.Domain;
 using TGS.Services.BackOffice.Infrastructure.DataService;
 
-namespace TGS.Services.BackOffice.ApplicationServices;
+namespace TGS.Services.BackOffice.ApplicationServices.Players;
 
 internal class GetPlayerIdentityFormQueryService : IGetService<GetPlayerIdentityFormQuery, PlayerIdentityInfo>
 {
