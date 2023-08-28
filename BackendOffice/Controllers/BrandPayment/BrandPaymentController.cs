@@ -69,6 +69,13 @@ public partial class BrandPaymentController : BaseContextController
         return await CreateBrandPaymentAsync(PaymentTransferType.Withdrawal, request);
     }
 
+    [HttpGet("autowithdraw/{brandId:guid}", Name = "GetBrandAutoWithdrawSetting")]
+    [Description("Get a brand auto withdraw setting")]
+    public ValueTask<AutoWithdrawInfo> GetBrandAutoWithdrawSettingAsync(
+        Guid brandId,
+        [FromServices] IPaymentServiceClient paymentServiceClient)
+        => paymentServiceClient.GetBrandAutoWithdrawSettingAsync(brandId, HttpContext.RequestAborted);
+
     [HttpGet("info/{id}")]
     [Description("Get brand payment detail info")]
     public async Task<BrandPaymentInfoModel> GetBrandPaymentInfoAsync(
@@ -348,6 +355,24 @@ public partial class BrandPaymentController : BaseContextController
         return diffUsers.Any()
             ? new() { Valid = false, Message = Resources.BrandPayment.PlayersNotFound, NotExistsPlayers = diffUsers }
             : new UploadFileResponse { Valid = true, Players = allPlayers };
+    }
+
+    [HttpPatch("autowithdraw/{brandId:guid}")]
+    [Description("Add or update a brand auto withdraw setting")]
+    public async ValueTask<MessageResponse> UpsertBrandAutoWithdrawAsync(
+        Guid brandId,
+        [FromServices] IPaymentServiceClient paymentServiceClient,
+        [FromBody] UpsertBrandAutoWithdrawRequest request)
+    {
+        await paymentServiceClient.UpdateBrandAutoWithdrawAsync(
+            brandId,
+            request.EnableAutoWitdraw,
+            request.AmountUpperLimit,
+            request.BrandPaymentIds,
+            UserId,
+            HttpContext.RequestAborted).ConfigureAwait(false);
+
+        return CreateValidResponse<MessageResponse>();
     }
 
     private async Task<CreateUpdateBrandPaymentResponse> CreateBrandPaymentAsync(
