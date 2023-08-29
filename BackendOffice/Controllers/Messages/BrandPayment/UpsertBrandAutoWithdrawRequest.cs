@@ -9,5 +9,5 @@ public class UpsertBrandAutoWithdrawRequest
 
     public IEnumerable<Guid> BrandPaymentIds { get; set; }
 
-    public bool EnableAutoWitdraw { get; set; }
+    public bool EnableAutoWithdraw { get; set; }
 }

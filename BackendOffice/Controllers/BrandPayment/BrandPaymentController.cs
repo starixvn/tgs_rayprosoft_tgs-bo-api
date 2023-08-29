@@ -366,7 +366,7 @@ public partial class BrandPaymentController : BaseContextController
     {
         await paymentServiceClient.UpdateBrandAutoWithdrawAsync(
             brandId,
-            request.EnableAutoWitdraw,
+            request.EnableAutoWithdraw,
             request.AmountUpperLimit,
             request.BrandPaymentIds,
             UserId,
