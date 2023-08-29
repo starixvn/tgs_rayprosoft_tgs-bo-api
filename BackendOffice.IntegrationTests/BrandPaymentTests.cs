@@ -74,7 +74,7 @@ public class BrandPaymentTests
 
                 let svc = new BackOfficeService(instance);
 
-                return await svc.getBrandAutoWithdrawSetting( brandId);
+                return await svc.getBrandAutoWithdrawSetting(brandId);
             };
         """;
 
@@ -128,7 +128,7 @@ public class BrandPaymentTests
         {
             AmountUpperLimit = 10m,
             BrandPaymentIds = new[] { Guid.NewGuid() },
-            EnableAutoWitdraw = true,
+            EnableAutoWithdraw = true,
         };
 
         var isWindows = RuntimeInformation.IsOSPlatform(OSPlatform.Windows) ? "true" : "false";
