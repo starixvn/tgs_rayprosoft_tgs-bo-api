@@ -5,7 +5,6 @@ using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 using Tgs.PlayerBucket.Client;
-using Tgs.PlayerService.Client;
 using Tgs.Service.PlayerBuckets;
 using Tgs.ServiceUtility;
 
@@ -17,14 +16,11 @@ internal class ClearPlayerBucketsCommandService
 {
     private readonly IPlayerBucketClient _playerBucketClient;
     private readonly IPlayerBucketForTypesClient _playerBucketForTypesClient;
-    private readonly IPlayerServiceClient _playerServiceClient;
 
     public ClearPlayerBucketsCommandService(
-        IPlayerServiceClient playerServiceClient,
         IPlayerBucketClient playerBucketClient,
         IPlayerBucketForTypesClient playerBucketForTypesClient)
     {
-        _playerServiceClient = playerServiceClient ?? throw new ArgumentNullException(nameof(playerServiceClient));
         _playerBucketClient = playerBucketClient ?? throw new ArgumentNullException(nameof(playerBucketClient));
         _playerBucketForTypesClient = playerBucketForTypesClient ?? throw new ArgumentNullException(nameof(playerBucketForTypesClient));
     }

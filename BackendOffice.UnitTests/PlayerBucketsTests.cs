@@ -87,19 +87,14 @@ public class PlayerBucketsTests
     [Test]
     public async Task 清除流水依據PlayerCode及AnchorBucketId()
     {
-        var fakePlayerServiceClient = Substitute.For<IPlayerServiceClient>();
         var fakePlayerBucketClient = Substitute.For<IPlayerBucketClient>();
         var fakePlayerBucketForTypesClient = Substitute.For<IPlayerBucketForTypesClient>();
 
         var sut = new ClearPlayerBucketsCommandService(
-            fakePlayerServiceClient,
             fakePlayerBucketClient,
             fakePlayerBucketForTypesClient);
 
         var command = new ClearPlayerBucketsCommand("test1", Guid.NewGuid());
-
-        _ = fakePlayerServiceClient.GetPlayerInfoAsync(Arg.Is(command.PlayerCode))
-            .Returns(new PlayerInfo());
 
         await sut.ExecuteAsync(command);
 
@@ -114,21 +109,16 @@ public class PlayerBucketsTests
     [Test]
     public async Task 清除流水依據傳入的PlayerCode及TypeBucketResult集合()
     {
-        var fakePlayerServiceClient = Substitute.For<IPlayerServiceClient>();
         var fakePlayerBucketClient = Substitute.For<IPlayerBucketClient>();
         var fakePlayerBucketForTypesClient = Substitute.For<IPlayerBucketForTypesClient>();
 
         var sut = new ClearPlayerBucketsCommandService(
-            fakePlayerServiceClient,
             fakePlayerBucketClient,
             fakePlayerBucketForTypesClient);
 
         var command = new ClearPlayerTypeBucketsCommand(
             "test1",
             new[] { "Game1", "Game2" });
-
-        _ = fakePlayerServiceClient.GetPlayerInfoAsync(Arg.Is(command.PlayerCode))
-            .Returns(new PlayerInfo());
 
         var typeBucketResults = new[]
         {

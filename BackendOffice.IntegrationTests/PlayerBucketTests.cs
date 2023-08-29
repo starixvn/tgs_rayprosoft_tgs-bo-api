@@ -525,7 +525,6 @@ public class PlayerBucketTests
             Arg.Any<CancellationToken>())
             .Returns(new ReadBucketResult(100M, anchorId3));
 
-
         var nodeModule = $$"""
             const axiosConfigFactory = require('./models/axios-configuration.js').default;
             const BackOfficeService = require('./services/bo-service.js').default;
@@ -542,8 +541,6 @@ public class PlayerBucketTests
                 return await svc.clearPlayerBuckets(playerCode);
             };
         """;
-
-
 
         // Act
         await StaticNodeJSService.InvokeFromStringAsync(
