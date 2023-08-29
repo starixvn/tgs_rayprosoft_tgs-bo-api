@@ -495,6 +495,36 @@ public class PlayerBucketTests
         await web.StartAsync();
 
         var playerCode = "test1";
+        var brandId = Guid.NewGuid();
+        (var anchorId, var anchorId2, var anchorId3) = (Guid.NewGuid(), Guid.NewGuid(), Guid.NewGuid());
+
+        _ = fakePlayerServiceClient.GetPlayerInfoAsync(
+            Arg.Is(playerCode),
+            Arg.Any<CancellationToken>())
+            .Returns(new PlayerInfo
+            {
+                PlayerCode = playerCode,
+                BrandId = brandId
+            });
+
+        _ = fakePlayerBucketClient.GetBrandBucketTypesAsync(
+            Arg.Is(brandId),
+            Arg.Any<CancellationToken>())
+            .Returns(new[] { "Game1", "Game2" }.ToAsyncEnumerable());
+
+        _ = fakePlayerBucketClient.ReadBucketsAsync(
+            Arg.Is(playerCode),
+            Arg.Any<CancellationToken>())
+            .Returns(new ReadBucketResult(100M, anchorId));
+        _ = fakePlayerBucketClient.ReadBucketsAsync(
+            Arg.Is($"{playerCode}:Game1"),
+            Arg.Any<CancellationToken>())
+            .Returns(new ReadBucketResult(100M, anchorId2));
+        _ = fakePlayerBucketClient.ReadBucketsAsync(
+            Arg.Is($"{playerCode}:Game2"),
+            Arg.Any<CancellationToken>())
+            .Returns(new ReadBucketResult(100M, anchorId3));
+
 
         var nodeModule = $$"""
             const axiosConfigFactory = require('./models/axios-configuration.js').default;
@@ -513,11 +543,7 @@ public class PlayerBucketTests
             };
         """;
 
-        _ = fakePlayerBucketClient.ReadBucketsAsync(Arg.Is(playerCode), Arg.Any<CancellationToken>())
-            .Returns(new ReadBucketResult(100M, Guid.NewGuid()));
 
-        _ = fakePlayerServiceClient.GetPlayerInfoAsync(Arg.Is(playerCode), Arg.Any<CancellationToken>())
-            .Returns(new PlayerInfo());
 
         // Act
         await StaticNodeJSService.InvokeFromStringAsync(
@@ -528,6 +554,27 @@ public class PlayerBucketTests
         _ = fakePlayerBucketClient.Received(1)
             .CleanBucketsAsync(
                 Arg.Is(playerCode),
+                Arg.Is(anchorId),
+                Arg.Any<string>(),
+                Arg.Any<string>(),
+                Arg.Any<CancellationToken>());
+        _ = fakePlayerBucketClient.Received(1)
+            .CleanBucketsAsync(
+                Arg.Is($"{playerCode}:Game1"),
+                Arg.Is(anchorId2),
+                Arg.Any<string>(),
+                Arg.Any<string>(),
+                Arg.Any<CancellationToken>());
+        _ = fakePlayerBucketClient.Received(1)
+            .CleanBucketsAsync(
+                Arg.Is($"{playerCode}:Game2"),
+                Arg.Is(anchorId3),
+                Arg.Any<string>(),
+                Arg.Any<string>(),
+                Arg.Any<CancellationToken>());
+        _ = fakePlayerBucketClient.Received(3)
+            .CleanBucketsAsync(
+                Arg.Any<string>(),
                 Arg.Any<Guid>(),
                 Arg.Any<string>(),
                 Arg.Any<string>(),
