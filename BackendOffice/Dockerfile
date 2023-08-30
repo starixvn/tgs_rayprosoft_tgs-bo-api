@@ -28,5 +28,5 @@ RUN dotnet publish "BackendOffice.csproj" -c $BuildConfiguration -o /app/publish
 FROM base AS final
 WORKDIR /app
 COPY --from=publish /app/publish .
-COPY fonts /usr/share/
+COPY fonts /usr/share/fonts/
 ENTRYPOINT ["dotnet", "TGS.Apis.BackendOffice.dll"]
