@@ -2,6 +2,7 @@
 using Microsoft.Extensions.Logging.Abstractions;
 using NSubstitute;
 using Tgs.CashService.Client;
+using Tgs.PlayerBucket.Client;
 using Tgs.PlayerService.Client;
 using Tgs.Service.PlayerBuckets;
 using Tgs.ServiceUtility;
@@ -33,22 +34,24 @@ public class PlayerBucketsTests
     [Test]
     public async Task Can_Get_Player_Buckets()
     {
-        var fakePlayerBucketClient = Substitute.For<IPlayerBucketClient>();
+        var fakePlayerBucketForTypesClient = Substitute.For<IPlayerBucketForTypesClient>();
         var fakePlayerServiceClient = Substitute.For<IPlayerServiceClient>();
 
         var sut = new GetPlayerBucketsQueryService(
-            fakePlayerBucketClient,
+            fakePlayerBucketForTypesClient,
             fakePlayerServiceClient);
 
-        var query = new GetPlayerBucketsQuery("test1");
+        var query = new GetPlayerBucketsQuery("test1", "Game1");
 
         _ = fakePlayerServiceClient.GetPlayerInfoAsync(Arg.Is(query.PlayerCode))
             .Returns(new PlayerInfo());
 
         _ = await sut.QueryAsync(query).ToArrayAsync();
 
-        _ = fakePlayerBucketClient.Received(1)
-            .GetBucketsByPlayerCodeAsync(Arg.Is(query.PlayerCode));
+        _ = fakePlayerBucketForTypesClient.Received(1)
+            .GetBucketsByPlayerCodeAsync(
+                Arg.Is(query.PlayerCode),
+                Arg.Is(query.BucketType));
     }
 
     [Test]
@@ -86,17 +89,14 @@ public class PlayerBucketsTests
     [Test]
     public async Task 清除流水依據PlayerCode及AnchorBucketId()
     {
-        var fakePlayerServiceClient = Substitute.For<IPlayerServiceClient>();
         var fakePlayerBucketClient = Substitute.For<IPlayerBucketClient>();
+        var fakePlayerBucketForTypesClient = Substitute.For<IPlayerBucketForTypesClient>();
 
         var sut = new ClearPlayerBucketsCommandService(
-            fakePlayerServiceClient,
-            fakePlayerBucketClient);
+            fakePlayerBucketClient,
+            fakePlayerBucketForTypesClient);
 
         var command = new ClearPlayerBucketsCommand("test1", Guid.NewGuid());
-
-        _ = fakePlayerServiceClient.GetPlayerInfoAsync(Arg.Is(command.PlayerCode))
-            .Returns(new PlayerInfo());
 
         await sut.ExecuteAsync(command);
 
@@ -105,6 +105,53 @@ public class PlayerBucketsTests
                 Arg.Is(command.PlayerCode),
                 Arg.Is(command.AnchorId),
                 Arg.Is(default(string)),
+                Arg.Any<string>());
+    }
+
+    [Test]
+    public async Task 清除流水依據傳入的PlayerCode及TypeBucketResult集合()
+    {
+        var fakePlayerBucketClient = Substitute.For<IPlayerBucketClient>();
+        var fakePlayerBucketForTypesClient = Substitute.For<IPlayerBucketForTypesClient>();
+
+        var sut = new ClearPlayerBucketsCommandService(
+            fakePlayerBucketClient,
+            fakePlayerBucketForTypesClient);
+
+        var command = new ClearPlayerTypeBucketsCommand(
+            "test1",
+            new[] { "Game1", "Game2" });
+
+        var typeBucketResults = new[]
+        {
+            new TypeBucketResult(
+                null,
+                new ReadBucketResult(1000M, Guid.NewGuid())),
+            new TypeBucketResult(
+                "Game1",
+                new ReadBucketResult(2000M, Guid.NewGuid())),
+            new TypeBucketResult(
+                "Game2",
+                new ReadBucketResult(3000M, Guid.NewGuid()))
+        };
+
+        _ = fakePlayerBucketForTypesClient.ReadBucketsForBucketTypesAsync(
+            Arg.Is(command.PlayerCode),
+            Arg.Is(command.BucketTypes))
+            .Returns(typeBucketResults.ToAsyncEnumerable());
+
+        var expectedAnchorBucketIds = typeBucketResults
+            .Select(result => (result.BucketType, BucketAnchorId: result.Result.AnchorBucketId!.Value))
+            .ToArray();
+
+        await sut.ExecuteAsync(command);
+
+        _ = fakePlayerBucketForTypesClient.Received(1)
+            .CleanBucketsForBucketTypesAsync(
+                Arg.Is(command.PlayerCode),
+                Arg.Is<IEnumerable<(string? BucketType, Guid BucketAnchorId)>>(
+                    c => c.SequenceEqual(expectedAnchorBucketIds)),
+                Arg.Any<string>(),
                 Arg.Any<string>());
     }
 

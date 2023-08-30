@@ -33,23 +33,55 @@ public class PlayerBucketController : BaseContextController
 
     [HttpDelete("{playerCode}", Name = "ClearPlayerBuckets2")]
     public async Task ClearPlayerBucketsAsync(
-        [FromServices] IGetService<GetPlayerBucketAmountQuery, ReadBucketResult> getAmountService,
-        [FromServices] ICommandService<ClearPlayerBucketsCommand> clearService,
+        [FromServices] IGetService<GetPlayerInfoByPlayerCodeQuery, PlayerInfo?> getPlayerInfoService,
+        [FromServices] IQueryService<GetBrandBucketTypesQuery, string> getBrandBucketTypesService,
+        [FromServices] ICommandService<ClearPlayerTypeBucketsCommand> clearService,
         string playerCode)
     {
-        var result = await getAmountService.GetAsync(
+        var player = await getPlayerInfoService.GetAsync(
             new(playerCode),
             HttpContext.RequestAborted).ConfigureAwait(false);
 
-        if (result.Amount > 0 && result.AnchorBucketId is not null)
-        {
-            var command = new ClearPlayerBucketsCommand(playerCode, result.AnchorBucketId.Value);
+        if (player is null)
+            return;
 
-            await clearService.ExecuteAsync(
-                command,
-                HttpContext.RequestAborted).ConfigureAwait(false);
-        }
+        var brandBucketTypes = await getBrandBucketTypesService
+            .QueryAsync(new(player.BrandId), HttpContext.RequestAborted)
+            .ToArrayAsync(HttpContext.RequestAborted)
+            .ConfigureAwait(false);
+
+        var command = new ClearPlayerTypeBucketsCommand(player.PlayerCode, brandBucketTypes);
+
+        await clearService.ExecuteAsync(
+            command,
+            HttpContext.RequestAborted).ConfigureAwait(false);
     }
+
+    [HttpGet("type/amount/{playerCode}", Name = "GetAllTypeBucketAmounts")]
+    public IAsyncEnumerable<TypeBucketResultViewModel> GetAllTypeBucketAmountsAsync(
+        [FromServices] IGetService<GetPlayerInfoByPlayerCodeQuery, PlayerInfo?> getPlayerInfoService,
+        [FromServices] IQueryService<GetBrandBucketTypesQuery, string> getBrandBucketTypesService,
+        [FromServices] IQueryService<GetPlayerAllTypeBucketAmountsQuery, TypeBucketResult> getAllTypeBucketAmountsService,
+        string playerCode)
+        => getPlayerInfoService.GetAsync(
+            new(playerCode),
+            HttpContext.RequestAborted)
+            .AsTask()
+            .ToAsyncEnumerable()
+            .Where(player => player is not null)
+            .Select(player => new GetPlayerAllTypeBucketAmountsQuery(
+                player!.PlayerCode,
+                getBrandBucketTypesService
+                    .QueryAsync(new(player!.BrandId), HttpContext.RequestAborted)
+                    .ToEnumerable()))
+            .SelectMany(query => getAllTypeBucketAmountsService.QueryAsync(
+                query,
+                HttpContext.RequestAborted))
+            .Select(result => new TypeBucketResultViewModel
+            {
+                BucketType = result.BucketType,
+                Amount = result.Result.Amount
+            });
 
     [HttpGet("amount/{playerCode}", Name = "GetPlayerBucketAmount")]
     public async Task<decimal> GetPlayerBucketAmountAsync(
@@ -102,12 +134,14 @@ public class PlayerBucketController : BaseContextController
             });
     }
 
+    [HttpGet("{playerCode}/{bucketType}", Name = "GetPlayerTypeBuckets")]
     [HttpGet("{playerCode}", Name = "GetPlayerBuckets2")]
     public IAsyncEnumerable<PlayerBucketViewModel> GetPlayerBucketsAsync(
         [FromServices] IQueryService<GetPlayerBucketsQuery, BucketInfo> queryService,
-        string playerCode)
+        string playerCode,
+        string? bucketType)
     {
-        var query = new GetPlayerBucketsQuery(playerCode);
+        var query = new GetPlayerBucketsQuery(playerCode, bucketType);
 
         return queryService.QueryAsync(query, HttpContext.RequestAborted)
             .Select(info => new PlayerBucketViewModel

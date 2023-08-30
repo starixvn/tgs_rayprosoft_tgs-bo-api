@@ -1,10 +1,13 @@
 ﻿using System.Runtime.InteropServices;
+using System.Text.Json;
 using ExpectedObjects;
 using Google.Protobuf;
 using Jering.Javascript.NodeJS;
+using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
+using Microsoft.Extensions.Options;
 using NSubstitute;
 using Tgs.CashService.Client;
 using Tgs.PlayerBucket.Client;
@@ -17,6 +20,7 @@ using TGS.Apis.BackendOffice.ViewModels;
 using TGS.Services.BackOffice.Application.Models.Player;
 using TGS.Services.BackOffice.ApplicationServices.PlayerBuckets;
 using TGS.Services.BackOffice.ApplicationServices.Players;
+using Xunit;
 using Xunit.Abstractions;
 
 namespace BackendOffice.IntegrationTests;
@@ -28,6 +32,241 @@ public class PlayerBucketTests
     public PlayerBucketTests(ITestOutputHelper testOutputHelper)
     {
         _testOutputHelper = testOutputHelper ?? throw new ArgumentNullException(nameof(testOutputHelper));
+    }
+
+    [Fact]
+    public async Task 取得玩家一般水桶列表()
+    {
+        // Arrange
+        var channelName = Guid.NewGuid().ToString();
+        var userId = Guid.NewGuid();
+
+        var fakePlayerServiceClient = Substitute.For<IPlayerServiceClient>();
+        var fakePlayerBucketClient = Substitute.For<IPlayerBucketClient>();
+
+        using var web = TestBackendOfficeApplication.Builder
+            .UseTestChannelServer(channelName)
+            .ConfigureLogging(logging => logging.AddXUnit(_testOutputHelper))
+            .ConfigureServices(services => services
+                .AddAuthentication("Fake")
+                .AddScheme<FakeAuthenticationSchemaOptions, FakeAuthenticationHandler>(
+                    "Fake",
+                    options =>
+                    {
+                        options.UserId = userId;
+                        options.UserName = "system";
+                    })
+                .Services
+                .AddSingleton(fakePlayerServiceClient)
+                .AddSingleton(fakePlayerBucketClient))
+            .Build();
+
+        await web.StartAsync();
+
+        var playerCode = "test1";
+
+        _ = fakePlayerServiceClient.GetPlayerInfoAsync(
+            Arg.Is(playerCode),
+            Arg.Any<CancellationToken>())
+            .Returns(new PlayerInfo
+            {
+                PlayerCode = playerCode,
+                BrandId = Guid.NewGuid()
+            });
+
+        var bucketInfos = new[]
+        {
+            new BucketInfo(
+                Guid.NewGuid(),
+                playerCode,
+                100M,
+                BucketType.Deposit,
+                0M,
+                false,
+                DateTime.Now,
+                Guid.NewGuid()),
+            new BucketInfo(
+                Guid.NewGuid(),
+                playerCode,
+                200M,
+                BucketType.Promotion,
+                100M,
+                false,
+                DateTime.Now,
+                Guid.NewGuid()),
+            new BucketInfo(
+                Guid.NewGuid(),
+                playerCode,
+                150M,
+                BucketType.Adjustment,
+                150M,
+                true,
+                DateTime.Now,
+                Guid.NewGuid())
+        };
+
+        _ = fakePlayerBucketClient.GetBucketsByPlayerCodeAsync(
+            Arg.Is(playerCode),
+            Arg.Any<CancellationToken>())
+            .Returns(bucketInfos.ToAsyncEnumerable());
+
+        var expected = bucketInfos
+            .Select(info => new PlayerBucketViewModel
+            {
+                Id = info.Id,
+                BucketType = info.Type,
+                PlayerCode = info.PlayerCode,
+                UncompleteWagering = info.Amount - info.FillInAmount,
+                WageringRequirement = info.Amount,
+                CreatedOn = info.CreatedOn
+            })
+            .ToArray();
+
+        var nodeModule = $$"""
+            const axiosConfigFactory = require('./models/axios-configuration.js').default;
+            const BackOfficeService = require('./services/bo-service.js').default;
+
+            module.exports = async (playerCode) =>
+            {
+                let instance = axiosConfigFactory("{{channelName}}", {{(
+                    RuntimeInformation.IsOSPlatform(OSPlatform.Windows)
+                        ? "true"
+                        : "false")}});
+
+                let svc = new BackOfficeService(instance);
+
+                return await svc.getPlayerBuckets(playerCode, null);
+            };
+        """;
+
+        // Act
+        var response = await StaticNodeJSService.InvokeFromStringAsync<string>(
+            nodeModule,
+            args: new object[] { playerCode });
+        var actual = JsonSerializer.Deserialize<PlayerBucketViewModel[]>(
+            response!,
+            web.Services.GetRequiredService<IOptions<JsonOptions>>().Value.JsonSerializerOptions);
+
+        // Assert
+        expected.ToExpectedObject().ShouldEqual(actual);
+    }
+
+    [Fact]
+    public async Task 取得玩家遊戲水桶列表()
+    {
+        // Arrange
+        var channelName = Guid.NewGuid().ToString();
+        var userId = Guid.NewGuid();
+
+        var fakePlayerServiceClient = Substitute.For<IPlayerServiceClient>();
+        var fakePlayerBucketClient = Substitute.For<IPlayerBucketClient>();
+
+        using var web = TestBackendOfficeApplication.Builder
+            .UseTestChannelServer(channelName)
+            .ConfigureLogging(logging => logging.AddXUnit(_testOutputHelper))
+            .ConfigureServices(services => services
+                .AddAuthentication("Fake")
+                .AddScheme<FakeAuthenticationSchemaOptions, FakeAuthenticationHandler>(
+                    "Fake",
+                    options =>
+                    {
+                        options.UserId = userId;
+                        options.UserName = "system";
+                    })
+                .Services
+                .AddSingleton(fakePlayerServiceClient)
+                .AddSingleton(fakePlayerBucketClient))
+            .Build();
+
+        await web.StartAsync();
+
+        var playerCode = "test1";
+        var gameType = "Game1";
+
+        _ = fakePlayerServiceClient.GetPlayerInfoAsync(
+            Arg.Is(playerCode),
+            Arg.Any<CancellationToken>())
+            .Returns(new PlayerInfo
+            {
+                PlayerCode = playerCode,
+                BrandId = Guid.NewGuid()
+            });
+
+        var bucketInfos = new[]
+        {
+            new BucketInfo(
+                Guid.NewGuid(),
+                playerCode,
+                100M,
+                BucketType.Deposit,
+                0M,
+                false,
+                DateTime.Now,
+                Guid.NewGuid()),
+            new BucketInfo(
+                Guid.NewGuid(),
+                playerCode,
+                200M,
+                BucketType.Promotion,
+                100M,
+                false,
+                DateTime.Now,
+                Guid.NewGuid()),
+            new BucketInfo(
+                Guid.NewGuid(),
+                playerCode,
+                150M,
+                BucketType.Adjustment,
+                150M,
+                true,
+                DateTime.Now,
+                Guid.NewGuid())
+        };
+
+        _ = fakePlayerBucketClient.GetBucketsByPlayerCodeAsync(
+            Arg.Is($"{playerCode}:{gameType}"),
+            Arg.Any<CancellationToken>())
+            .Returns(bucketInfos.ToAsyncEnumerable());
+
+        var expected = bucketInfos
+            .Select(info => new PlayerBucketViewModel
+            {
+                Id = info.Id,
+                BucketType = info.Type,
+                PlayerCode = info.PlayerCode,
+                UncompleteWagering = info.Amount - info.FillInAmount,
+                WageringRequirement = info.Amount,
+                CreatedOn = info.CreatedOn
+            })
+            .ToArray();
+
+        var nodeModule = $$"""
+            const axiosConfigFactory = require('./models/axios-configuration.js').default;
+            const BackOfficeService = require('./services/bo-service.js').default;
+
+            module.exports = async (playerCode, gameType) =>
+            {
+                let instance = axiosConfigFactory("{{channelName}}", {{(
+                    RuntimeInformation.IsOSPlatform(OSPlatform.Windows)
+                        ? "true"
+                        : "false")}});
+
+                let svc = new BackOfficeService(instance);
+
+                return await svc.getPlayerBuckets(playerCode, gameType);
+            };
+        """;
+
+        // Act
+        var response = await StaticNodeJSService.InvokeFromStringAsync<string>(
+            nodeModule,
+            args: new object[] { playerCode, gameType });
+        var actual = JsonSerializer.Deserialize<PlayerBucketViewModel[]>(
+            response!,
+            web.Services.GetRequiredService<IOptions<JsonOptions>>().Value.JsonSerializerOptions);
+
+        // Assert
+        expected.ToExpectedObject().ShouldEqual(actual);
     }
 
     [Fact]
@@ -211,6 +450,114 @@ public class PlayerBucketTests
 
         // Assert
         Assert.Equal(5000M, actual);
+    }
+
+    [Fact]
+    public async Task 取得玩家遊戲類型流水量()
+    {
+        // Arrange
+        var channelName = Guid.NewGuid().ToString();
+        var userId = Guid.NewGuid();
+
+        var fakePlayerServiceClient = Substitute.For<IPlayerServiceClient>();
+        var fakePlayerBucketClient = Substitute.For<IPlayerBucketClient>();
+
+        using var web = TestBackendOfficeApplication.Builder
+            .UseTestChannelServer(channelName)
+            .ConfigureLogging(logging => logging.AddXUnit(_testOutputHelper))
+            .ConfigureServices(services => services
+                .AddAuthentication("Fake")
+                .AddScheme<FakeAuthenticationSchemaOptions, FakeAuthenticationHandler>(
+                    "Fake",
+                    options =>
+                    {
+                        options.UserId = userId;
+                        options.UserName = "system";
+                    })
+                .Services
+                .AddSingleton(fakePlayerServiceClient)
+                .AddSingleton(fakePlayerBucketClient))
+            .Build();
+
+        await web.StartAsync();
+
+        var playerCode = "test1";
+        var brandId = Guid.NewGuid();
+
+        _ = fakePlayerServiceClient.GetPlayerInfoAsync(
+            Arg.Is(playerCode),
+            Arg.Any<CancellationToken>())
+            .Returns(new PlayerInfo
+            {
+                PlayerCode = playerCode,
+                BrandId = brandId
+            });
+
+        _ = fakePlayerBucketClient.GetBrandBucketTypesAsync(
+            Arg.Is(brandId),
+            Arg.Any<CancellationToken>())
+            .Returns(new[] { "Game1", "Game2" }.ToAsyncEnumerable());
+
+        var normalResult = new ReadBucketResult(1000M, Guid.NewGuid());
+        var game1Result = new ReadBucketResult(2000M, Guid.NewGuid());
+        var game2Result = new ReadBucketResult(3000M, Guid.NewGuid());
+
+        _ = fakePlayerBucketClient.ReadBucketsAsync(
+            Arg.Is(playerCode),
+            Arg.Any<CancellationToken>())
+            .Returns(normalResult);
+        _ = fakePlayerBucketClient.ReadBucketsAsync(
+            Arg.Is($"{playerCode}:Game1"),
+            Arg.Any<CancellationToken>())
+            .Returns(game1Result);
+        _ = fakePlayerBucketClient.ReadBucketsAsync(
+            Arg.Is($"{playerCode}:Game2"),
+            Arg.Any<CancellationToken>())
+            .Returns(game2Result);
+
+        var expected = new[]
+        {
+            new TypeBucketResultViewModel
+            {
+                BucketType = null,
+                Amount = 1000M
+            },
+            new TypeBucketResultViewModel
+            {
+                BucketType = "Game1",
+                Amount = 2000M
+            },
+            new TypeBucketResultViewModel
+            {
+                BucketType = "Game2",
+                Amount = 3000M
+            }
+        };
+
+        var nodeModule = $$"""
+            const axiosConfigFactory = require('./models/axios-configuration.js').default;
+            const BackOfficeService = require('./services/bo-service.js').default;
+
+            module.exports = async (playerCode) =>
+            {
+                let instance = axiosConfigFactory("{{channelName}}", {{(
+                    RuntimeInformation.IsOSPlatform(OSPlatform.Windows)
+                        ? "true"
+                        : "false")}});
+
+                let svc = new BackOfficeService(instance);
+
+                return await svc.getPlayerTypeBucketAmounts(playerCode);
+            };
+        """;
+
+        // Act
+        var actual = await StaticNodeJSService.InvokeFromStringAsync<TypeBucketResultViewModel[]>(
+            nodeModule,
+            args: new object[] { playerCode });
+
+        // Assert
+        expected.ToExpectedObject().ShouldMatch(actual);
     }
 
     [Fact]
@@ -495,6 +842,35 @@ public class PlayerBucketTests
         await web.StartAsync();
 
         var playerCode = "test1";
+        var brandId = Guid.NewGuid();
+        (var anchorId, var anchorId2, var anchorId3) = (Guid.NewGuid(), Guid.NewGuid(), Guid.NewGuid());
+
+        _ = fakePlayerServiceClient.GetPlayerInfoAsync(
+            Arg.Is(playerCode),
+            Arg.Any<CancellationToken>())
+            .Returns(new PlayerInfo
+            {
+                PlayerCode = playerCode,
+                BrandId = brandId
+            });
+
+        _ = fakePlayerBucketClient.GetBrandBucketTypesAsync(
+            Arg.Is(brandId),
+            Arg.Any<CancellationToken>())
+            .Returns(new[] { "Game1", "Game2" }.ToAsyncEnumerable());
+
+        _ = fakePlayerBucketClient.ReadBucketsAsync(
+            Arg.Is(playerCode),
+            Arg.Any<CancellationToken>())
+            .Returns(new ReadBucketResult(100M, anchorId));
+        _ = fakePlayerBucketClient.ReadBucketsAsync(
+            Arg.Is($"{playerCode}:Game1"),
+            Arg.Any<CancellationToken>())
+            .Returns(new ReadBucketResult(100M, anchorId2));
+        _ = fakePlayerBucketClient.ReadBucketsAsync(
+            Arg.Is($"{playerCode}:Game2"),
+            Arg.Any<CancellationToken>())
+            .Returns(new ReadBucketResult(100M, anchorId3));
 
         var nodeModule = $$"""
             const axiosConfigFactory = require('./models/axios-configuration.js').default;
@@ -513,12 +889,6 @@ public class PlayerBucketTests
             };
         """;
 
-        _ = fakePlayerBucketClient.ReadBucketsAsync(Arg.Is(playerCode), Arg.Any<CancellationToken>())
-            .Returns(new ReadBucketResult(100M, Guid.NewGuid()));
-
-        _ = fakePlayerServiceClient.GetPlayerInfoAsync(Arg.Is(playerCode), Arg.Any<CancellationToken>())
-            .Returns(new PlayerInfo());
-
         // Act
         await StaticNodeJSService.InvokeFromStringAsync(
             nodeModule,
@@ -528,6 +898,27 @@ public class PlayerBucketTests
         _ = fakePlayerBucketClient.Received(1)
             .CleanBucketsAsync(
                 Arg.Is(playerCode),
+                Arg.Is(anchorId),
+                Arg.Any<string>(),
+                Arg.Any<string>(),
+                Arg.Any<CancellationToken>());
+        _ = fakePlayerBucketClient.Received(1)
+            .CleanBucketsAsync(
+                Arg.Is($"{playerCode}:Game1"),
+                Arg.Is(anchorId2),
+                Arg.Any<string>(),
+                Arg.Any<string>(),
+                Arg.Any<CancellationToken>());
+        _ = fakePlayerBucketClient.Received(1)
+            .CleanBucketsAsync(
+                Arg.Is($"{playerCode}:Game2"),
+                Arg.Is(anchorId3),
+                Arg.Any<string>(),
+                Arg.Any<string>(),
+                Arg.Any<CancellationToken>());
+        _ = fakePlayerBucketClient.Received(3)
+            .CleanBucketsAsync(
+                Arg.Any<string>(),
                 Arg.Any<Guid>(),
                 Arg.Any<string>(),
                 Arg.Any<string>(),
