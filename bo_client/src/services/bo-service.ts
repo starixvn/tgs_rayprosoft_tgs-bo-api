@@ -712,7 +712,7 @@ export default class BackOfficeService {
             .get(`/api/player/bucket/type/amount/${playerCode}`)
             .then(res => res.data);
     }
-    
+
     public getBrandAutoWithdrawSetting(brandId: string): Promise<AutoWithdrawInfo> {
         return this.http
             .get(`api/brandpayment/autowithdraw/${brandId}`)
@@ -730,6 +730,14 @@ export default class BackOfficeService {
                         ...request
                     }
                 })
+            .then(res => res.data);
+    }
+
+    public getPlayerBuckets(playerCode: string, bucketType?: string): Promise<Iterable<PlayerBucket>> {
+        return this.http
+            .get(bucketType == null
+                ? `/api/player/bucket/${playerCode}`
+                : `/api/player/bucket/${playerCode}/${bucketType}`)
             .then(res => res.data);
     }
 }

@@ -4,6 +4,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading;
+using Tgs.PlayerBucket.Client;
 using Tgs.PlayerService.Client;
 using Tgs.Service.PlayerBuckets;
 using Tgs.ServiceUtility;
@@ -12,12 +13,12 @@ namespace TGS.Services.BackOffice.ApplicationServices.PlayerBuckets;
 
 internal class GetPlayerBucketsQueryService : IQueryService<GetPlayerBucketsQuery, BucketInfo>
 {
-    private readonly IPlayerBucketClient _playerBucketClient;
+    private readonly IPlayerBucketForTypesClient _playerBucketForTypesClient;
     private readonly IPlayerServiceClient _playerServiceClient;
 
-    public GetPlayerBucketsQueryService(IPlayerBucketClient playerBucketClient, IPlayerServiceClient playerServiceClient)
+    public GetPlayerBucketsQueryService(IPlayerBucketForTypesClient playerBucketForTypesClient, IPlayerServiceClient playerServiceClient)
     {
-        _playerBucketClient = playerBucketClient ?? throw new ArgumentNullException(nameof(playerBucketClient));
+        _playerBucketForTypesClient = playerBucketForTypesClient ?? throw new ArgumentNullException(nameof(playerBucketForTypesClient));
         _playerServiceClient = playerServiceClient ?? throw new ArgumentNullException(nameof(playerServiceClient));
     }
 
@@ -26,6 +27,9 @@ internal class GetPlayerBucketsQueryService : IQueryService<GetPlayerBucketsQuer
             .AsTask()
             .ToAsyncEnumerable()
             .Where(player => player is not null)
-            .SelectMany(_ => _playerBucketClient
-                .GetBucketsByPlayerCodeAsync(query.PlayerCode, cancellationToken));
+            .SelectMany(_ => _playerBucketForTypesClient
+                .GetBucketsByPlayerCodeAsync(
+                    query.PlayerCode,
+                    query.BucketType,
+                    cancellationToken));
 }

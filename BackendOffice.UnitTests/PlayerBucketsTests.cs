@@ -34,22 +34,24 @@ public class PlayerBucketsTests
     [Test]
     public async Task Can_Get_Player_Buckets()
     {
-        var fakePlayerBucketClient = Substitute.For<IPlayerBucketClient>();
+        var fakePlayerBucketForTypesClient = Substitute.For<IPlayerBucketForTypesClient>();
         var fakePlayerServiceClient = Substitute.For<IPlayerServiceClient>();
 
         var sut = new GetPlayerBucketsQueryService(
-            fakePlayerBucketClient,
+            fakePlayerBucketForTypesClient,
             fakePlayerServiceClient);
 
-        var query = new GetPlayerBucketsQuery("test1");
+        var query = new GetPlayerBucketsQuery("test1", "Game1");
 
         _ = fakePlayerServiceClient.GetPlayerInfoAsync(Arg.Is(query.PlayerCode))
             .Returns(new PlayerInfo());
 
         _ = await sut.QueryAsync(query).ToArrayAsync();
 
-        _ = fakePlayerBucketClient.Received(1)
-            .GetBucketsByPlayerCodeAsync(Arg.Is(query.PlayerCode));
+        _ = fakePlayerBucketForTypesClient.Received(1)
+            .GetBucketsByPlayerCodeAsync(
+                Arg.Is(query.PlayerCode),
+                Arg.Is(query.BucketType));
     }
 
     [Test]

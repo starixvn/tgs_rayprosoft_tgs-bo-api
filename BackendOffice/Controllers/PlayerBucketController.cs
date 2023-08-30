@@ -134,12 +134,14 @@ public class PlayerBucketController : BaseContextController
             });
     }
 
+    [HttpGet("{playerCode}/{bucketType}", Name = "GetPlayerTypeBuckets")]
     [HttpGet("{playerCode}", Name = "GetPlayerBuckets2")]
     public IAsyncEnumerable<PlayerBucketViewModel> GetPlayerBucketsAsync(
         [FromServices] IQueryService<GetPlayerBucketsQuery, BucketInfo> queryService,
-        string playerCode)
+        string playerCode,
+        string? bucketType)
     {
-        var query = new GetPlayerBucketsQuery(playerCode);
+        var query = new GetPlayerBucketsQuery(playerCode, bucketType);
 
         return queryService.QueryAsync(query, HttpContext.RequestAborted)
             .Select(info => new PlayerBucketViewModel
