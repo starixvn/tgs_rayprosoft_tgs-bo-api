@@ -46,7 +46,7 @@ internal class ClearPlayerBucketsCommandService
                 .Where(result => result.Result.Amount > 0
                     && result.Result.AnchorBucketId is not null)
                 .Select(result => (
-                    BucketType: result.BucketType?.Split(":").Last(),
+                    result.BucketType,
                     AnchorBucketId: result.Result.AnchorBucketId!.Value))
                 .ToEnumerable(),
             null,

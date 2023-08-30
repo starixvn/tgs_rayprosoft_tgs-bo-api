@@ -57,6 +57,32 @@ public class PlayerBucketController : BaseContextController
             HttpContext.RequestAborted).ConfigureAwait(false);
     }
 
+    [HttpGet("type/amount/{playerCode}", Name = "GetAllTypeBucketAmounts")]
+    public IAsyncEnumerable<TypeBucketResultViewModel> GetAllTypeBucketAmountsAsync(
+        [FromServices] IGetService<GetPlayerInfoByPlayerCodeQuery, PlayerInfo?> getPlayerInfoService,
+        [FromServices] IQueryService<GetBrandBucketTypesQuery, string> getBrandBucketTypesService,
+        [FromServices] IQueryService<GetPlayerAllTypeBucketAmountsQuery, TypeBucketResult> getAllTypeBucketAmountsService,
+        string playerCode)
+        => getPlayerInfoService.GetAsync(
+            new(playerCode),
+            HttpContext.RequestAborted)
+            .AsTask()
+            .ToAsyncEnumerable()
+            .Where(player => player is not null)
+            .Select(player => new GetPlayerAllTypeBucketAmountsQuery(
+                player!.PlayerCode,
+                getBrandBucketTypesService
+                    .QueryAsync(new(player!.BrandId), HttpContext.RequestAborted)
+                    .ToEnumerable()))
+            .SelectMany(query => getAllTypeBucketAmountsService.QueryAsync(
+                query,
+                HttpContext.RequestAborted))
+            .Select(result => new TypeBucketResultViewModel
+            {
+                BucketType = result.BucketType,
+                Amount = result.Result.Amount
+            });
+
     [HttpGet("amount/{playerCode}", Name = "GetPlayerBucketAmount")]
     public async Task<decimal> GetPlayerBucketAmountAsync(
         [FromServices] IGetService<GetPlayerInfoByPlayerCodeQuery, PlayerInfo?> getPlayerInfoService,

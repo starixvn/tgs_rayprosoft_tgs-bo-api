@@ -214,6 +214,114 @@ public class PlayerBucketTests
     }
 
     [Fact]
+    public async Task 取得玩家遊戲類型流水量()
+    {
+        // Arrange
+        var channelName = Guid.NewGuid().ToString();
+        var userId = Guid.NewGuid();
+
+        var fakePlayerServiceClient = Substitute.For<IPlayerServiceClient>();
+        var fakePlayerBucketClient = Substitute.For<IPlayerBucketClient>();
+
+        using var web = TestBackendOfficeApplication.Builder
+            .UseTestChannelServer(channelName)
+            .ConfigureLogging(logging => logging.AddXUnit(_testOutputHelper))
+            .ConfigureServices(services => services
+                .AddAuthentication("Fake")
+                .AddScheme<FakeAuthenticationSchemaOptions, FakeAuthenticationHandler>(
+                    "Fake",
+                    options =>
+                    {
+                        options.UserId = userId;
+                        options.UserName = "system";
+                    })
+                .Services
+                .AddSingleton(fakePlayerServiceClient)
+                .AddSingleton(fakePlayerBucketClient))
+            .Build();
+
+        await web.StartAsync();
+
+        var playerCode = "test1";
+        var brandId = Guid.NewGuid();
+
+        _ = fakePlayerServiceClient.GetPlayerInfoAsync(
+            Arg.Is(playerCode),
+            Arg.Any<CancellationToken>())
+            .Returns(new PlayerInfo
+            {
+                PlayerCode = playerCode,
+                BrandId = brandId
+            });
+
+        _ = fakePlayerBucketClient.GetBrandBucketTypesAsync(
+            Arg.Is(brandId),
+            Arg.Any<CancellationToken>())
+            .Returns(new[] { "Game1", "Game2" }.ToAsyncEnumerable());
+
+        var normalResult = new ReadBucketResult(1000M, Guid.NewGuid());
+        var game1Result = new ReadBucketResult(2000M, Guid.NewGuid());
+        var game2Result = new ReadBucketResult(3000M, Guid.NewGuid());
+
+        _ = fakePlayerBucketClient.ReadBucketsAsync(
+            Arg.Is(playerCode),
+            Arg.Any<CancellationToken>())
+            .Returns(normalResult);
+        _ = fakePlayerBucketClient.ReadBucketsAsync(
+            Arg.Is($"{playerCode}:Game1"),
+            Arg.Any<CancellationToken>())
+            .Returns(game1Result);
+        _ = fakePlayerBucketClient.ReadBucketsAsync(
+            Arg.Is($"{playerCode}:Game2"),
+            Arg.Any<CancellationToken>())
+            .Returns(game2Result);
+
+        var expected = new[]
+        {
+            new TypeBucketResultViewModel
+            {
+                BucketType = null,
+                Amount = 1000M
+            },
+            new TypeBucketResultViewModel
+            {
+                BucketType = "Game1",
+                Amount = 2000M
+            },
+            new TypeBucketResultViewModel
+            {
+                BucketType = "Game2",
+                Amount = 3000M
+            }
+        };
+
+        var nodeModule = $$"""
+            const axiosConfigFactory = require('./models/axios-configuration.js').default;
+            const BackOfficeService = require('./services/bo-service.js').default;
+
+            module.exports = async (playerCode) =>
+            {
+                let instance = axiosConfigFactory("{{channelName}}", {{(
+                    RuntimeInformation.IsOSPlatform(OSPlatform.Windows)
+                        ? "true"
+                        : "false")}});
+
+                let svc = new BackOfficeService(instance);
+
+                return await svc.getPlayerTypeBucketAmounts(playerCode);
+            };
+        """;
+
+        // Act
+        var actual = await StaticNodeJSService.InvokeFromStringAsync<TypeBucketResultViewModel[]>(
+            nodeModule,
+            args: new object[] { playerCode });
+
+        // Assert
+        expected.ToExpectedObject().ShouldMatch(actual);
+    }
+
+    [Fact]
     public async Task 查詢清除流水表單()
     {
         // Arrange
