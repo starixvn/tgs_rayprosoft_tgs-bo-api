@@ -805,7 +805,7 @@ export default class BackOfficeService {
     public getCurrentDaySuccessRate(brandId: string):Promise<number>{
         return this.http
             .get(
-                `/api/deposit/successrate/${brandId}`
+                `/api/overview/successrate/${brandId}`
             )
             .then(res => res.data);
     }
