@@ -25,8 +25,7 @@ internal class ExportWithdrawFormsCommandService : IGetService<ExportWithdrawFor
 
     public ExportWithdrawFormsCommandService(IPaymentServiceClient paymentServiceClient)
     {
-        _paymentServiceClient =
-            paymentServiceClient ?? throw new ArgumentNullException(nameof(paymentServiceClient));
+        _paymentServiceClient = paymentServiceClient ?? throw new ArgumentNullException(nameof(paymentServiceClient));
         _templateFileInfo = _EmbeddedFileProvider.GetFileInfo("/Assets/withdraw_forms_template.xlsx");
     }
 
