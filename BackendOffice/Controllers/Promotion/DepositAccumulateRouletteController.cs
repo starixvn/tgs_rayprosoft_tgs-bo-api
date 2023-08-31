@@ -1,7 +1,9 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.EntityFrameworkCore;
 using Tgs.DepositAccumulateRoulette.Clients;
 using Tgs.Paging;
 using Tgs.PlayerService.Client;
@@ -127,31 +129,37 @@ public class DepositAccumulateRouletteController : BaseContextController
             .ToArrayAsync(HttpContext.RequestAborted)
             .ConfigureAwait(false);
 
-        var dataQuery = rouletteRecords
+        var dataQuery = await rouletteRecords
             .AsQueryable()
             .ApplyOrderBy(paging)
-            .ApplyPaging(paging);
-
-        var playerUserNames = await playerServiceClient.QueryPlayerInfoListAsync(
-            brandId,
-            rouletteRecords
-                .Select(r => r.PlayerCode)
-                .Distinct(),
-            HttpContext.RequestAborted)
-            .ToDictionaryAsync(
-                info => info.PlayerCode,
-                info => info.UserName,
-                HttpContext.RequestAborted)
+            .ApplyPaging(paging)
+            .ToArrayAsync(HttpContext.RequestAborted)
             .ConfigureAwait(false);
 
-        var promotionNames = (await promotionClient
-            .GetPromotionNamesAsync(new GetPromotionNamesRequest(
-                rouletteRecords
-                    .Select(info => info.PromotionId)
-                    .Distinct()
-                    .ToArray()))
-            .ConfigureAwait(false))
-            .ToDictionary(model => model.Id, model => model.Name);
+        var playerUserNames = dataQuery.Length > 0
+            ? await playerServiceClient.QueryPlayerInfoListAsync(
+                brandId,
+                dataQuery
+                    .Select(r => r.PlayerCode)
+                    .Distinct(),
+                HttpContext.RequestAborted)
+                .ToDictionaryAsync(
+                    info => info.PlayerCode,
+                    info => info.UserName,
+                    HttpContext.RequestAborted)
+                .ConfigureAwait(false)
+            : new Dictionary<string, string>(0);
+
+        var promotionNames = dataQuery.Length > 0
+            ? (await promotionClient
+                .GetPromotionNamesAsync(new GetPromotionNamesRequest(
+                    dataQuery
+                        .Select(info => info.PromotionId)
+                        .Distinct()
+                        .ToArray()))
+                .ConfigureAwait(false))
+                .ToDictionary(model => model.Id, model => model.Name)
+            : new Dictionary<Guid, string>(0);
 
         return new DepositAccumulateRouletteGameRecordsResponse
         {
