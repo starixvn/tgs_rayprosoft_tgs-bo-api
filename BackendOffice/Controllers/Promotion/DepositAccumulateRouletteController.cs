@@ -130,7 +130,7 @@ public class DepositAccumulateRouletteController : BaseContextController
             .ConfigureAwait(false);
 
         var dataQuery = await rouletteRecords
-            .AsQueryable()
+            .ToAsyncEnumerable()
             .ApplyOrderBy(paging)
             .ApplyPaging(paging)
             .ToArrayAsync(HttpContext.RequestAborted)
