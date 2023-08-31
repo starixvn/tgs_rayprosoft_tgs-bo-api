@@ -7,6 +7,7 @@ using System.Resources;
 using System.Threading;
 using System.Threading.Tasks;
 using ClosedXML.Excel;
+using ClosedXML.Graphics;
 using ClosedXML.Report;
 using Microsoft.Extensions.FileProviders;
 using Tgs.Payment.Clients;
@@ -57,7 +58,10 @@ public class ExportDepositFormsCommandService : IGetService<ExportDepositFormsCo
             ReviewedUserName = row.ReviewedUserName
         });
 
-        using var workbook = new XLWorkbook();
+        using var workbook = new XLWorkbook(new LoadOptions
+        {
+            GraphicEngine = new DefaultGraphicEngine("DejaVu Sans")
+        });
 
         GenerateWorkSheet(workbook, exportData, query.TotalAmount);
 
@@ -75,7 +79,13 @@ public class ExportDepositFormsCommandService : IGetService<ExportDepositFormsCo
         decimal totalAmount)
     {
         using var fs = _templateFileInfo.CreateReadStream();
-        using var template = new XLTemplate(fs);
+        using var templateWorkbook = new XLWorkbook(
+            fs,
+            new LoadOptions
+            {
+                GraphicEngine = new DefaultGraphicEngine("DejaVu Sans")
+            });
+        using var template = new XLTemplate(templateWorkbook);
 
         template.AddVariable(new
         {
