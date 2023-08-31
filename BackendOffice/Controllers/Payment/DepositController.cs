@@ -78,6 +78,12 @@ public class DepositController : BaseContextController
             "Deposit.xlsx");
     }
 
+    [HttpGet("successrate/{brandId}")]
+    public ValueTask<decimal> GetCurrentDaySuccessRateAsync(
+        [FromServices] IPaymentServiceClient paymentServiceClient,
+        Guid brandId)
+        => paymentServiceClient.GetCurrentDayDepositSuccessRateAsync(brandId, HttpContext.RequestAborted);
+
     /// <summary>
     /// Gets the deposit form detail.
     /// </summary>

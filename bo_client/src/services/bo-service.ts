@@ -801,4 +801,12 @@ export default class BackOfficeService {
                 })
             .then(res => res.headers["content-type"]);
     }
+
+    public getCurrentDaySuccessRate(brandId: string):Promise<number>{
+        return this.http
+            .get(
+                `/api/deposit/successrate/${brandId}`
+            )
+            .then(res => res.data);
+    }
 }
