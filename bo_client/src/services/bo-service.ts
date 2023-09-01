@@ -809,4 +809,12 @@ export default class BackOfficeService {
             )
             .then(res => res.data);
     }
+
+    public getCurrentDayNetDeposit(brandId: string): Promise<number>{
+        return this.http
+            .get(
+                `/api/overview/netdeposit/${brandId}`
+            )
+            .then(res => res.data);
+    }
 }

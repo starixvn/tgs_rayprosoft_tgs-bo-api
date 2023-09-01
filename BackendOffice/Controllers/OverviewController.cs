@@ -12,6 +12,12 @@ namespace TGS.Apis.BackendOffice.Controllers;
 [ApiController]
 public class OverviewController : BaseContextController
 {
+    [HttpGet("netdeposit/{brandId}")]
+    public ValueTask<decimal> GetCurrentDayNetDepositAsync(
+        [FromServices] IPaymentServiceClient paymentServiceClient,
+        Guid brandId)
+        => paymentServiceClient.GetBrandNetDepositAsync(brandId, HttpContext.RequestAborted);
+
     [HttpGet("successrate/{brandId}")]
     public ValueTask<decimal> GetCurrentDaySuccessRateAsync(
         [FromServices] IPaymentServiceClient paymentServiceClient,
