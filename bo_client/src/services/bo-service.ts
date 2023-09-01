@@ -817,4 +817,11 @@ export default class BackOfficeService {
             )
             .then(res => res.data);
     }
+
+    public getCurrentDayRegisterPlayersCountAsync(brandId: string): Promise<number>{
+        return this.http
+            .get(
+                `/api/overview/countregplayers/${brandId}`)
+            .then(res => res.data);
+    }
 }
