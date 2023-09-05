@@ -13,21 +13,27 @@ namespace TGS.Apis.BackendOffice.Controllers;
 [ApiController]
 public class OverviewController : BaseContextController
 {
-    [HttpGet("netdeposit/{brandId}",Name = "GetCurrentDayNetDeposit")]
+    [HttpGet("countloginplayers/{brandId}", Name = "GetCurrentDayLoginPlayersCount")]
+    public ValueTask<int> GetCurrentDayLoginPlayersCountAsync(
+       [FromServices] IPlayerServiceClient playerServiceClient,
+       Guid brandId)
+       => playerServiceClient.CountCurrentDayLoginPlayersAsync(brandId, HttpContext.RequestAborted);
+
+    [HttpGet("netdeposit/{brandId}", Name = "GetCurrentDayNetDeposit")]
     public ValueTask<decimal> GetCurrentDayNetDepositAsync(
         [FromServices] IPaymentServiceClient paymentServiceClient,
         Guid brandId)
         => paymentServiceClient.GetBrandNetDepositAsync(brandId, HttpContext.RequestAborted);
-
-    [HttpGet("successrate/{brandId}",Name = "GetCurrentDaySuccessRate")]
-    public ValueTask<decimal> GetCurrentDaySuccessRateAsync(
-        [FromServices] IPaymentServiceClient paymentServiceClient,
-        Guid brandId)
-        => paymentServiceClient.GetCurrentDayDepositSuccessRateAsync(brandId, HttpContext.RequestAborted);
 
     [HttpGet("countregplayers/{brandId}", Name = "GetCurrentDayRegisterPlayersCount")]
     public ValueTask<int> GetCurrentDayRegisterPlayersCountAsync(
         [FromServices] IPlayerServiceClient playerServiceClient,
         Guid brandId)
         => playerServiceClient.CountCurrentDayRegisterPlayersAsync(brandId, HttpContext.RequestAborted);
+
+    [HttpGet("successrate/{brandId}", Name = "GetCurrentDaySuccessRate")]
+    public ValueTask<decimal> GetCurrentDaySuccessRateAsync(
+        [FromServices] IPaymentServiceClient paymentServiceClient,
+        Guid brandId)
+        => paymentServiceClient.GetCurrentDayDepositSuccessRateAsync(brandId, HttpContext.RequestAborted);
 }
