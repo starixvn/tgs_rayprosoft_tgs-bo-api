@@ -805,7 +805,7 @@ export default class BackOfficeService {
     public getCurrentDaySuccessRate(brandId: string):Promise<number>{
         return this.http
             .get(
-                `/api/overview/successrate/${brandId}`
+                `/api/overview/success-rate/${brandId}`
             )
             .then(res => res.data);
     }
@@ -813,7 +813,7 @@ export default class BackOfficeService {
     public getCurrentDayNetDeposit(brandId: string): Promise<number>{
         return this.http
             .get(
-                `/api/overview/netdeposit/${brandId}`
+                `/api/overview/net-deposit/${brandId}`
             )
             .then(res => res.data);
     }
@@ -821,14 +821,14 @@ export default class BackOfficeService {
     public getCurrentDayRegisterPlayersCountAsync(brandId: string): Promise<number>{
         return this.http
             .get(
-                `/api/overview/countregplayers/${brandId}`)
+                `/api/overview/player/reg/count/${brandId}`)
             .then(res => res.data);
     }
 
     public getCurrentDayLoginPlayersCountAsync(brandId: string): Promise<number>{
         return this.http
             .get(
-                `/api/overview/countloginplayers/${brandId}`)
+                `/api/overview/player/login/count/${brandId}`)
             .then(res => res.data);
     }
 }
