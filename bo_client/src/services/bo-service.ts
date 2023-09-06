@@ -810,7 +810,7 @@ export default class BackOfficeService {
             .then(res => res.data);
     }
 
-    public getCurrentDayNetDeposit(brandId: string): Promise<number>{
+    public getDayNetDeposit(brandId: string): Promise<NetDepositViewModel>{
         return this.http
             .get(
                 `/api/overview/net-deposit/${brandId}`

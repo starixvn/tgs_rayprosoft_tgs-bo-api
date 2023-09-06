@@ -6,6 +6,10 @@ using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Tgs.Payment.Clients;
 using Tgs.PlayerService.Client;
+using Tgs.ServiceUtility;
+using TGS.Apis.BackendOffice.ViewModels;
+using TGS.Services.BackOffice.ApplicationServices.Overview;
+using TGS.Services.BackOffice.Domain;
 
 namespace TGS.Apis.BackendOffice.Controllers;
 
@@ -19,11 +23,21 @@ public class OverviewController : BaseContextController
        Guid brandId)
        => playerServiceClient.CountCurrentDayLoginPlayersAsync(brandId, HttpContext.RequestAborted);
 
-    [HttpGet("net-deposit/{brandId}", Name = "GetCurrentDayNetDeposit")]
-    public ValueTask<decimal> GetCurrentDayNetDepositAsync(
-        [FromServices] IPaymentServiceClient paymentServiceClient,
+    [HttpGet("net-deposit/{brandId}", Name = "GetDayNetDeposit")]
+    public async ValueTask<NetDepositViewModel> GetDayNetDepositAsync(
+        [FromServices] IGetService<GetDayNetDepositQuery, DayNetDepositInfo> getService,
         Guid brandId)
-        => paymentServiceClient.GetBrandNetDepositAsync(brandId, HttpContext.RequestAborted);
+    {        
+        var dayNetDepositInfo = await getService
+            .GetAsync( new GetDayNetDepositQuery(brandId), HttpContext.RequestAborted)
+            .ConfigureAwait(false);
+
+        return new NetDepositViewModel
+        {
+            TodayNetDeposit = dayNetDepositInfo.Today,
+            YesterdayNetDeposit = dayNetDepositInfo.Yesterday
+        };     
+    }
 
     [HttpGet("player/reg/count/{brandId}", Name = "GetCurrentDayRegisterPlayersCount")]
     public ValueTask<int> GetCurrentDayRegisterPlayersCountAsync(
