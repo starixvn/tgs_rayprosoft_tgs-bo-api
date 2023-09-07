@@ -23,12 +23,13 @@ internal class CheckWithdrawFormCanCreateQueryService : IGetService<CreateWithdr
 
         var playerBankInfo = await _paymentServiceClient
             .GetPlayerBankInfosAsync(query.PlayerCode, cancellationToken)
-            .FirstAsync(b => b.Id == query.BankInfoId, cancellationToken: cancellationToken)
+            .FirstOrDefaultAsync(b => b.Id == query.BankInfoId, cancellationToken: cancellationToken)
             .ConfigureAwait(false);
 
-        return await _paymentServiceClient
-            .GetBrandPaymentsAsync(query.BrandId, cancellationToken)
-            .AnyAsync(bp => bp.ChannelId == playerBankInfo.PaymentChannelId, cancellationToken)
-            .ConfigureAwait(false);
+        return playerBankInfo is not null
+            && await _paymentServiceClient
+                .GetBrandPaymentsAsync(query.BrandId, cancellationToken)
+                .AnyAsync(bp => bp.ChannelId == playerBankInfo.PaymentChannelId, cancellationToken)
+                .ConfigureAwait(false);
     }
 }

@@ -802,7 +802,7 @@ export default class BackOfficeService {
             .then(res => res.headers["content-type"]);
     }
 
-    public getCurrentDaySuccessRate(brandId: string):Promise<number>{
+    public getCurrentDaySuccessRate(brandId: string): Promise<number> {
         return this.http
             .get(
                 `/api/overview/success-rate/${brandId}`
@@ -810,7 +810,7 @@ export default class BackOfficeService {
             .then(res => res.data);
     }
 
-    public getDayNetDeposit(brandId: string): Promise<NetDepositViewModel>{
+    public getDayNetDeposit(brandId: string): Promise<NetDepositViewModel> {
         return this.http
             .get(
                 `/api/overview/net-deposit/${brandId}`
@@ -818,17 +818,23 @@ export default class BackOfficeService {
             .then(res => res.data);
     }
 
-    public getCurrentDayRegisterPlayersCountAsync(brandId: string): Promise<number>{
+    public getCurrentDayRegisterPlayersCountAsync(brandId: string): Promise<number> {
         return this.http
             .get(
                 `/api/overview/player/reg/count/${brandId}`)
             .then(res => res.data);
     }
 
-    public getCurrentDayLoginPlayersCountAsync(brandId: string): Promise<number>{
+    public getCurrentDayLoginPlayersCountAsync(brandId: string): Promise<number> {
         return this.http
             .get(
                 `/api/overview/player/login/count/${brandId}`)
+            .then(res => res.data);
+    }
+
+    public createPlayerWithdraw(request: CreateWithdrawRequest): Promise<MessageResponse> {
+        return this.http
+            .post("/api/withdraw/player", request)
             .then(res => res.data);
     }
 }
