@@ -802,7 +802,7 @@ export default class BackOfficeService {
             .then(res => res.headers["content-type"]);
     }
 
-    public getCurrentDaySuccessRate(brandId: string): Promise<number> {
+    public getDaySuccessRate(brandId: string): Promise<DayDepositSuccessRateViewModel> {
         return this.http
             .get(
                 `/api/overview/success-rate/${brandId}`

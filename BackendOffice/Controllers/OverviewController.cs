@@ -45,9 +45,19 @@ public class OverviewController : BaseContextController
         Guid brandId)
         => playerServiceClient.CountCurrentDayRegisterPlayersAsync(brandId, HttpContext.RequestAborted);
 
-    [HttpGet("success-rate/{brandId}", Name = "GetCurrentDaySuccessRate")]
-    public ValueTask<decimal> GetCurrentDaySuccessRateAsync(
-        [FromServices] IPaymentServiceClient paymentServiceClient,
+    [HttpGet("success-rate/{brandId}", Name = "GetDepositDaySuccessRate")]
+    public async ValueTask<DayDepositSuccessRateViewModel> GetDepositDaySuccessRateAsync(
+        [FromServices] IGetService<GetDaySuccessRateQuery, DaySuccessRateInfo> getService,
         Guid brandId)
-        => paymentServiceClient.GetCurrentDayDepositSuccessRateAsync(brandId, HttpContext.RequestAborted);
+    {
+        var daySuccessRateInfo = await getService
+            .GetAsync(new GetDaySuccessRateQuery(brandId), HttpContext.RequestAborted)
+            .ConfigureAwait(false);
+
+        return new DayDepositSuccessRateViewModel
+        {
+            TodaySuccessRate = daySuccessRateInfo.Today,
+            YesterdaySuccessRate = daySuccessRateInfo.Yesterday
+        };
+    }
 }
