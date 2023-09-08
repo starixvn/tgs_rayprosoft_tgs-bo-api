@@ -85,7 +85,7 @@ public class OverviewTests
     }
 
     [Fact]
-    public async Task 查詢當日存款成功率()
+    public async Task 查詢存款成功率()
     {
         // Arrange
         var channelName = Guid.NewGuid().ToString();
@@ -116,7 +116,10 @@ public class OverviewTests
         _ = fakePaymentServiceClient.GetCurrentDayDepositSuccessRateAsync(
             Arg.Is(brandId),
             Arg.Any<CancellationToken>())
-            .Returns(67m);
+            .Returns(100m);
+
+        _ = fakePaymentServiceClient.GetBrandSuccessRateByReportDateAsync(Arg.Is(brandId), Arg.Any<DateOnly>(), Arg.Any<CancellationToken>())
+            .Returns(88m);
 
         var isWindows = RuntimeInformation.IsOSPlatform(OSPlatform.Windows) ? "true" : "false";
 
@@ -130,17 +133,19 @@ public class OverviewTests
 
                 let svc = new BackOfficeService(instance);
 
-                return await svc.getCurrentDaySuccessRate(brandId);
+                return await svc.getDaySuccessRate(brandId);
             };
             """;
 
         // Act
-        var actual = await StaticNodeJSService.InvokeFromStringAsync<decimal>(
+        var actual = await StaticNodeJSService.InvokeFromStringAsync<DayDepositSuccessRateViewModel>(
             nodeModule,
             args: new object[] { brandId });
 
         // Assert
-        Assert.Equal(67m, actual);
+        Assert.NotNull(actual);
+        Assert.Equal(100m, actual.TodaySuccessRate);
+        Assert.Equal(88m, actual.YesterdaySuccessRate);
     }
 
     [Fact]
