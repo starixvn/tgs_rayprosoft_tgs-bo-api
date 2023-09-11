@@ -4,6 +4,7 @@ using System.Linq;
 using System.Threading.Tasks;
 using MediatR;
 using Microsoft.AspNetCore.Mvc;
+using Tgs.Agent.Client;
 using Tgs.Report.Client;
 using Tgs.Report.Client.Models.Agent;
 using Tgs.ServiceUtility;
@@ -33,7 +34,7 @@ public partial class AgentController : BaseContextController
     [Description("Create a agent")]
     public Task<MessageResponse> CreateAgentAsync(CreateAgentRequest request) => _mediator.Send(request);
 
-    [HttpPost("{id}/adjust/increase")]
+    [HttpPost("{id:guid}/adjust/increase")]
     [Description("Create an agent adjustment to increase amount")]
     public Task<MessageResponse> CreateAgentIncreaseAmountAsync(Guid id, CreateAgentIncreaseAmountRequest request)
     {
@@ -41,7 +42,7 @@ public partial class AgentController : BaseContextController
         return _mediator.Send(request);
     }
 
-    [HttpPost("{id}/adjust/reduce")]
+    [HttpPost("{id:guid}/adjust/reduce")]
     [Description("Create an agent adjustment to reduce amount")]
     public async Task<MessageResponse> CreateAgentReduceAmountAsync(
         Guid id,
@@ -102,16 +103,16 @@ public partial class AgentController : BaseContextController
         };
     }
 
-    [HttpGet("{id}")]
+    [HttpGet("{id:guid}")]
     [Description("Get an agent")]
     public Task<GetAgentResponse> GetAgentAsync(Guid id) => _mediator.Send(new GetAgentRequest(id));
 
-    [HttpGet("dividendPercentage/{brandId}/{username}")]
+    [HttpGet("dividendPercentage/{brandId:guid}/{username}")]
     [Description("Get an agent dividend percentage by username")]
     public Task<GetAgentDividendSettingResponse> GetAgentDividendPercentageAsync(Guid brandId, string username)
         => _mediator.Send(new GetAgentDividendSettingRequest(brandId, username));
 
-    [HttpGet("{id}/operations")]
+    [HttpGet("{id:guid}/operations")]
     [Description("Get agent operations")]
     public Task<PagedResponse<AgentOperationModel>> GetAgentOperationsAsync(Guid id) =>
         _mediator.Send(new GetAgentOperationsRequest(id));
@@ -121,11 +122,22 @@ public partial class AgentController : BaseContextController
     public Task<PagedResponse<AgentModel>> GetAgentsAsync([FromQuery] GetAgentsRequest request) =>
         _mediator.Send(request);
 
-    [HttpPut("{id}")]
+    [HttpPut("{id:guid}")]
     [Description("Update a agent")]
     public Task<MessageResponse> UpdateAgentAsync(Guid id, UpdateAgentRequest request)
     {
         request.Id = id;
         return _mediator.Send(request);
+    }
+
+    [HttpPut("{id:guid}/clear-negative-commission")]
+    [Description("Clear negative commission")]
+    public async Task<MessageResponse> ClearUnDistributedCommissionAsync(
+        [FromServices] IAgentClient agentService,
+        Guid id)
+    {
+        await agentService.ClearAgentNegativeCommissionAsync(new(id, Guid.Parse(UserId)));
+
+        return CreateValidResponse<MessageResponse>();
     }
 }
