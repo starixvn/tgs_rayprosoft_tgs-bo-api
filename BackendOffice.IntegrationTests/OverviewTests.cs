@@ -113,12 +113,17 @@ public class OverviewTests
 
         var brandId = Guid.NewGuid();
 
-        _ = fakePaymentServiceClient.GetCurrentDayDepositSuccessRateAsync(
-            Arg.Is(brandId),
-            Arg.Any<CancellationToken>())
+        _ = fakePaymentServiceClient
+            .GetCurrentDayDepositSuccessRateAsync(
+                Arg.Is(brandId),
+                Arg.Any<CancellationToken>())
             .Returns(100m);
 
-        _ = fakePaymentServiceClient.GetBrandSuccessRateByReportDateAsync(Arg.Is(brandId), Arg.Any<DateOnly>(), Arg.Any<CancellationToken>())
+        _ = fakePaymentServiceClient
+            .GetBrandSuccessRateByReportDateAsync(
+                Arg.Is(brandId), 
+                Arg.Is(DateOnly.FromDateTime(DateTime.UtcNow.AddDays(-1))), 
+                Arg.Any<CancellationToken>())
             .Returns(88m);
 
         var isWindows = RuntimeInformation.IsOSPlatform(OSPlatform.Windows) ? "true" : "false";
@@ -177,9 +182,10 @@ public class OverviewTests
 
         var brandId = Guid.NewGuid();
 
-        _ = fakePlayerServiceClient.CountCurrentDayLoginPlayersAsync(
-            Arg.Is(brandId),
-            Arg.Any<CancellationToken>())
+        _ = fakePlayerServiceClient
+            .CountCurrentDayLoginPlayersAsync(
+                Arg.Is(brandId),
+                Arg.Any<CancellationToken>())
             .Returns(168);
 
         var isWindows = RuntimeInformation.IsOSPlatform(OSPlatform.Windows) ? "true" : "false";
@@ -208,7 +214,7 @@ public class OverviewTests
     }
 
     [Fact]
-    public async Task 查詢當日註冊玩家人數()
+    public async Task 查詢註冊玩家人數()
     {
         // Arrange
         var channelName = Guid.NewGuid().ToString();
@@ -236,10 +242,18 @@ public class OverviewTests
 
         var brandId = Guid.NewGuid();
 
-        _ = fakePlayerServiceClient.CountCurrentDayRegisterPlayersAsync(
-            Arg.Is(brandId),
-            Arg.Any<CancellationToken>())
+        _ = fakePlayerServiceClient
+            .CountCurrentDayRegisterPlayersAsync(
+                Arg.Is(brandId),
+                Arg.Any<CancellationToken>())
             .Returns(168);
+
+        _ = fakePlayerServiceClient
+            .CountReportDateRegisterPlayersAsync(
+                Arg.Is(brandId),
+                Arg.Is(DateOnly.FromDateTime(DateTime.UtcNow.AddDays(-1))),
+                Arg.Any<CancellationToken>())
+            .Returns(88);
 
         var isWindows = RuntimeInformation.IsOSPlatform(OSPlatform.Windows) ? "true" : "false";
 
@@ -253,16 +267,18 @@ public class OverviewTests
 
                 let svc = new BackOfficeService(instance);
 
-                return await svc.getCurrentDayRegisterPlayersCountAsync(brandId);
+                return await svc.getDayRegisterPlayersCountAsync(brandId);
             };
             """;
 
         // Act
-        var actual = await StaticNodeJSService.InvokeFromStringAsync<decimal>(
+        var actual = await StaticNodeJSService.InvokeFromStringAsync<DayPlayerRegisterCountViewModel>(
             nodeModule,
             args: new object[] { brandId });
 
         // Assert
-        Assert.Equal(168, actual);
+        Assert.NotNull(actual);
+        Assert.Equal(168, actual.TodayPlayerRegisterCount);
+        Assert.Equal(88, actual.YesterdayPlayerRegisterCount);
     }
 }

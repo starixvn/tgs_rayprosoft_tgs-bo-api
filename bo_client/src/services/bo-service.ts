@@ -818,7 +818,7 @@ export default class BackOfficeService {
             .then(res => res.data);
     }
 
-    public getCurrentDayRegisterPlayersCountAsync(brandId: string): Promise<number> {
+    public getDayRegisterPlayersCountAsync(brandId: string): Promise<DayPlayerRegisterCountViewModel> {
         return this.http
             .get(
                 `/api/overview/player/reg/count/${brandId}`)
