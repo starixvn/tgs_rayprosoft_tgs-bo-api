@@ -7,7 +7,7 @@ using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Options;
 using MockQueryable.Moq;
-using Moq;
+using NSubstitute;
 using TGS.Apis.BackendOffice.Controllers;
 using TGS.Apis.BackendOffice.Controllers.Messages.StationLetter;
 using TGS.Apis.BackendOffice.DataService.Services;
@@ -23,21 +23,26 @@ namespace TGS.Tests.BackendOffice.UnitTests.Controllers;
 [Parallelizable]
 public class StationLetterControllerTests : BaseTests
 {
-    private readonly Mock<ITgsCommands<StationLetter>> _commandsMock = new();
-
-    private readonly Mock<ITgsQueries<Player>> _playerQueriesMock = new();
-
-    private readonly Mock<ITgsQueries<StationLetter>> _queriesMock = new();
-
-    private readonly Mock<IStationLetterService> _stationLetterServiceMock = new();
-
-    private readonly Mock<IUploadService> _uploadServiceMock = new();
-
-    private StationLetterController _controller = default!;
+    [SetUp]
+    public override void Setup() => base.Setup();
 
     [Test]
     public async Task Can_Create()
     {
+        var commandsMock = Substitute.For<ITgsCommands<StationLetter>>();
+
+        var playerQueriesMock = Substitute.For<ITgsQueries<Player>>();
+
+        var queriesMock = Substitute.For<ITgsQueries<StationLetter>>();
+
+        var stationLetterServiceMock = Substitute.For<IStationLetterService>();
+
+        var uploadServiceMock = Substitute.For<IUploadService>();
+
+        var controller =
+            new StationLetterController(queriesMock, playerQueriesMock, commandsMock, uploadServiceMock,
+                stationLetterServiceMock) { ControllerContext = { HttpContext = HttpContextMock } };
+
         var players = CreatePlayerFixture()
             .CreateMany<Player>(200)
             .AsQueryable()
@@ -59,30 +64,45 @@ public class StationLetterControllerTests : BaseTests
             .Where(p => p.Status == PlayerStatus.Enabled && p.BrandId == request.BrandId)
             .Select(p => p.Username).ToArray();
 
-        _ = _playerQueriesMock.Setup(p => p.GetQueries())
-            .Returns(players);
-        var serializationProvider = new JsonSerializationProvider();
-        var jsonOptionsAccessor = new OptionsWrapper<JsonOptions>(new JsonOptions());
+        _ = playerQueriesMock.GetQueries().Returns(players);
 
-        var response = await _controller.CreateAsync(
+        var serializationProvider = new JsonSerializationProvider();
+
+        var jsonOptionsAccessor = new OptionsWrapper<JsonOptions>(new());
+
+        var response = await controller.CreateAsync(
             serializationProvider,
             jsonOptionsAccessor,
             request);
+
         _ = response.Valid.Should().BeTrue();
 
-        _stationLetterServiceMock.Verify(
-            p => p.CreateStationLetterAsync(
-                It.Is<StationLetter>(s =>
-                    s.Subject == request.Subject &&
-                    s.Content == request.Content &&
-                    s.AssignedAllPlayers == request.AssignedAllPlayers),
-                It.Is<StationLetterPlayer[]>(x => x.Length == request.PlayerUsernames.Length)));
+        _ = stationLetterServiceMock.Received(1).CreateStationLetterAsync(
+            Arg.Is<StationLetter>(s =>
+                s.Subject == request.Subject &&
+                s.Content == request.Content &&
+                s.AssignedAllPlayers == request.AssignedAllPlayers),
+            Arg.Is<StationLetterPlayer[]>(x => x.Length == request.PlayerUsernames.Length));
     }
 
     [TestCase(true)]
     [TestCase(false)]
     public async Task Can_Get_List(bool showAll)
     {
+        var commandsMock = Substitute.For<ITgsCommands<StationLetter>>();
+
+        var playerQueriesMock = Substitute.For<ITgsQueries<Player>>();
+
+        var queriesMock = Substitute.For<ITgsQueries<StationLetter>>();
+
+        var stationLetterServiceMock = Substitute.For<IStationLetterService>();
+
+        var uploadServiceMock = Substitute.For<IUploadService>();
+
+        var controller =
+            new StationLetterController(queriesMock, playerQueriesMock, commandsMock, uploadServiceMock,
+                stationLetterServiceMock) { ControllerContext = { HttpContext = HttpContextMock } };
+
         var request = new GetStationLettersRequest
         {
             Status = StationLetterStatus.InVerify,
@@ -105,10 +125,10 @@ public class StationLetterControllerTests : BaseTests
 
         var expectedPlayers = showAll ? orderedPlayers.ToArray() : orderedPlayers.Skip(skip).Take(take).ToArray();
 
-        _ = _queriesMock.Setup(x => x.GetQueries())
-            .Returns(list);
+        _ = queriesMock.GetQueries().Returns(list);
 
-        var response = await _controller.GetListAsync(request);
+        var response = await controller.GetListAsync(request);
+
         _ = response.Valid.Should().BeTrue();
 
         for (var i = 0; i < response.Items.Length; i++)
@@ -124,12 +144,26 @@ public class StationLetterControllerTests : BaseTests
             _ = response.Items[i].CreatedOn.Should().Be(expectedPlayers[i].CreatedOn);
         }
 
-        _queriesMock.Verify(p => p.GetQueries());
+        _ = queriesMock.Received(1).GetQueries();
     }
 
     [Test]
     public async Task Can_Update()
     {
+        var commandsMock = Substitute.For<ITgsCommands<StationLetter>>();
+
+        var playerQueriesMock = Substitute.For<ITgsQueries<Player>>();
+
+        var queriesMock = Substitute.For<ITgsQueries<StationLetter>>();
+
+        var stationLetterServiceMock = Substitute.For<IStationLetterService>();
+
+        var uploadServiceMock = Substitute.For<IUploadService>();
+
+        var controller =
+            new StationLetterController(queriesMock, playerQueriesMock, commandsMock, uploadServiceMock,
+                stationLetterServiceMock) { ControllerContext = { HttpContext = HttpContextMock } };
+
         var stationLetterId = Guid.NewGuid();
 
         var request = new StationLetterRequest
@@ -145,30 +179,46 @@ public class StationLetterControllerTests : BaseTests
         };
         var stationLetter = CreateStationLetterFixture().Create<StationLetter>();
 
-        _ = _queriesMock
-            .Setup(s => s.GetSingleAsync(
-                It.IsAny<Expression<Func<StationLetter, bool>>>(),
-                It.IsAny<Func<IQueryable<StationLetter>, IQueryable<StationLetter>>>()))
+        _ = queriesMock
+            .GetSingleAsync(
+                Arg.Any<Expression<Func<StationLetter, bool>>>(),
+                Arg.Any<Func<IQueryable<StationLetter>, IQueryable<StationLetter>>>())
             .Returns(Task.FromResult(stationLetter));
 
         var serializationProvider = new JsonSerializationProvider();
-        var jsonOptionsAccessor = new OptionsWrapper<JsonOptions>(new JsonOptions());
 
-        var response = await _controller.UpdateAsync(
+        var jsonOptionsAccessor = new OptionsWrapper<JsonOptions>(new());
+
+        var response = await controller.UpdateAsync(
             serializationProvider,
             jsonOptionsAccessor,
             stationLetterId,
             request);
+
         _ = response.Valid.Should().BeTrue();
 
-        _commandsMock.Verify(p => p.UpdateAsync(It.Is<StationLetter>(s =>
+        _ = commandsMock.Received(1).UpdateAsync(Arg.Is<StationLetter>(s =>
             s.Subject == request.Subject &&
-            s.Content == request.Content)));
+            s.Content == request.Content));
     }
 
     [Test]
     public async Task Can_Update_Not_Found()
     {
+        var commandsMock = Substitute.For<ITgsCommands<StationLetter>>();
+
+        var playerQueriesMock = Substitute.For<ITgsQueries<Player>>();
+
+        var queriesMock = Substitute.For<ITgsQueries<StationLetter>>();
+
+        var stationLetterServiceMock = Substitute.For<IStationLetterService>();
+
+        var uploadServiceMock = Substitute.For<IUploadService>();
+
+        var controller =
+            new StationLetterController(queriesMock, playerQueriesMock, commandsMock, uploadServiceMock,
+                stationLetterServiceMock) { ControllerContext = { HttpContext = HttpContextMock } };
+
         var stationLetterId = Guid.NewGuid();
 
         var request = new StationLetterRequest
@@ -183,29 +233,16 @@ public class StationLetterControllerTests : BaseTests
             PlayerUsernames = Array.Empty<string>()
         };
 
-        var queriesMock = new Mock<ITgsQueries<StationLetter>>();
-        var playerQueriesMock = new Mock<ITgsQueries<Player>>();
-        var commandsMock = new Mock<ITgsCommands<StationLetter>>();
-        var uploadServiceMock = new Mock<IUploadService>();
-        var stationLetterServiceMock = new Mock<IStationLetterService>();
-
         _ = queriesMock
-            .Setup(s => s.GetSingleAsync(
-                It.IsAny<Expression<Func<StationLetter, bool>>>(),
-                It.IsAny<Func<IQueryable<StationLetter>, IQueryable<StationLetter>>>()))
+            .GetSingleAsync(
+                Arg.Any<Expression<Func<StationLetter, bool>>>(),
+                Arg.Any<Func<IQueryable<StationLetter>, IQueryable<StationLetter>>>())
             .Returns(Task.FromResult<StationLetter>(default!));
 
-        var sut = new StationLetterController(
-            queriesMock.Object,
-            playerQueriesMock.Object,
-            commandsMock.Object,
-            uploadServiceMock.Object,
-            stationLetterServiceMock.Object);
-
         var serializationProvider = new JsonSerializationProvider();
-        var jsonOptionsAccessor = new OptionsWrapper<JsonOptions>(new JsonOptions());
+        var jsonOptionsAccessor = new OptionsWrapper<JsonOptions>(new());
 
-        var response = await sut.UpdateAsync(
+        var response = await controller.UpdateAsync(
             serializationProvider,
             jsonOptionsAccessor,
             stationLetterId,
@@ -213,36 +250,47 @@ public class StationLetterControllerTests : BaseTests
         _ = response.Valid.Should().BeFalse();
         _ = response.Message.Should().Be(Apis.BackendOffice.Resources.StationLetter.NotFound);
 
-        commandsMock.Verify(
-            p => p.UpdateAsync(
-                It.Is<StationLetter>(s => s.Subject == request.Subject
-                    && s.Content == request.Content)),
-            Times.Never);
+        _ = commandsMock.Received(0).UpdateAsync(
+            Arg.Is<StationLetter>(s => s.Subject == request.Subject
+                && s.Content == request.Content));
     }
 
     [Test]
     public async Task Can_Upload()
     {
+        var commandsMock = Substitute.For<ITgsCommands<StationLetter>>();
+
+        var playerQueriesMock = Substitute.For<ITgsQueries<Player>>();
+
+        var queriesMock = Substitute.For<ITgsQueries<StationLetter>>();
+
+        var stationLetterServiceMock = Substitute.For<IStationLetterService>();
+
+        var uploadServiceMock = Substitute.For<IUploadService>();
+
+        var fileMock = Substitute.For<IFormFile>();
+
+        var controller =
+            new StationLetterController(queriesMock, playerQueriesMock, commandsMock, uploadServiceMock,
+                stationLetterServiceMock) { ControllerContext = { HttpContext = HttpContextMock } };
+
         var players = CreatePlayerFixture()
             .CreateMany<Player>(100)
             .AsQueryable()
             .BuildMock();
 
-        var playerUsernames = players.Select(p => new UploadPlayerModel
-        {
-            Username = p.Username
-        }).ToList();
+        var playerUsernames = players.Select(p => new UploadPlayerModel { Username = p.Username }).ToList();
 
-        _ = _uploadServiceMock.Setup(p => p.GetUploadedExcelAsync<UploadPlayerModel>(It.IsAny<IFormFile>()))
+        _ = uploadServiceMock.GetUploadedExcelAsync<UploadPlayerModel>(Arg.Any<IFormFile>())
             .Returns(Task.FromResult(playerUsernames));
 
-        _ = _playerQueriesMock.Setup(p => p.GetQueries())
-            .Returns(players);
+        _ = playerQueriesMock.GetQueries().Returns(players);
 
         var expectedPlayers = players
             .ToArray();
 
-        var response = await _controller.UploadAsync(It.IsAny<IFormFile>());
+        var response = await controller.UploadAsync(fileMock);
+
         _ = response.Valid.Should().BeTrue();
 
         for (var i = 0; i < response.Players.Length; i++)
@@ -256,38 +304,72 @@ public class StationLetterControllerTests : BaseTests
     [TestCase("reject", StationLetterStatus.Rejected)]
     public async Task Can_Verify(string type, StationLetterStatus targetStatus)
     {
+        var commandsMock = Substitute.For<ITgsCommands<StationLetter>>();
+
+        var playerQueriesMock = Substitute.For<ITgsQueries<Player>>();
+
+        var queriesMock = Substitute.For<ITgsQueries<StationLetter>>();
+
+        var stationLetterServiceMock = Substitute.For<IStationLetterService>();
+
+        var uploadServiceMock = Substitute.For<IUploadService>();
+
+        var controller =
+            new StationLetterController(queriesMock, playerQueriesMock, commandsMock, uploadServiceMock,
+                stationLetterServiceMock) { ControllerContext = { HttpContext = HttpContextMock } };
+
         var request = new Fixture().Create<VerifyRequest>();
+
         var stationLetter = CreateStationLetterFixture().Create<StationLetter>();
+
         stationLetter.Status = StationLetterStatus.InVerify;
 
-        _ = _queriesMock
-            .Setup(s => s.GetSingleAsync(
-                It.IsAny<Expression<Func<StationLetter, bool>>>(),
-                It.IsAny<Func<IQueryable<StationLetter>, IQueryable<StationLetter>>>()))
+        _ = queriesMock
+            .GetSingleAsync(
+                Arg.Any<Expression<Func<StationLetter, bool>>>(),
+                Arg.Any<Func<IQueryable<StationLetter>, IQueryable<StationLetter>>>())
             .Returns(Task.FromResult(stationLetter));
 
-        var response = await _controller.VerifyAsync(stationLetter.Id, type, request);
+        var response = await controller.VerifyAsync(stationLetter.Id, type, request);
+
         _ = response.Valid.Should().BeTrue();
 
-        _commandsMock.Verify(p => p.UpdateAsync(It.Is<StationLetter>(s =>
+        _ = commandsMock.Received(1).UpdateAsync(Arg.Is<StationLetter>(s =>
             s.Status == targetStatus &&
             s.UpdatedByUsername == Username &&
             s.VerifiedByUsername == Username &&
-            s.Remarks == request.Remarks)));
+            s.Remarks == request.Remarks));
     }
 
     [Test]
     public async Task Cannot_Verify_Not_Found()
     {
+        var commandsMock = Substitute.For<ITgsCommands<StationLetter>>();
+
+        var playerQueriesMock = Substitute.For<ITgsQueries<Player>>();
+
+        var queriesMock = Substitute.For<ITgsQueries<StationLetter>>();
+
+        var stationLetterServiceMock = Substitute.For<IStationLetterService>();
+
+        var uploadServiceMock = Substitute.For<IUploadService>();
+
+        var controller =
+            new StationLetterController(queriesMock, playerQueriesMock, commandsMock, uploadServiceMock,
+                stationLetterServiceMock) { ControllerContext = { HttpContext = HttpContextMock } };
+
         var request = new Fixture().Create<VerifyRequest>();
+
         var stationLetterId = Guid.NewGuid();
 
-        _ = _queriesMock.Setup(s => s.GetSingleAsync(It.IsAny<Expression<Func<StationLetter, bool>>>(),
-                It.IsAny<Func<IQueryable<StationLetter>, IQueryable<StationLetter>>>()))
+        _ = queriesMock.GetSingleAsync(Arg.Any<Expression<Func<StationLetter, bool>>>(),
+                Arg.Any<Func<IQueryable<StationLetter>, IQueryable<StationLetter>>>())
             .Returns(Task.FromResult<StationLetter>(default!));
 
-        var response = await _controller.VerifyAsync(stationLetterId, "pass", request);
+        var response = await controller.VerifyAsync(stationLetterId, "pass", request);
+
         _ = response.Valid.Should().BeFalse();
+
         _ = response.Message.Should().Be(Apis.BackendOffice.Resources.StationLetter.NotFound);
     }
 
@@ -297,42 +379,65 @@ public class StationLetterControllerTests : BaseTests
     [TestCase("reject", StationLetterStatus.Published)]
     public async Task Cannot_Verify_With_Invalid_Status(string type, StationLetterStatus status)
     {
+        var commandsMock = Substitute.For<ITgsCommands<StationLetter>>();
+
+        var playerQueriesMock = Substitute.For<ITgsQueries<Player>>();
+
+        var queriesMock = Substitute.For<ITgsQueries<StationLetter>>();
+
+        var stationLetterServiceMock = Substitute.For<IStationLetterService>();
+
+        var uploadServiceMock = Substitute.For<IUploadService>();
+
+        var controller =
+            new StationLetterController(queriesMock, playerQueriesMock, commandsMock, uploadServiceMock,
+                stationLetterServiceMock) { ControllerContext = { HttpContext = HttpContextMock } };
+
         var request = new Fixture().Create<VerifyRequest>();
+
         var stationLetterId = Guid.NewGuid();
+
         var stationLetter = CreateStationLetterFixture().Create<StationLetter>();
+
         stationLetter.Status = status;
 
-        _ = _queriesMock.Setup(s => s.GetSingleAsync(It.IsAny<Expression<Func<StationLetter, bool>>>(),
-                It.IsAny<Func<IQueryable<StationLetter>, IQueryable<StationLetter>>>()))
+        _ = queriesMock.GetSingleAsync(Arg.Any<Expression<Func<StationLetter, bool>>>(),
+                Arg.Any<Func<IQueryable<StationLetter>, IQueryable<StationLetter>>>())
             .Returns(Task.FromResult(stationLetter));
 
-        var response = await _controller.VerifyAsync(stationLetterId, type, request);
+        var response = await controller.VerifyAsync(stationLetterId, type, request);
+
         _ = response.Valid.Should().BeFalse();
+
         _ = response.Message.Should().Be(Apis.BackendOffice.Resources.StationLetter.InvalidStatus);
     }
 
     [Test]
     public async Task Cannot_Verify_With_Invalid_Url()
     {
+        var commandsMock = Substitute.For<ITgsCommands<StationLetter>>();
+
+        var playerQueriesMock = Substitute.For<ITgsQueries<Player>>();
+
+        var queriesMock = Substitute.For<ITgsQueries<StationLetter>>();
+
+        var stationLetterServiceMock = Substitute.For<IStationLetterService>();
+
+        var uploadServiceMock = Substitute.For<IUploadService>();
+
+        var controller =
+            new StationLetterController(queriesMock, playerQueriesMock, commandsMock, uploadServiceMock,
+                stationLetterServiceMock) { ControllerContext = { HttpContext = HttpContextMock } };
+
         var request = new Fixture().Create<VerifyRequest>();
+
         var stationLetterId = Guid.NewGuid();
-        var response = await _controller.VerifyAsync(stationLetterId, "test", request);
+
+        var response = await controller.VerifyAsync(stationLetterId, "test", request);
+
         _ = response.Valid.Should().BeFalse();
+
         _ = response.Message.Should().Be(Apis.BackendOffice.Resources.StationLetter.InvalidUrl);
-    }
-
-    [SetUp]
-    public override void Setup()
-    {
-        base.Setup();
-
-        _controller = new(
-            _queriesMock.Object,
-            _playerQueriesMock.Object,
-            _commandsMock.Object,
-            _uploadServiceMock.Object,
-            _stationLetterServiceMock.Object);
-        _controller.ControllerContext.HttpContext = HttpContextMock.Object;
     }
 
     private static Fixture CreatePlayerFixture()
@@ -357,10 +462,7 @@ public class StationLetterControllerTests : BaseTests
             .With(s => s.Wallets,
                 new[]
                 {
-                    new Core.DataServices.Tgs.Models.Wallet
-                    {
-                        Balance = 0
-                    }
+                    new Core.DataServices.Tgs.Models.Wallet { Balance = 0 }
                 })
             .With(s => s.BrandPaymentPlayers,
                 Array.Empty<BrandPaymentPlayer>())

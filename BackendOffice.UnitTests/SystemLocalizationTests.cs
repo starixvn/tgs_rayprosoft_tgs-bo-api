@@ -1,5 +1,5 @@
 ﻿using System.Reflection;
-using Moq;
+using NSubstitute;
 using TGS.Services.BackOffice.Application.Commands.Localization;
 using TGS.Services.BackOffice.Application.Queries.Localization;
 using TGS.Services.BackOffice.Domain;
@@ -12,38 +12,34 @@ public class SystemLocalizationTests
     [Test]
     public void Export_Localization_Strings_To_File()
     {
-        var moqBackOfficeRepository = new Mock<IBackOfficeRepository>();
+        var moqBackOfficeRepository = Substitute.For<IBackOfficeRepository>();
 
-        var sut = new ExportLocalizationFileCommandService(moqBackOfficeRepository.Object);
+        var sut = new ExportLocalizationFileCommandService(moqBackOfficeRepository);
 
         var command = new ExportLocalizationFileCommand("test");
 
         _ = sut.GetAsync(command);
 
-        moqBackOfficeRepository.Verify(
-            fake => fake.ExportLocalizationStringsAsync(It.IsAny<string>()),
-            Times.Exactly(1));
+        _ = moqBackOfficeRepository.Received(1).ExportLocalizationStringsAsync(Arg.Any<string>());
     }
 
     [Test]
     public async Task Import_Localization_File_To_System()
     {
-        var moqBackOfficeRepository = new Mock<IBackOfficeRepository>();
+        var moqBackOfficeRepository = Substitute.For<IBackOfficeRepository>();
 
-        var sut = new ImportLocalizationFileCommandService(moqBackOfficeRepository.Object);
+        var sut = new ImportLocalizationFileCommandService(moqBackOfficeRepository);
 
         var command = new ImportLocalizationFileCommand(
             "test",
             Assembly.GetExecutingAssembly()
-            .GetManifestResourceStream(
-                "TGS.Tests.BackendOffice.UnitTests.Assets.TestLocalizationStrings.xlsx"));
+                .GetManifestResourceStream(
+                    "TGS.Tests.BackendOffice.UnitTests.Assets.TestLocalizationStrings.xlsx"));
 
         await sut.ExecuteAsync(command);
 
-        moqBackOfficeRepository.Verify(
-            fake => fake.ImportLocalizationStringsAsync(
-                It.IsAny<string>(),
-                It.IsAny<IEnumerable<LocalizationStringInfo>>()),
-            Times.Exactly(1));
+        _ = moqBackOfficeRepository.Received(1).ImportLocalizationStringsAsync(
+            Arg.Any<string>(),
+            Arg.Any<IEnumerable<LocalizationStringInfo>>());
     }
 }

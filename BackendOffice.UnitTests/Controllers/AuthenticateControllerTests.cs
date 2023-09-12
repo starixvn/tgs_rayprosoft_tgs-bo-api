@@ -1,17 +1,16 @@
 ﻿using System.Linq.Expressions;
-using System.Security.Claims;
 using AutoFixture;
 using FluentAssertions;
 using Microsoft.AspNetCore.Antiforgery;
 using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Http;
-using Moq;
-using Tgs.Core.Infrastructures.Security;
+using NSubstitute;
 using TGS.Apis.BackendOffice.Controllers;
 using TGS.Apis.BackendOffice.Controllers.Messages.Users.Authentication;
 using TGS.Core.DataServices.Base.Interfaces;
 using TGS.Core.DataServices.Tgs.Models;
 using TGS.Core.Infrastructures.Json;
+using Tgs.Core.Infrastructures.Security;
 
 namespace TGS.Tests.BackendOffice.UnitTests.Controllers;
 
@@ -19,26 +18,37 @@ namespace TGS.Tests.BackendOffice.UnitTests.Controllers;
 [Parallelizable]
 public class AuthenticateControllerTests : BaseTests
 {
-    private readonly Mock<IAntiforgery> _antiForgeryMock = new();
-
-    private readonly Mock<IAuthenticationService> _authenticationServiceMock = new();
-
-    private readonly Mock<IJsonSerializationProvider> _jsonSerializationProviderMock =
-        new();
-
-    private readonly Mock<IPasswordHandler> _passwordHandlerMock = new();
-
-    private readonly Mock<IServiceProvider> _serviceProviderMock = new();
-
-    private readonly Mock<ITgsCommands<User>> _userCommandsMock = new();
-
-    private readonly Mock<ITgsQueries<User>> _userQueriesMock = new();
-
-    private AuthenticateController _controller = default!;
+    [SetUp]
+    public override void Setup() => base.Setup();
 
     [Test]
     public async Task Can_Authenticate_User()
     {
+        var antiForgeryMock = Substitute.For<IAntiforgery>();
+
+        var authenticationServiceMock = Substitute.For<IAuthenticationService>();
+
+        var jsonSerializationProviderMock = Substitute.For<IJsonSerializationProvider>();
+
+        var passwordHandlerMock = Substitute.For<IPasswordHandler>();
+
+        var serviceProviderMock = Substitute.For<IServiceProvider>();
+
+        var userCommandsMock = Substitute.For<ITgsCommands<User>>();
+
+        var userQueriesMock = Substitute.For<ITgsQueries<User>>();
+
+        _ = serviceProviderMock
+            .GetService(typeof(IAuthenticationService))
+            .Returns(authenticationServiceMock);
+
+        var controller =
+            new AuthenticateController(passwordHandlerMock, antiForgeryMock, userQueriesMock, userCommandsMock,
+                jsonSerializationProviderMock)
+            {
+                ControllerContext = { HttpContext = new DefaultHttpContext { RequestServices = serviceProviderMock } }
+            };
+
         var request = new AuthenticateUserRequest
         {
             Username = Generator.RandomString(6),
@@ -47,48 +57,89 @@ public class AuthenticateControllerTests : BaseTests
 
         var user = CreateUserFixture().Create<User>();
 
-        _ = _userQueriesMock.Setup(u => u.GetSingleAsync(It.IsAny<Expression<Func<User, bool>>>(),
-                It.IsAny<Func<IQueryable<User>, IQueryable<User>>>()))
+        _ = userQueriesMock.GetSingleAsync(Arg.Any<Expression<Func<User, bool>>>(),
+                Arg.Any<Func<IQueryable<User>, IQueryable<User>>>())
             .Returns(Task.FromResult(user));
 
-        _ = _passwordHandlerMock.Setup(p => p.Verify(It.IsAny<byte[]>(), It.IsAny<byte[]>(), It.IsAny<string>()))
+        _ = passwordHandlerMock.Verify(Arg.Any<byte[]>(), Arg.Any<byte[]>(), Arg.Any<string>())
             .Returns(true);
 
-        _ = _antiForgeryMock.Setup(p => p.GetAndStoreTokens(It.IsAny<HttpContext>()))
+        _ = antiForgeryMock.GetAndStoreTokens(Arg.Any<HttpContext>())
             .Returns(new Fixture().Create<AntiforgeryTokenSet>());
 
         SetupHttpContext();
 
-        var response = await _controller.AuthenticateAsync(request);
+        var response = await controller.AuthenticateAsync(request);
         _ = response.Valid.Should().BeTrue();
         _ = response.UserInfo.Should().NotBeNull();
-        _userCommandsMock.Verify(p => p.UpdateAsync(It.Is<User>(u => u.Username == user.Username)));
+        await userCommandsMock.Received(1).UpdateAsync(Arg.Is<User>(u => u.Username == user.Username));
     }
 
     [Test]
     public async Task Can_Logout()
     {
-        //SetupHttpContext();
-        await _controller.LogoutAsync();
+        var antiForgeryMock = Substitute.For<IAntiforgery>();
 
-        _authenticationServiceMock.Verify(p =>
-            p.SignOutAsync(It.IsAny<HttpContext>(), It.IsAny<string>(), It.IsAny<AuthenticationProperties>()));
+        var authenticationServiceMock = Substitute.For<IAuthenticationService>();
+
+        var jsonSerializationProviderMock = Substitute.For<IJsonSerializationProvider>();
+
+        var passwordHandlerMock = Substitute.For<IPasswordHandler>();
+
+        var serviceProviderMock = Substitute.For<IServiceProvider>();
+
+        var userCommandsMock = Substitute.For<ITgsCommands<User>>();
+
+        var userQueriesMock = Substitute.For<ITgsQueries<User>>();
+
+        _ = serviceProviderMock
+            .GetService(typeof(IAuthenticationService))
+            .Returns(authenticationServiceMock);
+
+        var controller =
+            new AuthenticateController(passwordHandlerMock, antiForgeryMock, userQueriesMock, userCommandsMock,
+                jsonSerializationProviderMock)
+            {
+                ControllerContext = { HttpContext = new DefaultHttpContext { RequestServices = serviceProviderMock } }
+            };
+
+        await controller.LogoutAsync();
+
+        await authenticationServiceMock.SignOutAsync(Arg.Any<HttpContext>(), Arg.Any<string>(),
+            Arg.Any<AuthenticationProperties>());
     }
 
     [Test]
     public async Task Cannot_Authenticate_User_Not_Found()
     {
+        var antiForgeryMock = Substitute.For<IAntiforgery>();
+
+        var authenticationServiceMock = Substitute.For<IAuthenticationService>();
+
+        var jsonSerializationProviderMock = Substitute.For<IJsonSerializationProvider>();
+
+        var passwordHandlerMock = Substitute.For<IPasswordHandler>();
+
+        var serviceProviderMock = Substitute.For<IServiceProvider>();
+
+        var userCommandsMock = Substitute.For<ITgsCommands<User>>();
+
+        var userQueriesMock = Substitute.For<ITgsQueries<User>>();
+
+        var controller = new AuthenticateController(passwordHandlerMock, antiForgeryMock, userQueriesMock,
+            userCommandsMock, jsonSerializationProviderMock);
+
         var request = new AuthenticateUserRequest
         {
             Username = Generator.RandomString(6),
             Password = Generator.RandomString(6)
         };
 
-        _ = _userQueriesMock.Setup(u => u.GetSingleAsync(It.IsAny<Expression<Func<User, bool>>>(),
-                It.IsAny<Func<IQueryable<User>, IQueryable<User>>>()))
+        _ = userQueriesMock.GetSingleAsync(Arg.Any<Expression<Func<User, bool>>>(),
+                Arg.Any<Func<IQueryable<User>, IQueryable<User>>>())
             .Returns(Task.FromResult<User>(default!));
 
-        var response = await _controller.AuthenticateAsync(request);
+        var response = await controller.AuthenticateAsync(request);
         _ = response.Valid.Should().BeFalse();
         _ = response.Message.Should().Be(Apis.BackendOffice.Resources.User.NotFound);
     }
@@ -96,6 +147,23 @@ public class AuthenticateControllerTests : BaseTests
     [Test]
     public async Task Cannot_Authenticate_User_With_Password_Not_Matched()
     {
+        var antiForgeryMock = Substitute.For<IAntiforgery>();
+
+        var authenticationServiceMock = Substitute.For<IAuthenticationService>();
+
+        var jsonSerializationProviderMock = Substitute.For<IJsonSerializationProvider>();
+
+        var passwordHandlerMock = Substitute.For<IPasswordHandler>();
+
+        var serviceProviderMock = Substitute.For<IServiceProvider>();
+
+        var userCommandsMock = Substitute.For<ITgsCommands<User>>();
+
+        var userQueriesMock = Substitute.For<ITgsQueries<User>>();
+
+        var controller = new AuthenticateController(passwordHandlerMock, antiForgeryMock, userQueriesMock,
+            userCommandsMock, jsonSerializationProviderMock);
+
         var request = new AuthenticateUserRequest
         {
             Username = Generator.RandomString(6),
@@ -104,39 +172,16 @@ public class AuthenticateControllerTests : BaseTests
 
         var user = CreateUserFixture().Create<User>();
 
-        _ = _userQueriesMock.Setup(u => u.GetSingleAsync(It.IsAny<Expression<Func<User, bool>>>(),
-                It.IsAny<Func<IQueryable<User>, IQueryable<User>>>()))
+        _ = userQueriesMock.GetSingleAsync(Arg.Any<Expression<Func<User, bool>>>(),
+                Arg.Any<Func<IQueryable<User>, IQueryable<User>>>())
             .Returns(Task.FromResult(user));
 
-        _ = _passwordHandlerMock.Setup(p => p.Verify(It.IsAny<byte[]>(), It.IsAny<byte[]>(), It.IsAny<string>()))
+        _ = passwordHandlerMock.Verify(Arg.Any<byte[]>(), Arg.Any<byte[]>(), Arg.Any<string>())
             .Returns(false);
 
-        var response = await _controller.AuthenticateAsync(request);
+        var response = await controller.AuthenticateAsync(request);
         _ = response.Valid.Should().BeFalse();
         _ = response.Message.Should().Be(Apis.BackendOffice.Resources.User.InvalidPassword);
-    }
-
-    [SetUp]
-    public override void Setup()
-    {
-        base.Setup();
-
-        _controller = new AuthenticateController(
-            _passwordHandlerMock.Object,
-            _antiForgeryMock.Object,
-            _userQueriesMock.Object,
-            _userCommandsMock.Object,
-            _jsonSerializationProviderMock.Object);
-
-        //ref:https://stackoverflow.com/questions/47198341/how-to-unit-test-httpcontext-signinasync
-        _ = _serviceProviderMock
-            .Setup(_ => _.GetService(typeof(IAuthenticationService)))
-            .Returns(_authenticationServiceMock.Object);
-
-        _controller.ControllerContext.HttpContext = new DefaultHttpContext
-        {
-            RequestServices = _serviceProviderMock.Object
-        };
     }
 
     private static Fixture CreateUserFixture()
@@ -145,62 +190,33 @@ public class AuthenticateControllerTests : BaseTests
 
         fixture.Customize<User>(u => u
             .With(s => s.Role,
-                new Role
-                {
-                    Name = Generator.RandomString(5)
-                })
+                new Role { Name = Generator.RandomString(5) })
             .With(p => p.Department,
-                new Department
-                {
-                    Name = Generator.RandomString(5)
-                }));
+                new Department { Name = Generator.RandomString(5) }));
 
         return fixture;
     }
 
     private void SetupHttpContext()
     {
-        var mockHttpContext = new Mock<HttpContext>();
+        var mockHttpContext = Substitute.For<HttpContext>();
+        var mockServiceProvider = Substitute.For<IServiceProvider>();
 
-        _ = mockHttpContext.Setup(p => p.User)
+        _ = mockHttpContext.User
             .Returns(GetUserClaimsPrincipal());
 
-        _ = mockHttpContext.Setup(p => p.RequestServices)
-            .Returns(SetupServiceProviderMock().Object);
+        _ = mockHttpContext.RequestServices
+            .Returns(mockServiceProvider);
 
-        _ = mockHttpContext.Setup(p => p.Connection)
-            .Returns(new Mock<ConnectionInfo>().Object);
+        _ = mockHttpContext.Connection
+            .Returns(Substitute.For<ConnectionInfo>());
 
-        var httpResponse = new Mock<HttpResponse>();
+        var httpResponse = Substitute.For<HttpResponse>();
 
-        _ = httpResponse.Setup(p => p.Cookies)
-            .Returns(new Mock<IResponseCookies>().Object);
+        _ = httpResponse.Cookies
+            .Returns(Substitute.For<IResponseCookies>());
 
-        _ = mockHttpContext.Setup(p => p.Response)
-            .Returns(httpResponse.Object);
-    }
-
-    private Mock<IServiceProvider> SetupServiceProviderMock()
-    {
-        _ = _authenticationServiceMock
-            .Setup(_ => _.SignInAsync(It.IsAny<HttpContext>(),
-                It.IsAny<string>(),
-                It.IsAny<ClaimsPrincipal>(),
-                It.IsAny<AuthenticationProperties>()))
-            .Returns(Task.FromResult(default(object)));
-
-        _ = _authenticationServiceMock
-            .Setup(_ => _.SignOutAsync(It.IsAny<HttpContext>(),
-                It.IsAny<string>(),
-                It.IsAny<AuthenticationProperties>()))
-            .Returns(Task.FromResult(default(object)));
-
-        var serviceProviderMock = new Mock<IServiceProvider>();
-
-        _ = serviceProviderMock
-            .Setup(_ => _.GetService(typeof(IAuthenticationService)))
-            .Returns(_authenticationServiceMock.Object);
-
-        return serviceProviderMock;
+        _ = mockHttpContext.Response
+            .Returns(httpResponse);
     }
 }

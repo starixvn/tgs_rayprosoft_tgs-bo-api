@@ -4,7 +4,7 @@ using AutoFixture;
 using FluentAssertions;
 using Microsoft.EntityFrameworkCore;
 using MockQueryable.Moq;
-using Moq;
+using NSubstitute;
 using TGS.Apis.BackendOffice.Controllers.Messages.Reseller;
 using TGS.Apis.BackendOffice.Controllers.Reseller;
 using TGS.Apis.BackendOffice.DataService.Services;
@@ -16,31 +16,46 @@ namespace TGS.Tests.BackendOffice.UnitTests.Controllers;
 [Parallelizable]
 public class ResellerControllerTests : BaseTests
 {
-    private readonly Mock<IResellerService> _resellerServiceMock = new();
-
-    private ResellerController _controller = default!;
+    [SetUp]
+    public override void Setup() => base.Setup();
 
     [Test]
     public async Task Can_Create_Reseller()
     {
+        var resellerServiceMock = Substitute.For<IResellerService>();
+
+        var controller = new ResellerController(resellerServiceMock)
+        {
+            ControllerContext = { HttpContext = HttpContextMock }
+        };
+
         var request = new Fixture().Create<CreateResellerRequest>();
 
-        _ = _resellerServiceMock.Setup(s => s.ExistsAsync(It.IsAny<Expression<Func<Reseller, bool>>>()))
+        _ = resellerServiceMock.ExistsAsync(Arg.Any<Expression<Func<Reseller, bool>>>())
             .Returns(Task.FromResult(false));
 
-        var response = await _controller.CreateResellerAsync(request);
+        var response = await controller.CreateResellerAsync(request);
+
         _ = response.Valid.Should().BeTrue();
 
-        _resellerServiceMock.Verify(s => s.ExistsAsync(It.IsAny<Expression<Func<Reseller, bool>>>()));
-        _resellerServiceMock.Verify(p => p.CreateResellerAsync(It.Is<CreateResellerRequest>(r =>
+        _ = resellerServiceMock.Received(2).ExistsAsync(Arg.Any<Expression<Func<Reseller, bool>>>());
+
+        _ = resellerServiceMock.Received(1).CreateResellerAsync(Arg.Is<CreateResellerRequest>(r =>
                 r.Name == request.Name),
-            It.Is<string>(r => r == Username)));
+            Arg.Is<string>(r => r == Username));
     }
 
     [TestCase(true)]
     [TestCase(false)]
     public async Task Can_Get_Resellers(bool showAll)
     {
+        var resellerServiceMock = Substitute.For<IResellerService>();
+
+        var controller = new ResellerController(resellerServiceMock)
+        {
+            ControllerContext = { HttpContext = HttpContextMock }
+        };
+
         var request = new GetResellersRequest
         {
             Keyword = "keyword",
@@ -61,10 +76,10 @@ public class ResellerControllerTests : BaseTests
 
         var expectedRoles = showAll ? orderedRoles.ToArray() : orderedRoles.Skip(skip).Take(take).ToArray();
 
-        _ = _resellerServiceMock.Setup(x => x.GetResellers(It.IsAny<GetResellersRequest>(), false))
+        _ = resellerServiceMock.GetResellers(Arg.Any<GetResellersRequest>())
             .Returns(list);
 
-        var response = await _controller.GetResellersAsync(request);
+        var response = await controller.GetResellersAsync(request);
         _ = response.Valid.Should().BeTrue();
 
         for (var i = 0; i < response.Items.Length; i++)
@@ -73,56 +88,82 @@ public class ResellerControllerTests : BaseTests
             _ = response.Items[i].Name.Should().Be(expectedRoles[i].Name);
         }
 
-        _resellerServiceMock.Verify(p => p.GetResellers(It.IsAny<GetResellersRequest>(), false));
+        _ = resellerServiceMock.Received(1).GetResellers(Arg.Any<GetResellersRequest>());
     }
 
     [Test]
     public async Task Can_Update_Reseller()
     {
+        var resellerServiceMock = Substitute.For<IResellerService>();
+
+        var controller = new ResellerController(resellerServiceMock)
+        {
+            ControllerContext = { HttpContext = HttpContextMock }
+        };
+
         var reseller = CreateResellerFixture().Create<Reseller>();
+
         var request = new Fixture().Create<UpdateResellerRequest>();
 
-        _ = _resellerServiceMock.Setup(s => s.GetResellerAsync(It.IsAny<Expression<Func<Reseller, bool>>>(),
-                It.IsAny<Func<IQueryable<Reseller>, IQueryable<Reseller>>>()))
+        _ = resellerServiceMock.GetResellerAsync(Arg.Any<Expression<Func<Reseller, bool>>>(),
+                Arg.Any<Func<IQueryable<Reseller>, IQueryable<Reseller>>>())
             .Returns(Task.FromResult(reseller));
 
-        _ = _resellerServiceMock.Setup(s => s.ExistsAsync(It.IsAny<Expression<Func<Reseller, bool>>>()))
+        _ = resellerServiceMock.ExistsAsync(Arg.Any<Expression<Func<Reseller, bool>>>())
             .Returns(Task.FromResult(false));
 
-        var response = await _controller.UpdateResellerAsync(reseller.Id, request);
+        var response = await controller.UpdateResellerAsync(reseller.Id, request);
 
         _ = response.Valid.Should().BeTrue();
-        _resellerServiceMock.Verify(s => s.GetResellerAsync(It.IsAny<Expression<Func<Reseller, bool>>>(),
-            It.IsAny<Func<IQueryable<Reseller>, IQueryable<Reseller>>>()));
-        _resellerServiceMock.Verify(p => p.UpdateResellerAsync(It.Is<Reseller>(r =>
+
+        _ = resellerServiceMock.Received(1).GetResellerAsync(Arg.Any<Expression<Func<Reseller, bool>>>(),
+            Arg.Any<Func<IQueryable<Reseller>, IQueryable<Reseller>>>());
+
+        _ = resellerServiceMock.Received(1).UpdateResellerAsync(Arg.Is<Reseller>(r =>
                 r.Name == reseller.Name),
-            It.IsAny<UpdateResellerRequest>(),
-            It.Is<string>(r => r == Username)));
+            Arg.Any<UpdateResellerRequest>(),
+            Arg.Is<string>(r => r == Username));
     }
 
     [Test]
     public async Task Cannot_Create_Reseller_With_Code_Exists()
     {
+        var resellerServiceMock = Substitute.For<IResellerService>();
+
+        var controller = new ResellerController(resellerServiceMock)
+        {
+            ControllerContext = { HttpContext = HttpContextMock }
+        };
+
         var list = CreateResellerFixture()
             .CreateMany<Reseller>(2)
             .AsQueryable()
             .BuildMock();
 
         var request = new Fixture().Create<CreateResellerRequest>();
+
         request.Code = list.FirstOrDefault()?.Code;
 
-        _ = _resellerServiceMock.Setup(s =>
-                s.ExistsAsync(It.IsAny<Expression<Func<Reseller, bool>>>()))
-            .Returns((Expression<Func<Reseller, bool>> predicate) => list.AnyAsync(predicate));
+        _ = resellerServiceMock.ExistsAsync(Arg.Any<Expression<Func<Reseller, bool>>>())
+            .Returns(x => list.AnyAsync(x.Arg<Expression<Func<Reseller, bool>>>()));
 
-        var response = await _controller.CreateResellerAsync(request);
+        var response = await controller.CreateResellerAsync(request);
+
         _ = response.Valid.Should().BeFalse();
+
         _ = response.Message.Should().Be(Apis.BackendOffice.Resources.Reseller.CodeExists);
     }
 
     [Test]
     public async Task Cannot_Create_Reseller_With_Name_Exists()
     {
+        var resellerServiceMock = Substitute.For<IResellerService>();
+
+        var controller = new ResellerController(resellerServiceMock)
+        {
+            ControllerContext = { HttpContext = HttpContextMock }
+        };
+
         var list = CreateResellerFixture()
             .CreateMany<Reseller>(2)
             .AsQueryable()
@@ -131,82 +172,96 @@ public class ResellerControllerTests : BaseTests
         var request = new Fixture().Create<CreateResellerRequest>();
         request.Name = list.FirstOrDefault()?.Name;
 
-        _ = _resellerServiceMock.Setup(s =>
-                s.ExistsAsync(It.IsAny<Expression<Func<Reseller, bool>>>()))
-            .Returns((Expression<Func<Reseller, bool>> predicate) => list.AnyAsync(predicate));
+        _ = resellerServiceMock.ExistsAsync(Arg.Any<Expression<Func<Reseller, bool>>>())
+            .Returns(x => list.AnyAsync(x.Arg<Expression<Func<Reseller, bool>>>()));
 
-        var response = await _controller.CreateResellerAsync(request);
+        var response = await controller.CreateResellerAsync(request);
+
         _ = response.Valid.Should().BeFalse();
+
         _ = response.Message.Should().Be(Apis.BackendOffice.Resources.Reseller.NameExists);
     }
 
     [Test]
     public async Task Cannot_Update_Reseller_When_Not_Found()
     {
+        var resellerServiceMock = Substitute.For<IResellerService>();
+
+        var controller = new ResellerController(resellerServiceMock)
+        {
+            ControllerContext = { HttpContext = HttpContextMock }
+        };
+
         var reseller = CreateResellerFixture().Create<Reseller>();
+
         var request = new Fixture().Create<UpdateResellerRequest>();
 
-        _ = _resellerServiceMock.Setup(s => s.GetResellerAsync(
-                It.IsAny<Expression<Func<Reseller, bool>>>(),
-                It.IsAny<Func<IQueryable<Reseller>,
-                    IQueryable<Reseller>>>()))
+        _ = resellerServiceMock.GetResellerAsync(
+                Arg.Any<Expression<Func<Reseller, bool>>>(),
+                Arg.Any<Func<IQueryable<Reseller>,
+                    IQueryable<Reseller>>>())
             .Returns(Task.FromResult<Reseller>(default!));
 
-        _ = _resellerServiceMock.Setup(s =>
-                s.ExistsAsync(It.IsAny<Expression<Func<Reseller, bool>>>()))
+        _ = resellerServiceMock.ExistsAsync(Arg.Any<Expression<Func<Reseller, bool>>>())
             .Returns(Task.FromResult(false));
 
-        var response = await _controller.UpdateResellerAsync(reseller.Id, request);
+        var response = await controller.UpdateResellerAsync(reseller.Id, request);
 
         _ = response.Valid.Should().BeFalse();
+
         _ = response.Message.Should().Be(Apis.BackendOffice.Resources.Reseller.NotFound);
-        _resellerServiceMock.Verify(s => s.GetResellerAsync(
-            It.IsAny<Expression<Func<Reseller, bool>>>(),
-            It.IsAny<Func<IQueryable<Reseller>,
-                IQueryable<Reseller>>>()));
-        _resellerServiceMock.Verify(p => p.UpdateResellerAsync(It.Is<Reseller>(r =>
+
+        _ = resellerServiceMock.Received(1).GetResellerAsync(
+            Arg.Any<Expression<Func<Reseller, bool>>>(),
+            Arg.Any<Func<IQueryable<Reseller>,
+                IQueryable<Reseller>>>());
+
+        _ = resellerServiceMock.Received(0).UpdateResellerAsync(Arg.Is<Reseller>(r =>
                 r.Name == reseller.Name),
-            It.IsAny<UpdateResellerRequest>(),
-            It.Is<string>(r => r == Username)), Times.Never);
+            Arg.Any<UpdateResellerRequest>(),
+            Arg.Is<string>(r => r == Username));
     }
 
     [Test]
     public async Task Cannot_Update_Reseller_With_Name_Exists()
     {
+        var resellerServiceMock = Substitute.For<IResellerService>();
+
+        var controller = new ResellerController(resellerServiceMock)
+        {
+            ControllerContext = { HttpContext = HttpContextMock }
+        };
+
         var reseller = CreateResellerFixture().Create<Reseller>();
+
         var request = new Fixture().Create<UpdateResellerRequest>();
+
         request.Name = reseller.Name;
-        _ = _resellerServiceMock.Setup(s => s.GetResellerAsync(
-                It.IsAny<Expression<Func<Reseller, bool>>>(),
-                It.IsAny<Func<IQueryable<Reseller>,
-                    IQueryable<Reseller>>>()))
+
+        _ = resellerServiceMock.GetResellerAsync(
+                Arg.Any<Expression<Func<Reseller, bool>>>(),
+                Arg.Any<Func<IQueryable<Reseller>,
+                    IQueryable<Reseller>>>())
             .Returns(Task.FromResult(reseller));
 
-        _ = _resellerServiceMock.Setup(s =>
-                s.ExistsAsync(It.IsAny<Expression<Func<Reseller, bool>>>()))
+        _ = resellerServiceMock.ExistsAsync(Arg.Any<Expression<Func<Reseller, bool>>>())
             .Returns(Task.FromResult(true));
 
-        var response = await _controller.UpdateResellerAsync(reseller.Id, request);
+        var response = await controller.UpdateResellerAsync(reseller.Id, request);
 
         _ = response.Valid.Should().BeFalse();
-        _ = response.Message.Should().Be(Apis.BackendOffice.Resources.Reseller.NameExists);
-        _resellerServiceMock.Verify(s => s.GetResellerAsync(
-            It.IsAny<Expression<Func<Reseller, bool>>>(),
-            It.IsAny<Func<IQueryable<Reseller>,
-                IQueryable<Reseller>>>()));
-        _resellerServiceMock.Verify(p => p.UpdateResellerAsync(It.Is<Reseller>(r =>
-                r.Name == reseller.Name),
-            It.IsAny<UpdateResellerRequest>(),
-            It.Is<string>(r => r == Username)), Times.Never);
-    }
 
-    [SetUp]
-    public override void Setup()
-    {
-        base.Setup();
-        _controller = new ResellerController(
-            _resellerServiceMock.Object);
-        _controller.ControllerContext.HttpContext = HttpContextMock.Object;
+        _ = response.Message.Should().Be(Apis.BackendOffice.Resources.Reseller.NameExists);
+
+        _ = resellerServiceMock.Received(1).GetResellerAsync(
+            Arg.Any<Expression<Func<Reseller, bool>>>(),
+            Arg.Any<Func<IQueryable<Reseller>,
+                IQueryable<Reseller>>>());
+
+        _ = resellerServiceMock.Received(0).UpdateResellerAsync(Arg.Is<Reseller>(r =>
+                r.Name == reseller.Name),
+            Arg.Any<UpdateResellerRequest>(),
+            Arg.Is<string>(r => r == Username));
     }
 
     private static Fixture CreateResellerFixture()
