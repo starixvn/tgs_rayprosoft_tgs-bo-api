@@ -1,5 +1,6 @@
 ﻿using NSubstitute;
 using Tgs.Payment.Clients;
+using Tgs.PlayerService.Client;
 using TGS.Services.BackOffice.ApplicationServices.Overview;
 
 namespace TGS.Tests.BackendOffice.UnitTests;
@@ -53,5 +54,29 @@ public class OverviewTests
 
         Assert.AreEqual(100m, actual.Today);
         Assert.AreEqual(88m, actual.Yesterday);
+    }
+
+    [Test]
+    public async Task 查詢當日與昨天註冊人數()
+    {
+        var fakePlayerServiceClient = Substitute.For<IPlayerServiceClient>();
+
+        var sut = new GetDayPlayerRegisterCountQueryService(fakePlayerServiceClient);
+
+        var brandId = Guid.NewGuid();
+        var yesterday = DateOnly.FromDateTime(DateTimeOffset.Now.ToOffset(TimeSpan.FromHours(8d)).AddDays(-1).DateTime);
+
+        _ = fakePlayerServiceClient
+            .CountCurrentDayRegisterPlayersAsync(Arg.Is(brandId))
+            .Returns(168);
+
+        _ = fakePlayerServiceClient
+            .CountReportDateRegisterPlayersAsync(Arg.Is(brandId), Arg.Is(yesterday))
+            .Returns(88);
+
+        var actual = await sut.GetAsync(new GetDayPlayerRegisterCountQuery(brandId));
+
+        Assert.AreEqual(168, actual.Today);
+        Assert.AreEqual(88, actual.Yesterday);
     }
 }

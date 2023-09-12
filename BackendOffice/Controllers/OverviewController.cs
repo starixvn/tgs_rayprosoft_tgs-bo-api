@@ -4,7 +4,6 @@ using System;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
-using Tgs.Payment.Clients;
 using Tgs.PlayerService.Client;
 using Tgs.ServiceUtility;
 using TGS.Apis.BackendOffice.ViewModels;
@@ -27,23 +26,17 @@ public class OverviewController : BaseContextController
     public async ValueTask<NetDepositViewModel> GetDayNetDepositAsync(
         [FromServices] IGetService<GetDayNetDepositQuery, DayNetDepositInfo> getService,
         Guid brandId)
-    {        
+    {
         var dayNetDepositInfo = await getService
-            .GetAsync( new GetDayNetDepositQuery(brandId), HttpContext.RequestAborted)
+            .GetAsync(new GetDayNetDepositQuery(brandId), HttpContext.RequestAborted)
             .ConfigureAwait(false);
 
         return new NetDepositViewModel
         {
             TodayNetDeposit = dayNetDepositInfo.Today,
             YesterdayNetDeposit = dayNetDepositInfo.Yesterday
-        };     
+        };
     }
-
-    [HttpGet("player/reg/count/{brandId}", Name = "GetCurrentDayRegisterPlayersCount")]
-    public ValueTask<int> GetCurrentDayRegisterPlayersCountAsync(
-        [FromServices] IPlayerServiceClient playerServiceClient,
-        Guid brandId)
-        => playerServiceClient.CountCurrentDayRegisterPlayersAsync(brandId, HttpContext.RequestAborted);
 
     [HttpGet("success-rate/{brandId}", Name = "GetDepositDaySuccessRate")]
     public async ValueTask<DayDepositSuccessRateViewModel> GetDepositDaySuccessRateAsync(
@@ -58,6 +51,21 @@ public class OverviewController : BaseContextController
         {
             TodaySuccessRate = daySuccessRateInfo.Today,
             YesterdaySuccessRate = daySuccessRateInfo.Yesterday
+        };
+    }
+
+    [HttpGet("player/reg/count/{brandId}", Name = "GetRegisterPlayersCount")]
+    public async ValueTask<DayPlayerRegisterCountViewModel> GetRegisterPlayersCountAsync(
+        [FromServices] IGetService<GetDayPlayerRegisterCountQuery, DayPlayerRegisterCountInfo> getService,
+        Guid brandId)
+    {
+        var info = await getService
+            .GetAsync(new GetDayPlayerRegisterCountQuery(brandId), HttpContext.RequestAborted)
+            .ConfigureAwait(false);
+        return new DayPlayerRegisterCountViewModel
+        {
+            TodayPlayerRegisterCount = info.Today,
+            YesterdayPlayerRegisterCount = info.Yesterday,
         };
     }
 }
