@@ -54,7 +54,9 @@ public class VipLevelController : BaseContextController
             request.LotteryRebate,
             request.CardGameRebate,
             request.SportsRebate,
-            request.VirtualSportsRebate);
+            request.VirtualSportsRebate,
+            request.WithdrawTransactionsPerDay,
+            request.WithdrawTotalAmountPerDay);
 
         _ = await vipLevelServiceClient.CreateVipLevelAsync(
             request.BrandId,
