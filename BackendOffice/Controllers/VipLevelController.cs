@@ -6,8 +6,8 @@ using Microsoft.AspNetCore.Mvc;
 using Tgs.Paging;
 using Tgs.ServiceUtility;
 using Tgs.VipLevelService.Clients;
+using TGS.Apis.BackendOffice.ViewModels;
 using TGS.Core.Models.Messages;
-using TGS.Services.BackOffice.Application.Models.VipLevel;
 using TGS.Services.BackOffice.ApplicationServices;
 
 namespace TGS.Apis.BackendOffice.Controllers;
@@ -21,7 +21,7 @@ public class VipLevelController : BaseContextController
     public async Task<MessageResponse> CreateAsync(
         [FromServices] IQueryService<AllVipLevelsQuery, VipLevelInfo> queryService,
         [FromServices] IVipLevelServiceClient vipLevelServiceClient,
-        [FromBody] CreateVipLevelRequest request)
+        [FromBody] ModifyVipLevelViewModel request)
     {
         var lastVip = await queryService.QueryAsync(
             new AllVipLevelsQuery(request.BrandId),
@@ -72,7 +72,7 @@ public class VipLevelController : BaseContextController
 
     [HttpGet]
     [Description("Get vip levels")]
-    public async Task<PagedResponse<VipLevelModel>> GetListAsync(
+    public async Task<PagedResponse<VipLevelViewModel>> GetListAsync(
         [FromServices] IQueryService<AllVipLevelsQuery, VipLevelInfo> queryService,
         [FromQuery] GetVipLevelsRequest request)
     {
@@ -95,12 +95,12 @@ public class VipLevelController : BaseContextController
             .ApplyOrderBy(paging)
             .ApplyPaging(paging);
 
-        return new PagedResponse<VipLevelModel>
+        return new PagedResponse<VipLevelViewModel>
         {
             Valid = true,
             TotalCount = totalCount,
             Items = await vipLevels
-                .Select(info => new VipLevelModel
+                .Select(info => new VipLevelViewModel
                 {
                     Id = info.Id,
                     Level = info.Level,
@@ -118,7 +118,9 @@ public class VipLevelController : BaseContextController
                     LotteryRebate = info.LotteryRebate,
                     CardGameRebate = info.CardGameRebate,
                     SportsRebate = info.SportsRebate,
-                    VirtualSportsRebate = info.VirtualSportsRebate
+                    VirtualSportsRebate = info.VirtualSportsRebate,
+                    WithdrawTotalAmountPerDay = info.WithdrawTotalAmountPerDay,
+                    WithdrawTransactionsPerDay = info.WithdrawTransactionsPerDay
                 })
                 .ToArrayAsync(HttpContext.RequestAborted)
                 .ConfigureAwait(false)
@@ -131,7 +133,7 @@ public class VipLevelController : BaseContextController
         [FromServices] IQueryService<AllVipLevelsQuery, VipLevelInfo> queryService,
         [FromServices] IVipLevelServiceClient vipLevelServiceClient,
         Guid id,
-        [FromBody] UpdateVipLevelRequest request)
+        [FromBody] ModifyVipLevelViewModel request)
     {
         var allVip = await queryService.QueryAsync(
             new AllVipLevelsQuery(request.BrandId),
@@ -177,7 +179,9 @@ public class VipLevelController : BaseContextController
             LotteryRebate = request.LotteryRebate,
             CardGameRebate = request.CardGameRebate,
             SportsRebate = request.SportsRebate,
-            VirtualSportsRebate = request.VirtualSportsRebate
+            VirtualSportsRebate = request.VirtualSportsRebate,
+            WithdrawTransactionsPerDay = request.WithdrawTransactionsPerDay,
+            WithdrawTotalAmountPerDay = request.WithdrawTotalAmountPerDay
         };
 
         await vipLevelServiceClient.UpdateVipLevelAsync(
