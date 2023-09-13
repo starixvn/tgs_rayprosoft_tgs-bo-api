@@ -35,7 +35,7 @@ public class ExceptionMiddlewareTest
 
         var tgsLogMock = Substitute.For<ITgsLog>();
 
-        Task RequestDelegate(HttpContext innerContext) => Task.FromResult(0);
+        static Task RequestDelegate(HttpContext innerContext) => Task.FromResult(0);
 
         IMiddleware target = new ExceptionMiddleware(
             requestAnalyzerMock,
@@ -64,7 +64,7 @@ public class ExceptionMiddlewareTest
 
         var tgsLogMock = Substitute.For<ITgsLog>();
 
-        Task RequestDelegate(HttpContext innerContext) => Task.FromResult(0);
+        static Task RequestDelegate(HttpContext innerContext) => Task.FromResult(0);
 
         IMiddleware target = new ExceptionMiddleware(
             requestAnalyzerMock,

@@ -5,6 +5,7 @@ using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
 using NSubstitute;
+using NSubstitute.ExceptionExtensions;
 using Tgs.Payment.Clients;
 using Tgs.PlayerService.Client;
 using Tgs.ServiceUtility;
@@ -151,6 +152,136 @@ public class WithdrawTests
                 Arg.Any<Guid>(),
                 Arg.Is(PaymentFlowState.WaitApprove),
                 cancellationToken: Arg.Any<CancellationToken>());
+    }
+
+    [Fact]
+    public async Task 建立玩家提款單時_超過VIP提款限額()
+    {
+        // Arrange
+        var channelName = Guid.NewGuid().ToString();
+        var userId = Guid.NewGuid();
+
+        var fakePaymentServiceClient = Substitute.For<IPaymentServiceClient>();
+        var fakePlayerServiceClient = Substitute.For<IPlayerServiceClient>();
+        var fakeCheckIdentityService = Substitute.For<IGetService<CheckPlayerIdentityCommand, bool>>();
+
+        using var web = TestBackendOfficeApplication.Builder
+            .UseTestChannelServer(channelName)
+            .ConfigureLogging(logging => logging.AddXUnit(_testOutputHelper))
+            .ConfigureServices(services => services
+                .AddAuthentication("Fake")
+                .AddScheme<FakeAuthenticationSchemaOptions, FakeAuthenticationHandler>(
+                    "Fake",
+                    options =>
+                    {
+                        options.UserId = userId;
+                        options.UserName = "system";
+                    })
+                .Services
+                .AddSingleton(fakeCheckIdentityService)
+                .AddSingleton(fakePlayerServiceClient)
+                .AddSingleton(fakePaymentServiceClient))
+            .Build();
+
+        await web.StartAsync();
+
+        var brandId = Guid.NewGuid();
+
+        var request = new CreateWithdrawRequest
+        {
+            Amount = 1000M,
+            BankInfoId = Guid.NewGuid(),
+            BrandId = brandId,
+            PlayerCode = "test1"
+        };
+
+        var paymentChannelId = Guid.NewGuid();
+
+        _ = fakePaymentServiceClient.GetPlayerBankInfosAsync(
+            Arg.Is(request.PlayerCode),
+            Arg.Any<CancellationToken>())
+            .Returns(new[]
+            {
+                new PlayerBankInfo
+                {
+                    Id = request.BankInfoId,
+                    PaymentChannelId = paymentChannelId
+                }
+            }.ToAsyncEnumerable());
+        _ = fakePaymentServiceClient.GetBrandPaymentsAsync(
+            Arg.Is(brandId),
+            Arg.Any<CancellationToken>())
+            .Returns(new[]
+            {
+                new BrandPaymentInfo
+                {
+                    Id = Guid.NewGuid(),
+                    BrandId = brandId,
+                    ChannelId = paymentChannelId
+                }
+            }.ToAsyncEnumerable());
+
+        _ = fakePlayerServiceClient.GetPlayerInfoAsync(
+            Arg.Is(request.PlayerCode),
+            Arg.Any<CancellationToken>())
+            .Returns(new Tgs.PlayerService.Client.PlayerInfo
+            {
+                PlayerCode = request.PlayerCode,
+                BrandId = brandId,
+                UserName = "user1"
+            });
+
+        _ = fakeCheckIdentityService.GetAsync(
+            Arg.Any<CheckPlayerIdentityCommand>(),
+            Arg.Any<CancellationToken>())
+            .Returns(true);
+
+        var expectedRequest = new WithdrawFormCreateInfo
+        {
+            Amount = request.Amount,
+            BankInfoId = request.BankInfoId,
+            BrandId = request.BrandId,
+            UserId = request.PlayerCode,
+            UserName = "user1",
+            UserType = Tgs.Payment.Clients.UserType.Player,
+            Note = request.Note
+        };
+
+        _ = fakePaymentServiceClient.CreateWithdrawFormAsync(
+            Arg.Is<WithdrawFormCreateInfo>(info => expectedRequest.ToExpectedObject().Equals(info)),
+            Arg.Any<CancellationToken>())
+            .Throws(new WithdrawLimitExceedException(null, 10000M));
+
+        var isWindows = RuntimeInformation.IsOSPlatform(OSPlatform.Windows) ? "true" : "false";
+
+        var nodeModule = $$"""
+            const axiosConfigFactory = require('./models/axios-configuration.js').default;
+            const BackOfficeService = require('./services/bo-service.js').default;
+
+            module.exports = async (request) =>
+            {
+                let instance = axiosConfigFactory("{{channelName}}", {{isWindows}});
+
+                let svc = new BackOfficeService(instance);
+
+                try {
+                    return await svc.createPlayerWithdraw(request);
+                }
+                catch(error) {
+                    return error.response.status;
+                }
+            };
+            """;
+
+        // Act
+        var actual = await StaticNodeJSService.InvokeFromStringAsync<string>(
+            nodeModule,
+            args: new object[] {
+                request
+            });
+
+        // Assert
+        Assert.Equal("500", actual);
     }
 
     [Fact]

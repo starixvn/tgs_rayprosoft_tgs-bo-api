@@ -34,7 +34,7 @@ public class GameProviderBetLimitControllerTests : BaseTests
         _ = mediatorMock.Received(1).Send(Arg.Any<CreateGameProviderBetLimitRequest>(), Arg.Any<CancellationToken>());
     }
 
-    public async Task Can_Get_GameProviderBetLimitsAsync()
+    public static async Task CanGetGameProviderBetLimitsAsync()
     {
         var mediatorMock = Substitute.For<IMediator>();
 

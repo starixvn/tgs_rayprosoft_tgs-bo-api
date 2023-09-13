@@ -14,9 +14,6 @@ namespace TGS.Tests.BackendOffice.UnitTests.Controllers;
 [Parallelizable]
 public class LanguageControllerTests : BaseTests
 {
-    [SetUp]
-    public override void Setup() => base.Setup();
-
     [Test]
     public async Task Can_Create_Language()
     {
@@ -114,10 +111,6 @@ public class LanguageControllerTests : BaseTests
 
         var controller = new LanguageController(mediatorMock);
 
-        var list = CreateLanguageModelFixture()
-            .CreateMany<LanguageModel>(99)
-            .ToArray();
-
         var request = new Fixture().Create<CreateLanguageRequest>();
 
         _ = mediatorMock
@@ -136,6 +129,9 @@ public class LanguageControllerTests : BaseTests
 
         _ = mediatorMock.Send(Arg.Any<CreateLanguageRequest>(), Arg.Any<CancellationToken>());
     }
+
+    [SetUp]
+    public override void Setup() => base.Setup();
 
     private static Fixture CreateLanguageModelFixture()
     {
