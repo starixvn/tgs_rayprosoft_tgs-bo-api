@@ -14,9 +14,6 @@ namespace TGS.Tests.BackendOffice.UnitTests.Controllers;
 [Parallelizable]
 public class CurrencyControllerTests : BaseTests
 {
-    [SetUp]
-    public override void Setup() => base.Setup();
-
     [Test]
     public async Task Can_Create_Currency()
     {
@@ -114,10 +111,6 @@ public class CurrencyControllerTests : BaseTests
 
         var controller = new CurrencyController(mediatorMock);
 
-        var list = CreateCurrencyModelFixture()
-            .CreateMany<CurrencyModel>(99)
-            .ToArray();
-
         var request = new Fixture().Create<CreateCurrencyRequest>();
 
         _ = mediatorMock
@@ -134,6 +127,9 @@ public class CurrencyControllerTests : BaseTests
 
         _ = mediatorMock.Received(1).Send(Arg.Any<CreateCurrencyRequest>(), Arg.Any<CancellationToken>());
     }
+
+    [SetUp]
+    public override void Setup() => base.Setup();
 
     private static Fixture CreateCurrencyModelFixture()
     {
