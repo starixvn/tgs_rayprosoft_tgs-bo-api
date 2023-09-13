@@ -109,7 +109,7 @@ builder.Services
     .AddBackOfficeCache()
     .AddSingleton<MessageQueueNotifyEventSource>()
     .AddSingleton<INotifyEventSource>(sp => sp.GetRequiredService<MessageQueueNotifyEventSource>())
-    .AddMessageQueue()
+    .AddPhoenixToolkitsMessageQueue()
     .AddNatsMessageQueue(config => config
         .ConfigQueueOptions((options, sp) =>
         {

@@ -1,12 +1,12 @@
 ﻿using MockQueryable.Moq;
 using NSubstitute;
 using StackExchange.Redis;
-using Tgs.MessageQueue;
 using TGS.Core.DataServices.Tgs.Models;
 using TGS.Core.Infrastructures.Redis;
 using TGS.Services.BackOffice.Application.Commands.ReportGenerateAggregate;
 using TGS.Services.BackOffice.Application.Models.Aggregate;
 using TGS.Services.BackOffice.Infrastructure.DataService;
+using Valhalla.MessageQueue;
 
 namespace TGS.Tests.BackendOffice.UnitTests.ReportGenerateAggregate;
 

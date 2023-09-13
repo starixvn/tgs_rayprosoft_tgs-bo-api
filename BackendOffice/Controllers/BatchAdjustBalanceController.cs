@@ -10,11 +10,11 @@ using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Http.Features;
 using Microsoft.AspNetCore.Mvc;
 using Tgs.BrandService.Protos;
-using Tgs.MessageQueue;
 using Tgs.ServiceUtility;
 using TGS.Apis.BackendOffice.ViewModels;
 using TGS.Services.BackOffice.ApplicationServices.BatchAdjust;
 using TGS.Services.BackOffice.Domain;
+using Valhalla.MessageQueue;
 
 namespace TGS.Apis.BackendOffice.Controllers;
 

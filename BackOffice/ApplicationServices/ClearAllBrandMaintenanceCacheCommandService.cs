@@ -5,9 +5,9 @@ using System.Text.Json;
 using System.Threading;
 using System.Threading.Tasks;
 using Tgs.BrandService.Protos;
-using Tgs.MessageQueue;
 using Tgs.ServiceUtility;
 using TGS.Services.BackOffice.Infrastructure.DataService;
+using Valhalla.MessageQueue;
 
 namespace TGS.Services.BackOffice.ApplicationServices;
 

@@ -9,7 +9,6 @@ using PlayerBucket.Repositories;
 using StackExchange.Redis;
 using Tgs.BrandCertificate.Clients;
 using Tgs.CashService.Client;
-using Tgs.MessageQueue;
 using Tgs.Payment.Clients;
 using Tgs.PlayerService.Client;
 using Tgs.Promotion.Clients;
@@ -17,6 +16,7 @@ using Tgs.Service.PlayerBuckets;
 using TGS.Core.Infrastructures.Redis;
 using TGS.Services.BackOffice.Application.Queries.Deposit;
 using TGS.Services.BackOffice.ApplicationServices.Payment;
+using Valhalla.MessageQueue;
 
 namespace TGS.Tests.BackendOffice.UnitTests;
 

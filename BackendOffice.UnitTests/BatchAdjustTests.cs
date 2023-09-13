@@ -3,11 +3,11 @@ using System.Reflection;
 using Microsoft.Extensions.FileProviders;
 using Microsoft.Extensions.Logging.Abstractions;
 using NSubstitute;
-using Tgs.MessageQueue;
 using Tgs.PlayerService.Client;
 using TGS.Core.Models.Enums;
 using TGS.Services.BackOffice.ApplicationServices.BatchAdjust;
 using TGS.Services.BackOffice.Domain;
+using Valhalla.MessageQueue;
 
 namespace TGS.Tests.BackendOffice.UnitTests;
 

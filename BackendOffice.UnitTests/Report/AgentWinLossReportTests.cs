@@ -3,7 +3,6 @@ using NSubstitute;
 using StackExchange.Redis;
 using TGS.Core.DataServices.Tgs.Models;
 using TGS.Core.Infrastructures.Redis;
-using Tgs.MessageQueue;
 using TGS.Services.BackOffice.Application.Commands.ReportGenerateAggregate;
 using TGS.Services.BackOffice.Application.Models.Aggregate;
 using TGS.Services.BackOffice.Infrastructure.DataService;

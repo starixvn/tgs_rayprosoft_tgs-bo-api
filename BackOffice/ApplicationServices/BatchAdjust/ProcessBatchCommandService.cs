@@ -6,10 +6,10 @@ using System.Threading.Tasks;
 using Google.Protobuf;
 using Microsoft.Extensions.Logging;
 using Tgs.BrandService.Protos;
-using Tgs.MessageQueue;
 using Tgs.ServiceUtility;
 using TGS.Core.Models.Enums;
 using TGS.Services.BackOffice.Domain;
+using Valhalla.MessageQueue;
 
 namespace TGS.Services.BackOffice.ApplicationServices.BatchAdjust;
 

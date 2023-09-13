@@ -2,10 +2,10 @@
 using System.Threading;
 using System.Threading.Tasks;
 using Tgs.BrandService.Protos;
-using Tgs.MessageQueue;
 using Tgs.ServiceUtility;
 using TGS.Core.Models.Enums;
 using TGS.Services.BackOffice.ApplicationServices.BatchAdjust;
+using Valhalla.MessageQueue;
 
 namespace TGS.Apis.BackendOffice.MessageQueue;
 

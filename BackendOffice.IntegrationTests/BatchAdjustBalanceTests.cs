@@ -8,11 +8,11 @@ using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
 using NSubstitute;
-using Tgs.MessageQueue;
 using Tgs.PlayerService.Client;
 using TGS.Apis.BackendOffice.ViewModels;
 using TGS.Core.Models.Enums;
 using TGS.Services.BackOffice.Domain;
+using Valhalla.MessageQueue;
 using Xunit;
 using Xunit.Abstractions;
 

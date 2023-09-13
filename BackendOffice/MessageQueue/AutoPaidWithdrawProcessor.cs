@@ -2,10 +2,10 @@
 using System.Threading;
 using System.Threading.Tasks;
 using Microsoft.Extensions.Logging;
-using Tgs.MessageQueue;
 using Tgs.Payment.Protos;
 using Tgs.ServiceUtility;
 using TGS.Services.BackOffice.Application.Commands.Withdraw;
+using Valhalla.MessageQueue;
 
 namespace TGS.Apis.BackendOffice.MessageQueue;
 

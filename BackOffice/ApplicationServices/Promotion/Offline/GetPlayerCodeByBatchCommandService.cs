@@ -7,11 +7,11 @@ using System.Threading;
 using System.Threading.Tasks;
 using Google.Protobuf;
 using Tgs.BrandService.Protos;
-using Tgs.MessageQueue;
 using Tgs.PlayerService.Client;
 using Tgs.ServiceUtility;
 using TGS.Services.BackOffice.Domain;
 using TGS.Services.BackOffice.ApplicationServices.Players;
+using Valhalla.MessageQueue;
 
 namespace TGS.Services.BackOffice.ApplicationServices.Promotion.Offline;
 
