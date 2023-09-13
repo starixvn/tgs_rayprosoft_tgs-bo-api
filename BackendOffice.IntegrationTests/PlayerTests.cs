@@ -91,8 +91,46 @@ public class PlayerTests
                 Arg.Is(brandId),
                 Arg.Any<CancellationToken>())
             .Returns(new VipLevelInfo[] {
-                new VipLevelInfo(vipId1,1,brandId, 0M,0M,0M,0M,false,0M,0M,0M,0M,0M,0M,0M,0M,0M),
-                new VipLevelInfo(Guid.NewGuid(),2,brandId, 0M,0M,0M,0M,false,0M,0M,0M,0M,0M,0M,0M,0M,0M)
+                new VipLevelInfo(
+                    vipId1,
+                    1,
+                    brandId,
+                    0M,
+                    0M,
+                    0M,
+                    0M,
+                    false,
+                    0M,
+                    0M,
+                    0M,
+                    0M,
+                    0M,
+                    0M,
+                    0M,
+                    0M,
+                    0M,
+                    -1,
+                    -1M),
+                new VipLevelInfo(
+                    Guid.NewGuid(),
+                    2,
+                    brandId,
+                    0M,
+                    0M,
+                    0M,
+                    0M,
+                    false,
+                    0M,
+                    0M,
+                    0M,
+                    0M,
+                    0M,
+                    0M,
+                    0M,
+                    0M,
+                    0M,
+                    -1,
+                    -1M)
             }.ToAsyncEnumerable());
 
         _ = fakePlayerServiceClient.QueryPlayerListAsync(
@@ -306,8 +344,46 @@ public class PlayerTests
                 Arg.Is(brandId),
                 Arg.Any<CancellationToken>())
             .Returns(new VipLevelInfo[] {
-                new VipLevelInfo(vipId1,1,brandId, 0M,0M,0M,0M,false,0M,0M,0M,0M,0M,0M,0M,0M,0M),
-                new VipLevelInfo(Guid.NewGuid(),2,brandId, 0M,0M,0M,0M,false,0M,0M,0M,0M,0M,0M,0M,0M,0M)
+                new VipLevelInfo(
+                    vipId1,
+                    1,
+                    brandId,
+                    0M,
+                    0M,
+                    0M,
+                    0M,
+                    false,
+                    0M,
+                    0M,
+                    0M,
+                    0M,
+                    0M,
+                    0M,
+                    0M,
+                    0M,
+                    0M,
+                    -1,
+                    -1M),
+                new VipLevelInfo(
+                    Guid.NewGuid(),
+                    2,
+                    brandId,
+                    0M,
+                    0M,
+                    0M,
+                    0M,
+                    false,
+                    0M,
+                    0M,
+                    0M,
+                    0M,
+                    0M,
+                    0M,
+                    0M,
+                    0M,
+                    0M,
+                    -1,
+                    -1M)
             }.ToAsyncEnumerable());
 
         _ = fakePlayerServiceClient.QueryPlayerListAsync(
@@ -473,7 +549,26 @@ public class PlayerTests
             Arg.Any<CancellationToken>())
             .Returns(new VipLevelInfo[]
             {
-                new VipLevelInfo(vipLevelId,1,brandId,0M,0M,0M,0M,true,0M,0M,0M,0M,0M,0M,0M,0M,0M)
+                new VipLevelInfo(
+                    vipLevelId,
+                    1,
+                    brandId,
+                    0M,
+                    0M,
+                    0M,
+                    0M,
+                    true,
+                    0M,
+                    0M,
+                    0M,
+                    0M,
+                    0M,
+                    0M,
+                    0M,
+                    0M,
+                    0M,
+                    -1,
+                    -1M)
             }.ToAsyncEnumerable());
 
         _ = fakePlayerBucketClient.ReadBucketsAsync(

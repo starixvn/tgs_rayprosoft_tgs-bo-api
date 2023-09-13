@@ -2,9 +2,9 @@
 using System.Threading;
 using System.Threading.Tasks;
 using Tgs.BrandService.Protos;
-using Tgs.MessageQueue;
 using Tgs.ServiceUtility;
 using TGS.Services.BackOffice.ApplicationServices.Promotion.Offline;
+using Valhalla.MessageQueue;
 
 namespace TGS.Apis.BackendOffice.MessageQueue;
 

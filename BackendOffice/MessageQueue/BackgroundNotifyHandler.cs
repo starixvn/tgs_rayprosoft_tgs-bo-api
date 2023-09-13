@@ -6,9 +6,9 @@ using System.Threading;
 using System.Threading.Tasks;
 using Microsoft.Extensions.Logging;
 using Tgs.BrandService.Protos;
-using Tgs.MessageQueue;
 using TGS.Apis.BackendOffice.Services;
 using TGS.Services.BackOffice.Domain;
+using Valhalla.MessageQueue;
 
 namespace TGS.Apis.BackendOffice.MessageQueue;
 

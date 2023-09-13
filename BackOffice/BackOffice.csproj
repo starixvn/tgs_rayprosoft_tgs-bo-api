@@ -38,8 +38,8 @@
   <ItemGroup>
     <PackageReference Include="ClosedXML.Report" Version="0.2.8" />
     <PackageReference Include="ExcelDataReader" Version="3.6.0" />
-    <PackageReference Include="Google.Protobuf" Version="3.24.1" />
-    <PackageReference Include="Grpc.Tools" Version="2.57.0">
+    <PackageReference Include="Google.Protobuf" Version="3.24.3" />
+    <PackageReference Include="Grpc.Tools" Version="2.58.0">
       <PrivateAssets>all</PrivateAssets>
       <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
     </PackageReference>
@@ -49,12 +49,13 @@
       <PrivateAssets>all</PrivateAssets>
       <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
     </PackageReference>
+    <PackageReference Include="PhoenixToolkits.MessageQueue" Version="1.0.3" />
     <PackageReference Include="PhoenixToolkits.Protobuf.ExtendTypes" Version="0.0.6" />
     <PackageReference Include="Polly" Version="7.2.4" />
     <PackageReference Include="Scrutor" Version="4.2.2" />
     <PackageReference Include="System.Interactive.Async" Version="6.0.1" />
     <PackageReference Include="System.Linq.Async" Version="6.0.1" />
-    <PackageReference Include="Tgs.Agent.Client" Version="0.0.8" />
+    <PackageReference Include="Tgs.Agent.Client" Version="0.0.9" />
     <PackageReference Include="Tgs.BrandCertificateClient" Version="0.0.27" />
     <PackageReference Include="Tgs.CashQuery.Client" Version="0.0.8" />
     <PackageReference Include="Tgs.CashService.Client" Version="0.1.9" />
@@ -66,9 +67,9 @@
     <PackageReference Include="Tgs.DomainSetting.Client" Version="0.0.7" />
     <PackageReference Include="Tgs.MarketingReport.Client" Version="0.0.9" />
     <PackageReference Include="Tgs.Paging.AsyncEnumerable" Version="1.2.1" />
-    <PackageReference Include="Tgs.Payment.Client" Version="0.4.8" />
+    <PackageReference Include="Tgs.Payment.Client" Version="0.5.0" />
     <PackageReference Include="Tgs.Payment.ManualDeposit" Version="0.1.14" />
-    <PackageReference Include="Tgs.PaymentService.Client" Version="0.6.32" />
+    <PackageReference Include="Tgs.PaymentService.Client" Version="0.7.0" />
     <PackageReference Include="Tgs.PlayerBucket.Client" Version="0.1.1" />
     <PackageReference Include="Tgs.PlayerBucketType.Client" Version="0.0.9" />
     <PackageReference Include="Tgs.PlayerService.Client" Version="0.0.37" />
@@ -77,7 +78,7 @@
     <PackageReference Include="Tgs.SerialNumberGenerator" Version="1.0.0" />
     <PackageReference Include="TGS.ServiceUtility" Version="0.2.0" />
     <PackageReference Include="Tgs.StationLetter.Client" Version="0.0.7" />
-    <PackageReference Include="Tgs.VipLevelService.Client" Version="0.0.7" />
+    <PackageReference Include="Tgs.VipLevelService.Client" Version="0.0.9" />
   </ItemGroup>
 
   <ItemGroup>

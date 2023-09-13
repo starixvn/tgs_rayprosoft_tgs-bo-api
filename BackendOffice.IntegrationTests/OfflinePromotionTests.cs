@@ -6,11 +6,11 @@ using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
 using NSubstitute;
-using Tgs.MessageQueue;
 using Tgs.ServiceUtility;
 using TGS.Apis.BackendOffice.ViewModels;
 using TGS.Services.BackOffice.ApplicationServices.BatchAdjust;
 using TGS.Services.BackOffice.ApplicationServices.Promotion.Offline;
+using Valhalla.MessageQueue;
 using Xunit.Abstractions;
 
 namespace BackendOffice.IntegrationTests;

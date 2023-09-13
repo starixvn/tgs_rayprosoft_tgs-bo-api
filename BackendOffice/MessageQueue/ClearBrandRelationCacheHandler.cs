@@ -1,9 +1,9 @@
 ﻿using System;
 using System.Threading;
 using System.Threading.Tasks;
-using Tgs.MessageQueue;
 using Tgs.ServiceUtility;
 using TGS.Services.BackOffice.ApplicationServices;
+using Valhalla.MessageQueue;
 
 namespace TGS.Apis.BackendOffice.MessageQueue;
 

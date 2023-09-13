@@ -6,12 +6,12 @@ using System.Threading;
 using System.Threading.Tasks;
 using Microsoft.EntityFrameworkCore;
 using StackExchange.Redis;
-using Tgs.MessageQueue;
 using Tgs.ServiceUtility;
 using TGS.Core.Infrastructures.Redis;
 using TGS.Core.Models.Messages;
 using TGS.Services.BackOffice.Application.Models.Aggregate;
 using TGS.Services.BackOffice.Infrastructure.DataService;
+using Valhalla.MessageQueue;
 
 namespace TGS.Services.BackOffice.Application.Commands.ReportGenerateAggregate;
 

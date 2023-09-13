@@ -37,4 +37,8 @@ public class VipLevelRequest : BaseRequest
     public decimal SportsRebate { get; init; }
 
     public decimal VirtualSportsRebate { get; init; }
+
+    public decimal WithdrawTotalAmountPerDay { get; init; }
+
+    public int WithdrawTransactionsPerDay { get; init; }
 }

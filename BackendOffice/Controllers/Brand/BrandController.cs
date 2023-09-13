@@ -9,7 +9,6 @@ using MediatR;
 using Microsoft.AspNetCore.Mvc;
 using Tgs.BrandCertificate;
 using Tgs.BrandCertificate.Clients;
-using Tgs.MessageQueue;
 using Tgs.Paging;
 using Tgs.ServiceUtility;
 using TGS.Apis.BackendOffice.Controllers.Messages;
@@ -20,6 +19,7 @@ using TGS.Services.BackOffice.Application.Models.Brand;
 using TGS.Services.BackOffice.Application.Queries.BrandToken;
 using TGS.Services.BackOffice.ApplicationServices;
 using TGS.Services.BackOffice.Domain;
+using Valhalla.MessageQueue;
 using BrandListQuery = TGS.Services.BackOffice.ApplicationServices.BrandListQuery;
 using Resource = TGS.Services.BackOffice.Application.Resources;
 

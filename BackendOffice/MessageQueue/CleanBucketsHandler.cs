@@ -1,10 +1,10 @@
 ﻿using System;
 using System.Threading;
 using System.Threading.Tasks;
-using Tgs.MessageQueue;
 using Tgs.Services.PlayerBucket.Protos;
 using Tgs.ServiceUtility;
 using TGS.Services.BackOffice.ApplicationServices.PlayerBuckets;
+using Valhalla.MessageQueue;
 
 namespace TGS.Apis.BackendOffice.MessageQueue;
 
