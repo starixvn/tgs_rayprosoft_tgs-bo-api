@@ -1,20 +1,14 @@
 ﻿using System;
 
-namespace TGS.Services.BackOffice.Application.Models.VipLevel;
+namespace TGS.Apis.BackendOffice.ViewModels;
 
-public class VipLevelModel
+public class ModifyVipLevelViewModel
 {
     public decimal BirthBenefit { get; init; }
 
     public Guid BrandId { get; init; }
 
     public decimal CardGameRebate { get; init; }
-
-    public string CreatedByUsername { get; set; }
-
-    public DateTimeOffset CreatedOn { get; set; }
-
-    public Guid Id { get; init; }
 
     public int Level { get; set; }
 
@@ -40,9 +34,9 @@ public class VipLevelModel
 
     public decimal SportsRebate { get; init; }
 
-    public string UpdatedByUsername { get; set; }
-
-    public DateTimeOffset UpdatedOn { get; set; }
-
     public decimal VirtualSportsRebate { get; init; }
+
+    public decimal WithdrawTotalAmountPerDay { get; init; }
+
+    public int WithdrawTransactionsPerDay { get; init; }
 }

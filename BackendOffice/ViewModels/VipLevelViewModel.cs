@@ -1,8 +1,8 @@
 ﻿using System;
 
-namespace TGS.Services.BackOffice.Application.Models.VipLevel;
+namespace TGS.Apis.BackendOffice.ViewModels;
 
-public class VipLevelRequest : BaseRequest
+public class VipLevelViewModel
 {
     public decimal BirthBenefit { get; init; }
 
@@ -10,7 +10,7 @@ public class VipLevelRequest : BaseRequest
 
     public decimal CardGameRebate { get; init; }
 
-    public Guid Id { get; set; }
+    public Guid Id { get; init; }
 
     public int Level { get; set; }
 
