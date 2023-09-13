@@ -6,12 +6,12 @@ using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Http.Features;
 using Microsoft.Extensions.Logging.Abstractions;
-using Moq;
-using Tgs.Logging;
+using NSubstitute;
 using TGS.Apis.BackendOffice.Middlewares;
 using TGS.Core.Infrastructures.Json;
 using TGS.Core.Infrastructures.WebApiServices;
 using TGS.Core.Models.Messages;
+using Tgs.Logging;
 
 namespace TGS.Tests.BackendOffice.UnitTests.Middlewares;
 
@@ -19,59 +19,72 @@ namespace TGS.Tests.BackendOffice.UnitTests.Middlewares;
 [Parallelizable]
 public class ExceptionMiddlewareTest
 {
-    private readonly Mock<IWebHostEnvironment> _envMock = new();
-
-    private readonly Mock<IJsonSerializationProvider> _json = new();
-
-    private readonly Mock<IRequestAnalyzer> _requestAnalyzerMock = new();
-
     private readonly string _requestString = "Hello World Request!!";
 
     private readonly string _responseString = "Hello World Response!!";
-
-    private readonly Mock<ITgsLog> _tgsLogMock = new();
-
-    private RequestDelegate _requestDelegate = default!;
-
-    private IMiddleware _target = default!;
 
     ///TODO: fix  cannot pass   using var sr = new StreamReader(context.Response.Body);
     [Test]
     public async Task Can_Invoke()
     {
-        var httpContextMock = SetupHttpContext();
-        Func<Task> action = () => _target.InvokeAsync(httpContextMock.Object, _requestDelegate);
+        var envMock = Substitute.For<IWebHostEnvironment>();
+
+        var jsonMock = Substitute.For<IJsonSerializationProvider>();
+
+        var requestAnalyzerMock = Substitute.For<IRequestAnalyzer>();
+
+        var tgsLogMock = Substitute.For<ITgsLog>();
+
+        Task RequestDelegate(HttpContext innerContext) => Task.FromResult(0);
+
+        IMiddleware target = new ExceptionMiddleware(
+            requestAnalyzerMock,
+            tgsLogMock,
+            jsonMock,
+            envMock,
+            new NullLogger<ExceptionMiddleware>());
+
+        var httpContextMock = SetupHttpContext(jsonMock);
+
+        var action = () => target.InvokeAsync(httpContextMock, RequestDelegate);
 
         _ = await action.Should().NotThrowAsync();
 
-        _tgsLogMock.Verify(p => p.LogAdmin(It.IsAny<AdminLogEvent>()));
+        tgsLogMock.Received(1).LogAdmin(Arg.Any<AdminLogEvent>());
     }
 
     [Test]
     public async Task Can_Invoke_With_Exception()
     {
-        var httpContextMock = SetupHttpContext(false);
-        Func<Task> action = () => _target.InvokeAsync(httpContextMock.Object, _requestDelegate);
+        var envMock = Substitute.For<IWebHostEnvironment>();
+
+        var jsonMock = Substitute.For<IJsonSerializationProvider>();
+
+        var requestAnalyzerMock = Substitute.For<IRequestAnalyzer>();
+
+        var tgsLogMock = Substitute.For<ITgsLog>();
+
+        Task RequestDelegate(HttpContext innerContext) => Task.FromResult(0);
+
+        IMiddleware target = new ExceptionMiddleware(
+            requestAnalyzerMock,
+            tgsLogMock,
+            jsonMock,
+            envMock,
+            new NullLogger<ExceptionMiddleware>());
+
+        var httpContextMock = SetupHttpContext(jsonMock, false);
+
+        var action = () => target.InvokeAsync(httpContextMock, RequestDelegate);
 
         _ = await action.Should().NotThrowAsync();
 
-        _tgsLogMock.Verify(p => p.LogAdmin(It.Is<AdminLogEvent>(l =>
-            l.Exception != string.Empty)));
+        tgsLogMock.Received(1).LogAdmin(Arg.Is<AdminLogEvent>(l =>
+            l.Exception != string.Empty));
     }
 
-    [SetUp]
-    public void Setup()
-    {
-        _requestDelegate = innerContext => Task.FromResult(0);
-        _target = new ExceptionMiddleware(
-            _requestAnalyzerMock.Object,
-            _tgsLogMock.Object,
-            _json.Object,
-            _envMock.Object,
-            new NullLogger<ExceptionMiddleware>());
-    }
-
-    private Mock<HttpContext> SetupHttpContext(bool hasNoException = true)
+    private HttpContext SetupHttpContext(IJsonSerializationProvider jsonSerializationProvider,
+        bool hasNoException = true)
     {
         //https://andrewcampey.com/2017/12/07/c-memory-stream-is-not-expandable/
         // This CANNOT be extended   for error : memory stream is not expandable
@@ -80,41 +93,42 @@ public class ExceptionMiddlewareTest
         var responseStringByteArray = Encoding.UTF8.GetBytes(_responseString);
         streamResponse.Write(responseStringByteArray, 0, responseStringByteArray.Length);
 
-        var mockHttpContext = new Mock<HttpContext>();
+        var mockHttpContext = Substitute.For<HttpContext>();
 
-        _ = mockHttpContext.Setup(p => p.Connection)
-            .Returns(new Mock<ConnectionInfo>().Object);
+        _ = mockHttpContext.Connection
+            .Returns(Substitute.For<ConnectionInfo>());
 
-        var mockHttpResponse = new Mock<HttpResponse>();
-        _ = mockHttpResponse.Setup(p => p.Cookies)
-            .Returns(new Mock<IResponseCookies>().Object);
-        _ = mockHttpResponse.Setup(p => p.Body)
+        var mockHttpResponse = Substitute.For<HttpResponse>();
+        _ = mockHttpResponse.Cookies
+            .Returns(Substitute.For<IResponseCookies>());
+        _ = mockHttpResponse.Body
             .Returns(streamResponse);
 
-        mockHttpResponse
-            .Setup(_ => _.Body.WriteAsync(It.IsAny<byte[]>(),
-                It.IsAny<int>(),
-                It.IsAny<int>(),
-                It.IsAny<CancellationToken>()))
-            .Verifiable();
+        var buff = new byte[1024];
 
-        if (hasNoException)
-        {
-            _ = mockHttpResponse.SetupGet(p => p.Headers)
-                .Returns(new HeaderDictionary());
-        }
+        _ = mockHttpResponse
+            .Body.WriteAsync(buff,
+                0,
+                1024,
+                default);
 
-        _ = mockHttpContext.Setup(p => p.Response)
-            .Returns(mockHttpResponse.Object);
+        _ = hasNoException
+            ? mockHttpResponse.Headers
+                .Returns(new HeaderDictionary())
+            : mockHttpResponse.Headers
+                .Returns((IHeaderDictionary)null!);
 
-        var mockHttpRequest = new Mock<HttpRequest>();
-        _ = mockHttpRequest.Setup(p => p.Body).Returns(streamRequest);
-        _ = mockHttpRequest.Setup(p => p.Path).Returns("/api/path");
-        _ = mockHttpRequest.SetupGet(p => p.Headers)
+        _ = mockHttpContext.Response
+            .Returns(mockHttpResponse);
+
+        var mockHttpRequest = Substitute.For<HttpRequest>();
+        _ = mockHttpRequest.Body.Returns(streamRequest);
+        _ = mockHttpRequest.Path.Returns((PathString)"/api/path");
+        _ = mockHttpRequest.Headers
             .Returns(new HeaderDictionary());
 
-        _ = mockHttpContext.Setup(p => p.Request)
-            .Returns(mockHttpRequest.Object);
+        _ = mockHttpContext.Request
+            .Returns(mockHttpRequest);
 
         var fc = new FeatureCollection();
         var endPoint = new Endpoint(c => Task.CompletedTask, new(), "for unit test");
@@ -122,10 +136,10 @@ public class ExceptionMiddlewareTest
         fc.Set(endPoint);
         fc.Set(ehf);
 
-        _ = mockHttpContext.Setup(p => p.Features)
+        _ = mockHttpContext.Features
             .Returns(fc);
 
-        _ = _json.Setup(p => p.SerializeToString(It.IsAny<ErrorDetails>(), It.IsAny<JsonSerializerOptions>()))
+        _ = jsonSerializationProvider.SerializeToString(Arg.Any<ErrorDetails>(), Arg.Any<JsonSerializerOptions>())
             .Returns("test");
         return mockHttpContext;
     }

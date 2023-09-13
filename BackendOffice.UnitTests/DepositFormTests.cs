@@ -3,18 +3,17 @@ using System.Text;
 using System.Text.Json;
 using ExpectedObjects;
 using Microsoft.Extensions.Logging.Abstractions;
-using Moq;
 using NSubstitute;
 using PlayerBucket.Repositories;
 using StackExchange.Redis;
 using Tgs.BrandCertificate.Clients;
 using Tgs.CashService.Client;
+using TGS.Core.Infrastructures.Redis;
 using Tgs.MessageQueue;
 using Tgs.Payment.Clients;
 using Tgs.PlayerService.Client;
 using Tgs.Promotion.Clients;
 using Tgs.Service.PlayerBuckets;
-using TGS.Core.Infrastructures.Redis;
 using TGS.Services.BackOffice.Application.Queries.Deposit;
 using TGS.Services.BackOffice.ApplicationServices.Payment;
 
@@ -161,8 +160,8 @@ public class DepositFormTests
             .Returns(true);
 
         _ = fakePaymentServiceClient.GetDepositFormAsync(
-            Arg.Is(brandId),
-            Arg.Is(formId))
+                Arg.Is(brandId),
+                Arg.Is(formId))
             .Returns(new DepositFormInfo
             {
                 Id = Guid.NewGuid(),
@@ -179,10 +178,8 @@ public class DepositFormTests
             });
 
         _ = fakePlayerServiceClient.GetPlayerPropertiesAsync(Arg.Any<string>())
-            .Returns(new Dictionary<string, string>
-            {
-                ["DefaultWalletId"] = walletId.ToString()
-            }.ToImmutableDictionary());
+            .Returns(
+                new Dictionary<string, string> { ["DefaultWalletId"] = walletId.ToString() }.ToImmutableDictionary());
 
         _ = fakeBrandServiceClient.GetBrandPaymentSettingsAsync(Arg.Is(brandId))
             .Returns(new BrandPaymentSettings(true, true, 0M));
@@ -201,27 +198,25 @@ public class DepositFormTests
     [Test]
     public async Task User_Can_Get_Untreated_DepositForms_Count()
     {
-        var moqPaymentServiceClient = new Mock<IPaymentServiceClient>();
+        var moqPaymentServiceClient = Substitute.For<IPaymentServiceClient>();
 
-        var sut = new CountUntreatedDepositFormsQueryService(moqPaymentServiceClient.Object);
+        var sut = new CountUntreatedDepositFormsQueryService(moqPaymentServiceClient);
 
         var query = new CountUntreatedDepositFormsQuery(Guid.NewGuid());
 
         _ = await sut.GetAsync(query);
 
-        moqPaymentServiceClient.Verify(
-            fake => fake.CountUntreatedDepositFormsAsync(
-                It.Is<Guid>(x => x == query.BrandId),
-                It.IsAny<CancellationToken>()),
-            Times.Exactly(1));
+        _ = moqPaymentServiceClient.Received(1).CountUntreatedDepositFormsAsync(
+            Arg.Is<Guid>(x => x == query.BrandId),
+            Arg.Any<CancellationToken>());
     }
 
     [Test]
     public async Task User_Can_List_DepositForm()
     {
-        var moqPaymentServiceClient = new Mock<IPaymentServiceClient>();
+        var moqPaymentServiceClient = Substitute.For<IPaymentServiceClient>();
 
-        var sut = new DepositFormQueryService(moqPaymentServiceClient.Object);
+        var sut = new DepositFormQueryService(moqPaymentServiceClient);
 
         var query = new DepositFormQuery(
             Guid.NewGuid(),
@@ -235,16 +230,14 @@ public class DepositFormTests
             null,
             null,
             null,
-            new Paging());
+            new());
 
         _ = await sut.GetAsync(query, default);
 
-        moqPaymentServiceClient.Verify(
-            fake => fake.QueryDepositFormsAsync(
-                It.IsAny<DepositFormQueryConditions>(),
-                It.IsAny<Paging>(),
-                It.IsAny<CancellationToken>()),
-            Times.Exactly(1));
+        _ = moqPaymentServiceClient.QueryDepositFormsAsync(
+            Arg.Any<DepositFormQueryConditions>(),
+            Arg.Any<Paging>(),
+            Arg.Any<CancellationToken>());
     }
 
     [Test]
@@ -313,10 +306,10 @@ public class DepositFormTests
             "reviewUserName");
 
         _ = fakeRedisDatabase.StringSetAsync(
-            Arg.Is(new RedisKey($"Tgs:BucketDeposit:{command.FormId:N}")),
-            Arg.Any<RedisValue>(),
-            expiry: Arg.Any<TimeSpan>(),
-            when: Arg.Is(When.NotExists))
+                Arg.Is(new RedisKey($"Tgs:BucketDeposit:{command.FormId:N}")),
+                Arg.Any<RedisValue>(),
+                Arg.Any<TimeSpan>(),
+                Arg.Is(When.NotExists))
             .Returns(true);
 
         _ = fakeBrandServiceClient.GetBrandPaymentSettingsAsync(Arg.Is(brandId))
@@ -324,10 +317,8 @@ public class DepositFormTests
                 false, false, 0M));
 
         _ = fakePlayerServiceClient.GetPlayerPropertiesAsync(Arg.Is(playerCode))
-            .Returns(new Dictionary<string, string>
-            {
-                ["DefaultWalletId"] = walletId.ToString()
-            }.ToImmutableDictionary());
+            .Returns(
+                new Dictionary<string, string> { ["DefaultWalletId"] = walletId.ToString() }.ToImmutableDictionary());
 
         _ = fakePaymentServiceClient.CalculateHandlingFeeAsync(Arg.Is(brandPaymentId), Arg.Is(1000M))
             .Returns(100M);
@@ -407,10 +398,10 @@ public class DepositFormTests
             "reviewUserName");
 
         _ = fakeRedisDatabase.StringSetAsync(
-            Arg.Is(new RedisKey($"Tgs:BucketDeposit:{command.FormId:N}")),
-            Arg.Any<RedisValue>(),
-            expiry: Arg.Any<TimeSpan>(),
-            when: Arg.Is(When.NotExists))
+                Arg.Is(new RedisKey($"Tgs:BucketDeposit:{command.FormId:N}")),
+                Arg.Any<RedisValue>(),
+                Arg.Any<TimeSpan>(),
+                Arg.Is(When.NotExists))
             .Returns(true);
 
         _ = fakeBrandServiceClient.GetBrandPaymentSettingsAsync(Arg.Is(brandId))
@@ -418,10 +409,8 @@ public class DepositFormTests
                 false, false, 0M));
 
         _ = fakePlayerServiceClient.GetPlayerPropertiesAsync(Arg.Is(playerCode))
-            .Returns(new Dictionary<string, string>
-            {
-                ["DefaultWalletId"] = walletId.ToString()
-            }.ToImmutableDictionary());
+            .Returns(
+                new Dictionary<string, string> { ["DefaultWalletId"] = walletId.ToString() }.ToImmutableDictionary());
 
         _ = fakePaymentServiceClient.CalculateHandlingFeeAsync(Arg.Is(brandPaymentId), Arg.Is(1000M))
             .Returns(100M);
@@ -513,10 +502,10 @@ public class DepositFormTests
             "reviewUserName");
 
         _ = fakeRedisDatabase.StringSetAsync(
-            Arg.Is(new RedisKey($"Tgs:BucketDeposit:{command.FormId:N}")),
-            Arg.Any<RedisValue>(),
-            expiry: Arg.Any<TimeSpan>(),
-            when: Arg.Is(When.NotExists))
+                Arg.Is(new RedisKey($"Tgs:BucketDeposit:{command.FormId:N}")),
+                Arg.Any<RedisValue>(),
+                Arg.Any<TimeSpan>(),
+                Arg.Is(When.NotExists))
             .Returns(true);
 
         _ = fakeBrandServiceClient.GetBrandPaymentSettingsAsync(Arg.Is(brandId))
@@ -524,10 +513,8 @@ public class DepositFormTests
                 false, true, 0M));
 
         _ = fakePlayerServiceClient.GetPlayerPropertiesAsync(Arg.Is(playerCode))
-            .Returns(new Dictionary<string, string>
-            {
-                ["DefaultWalletId"] = walletId.ToString()
-            }.ToImmutableDictionary());
+            .Returns(
+                new Dictionary<string, string> { ["DefaultWalletId"] = walletId.ToString() }.ToImmutableDictionary());
 
         _ = fakePaymentServiceClient.CalculateHandlingFeeAsync(Arg.Is(brandPaymentId), Arg.Is(1000M))
             .Returns(100M);
@@ -548,8 +535,8 @@ public class DepositFormTests
         var promotionResponse = new DepositMessageDataResponse(123, 1000M);
 
         _ = fakeMessageSender.RequestAsync(
-            Arg.Is($"tgs.promotion.firstdeposit.distribute"),
-            Arg.Any<ReadOnlyMemory<byte>>())
+                Arg.Is("tgs.promotion.firstdeposit.distribute"),
+                Arg.Any<ReadOnlyMemory<byte>>())
             .Returns(Encoding.UTF8.GetBytes(JsonSerializer.Serialize(promotionResponse)));
 
         var expectedOrder = new CleanBucketOrder(
@@ -638,10 +625,10 @@ public class DepositFormTests
             "reviewUserName");
 
         _ = fakeRedisDatabase.StringSetAsync(
-            Arg.Is(new RedisKey($"Tgs:BucketDeposit:{command.FormId:N}")),
-            Arg.Any<RedisValue>(),
-            expiry: Arg.Any<TimeSpan>(),
-            when: Arg.Is(When.NotExists))
+                Arg.Is(new RedisKey($"Tgs:BucketDeposit:{command.FormId:N}")),
+                Arg.Any<RedisValue>(),
+                Arg.Any<TimeSpan>(),
+                Arg.Is(When.NotExists))
             .Returns(false);
 
         await sut.ExecuteAsync(command);
@@ -722,10 +709,10 @@ public class DepositFormTests
             "reviewUserName");
 
         _ = fakeRedisDatabase.StringSetAsync(
-            Arg.Is(new RedisKey($"Tgs:BucketDeposit:{command.FormId:N}")),
-            Arg.Any<RedisValue>(),
-            expiry: Arg.Any<TimeSpan>(),
-            when: Arg.Is(When.NotExists))
+                Arg.Is(new RedisKey($"Tgs:BucketDeposit:{command.FormId:N}")),
+                Arg.Any<RedisValue>(),
+                Arg.Any<TimeSpan>(),
+                Arg.Is(When.NotExists))
             .Returns(true);
 
         _ = fakeBrandServiceClient.GetBrandPaymentSettingsAsync(Arg.Is(brandId))
@@ -733,10 +720,8 @@ public class DepositFormTests
                 false, false, 0M));
 
         _ = fakePlayerServiceClient.GetPlayerPropertiesAsync(Arg.Is(playerCode))
-            .Returns(new Dictionary<string, string>
-            {
-                ["DefaultWalletId"] = walletId.ToString()
-            }.ToImmutableDictionary());
+            .Returns(
+                new Dictionary<string, string> { ["DefaultWalletId"] = walletId.ToString() }.ToImmutableDictionary());
 
         _ = fakePaymentServiceClient.CalculateHandlingFeeAsync(Arg.Is(brandPaymentId), Arg.Is(1000M))
             .Returns(100M);
@@ -751,8 +736,8 @@ public class DepositFormTests
         var promotionResponse = new DepositMessageDataResponse(123, 1000M);
 
         _ = fakeMessageSender.RequestAsync(
-            Arg.Is($"tgs.promotion.firstdeposit.distribute"),
-            Arg.Any<ReadOnlyMemory<byte>>())
+                Arg.Is("tgs.promotion.firstdeposit.distribute"),
+                Arg.Any<ReadOnlyMemory<byte>>())
             .Returns(Encoding.UTF8.GetBytes(JsonSerializer.Serialize(promotionResponse)));
 
         await sut.ExecuteAsync(command);
@@ -844,10 +829,10 @@ public class DepositFormTests
             "reviewUserName");
 
         _ = fakeRedisDatabase.StringSetAsync(
-            Arg.Is(new RedisKey($"Tgs:BucketDeposit:{command.FormId:N}")),
-            Arg.Any<RedisValue>(),
-            expiry: Arg.Any<TimeSpan>(),
-            when: Arg.Is(When.NotExists))
+                Arg.Is(new RedisKey($"Tgs:BucketDeposit:{command.FormId:N}")),
+                Arg.Any<RedisValue>(),
+                Arg.Any<TimeSpan>(),
+                Arg.Is(When.NotExists))
             .Returns(true);
 
         _ = fakeBrandServiceClient.GetBrandPaymentSettingsAsync(Arg.Is(brandId))
@@ -855,10 +840,8 @@ public class DepositFormTests
                 false, false, 0M));
 
         _ = fakePlayerServiceClient.GetPlayerPropertiesAsync(Arg.Is(playerCode))
-            .Returns(new Dictionary<string, string>
-            {
-                ["DefaultWalletId"] = walletId.ToString()
-            }.ToImmutableDictionary());
+            .Returns(
+                new Dictionary<string, string> { ["DefaultWalletId"] = walletId.ToString() }.ToImmutableDictionary());
 
         _ = fakePaymentServiceClient.CalculateHandlingFeeAsync(Arg.Is(brandPaymentId), Arg.Is(1000M))
             .Returns(100M);

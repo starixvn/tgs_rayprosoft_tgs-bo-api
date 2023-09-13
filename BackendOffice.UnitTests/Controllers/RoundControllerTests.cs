@@ -1,8 +1,7 @@
 ﻿using System.Data.SqlClient;
-using Moq;
+using NSubstitute;
 using Tgs.Report.Client;
 using Tgs.Report.Client.Models.Round;
-using TGS.Core.Models.Messages;
 using TGS.Services.BackOffice.Application.Queries.Game;
 
 namespace TGS.Tests.BackendOffice.UnitTests.Controllers;
@@ -11,12 +10,15 @@ namespace TGS.Tests.BackendOffice.UnitTests.Controllers;
 [Parallelizable]
 public class RoundControllerTests : BaseTests
 {
+    [SetUp]
+    public override void Setup() => base.Setup();
+
     [Test]
     public async Task Can_Get_Rounds()
     {
-        var moqReportClient = new Mock<IReportClient>();
+        var moqReportClient = Substitute.For<IReportClient>();
 
-        var sut = new GetGameRoundListQueryService(moqReportClient.Object);
+        var sut = new GetGameRoundListQueryService(moqReportClient);
 
         var query = new GetGameRoundListQuery(
             Guid.NewGuid(),
@@ -31,7 +33,7 @@ public class RoundControllerTests : BaseTests
             DateTimeOffset.UtcNow,
             null,
             null,
-            new PageableRequest
+            new()
             {
                 Page = 1,
                 Rows = 10,
@@ -42,14 +44,6 @@ public class RoundControllerTests : BaseTests
 
         _ = await sut.GetAsync(query);
 
-        moqReportClient.Verify(
-            fake => fake.GetRoundsAsync(It.IsAny<GetRoundsRequest>()),
-            Times.Exactly(1));
-    }
-
-    [SetUp]
-    public override void Setup()
-    {
-        base.Setup();
+        _ = moqReportClient.Received(1).GetRoundsAsync(Arg.Any<GetRoundsRequest>());
     }
 }

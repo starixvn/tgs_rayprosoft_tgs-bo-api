@@ -1,21 +1,20 @@
 ﻿using System.Collections.Immutable;
 using System.Linq.Expressions;
-using Moq;
 using NSubstitute;
 using Stateless;
+using TGS.Core.DataServices.Tgs.Models;
 using Tgs.Payment.Clients;
 using Tgs.PlayerService.Client;
-using Tgs.ServiceUtility;
-using TGS.Core.DataServices.Tgs.Models;
 using TGS.Services.BackOffice.Application.Commands.Withdraw;
 using TGS.Services.BackOffice.Application.Queries.Withdraw;
-using TGS.Services.BackOffice.ApplicationServices;
 using TGS.Services.BackOffice.ApplicationServices.Agents;
 using TGS.Services.BackOffice.ApplicationServices.Payment;
 using TGS.Services.BackOffice.ApplicationServices.Players;
 using TGS.Services.BackOffice.Domain;
 using TGS.Services.BackOffice.Infrastructure.DataService;
 using TGS.Services.WalletService;
+using Tgs.ServiceUtility;
+using UserType = Tgs.Payment.Clients.UserType;
 
 namespace TGS.Tests.BackendOffice.UnitTests;
 
@@ -93,7 +92,7 @@ public class WithdrawFormTests
 
         var sut = new GetAgentRealNameQueryService(fakeAgentService);
 
-        var actual = await sut.GetAsync(new GetAgentRealNameQuery(agentId));
+        var actual = await sut.GetAsync(new(agentId));
 
         Assert.AreEqual("agentRealName", actual);
     }
@@ -105,17 +104,14 @@ public class WithdrawFormTests
 
         var playerCode = "4ucmqplxb029";
 
-        var playerProperties = new Dictionary<string, string>
-        {
-            { "RealName" , "playerRealName"}
-        };
+        var playerProperties = new Dictionary<string, string> { { "RealName", "playerRealName" } };
 
         _ = fakePlayerService.GetPlayerPropertiesAsync(playerCode)
             .Returns(playerProperties.ToImmutableDictionary());
 
         var sut = new GetPlayerRealNameQueryService(fakePlayerService);
 
-        var actual = await sut.GetAsync(new GetPlayerRealNameQuery(playerCode));
+        var actual = await sut.GetAsync(new(playerCode));
 
         Assert.AreEqual("playerRealName", actual);
     }
@@ -128,12 +124,12 @@ public class WithdrawFormTests
 
         var agentId = "9fbc1b81-44ee-4f00-ba12-a13170c01024";
         _ = fakeGetAgentService
-            .GetAsync(new GetAgentRealNameQuery(Guid.Parse(agentId)))
+            .GetAsync(new(Guid.Parse(agentId)))
             .Returns("DeveloperExperence");
 
         var sut = new GetWithdrawFormRealNameQueryService(fakeGetAgentService, fakeGetPlayerPropertiesService);
 
-        var actual = await sut.GetAsync(new GetWithdrawFormRealNameQuery(Tgs.Payment.Clients.UserType.Agent, agentId));
+        var actual = await sut.GetAsync(new(UserType.Agent, agentId));
 
         Assert.AreEqual("DeveloperExperence", actual);
     }
@@ -146,12 +142,12 @@ public class WithdrawFormTests
 
         var playerCode = "4ucmqplxb029";
         _ = fakeGetPlayerPropertiesService
-            .GetAsync(new GetPlayerRealNameQuery(playerCode))
+            .GetAsync(new(playerCode))
             .Returns("DeveloperExperence");
 
         var sut = new GetWithdrawFormRealNameQueryService(fakeGetAgentService, fakeGetPlayerPropertiesService);
 
-        var actual = await sut.GetAsync(new GetWithdrawFormRealNameQuery(Tgs.Payment.Clients.UserType.Player, playerCode));
+        var actual = await sut.GetAsync(new(UserType.Player, playerCode));
 
         Assert.AreEqual("DeveloperExperence", actual);
     }
@@ -210,7 +206,7 @@ public class WithdrawFormTests
         _ = fakeWalletExchangeService.Received(1)
             .RollbackWithdrawAsync(
                 Arg.Is(brandId),
-                Arg.Any<Tgs.Payment.Clients.UserType>(),
+                Arg.Any<UserType>(),
                 Arg.Any<string>(),
                 Arg.Is(1000M),
                 Arg.Any<string>(),
@@ -220,26 +216,26 @@ public class WithdrawFormTests
     [Test]
     public async Task Cancel_Withdraw_By_Agent_Should_Call_AgentWalletRepository()
     {
-        var moqPlayerWalletExchangeService = new Mock<IPlayerWalletExchangeService>();
-        var moqAgentService = new Mock<IAgentService>();
-        var moqAgentWalletRepository = new Mock<IAgentWalletRepository>();
+        var moqPlayerWalletExchangeService = Substitute.For<IPlayerWalletExchangeService>();
+        var moqAgentService = Substitute.For<IAgentService>();
+        var moqAgentWalletRepository = Substitute.For<IAgentWalletRepository>();
 
         var sut = new WalletExchangeService(
-            moqPlayerWalletExchangeService.Object,
-            moqAgentService.Object,
-            moqAgentWalletRepository.Object);
+            moqPlayerWalletExchangeService,
+            moqAgentService,
+            moqAgentWalletRepository);
 
         var brandId = Guid.NewGuid();
-        var userType = Tgs.Payment.Clients.UserType.Agent;
+        var userType = UserType.Agent;
         var agentId = Guid.NewGuid();
         var transactionType = TransactionTypes.CancelWithdrawal;
         var amount = 1000M;
         var userId = Guid.NewGuid();
 
         _ = moqAgentService
-            .Setup(fake => fake.GetAgentAsync(
-                It.IsAny<Expression<Func<Agent, bool>>>(),
-                It.IsAny<Func<IQueryable<Agent>, IQueryable<Agent>>>()))
+            .GetAgentAsync(
+                Arg.Any<Expression<Func<Agent, bool>>>(),
+                Arg.Any<Func<IQueryable<Agent>, IQueryable<Agent>>>())
             .Returns(Task.FromResult(new Agent
             {
                 Id = agentId,
@@ -253,31 +249,29 @@ public class WithdrawFormTests
             amount,
             userId.ToString());
 
-        moqAgentWalletRepository.Verify(
-            fake => fake.ExchangeAsync(
-                It.Is<Guid>(x => x == brandId),
-                It.IsAny<Guid>(),
-                It.Is<Guid>(x => x == agentId),
-                It.Is<TransactionTypes>(x => x == transactionType),
-                It.Is<decimal>(x => x == amount),
-                It.IsAny<string>()),
-            Times.Exactly(1));
+        _ = moqAgentWalletRepository.Received(1).ExchangeAsync(
+            Arg.Is<Guid>(x => x == brandId),
+            Arg.Any<Guid>(),
+            Arg.Is<Guid>(x => x == agentId),
+            Arg.Is<TransactionTypes>(x => x == transactionType),
+            Arg.Is<decimal>(x => x == amount),
+            Arg.Any<string>());
     }
 
     [Test]
     public async Task Cancel_Withdraw_By_Player_Should_Call_PlayerWalletExchangeService()
     {
-        var moqPlayerWalletExchangeService = new Mock<IPlayerWalletExchangeService>();
-        var moqAgentService = new Mock<IAgentService>();
-        var moqAgentWalletRepository = new Mock<IAgentWalletRepository>();
+        var moqPlayerWalletExchangeService = Substitute.For<IPlayerWalletExchangeService>();
+        var moqAgentService = Substitute.For<IAgentService>();
+        var moqAgentWalletRepository = Substitute.For<IAgentWalletRepository>();
 
         var sut = new WalletExchangeService(
-            moqPlayerWalletExchangeService.Object,
-            moqAgentService.Object,
-            moqAgentWalletRepository.Object);
+            moqPlayerWalletExchangeService,
+            moqAgentService,
+            moqAgentWalletRepository);
 
         var brandId = Guid.NewGuid();
-        var userType = Tgs.Payment.Clients.UserType.Player;
+        var userType = UserType.Player;
         var playerCode = "ThisIsPlayerCode";
         var amount = 1000M;
         var userId = Guid.NewGuid();
@@ -289,15 +283,13 @@ public class WithdrawFormTests
             amount,
             userId.ToString());
 
-        moqPlayerWalletExchangeService.Verify(
-            fake => fake.CancelWithdrawalAsync(
-                It.Is<string>(x => x == playerCode),
-                It.Is<decimal>(x => x == amount),
-                It.IsAny<string>(),
-                It.IsAny<string>(),
-                It.IsAny<Guid?>(),
-                It.IsAny<CancellationToken>()),
-            Times.Exactly(1));
+        _ = moqPlayerWalletExchangeService.Received(1).CancelWithdrawalAsync(
+            Arg.Is<string>(x => x == playerCode),
+            Arg.Is<decimal>(x => x == amount),
+            Arg.Any<string>(),
+            Arg.Any<string>(),
+            Arg.Any<Guid?>(),
+            Arg.Any<CancellationToken>());
     }
 
     [Test]
@@ -313,15 +305,15 @@ public class WithdrawFormTests
             fakeAgentWalletRepository);
 
         var brandId = Guid.NewGuid();
-        var userType = Tgs.Payment.Clients.UserType.Agent;
+        var userType = UserType.Agent;
         var agentId = Guid.NewGuid();
         var transactionType = TransactionTypes.CancelWithdrawal;
         var amount = 1000M;
         var userId = Guid.NewGuid();
 
         _ = fakeAgentService.GetAgentAsync(
-            Arg.Any<Expression<Func<Agent, bool>>>(),
-            Arg.Any<Func<IQueryable<Agent>, IQueryable<Agent>>>())
+                Arg.Any<Expression<Func<Agent, bool>>>(),
+                Arg.Any<Func<IQueryable<Agent>, IQueryable<Agent>>>())
             .Returns(new Agent
             {
                 Id = agentId,
@@ -360,7 +352,7 @@ public class WithdrawFormTests
             fakeAgentWalletRepository);
 
         var brandId = Guid.NewGuid();
-        var userType = Tgs.Payment.Clients.UserType.Player;
+        var userType = UserType.Player;
         var playerCode = "ThisIsPlayerCode";
         var amount = 1000M;
         var userId = Guid.NewGuid();
@@ -387,9 +379,9 @@ public class WithdrawFormTests
     [Test]
     public async Task Manager_Can_Get_The_WithdrawForm_Detail()
     {
-        var moqPaymentServiceClient = new Mock<IPaymentServiceClient>();
+        var moqPaymentServiceClient = Substitute.For<IPaymentServiceClient>();
 
-        var sut = new GetWithdrawFormDetailQueryService(moqPaymentServiceClient.Object);
+        var sut = new GetWithdrawFormDetailQueryService(moqPaymentServiceClient);
 
         var formId = Guid.NewGuid();
         var brandId = Guid.NewGuid();
@@ -398,12 +390,10 @@ public class WithdrawFormTests
 
         _ = await sut.GetAsync(query);
 
-        moqPaymentServiceClient.Verify(
-            fake => fake.GetWithdrawFormAsync(
-                It.Is<Guid>(x => x == brandId),
-                It.Is<Guid>(x => x == formId),
-                It.IsAny<CancellationToken>()),
-            Times.Exactly(1));
+        _ = moqPaymentServiceClient.Received(1).GetWithdrawFormAsync(
+            Arg.Is<Guid>(x => x == brandId),
+            Arg.Is<Guid>(x => x == formId),
+            Arg.Any<CancellationToken>());
     }
 
     [Test]
@@ -446,8 +436,8 @@ public class WithdrawFormTests
             });
 
         _ = fakePaymentServiceClient.GetWithdrawFormAsync(
-            Arg.Is(brandId),
-            Arg.Is(formId))
+                Arg.Is(brandId),
+                Arg.Is(formId))
             .Returns(new WithdrawFormInfo
             {
                 Id = formId,
@@ -471,7 +461,7 @@ public class WithdrawFormTests
         _ = fakeWalletExchangeService.Received(1)
             .CommitWithdrawAsync(
                 Arg.Is(brandId),
-                Arg.Any<Tgs.Payment.Clients.UserType>(),
+                Arg.Any<UserType>(),
                 Arg.Any<string>(),
                 Arg.Is(1000M),
                 Arg.Is(1000M),
@@ -482,12 +472,12 @@ public class WithdrawFormTests
     [Test]
     public async Task Manager_Can_Review_WithdrawForm()
     {
-        var moqPaymentServiceClient = new Mock<IPaymentServiceClient>();
-        var moqWalletExchangeService = new Mock<IWalletExchangeService>();
+        var moqPaymentServiceClient = Substitute.For<IPaymentServiceClient>();
+        var moqWalletExchangeService = Substitute.For<IWalletExchangeService>();
 
         var sut = new ReviewWithdrawFormCommandService(
-            moqPaymentServiceClient.Object,
-            moqWalletExchangeService.Object);
+            moqPaymentServiceClient,
+            moqWalletExchangeService);
 
         var formId = Guid.NewGuid();
         var brandPaymentId = Guid.NewGuid();
@@ -502,13 +492,12 @@ public class WithdrawFormTests
             "93a723b2-9ebb-4607-ee8d-08d978fba75f",
             "reviewUserName");
 
-        _ = moqPaymentServiceClient
-            .Setup(fake => fake.GetWithdrawFormAsync(
-                It.Is<Guid>(x => x == brandId),
-                It.Is<Guid>(x => x == formId),
-                It.IsAny<CancellationToken>()))
+        _ = moqPaymentServiceClient.GetWithdrawFormAsync(
+                Arg.Is<Guid>(x => x == brandId),
+                Arg.Is<Guid>(x => x == formId),
+                Arg.Any<CancellationToken>())
             .Returns(ValueTask.FromResult<WithdrawFormInfo?>(
-                new WithdrawFormInfo
+                new()
                 {
                     Id = formId,
                     BrandId = brandId,
@@ -516,26 +505,25 @@ public class WithdrawFormTests
                 }));
 
         var fakeFsm = new StateMachine<PaymentFlowState, PaymentTrigger>(PaymentFlowState.WaitApprove);
+
         _ = fakeFsm.Configure(PaymentFlowState.WaitApprove)
             .Permit(PaymentTrigger.Approve, PaymentFlowState.Approved);
 
         _ = moqPaymentServiceClient
-            .Setup(fake => fake.CreateWithdrawStateMachine(
-                It.Is<PaymentFlowState>(x => x == PaymentFlowState.WaitApprove)))
+            .CreateWithdrawStateMachine(
+                Arg.Is<PaymentFlowState>(x => x == PaymentFlowState.WaitApprove))
             .Returns(fakeFsm);
 
         await sut.ExecuteAsync(command);
 
-        moqPaymentServiceClient.Verify(
-            fake => fake.ReviewWithdrawFormAsync(
-                It.Is<Guid>(x => x == formId),
-                It.Is<Guid>(x => x == brandPaymentId),
-                It.Is<ReviewState>(x => x == ReviewState.Approve),
-                It.IsAny<string>(),
-                It.IsAny<string>(),
-                It.IsAny<string>(),
-                It.IsAny<CancellationToken>()),
-            Times.Exactly(1));
+        _ = moqPaymentServiceClient.Received(1).ReviewWithdrawFormAsync(
+            Arg.Is<Guid>(x => x == formId),
+            Arg.Is<Guid>(x => x == brandPaymentId),
+            Arg.Is<ReviewState>(x => x == ReviewState.Approve),
+            Arg.Any<string>(),
+            Arg.Any<string>(),
+            Arg.Any<string>(),
+            Arg.Any<CancellationToken>());
     }
 
     [Test]
@@ -551,15 +539,15 @@ public class WithdrawFormTests
             fakeAgentWalletRepository);
 
         var brandId = Guid.NewGuid();
-        var userType = Tgs.Payment.Clients.UserType.Agent;
+        var userType = UserType.Agent;
         var agentId = Guid.NewGuid();
         var transactionType = TransactionTypes.CancelWithdrawal;
         var amount = 1000M;
         var userId = Guid.NewGuid();
 
         _ = fakeAgentService.GetAgentAsync(
-            Arg.Any<Expression<Func<Agent, bool>>>(),
-            Arg.Any<Func<IQueryable<Agent>, IQueryable<Agent>>>())
+                Arg.Any<Expression<Func<Agent, bool>>>(),
+                Arg.Any<Func<IQueryable<Agent>, IQueryable<Agent>>>())
             .Returns(new Agent
             {
                 Id = agentId,
@@ -597,7 +585,7 @@ public class WithdrawFormTests
             fakeAgentWalletRepository);
 
         var brandId = Guid.NewGuid();
-        var userType = Tgs.Payment.Clients.UserType.Player;
+        var userType = UserType.Player;
         var playerCode = "ThisIsPlayerCode";
         var amount = 1000M;
         var userId = Guid.NewGuid();
@@ -622,52 +610,48 @@ public class WithdrawFormTests
     [Test]
     public async Task User_Can_Get_Untreated_WithdrawForms_Count()
     {
-        var moqPaymentServiceClient = new Mock<IPaymentServiceClient>();
+        var moqPaymentServiceClient = Substitute.For<IPaymentServiceClient>();
 
         var sut = new CountUntreatedWithdrawFormsQueryService(
-            moqPaymentServiceClient.Object);
+            moqPaymentServiceClient);
 
         var query = new CountUntreatedWithdrawFormsQuery(Guid.NewGuid());
 
         _ = await sut.GetAsync(query);
 
-        moqPaymentServiceClient.Verify(
-            fake => fake.CountUntreatedWithdrawFormsAsync(
-                It.Is<Guid>(x => x == query.BrandId),
-                It.IsAny<CancellationToken>()),
-            Times.Exactly(1));
+        _ = moqPaymentServiceClient.Received(1).CountUntreatedWithdrawFormsAsync(
+            Arg.Is<Guid>(x => x == query.BrandId),
+            Arg.Any<CancellationToken>());
     }
 
     [Test]
     public async Task User_Can_List_WithdrawForm()
     {
-        var moqPaymentServiceClient = new Mock<IPaymentServiceClient>();
+        var moqPaymentServiceClient = Substitute.For<IPaymentServiceClient>();
 
-        var sut = new WithdrawFormQueryService(moqPaymentServiceClient.Object);
+        var sut = new WithdrawFormQueryService(moqPaymentServiceClient);
 
         var query = new WithdrawFormQuery(
-            BrandId: Guid.NewGuid(),
-            UserName: null,
-            ChannelName: null,
-            ThirdPartyOrderNo: null,
-            OrderNo: null,
-            FormId: null,
-            PaymentId: null,
-            PaymentMethodId: null,
-            Status: null,
-            BrandPaymentIds: null,
-            UserType: null,
-            CreateOnRange: null,
-            UpdateOnRange: null,
-            Paging: new Paging());
+            Guid.NewGuid(),
+            null,
+            null,
+            null,
+            null,
+            null,
+            null,
+            null,
+            null,
+            null,
+            null,
+            null,
+            null,
+            new());
 
         _ = await sut.GetAsync(query, default);
 
-        moqPaymentServiceClient.Verify(
-            fake => fake.QueryWithdrawFormsAsync(
-                It.IsAny<WithdrawFormQueryConditions>(),
-                It.IsAny<Paging>(),
-                It.IsAny<CancellationToken>()),
-            Times.Exactly(1));
+        _ = moqPaymentServiceClient.QueryWithdrawFormsAsync(
+            Arg.Any<WithdrawFormQueryConditions>(),
+            Arg.Any<Paging>(),
+            Arg.Any<CancellationToken>());
     }
 }

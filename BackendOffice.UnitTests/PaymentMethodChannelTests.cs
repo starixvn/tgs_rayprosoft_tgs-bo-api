@@ -1,5 +1,4 @@
-﻿using Moq;
-using NSubstitute;
+﻿using NSubstitute;
 using Tgs.Payment.Clients;
 using TGS.Services.BackOffice.Application.Commands.PaymentMethodChannel;
 using TGS.Services.BackOffice.Application.Queries.BrandPayment;
@@ -48,14 +47,12 @@ public class PaymentMethodChannelTests
     [Test]
     public void Should_Get_All_PaymentMethodChannels()
     {
-        var moqPaymentServiceClient = new Mock<IPaymentServiceClient>();
+        var moqPaymentServiceClient = Substitute.For<IPaymentServiceClient>();
 
-        var sut = new AllPaymentMethodChannelQueryService(moqPaymentServiceClient.Object);
+        var sut = new AllPaymentMethodChannelQueryService(moqPaymentServiceClient);
 
-        _ = sut.QueryAsync(new AllPaymentMethodChannelQuery());
+        _ = sut.QueryAsync(new());
 
-        moqPaymentServiceClient.Verify(
-            fake => fake.GetAllPaymentMethodChannelsAsync(It.IsAny<CancellationToken>()),
-            Times.Exactly(1));
+        _ = moqPaymentServiceClient.Received(1).GetAllPaymentMethodChannelsAsync(Arg.Any<CancellationToken>());
     }
 }

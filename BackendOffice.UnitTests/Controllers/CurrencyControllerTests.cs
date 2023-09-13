@@ -2,7 +2,7 @@
 using AutoFixture;
 using FluentAssertions;
 using MediatR;
-using Moq;
+using NSubstitute;
 using TGS.Apis.BackendOffice.Controllers;
 using TGS.Core.Models.Messages;
 using TGS.Services.BackOffice.Application.Models.Currency;
@@ -14,29 +14,36 @@ namespace TGS.Tests.BackendOffice.UnitTests.Controllers;
 [Parallelizable]
 public class CurrencyControllerTests : BaseTests
 {
-    private readonly Mock<IMediator> _mediatorMock = new();
-
-    private CurrencyController _controller = default!;
+    [SetUp]
+    public override void Setup() => base.Setup();
 
     [Test]
     public async Task Can_Create_Currency()
     {
+        var mediatorMock = Substitute.For<IMediator>();
+
+        var controller = new CurrencyController(mediatorMock);
+
         var request = new Fixture().Create<CreateCurrencyRequest>();
 
-        _ = _mediatorMock
-            .Setup(m => m.Send(It.IsAny<CreateCurrencyRequest>(), It.IsAny<CancellationToken>()))
-            .ReturnsAsync(new MessageResponse { Valid = true });
+        _ = mediatorMock
+            .Send(Arg.Any<CreateCurrencyRequest>(), Arg.Any<CancellationToken>())
+            .Returns(new MessageResponse { Valid = true });
 
-        var response = await _controller.CreateCurrencyAsync(request);
+        var response = await controller.CreateCurrencyAsync(request);
         _ = response.Valid.Should().BeTrue();
 
-        _mediatorMock.Verify(x => x.Send(It.IsAny<CreateCurrencyRequest>(), It.IsAny<CancellationToken>()));
+        _ = mediatorMock.Received(1).Send(Arg.Any<CreateCurrencyRequest>(), Arg.Any<CancellationToken>());
     }
 
     [TestCase(true)]
     [TestCase(false)]
     public async Task Can_Get_Currencies(bool showAll)
     {
+        var mediatorMock = Substitute.For<IMediator>();
+
+        var controller = new CurrencyController(mediatorMock);
+
         var list = CreateCurrencyModelFixture()
             .CreateMany<CurrencyModel>(99)
             .ToArray();
@@ -52,19 +59,21 @@ public class CurrencyControllerTests : BaseTests
             ShowAll = showAll
         };
         var (skip, take) = GetPage(request);
+
         var orderedRoles = list.OrderByDescending(p => p.UpdatedOn);
 
         var expectedRoles = showAll ? orderedRoles.ToArray() : orderedRoles.Skip(skip).Take(take).ToArray();
 
-        _ = _mediatorMock
-            .Setup(m => m.Send(It.IsAny<GetCurrenciesRequest>(), It.IsAny<CancellationToken>()))
-            .ReturnsAsync(new PagedResponse<CurrencyModel>
+        _ = mediatorMock
+            .Send(Arg.Any<GetCurrenciesRequest>(), Arg.Any<CancellationToken>())
+            .Returns(new PagedResponse<CurrencyModel>
             {
                 Valid = true,
                 Items = expectedRoles
             });
 
-        var response = await _controller.GetCurrenciesAsync(request);
+        var response = await controller.GetCurrenciesAsync(request);
+
         _ = response.Valid.Should().BeTrue();
 
         for (var i = 0; i < response.Items.Length; i++)
@@ -73,52 +82,57 @@ public class CurrencyControllerTests : BaseTests
             _ = response.Items[i].Name.Should().Be(expectedRoles[i].Name);
         }
 
-        _mediatorMock.Verify(x => x.Send(It.IsAny<GetCurrenciesRequest>(), It.IsAny<CancellationToken>()));
+        _ = mediatorMock.Received(1).Send(Arg.Any<GetCurrenciesRequest>(), Arg.Any<CancellationToken>());
     }
 
     [Test]
     public async Task Can_Update_Currency()
     {
+        var mediatorMock = Substitute.For<IMediator>();
+
+        var controller = new CurrencyController(mediatorMock);
+
         var currency = CreateCurrencyModelFixture().Create<CurrencyModel>();
+
         var request = new Fixture().Create<UpdateCurrencyRequest>();
 
-        _ = _mediatorMock
-            .Setup(m => m.Send(It.IsAny<UpdateCurrencyRequest>(), It.IsAny<CancellationToken>()))
-            .ReturnsAsync(new MessageResponse { Valid = true });
+        _ = mediatorMock
+            .Send(Arg.Any<UpdateCurrencyRequest>(), Arg.Any<CancellationToken>())
+            .Returns(new MessageResponse { Valid = true });
 
-        var response = await _controller.UpdateCurrencyAsync(currency.Code, request);
+        var response = await controller.UpdateCurrencyAsync(currency.Code, request);
 
         _ = response.Valid.Should().BeTrue();
-        _mediatorMock.Verify(x => x.Send(It.IsAny<UpdateCurrencyRequest>(), It.IsAny<CancellationToken>()));
+
+        _ = mediatorMock.Received(1).Send(Arg.Any<UpdateCurrencyRequest>(), Arg.Any<CancellationToken>());
     }
 
     [Test]
     public async Task Cannot_Create_Currency_With_Code_Exists()
     {
+        var mediatorMock = Substitute.For<IMediator>();
+
+        var controller = new CurrencyController(mediatorMock);
+
         var list = CreateCurrencyModelFixture()
             .CreateMany<CurrencyModel>(99)
             .ToArray();
 
         var request = new Fixture().Create<CreateCurrencyRequest>();
 
-        _ = _mediatorMock
-            .Setup(m => m.Send(It.IsAny<CreateCurrencyRequest>(), It.IsAny<CancellationToken>()))
-            .ReturnsAsync(new MessageResponse { Valid = false, Message = Currency.CodeExisted });
+        _ = mediatorMock
+            .Send(Arg.Any<CreateCurrencyRequest>(), Arg.Any<CancellationToken>())
+            .Returns(new MessageResponse
+            {
+                Valid = false,
+                Message = Currency.CodeExisted
+            });
 
-        var response = await _controller.CreateCurrencyAsync(request);
+        var response = await controller.CreateCurrencyAsync(request);
         _ = response.Valid.Should().BeFalse();
         _ = response.Message.Should().Be(Currency.CodeExisted);
 
-        _mediatorMock.Verify(x => x.Send(It.IsAny<CreateCurrencyRequest>(), It.IsAny<CancellationToken>()));
-    }
-
-    [SetUp]
-    public override void Setup()
-    {
-        base.Setup();
-        _controller = new CurrencyController(
-            _mediatorMock.Object);
-        _controller.ControllerContext.HttpContext = HttpContextMock.Object;
+        _ = mediatorMock.Received(1).Send(Arg.Any<CreateCurrencyRequest>(), Arg.Any<CancellationToken>());
     }
 
     private static Fixture CreateCurrencyModelFixture()

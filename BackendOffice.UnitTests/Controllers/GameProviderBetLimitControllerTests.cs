@@ -1,7 +1,7 @@
 ﻿using AutoFixture;
 using FluentAssertions;
 using MediatR;
-using Moq;
+using NSubstitute;
 using TGS.Apis.BackendOffice.Controllers.GameProvider;
 using TGS.Core.Models.Messages;
 using TGS.Services.BackOffice.Application.Models.GameProviderBetLimit;
@@ -12,39 +12,56 @@ namespace TGS.Tests.BackendOffice.UnitTests.Controllers;
 [Parallelizable]
 public class GameProviderBetLimitControllerTests : BaseTests
 {
-    private readonly Mock<IMediator> _mediatorMock = new();
-
-    private GameProviderBetLimitController _controller = default!;
+    [SetUp]
+    public override void Setup() => base.Setup();
 
     [Test]
     public async Task Can_Create_GameProviderBetLimit()
     {
+        var mediatorMock = Substitute.For<IMediator>();
+
+        var controller = new GameProviderBetLimitController(mediatorMock);
+
         var request = new Fixture().Create<CreateGameProviderBetLimitRequest>();
 
-        _ = _mediatorMock
-            .Setup(m => m.Send(It.IsAny<CreateGameProviderBetLimitRequest>(), It.IsAny<CancellationToken>()))
-            .ReturnsAsync(new MessageResponse { Valid = true });
+        _ = mediatorMock
+            .Send(Arg.Any<CreateGameProviderBetLimitRequest>(), Arg.Any<CancellationToken>())
+            .Returns(new MessageResponse { Valid = true });
 
-        var response = await _controller.CreateGameProviderBetLimitAsync(request);
+        var response = await controller.CreateGameProviderBetLimitAsync(request);
         _ = response.Valid.Should().BeTrue();
 
-        _mediatorMock.Verify(x =>
-            x.Send(It.IsAny<CreateGameProviderBetLimitRequest>(), It.IsAny<CancellationToken>()));
+        _ = mediatorMock.Received(1).Send(Arg.Any<CreateGameProviderBetLimitRequest>(), Arg.Any<CancellationToken>());
     }
 
     public async Task Can_Get_GameProviderBetLimitsAsync()
     {
+        var mediatorMock = Substitute.For<IMediator>();
+
+        var controller = new GameProviderBetLimitController(mediatorMock);
+
         var list = CreateGameProviderBetLimitModelFixture()
             .CreateMany<GameProviderBetLimitModel>(99)
             .ToArray();
 
-        var request = new GetGameProviderBetLimitsRequest { GameProviderIds = new[] { Guid.NewGuid() } };
+        var request = new GetGameProviderBetLimitsRequest
+        {
+            GameProviderIds = new[]
+            {
+                Guid.NewGuid()
+            }
+        };
 
-        _ = _mediatorMock
-            .Setup(m => m.Send(It.IsAny<GetGameProviderBetLimitsRequest>(), It.IsAny<CancellationToken>()))
-            .ReturnsAsync(new GetGameProviderBetLimitsResponse { Valid = true, BetLimits = list });
+        _ = mediatorMock
+            .Send(Arg.Any<GetGameProviderBetLimitsRequest>(), Arg.Any<CancellationToken>())
+            .Returns(new GetGameProviderBetLimitsResponse
+            {
+                Valid = true,
+                BetLimits = list
+            });
 
-        var response = await _controller.GetGameProviderBetLimitsAsync(request);
+        var response = await controller.GetGameProviderBetLimitsAsync(request);
+
         _ = response.Valid.Should().BeTrue();
 
         for (var i = 0; i < response.BetLimits.Length; i++)
@@ -55,33 +72,29 @@ public class GameProviderBetLimitControllerTests : BaseTests
             _ = response.BetLimits[i].MaxBetPerMatch.Should().Be(list[i].MaxBetPerMatch);
         }
 
-        _mediatorMock.Verify(x =>
-            x.Send(It.IsAny<GetGameProviderBetLimitsRequest>(), It.IsAny<CancellationToken>()));
+        _ = mediatorMock.Received(1).Send(Arg.Any<GetGameProviderBetLimitsRequest>(), Arg.Any<CancellationToken>());
     }
 
     [Test]
     public async Task Can_Update_GameProviderBetLimit()
     {
+        var mediatorMock = Substitute.For<IMediator>();
+
+        var controller = new GameProviderBetLimitController(mediatorMock);
+
         var gameProviderBetLimit = CreateGameProviderBetLimitModelFixture().Create<GameProviderBetLimitModel>();
+
         var request = new Fixture().Create<UpdateGameProviderBetLimitRequest>();
 
-        _ = _mediatorMock
-            .Setup(m => m.Send(It.IsAny<UpdateGameProviderBetLimitRequest>(), It.IsAny<CancellationToken>()))
-            .ReturnsAsync(new MessageResponse { Valid = true });
+        _ = mediatorMock
+            .Send(Arg.Any<UpdateGameProviderBetLimitRequest>(), Arg.Any<CancellationToken>())
+            .Returns(new MessageResponse { Valid = true });
 
-        var response = await _controller.UpdateGameProviderBetLimitAsync(gameProviderBetLimit.Id!.Value, request);
+        var response = await controller.UpdateGameProviderBetLimitAsync(gameProviderBetLimit.Id!.Value, request);
 
         _ = response.Valid.Should().BeTrue();
-        _mediatorMock.Verify(x =>
-            x.Send(It.IsAny<UpdateGameProviderBetLimitRequest>(), It.IsAny<CancellationToken>()));
-    }
 
-    [SetUp]
-    public override void Setup()
-    {
-        base.Setup();
-        _controller = new(
-            _mediatorMock.Object);
+        _ = mediatorMock.Received(1).Send(Arg.Any<UpdateGameProviderBetLimitRequest>(), Arg.Any<CancellationToken>());
     }
 
     private static Fixture CreateGameProviderBetLimitModelFixture()

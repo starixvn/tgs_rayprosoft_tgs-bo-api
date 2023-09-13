@@ -2,7 +2,7 @@
 using AutoFixture;
 using FluentAssertions;
 using MediatR;
-using Moq;
+using NSubstitute;
 using TGS.Apis.BackendOffice.Controllers.Brand;
 using TGS.Core.Models.Messages;
 using TGS.Services.BackOffice.Application.Models.BrandGame;
@@ -13,24 +13,27 @@ namespace TGS.Tests.BackendOffice.UnitTests.Controllers;
 [Parallelizable]
 public class BrandGameControllerTests : BaseTests
 {
-    private readonly Mock<IMediator> _mediatorMock = new();
-
-    private BrandGameController _controller = default!;
+    [SetUp]
+    public override void Setup() => base.Setup();
 
     [Test]
     public async Task Can_Get_A_Brand_Game()
     {
+        var mediatorMock = Substitute.For<IMediator>();
+
+        var controller = new BrandGameController(mediatorMock);
+
         var brandGame = CreateBrandGameResponseModelFixture().Create<BrandGameResponseModel>();
 
-        _ = _mediatorMock
-            .Setup(m => m.Send(It.IsAny<GetBrandGameRequest>(), It.IsAny<CancellationToken>()))
-            .ReturnsAsync(new GetBrandGameResponse
+        _ = mediatorMock
+            .Send(Arg.Any<GetBrandGameRequest>(), Arg.Any<CancellationToken>())
+            .Returns(new GetBrandGameResponse
             {
                 Valid = true,
                 BrandGame = brandGame
             });
 
-        var response = await _controller.GetBrandGameAsync(It.IsAny<Guid>());
+        var response = await controller.GetBrandGameAsync(Guid.NewGuid());
         _ = response.Valid.Should().BeTrue();
         _ = response.BrandGame.Id.Should().Be(brandGame.Id);
         _ = response.BrandGame.GameId.Should().Be(brandGame.GameId);
@@ -43,13 +46,17 @@ public class BrandGameControllerTests : BaseTests
         _ = response.BrandGame.EffectiveBettingPercentage.Should().Be(brandGame.EffectiveBettingPercentage);
         _ = response.BrandGame.Rebate.Should().Be(brandGame.Rebate);
 
-        _mediatorMock.Verify(x => x.Send(It.IsAny<GetBrandGameRequest>(), It.IsAny<CancellationToken>()));
+        _ = mediatorMock.Received(1).Send(Arg.Any<GetBrandGameRequest>(), Arg.Any<CancellationToken>());
     }
 
     [TestCase(true)]
     [TestCase(false)]
     public async Task Can_Get_Brand_Games(bool showAll)
     {
+        var mediatorMock = Substitute.For<IMediator>();
+
+        var controller = new BrandGameController(mediatorMock);
+
         var list = CreateBrandGameModelFixture()
             .CreateMany<BrandGameModel>(99)
             .ToArray();
@@ -68,15 +75,15 @@ public class BrandGameControllerTests : BaseTests
 
         var expectedRoles = showAll ? orderedRoles.ToArray() : orderedRoles.Skip(skip).Take(take).ToArray();
 
-        _ = _mediatorMock
-            .Setup(m => m.Send(It.IsAny<GetBrandGamesRequest>(), It.IsAny<CancellationToken>()))
-            .ReturnsAsync(new PagedResponse<BrandGameModel>
+        _ = mediatorMock
+            .Send(Arg.Any<GetBrandGamesRequest>(), Arg.Any<CancellationToken>())
+            .Returns(new PagedResponse<BrandGameModel>
             {
                 Valid = true,
                 Items = expectedRoles
             });
 
-        var response = await _controller.GetBrandGamesAsync(request);
+        var response = await controller.GetBrandGamesAsync(request);
         _ = response.Valid.Should().BeTrue();
 
         for (var i = 0; i < response.Items.Length; i++)
@@ -85,46 +92,44 @@ public class BrandGameControllerTests : BaseTests
             _ = response.Items[i].GameName.Should().Be(expectedRoles[i].GameName);
         }
 
-        _mediatorMock.Verify(x => x.Send(It.IsAny<GetBrandGamesRequest>(), It.IsAny<CancellationToken>()));
+        _ = mediatorMock.Received(1).Send(Arg.Any<GetBrandGamesRequest>(), Arg.Any<CancellationToken>());
     }
 
     [Test]
     public async Task Can_Update_A_Brand_Game()
     {
+        var mediatorMock = Substitute.For<IMediator>();
+
+        var controller = new BrandGameController(mediatorMock);
         var brandGame = CreateBrandGameResponseModelFixture().Create<BrandGameModel>();
         var request = new Fixture().Create<UpdateBrandGameRequest>();
 
-        _ = _mediatorMock
-            .Setup(m => m.Send(It.IsAny<UpdateBrandGameRequest>(), It.IsAny<CancellationToken>()))
-            .ReturnsAsync(new MessageResponse { Valid = true });
+        _ = mediatorMock
+            .Send(Arg.Any<UpdateBrandGameRequest>(), Arg.Any<CancellationToken>())
+            .Returns(new MessageResponse { Valid = true });
 
-        var response = await _controller.UpdateBrandGameAsync(brandGame.Id, request);
+        var response = await controller.UpdateBrandGameAsync(brandGame.Id, request);
 
         _ = response.Valid.Should().BeTrue();
-        _mediatorMock.Verify(x => x.Send(It.IsAny<UpdateBrandGameRequest>(), It.IsAny<CancellationToken>()));
+        _ = mediatorMock.Received(1).Send(Arg.Any<UpdateBrandGameRequest>(), Arg.Any<CancellationToken>());
     }
 
     [Test]
     public async Task Can_Update_A_Brand_Tag()
     {
+        var mediatorMock = Substitute.For<IMediator>();
+
+        var controller = new BrandGameController(mediatorMock);
         var request = new Fixture().Create<UpdateBrandGameTagRequest>();
 
-        _ = _mediatorMock
-            .Setup(m => m.Send(It.IsAny<UpdateBrandGameTagRequest>(), It.IsAny<CancellationToken>()))
-            .ReturnsAsync(new MessageResponse { Valid = true });
+        _ = mediatorMock
+            .Send(Arg.Any<UpdateBrandGameTagRequest>(), Arg.Any<CancellationToken>())
+            .Returns(new MessageResponse { Valid = true });
 
-        var response = await _controller.UpdateBrandTagAsync(request.Id, request.GameTag, request.Enabled);
+        var response = await controller.UpdateBrandTagAsync(request.Id, request.GameTag, request.Enabled);
 
         _ = response.Valid.Should().BeTrue();
-        _mediatorMock.Verify(x => x.Send(It.IsAny<UpdateBrandGameTagRequest>(), It.IsAny<CancellationToken>()));
-    }
-
-    [SetUp]
-    public override void Setup()
-    {
-        base.Setup();
-        _controller = new BrandGameController(
-            _mediatorMock.Object);
+        _ = mediatorMock.Received(1).Send(Arg.Any<UpdateBrandGameTagRequest>(), Arg.Any<CancellationToken>());
     }
 
     private static Fixture CreateBrandGameModelFixture()
