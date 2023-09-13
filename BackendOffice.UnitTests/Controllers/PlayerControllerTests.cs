@@ -5,21 +5,22 @@ using ExpectedObjects;
 using FluentAssertions;
 using MediatR;
 using MockQueryable.Moq;
-using Moq;
 using NSubstitute;
+using TGS.Apis.BackendOffice.Controllers;
 using Tgs.CashService.Client;
+using TGS.Core.Models.Enums;
+using TGS.Core.Models.Messages;
 using Tgs.Payment.Clients;
 using Tgs.PlayerService.Client;
 using Tgs.Promotion.Clients;
 using Tgs.Service.PlayerBuckets;
-using Tgs.ServiceUtility;
-using TGS.Apis.BackendOffice.Controllers;
-using TGS.Core.Models.Messages;
 using TGS.Services.BackOffice.Application.Models.Player;
 using TGS.Services.BackOffice.Application.Resources;
 using TGS.Services.BackOffice.ApplicationServices.Agents;
 using TGS.Services.BackOffice.ApplicationServices.Players;
 using TGS.Services.BackOffice.Domain;
+using Tgs.ServiceUtility;
+using PlayerInfo = Tgs.PlayerService.Client.PlayerInfo;
 
 namespace TGS.Tests.BackendOffice.UnitTests.Controllers;
 
@@ -27,11 +28,8 @@ namespace TGS.Tests.BackendOffice.UnitTests.Controllers;
 [Parallelizable]
 public class PlayerControllerTests : BaseTests
 {
-    private readonly Mock<IMediator> _mediatorMock = new();
-
-    private readonly Mock<IPromotionClient> _promotionClientMock = new();
-
-    private PlayerController _controller = default!;
+    [SetUp]
+    public override void Setup() => base.Setup();
 
     [Test]
     public async Task Can_Get_Player()
@@ -66,8 +64,8 @@ public class PlayerControllerTests : BaseTests
         };
 
         _ = fakePlayerServiceClient.GetPlayerInfoAsync(
-            Arg.Is(query.PlayerCode))
-            .Returns(new Tgs.PlayerService.Client.PlayerInfo
+                Arg.Is(query.PlayerCode))
+            .Returns(new PlayerInfo
             {
                 PlayerCode = query.PlayerCode,
                 BrandId = Guid.NewGuid(),
@@ -91,12 +89,13 @@ public class PlayerControllerTests : BaseTests
             .Returns(new ReadBucketResult(1000M, Guid.NewGuid()));
 
         _ = fakeServiceCoordinator.QueryAsync<AllAgentsByBrandQuery, AgentInfo>(Arg.Any<AllAgentsByBrandQuery>())
-            .Returns(new[] {
+            .Returns(new[]
+            {
                 new AgentInfo(
                     agentId,
                     expected.AgentUsername,
                     Guid.NewGuid(),
-                    Core.Models.Enums.AgentStatus.Enabled)
+                    AgentStatus.Enabled)
             }.ToAsyncEnumerable());
 
         _ = fakeCashServiceClient.GetBalanceAsync(Arg.Any<Guid>())
@@ -111,6 +110,15 @@ public class PlayerControllerTests : BaseTests
     [TestCase(false)]
     public async Task Can_Get_Player_Operations(bool showAll)
     {
+        var mediatorMock = Substitute.For<IMediator>();
+
+        var promotionClientMock = Substitute.For<IPromotionClient>();
+
+        var controller = new PlayerController(mediatorMock, promotionClientMock)
+        {
+            ControllerContext = { HttpContext = HttpContextMock }
+        };
+
         var playerCode = Generator.RandomString(12);
 
         var request = new GetPlayerOperationRequest
@@ -133,15 +141,15 @@ public class PlayerControllerTests : BaseTests
 
         var expectedPlayers = showAll ? orderedPlayers.ToArray() : orderedPlayers.Skip(skip).Take(take).ToArray();
 
-        _ = _mediatorMock
-            .Setup(m => m.Send(It.IsAny<GetPlayerOperationRequest>(), It.IsAny<CancellationToken>()))
-            .ReturnsAsync(new PagedResponse<PlayerOperationModel>
+        _ = mediatorMock
+            .Send(Arg.Any<GetPlayerOperationRequest>(), Arg.Any<CancellationToken>())
+            .Returns(new PagedResponse<PlayerOperationModel>
             {
                 Valid = true,
                 Items = expectedPlayers
             });
 
-        var response = await _controller.GetPlayerOperationsAsync(playerCode, request);
+        var response = await controller.GetPlayerOperationsAsync(playerCode, request);
         _ = response.Valid.Should().BeTrue();
 
         for (var i = 0; i < response.Items.Length; i++)
@@ -151,60 +159,73 @@ public class PlayerControllerTests : BaseTests
             _ = response.Items[i].Operation.Should().Be(expectedPlayers[i].Operation);
         }
 
-        _mediatorMock.Verify(x => x.Send(It.IsAny<GetPlayerOperationRequest>(), It.IsAny<CancellationToken>()));
+        _ = mediatorMock.Received(1).Send(Arg.Any<GetPlayerOperationRequest>(), Arg.Any<CancellationToken>());
     }
 
     [Test]
     public async Task Cannot_Update_Player_Not_Found()
     {
+        var mediatorMock = Substitute.For<IMediator>();
+
+        var promotionClientMock = Substitute.For<IPromotionClient>();
+
+        var controller = new PlayerController(mediatorMock, promotionClientMock)
+        {
+            ControllerContext = { HttpContext = HttpContextMock }
+        };
+
         var playerCode = Generator.RandomString(12);
-        _ = _mediatorMock
-            .Setup(m => m.Send(It.IsAny<UpdatePlayerRequest>(), It.IsAny<CancellationToken>()))
-            .ReturnsAsync(new MessageResponse
+
+        _ = mediatorMock
+            .Send(Arg.Any<UpdatePlayerRequest>(), Arg.Any<CancellationToken>())
+            .Returns(new MessageResponse
             {
                 Valid = false,
                 Message = Player.NotFound
             });
 
-        var request = CreateUpdatePlayerRequestFixture().Create<Apis.BackendOffice.Controllers.Messages.Player.UpdatePlayerRequest>();
+        var request = CreateUpdatePlayerRequestFixture()
+            .Create<Apis.BackendOffice.Controllers.Messages.Player.UpdatePlayerRequest>();
 
-        var response = await _controller.UpdateAsync(playerCode, "info", request);
+        var response = await controller.UpdateAsync(playerCode, "info", request);
 
         _ = response.Valid.Should().BeFalse();
         _ = response.Message.Should().Be(Player.NotFound);
 
-        _mediatorMock.Verify(x => x.Send(It.IsAny<UpdatePlayerRequest>(), It.IsAny<CancellationToken>()));
+        _ = mediatorMock.Received(1).Send(Arg.Any<UpdatePlayerRequest>(), Arg.Any<CancellationToken>());
     }
 
     [Test]
     public async Task Cannot_Update_Player_With_Invalid_Update_Type()
     {
+        var mediatorMock = Substitute.For<IMediator>();
+
+        var promotionClientMock = Substitute.For<IPromotionClient>();
+
+        var controller = new PlayerController(mediatorMock, promotionClientMock)
+        {
+            ControllerContext = { HttpContext = HttpContextMock }
+        };
+
         var playerCode = Generator.RandomString(12);
-        _ = _mediatorMock
-            .Setup(m => m.Send(It.IsAny<UpdatePlayerRequest>(), It.IsAny<CancellationToken>()))
-            .ReturnsAsync(new MessageResponse
+
+        _ = mediatorMock
+            .Send(Arg.Any<UpdatePlayerRequest>(), Arg.Any<CancellationToken>())
+            .Returns(new MessageResponse
             {
                 Valid = false,
                 Message = Player.UpdateTypeNotFound
             });
 
-        var request = CreateUpdatePlayerRequestFixture().Create<Apis.BackendOffice.Controllers.Messages.Player.UpdatePlayerRequest>();
+        var request = CreateUpdatePlayerRequestFixture()
+            .Create<Apis.BackendOffice.Controllers.Messages.Player.UpdatePlayerRequest>();
 
-        var response = await _controller.UpdateAsync(playerCode, "info2", request);
+        var response = await controller.UpdateAsync(playerCode, "info2", request);
 
         _ = response.Valid.Should().BeFalse();
         _ = response.Message.Should().Be(Player.UpdateTypeNotFound);
 
-        _mediatorMock.Verify(x => x.Send(It.IsAny<UpdatePlayerRequest>(), It.IsAny<CancellationToken>()));
-    }
-
-    [SetUp]
-    public override void Setup()
-    {
-        base.Setup();
-        _controller = new(
-            _mediatorMock.Object,
-            _promotionClientMock.Object);
+        _ = mediatorMock.Received(1).Send(Arg.Any<UpdatePlayerRequest>(), Arg.Any<CancellationToken>());
     }
 
     private static Fixture CreateUpdatePlayerRequestFixture()

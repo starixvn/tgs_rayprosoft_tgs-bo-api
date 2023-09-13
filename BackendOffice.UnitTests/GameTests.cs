@@ -1,4 +1,4 @@
-﻿using Moq;
+﻿using NSubstitute;
 using TGS.Services.BackOffice.ApplicationServices;
 using TGS.Services.BackOffice.Domain;
 
@@ -10,44 +10,38 @@ public class GameTests
     [Test]
     public async Task Get_Brand_Game_List()
     {
-        var moqBackOfficeRepository = new Mock<IBackOfficeRepository>();
+        var moqBackOfficeRepository = Substitute.For<IBackOfficeRepository>();
 
-        var sut = new GetAllGamesByBrandIdQueryService(moqBackOfficeRepository.Object);
+        var sut = new GetAllGamesByBrandIdQueryService(moqBackOfficeRepository);
 
         var query = new GetAllGamesByBrandIdQuery(Guid.NewGuid());
 
-        _ = moqBackOfficeRepository
-            .Setup(fake => fake.QueryAllGamesAsync(It.IsAny<Guid>()))
+        _ = moqBackOfficeRepository.QueryAllGamesAsync(Arg.Any<Guid>())
             .Returns(Array.Empty<GameData>().ToAsyncEnumerable());
 
         _ = await sut.QueryAsync(query).ToArrayAsync();
 
-        moqBackOfficeRepository.Verify(
-            fake => fake.QueryAllGamesAsync(It.Is<Guid>(x => x == query.BrandId)),
-            Times.Exactly(1));
+        _ = moqBackOfficeRepository.Received(1).QueryAllGamesAsync(Arg.Is<Guid>(x => x == query.BrandId));
     }
 
     [Test]
     public async Task Get_Game_List()
     {
-        var moqGameRepository = new Mock<IGameRepository>();
+        var moqGameRepository = Substitute.For<IGameRepository>();
 
-        var sut = new GetAllGamesByGameProviderIdQueryService(moqGameRepository.Object);
+        var sut = new GetAllGamesByGameProviderIdQueryService(moqGameRepository);
 
         var query = new GetAllGamesByGameProviderIdQuery(Guid.NewGuid());
 
-        _ = moqGameRepository
-            .Setup(fake => fake.QueryAllGamesAsync(
-                It.IsAny<Guid>(),
-                It.IsAny<CancellationToken>()))
+        _ = moqGameRepository.QueryAllGamesAsync(
+                Arg.Any<Guid>(),
+                Arg.Any<CancellationToken>())
             .Returns(Array.Empty<GameInfo>().ToAsyncEnumerable());
 
         _ = await sut.QueryAsync(query).ToArrayAsync();
 
-        moqGameRepository.Verify(
-            fake => fake.QueryAllGamesAsync(
-                It.Is<Guid>(x => x == query.GameProviderId),
-                It.IsAny<CancellationToken>()),
-            Times.Exactly(1));
+        _ = moqGameRepository.Received(1).QueryAllGamesAsync(
+            Arg.Is<Guid>(x => x == query.GameProviderId),
+            Arg.Any<CancellationToken>());
     }
 }

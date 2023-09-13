@@ -1,6 +1,6 @@
 ﻿using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Diagnostics;
-using Moq;
+using NSubstitute;
 using TGS.BackOffice.Repositories;
 using TGS.Core.DataServices.Tgs;
 using TGS.Core.DataServices.Tgs.Models;
@@ -20,9 +20,9 @@ public class BackOfficeRepositoryTests
             .ConfigureWarnings(x => x.Ignore(InMemoryEventId.TransactionIgnoredWarning));
         var dbContext = new TgsRepository(dbContextOptionsBuilder.Options);
 
-        var moqSystemClock = new Mock<ISystemClock>();
+        var moqSystemClock = Substitute.For<ISystemClock>();
 
-        var sut = new BackOfficeRepository(dbContext, moqSystemClock.Object);
+        var sut = new BackOfficeRepository(dbContext, moqSystemClock);
 
         var brandId = Guid.NewGuid();
         var currentTime = new DateTimeOffset(
@@ -34,53 +34,45 @@ public class BackOfficeRepositoryTests
             0,
             TimeSpan.FromHours(8)).ToUniversalTime();
 
-        _ = moqSystemClock
-            .Setup(expression: fake => fake.UtcNow)
-            .Returns(currentTime);
+        _ = moqSystemClock.UtcNow.Returns(currentTime);
 
-        await dbContext.Banners.AddRangeAsync(
-            new[] {
-                new Banner
-                {
-                    Id = Guid.NewGuid(),
-                    BrandId = brandId,
-                    Status = 1000,
-                    EndTime = null,
-                    Title = "Title1",
-                    CreatedByUserName = "System",
-                    UpdatedByUserName = "System"
-                },
-                new Banner
-                {
-                    Id = Guid.NewGuid(),
-                    BrandId = brandId,
-                    Status = 1000,
-                    EndTime = currentTime.AddDays(1),
-                    Title = "Title2",
-                    CreatedByUserName = "System",
-                    UpdatedByUserName = "System"
-                },
-                new Banner
-                {
-                    Id = Guid.NewGuid(),
-                    BrandId = brandId,
-                    Status = 1000,
-                    EndTime = currentTime.AddDays(-1),
-                    Title = "Title3",
-                    CreatedByUserName = "System",
-                    UpdatedByUserName = "System"
-                },
-                new Banner
-                {
-                    Id = Guid.NewGuid(),
-                    BrandId = brandId,
-                    Status = 2000,
-                    EndTime = currentTime.AddDays(1),
-                    Title = "Title4",
-                    CreatedByUserName = "System",
-                    UpdatedByUserName = "System"
-                }
-            });
+        await dbContext.Banners.AddRangeAsync(new Banner
+        {
+            Id = Guid.NewGuid(),
+            BrandId = brandId,
+            Status = 1000,
+            EndTime = null,
+            Title = "Title1",
+            CreatedByUserName = "System",
+            UpdatedByUserName = "System"
+        }, new Banner
+        {
+            Id = Guid.NewGuid(),
+            BrandId = brandId,
+            Status = 1000,
+            EndTime = currentTime.AddDays(1),
+            Title = "Title2",
+            CreatedByUserName = "System",
+            UpdatedByUserName = "System"
+        }, new Banner
+        {
+            Id = Guid.NewGuid(),
+            BrandId = brandId,
+            Status = 1000,
+            EndTime = currentTime.AddDays(-1),
+            Title = "Title3",
+            CreatedByUserName = "System",
+            UpdatedByUserName = "System"
+        }, new Banner
+        {
+            Id = Guid.NewGuid(),
+            BrandId = brandId,
+            Status = 2000,
+            EndTime = currentTime.AddDays(1),
+            Title = "Title4",
+            CreatedByUserName = "System",
+            UpdatedByUserName = "System"
+        });
 
         _ = await dbContext.SaveChangesAsync();
 
@@ -98,9 +90,9 @@ public class BackOfficeRepositoryTests
             .ConfigureWarnings(x => x.Ignore(InMemoryEventId.TransactionIgnoredWarning));
         var dbContext = new TgsRepository(dbContextOptionsBuilder.Options);
 
-        var moqSystemClock = new Mock<ISystemClock>();
+        var moqSystemClock = Substitute.For<ISystemClock>();
 
-        var sut = new BackOfficeRepository(dbContext, moqSystemClock.Object);
+        var sut = new BackOfficeRepository(dbContext, moqSystemClock);
 
         var brandId = Guid.NewGuid();
         var currentTime = new DateTimeOffset(
@@ -112,33 +104,27 @@ public class BackOfficeRepositoryTests
             0,
             TimeSpan.FromHours(8)).ToUniversalTime();
 
-        _ = moqSystemClock
-            .Setup(fake => fake.UtcNow)
-            .Returns(currentTime);
+        _ = moqSystemClock.UtcNow.Returns(currentTime);
 
-        await dbContext.Banners.AddRangeAsync(
-            new[] {
-                new Banner
-                {
-                    Id = Guid.NewGuid(),
-                    BrandId = brandId,
-                    Status = 1000,
-                    EndTime = null,
-                    Title = "Title1",
-                    CreatedByUserName = "System",
-                    UpdatedByUserName = "System"
-                },
-                new Banner
-                {
-                    Id = Guid.NewGuid(),
-                    BrandId = brandId,
-                    Status = 2000,
-                    EndTime = currentTime.AddDays(1),
-                    Title = "Title2",
-                    CreatedByUserName = "System",
-                    UpdatedByUserName = "System"
-                }
-            });
+        await dbContext.Banners.AddRangeAsync(new Banner
+        {
+            Id = Guid.NewGuid(),
+            BrandId = brandId,
+            Status = 1000,
+            EndTime = null,
+            Title = "Title1",
+            CreatedByUserName = "System",
+            UpdatedByUserName = "System"
+        }, new Banner
+        {
+            Id = Guid.NewGuid(),
+            BrandId = brandId,
+            Status = 2000,
+            EndTime = currentTime.AddDays(1),
+            Title = "Title2",
+            CreatedByUserName = "System",
+            UpdatedByUserName = "System"
+        });
 
         _ = await dbContext.SaveChangesAsync();
 
@@ -160,27 +146,23 @@ public class BackOfficeRepositoryTests
 
         var brandId = Guid.NewGuid();
 
-        await dbContext.Banners.AddRangeAsync(
-            new[] {
-                new Banner
-                {
-                    Id = Guid.NewGuid(),
-                    BrandId = brandId,
-                    Status = 0,
-                    Title = "Title1",
-                    CreatedByUserName = "System",
-                    UpdatedByUserName = "System"
-                },
-                new Banner
-                {
-                    Id = Guid.NewGuid(),
-                    BrandId = brandId,
-                    Status = 1000,
-                    Title = "Title2",
-                    CreatedByUserName = "System",
-                    UpdatedByUserName = "System"
-                }
-            });
+        await dbContext.Banners.AddRangeAsync(new Banner
+        {
+            Id = Guid.NewGuid(),
+            BrandId = brandId,
+            Status = 0,
+            Title = "Title1",
+            CreatedByUserName = "System",
+            UpdatedByUserName = "System"
+        }, new Banner
+        {
+            Id = Guid.NewGuid(),
+            BrandId = brandId,
+            Status = 1000,
+            Title = "Title2",
+            CreatedByUserName = "System",
+            UpdatedByUserName = "System"
+        });
 
         _ = await dbContext.SaveChangesAsync();
 
@@ -198,9 +180,9 @@ public class BackOfficeRepositoryTests
             .ConfigureWarnings(x => x.Ignore(InMemoryEventId.TransactionIgnoredWarning));
         var dbContext = new TgsRepository(dbContextOptionsBuilder.Options);
 
-        var moqSystemClock = new Mock<ISystemClock>();
+        var moqSystemClock = Substitute.For<ISystemClock>();
 
-        var sut = new BackOfficeRepository(dbContext, moqSystemClock.Object);
+        var sut = new BackOfficeRepository(dbContext, moqSystemClock);
 
         var brandId = Guid.NewGuid();
         var currentTime = new DateTimeOffset(
@@ -212,53 +194,45 @@ public class BackOfficeRepositoryTests
             0,
             TimeSpan.FromHours(8)).ToUniversalTime();
 
-        _ = moqSystemClock
-            .Setup(fake => fake.UtcNow)
-            .Returns(currentTime);
+        _ = moqSystemClock.UtcNow.Returns(currentTime);
 
-        await dbContext.Banners.AddRangeAsync(
-            new[] {
-                new Banner
-                {
-                    Id = Guid.NewGuid(),
-                    BrandId = brandId,
-                    Status = 1000,
-                    EndTime = null,
-                    Title = "Title1",
-                    CreatedByUserName = "System",
-                    UpdatedByUserName = "System"
-                },
-                new Banner
-                {
-                    Id = Guid.NewGuid(),
-                    BrandId = brandId,
-                    Status = 1000,
-                    EndTime = currentTime.AddDays(1),
-                    Title = "Title2",
-                    CreatedByUserName = "System",
-                    UpdatedByUserName = "System"
-                },
-                new Banner
-                {
-                    Id = Guid.NewGuid(),
-                    BrandId = brandId,
-                    Status = 1000,
-                    EndTime = currentTime.AddDays(-1),
-                    Title = "Title3",
-                    CreatedByUserName = "System",
-                    UpdatedByUserName = "System"
-                },
-                new Banner
-                {
-                    Id = Guid.NewGuid(),
-                    BrandId = brandId,
-                    Status = 2000,
-                    EndTime = currentTime.AddDays(1),
-                    Title = "Title4",
-                    CreatedByUserName = "System",
-                    UpdatedByUserName = "System"
-                }
-            });
+        await dbContext.Banners.AddRangeAsync(new Banner
+        {
+            Id = Guid.NewGuid(),
+            BrandId = brandId,
+            Status = 1000,
+            EndTime = null,
+            Title = "Title1",
+            CreatedByUserName = "System",
+            UpdatedByUserName = "System"
+        }, new Banner
+        {
+            Id = Guid.NewGuid(),
+            BrandId = brandId,
+            Status = 1000,
+            EndTime = currentTime.AddDays(1),
+            Title = "Title2",
+            CreatedByUserName = "System",
+            UpdatedByUserName = "System"
+        }, new Banner
+        {
+            Id = Guid.NewGuid(),
+            BrandId = brandId,
+            Status = 1000,
+            EndTime = currentTime.AddDays(-1),
+            Title = "Title3",
+            CreatedByUserName = "System",
+            UpdatedByUserName = "System"
+        }, new Banner
+        {
+            Id = Guid.NewGuid(),
+            BrandId = brandId,
+            Status = 2000,
+            EndTime = currentTime.AddDays(1),
+            Title = "Title4",
+            CreatedByUserName = "System",
+            UpdatedByUserName = "System"
+        });
 
         _ = await dbContext.SaveChangesAsync();
 

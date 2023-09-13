@@ -1,5 +1,4 @@
-﻿using MockQueryable.Moq;
-using NSubstitute;
+﻿using NSubstitute;
 using StackExchange.Redis;
 using TGS.Core.DataServices.Tgs.Models;
 using TGS.Core.Infrastructures.Redis;
@@ -39,7 +38,7 @@ public class BrandGameProviderAggregateHandlerTests
         _ = fakeBrandService.GetBrandQueries().Returns(new Brand[]
         {
             new Brand { Id = brandId }
-        }.AsQueryable().BuildMock());
+        }.AsQueryable());
 
         var response = await sut.GetAsync(request, default);
 
@@ -79,7 +78,7 @@ public class BrandGameProviderAggregateHandlerTests
         _ = fakeBrandService.GetBrandQueries().Returns(new Brand[]
         {
             new Brand { Id = brandId }
-        }.AsQueryable().BuildMock());
+        }.AsQueryable());
 
         var response = await sut.GetAsync(request, default);
 

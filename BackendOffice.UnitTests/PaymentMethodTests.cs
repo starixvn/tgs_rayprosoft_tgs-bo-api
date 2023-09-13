@@ -1,4 +1,4 @@
-﻿using Moq;
+﻿using NSubstitute;
 using Tgs.Payment.Clients;
 using TGS.Services.BackOffice.Application.Queries.PaymentMethod;
 
@@ -10,34 +10,30 @@ public class PaymentMethodTests
     [Test]
     public async Task User_Can_Create_PaymentMethod()
     {
-        var moqPaymentServiceClient = new Mock<IPaymentServiceClient>();
+        var moqPaymentServiceClient = Substitute.For<IPaymentServiceClient>();
 
-        var sut = new CreatePaymentMethodCommandService(moqPaymentServiceClient.Object);
+        var sut = new CreatePaymentMethodCommandService(moqPaymentServiceClient);
 
         var command = new CreatePaymentMethodCommand("MethodCode", "Bank");
 
         await sut.ExecuteAsync(command);
 
-        moqPaymentServiceClient.Verify(
-            fake => fake.CreatePaymentMethodAsync(
-                It.IsAny<PaymentMethodCreateInfo>(),
-                It.IsAny<CancellationToken>()),
-            Times.Exactly(1));
+        _ = moqPaymentServiceClient.Received(1).CreatePaymentMethodAsync(
+            Arg.Any<PaymentMethodCreateInfo>(),
+            Arg.Any<CancellationToken>());
     }
 
     [Test]
     public void User_Can_Get_All_PaymentMethods()
     {
-        var moqPaymentServiceClient = new Mock<IPaymentServiceClient>();
+        var moqPaymentServiceClient = Substitute.For<IPaymentServiceClient>();
 
-        var sut = new PaymentMethodQueryService(moqPaymentServiceClient.Object);
+        var sut = new PaymentMethodQueryService(moqPaymentServiceClient);
 
         var query = new PaymentMethodQuery();
 
         _ = sut.QueryAsync(query);
 
-        moqPaymentServiceClient.Verify(
-            fake => fake.GetAllPaymentMethodsAsync(It.IsAny<CancellationToken>()),
-            Times.Exactly(1));
+        _ = moqPaymentServiceClient.Received(1).GetAllPaymentMethodsAsync(Arg.Any<CancellationToken>());
     }
 }

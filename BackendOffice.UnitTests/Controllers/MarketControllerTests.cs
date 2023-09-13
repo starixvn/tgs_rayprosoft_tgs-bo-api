@@ -1,10 +1,10 @@
 ﻿using System.Data.SqlClient;
 using AutoFixture;
 using FluentAssertions;
-using Moq;
-using Tgs.ServiceUtility;
+using NSubstitute;
 using TGS.Apis.BackendOffice.Controllers.Report;
 using TGS.Services.BackOffice.Application.Models.ReportMarket;
+using Tgs.ServiceUtility;
 
 namespace TGS.Tests.BackendOffice.UnitTests.Controllers;
 
@@ -12,15 +12,17 @@ namespace TGS.Tests.BackendOffice.UnitTests.Controllers;
 [Parallelizable]
 public class MarketControllerTests : BaseTests
 {
-    private readonly Mock<IGetService<GetMarketsReportRequest, GetMarketsReportResponse>> _getServiceMock =
-        new();
-
-    private MarketReportController _controller = default!;
+    [SetUp]
+    public override void Setup() => base.Setup();
 
     [TestCase(true)]
     [TestCase(false)]
     public async Task Can_Get_Markets(bool showAll)
     {
+        var getServiceMock = Substitute.For<IGetService<GetMarketsReportRequest, GetMarketsReportResponse>>();
+
+        var controller = new MarketReportController { ControllerContext = { HttpContext = HttpContextMock } };
+
         var list = new Fixture()
             .CreateMany<MarketReportModel>(99)
             .ToArray();
@@ -38,28 +40,19 @@ public class MarketControllerTests : BaseTests
 
         var expectedRoles = showAll ? orderedRoles.ToArray() : orderedRoles.Skip(skip).Take(take).ToArray();
 
-        _ = _getServiceMock
-            .Setup(m => m.GetAsync(It.IsAny<GetMarketsReportRequest>(), default))
-            .ReturnsAsync(new GetMarketsReportResponse
+        _ = getServiceMock
+            .GetAsync(Arg.Any<GetMarketsReportRequest>())
+            .Returns(new GetMarketsReportResponse
             {
                 TotalCount = list.Length,
                 Items = expectedRoles
             });
 
-        var response = await _controller.GetMarketsAsync(_getServiceMock.Object, request);
+        var response = await controller.GetMarketsAsync(getServiceMock, request);
 
         for (var i = 0; i < response.Items.Length; i++)
-        {
             _ = response.Items[i].ReportDate.Should().Be(expectedRoles[i].ReportDate);
-        }
 
-        _getServiceMock.Verify(x => x.GetAsync(It.IsAny<GetMarketsReportRequest>(), default));
-    }
-
-    [SetUp]
-    public override void Setup()
-    {
-        base.Setup();
-        _controller = new();
+        _ = getServiceMock.Received(1).GetAsync(Arg.Any<GetMarketsReportRequest>());
     }
 }

@@ -1,11 +1,10 @@
 ﻿using ExpectedObjects;
-using Moq;
 using NSubstitute;
 using Tgs.BrandCertificate.Clients;
 using Tgs.Payment.Clients;
 using Tgs.Payment.ManualDeposit;
-using Tgs.Promotion.Clients;
 using TGS.Payment.ManualDeposit;
+using Tgs.Promotion.Clients;
 using TGS.Services.BackOffice.ApplicationServices.Payment;
 
 namespace TGS.Tests.BackendOffice.UnitTests;
@@ -17,16 +16,16 @@ public class ManualDepositTests
     public async Task Create_Bank_Deposit_Form_Should_Success()
     {
         var fakeBrandServiceClient = Substitute.For<IBrandServiceClient>();
-        var moqPaymentServiceClient = new Mock<IPaymentServiceClient>();
-        var moqPaymentClient = new Mock<IPaymentClient>();
+        var moqPaymentServiceClient = Substitute.For<IPaymentServiceClient>();
+        var moqPaymentClient = Substitute.For<IPaymentClient>();
         var serializer = new ManualDepositSerializer();
-        var moqPromotionClient = new Mock<IPromotionClient>();
+        var moqPromotionClient = Substitute.For<IPromotionClient>();
 
         var sut = new CreateDepositFormCommandService(
             fakeBrandServiceClient,
-            moqPaymentServiceClient.Object,
-            moqPaymentClient.Object,
-            moqPromotionClient.Object);
+            moqPaymentServiceClient,
+            moqPaymentClient,
+            moqPromotionClient);
 
         var command = new CreateDepositFormCommand(
             "ThisIsPlayerCode",
@@ -36,7 +35,7 @@ public class ManualDepositTests
             "tgs.payment.manual",
             null,
             _ => serializer.Serialize(
-                new ManualDepositBankApplyInfo()
+                new ManualDepositBankApplyInfo
                 {
                     SendBankAccount = "ThisIsBankAccount",
                     ReceiveBankAccount = "ThisIsReceiveBankAccount",
@@ -46,28 +45,28 @@ public class ManualDepositTests
         var paymentId = Guid.NewGuid();
 
         _ = moqPaymentClient
-            .Setup(fake => fake.DepositAsync(
-                It.IsAny<string>(),
-                It.Is<decimal>(x => x == command.Amount),
-                It.IsAny<string>(),
-                It.IsAny<CancellationToken>()))
+            .DepositAsync(
+                Arg.Any<string>(),
+                Arg.Is<decimal>(x => x == command.Amount),
+                Arg.Any<string>(),
+                Arg.Any<CancellationToken>())
             .Returns(ValueTask.FromResult(command.CreatePaymentSettings(Guid.NewGuid())!));
 
         _ = moqPaymentServiceClient
-            .Setup(fake => fake.GetBrandPaymentByIdAsync(
-                It.Is<Guid>(x => x == command.BrandPaymentId),
-                It.IsAny<CancellationToken>()))
-            .Returns(ValueTask.FromResult<BrandPaymentInfo?>(new BrandPaymentInfo
+            .GetBrandPaymentByIdAsync(
+                Arg.Is<Guid>(x => x == command.BrandPaymentId),
+                Arg.Any<CancellationToken>())
+            .Returns(ValueTask.FromResult<BrandPaymentInfo?>(new()
             {
                 Id = command.BrandPaymentId,
                 PaymentId = paymentId
             }));
 
         _ = moqPaymentServiceClient
-            .Setup(fake => fake.GetPaymentByIdAsync(
-                It.Is<Guid>(x => x == paymentId),
-                It.IsAny<CancellationToken>()))
-            .Returns(ValueTask.FromResult<PaymentInfo?>(new PaymentInfo
+            .GetPaymentByIdAsync(
+                Arg.Is<Guid>(x => x == paymentId),
+                Arg.Any<CancellationToken>())
+            .Returns(ValueTask.FromResult<PaymentInfo?>(new()
             {
                 Id = paymentId,
                 Code = "Test"
@@ -81,7 +80,7 @@ public class ManualDepositTests
             Amount = command.Amount,
             PromotionId = command.PromotionId,
             ApplyInfo = serializer.Serialize(
-                new ManualDepositBankApplyInfo()
+                new ManualDepositBankApplyInfo
                 {
                     BankType = "Bank",
                     SendBankAccount = "ThisIsBankAccount",
@@ -92,12 +91,10 @@ public class ManualDepositTests
 
         _ = await sut.GetAsync(command);
 
-        moqPaymentServiceClient.Verify(
-            fake => fake.CreateDepositFormAsync(
-                It.IsAny<Guid>(),
-                It.Is<DepositFormCreateInfo>(form => expected.Matches(form)),
-                It.IsAny<CancellationToken>()),
-            Times.Exactly(1));
+        _ = moqPaymentServiceClient.Received(1).CreateDepositFormAsync(
+            Arg.Any<Guid>(),
+            Arg.Is<DepositFormCreateInfo>(form => expected.Matches(form)),
+            Arg.Any<CancellationToken>());
     }
 
     [Test]
@@ -125,7 +122,7 @@ public class ManualDepositTests
         var paymentId = Guid.NewGuid();
 
         _ = fakePaymentServiceClient.GetBrandPaymentByIdAsync(
-            Arg.Is(command.BrandPaymentId))
+                Arg.Is(command.BrandPaymentId))
             .Returns(new BrandPaymentInfo
             {
                 Id = command.BrandPaymentId,
@@ -133,7 +130,7 @@ public class ManualDepositTests
             });
 
         _ = fakePaymentServiceClient.GetPaymentByIdAsync(
-            Arg.Is(paymentId))
+                Arg.Is(paymentId))
             .Returns(new PaymentInfo
             {
                 Id = paymentId,
@@ -141,7 +138,7 @@ public class ManualDepositTests
             });
 
         _ = fakeBrandServiceClient.GetBrandPaymentSettingsAsync(
-            Arg.Is(command.BrandId))
+                Arg.Is(command.BrandId))
             .Returns(new BrandPaymentSettings(true, false, 0M));
 
         _ = Assert.ThrowsAsync<Exception>(async () => await sut.GetAsync(command));
@@ -177,15 +174,15 @@ public class ManualDepositTests
     public void Daily_Second_Deposit_With_First_Deposit_Promotion_Should_Fail()
     {
         var fakeBrandServiceClient = Substitute.For<IBrandServiceClient>();
-        var moqPaymentServiceClient = new Mock<IPaymentServiceClient>();
-        var moqPaymentClient = new Mock<IPaymentClient>();
-        var moqPromotionClient = new Mock<IPromotionClient>();
+        var moqPaymentServiceClient = Substitute.For<IPaymentServiceClient>();
+        var moqPaymentClient = Substitute.For<IPaymentClient>();
+        var moqPromotionClient = Substitute.For<IPromotionClient>();
 
         var sut = new CreateDepositFormCommandService(
             fakeBrandServiceClient,
-            moqPaymentServiceClient.Object,
-            moqPaymentClient.Object,
-            moqPromotionClient.Object);
+            moqPaymentServiceClient,
+            moqPaymentClient,
+            moqPromotionClient);
 
         var command = new CreateDepositFormCommand(
             "ThisIsPlayerCode",
@@ -198,20 +195,20 @@ public class ManualDepositTests
         var paymentId = Guid.NewGuid();
 
         _ = moqPaymentServiceClient
-            .Setup(fake => fake.GetBrandPaymentByIdAsync(
-                It.Is<Guid>(x => x == command.BrandPaymentId),
-                It.IsAny<CancellationToken>()))
-            .Returns(ValueTask.FromResult<BrandPaymentInfo?>(new BrandPaymentInfo
+            .GetBrandPaymentByIdAsync(
+                Arg.Is<Guid>(x => x == command.BrandPaymentId),
+                Arg.Any<CancellationToken>())
+            .Returns(ValueTask.FromResult<BrandPaymentInfo?>(new()
             {
                 Id = command.BrandPaymentId,
                 PaymentId = paymentId
             }));
 
         _ = moqPaymentServiceClient
-            .Setup(fake => fake.GetPaymentByIdAsync(
-                It.Is<Guid>(x => x == paymentId),
-                It.IsAny<CancellationToken>()))
-            .Returns(ValueTask.FromResult<PaymentInfo?>(new PaymentInfo
+            .GetPaymentByIdAsync(
+                Arg.Is<Guid>(x => x == paymentId),
+                Arg.Any<CancellationToken>())
+            .Returns(ValueTask.FromResult<PaymentInfo?>(new()
             {
                 Id = paymentId,
                 Code = "Test"

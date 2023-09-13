@@ -3,7 +3,7 @@ using System.Linq.Expressions;
 using AutoFixture;
 using FluentAssertions;
 using MockQueryable.Moq;
-using Moq;
+using NSubstitute;
 using TGS.Apis.BackendOffice.Controllers;
 using TGS.Apis.BackendOffice.Controllers.Messages.Settings;
 using TGS.Apis.BackendOffice.Resources;
@@ -17,66 +17,101 @@ namespace TGS.Tests.BackendOffice.UnitTests.Controllers;
 [Parallelizable]
 public class SettingControllerTests : BaseTests
 {
-    private readonly Mock<ITgsCommands<Setting>> _commandsMock = new();
-
-    private readonly Mock<ITgsQueries<Setting>> _queriesMock = new();
-
-    private readonly Mock<IRedisCacheManager> _redisCacheManagerMock = new();
-
-    private SettingController _controller = default!;
+    [SetUp]
+    public override void Setup() => base.Setup();
 
     [Test]
     public async Task Can_Create_Setting()
     {
+        var commandsMock = Substitute.For<ITgsCommands<Setting>>();
+
+        var queriesMock = Substitute.For<ITgsQueries<Setting>>();
+
+        var redisCacheManagerMock = Substitute.For<IRedisCacheManager>();
+
+        var controller = new SettingController(queriesMock, commandsMock, redisCacheManagerMock)
+        {
+            ControllerContext = { HttpContext = HttpContextMock }
+        };
+
         var request = new Fixture().Create<CreateSettingRequest>();
 
-        _ = _queriesMock.Setup(s => s.GetSingleAsync(It.IsAny<Expression<Func<Setting, bool>>>(),
-                It.IsAny<Func<IQueryable<Setting>, IQueryable<Setting>>>()))
+        _ = queriesMock.GetSingleAsync(Arg.Any<Expression<Func<Setting, bool>>>(),
+                Arg.Any<Func<IQueryable<Setting>, IQueryable<Setting>>>())
             .Returns(Task.FromResult<Setting>(default!));
 
-        var response = await _controller.CreateAsync(request);
+        var response = await controller.CreateAsync(request);
         _ = response.Valid.Should().BeTrue();
 
-        _queriesMock.Verify(s => s.GetSingleAsync(It.IsAny<Expression<Func<Setting, bool>>>(),
-            It.IsAny<Func<IQueryable<Setting>, IQueryable<Setting>>>()));
-        _commandsMock.Verify(p => p.CreateAsync(It.Is<Setting>(d =>
+        _ = queriesMock.Received(1).GetSingleAsync(Arg.Any<Expression<Func<Setting, bool>>>(),
+            Arg.Any<Func<IQueryable<Setting>, IQueryable<Setting>>>());
+
+        _ = commandsMock.Received(1).CreateAsync(Arg.Is<Setting>(d =>
             d.Key == request.Key &&
             d.Value == request.Value &&
-            d.Description == request.Description)));
+            d.Description == request.Description));
     }
 
     [Test]
     public async Task Can_Delete_Setting()
     {
+        var commandsMock = Substitute.For<ITgsCommands<Setting>>();
+
+        var queriesMock = Substitute.For<ITgsQueries<Setting>>();
+
+        var redisCacheManagerMock = Substitute.For<IRedisCacheManager>();
+
+        var controller = new SettingController(queriesMock, commandsMock, redisCacheManagerMock)
+        {
+            ControllerContext = { HttpContext = HttpContextMock }
+        };
+
         var key = Generator.RandomString(6);
+
         var setting = new Fixture().Create<Setting>();
+
         setting.Key = key;
 
-        _ = _queriesMock.Setup(s => s.GetSingleAsync(It.IsAny<Expression<Func<Setting, bool>>>(),
-                It.IsAny<Func<IQueryable<Setting>, IQueryable<Setting>>>()))
+        _ = queriesMock.GetSingleAsync(Arg.Any<Expression<Func<Setting, bool>>>(),
+                Arg.Any<Func<IQueryable<Setting>, IQueryable<Setting>>>())
             .Returns(Task.FromResult(setting));
 
-        var response = await _controller.DeleteAsync(key);
+        var response = await controller.DeleteAsync(key);
         _ = response.Valid.Should().BeTrue();
 
-        _queriesMock.Verify(s => s.GetSingleAsync(It.IsAny<Expression<Func<Setting, bool>>>(),
-            It.IsAny<Func<IQueryable<Setting>, IQueryable<Setting>>>()));
-        _commandsMock.Verify(p => p.DeleteAsync(It.Is<Setting>(d =>
-            d.Key == key)));
+        _ = queriesMock.Received(1).GetSingleAsync(Arg.Any<Expression<Func<Setting, bool>>>(),
+            Arg.Any<Func<IQueryable<Setting>, IQueryable<Setting>>>());
+
+        _ = commandsMock.Received(1).DeleteAsync(Arg.Is<Setting>(d =>
+            d.Key == key));
     }
 
     [Test]
     public async Task Can_Get_Setting()
     {
+        var commandsMock = Substitute.For<ITgsCommands<Setting>>();
+
+        var queriesMock = Substitute.For<ITgsQueries<Setting>>();
+
+        var redisCacheManagerMock = Substitute.For<IRedisCacheManager>();
+
+        var controller = new SettingController(queriesMock, commandsMock, redisCacheManagerMock)
+        {
+            ControllerContext = { HttpContext = HttpContextMock }
+        };
+
         var key = Generator.RandomString(6);
+
         var setting = new Fixture().Create<Setting>();
+
         setting.Key = key;
 
-        _ = _queriesMock.Setup(s => s.GetSingleAsync(It.IsAny<Expression<Func<Setting, bool>>>(),
-                It.IsAny<Func<IQueryable<Setting>, IQueryable<Setting>>>()))
+        _ = queriesMock.GetSingleAsync(Arg.Any<Expression<Func<Setting, bool>>>(),
+                Arg.Any<Func<IQueryable<Setting>, IQueryable<Setting>>>())
             .Returns(Task.FromResult(setting));
 
-        var response = await _controller.GetSingleAsync(key);
+        var response = await controller.GetSingleAsync(key);
+
         _ = response.Valid.Should().BeTrue();
 
         _ = response.Setting.Key.Should().Be(setting.Key);
@@ -92,6 +127,17 @@ public class SettingControllerTests : BaseTests
     [TestCase(false)]
     public async Task Can_Get_Settings(bool showAll)
     {
+        var commandsMock = Substitute.For<ITgsCommands<Setting>>();
+
+        var queriesMock = Substitute.For<ITgsQueries<Setting>>();
+
+        var redisCacheManagerMock = Substitute.For<IRedisCacheManager>();
+
+        var controller = new SettingController(queriesMock, commandsMock, redisCacheManagerMock)
+        {
+            ControllerContext = { HttpContext = HttpContextMock }
+        };
+
         var request = new GetSettingsRequest
         {
             Page = 1,
@@ -111,10 +157,10 @@ public class SettingControllerTests : BaseTests
 
         var expectedRoles = showAll ? orderedRoles.ToArray() : orderedRoles.Skip(skip).Take(take).ToArray();
 
-        _ = _queriesMock.Setup(x => x.GetQueries())
-            .Returns(list);
+        _ = queriesMock.GetQueries().Returns(list);
 
-        var response = await _controller.GetListAsync(request);
+        var response = await controller.GetListAsync(request);
+
         _ = response.Valid.Should().BeTrue();
 
         for (var i = 0; i < response.Items.Length; i++)
@@ -128,96 +174,143 @@ public class SettingControllerTests : BaseTests
             _ = response.Items[i].UpdatedOn.Should().Be(expectedRoles[i].UpdatedOn);
         }
 
-        _queriesMock.Verify(p => p.GetQueries());
+        _ = queriesMock.Received(1).GetQueries();
     }
 
     [Test]
     public async Task Can_Update_Setting()
     {
+        var commandsMock = Substitute.For<ITgsCommands<Setting>>();
+
+        var queriesMock = Substitute.For<ITgsQueries<Setting>>();
+
+        var redisCacheManagerMock = Substitute.For<IRedisCacheManager>();
+
+        var controller = new SettingController(queriesMock, commandsMock, redisCacheManagerMock)
+        {
+            ControllerContext = { HttpContext = HttpContextMock }
+        };
+
         var key = Generator.RandomString(6);
+
         var request = new Fixture().Create<UpdateSettingRequest>();
+
         var setting = new Fixture().Create<Setting>();
 
-        _ = _queriesMock.Setup(s => s.GetSingleAsync(It.IsAny<Expression<Func<Setting, bool>>>(),
-                It.IsAny<Func<IQueryable<Setting>, IQueryable<Setting>>>()))
+        _ = queriesMock.GetSingleAsync(Arg.Any<Expression<Func<Setting, bool>>>(),
+                Arg.Any<Func<IQueryable<Setting>, IQueryable<Setting>>>())
             .Returns(Task.FromResult(setting));
 
-        var response = await _controller.UpdateAsync(key, request);
+        var response = await controller.UpdateAsync(key, request);
+
         _ = response.Valid.Should().BeTrue();
 
-        _queriesMock.Verify(s => s.GetSingleAsync(It.IsAny<Expression<Func<Setting, bool>>>(),
-            It.IsAny<Func<IQueryable<Setting>, IQueryable<Setting>>>()));
-        _commandsMock.Verify(p => p.UpdateAsync(It.Is<Setting>(d =>
+        _ = queriesMock.Received(1).GetSingleAsync(Arg.Any<Expression<Func<Setting, bool>>>(),
+            Arg.Any<Func<IQueryable<Setting>, IQueryable<Setting>>>());
+
+        _ = commandsMock.Received(1).UpdateAsync(Arg.Is<Setting>(d =>
             d.Value == request.Value &&
-            d.Description == request.Description)));
+            d.Description == request.Description));
     }
 
     [Test]
     public async Task Cannot_Create_Setting_With_Exists()
     {
+        var commandsMock = Substitute.For<ITgsCommands<Setting>>();
+
+        var queriesMock = Substitute.For<ITgsQueries<Setting>>();
+
+        var redisCacheManagerMock = Substitute.For<IRedisCacheManager>();
+
+        var controller = new SettingController(queriesMock, commandsMock, redisCacheManagerMock)
+        {
+            ControllerContext = { HttpContext = HttpContextMock }
+        };
+
         var request = new Fixture().Create<CreateSettingRequest>();
 
-        _ = _queriesMock.Setup(s => s.GetSingleAsync(It.IsAny<Expression<Func<Setting, bool>>>(),
-                It.IsAny<Func<IQueryable<Setting>, IQueryable<Setting>>>()))
+        _ = queriesMock.GetSingleAsync(Arg.Any<Expression<Func<Setting, bool>>>(),
+                Arg.Any<Func<IQueryable<Setting>, IQueryable<Setting>>>())
             .Returns(Task.FromResult(new Setting()));
 
-        var response = await _controller.CreateAsync(request);
+        var response = await controller.CreateAsync(request);
+
         _ = response.Valid.Should().BeFalse();
+
         _ = response.Message.Should().Be(Apis.BackendOffice.Resources.Setting.KeyExists);
 
-        _queriesMock.Verify(s => s.GetSingleAsync(It.IsAny<Expression<Func<Setting, bool>>>(),
-            It.IsAny<Func<IQueryable<Setting>, IQueryable<Setting>>>()));
-        _commandsMock.Verify(p => p.CreateAsync(It.Is<Setting>(d =>
+        _ = queriesMock.Received(1).GetSingleAsync(Arg.Any<Expression<Func<Setting, bool>>>(),
+            Arg.Any<Func<IQueryable<Setting>, IQueryable<Setting>>>());
+
+        _ = commandsMock.Received(0).CreateAsync(Arg.Is<Setting>(d =>
             d.Key == request.Key &&
             d.Value == request.Value &&
-            d.Description == request.Description)), Times.Never);
+            d.Description == request.Description));
     }
 
     [Test]
     public async Task Cannot_Get_Setting_Not_Found()
     {
+        var commandsMock = Substitute.For<ITgsCommands<Setting>>();
+
+        var queriesMock = Substitute.For<ITgsQueries<Setting>>();
+
+        var redisCacheManagerMock = Substitute.For<IRedisCacheManager>();
+
+        var controller = new SettingController(queriesMock, commandsMock, redisCacheManagerMock)
+        {
+            ControllerContext = { HttpContext = HttpContextMock }
+        };
+
         var key = Generator.RandomString(6);
+
         var setting = new Fixture().Create<Setting>();
+
         setting.Key = key;
 
-        _ = _queriesMock.Setup(s => s.GetSingleAsync(It.IsAny<Expression<Func<Setting, bool>>>(),
-                It.IsAny<Func<IQueryable<Setting>, IQueryable<Setting>>>()))
+        _ = queriesMock.GetSingleAsync(Arg.Any<Expression<Func<Setting, bool>>>(),
+                Arg.Any<Func<IQueryable<Setting>, IQueryable<Setting>>>())
             .Returns(Task.FromResult<Setting>(default!));
 
-        var response = await _controller.GetSingleAsync(key);
+        var response = await controller.GetSingleAsync(key);
+
         _ = response.Valid.Should().BeFalse();
+
         _ = response.Message.Should().Be(Common.NotFound);
     }
 
     [Test]
     public async Task Cannot_Update_Setting()
     {
+        var commandsMock = Substitute.For<ITgsCommands<Setting>>();
+
+        var queriesMock = Substitute.For<ITgsQueries<Setting>>();
+
+        var redisCacheManagerMock = Substitute.For<IRedisCacheManager>();
+
+        var controller = new SettingController(queriesMock, commandsMock, redisCacheManagerMock)
+        {
+            ControllerContext = { HttpContext = HttpContextMock }
+        };
+
         var key = Generator.RandomString(6);
+
         var request = new Fixture().Create<UpdateSettingRequest>();
+
         var setting = new Fixture().Create<Setting>();
 
-        _ = _queriesMock.Setup(s => s.GetSingleAsync(It.IsAny<Expression<Func<Setting, bool>>>(),
-                It.IsAny<Func<IQueryable<Setting>, IQueryable<Setting>>>()))
+        _ = queriesMock.GetSingleAsync(Arg.Any<Expression<Func<Setting, bool>>>(),
+                Arg.Any<Func<IQueryable<Setting>, IQueryable<Setting>>>())
             .Returns(Task.FromResult(setting));
 
-        var response = await _controller.UpdateAsync(key, request);
+        var response = await controller.UpdateAsync(key, request);
         _ = response.Valid.Should().BeTrue();
 
-        _queriesMock.Verify(s => s.GetSingleAsync(It.IsAny<Expression<Func<Setting, bool>>>(),
-            It.IsAny<Func<IQueryable<Setting>, IQueryable<Setting>>>()));
-        _commandsMock.Verify(p => p.UpdateAsync(It.Is<Setting>(d =>
-            d.Value == request.Value &&
-            d.Description == request.Description)));
-    }
+        _ = queriesMock.GetSingleAsync(Arg.Any<Expression<Func<Setting, bool>>>(),
+            Arg.Any<Func<IQueryable<Setting>, IQueryable<Setting>>>());
 
-    [SetUp]
-    public override void Setup()
-    {
-        base.Setup();
-        _controller = new(
-            _queriesMock.Object,
-            _commandsMock.Object,
-            _redisCacheManagerMock.Object);
-        _controller.ControllerContext.HttpContext = HttpContextMock.Object;
+        _ = commandsMock.Received(1).UpdateAsync(Arg.Is<Setting>(d =>
+            d.Value == request.Value &&
+            d.Description == request.Description));
     }
 }

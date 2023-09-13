@@ -1,6 +1,6 @@
 ﻿using System.Security.Claims;
 using Microsoft.AspNetCore.Http;
-using Moq;
+using NSubstitute;
 using TGS.Core.Models;
 using TGS.Core.Models.Enums;
 using TGS.Core.Models.Messages;
@@ -11,13 +11,10 @@ namespace TGS.Tests.BackendOffice.UnitTests.Controllers;
 [Category(Named.Unit)]
 public class BaseTests
 {
-    protected readonly Mock<HttpContext> HttpContextMock = new();
+    protected readonly HttpContext HttpContextMock = Substitute.For<HttpContext>();
     protected string Username = "admin.enabled";
 
-    public virtual void Setup()
-    {
-        Login();
-    }
+    public virtual void Setup() => Login();
 
     protected static (int, int) GetPage(PageableRequest request)
     {
@@ -29,25 +26,23 @@ public class BaseTests
     protected static ClaimsPrincipal GetUserClaimsPrincipal(
         string username = "admin.enabled",
         string rolename = "Admin",
-        RoleType roleType = RoleType.Admin)
-    {
-        return new(new[]
+        RoleType roleType = RoleType.Admin,
+        string id = "e4ecfa98-b373-4123-87e0-cb9e883d0691")
+        => new(new[]
         {
             new ClaimsIdentity(new[]
             {
+                new Claim(Consts.BackendOffice.UserInfo.UserIdKey, id),
                 new Claim(Consts.BackendOffice.UserInfo.UsernameKey, username),
                 new Claim(Consts.BackendOffice.UserInfo.RolenameKey, rolename),
                 new Claim(Consts.BackendOffice.UserInfo.PortalKey, roleType.ToString())
             })
         });
-    }
 
     private void Login(
-                string username = "admin.enabled",
+        string username = "admin.enabled",
         string rolename = "Admin",
         RoleType roleType = RoleType.Admin)
-    {
-        _ = HttpContextMock.Setup(p => p.User)
+        => _ = HttpContextMock.User
             .Returns(GetUserClaimsPrincipal(username, rolename, roleType));
-    }
 }
