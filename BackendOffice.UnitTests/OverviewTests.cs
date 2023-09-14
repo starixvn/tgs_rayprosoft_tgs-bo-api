@@ -61,30 +61,6 @@ public class OverviewTests
     }
 
     [Test]
-    public async Task 查詢當日與昨天註冊人數()
-    {
-        var fakePlayerServiceClient = Substitute.For<IPlayerServiceClient>();
-
-        var sut = new GetDayPlayerRegisterCountQueryService(fakePlayerServiceClient);
-
-        var brandId = Guid.NewGuid();
-        var yesterday = DateOnly.FromDateTime(DateTimeOffset.Now.ToOffset(TimeSpan.FromHours(8d)).AddDays(-1).DateTime);
-
-        _ = fakePlayerServiceClient
-            .CountCurrentDayRegisterPlayersAsync(Arg.Is(brandId))
-            .Returns(168);
-
-        _ = fakePlayerServiceClient
-            .CountReportDateRegisterPlayersAsync(Arg.Is(brandId), Arg.Is(yesterday))
-            .Returns(88);
-
-        var actual = await sut.GetAsync(new GetDayPlayerRegisterCountQuery(brandId));
-
-        Assert.AreEqual(168, actual.Today);
-        Assert.AreEqual(88, actual.Yesterday);
-    }
-
-    [Test]
     public async Task 查詢當日十大玩家_存款()
     {
         var fakePaymentServiceClient = Substitute.For<IPaymentServiceClient>();
@@ -99,14 +75,14 @@ public class OverviewTests
         var playerCodes = new string[] { "4uel5ke0uf3k" };
 
         _ = fakeBrandServiceClient
-            .GetBrandInfoAsync(Arg.Is(brandId))
+            .GetBrandInfoAsync(Arg.Is(brandId), Arg.Any<CancellationToken>())
             .Returns(new BrandInfo
             {
                 Code = brandCode
             });
 
         _ = fakePaymentServiceClient
-            .GetCurrentDayTopTenDepositPlayersAsync(Arg.Is(brandId))
+            .GetCurrentDayTopTenDepositPlayersAsync(Arg.Is(brandId), Arg.Any<CancellationToken>())
             .Returns(new TopTenDepositWithdrawInfo[]
             {
                 new TopTenDepositWithdrawInfo
@@ -122,84 +98,18 @@ public class OverviewTests
                 Arg.Is(brandCode),
                 Arg.Any<DateTimeOffset>(),
                 Arg.Any<DateTimeOffset>(),
-                Arg.Is<IEnumerable<string>>(x => x.SequenceEqual(playerCodes)))
+                Arg.Is<IEnumerable<string>>(x => x.SequenceEqual(playerCodes)),
+                Arg.Any<CancellationToken>())
             .Returns(new BrandWagerPlayerStatsInfo[]
             {
                 new BrandWagerPlayerStatsInfo(Guid.NewGuid(),"GPCode",123, Guid.NewGuid(),"ResellerCode",Guid.NewGuid(),"LicenseeCode",brandId,brandCode,playerCodes[0],"username","CNY",1,100m,100m,0m,0m,100m,-100m)
             }.ToAsyncEnumerable());
 
         _ = fakePlayerServiceClient
-            .QueryPlayerInfoListAsync(Arg.Is(brandId), Arg.Is<IEnumerable<string>>(p => p.SequenceEqual(playerCodes)))
-            .Returns(new Tgs.PlayerService.Client.PlayerInfo[] 
-            { 
-                new Tgs.PlayerService.Client.PlayerInfo
-                {
-                    PlayerCode = playerCodes[0],
-                    UserName = "username"
-                }
-            }.ToAsyncEnumerable());
-
-        var actual = await sut
-            .QueryAsync(new GetTopTenDepositQuery(brandId,TopTenPlayerSortType.Deposit,false))
-            .ToArrayAsync()
-            .ConfigureAwait(false);
-
-        Assert.IsNotNull(actual);
-        Assert.AreEqual(1, actual.Length);
-        Assert.AreEqual("username", actual[0].PlayerUserName);
-        Assert.AreEqual(16888m, actual[0].DepositTotalAmount);
-        Assert.AreEqual(88m, actual[0].WithdrawTotalAmount);
-        Assert.AreEqual(100m, actual[0].Bet);
-        Assert.AreEqual(0m, actual[0].Settle);
-        Assert.AreEqual(-100m, actual[0].WinLoss);
-    }
-
-    [Test]
-    public async Task 查詢當日十大玩家_提款()
-    {
-        var fakePaymentServiceClient = Substitute.For<IPaymentServiceClient>();
-        var fakeBrandServiceClient = Substitute.For<IBrandServiceClient>();
-        var fakeGameWagersClient = Substitute.For<IGameWagersClient>();
-        var fakePlayerServiceClient = Substitute.For<IPlayerServiceClient>();
-
-        var sut = new GetTopTenDepositQueryService(fakePaymentServiceClient, fakeBrandServiceClient, fakeGameWagersClient, fakePlayerServiceClient);
-
-        var brandId = Guid.Parse("4e86719f-243f-46f6-b010-5c758b7285af");
-        var brandCode = "GPI";
-        var playerCodes = new string[] { "4uel5ke0uf3k" };
-
-        _ = fakeBrandServiceClient
-            .GetBrandInfoAsync(Arg.Is(brandId))
-            .Returns(new BrandInfo
-            {
-                Code = brandCode
-            });
-
-        _ = fakePaymentServiceClient
-            .GetCurrentDayTopTenWithdrawPlayersAsync(Arg.Is(brandId))
-            .Returns(new TopTenDepositWithdrawInfo[]
-            {
-                new TopTenDepositWithdrawInfo
-                {
-                    PlayerCode = playerCodes[0],
-                    DepositTotalAmount = 16888m,
-                    WithdrawTotalAmount = 88m
-                }
-            }.ToAsyncEnumerable());
-
-        _ = fakeGameWagersClient
-            .BrandWagerPlayerStatsPlayerQueryAsync(
-                Arg.Is(brandCode),
-                Arg.Any<DateTimeOffset>(),
-                Arg.Any<DateTimeOffset>(),
-                Arg.Is<IEnumerable<string>>(x => x.SequenceEqual(playerCodes)))
-            .Returns(new BrandWagerPlayerStatsInfo[]
-            {
-                new BrandWagerPlayerStatsInfo(Guid.NewGuid(),"GPCode",123, Guid.NewGuid(),"ResellerCode",Guid.NewGuid(),"LicenseeCode",brandId,brandCode,playerCodes[0],"username","CNY",1,100m,100m,0m,0m,100m,-100m)
-            }.ToAsyncEnumerable());
-
-        _ = fakePlayerServiceClient
-            .QueryPlayerInfoListAsync(Arg.Is(brandId), Arg.Is<IEnumerable<string>>(p => p.SequenceEqual(playerCodes)))
+            .QueryPlayerInfoListAsync(
+                Arg.Is(brandId),
+                Arg.Is<IEnumerable<string>>(p => p.SequenceEqual(playerCodes)),
+                Arg.Any<CancellationToken>())
             .Returns(new Tgs.PlayerService.Client.PlayerInfo[]
             {
                 new Tgs.PlayerService.Client.PlayerInfo
@@ -210,7 +120,7 @@ public class OverviewTests
             }.ToAsyncEnumerable());
 
         var actual = await sut
-            .QueryAsync(new GetTopTenDepositQuery(brandId, TopTenPlayerSortType.Withdraw, false))
+            .QueryAsync(new GetTopTenDepositQuery(brandId, TopTenPlayerSortType.Deposit, false))
             .ToArrayAsync()
             .ConfigureAwait(false);
 
@@ -239,7 +149,7 @@ public class OverviewTests
         var playerCodes = new string[] { "4uel5ke0uf3k" };
 
         _ = fakeBrandServiceClient
-            .GetBrandInfoAsync(Arg.Is(brandId))
+            .GetBrandInfoAsync(Arg.Is(brandId), Arg.Any<CancellationToken>())
             .Returns(new BrandInfo
             {
                 Code = brandCode
@@ -258,7 +168,9 @@ public class OverviewTests
             }.ToAsyncEnumerable());
 
         _ = fakePaymentServiceClient
-            .GetCurrentDayDepositWithdrawTotalAmountAsync(Arg.Is<IEnumerable<string>>(p=> p.SequenceEqual(playerCodes)))
+            .GetCurrentDayDepositWithdrawTotalAmountAsync(
+                Arg.Is<IEnumerable<string>>(p => p.SequenceEqual(playerCodes)),
+                Arg.Any<CancellationToken>())
             .Returns(new TopTenDepositWithdrawInfo[]
             {
                 new TopTenDepositWithdrawInfo
@@ -267,10 +179,13 @@ public class OverviewTests
                     DepositTotalAmount = 16888m,
                     WithdrawTotalAmount = 88m
                 }
-            }.ToAsyncEnumerable());        
+            }.ToAsyncEnumerable());
 
         _ = fakePlayerServiceClient
-            .QueryPlayerInfoListAsync(Arg.Is(brandId), Arg.Is<IEnumerable<string>>(p => p.SequenceEqual(playerCodes)))
+            .QueryPlayerInfoListAsync(
+                Arg.Is(brandId),
+                Arg.Is<IEnumerable<string>>(p => p.SequenceEqual(playerCodes)),
+                Arg.Any<CancellationToken>())
             .Returns(new Tgs.PlayerService.Client.PlayerInfo[]
             {
                 new Tgs.PlayerService.Client.PlayerInfo
@@ -310,7 +225,7 @@ public class OverviewTests
         var playerCodes = new string[] { "4uel5ke0uf3k" };
 
         _ = fakeBrandServiceClient
-            .GetBrandInfoAsync(Arg.Is(brandId))
+            .GetBrandInfoAsync(Arg.Is(brandId), Arg.Any<CancellationToken>())
             .Returns(new BrandInfo
             {
                 Code = brandCode
@@ -329,7 +244,9 @@ public class OverviewTests
             }.ToAsyncEnumerable());
 
         _ = fakePaymentServiceClient
-            .GetCurrentDayDepositWithdrawTotalAmountAsync(Arg.Is<IEnumerable<string>>(p => p.SequenceEqual(playerCodes)))
+            .GetCurrentDayDepositWithdrawTotalAmountAsync(
+                Arg.Is<IEnumerable<string>>(p => p.SequenceEqual(playerCodes)),
+                Arg.Any<CancellationToken>())
             .Returns(new TopTenDepositWithdrawInfo[]
             {
                 new TopTenDepositWithdrawInfo
@@ -341,7 +258,10 @@ public class OverviewTests
             }.ToAsyncEnumerable());
 
         _ = fakePlayerServiceClient
-            .QueryPlayerInfoListAsync(Arg.Is(brandId), Arg.Is<IEnumerable<string>>(p => p.SequenceEqual(playerCodes)))
+            .QueryPlayerInfoListAsync(
+                Arg.Is(brandId),
+                Arg.Is<IEnumerable<string>>(p => p.SequenceEqual(playerCodes)),
+                Arg.Any<CancellationToken>())
             .Returns(new Tgs.PlayerService.Client.PlayerInfo[]
             {
                 new Tgs.PlayerService.Client.PlayerInfo
@@ -367,7 +287,7 @@ public class OverviewTests
     }
 
     [Test]
-    public async Task 查詢當日十大玩家_輸贏降冪()
+    public async Task 查詢當日十大玩家_提款()
     {
         var fakePaymentServiceClient = Substitute.For<IPaymentServiceClient>();
         var fakeBrandServiceClient = Substitute.For<IBrandServiceClient>();
@@ -381,26 +301,14 @@ public class OverviewTests
         var playerCodes = new string[] { "4uel5ke0uf3k" };
 
         _ = fakeBrandServiceClient
-            .GetBrandInfoAsync(Arg.Is(brandId))
+            .GetBrandInfoAsync(Arg.Is(brandId), Arg.Any<CancellationToken>())
             .Returns(new BrandInfo
             {
                 Code = brandCode
             });
 
-        _ = fakeGameWagersClient
-            .BrandWagerPlayerStatsQueryAsync(
-                Arg.Is(brandCode),
-                Arg.Any<DateTimeOffset>(),
-                Arg.Any<DateTimeOffset>(),
-                Arg.Is(BrandWagerPlayerMinsStatsSort.WinLoss),
-                Arg.Is(false))
-            .Returns(new BrandWagerPlayerStatsInfo[]
-            {
-                new BrandWagerPlayerStatsInfo(Guid.NewGuid(),"GPCode",123, Guid.NewGuid(),"ResellerCode",Guid.NewGuid(),"LicenseeCode",brandId,brandCode,playerCodes[0],"username","CNY",1,100m,100m,0m,0m,100m,-100m)
-            }.ToAsyncEnumerable());
-
         _ = fakePaymentServiceClient
-            .GetCurrentDayDepositWithdrawTotalAmountAsync(Arg.Is<IEnumerable<string>>(p => p.SequenceEqual(playerCodes)))
+            .GetCurrentDayTopTenWithdrawPlayersAsync(Arg.Is(brandId), Arg.Any<CancellationToken>())
             .Returns(new TopTenDepositWithdrawInfo[]
             {
                 new TopTenDepositWithdrawInfo
@@ -411,8 +319,22 @@ public class OverviewTests
                 }
             }.ToAsyncEnumerable());
 
+        _ = fakeGameWagersClient
+            .BrandWagerPlayerStatsPlayerQueryAsync(
+                Arg.Is(brandCode),
+                Arg.Any<DateTimeOffset>(),
+                Arg.Any<DateTimeOffset>(),
+                Arg.Is<IEnumerable<string>>(x => x.SequenceEqual(playerCodes)))
+            .Returns(new BrandWagerPlayerStatsInfo[]
+            {
+                new BrandWagerPlayerStatsInfo(Guid.NewGuid(),"GPCode",123, Guid.NewGuid(),"ResellerCode",Guid.NewGuid(),"LicenseeCode",brandId,brandCode,playerCodes[0],"username","CNY",1,100m,100m,0m,0m,100m,-100m)
+            }.ToAsyncEnumerable());
+
         _ = fakePlayerServiceClient
-            .QueryPlayerInfoListAsync(Arg.Is(brandId), Arg.Is<IEnumerable<string>>(p => p.SequenceEqual(playerCodes)))
+            .QueryPlayerInfoListAsync(
+                Arg.Is(brandId),
+                Arg.Is<IEnumerable<string>>(p => p.SequenceEqual(playerCodes)),
+                Arg.Any<CancellationToken>())
             .Returns(new Tgs.PlayerService.Client.PlayerInfo[]
             {
                 new Tgs.PlayerService.Client.PlayerInfo
@@ -423,7 +345,7 @@ public class OverviewTests
             }.ToAsyncEnumerable());
 
         var actual = await sut
-            .QueryAsync(new GetTopTenDepositQuery(brandId, TopTenPlayerSortType.WinLoss, false))
+            .QueryAsync(new GetTopTenDepositQuery(brandId, TopTenPlayerSortType.Withdraw, false))
             .ToArrayAsync()
             .ConfigureAwait(false);
 
@@ -452,7 +374,7 @@ public class OverviewTests
         var playerCodes = new string[] { "4uel5ke0uf3k" };
 
         _ = fakeBrandServiceClient
-            .GetBrandInfoAsync(Arg.Is(brandId))
+            .GetBrandInfoAsync(Arg.Is(brandId), Arg.Any<CancellationToken>())
             .Returns(new BrandInfo
             {
                 Code = brandCode
@@ -471,7 +393,9 @@ public class OverviewTests
             }.ToAsyncEnumerable());
 
         _ = fakePaymentServiceClient
-            .GetCurrentDayDepositWithdrawTotalAmountAsync(Arg.Is<IEnumerable<string>>(p => p.SequenceEqual(playerCodes)))
+            .GetCurrentDayDepositWithdrawTotalAmountAsync(
+                Arg.Is<IEnumerable<string>>(p => p.SequenceEqual(playerCodes)),
+                Arg.Any<CancellationToken>())
             .Returns(new TopTenDepositWithdrawInfo[]
             {
                 new TopTenDepositWithdrawInfo
@@ -483,7 +407,10 @@ public class OverviewTests
             }.ToAsyncEnumerable());
 
         _ = fakePlayerServiceClient
-            .QueryPlayerInfoListAsync(Arg.Is(brandId), Arg.Is<IEnumerable<string>>(p => p.SequenceEqual(playerCodes)))
+            .QueryPlayerInfoListAsync(
+                Arg.Is(brandId),
+                Arg.Is<IEnumerable<string>>(p => p.SequenceEqual(playerCodes)),
+                Arg.Any<CancellationToken>())
             .Returns(new Tgs.PlayerService.Client.PlayerInfo[]
             {
                 new Tgs.PlayerService.Client.PlayerInfo
@@ -506,5 +433,105 @@ public class OverviewTests
         Assert.AreEqual(100m, actual[0].Bet);
         Assert.AreEqual(0m, actual[0].Settle);
         Assert.AreEqual(-100m, actual[0].WinLoss);
+    }
+
+    [Test]
+    public async Task 查詢當日十大玩家_輸贏降冪()
+    {
+        var fakePaymentServiceClient = Substitute.For<IPaymentServiceClient>();
+        var fakeBrandServiceClient = Substitute.For<IBrandServiceClient>();
+        var fakeGameWagersClient = Substitute.For<IGameWagersClient>();
+        var fakePlayerServiceClient = Substitute.For<IPlayerServiceClient>();
+
+        var sut = new GetTopTenDepositQueryService(fakePaymentServiceClient, fakeBrandServiceClient, fakeGameWagersClient, fakePlayerServiceClient);
+
+        var brandId = Guid.Parse("4e86719f-243f-46f6-b010-5c758b7285af");
+        var brandCode = "GPI";
+        var playerCodes = new string[] { "4uel5ke0uf3k" };
+
+        _ = fakeBrandServiceClient
+            .GetBrandInfoAsync(Arg.Is(brandId), Arg.Any<CancellationToken>())
+            .Returns(new BrandInfo
+            {
+                Code = brandCode
+            });
+
+        _ = fakeGameWagersClient
+            .BrandWagerPlayerStatsQueryAsync(
+                Arg.Is(brandCode),
+                Arg.Any<DateTimeOffset>(),
+                Arg.Any<DateTimeOffset>(),
+                Arg.Is(BrandWagerPlayerMinsStatsSort.WinLoss),
+                Arg.Is(false))
+            .Returns(new BrandWagerPlayerStatsInfo[]
+            {
+                new BrandWagerPlayerStatsInfo(Guid.NewGuid(),"GPCode",123, Guid.NewGuid(),"ResellerCode",Guid.NewGuid(),"LicenseeCode",brandId,brandCode,playerCodes[0],"username","CNY",1,100m,100m,0m,0m,100m,-100m)
+            }.ToAsyncEnumerable());
+
+        _ = fakePaymentServiceClient
+            .GetCurrentDayDepositWithdrawTotalAmountAsync(
+                Arg.Is<IEnumerable<string>>(p => p.SequenceEqual(playerCodes)),
+                Arg.Any<CancellationToken>())
+            .Returns(new TopTenDepositWithdrawInfo[]
+            {
+                new TopTenDepositWithdrawInfo
+                {
+                    PlayerCode = playerCodes[0],
+                    DepositTotalAmount = 16888m,
+                    WithdrawTotalAmount = 88m
+                }
+            }.ToAsyncEnumerable());
+
+        _ = fakePlayerServiceClient
+            .QueryPlayerInfoListAsync(
+                Arg.Is(brandId),
+                Arg.Is<IEnumerable<string>>(p => p.SequenceEqual(playerCodes)),
+                Arg.Any<CancellationToken>())
+            .Returns(new Tgs.PlayerService.Client.PlayerInfo[]
+            {
+                new Tgs.PlayerService.Client.PlayerInfo
+                {
+                    PlayerCode = playerCodes[0],
+                    UserName = "username"
+                }
+            }.ToAsyncEnumerable());
+
+        var actual = await sut
+            .QueryAsync(new GetTopTenDepositQuery(brandId, TopTenPlayerSortType.WinLoss, false))
+            .ToArrayAsync()
+            .ConfigureAwait(false);
+
+        Assert.IsNotNull(actual);
+        Assert.AreEqual(1, actual.Length);
+        Assert.AreEqual("username", actual[0].PlayerUserName);
+        Assert.AreEqual(16888m, actual[0].DepositTotalAmount);
+        Assert.AreEqual(88m, actual[0].WithdrawTotalAmount);
+        Assert.AreEqual(100m, actual[0].Bet);
+        Assert.AreEqual(0m, actual[0].Settle);
+        Assert.AreEqual(-100m, actual[0].WinLoss);
+    }
+
+    [Test]
+    public async Task 查詢當日與昨天註冊人數()
+    {
+        var fakePlayerServiceClient = Substitute.For<IPlayerServiceClient>();
+
+        var sut = new GetDayPlayerRegisterCountQueryService(fakePlayerServiceClient);
+
+        var brandId = Guid.NewGuid();
+        var yesterday = DateOnly.FromDateTime(DateTimeOffset.Now.ToOffset(TimeSpan.FromHours(8d)).AddDays(-1).DateTime);
+
+        _ = fakePlayerServiceClient
+            .CountCurrentDayRegisterPlayersAsync(Arg.Is(brandId))
+            .Returns(168);
+
+        _ = fakePlayerServiceClient
+            .CountReportDateRegisterPlayersAsync(Arg.Is(brandId), Arg.Is(yesterday))
+            .Returns(88);
+
+        var actual = await sut.GetAsync(new GetDayPlayerRegisterCountQuery(brandId));
+
+        Assert.AreEqual(168, actual.Today);
+        Assert.AreEqual(88, actual.Yesterday);
     }
 }
