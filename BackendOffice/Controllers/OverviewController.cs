@@ -1,6 +1,8 @@
 ﻿#nullable enable
 
 using System;
+using System.Collections.Generic;
+using System.Linq;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
@@ -9,6 +11,7 @@ using Tgs.ServiceUtility;
 using TGS.Apis.BackendOffice.ViewModels;
 using TGS.Services.BackOffice.ApplicationServices.Overview;
 using TGS.Services.BackOffice.Domain;
+using TGS.Services.BackOffice.Domain.Enums;
 
 namespace TGS.Apis.BackendOffice.Controllers;
 
@@ -67,5 +70,31 @@ public class OverviewController : BaseContextController
             TodayPlayerRegisterCount = info.Today,
             YesterdayPlayerRegisterCount = info.Yesterday,
         };
+    }
+
+    [HttpGet("top-ten/{brandId}")]
+    public async IAsyncEnumerable<TopTenPlayerViewModel> GetTopTenPlayersAsync(
+        [FromServices] IQueryService<GetTopTenDepositQuery, TopTenPlayerInfo> queryService,
+        Guid brandId,
+        [FromQuery] TopTenPlayerSortType sortType,
+        [FromQuery] bool winLossAscending)
+    {
+        var infos = await queryService
+            .QueryAsync(new GetTopTenDepositQuery(brandId, sortType, winLossAscending), HttpContext.RequestAborted)
+            .ToArrayAsync(HttpContext.RequestAborted)
+            .ConfigureAwait(false);
+
+        foreach (var info in infos)
+        {
+            yield return new TopTenPlayerViewModel
+            {
+                PlayerUsername = info.PlayerUserName,
+                Deposit = info.DepositTotalAmount,
+                Withdraw = info.WithdrawTotalAmount,
+                Bet = info.Bet,
+                Settle = info.Settle,
+                WinLoss = info.WinLoss,
+            };
+        }
     }
 }

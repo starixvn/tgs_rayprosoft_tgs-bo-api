@@ -837,4 +837,18 @@ export default class BackOfficeService {
             .post("/api/withdraw/player", request)
             .then(res => res.data);
     }
+
+    public getTopTenPlayers(brandId: string, sortType:string, winLossAscending: boolean): Promise<TopTenPlayerViewModel>{            
+        const queryString = {
+            sortType: sortType,
+            winLossAscending: winLossAscending
+        };
+
+        return this.http
+            .get(`/api/overview/top-ten/${brandId}`,
+            {
+                params: queryString
+            })
+            .then(res=>res.data);
+    }
 }
