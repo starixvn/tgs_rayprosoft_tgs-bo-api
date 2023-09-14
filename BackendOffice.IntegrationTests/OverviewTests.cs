@@ -66,14 +66,18 @@ public class OverviewTests
         var playerCodes = new string[] { "4uel5ke0uf3k" };
 
         _ = fakeBrandServiceClient
-            .GetBrandInfoAsync(Arg.Is(brandId))
+            .GetBrandInfoAsync(
+                Arg.Is(brandId), 
+                Arg.Any<CancellationToken>())
             .Returns(new BrandInfo
             {
                 Code = brandCode
             });
 
         _ = fakePaymentServiceClient
-            .GetCurrentDayTopTenDepositPlayersAsync(Arg.Is(brandId))
+            .GetCurrentDayTopTenDepositPlayersAsync(
+                Arg.Is(brandId), 
+                Arg.Any<CancellationToken>())
             .Returns(new TopTenDepositWithdrawInfo[]
             {
                 new TopTenDepositWithdrawInfo
@@ -89,14 +93,18 @@ public class OverviewTests
                 Arg.Is(brandCode),
                 Arg.Any<DateTimeOffset>(),
                 Arg.Any<DateTimeOffset>(),
-                Arg.Is<IEnumerable<string>>(x => x.SequenceEqual(playerCodes)))
+                Arg.Is<IEnumerable<string>>(x => x.SequenceEqual(playerCodes)),
+                Arg.Any<CancellationToken>())
             .Returns(new BrandWagerPlayerStatsInfo[]
             {
                 new BrandWagerPlayerStatsInfo(Guid.NewGuid(),"GPCode",123, Guid.NewGuid(),"ResellerCode",Guid.NewGuid(),"LicenseeCode",brandId,brandCode,playerCodes[0],"username","CNY",1,100m,100m,0m,0m,100m,-100m)
             }.ToAsyncEnumerable());
 
         _ = fakePlayerServiceClient
-            .QueryPlayerInfoListAsync(Arg.Is(brandId), Arg.Is<IEnumerable<string>>(p => p.SequenceEqual(playerCodes)))
+            .QueryPlayerInfoListAsync(
+                Arg.Is(brandId), 
+                Arg.Is<IEnumerable<string>>(p => p.SequenceEqual(playerCodes)),
+                Arg.Any<CancellationToken>())
             .Returns(new Tgs.PlayerService.Client.PlayerInfo[]
             {
                 new Tgs.PlayerService.Client.PlayerInfo
@@ -185,7 +193,9 @@ public class OverviewTests
         var playerCodes = new string[] { "4uel5ke0uf3k" };
 
         _ = fakeBrandServiceClient
-            .GetBrandInfoAsync(Arg.Is(brandId))
+            .GetBrandInfoAsync(
+                Arg.Is(brandId), 
+                Arg.Any<CancellationToken>())
             .Returns(new BrandInfo
             {
                 Code = brandCode
@@ -197,14 +207,17 @@ public class OverviewTests
                 Arg.Any<DateTimeOffset>(),
                 Arg.Any<DateTimeOffset>(),
                 Arg.Is(BrandWagerPlayerMinsStatsSort.Bet),
-                Arg.Is(false))
+                Arg.Is(false),
+                cancellationToken: Arg.Any<CancellationToken>())
             .Returns(new BrandWagerPlayerStatsInfo[]
             {
                 new BrandWagerPlayerStatsInfo(Guid.NewGuid(),"GPCode",123, Guid.NewGuid(),"ResellerCode",Guid.NewGuid(),"LicenseeCode",brandId,brandCode,playerCodes[0],"username","CNY",1,100m,100m,0m,0m,100m,-100m)
             }.ToAsyncEnumerable());
 
         _ = fakePaymentServiceClient
-            .GetCurrentDayDepositWithdrawTotalAmountAsync(Arg.Is<IEnumerable<string>>(p => p.SequenceEqual(playerCodes)))
+            .GetCurrentDayDepositWithdrawTotalAmountAsync(
+                Arg.Is<IEnumerable<string>>(p => p.SequenceEqual(playerCodes)),
+                Arg.Any<CancellationToken>())
             .Returns(new TopTenDepositWithdrawInfo[]
             {
                 new TopTenDepositWithdrawInfo
@@ -216,7 +229,10 @@ public class OverviewTests
             }.ToAsyncEnumerable());
 
         _ = fakePlayerServiceClient
-            .QueryPlayerInfoListAsync(Arg.Is(brandId), Arg.Is<IEnumerable<string>>(p => p.SequenceEqual(playerCodes)))
+            .QueryPlayerInfoListAsync(
+                Arg.Is(brandId), 
+                Arg.Is<IEnumerable<string>>(p => p.SequenceEqual(playerCodes)), 
+                Arg.Any<CancellationToken>())
             .Returns(new Tgs.PlayerService.Client.PlayerInfo[]
             {
                 new Tgs.PlayerService.Client.PlayerInfo
@@ -305,7 +321,9 @@ public class OverviewTests
         var playerCodes = new string[] { "4uel5ke0uf3k" };
 
         _ = fakeBrandServiceClient
-            .GetBrandInfoAsync(Arg.Is(brandId))
+            .GetBrandInfoAsync(
+                Arg.Is(brandId), 
+                Arg.Any<CancellationToken>())
             .Returns(new BrandInfo
             {
                 Code = brandCode
@@ -317,14 +335,17 @@ public class OverviewTests
                 Arg.Any<DateTimeOffset>(),
                 Arg.Any<DateTimeOffset>(),
                 Arg.Is(BrandWagerPlayerMinsStatsSort.Settle),
-                Arg.Is(false))
+                Arg.Is(false),
+                cancellationToken: Arg.Any<CancellationToken>())
             .Returns(new BrandWagerPlayerStatsInfo[]
             {
                 new BrandWagerPlayerStatsInfo(Guid.NewGuid(),"GPCode",123, Guid.NewGuid(),"ResellerCode",Guid.NewGuid(),"LicenseeCode",brandId,brandCode,playerCodes[0],"username","CNY",1,100m,100m,0m,0m,100m,-100m)
             }.ToAsyncEnumerable());
 
         _ = fakePaymentServiceClient
-            .GetCurrentDayDepositWithdrawTotalAmountAsync(Arg.Is<IEnumerable<string>>(p => p.SequenceEqual(playerCodes)))
+            .GetCurrentDayDepositWithdrawTotalAmountAsync(
+                Arg.Is<IEnumerable<string>>(p => p.SequenceEqual(playerCodes)), 
+                Arg.Any<CancellationToken>())
             .Returns(new TopTenDepositWithdrawInfo[]
             {
                 new TopTenDepositWithdrawInfo
@@ -336,7 +357,10 @@ public class OverviewTests
             }.ToAsyncEnumerable());
 
         _ = fakePlayerServiceClient
-            .QueryPlayerInfoListAsync(Arg.Is(brandId), Arg.Is<IEnumerable<string>>(p => p.SequenceEqual(playerCodes)))
+            .QueryPlayerInfoListAsync(
+                Arg.Is(brandId), 
+                Arg.Is<IEnumerable<string>>(p => p.SequenceEqual(playerCodes)), 
+                Arg.Any<CancellationToken>())
             .Returns(new Tgs.PlayerService.Client.PlayerInfo[]
             {
                 new Tgs.PlayerService.Client.PlayerInfo
@@ -425,14 +449,18 @@ public class OverviewTests
         var playerCodes = new string[] { "4uel5ke0uf3k" };
 
         _ = fakeBrandServiceClient
-            .GetBrandInfoAsync(Arg.Is(brandId))
+            .GetBrandInfoAsync(
+                Arg.Is(brandId),
+                Arg.Any<CancellationToken>())
             .Returns(new BrandInfo
             {
                 Code = brandCode
             });
 
         _ = fakePaymentServiceClient
-            .GetCurrentDayTopTenWithdrawPlayersAsync(Arg.Is(brandId))
+            .GetCurrentDayTopTenWithdrawPlayersAsync(
+                Arg.Is(brandId),
+                Arg.Any<CancellationToken>())
             .Returns(new TopTenDepositWithdrawInfo[]
             {
                 new TopTenDepositWithdrawInfo
@@ -448,14 +476,18 @@ public class OverviewTests
                 Arg.Is(brandCode),
                 Arg.Any<DateTimeOffset>(),
                 Arg.Any<DateTimeOffset>(),
-                Arg.Is<IEnumerable<string>>(x => x.SequenceEqual(playerCodes)))
+                Arg.Is<IEnumerable<string>>(x => x.SequenceEqual(playerCodes)), 
+                Arg.Any<CancellationToken>())
             .Returns(new BrandWagerPlayerStatsInfo[]
             {
                 new BrandWagerPlayerStatsInfo(Guid.NewGuid(),"GPCode",123, Guid.NewGuid(),"ResellerCode",Guid.NewGuid(),"LicenseeCode",brandId,brandCode,playerCodes[0],"username","CNY",1,100m,100m,0m,0m,100m,-100m)
             }.ToAsyncEnumerable());
 
         _ = fakePlayerServiceClient
-            .QueryPlayerInfoListAsync(Arg.Is(brandId), Arg.Is<IEnumerable<string>>(p => p.SequenceEqual(playerCodes)))
+            .QueryPlayerInfoListAsync(
+                Arg.Is(brandId), 
+                Arg.Is<IEnumerable<string>>(p => p.SequenceEqual(playerCodes)),
+                Arg.Any<CancellationToken>())
             .Returns(new Tgs.PlayerService.Client.PlayerInfo[]
             {
                 new Tgs.PlayerService.Client.PlayerInfo
@@ -544,7 +576,9 @@ public class OverviewTests
         var playerCodes = new string[] { "4uel5ke0uf3k" };
 
         _ = fakeBrandServiceClient
-            .GetBrandInfoAsync(Arg.Is(brandId))
+            .GetBrandInfoAsync(
+                Arg.Is(brandId), 
+                Arg.Any<CancellationToken>())
             .Returns(new BrandInfo
             {
                 Code = brandCode
@@ -556,14 +590,17 @@ public class OverviewTests
                 Arg.Any<DateTimeOffset>(),
                 Arg.Any<DateTimeOffset>(),
                 Arg.Is(BrandWagerPlayerMinsStatsSort.WinLoss),
-                Arg.Is(true))
+                Arg.Is(true),
+                cancellationToken: Arg.Any<CancellationToken>())
             .Returns(new BrandWagerPlayerStatsInfo[]
             {
                 new BrandWagerPlayerStatsInfo(Guid.NewGuid(),"GPCode",123, Guid.NewGuid(),"ResellerCode",Guid.NewGuid(),"LicenseeCode",brandId,brandCode,playerCodes[0],"username","CNY",1,100m,100m,0m,0m,100m,-100m)
             }.ToAsyncEnumerable());
 
         _ = fakePaymentServiceClient
-            .GetCurrentDayDepositWithdrawTotalAmountAsync(Arg.Is<IEnumerable<string>>(p => p.SequenceEqual(playerCodes)))
+            .GetCurrentDayDepositWithdrawTotalAmountAsync(
+                Arg.Is<IEnumerable<string>>(p => p.SequenceEqual(playerCodes)),
+                Arg.Any<CancellationToken>())
             .Returns(new TopTenDepositWithdrawInfo[]
             {
                 new TopTenDepositWithdrawInfo
@@ -575,7 +612,10 @@ public class OverviewTests
             }.ToAsyncEnumerable());
 
         _ = fakePlayerServiceClient
-            .QueryPlayerInfoListAsync(Arg.Is(brandId), Arg.Is<IEnumerable<string>>(p => p.SequenceEqual(playerCodes)))
+            .QueryPlayerInfoListAsync(
+                Arg.Is(brandId), 
+                Arg.Is<IEnumerable<string>>(p => p.SequenceEqual(playerCodes)),
+                Arg.Any<CancellationToken>())
             .Returns(new Tgs.PlayerService.Client.PlayerInfo[]
             {
                 new Tgs.PlayerService.Client.PlayerInfo
@@ -664,7 +704,9 @@ public class OverviewTests
         var playerCodes = new string[] { "4uel5ke0uf3k" };
 
         _ = fakeBrandServiceClient
-            .GetBrandInfoAsync(Arg.Is(brandId))
+            .GetBrandInfoAsync(
+                Arg.Is(brandId),
+                Arg.Any<CancellationToken>())
             .Returns(new BrandInfo
             {
                 Code = brandCode
@@ -676,14 +718,17 @@ public class OverviewTests
                 Arg.Any<DateTimeOffset>(),
                 Arg.Any<DateTimeOffset>(),
                 Arg.Is(BrandWagerPlayerMinsStatsSort.WinLoss),
-                Arg.Is(false))
+                Arg.Is(false),
+                cancellationToken: Arg.Any<CancellationToken>())
             .Returns(new BrandWagerPlayerStatsInfo[]
             {
                 new BrandWagerPlayerStatsInfo(Guid.NewGuid(),"GPCode",123, Guid.NewGuid(),"ResellerCode",Guid.NewGuid(),"LicenseeCode",brandId,brandCode,playerCodes[0],"username","CNY",1,100m,100m,0m,0m,100m,-100m)
             }.ToAsyncEnumerable());
 
         _ = fakePaymentServiceClient
-            .GetCurrentDayDepositWithdrawTotalAmountAsync(Arg.Is<IEnumerable<string>>(p => p.SequenceEqual(playerCodes)))
+            .GetCurrentDayDepositWithdrawTotalAmountAsync(
+                Arg.Is<IEnumerable<string>>(p => p.SequenceEqual(playerCodes)),
+                Arg.Any<CancellationToken>())
             .Returns(new TopTenDepositWithdrawInfo[]
             {
                 new TopTenDepositWithdrawInfo
@@ -695,7 +740,10 @@ public class OverviewTests
             }.ToAsyncEnumerable());
 
         _ = fakePlayerServiceClient
-            .QueryPlayerInfoListAsync(Arg.Is(brandId), Arg.Is<IEnumerable<string>>(p => p.SequenceEqual(playerCodes)))
+            .QueryPlayerInfoListAsync(
+                Arg.Is(brandId), 
+                Arg.Is<IEnumerable<string>>(p => p.SequenceEqual(playerCodes)),
+                Arg.Any<CancellationToken>())
             .Returns(new Tgs.PlayerService.Client.PlayerInfo[]
             {
                 new Tgs.PlayerService.Client.PlayerInfo
