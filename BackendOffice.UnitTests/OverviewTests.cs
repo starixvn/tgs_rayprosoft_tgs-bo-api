@@ -161,7 +161,8 @@ public class OverviewTests
                 Arg.Any<DateTimeOffset>(),
                 Arg.Any<DateTimeOffset>(),
                 Arg.Is(BrandWagerPlayerMinsStatsSort.Bet),
-                Arg.Is(false))
+                Arg.Is(false),
+                cancellationToken: Arg.Any<CancellationToken>())
             .Returns(new BrandWagerPlayerStatsInfo[]
             {
                 new BrandWagerPlayerStatsInfo(Guid.NewGuid(),"GPCode",123, Guid.NewGuid(),"ResellerCode",Guid.NewGuid(),"LicenseeCode",brandId,brandCode,playerCodes[0],"username","CNY",1,100m,100m,0m,0m,100m,-100m)
@@ -237,7 +238,8 @@ public class OverviewTests
                 Arg.Any<DateTimeOffset>(),
                 Arg.Any<DateTimeOffset>(),
                 Arg.Is(BrandWagerPlayerMinsStatsSort.Settle),
-                Arg.Is(false))
+                Arg.Is(false),
+                cancellationToken: Arg.Any<CancellationToken>())
             .Returns(new BrandWagerPlayerStatsInfo[]
             {
                 new BrandWagerPlayerStatsInfo(Guid.NewGuid(),"GPCode",123, Guid.NewGuid(),"ResellerCode",Guid.NewGuid(),"LicenseeCode",brandId,brandCode,playerCodes[0],"username","CNY",1,100m,100m,0m,0m,100m,-100m)
@@ -386,7 +388,8 @@ public class OverviewTests
                 Arg.Any<DateTimeOffset>(),
                 Arg.Any<DateTimeOffset>(),
                 Arg.Is(BrandWagerPlayerMinsStatsSort.WinLoss),
-                Arg.Is(true))
+                Arg.Is(true), 
+                cancellationToken: Arg.Any<CancellationToken>())
             .Returns(new BrandWagerPlayerStatsInfo[]
             {
                 new BrandWagerPlayerStatsInfo(Guid.NewGuid(),"GPCode",123, Guid.NewGuid(),"ResellerCode",Guid.NewGuid(),"LicenseeCode",brandId,brandCode,playerCodes[0],"username","CNY",1,100m,100m,0m,0m,100m,-100m)
@@ -462,7 +465,8 @@ public class OverviewTests
                 Arg.Any<DateTimeOffset>(),
                 Arg.Any<DateTimeOffset>(),
                 Arg.Is(BrandWagerPlayerMinsStatsSort.WinLoss),
-                Arg.Is(false))
+                Arg.Is(false),
+                cancellationToken: Arg.Any<CancellationToken>())
             .Returns(new BrandWagerPlayerStatsInfo[]
             {
                 new BrandWagerPlayerStatsInfo(Guid.NewGuid(),"GPCode",123, Guid.NewGuid(),"ResellerCode",Guid.NewGuid(),"LicenseeCode",brandId,brandCode,playerCodes[0],"username","CNY",1,100m,100m,0m,0m,100m,-100m)
