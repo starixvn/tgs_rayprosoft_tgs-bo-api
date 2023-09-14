@@ -330,7 +330,8 @@ public class OverviewTests
                 Arg.Is(brandCode),
                 Arg.Any<DateTimeOffset>(),
                 Arg.Any<DateTimeOffset>(),
-                Arg.Is<IEnumerable<string>>(x => x.SequenceEqual(playerCodes)))
+                Arg.Is<IEnumerable<string>>(x => x.SequenceEqual(playerCodes)),
+                Arg.Any<CancellationToken>())
             .Returns(new BrandWagerPlayerStatsInfo[]
             {
                 new BrandWagerPlayerStatsInfo(Guid.NewGuid(),"GPCode",123, Guid.NewGuid(),"ResellerCode",Guid.NewGuid(),"LicenseeCode",brandId,brandCode,playerCodes[0],"username","CNY",1,100m,100m,0m,0m,100m,-100m)
