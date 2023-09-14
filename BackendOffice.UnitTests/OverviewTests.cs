@@ -1,7 +1,11 @@
 ﻿using NSubstitute;
+using Tgs.BrandCertificate.Clients;
+using Tgs.GameWagers.Client;
+using Tgs.GameWagers.Common;
 using Tgs.Payment.Clients;
 using Tgs.PlayerService.Client;
 using TGS.Services.BackOffice.ApplicationServices.Overview;
+using TGS.Services.BackOffice.Domain.Enums;
 
 namespace TGS.Tests.BackendOffice.UnitTests;
 
@@ -54,6 +58,470 @@ public class OverviewTests
 
         Assert.AreEqual(100m, actual.Today);
         Assert.AreEqual(88m, actual.Yesterday);
+    }
+
+    [Test]
+    public async Task 查詢當日十大玩家_存款()
+    {
+        var fakePaymentServiceClient = Substitute.For<IPaymentServiceClient>();
+        var fakeBrandServiceClient = Substitute.For<IBrandServiceClient>();
+        var fakeGameWagersClient = Substitute.For<IGameWagersClient>();
+        var fakePlayerServiceClient = Substitute.For<IPlayerServiceClient>();
+
+        var sut = new GetTopTenDepositQueryService(fakePaymentServiceClient, fakeBrandServiceClient, fakeGameWagersClient, fakePlayerServiceClient);
+
+        var brandId = Guid.Parse("4e86719f-243f-46f6-b010-5c758b7285af");
+        var brandCode = "GPI";
+        var playerCodes = new string[] { "4uel5ke0uf3k" };
+
+        _ = fakeBrandServiceClient
+            .GetBrandInfoAsync(Arg.Is(brandId), Arg.Any<CancellationToken>())
+            .Returns(new BrandInfo
+            {
+                Code = brandCode
+            });
+
+        _ = fakePaymentServiceClient
+            .GetCurrentDayTopTenDepositPlayersAsync(Arg.Is(brandId), Arg.Any<CancellationToken>())
+            .Returns(new TopTenDepositWithdrawInfo[]
+            {
+                new TopTenDepositWithdrawInfo
+                {
+                    PlayerCode = playerCodes[0],
+                    DepositTotalAmount = 16888m,
+                    WithdrawTotalAmount = 88m
+                }
+            }.ToAsyncEnumerable());
+
+        _ = fakeGameWagersClient
+            .BrandWagerPlayerStatsPlayerQueryAsync(
+                Arg.Is(brandCode),
+                Arg.Any<DateTimeOffset>(),
+                Arg.Any<DateTimeOffset>(),
+                Arg.Is<IEnumerable<string>>(x => x.SequenceEqual(playerCodes)),
+                Arg.Any<CancellationToken>())
+            .Returns(new BrandWagerPlayerStatsInfo[]
+            {
+                new BrandWagerPlayerStatsInfo(Guid.NewGuid(),"GPCode",123, Guid.NewGuid(),"ResellerCode",Guid.NewGuid(),"LicenseeCode",brandId,brandCode,playerCodes[0],"username","CNY",1,100m,100m,0m,0m,100m,-100m)
+            }.ToAsyncEnumerable());
+
+        _ = fakePlayerServiceClient
+            .QueryPlayerInfoListAsync(
+                Arg.Is(brandId),
+                Arg.Is<IEnumerable<string>>(p => p.SequenceEqual(playerCodes)),
+                Arg.Any<CancellationToken>())
+            .Returns(new Tgs.PlayerService.Client.PlayerInfo[]
+            {
+                new Tgs.PlayerService.Client.PlayerInfo
+                {
+                    PlayerCode = playerCodes[0],
+                    UserName = "username"
+                }
+            }.ToAsyncEnumerable());
+
+        var actual = await sut
+            .QueryAsync(new GetTopTenDepositQuery(brandId, TopTenPlayerSortType.Deposit, false))
+            .ToArrayAsync()
+            .ConfigureAwait(false);
+
+        Assert.IsNotNull(actual);
+        Assert.AreEqual(1, actual.Length);
+        Assert.AreEqual("username", actual[0].PlayerUserName);
+        Assert.AreEqual(16888m, actual[0].DepositTotalAmount);
+        Assert.AreEqual(88m, actual[0].WithdrawTotalAmount);
+        Assert.AreEqual(100m, actual[0].Bet);
+        Assert.AreEqual(0m, actual[0].Settle);
+        Assert.AreEqual(-100m, actual[0].WinLoss);
+    }
+
+    [Test]
+    public async Task 查詢當日十大玩家_投注()
+    {
+        var fakePaymentServiceClient = Substitute.For<IPaymentServiceClient>();
+        var fakeBrandServiceClient = Substitute.For<IBrandServiceClient>();
+        var fakeGameWagersClient = Substitute.For<IGameWagersClient>();
+        var fakePlayerServiceClient = Substitute.For<IPlayerServiceClient>();
+
+        var sut = new GetTopTenDepositQueryService(fakePaymentServiceClient, fakeBrandServiceClient, fakeGameWagersClient, fakePlayerServiceClient);
+
+        var brandId = Guid.Parse("4e86719f-243f-46f6-b010-5c758b7285af");
+        var brandCode = "GPI";
+        var playerCodes = new string[] { "4uel5ke0uf3k" };
+
+        _ = fakeBrandServiceClient
+            .GetBrandInfoAsync(Arg.Is(brandId), Arg.Any<CancellationToken>())
+            .Returns(new BrandInfo
+            {
+                Code = brandCode
+            });
+
+        _ = fakeGameWagersClient
+            .BrandWagerPlayerStatsQueryAsync(
+                Arg.Is(brandCode),
+                Arg.Any<DateTimeOffset>(),
+                Arg.Any<DateTimeOffset>(),
+                Arg.Is(BrandWagerPlayerMinsStatsSort.Bet),
+                Arg.Is(false),
+                Arg.Any<int>(),
+                Arg.Any<int>(),
+                Arg.Any<CancellationToken>())
+            .Returns(new BrandWagerPlayerStatsInfo[]
+            {
+                new BrandWagerPlayerStatsInfo(Guid.NewGuid(),"GPCode",123, Guid.NewGuid(),"ResellerCode",Guid.NewGuid(),"LicenseeCode",brandId,brandCode,playerCodes[0],"username","CNY",1,100m,100m,0m,0m,100m,-100m)
+            }.ToAsyncEnumerable());
+
+        _ = fakePaymentServiceClient
+            .GetCurrentDayDepositWithdrawTotalAmountAsync(
+                Arg.Is<IEnumerable<string>>(p => p.SequenceEqual(playerCodes)),
+                Arg.Any<CancellationToken>())
+            .Returns(new TopTenDepositWithdrawInfo[]
+            {
+                new TopTenDepositWithdrawInfo
+                {
+                    PlayerCode = playerCodes[0],
+                    DepositTotalAmount = 16888m,
+                    WithdrawTotalAmount = 88m
+                }
+            }.ToAsyncEnumerable());
+
+        _ = fakePlayerServiceClient
+            .QueryPlayerInfoListAsync(
+                Arg.Is(brandId),
+                Arg.Is<IEnumerable<string>>(p => p.SequenceEqual(playerCodes)),
+                Arg.Any<CancellationToken>())
+            .Returns(new Tgs.PlayerService.Client.PlayerInfo[]
+            {
+                new Tgs.PlayerService.Client.PlayerInfo
+                {
+                    PlayerCode = playerCodes[0],
+                    UserName = "username"
+                }
+            }.ToAsyncEnumerable());
+
+        var actual = await sut
+            .QueryAsync(new GetTopTenDepositQuery(brandId, TopTenPlayerSortType.Bet, false))
+            .ToArrayAsync()
+            .ConfigureAwait(false);
+
+        Assert.IsNotNull(actual);
+        Assert.AreEqual(1, actual.Length);
+        Assert.AreEqual("username", actual[0].PlayerUserName);
+        Assert.AreEqual(16888m, actual[0].DepositTotalAmount);
+        Assert.AreEqual(88m, actual[0].WithdrawTotalAmount);
+        Assert.AreEqual(100m, actual[0].Bet);
+        Assert.AreEqual(0m, actual[0].Settle);
+        Assert.AreEqual(-100m, actual[0].WinLoss);
+    }
+
+    [Test]
+    public async Task 查詢當日十大玩家_派彩()
+    {
+        var fakePaymentServiceClient = Substitute.For<IPaymentServiceClient>();
+        var fakeBrandServiceClient = Substitute.For<IBrandServiceClient>();
+        var fakeGameWagersClient = Substitute.For<IGameWagersClient>();
+        var fakePlayerServiceClient = Substitute.For<IPlayerServiceClient>();
+
+        var sut = new GetTopTenDepositQueryService(fakePaymentServiceClient, fakeBrandServiceClient, fakeGameWagersClient, fakePlayerServiceClient);
+
+        var brandId = Guid.Parse("4e86719f-243f-46f6-b010-5c758b7285af");
+        var brandCode = "GPI";
+        var playerCodes = new string[] { "4uel5ke0uf3k" };
+
+        _ = fakeBrandServiceClient
+            .GetBrandInfoAsync(Arg.Is(brandId), Arg.Any<CancellationToken>())
+            .Returns(new BrandInfo
+            {
+                Code = brandCode
+            });
+
+        _ = fakeGameWagersClient
+            .BrandWagerPlayerStatsQueryAsync(
+                Arg.Is(brandCode),
+                Arg.Any<DateTimeOffset>(),
+                Arg.Any<DateTimeOffset>(),
+                Arg.Is(BrandWagerPlayerMinsStatsSort.Settle),
+                Arg.Is(false),
+                Arg.Any<int>(),
+                Arg.Any<int>(),
+                Arg.Any<CancellationToken>())
+            .Returns(new BrandWagerPlayerStatsInfo[]
+            {
+                new BrandWagerPlayerStatsInfo(Guid.NewGuid(),"GPCode",123, Guid.NewGuid(),"ResellerCode",Guid.NewGuid(),"LicenseeCode",brandId,brandCode,playerCodes[0],"username","CNY",1,100m,100m,0m,0m,100m,-100m)
+            }.ToAsyncEnumerable());
+
+        _ = fakePaymentServiceClient
+            .GetCurrentDayDepositWithdrawTotalAmountAsync(
+                Arg.Is<IEnumerable<string>>(p => p.SequenceEqual(playerCodes)),
+                Arg.Any<CancellationToken>())
+            .Returns(new TopTenDepositWithdrawInfo[]
+            {
+                new TopTenDepositWithdrawInfo
+                {
+                    PlayerCode = playerCodes[0],
+                    DepositTotalAmount = 16888m,
+                    WithdrawTotalAmount = 88m
+                }
+            }.ToAsyncEnumerable());
+
+        _ = fakePlayerServiceClient
+            .QueryPlayerInfoListAsync(
+                Arg.Is(brandId),
+                Arg.Is<IEnumerable<string>>(p => p.SequenceEqual(playerCodes)),
+                Arg.Any<CancellationToken>())
+            .Returns(new Tgs.PlayerService.Client.PlayerInfo[]
+            {
+                new Tgs.PlayerService.Client.PlayerInfo
+                {
+                    PlayerCode = playerCodes[0],
+                    UserName = "username"
+                }
+            }.ToAsyncEnumerable());
+
+        var actual = await sut
+            .QueryAsync(new GetTopTenDepositQuery(brandId, TopTenPlayerSortType.Settle, false))
+            .ToArrayAsync()
+            .ConfigureAwait(false);
+
+        Assert.IsNotNull(actual);
+        Assert.AreEqual(1, actual.Length);
+        Assert.AreEqual("username", actual[0].PlayerUserName);
+        Assert.AreEqual(16888m, actual[0].DepositTotalAmount);
+        Assert.AreEqual(88m, actual[0].WithdrawTotalAmount);
+        Assert.AreEqual(100m, actual[0].Bet);
+        Assert.AreEqual(0m, actual[0].Settle);
+        Assert.AreEqual(-100m, actual[0].WinLoss);
+    }
+
+    [Test]
+    public async Task 查詢當日十大玩家_提款()
+    {
+        var fakePaymentServiceClient = Substitute.For<IPaymentServiceClient>();
+        var fakeBrandServiceClient = Substitute.For<IBrandServiceClient>();
+        var fakeGameWagersClient = Substitute.For<IGameWagersClient>();
+        var fakePlayerServiceClient = Substitute.For<IPlayerServiceClient>();
+
+        var sut = new GetTopTenDepositQueryService(fakePaymentServiceClient, fakeBrandServiceClient, fakeGameWagersClient, fakePlayerServiceClient);
+
+        var brandId = Guid.Parse("4e86719f-243f-46f6-b010-5c758b7285af");
+        var brandCode = "GPI";
+        var playerCodes = new string[] { "4uel5ke0uf3k" };
+
+        _ = fakeBrandServiceClient
+            .GetBrandInfoAsync(Arg.Is(brandId), Arg.Any<CancellationToken>())
+            .Returns(new BrandInfo
+            {
+                Code = brandCode
+            });
+
+        _ = fakePaymentServiceClient
+            .GetCurrentDayTopTenWithdrawPlayersAsync(Arg.Is(brandId), Arg.Any<CancellationToken>())
+            .Returns(new TopTenDepositWithdrawInfo[]
+            {
+                new TopTenDepositWithdrawInfo
+                {
+                    PlayerCode = playerCodes[0],
+                    DepositTotalAmount = 16888m,
+                    WithdrawTotalAmount = 88m
+                }
+            }.ToAsyncEnumerable());
+
+        _ = fakeGameWagersClient
+            .BrandWagerPlayerStatsPlayerQueryAsync(
+                Arg.Is(brandCode),
+                Arg.Any<DateTimeOffset>(),
+                Arg.Any<DateTimeOffset>(),
+                Arg.Is<IEnumerable<string>>(x => x.SequenceEqual(playerCodes)),
+                Arg.Any<CancellationToken>())
+            .Returns(new BrandWagerPlayerStatsInfo[]
+            {
+                new BrandWagerPlayerStatsInfo(Guid.NewGuid(),"GPCode",123, Guid.NewGuid(),"ResellerCode",Guid.NewGuid(),"LicenseeCode",brandId,brandCode,playerCodes[0],"username","CNY",1,100m,100m,0m,0m,100m,-100m)
+            }.ToAsyncEnumerable());
+
+        _ = fakePlayerServiceClient
+            .QueryPlayerInfoListAsync(
+                Arg.Is(brandId),
+                Arg.Is<IEnumerable<string>>(p => p.SequenceEqual(playerCodes)),
+                Arg.Any<CancellationToken>())
+            .Returns(new Tgs.PlayerService.Client.PlayerInfo[]
+            {
+                new Tgs.PlayerService.Client.PlayerInfo
+                {
+                    PlayerCode = playerCodes[0],
+                    UserName = "username"
+                }
+            }.ToAsyncEnumerable());
+
+        var actual = await sut
+            .QueryAsync(new GetTopTenDepositQuery(brandId, TopTenPlayerSortType.Withdraw, false))
+            .ToArrayAsync()
+            .ConfigureAwait(false);
+
+        Assert.IsNotNull(actual);
+        Assert.AreEqual(1, actual.Length);
+        Assert.AreEqual("username", actual[0].PlayerUserName);
+        Assert.AreEqual(16888m, actual[0].DepositTotalAmount);
+        Assert.AreEqual(88m, actual[0].WithdrawTotalAmount);
+        Assert.AreEqual(100m, actual[0].Bet);
+        Assert.AreEqual(0m, actual[0].Settle);
+        Assert.AreEqual(-100m, actual[0].WinLoss);
+    }
+
+    [Test]
+    public async Task 查詢當日十大玩家_輸贏升冪()
+    {
+        var fakePaymentServiceClient = Substitute.For<IPaymentServiceClient>();
+        var fakeBrandServiceClient = Substitute.For<IBrandServiceClient>();
+        var fakeGameWagersClient = Substitute.For<IGameWagersClient>();
+        var fakePlayerServiceClient = Substitute.For<IPlayerServiceClient>();
+
+        var sut = new GetTopTenDepositQueryService(fakePaymentServiceClient, fakeBrandServiceClient, fakeGameWagersClient, fakePlayerServiceClient);
+
+        var brandId = Guid.Parse("4e86719f-243f-46f6-b010-5c758b7285af");
+        var brandCode = "GPI";
+        var playerCodes = new string[] { "4uel5ke0uf3k" };
+
+        _ = fakeBrandServiceClient
+            .GetBrandInfoAsync(Arg.Is(brandId), Arg.Any<CancellationToken>())
+            .Returns(new BrandInfo
+            {
+                Code = brandCode
+            });
+
+        _ = fakeGameWagersClient
+            .BrandWagerPlayerStatsQueryAsync(
+                Arg.Is(brandCode),
+                Arg.Any<DateTimeOffset>(),
+                Arg.Any<DateTimeOffset>(),
+                Arg.Is(BrandWagerPlayerMinsStatsSort.WinLoss),
+                Arg.Is(true),
+                Arg.Any<int>(),
+                Arg.Any<int>(),
+                Arg.Any<CancellationToken>())
+            .Returns(new BrandWagerPlayerStatsInfo[]
+            {
+                new BrandWagerPlayerStatsInfo(Guid.NewGuid(),"GPCode",123, Guid.NewGuid(),"ResellerCode",Guid.NewGuid(),"LicenseeCode",brandId,brandCode,playerCodes[0],"username","CNY",1,100m,100m,0m,0m,100m,-100m)
+            }.ToAsyncEnumerable());
+
+        _ = fakePaymentServiceClient
+            .GetCurrentDayDepositWithdrawTotalAmountAsync(
+                Arg.Is<IEnumerable<string>>(p => p.SequenceEqual(playerCodes)),
+                Arg.Any<CancellationToken>())
+            .Returns(new TopTenDepositWithdrawInfo[]
+            {
+                new TopTenDepositWithdrawInfo
+                {
+                    PlayerCode = playerCodes[0],
+                    DepositTotalAmount = 16888m,
+                    WithdrawTotalAmount = 88m
+                }
+            }.ToAsyncEnumerable());
+
+        _ = fakePlayerServiceClient
+            .QueryPlayerInfoListAsync(
+                Arg.Is(brandId),
+                Arg.Is<IEnumerable<string>>(p => p.SequenceEqual(playerCodes)),
+                Arg.Any<CancellationToken>())
+            .Returns(new Tgs.PlayerService.Client.PlayerInfo[]
+            {
+                new Tgs.PlayerService.Client.PlayerInfo
+                {
+                    PlayerCode = playerCodes[0],
+                    UserName = "username"
+                }
+            }.ToAsyncEnumerable());
+
+        var actual = await sut
+            .QueryAsync(new GetTopTenDepositQuery(brandId, TopTenPlayerSortType.WinLoss, true))
+            .ToArrayAsync()
+            .ConfigureAwait(false);
+
+        Assert.IsNotNull(actual);
+        Assert.AreEqual(1, actual.Length);
+        Assert.AreEqual("username", actual[0].PlayerUserName);
+        Assert.AreEqual(16888m, actual[0].DepositTotalAmount);
+        Assert.AreEqual(88m, actual[0].WithdrawTotalAmount);
+        Assert.AreEqual(100m, actual[0].Bet);
+        Assert.AreEqual(0m, actual[0].Settle);
+        Assert.AreEqual(-100m, actual[0].WinLoss);
+    }
+
+    [Test]
+    public async Task 查詢當日十大玩家_輸贏降冪()
+    {
+        var fakePaymentServiceClient = Substitute.For<IPaymentServiceClient>();
+        var fakeBrandServiceClient = Substitute.For<IBrandServiceClient>();
+        var fakeGameWagersClient = Substitute.For<IGameWagersClient>();
+        var fakePlayerServiceClient = Substitute.For<IPlayerServiceClient>();
+
+        var sut = new GetTopTenDepositQueryService(fakePaymentServiceClient, fakeBrandServiceClient, fakeGameWagersClient, fakePlayerServiceClient);
+
+        var brandId = Guid.Parse("4e86719f-243f-46f6-b010-5c758b7285af");
+        var brandCode = "GPI";
+        var playerCodes = new string[] { "4uel5ke0uf3k" };
+
+        _ = fakeBrandServiceClient
+            .GetBrandInfoAsync(Arg.Is(brandId), Arg.Any<CancellationToken>())
+            .Returns(new BrandInfo
+            {
+                Code = brandCode
+            });
+
+        _ = fakeGameWagersClient
+            .BrandWagerPlayerStatsQueryAsync(
+                Arg.Is(brandCode),
+                Arg.Any<DateTimeOffset>(),
+                Arg.Any<DateTimeOffset>(),
+                Arg.Is(BrandWagerPlayerMinsStatsSort.WinLoss),
+                Arg.Is(false),
+                Arg.Any<int>(),
+                Arg.Any<int>(),
+                Arg.Any<CancellationToken>())
+            .Returns(new BrandWagerPlayerStatsInfo[]
+            {
+                new BrandWagerPlayerStatsInfo(Guid.NewGuid(),"GPCode",123, Guid.NewGuid(),"ResellerCode",Guid.NewGuid(),"LicenseeCode",brandId,brandCode,playerCodes[0],"username","CNY",1,100m,100m,0m,0m,100m,-100m)
+            }.ToAsyncEnumerable());
+
+        _ = fakePaymentServiceClient
+            .GetCurrentDayDepositWithdrawTotalAmountAsync(
+                Arg.Is<IEnumerable<string>>(p => p.SequenceEqual(playerCodes)),
+                Arg.Any<CancellationToken>())
+            .Returns(new TopTenDepositWithdrawInfo[]
+            {
+                new TopTenDepositWithdrawInfo
+                {
+                    PlayerCode = playerCodes[0],
+                    DepositTotalAmount = 16888m,
+                    WithdrawTotalAmount = 88m
+                }
+            }.ToAsyncEnumerable());
+
+        _ = fakePlayerServiceClient
+            .QueryPlayerInfoListAsync(
+                Arg.Is(brandId),
+                Arg.Is<IEnumerable<string>>(p => p.SequenceEqual(playerCodes)),
+                Arg.Any<CancellationToken>())
+            .Returns(new Tgs.PlayerService.Client.PlayerInfo[]
+            {
+                new Tgs.PlayerService.Client.PlayerInfo
+                {
+                    PlayerCode = playerCodes[0],
+                    UserName = "username"
+                }
+            }.ToAsyncEnumerable());
+
+        var actual = await sut
+            .QueryAsync(new GetTopTenDepositQuery(brandId, TopTenPlayerSortType.WinLoss, false))
+            .ToArrayAsync()
+            .ConfigureAwait(false);
+
+        Assert.IsNotNull(actual);
+        Assert.AreEqual(1, actual.Length);
+        Assert.AreEqual("username", actual[0].PlayerUserName);
+        Assert.AreEqual(16888m, actual[0].DepositTotalAmount);
+        Assert.AreEqual(88m, actual[0].WithdrawTotalAmount);
+        Assert.AreEqual(100m, actual[0].Bet);
+        Assert.AreEqual(0m, actual[0].Settle);
+        Assert.AreEqual(-100m, actual[0].WinLoss);
     }
 
     [Test]
