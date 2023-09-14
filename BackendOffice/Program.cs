@@ -283,6 +283,12 @@ builder.Services.AddDepositAccumulateRouletteClient((options, sp) =>
     options.BaseUrl = config.GetValue<Uri>("BackOffice:DepositAccumulateRouletteServiceBaseUrl");
 });
 
+builder.Services.AddGameWagersClient((options, sp) =>
+{
+    var config = sp.GetRequiredService<IConfiguration>();
+    options.BaseUrl = config.GetValue<Uri>("BackOffice:GameWagersServiceBaseUrl");
+});
+
 builder.Services.AddSwaggerGen(c =>
 {
     c.SwaggerDoc("v1",
