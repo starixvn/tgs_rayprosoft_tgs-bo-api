@@ -224,7 +224,7 @@ public class AnnouncementControllerTests : BaseTests
                 : expectedRoles[i].Status.ToString());
         }
 
-        queriesMock.Received(1).GetQueries();
+        _ = queriesMock.Received(1).GetQueries();
     }
 
     [TestCase("invalid", AnnounceStatus.Effective, AnnounceStatus.Invalid)]

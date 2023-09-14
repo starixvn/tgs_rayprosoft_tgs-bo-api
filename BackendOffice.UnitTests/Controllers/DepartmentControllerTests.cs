@@ -151,7 +151,7 @@ public class DepartmentControllerTests : BaseTests
             _ = response.Items[i].Name.Should().Be(expectedRoles[i].Name);
         }
 
-        queriesMock.Received(1).GetQueries();
+        _ = queriesMock.Received(1).GetQueries();
     }
 
     [Test]

@@ -838,6 +838,34 @@ export default class BackOfficeService {
             .then(res => res.data);
     }
 
+    public createVipLevel(brandId: string, request: ModifyVipLevel) {
+        return this.http
+            .post("/api/viplevel", {
+                brandId,
+                ...request
+            })
+            .then(res => res.data);
+    }
+
+    public getVipLevels(brandId: string): Promise<PagedResponse<Viplevel>> {
+        return this.http
+            .get("/api/viplevel", {
+                params: {
+                    brandId
+                }
+            })
+            .then(res => res.data);
+    }
+
+    public updateVipLevel(brandId: string, id: string, request: ModifyVipLevel): Promise<MessageResponse> {
+        return this.http
+            .put(`/api/viplevel/${id}`, {
+                brandId,
+                ...request
+            })
+            .then(res => res.data);
+    }
+
     public getTopTenPlayers(brandId: string, sortType:string, winLossAscending: boolean): Promise<TopTenPlayerViewModel>{            
         const queryString = {
             sortType: sortType,

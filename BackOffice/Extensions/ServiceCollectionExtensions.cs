@@ -29,7 +29,6 @@ public static class ServiceCollectionExtensions
         _ = services.AddTransient<IUploadService, UploadService>();
         _ = services.AddTransient<ICurrencyService, CurrencyService>();
         _ = services.AddTransient<ILanguageService, LanguageService>();
-        _ = services.AddTransient<IVipLevelService, VipLevelService>();
         _ = services.AddTransient<IAgentService, AgentService>();
         _ = services.AddTransient<IAgentBankService, AgentBankService>();
         _ = services.AddTransient<IPlayerService, PlayerService>();

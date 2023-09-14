@@ -197,7 +197,7 @@ public class AuthenticateControllerTests : BaseTests
         return fixture;
     }
 
-    private void SetupHttpContext()
+    private static void SetupHttpContext()
     {
         var mockHttpContext = Substitute.For<HttpContext>();
         var mockServiceProvider = Substitute.For<IServiceProvider>();
