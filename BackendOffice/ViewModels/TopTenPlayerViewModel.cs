@@ -6,6 +6,8 @@
 
         public decimal Deposit { get; set; }
 
+        public string PlayerCode { get; set; }
+
         public string PlayerUsername { get; set; }
 
         public decimal Settle { get; set; }

@@ -631,6 +631,7 @@ public class OverviewTests
         {
             new TopTenPlayerViewModel
             {
+                PlayerCode = playerCodes[0],
                 PlayerUsername = "username",
                 Deposit = 16888m,
                 Withdraw = 88m,

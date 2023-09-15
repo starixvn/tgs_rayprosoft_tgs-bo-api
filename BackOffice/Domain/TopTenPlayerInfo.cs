@@ -2,6 +2,7 @@
 
 public record TopTenPlayerInfo
 {
+    public string PlayerCode { get; set; }
     public string PlayerUserName { get; set; }
     public decimal DepositTotalAmount { get; set; }
     public decimal WithdrawTotalAmount { get; set; }
