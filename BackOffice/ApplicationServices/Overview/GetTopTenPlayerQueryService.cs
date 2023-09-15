@@ -190,7 +190,7 @@ internal class GetTopTenPlayerQueryService : IQueryService<GetTopTenPlayerQuery,
             case TopTenPlayerSortType.WinLoss:
 
                 var topTenWinLoss = await _gameWagersClient
-                    .BrandWagerPlayerStatsQueryAsync(brandInfo.Code, currentDay, now, BrandWagerPlayerMinsStatsSort.WinLoss, query.WinLossAscending, cancellationToken: cancellationToken)
+                    .BrandWagerPlayerStatsQueryAsync(brandInfo.Code, currentDay, now, BrandWagerPlayerMinsStatsSort.WinLoss, query.Ascending, cancellationToken: cancellationToken)
                     .ToArrayAsync(cancellationToken)
                     .ConfigureAwait(false);
 

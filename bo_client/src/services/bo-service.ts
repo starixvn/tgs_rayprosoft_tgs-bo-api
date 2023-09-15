@@ -866,10 +866,10 @@ export default class BackOfficeService {
             .then(res => res.data);
     }
 
-    public getTopTenPlayers(brandId: string, sortType:string, winLossAscending: boolean): Promise<TopTenPlayerViewModel>{            
+    public getTopTenPlayers(brandId: string, sortType:string, ascending: boolean): Promise<TopTenPlayerViewModel>{            
         const queryString = {
             sortType: sortType,
-            winLossAscending: winLossAscending
+            ascending: ascending
         };
 
         return this.http
@@ -880,10 +880,10 @@ export default class BackOfficeService {
             .then(res=>res.data);
     }
 
-    public getTopTenGames(brandId: string, sortType:string, winLossAscending: boolean): Promise<TopTenGameViewModel>{            
+    public getTopTenGames(brandId: string, sortType:string, ascending: boolean): Promise<TopTenGameViewModel>{            
         const queryString = {
             sortType: sortType,
-            winLossAscending: winLossAscending
+            ascending: ascending
         };
 
         return this.http

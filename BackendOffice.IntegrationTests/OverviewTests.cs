@@ -572,7 +572,7 @@ public class OverviewTests
 
         var brandId = Guid.Parse("4e86719f-243f-46f6-b010-5c758b7285af");
         var sortType = TopTenPlayerSortType.WinLoss;
-        var winLossAscending = true;
+        var ascending = true;
 
         var brandCode = "GPI";
         var playerCodes = new string[] { "4uel5ke0uf3k" };
@@ -646,20 +646,20 @@ public class OverviewTests
             const axiosConfigFactory = require('./models/axios-configuration.js').default;
             const BackOfficeService = require('./services/bo-service.js').default;
 
-            module.exports = async (brandId, sortType, winLossAscending) =>
+            module.exports = async (brandId, sortType, ascending) =>
             {
                 let instance = axiosConfigFactory("{{channelName}}", {{isWindows}});
 
                 let svc = new BackOfficeService(instance);
 
-                return await svc.getTopTenPlayers(brandId, sortType, winLossAscending);
+                return await svc.getTopTenPlayers(brandId, sortType, ascending);
             };
             """;
 
         // Act
         var actual = await StaticNodeJSService.InvokeFromStringAsync<TopTenPlayerViewModel[]>(
             nodeModule,
-            args: new object[] { brandId, sortType, winLossAscending });
+            args: new object[] { brandId, sortType, ascending });
 
         // Assert
         expected.ToExpectedObject().ShouldEqual(actual);
@@ -1093,7 +1093,7 @@ public class OverviewTests
         var sortType = TopTenGameSortType.WinLoss;
         var gameName = "Happy Red Packets";
         var gameProviderName = "KY";
-        var winLossAscending = true;
+        var ascending = true;
 
         _ = fakeBrandServiceClient.GetBrandInfoAsync(
                 Arg.Is(brandId),
@@ -1170,20 +1170,20 @@ public class OverviewTests
             const axiosConfigFactory = require('./models/axios-configuration.js').default;
             const BackOfficeService = require('./services/bo-service.js').default;
 
-            module.exports = async (brandId, sortType, winLossAscending) =>
+            module.exports = async (brandId, sortType, ascending) =>
             {
                 let instance = axiosConfigFactory("{{channelName}}", {{isWindows}});
 
                 let svc = new BackOfficeService(instance);
 
-                return await svc.getTopTenGames(brandId, sortType, winLossAscending);
+                return await svc.getTopTenGames(brandId, sortType, ascending);
             };
             """;
 
         // Act
         var actual = await StaticNodeJSService.InvokeFromStringAsync<TopTenGameViewModel[]>(
             nodeModule,
-            args: new object[] { brandId, sortType, winLossAscending });
+            args: new object[] { brandId, sortType, ascending });
 
         // Assert
         expected.ToExpectedObject().ShouldEqual(actual);

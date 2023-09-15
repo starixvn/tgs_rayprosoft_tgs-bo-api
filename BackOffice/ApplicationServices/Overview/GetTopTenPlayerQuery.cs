@@ -6,4 +6,4 @@ namespace TGS.Services.BackOffice.ApplicationServices.Overview;
 public record GetTopTenPlayerQuery(
     Guid BrandId,
     TopTenPlayerSortType SortColumnType,
-    bool WinLossAscending);
+    bool Ascending);

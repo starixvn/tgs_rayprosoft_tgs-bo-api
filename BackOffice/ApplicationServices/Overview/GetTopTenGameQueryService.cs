@@ -91,7 +91,7 @@ internal class GetTopTenGameQueryService : IQueryService<GetTopTenGameQuery, Top
                        currentDay,
                        now,
                        BrandWagerGameMinsStatsSort.WinLoss,
-                       query.WinLossAscending,
+                       query.Ascending,
                        cancellationToken: cancellationToken)
                    .ToArrayAsync(cancellationToken);
 

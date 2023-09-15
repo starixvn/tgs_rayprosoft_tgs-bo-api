@@ -77,10 +77,10 @@ public class OverviewController : BaseContextController
         [FromServices] IQueryService<GetTopTenGameQuery, TopTenGameInfo> queryService,
         Guid brandId,
         [FromQuery] TopTenGameSortType sortType,
-        [FromQuery] bool winLossAscending)
+        [FromQuery] bool ascending = false)
     {
         var infos = await queryService
-            .QueryAsync(new GetTopTenGameQuery(brandId, sortType, winLossAscending), HttpContext.RequestAborted)
+            .QueryAsync(new GetTopTenGameQuery(brandId, sortType, ascending), HttpContext.RequestAborted)
             .ToArrayAsync(HttpContext.RequestAborted)
             .ConfigureAwait(false);
 
@@ -101,10 +101,10 @@ public class OverviewController : BaseContextController
         [FromServices] IQueryService<GetTopTenPlayerQuery, TopTenPlayerInfo> queryService,
         Guid brandId,
         [FromQuery] TopTenPlayerSortType sortType,
-        [FromQuery] bool winLossAscending)
+        [FromQuery] bool ascending = false)
     {
         var infos = await queryService
-            .QueryAsync(new GetTopTenPlayerQuery(brandId, sortType, winLossAscending), HttpContext.RequestAborted)
+            .QueryAsync(new GetTopTenPlayerQuery(brandId, sortType, ascending), HttpContext.RequestAborted)
             .ToArrayAsync(HttpContext.RequestAborted)
             .ConfigureAwait(false);
 
