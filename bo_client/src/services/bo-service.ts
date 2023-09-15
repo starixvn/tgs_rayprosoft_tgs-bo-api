@@ -879,4 +879,18 @@ export default class BackOfficeService {
             })
             .then(res=>res.data);
     }
+
+    public getTopTenGames(brandId: string, sortType:string, winLossAscending: boolean): Promise<TopTenGameViewModel>{            
+        const queryString = {
+            sortType: sortType,
+            winLossAscending: winLossAscending
+        };
+
+        return this.http
+            .get(`/api/overview/top-ten/game/${brandId}`,
+            {
+                params: queryString
+            })
+            .then(res=>res.data);
+    }
 }
