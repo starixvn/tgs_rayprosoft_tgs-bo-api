@@ -1,4 +1,5 @@
 interface TopTenPlayerViewModel{
+    playerCode: string;
     playerUsername: string;
     deposit: number;
     withdraw: number;

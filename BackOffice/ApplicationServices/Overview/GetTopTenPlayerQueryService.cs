@@ -69,6 +69,7 @@ internal class GetTopTenPlayerQueryService : IQueryService<GetTopTenPlayerQuery,
 
                     yield return new TopTenPlayerInfo
                     {
+                        PlayerCode = item.PlayerCode,
                         PlayerUserName = IsPlayerExist ? playerInfo.UserName : string.Empty,
                         DepositTotalAmount = item.DepositTotalAmount,
                         WithdrawTotalAmount = item.WithdrawTotalAmount,
@@ -105,6 +106,7 @@ internal class GetTopTenPlayerQueryService : IQueryService<GetTopTenPlayerQuery,
 
                     yield return new TopTenPlayerInfo
                     {
+                        PlayerCode = item.PlayerCode,
                         PlayerUserName = IsPlayerExist ? playerInfo.UserName : string.Empty,
                         DepositTotalAmount = item.DepositTotalAmount,
                         WithdrawTotalAmount = item.WithdrawTotalAmount,
@@ -147,6 +149,7 @@ internal class GetTopTenPlayerQueryService : IQueryService<GetTopTenPlayerQuery,
                         DepositTotalAmount = HasPaymentData ? paymentInfo.DepositTotalAmount : 0m,
                         WithdrawTotalAmount = HasPaymentData ? paymentInfo.WithdrawTotalAmount : 0m,
                         PlayerUserName = IsPlayer ? playerInfo.UserName : string.Empty,
+                        PlayerCode = item.PlayerCode,
                     };
                 }
 
@@ -183,6 +186,7 @@ internal class GetTopTenPlayerQueryService : IQueryService<GetTopTenPlayerQuery,
                         DepositTotalAmount = HasPaymentData ? paymentInfo.DepositTotalAmount : 0m,
                         WithdrawTotalAmount = HasPaymentData ? paymentInfo.WithdrawTotalAmount : 0m,
                         PlayerUserName = IsPlayer ? playerInfo.UserName : string.Empty,
+                        PlayerCode = item.PlayerCode,
                     };
                 }
                 break;
@@ -219,6 +223,7 @@ internal class GetTopTenPlayerQueryService : IQueryService<GetTopTenPlayerQuery,
                         DepositTotalAmount = HasPaymentData ? paymentInfo.DepositTotalAmount : 0m,
                         WithdrawTotalAmount = HasPaymentData ? paymentInfo.WithdrawTotalAmount : 0m,
                         PlayerUserName = IsPlayer ? playerInfo.UserName : string.Empty,
+                        PlayerCode = item.PlayerCode,
                     };
                 }
 

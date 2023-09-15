@@ -112,6 +112,7 @@ public class OverviewController : BaseContextController
         {
             yield return new TopTenPlayerViewModel
             {
+                PlayerCode = info.PlayerCode,
                 PlayerUsername = info.PlayerUserName,
                 Deposit = info.DepositTotalAmount,
                 Withdraw = info.WithdrawTotalAmount,

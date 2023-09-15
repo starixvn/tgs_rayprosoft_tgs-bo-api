@@ -62,7 +62,7 @@ public class OverviewTests
 
         var brandId = Guid.Parse("4e86719f-243f-46f6-b010-5c758b7285af");
         var sortType = TopTenPlayerSortType.Deposit;
-        var winLossAscending = false;
+        var ascending = false;
 
         var brandCode = "GPI";
         var playerCodes = new string[] { "4uel5ke0uf3k" };
@@ -120,6 +120,7 @@ public class OverviewTests
         {
             new TopTenPlayerViewModel
             {
+                PlayerCode = playerCodes[0],
                 PlayerUsername = "username",
                 Deposit = 16888m,
                 Withdraw = 88m,
@@ -135,20 +136,20 @@ public class OverviewTests
             const axiosConfigFactory = require('./models/axios-configuration.js').default;
             const BackOfficeService = require('./services/bo-service.js').default;
 
-            module.exports = async (brandId, sortType, winLossAscending) =>
+            module.exports = async (brandId, sortType, ascending) =>
             {
                 let instance = axiosConfigFactory("{{channelName}}", {{isWindows}});
 
                 let svc = new BackOfficeService(instance);
 
-                return await svc.getTopTenPlayers(brandId, sortType, winLossAscending);
+                return await svc.getTopTenPlayers(brandId, sortType, ascending);
             };
             """;
 
         // Act
         var actual = await StaticNodeJSService.InvokeFromStringAsync<TopTenPlayerViewModel[]>(
             nodeModule,
-            args: new object[] { brandId, sortType, winLossAscending });
+            args: new object[] { brandId, sortType, ascending });
 
         // Assert
         expected.ToExpectedObject().ShouldEqual(actual);
@@ -189,7 +190,7 @@ public class OverviewTests
 
         var brandId = Guid.Parse("4e86719f-243f-46f6-b010-5c758b7285af");
         var sortType = TopTenPlayerSortType.Bet;
-        var winLossAscending = false;
+        var ascending = false;
 
         var brandCode = "GPI";
         var playerCodes = new string[] { "4uel5ke0uf3k" };
@@ -248,6 +249,7 @@ public class OverviewTests
         {
             new TopTenPlayerViewModel
             {
+                PlayerCode = playerCodes[0],
                 PlayerUsername = "username",
                 Deposit = 16888m,
                 Withdraw = 88m,
@@ -263,20 +265,20 @@ public class OverviewTests
             const axiosConfigFactory = require('./models/axios-configuration.js').default;
             const BackOfficeService = require('./services/bo-service.js').default;
 
-            module.exports = async (brandId, sortType, winLossAscending) =>
+            module.exports = async (brandId, sortType, ascending) =>
             {
                 let instance = axiosConfigFactory("{{channelName}}", {{isWindows}});
 
                 let svc = new BackOfficeService(instance);
 
-                return await svc.getTopTenPlayers(brandId, sortType, winLossAscending);
+                return await svc.getTopTenPlayers(brandId, sortType, ascending);
             };
             """;
 
         // Act
         var actual = await StaticNodeJSService.InvokeFromStringAsync<TopTenPlayerViewModel[]>(
             nodeModule,
-            args: new object[] { brandId, sortType, winLossAscending });
+            args: new object[] { brandId, sortType, ascending });
 
         // Assert
         expected.ToExpectedObject().ShouldEqual(actual);
@@ -317,7 +319,7 @@ public class OverviewTests
 
         var brandId = Guid.Parse("4e86719f-243f-46f6-b010-5c758b7285af");
         var sortType = TopTenPlayerSortType.Settle;
-        var winLossAscending = false;
+        var ascending = false;
 
         var brandCode = "GPI";
         var playerCodes = new string[] { "4uel5ke0uf3k" };
@@ -376,6 +378,7 @@ public class OverviewTests
         {
             new TopTenPlayerViewModel
             {
+                PlayerCode = playerCodes[0],
                 PlayerUsername = "username",
                 Deposit = 16888m,
                 Withdraw = 88m,
@@ -391,20 +394,20 @@ public class OverviewTests
             const axiosConfigFactory = require('./models/axios-configuration.js').default;
             const BackOfficeService = require('./services/bo-service.js').default;
 
-            module.exports = async (brandId, sortType, winLossAscending) =>
+            module.exports = async (brandId, sortType, ascending) =>
             {
                 let instance = axiosConfigFactory("{{channelName}}", {{isWindows}});
 
                 let svc = new BackOfficeService(instance);
 
-                return await svc.getTopTenPlayers(brandId, sortType, winLossAscending);
+                return await svc.getTopTenPlayers(brandId, sortType, ascending);
             };
             """;
 
         // Act
         var actual = await StaticNodeJSService.InvokeFromStringAsync<TopTenPlayerViewModel[]>(
             nodeModule,
-            args: new object[] { brandId, sortType, winLossAscending });
+            args: new object[] { brandId, sortType, ascending });
 
         // Assert
         expected.ToExpectedObject().ShouldEqual(actual);
@@ -445,7 +448,7 @@ public class OverviewTests
 
         var brandId = Guid.Parse("4e86719f-243f-46f6-b010-5c758b7285af");
         var sortType = TopTenPlayerSortType.Withdraw;
-        var winLossAscending = false;
+        var ascending = false;
 
         var brandCode = "GPI";
         var playerCodes = new string[] { "4uel5ke0uf3k" };
@@ -503,6 +506,7 @@ public class OverviewTests
         {
             new TopTenPlayerViewModel
             {
+                PlayerCode = playerCodes[0],
                 PlayerUsername = "username",
                 Deposit = 16888m,
                 Withdraw = 88m,
@@ -518,20 +522,20 @@ public class OverviewTests
             const axiosConfigFactory = require('./models/axios-configuration.js').default;
             const BackOfficeService = require('./services/bo-service.js').default;
 
-            module.exports = async (brandId, sortType, winLossAscending) =>
+            module.exports = async (brandId, sortType, ascending) =>
             {
                 let instance = axiosConfigFactory("{{channelName}}", {{isWindows}});
 
                 let svc = new BackOfficeService(instance);
 
-                return await svc.getTopTenPlayers(brandId, sortType, winLossAscending);
+                return await svc.getTopTenPlayers(brandId, sortType, ascending);
             };
             """;
 
         // Act
         var actual = await StaticNodeJSService.InvokeFromStringAsync<TopTenPlayerViewModel[]>(
             nodeModule,
-            args: new object[] { brandId, sortType, winLossAscending });
+            args: new object[] { brandId, sortType, ascending });
 
         // Assert
         expected.ToExpectedObject().ShouldEqual(actual);
@@ -631,6 +635,7 @@ public class OverviewTests
         {
             new TopTenPlayerViewModel
             {
+                PlayerCode = playerCodes[0],
                 PlayerUsername = "username",
                 Deposit = 16888m,
                 Withdraw = 88m,
@@ -700,7 +705,7 @@ public class OverviewTests
 
         var brandId = Guid.Parse("4e86719f-243f-46f6-b010-5c758b7285af");
         var sortType = TopTenPlayerSortType.WinLoss;
-        var winLossAscending = false;
+        var ascending = false;
 
         var brandCode = "GPI";
         var playerCodes = new string[] { "4uel5ke0uf3k" };
@@ -759,6 +764,7 @@ public class OverviewTests
         {
             new TopTenPlayerViewModel
             {
+                PlayerCode = playerCodes[0],
                 PlayerUsername = "username",
                 Deposit = 16888m,
                 Withdraw = 88m,
@@ -774,20 +780,20 @@ public class OverviewTests
             const axiosConfigFactory = require('./models/axios-configuration.js').default;
             const BackOfficeService = require('./services/bo-service.js').default;
 
-            module.exports = async (brandId, sortType, winLossAscending) =>
+            module.exports = async (brandId, sortType, ascending) =>
             {
                 let instance = axiosConfigFactory("{{channelName}}", {{isWindows}});
 
                 let svc = new BackOfficeService(instance);
 
-                return await svc.getTopTenPlayers(brandId, sortType, winLossAscending);
+                return await svc.getTopTenPlayers(brandId, sortType, ascending);
             };
             """;
 
         // Act
         var actual = await StaticNodeJSService.InvokeFromStringAsync<TopTenPlayerViewModel[]>(
             nodeModule,
-            args: new object[] { brandId, sortType, winLossAscending });
+            args: new object[] { brandId, sortType, ascending });
 
         // Assert
         expected.ToExpectedObject().ShouldEqual(actual);

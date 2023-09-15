@@ -126,6 +126,7 @@ public class OverviewTests
 
         Assert.IsNotNull(actual);
         Assert.AreEqual(1, actual.Length);
+        Assert.AreEqual(playerCodes[0], actual[0].PlayerCode);
         Assert.AreEqual("username", actual[0].PlayerUserName);
         Assert.AreEqual(16888m, actual[0].DepositTotalAmount);
         Assert.AreEqual(88m, actual[0].WithdrawTotalAmount);
@@ -200,6 +201,7 @@ public class OverviewTests
 
         Assert.IsNotNull(actual);
         Assert.AreEqual(1, actual.Length);
+        Assert.AreEqual(playerCodes[0], actual[0].PlayerCode);
         Assert.AreEqual("username", actual[0].PlayerUserName);
         Assert.AreEqual(16888m, actual[0].DepositTotalAmount);
         Assert.AreEqual(88m, actual[0].WithdrawTotalAmount);
@@ -274,6 +276,7 @@ public class OverviewTests
 
         Assert.IsNotNull(actual);
         Assert.AreEqual(1, actual.Length);
+        Assert.AreEqual(playerCodes[0], actual[0].PlayerCode);
         Assert.AreEqual("username", actual[0].PlayerUserName);
         Assert.AreEqual(16888m, actual[0].DepositTotalAmount);
         Assert.AreEqual(88m, actual[0].WithdrawTotalAmount);
@@ -346,6 +349,7 @@ public class OverviewTests
 
         Assert.IsNotNull(actual);
         Assert.AreEqual(1, actual.Length);
+        Assert.AreEqual(playerCodes[0], actual[0].PlayerCode);
         Assert.AreEqual("username", actual[0].PlayerUserName);
         Assert.AreEqual(16888m, actual[0].DepositTotalAmount);
         Assert.AreEqual(88m, actual[0].WithdrawTotalAmount);
@@ -420,6 +424,7 @@ public class OverviewTests
 
         Assert.IsNotNull(actual);
         Assert.AreEqual(1, actual.Length);
+        Assert.AreEqual(playerCodes[0], actual[0].PlayerCode);
         Assert.AreEqual("username", actual[0].PlayerUserName);
         Assert.AreEqual(16888m, actual[0].DepositTotalAmount);
         Assert.AreEqual(88m, actual[0].WithdrawTotalAmount);
@@ -494,6 +499,7 @@ public class OverviewTests
 
         Assert.IsNotNull(actual);
         Assert.AreEqual(1, actual.Length);
+        Assert.AreEqual(playerCodes[0], actual[0].PlayerCode);
         Assert.AreEqual("username", actual[0].PlayerUserName);
         Assert.AreEqual(16888m, actual[0].DepositTotalAmount);
         Assert.AreEqual(88m, actual[0].WithdrawTotalAmount);
