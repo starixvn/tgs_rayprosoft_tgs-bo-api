@@ -20,4 +20,29 @@ public class GetBrandBucketTypesQueryServiceTests
         _ = fakePlayerBucketClient.Received(1)
             .GetBrandBucketTypesAsync(Arg.Is(query.BrandId));
     }
+
+    [Test]
+    public async Task Can_Get_Brand_Bucket_Types()
+    {
+        var fakePlayerBucketClient = Substitute.For<IPlayerBucketClient>();
+
+        var sut = new GetBrandBucketTypesQueryService(
+            fakePlayerBucketClient);
+
+        var brandId = Guid.NewGuid();
+
+        var query = new GetBrandBucketTypesQuery(brandId);
+
+        var bucketTypes = new[] { "SportsBook", "Lottery" };
+
+        _ = fakePlayerBucketClient.GetBrandBucketTypesAsync(Arg.Is(brandId))
+            .Returns(bucketTypes.ToAsyncEnumerable());
+
+        var response = await sut.QueryAsync(query).ToArrayAsync();
+
+        _ = fakePlayerBucketClient.Received(1)
+            .GetBrandBucketTypesAsync(Arg.Is(brandId));
+
+        Assert.AreEqual(bucketTypes, response);
+    }
 }
