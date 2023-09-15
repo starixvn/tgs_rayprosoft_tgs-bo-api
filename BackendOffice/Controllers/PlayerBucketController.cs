@@ -4,7 +4,6 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
-using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Tgs.PlayerService.Client;
 using Tgs.Service.PlayerBuckets;
@@ -188,4 +187,10 @@ public class PlayerBucketController : BaseContextController
                 Status = form.Status.ToString()
             });
     }
+
+    [HttpGet("by-brand/{brandId:guid}", Name = "GetPlayerBucketTypesByBrandId")]
+    public IAsyncEnumerable<string> GetPlayerBucketTypesByBrandIdAsync(
+        [FromServices] IQueryService<GetBrandBucketTypesQuery, string> queryService,
+        Guid brandId)
+        => queryService.QueryAsync(new GetBrandBucketTypesQuery(brandId), HttpContext.RequestAborted);
 }
