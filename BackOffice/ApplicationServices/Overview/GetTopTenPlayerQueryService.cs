@@ -14,14 +14,14 @@ using TGS.Services.BackOffice.Domain.Enums;
 
 namespace TGS.Services.BackOffice.ApplicationServices.Overview;
 
-internal class GetTopTenDepositQueryService : IQueryService<GetTopTenDepositQuery, TopTenPlayerInfo>
+internal class GetTopTenPlayerQueryService : IQueryService<GetTopTenPlayerQuery, TopTenPlayerInfo>
 {
     private readonly IBrandServiceClient _brandServiceClient;
     private readonly IGameWagersClient _gameWagersClient;
     private readonly IPaymentServiceClient _paymentServiceClient;
     private readonly IPlayerServiceClient _playerServiceClient;
 
-    public GetTopTenDepositQueryService(
+    public GetTopTenPlayerQueryService(
         IPaymentServiceClient paymentServiceClient,
         IBrandServiceClient brandServiceClient,
         IGameWagersClient gameWagersClient,
@@ -33,7 +33,7 @@ internal class GetTopTenDepositQueryService : IQueryService<GetTopTenDepositQuer
         _playerServiceClient = playerServiceClient ?? throw new ArgumentNullException(nameof(playerServiceClient));
     }
 
-    public async IAsyncEnumerable<TopTenPlayerInfo> QueryAsync(GetTopTenDepositQuery query, [EnumeratorCancellation] CancellationToken cancellationToken = default)
+    public async IAsyncEnumerable<TopTenPlayerInfo> QueryAsync(GetTopTenPlayerQuery query, [EnumeratorCancellation] CancellationToken cancellationToken = default)
     {
         var now = DateTimeOffset.UtcNow.ToOffset(TimeSpan.FromHours(8D));
         var currentDay = new DateTimeOffset(now.Date, TimeSpan.FromHours(8D)).UtcDateTime;
@@ -190,7 +190,7 @@ internal class GetTopTenDepositQueryService : IQueryService<GetTopTenDepositQuer
             case TopTenPlayerSortType.WinLoss:
 
                 var topTenWinLoss = await _gameWagersClient
-                    .BrandWagerPlayerStatsQueryAsync(brandInfo.Code, currentDay, now, BrandWagerPlayerMinsStatsSort.WinLoss, query.WinLossAscending, cancellationToken: cancellationToken)
+                    .BrandWagerPlayerStatsQueryAsync(brandInfo.Code, currentDay, now, BrandWagerPlayerMinsStatsSort.WinLoss, query.Ascending, cancellationToken: cancellationToken)
                     .ToArrayAsync(cancellationToken)
                     .ConfigureAwait(false);
 

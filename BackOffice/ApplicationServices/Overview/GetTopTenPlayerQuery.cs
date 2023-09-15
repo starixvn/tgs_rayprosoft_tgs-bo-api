@@ -3,7 +3,7 @@ using TGS.Services.BackOffice.Domain.Enums;
 
 namespace TGS.Services.BackOffice.ApplicationServices.Overview;
 
-public record GetTopTenDepositQuery(
+public record GetTopTenPlayerQuery(
     Guid BrandId,
     TopTenPlayerSortType SortColumnType,
-    bool WinLossAscending);
+    bool Ascending);

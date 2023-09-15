@@ -72,15 +72,39 @@ public class OverviewController : BaseContextController
         };
     }
 
-    [HttpGet("top-ten/{brandId}")]
-    public async IAsyncEnumerable<TopTenPlayerViewModel> GetTopTenPlayersAsync(
-        [FromServices] IQueryService<GetTopTenDepositQuery, TopTenPlayerInfo> queryService,
+    [HttpGet("top-ten/game/{brandId}")]
+    public async IAsyncEnumerable<TopTenGameViewModel> GetTopTenGamesAsync(
+        [FromServices] IQueryService<GetTopTenGameQuery, TopTenGameInfo> queryService,
         Guid brandId,
-        [FromQuery] TopTenPlayerSortType sortType,
-        [FromQuery] bool winLossAscending)
+        [FromQuery] TopTenGameSortType sortType,
+        [FromQuery] bool ascending = false)
     {
         var infos = await queryService
-            .QueryAsync(new GetTopTenDepositQuery(brandId, sortType, winLossAscending), HttpContext.RequestAborted)
+            .QueryAsync(new GetTopTenGameQuery(brandId, sortType, ascending), HttpContext.RequestAborted)
+            .ToArrayAsync(HttpContext.RequestAborted)
+            .ConfigureAwait(false);
+
+        foreach (var info in infos)
+        {
+            yield return new TopTenGameViewModel
+            {
+                GameName = info.GameName,
+                GameProviderName = info.GameProviderName,
+                Bet = info.Bet,
+                WinLoss = info.WinLoss,
+            };
+        }
+    }
+
+    [HttpGet("top-ten/{brandId}")]
+    public async IAsyncEnumerable<TopTenPlayerViewModel> GetTopTenPlayersAsync(
+        [FromServices] IQueryService<GetTopTenPlayerQuery, TopTenPlayerInfo> queryService,
+        Guid brandId,
+        [FromQuery] TopTenPlayerSortType sortType,
+        [FromQuery] bool ascending = false)
+    {
+        var infos = await queryService
+            .QueryAsync(new GetTopTenPlayerQuery(brandId, sortType, ascending), HttpContext.RequestAborted)
             .ToArrayAsync(HttpContext.RequestAborted)
             .ConfigureAwait(false);
 
