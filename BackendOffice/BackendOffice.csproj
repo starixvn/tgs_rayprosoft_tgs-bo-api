@@ -55,7 +55,6 @@
     <PackageReference Include="PhoenixToolkits.MessageQueue.Nats" Version="1.0.3" />
     <PackageReference Include="Swashbuckle.AspNetCore" Version="6.5.0" />
     <PackageReference Include="System.Reactive" Version="6.0.0" />
-    <PackageReference Include="Tgs.Agent.Client" Version="0.0.9" />
     <PackageReference Include="TGS.FileService.Client" Version="0.0.5" />
     <PackageReference Include="OpenTelemetry" Version="1.6.0" />
     <PackageReference Include="OpenTelemetry.Contrib.Instrumentation.EntityFrameworkCore" Version="1.0.0-beta2" />
