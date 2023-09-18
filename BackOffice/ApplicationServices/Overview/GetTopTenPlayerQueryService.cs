@@ -50,6 +50,9 @@ internal class GetTopTenPlayerQueryService : IQueryService<GetTopTenPlayerQuery,
                     .ToArrayAsync(cancellationToken)
                     .ConfigureAwait(false);
 
+                if (!topTenDeposits.Any())
+                    yield break;
+
                 var playerCodes = topTenDeposits.Select(t => t.PlayerCode).ToArray();
 
                 var wagerInfoDict = await _gameWagersClient
@@ -86,6 +89,9 @@ internal class GetTopTenPlayerQueryService : IQueryService<GetTopTenPlayerQuery,
                     .GetCurrentDayTopTenWithdrawPlayersAsync(query.BrandId, cancellationToken)
                     .ToArrayAsync(cancellationToken)
                     .ConfigureAwait(false);
+
+                if (!topTenWithdraws.Any())
+                    yield break;
 
                 playerCodes = topTenWithdraws.Select(t => t.PlayerCode).ToArray();
 
@@ -124,6 +130,9 @@ internal class GetTopTenPlayerQueryService : IQueryService<GetTopTenPlayerQuery,
                     .ToArrayAsync(cancellationToken)
                     .ConfigureAwait(false);
 
+                if (!topTenBets.Any())
+                    yield break;
+
                 playerCodes = topTenBets.Select(x => x.PlayerCode).ToArray();
 
                 var paymentDict = await _paymentServiceClient
@@ -161,6 +170,9 @@ internal class GetTopTenPlayerQueryService : IQueryService<GetTopTenPlayerQuery,
                     .ToArrayAsync(cancellationToken)
                     .ConfigureAwait(false);
 
+                if (!topTenSettle.Any())
+                    yield break;
+
                 playerCodes = topTenSettle.Select(x => x.PlayerCode).ToArray();
 
                 paymentDict = await _paymentServiceClient
@@ -197,6 +209,9 @@ internal class GetTopTenPlayerQueryService : IQueryService<GetTopTenPlayerQuery,
                     .BrandWagerPlayerStatsQueryAsync(brandInfo.Code, currentDay, now, BrandWagerPlayerMinsStatsSort.WinLoss, query.Ascending, cancellationToken: cancellationToken)
                     .ToArrayAsync(cancellationToken)
                     .ConfigureAwait(false);
+
+                if (!topTenWinLoss.Any())
+                    yield break;
 
                 playerCodes = topTenWinLoss.Select(x => x.PlayerCode).ToArray();
 
