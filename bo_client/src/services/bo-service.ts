@@ -893,4 +893,12 @@ export default class BackOfficeService {
             })
             .then(res=>res.data);
     }
+
+    public updateAgentPayPassword(request: UpdateAgentPayPasswordRequest): Promise<MessageResponse>{
+        return this.http
+            .patch("/api/agent/pay-password",{
+                ...request
+            })
+            .then(res=>res.data);
+    }
 }
