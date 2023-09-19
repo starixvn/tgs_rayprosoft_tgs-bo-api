@@ -8,6 +8,7 @@ using Tgs.Agent.Client;
 using Tgs.Report.Client;
 using Tgs.Report.Client.Models.Agent;
 using Tgs.ServiceUtility;
+using TGS.Apis.BackendOffice.ViewModels;
 using TGS.Core.Models.Enums;
 using TGS.Core.Models.Messages;
 using TGS.Services.BackOffice.Application.Models.Agent;
@@ -28,6 +29,17 @@ public partial class AgentController : BaseContextController
     {
         _mediator = mediator;
         _client = client;
+    }
+
+    [HttpPut("{id:guid}/clear-negative-commission")]
+    [Description("Clear negative commission")]
+    public async Task<MessageResponse> ClearUnDistributedCommissionAsync(
+        [FromServices] IAgentClient agentService,
+        Guid id)
+    {
+        await agentService.ClearAgentNegativeCommissionAsync(new(id, Guid.Parse(UserId)));
+
+        return CreateValidResponse<MessageResponse>();
     }
 
     [HttpPost]
@@ -130,13 +142,15 @@ public partial class AgentController : BaseContextController
         return _mediator.Send(request);
     }
 
-    [HttpPut("{id:guid}/clear-negative-commission")]
-    [Description("Clear negative commission")]
-    public async Task<MessageResponse> ClearUnDistributedCommissionAsync(
-        [FromServices] IAgentClient agentService,
-        Guid id)
+    [HttpPatch("pay-password", Name = "UpdateAgentPayPassword")]
+    [Description("Update Agent Pay Password")]
+    public async Task<MessageResponse> UpdateAgentPayPasswordAsync(
+        [FromServices] ICommandService<UpdateAgentPayPasswordCommand> commandService,
+        UpdateAgentPayPasswordRequest request)
     {
-        await agentService.ClearAgentNegativeCommissionAsync(new(id, Guid.Parse(UserId)));
+        await commandService
+            .ExecuteAsync(new UpdateAgentPayPasswordCommand(request.AgentId, request.PayPassword, Username))
+            .ConfigureAwait(false);
 
         return CreateValidResponse<MessageResponse>();
     }
