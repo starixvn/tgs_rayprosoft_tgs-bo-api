@@ -1,14 +1,11 @@
-﻿using System.Globalization;
-using NSubstitute;
+﻿using NSubstitute;
 using Tgs.BrandCertificate.Clients;
 using Tgs.GameWagers.Client;
 using Tgs.GameWagers.Common;
 using Tgs.Payment.Clients;
 using Tgs.PlayerService.Client;
-using TGS.Core.DataServices.Tgs.Models;
 using TGS.Services.BackOffice.ApplicationServices.Overview;
 using TGS.Services.BackOffice.Domain.Enums;
-using TGS.Services.BackOffice.Infrastructure.DataService;
 
 namespace TGS.Tests.BackendOffice.UnitTests;
 
@@ -514,15 +511,14 @@ public class OverviewTests
     {
         var fakeBrandServiceClient = Substitute.For<IBrandServiceClient>();
         var fakeGameWagersClient = Substitute.For<IGameWagersClient>();
-        var fakeBrandGameService = Substitute.For<IBrandGameService>();
 
-        var sut = new GetTopTenGameQueryService(fakeBrandServiceClient, fakeGameWagersClient, fakeBrandGameService);
+        var sut = new GetTopTenGameQueryService(fakeBrandServiceClient, fakeGameWagersClient);
 
         var brandId = Guid.Parse("4e86719f-243f-46f6-b010-5c758b7285af");
         var brandCode = "GPI";
         var sortType = TopTenGameSortType.Bet;
-        var gameName = "Happy Red Packets";
-        var gameProviderName = "KY";
+        var gameId = 5300023;
+        var gameProviderId = Guid.Parse("a0f49ce0-2c1d-4f50-9fc5-58b610a30bf5");
 
         _ = fakeBrandServiceClient.GetBrandInfoAsync(Arg.Is(brandId))
             .Returns(new BrandInfo
@@ -541,9 +537,9 @@ public class OverviewTests
             .Returns(new BrandWagerGameStatsInfo[]
             {
                 new BrandWagerGameStatsInfo(
-                    GameProviderId: Guid.Parse("a0f49ce0-2c1d-4f50-9fc5-58b610a30bf5"),
+                    GameProviderId: gameProviderId,
                     GameProviderCode: "KY",
-                    GameId: 1000010,
+                    GameId: gameId,
                     Guid.NewGuid(),
                     "ResellerCode",
                     Guid.NewGuid(),
@@ -560,32 +556,13 @@ public class OverviewTests
                     -100m)
             }.ToAsyncEnumerable());
 
-        _ = fakeBrandGameService.GetBrandGameQueries()
-            .Returns(new BrandGame[]
-            {
-                new BrandGame
-                {
-                    BrandId = brandId,
-                    GameId = 1000010,
-                    Game = new Game()
-                    {
-                        GameProviderId = Guid.Parse("a0f49ce0-2c1d-4f50-9fc5-58b610a30bf5"),
-                        Name = gameName,
-                        SubGameProvider = new SubGameProvider
-                        {
-                            Name = gameProviderName
-                        }
-                    }
-                }
-            }.AsQueryable());
-
         var actual = await sut
-            .QueryAsync(new GetTopTenGameQuery(brandId, sortType, false, CultureInfo.GetCultureInfo("en-US")))
+            .QueryAsync(new GetTopTenGameQuery(brandId, sortType, false))
             .ToArrayAsync();
 
         Assert.AreEqual(1, actual.Length);
-        Assert.AreEqual(gameName, actual[0].GameName);
-        Assert.AreEqual(gameProviderName, actual[0].GameProviderName);
+        Assert.AreEqual(gameId, actual[0].GameId);
+        Assert.AreEqual(gameProviderId, actual[0].GameProviderId);
         Assert.AreEqual(100m, actual[0].Bet);
         Assert.AreEqual(-100m, actual[0].WinLoss);
     }
@@ -595,15 +572,14 @@ public class OverviewTests
     {
         var fakeBrandServiceClient = Substitute.For<IBrandServiceClient>();
         var fakeGameWagersClient = Substitute.For<IGameWagersClient>();
-        var fakeBrandGameService = Substitute.For<IBrandGameService>();
 
-        var sut = new GetTopTenGameQueryService(fakeBrandServiceClient, fakeGameWagersClient, fakeBrandGameService);
+        var sut = new GetTopTenGameQueryService(fakeBrandServiceClient, fakeGameWagersClient);
 
         var brandId = Guid.NewGuid();
         var brandCode = "GPI";
         var sortType = TopTenGameSortType.WinLoss;
-        var gameName = "Happy Red Packets";
-        var gameProviderName = "KY";
+        var gameId = 5300023;
+        var gameProviderId = Guid.Parse("a0f49ce0-2c1d-4f50-9fc5-58b610a30bf5");
 
         _ = fakeBrandServiceClient.GetBrandInfoAsync(Arg.Is(brandId))
             .Returns(new BrandInfo
@@ -622,9 +598,9 @@ public class OverviewTests
             .Returns(new BrandWagerGameStatsInfo[]
             {
                 new BrandWagerGameStatsInfo(
-                    GameProviderId: Guid.Parse("a0f49ce0-2c1d-4f50-9fc5-58b610a30bf5"),
+                    GameProviderId: gameProviderId,
                     GameProviderCode: "KY",
-                    GameId: 1000010,
+                    GameId: gameId,
                     Guid.NewGuid(),
                     "ResellerCode",
                     Guid.NewGuid(),
@@ -641,32 +617,13 @@ public class OverviewTests
                     -100m)
             }.ToAsyncEnumerable());
 
-        _ = fakeBrandGameService.GetBrandGameQueries()
-            .Returns(new BrandGame[]
-            {
-                new BrandGame
-                {
-                    BrandId = brandId,
-                    GameId = 1000010,
-                    Game = new Game()
-                    {
-                        GameProviderId = Guid.Parse("a0f49ce0-2c1d-4f50-9fc5-58b610a30bf5"),
-                        Name = gameName,
-                        SubGameProvider = new SubGameProvider
-                        {
-                            Name = gameProviderName
-                        }
-                    }
-                }
-            }.AsQueryable());
-
         var actual = await sut
-            .QueryAsync(new GetTopTenGameQuery(brandId, sortType, true, CultureInfo.GetCultureInfo("en-US")))
+            .QueryAsync(new GetTopTenGameQuery(brandId, sortType, true))
             .ToArrayAsync();
 
         Assert.AreEqual(1, actual.Length);
-        Assert.AreEqual(gameName, actual[0].GameName);
-        Assert.AreEqual(gameProviderName, actual[0].GameProviderName);
+        Assert.AreEqual(gameId, actual[0].GameId);
+        Assert.AreEqual(gameProviderId, actual[0].GameProviderId);
         Assert.AreEqual(100m, actual[0].Bet);
         Assert.AreEqual(-100m, actual[0].WinLoss);
     }
@@ -676,15 +633,14 @@ public class OverviewTests
     {
         var fakeBrandServiceClient = Substitute.For<IBrandServiceClient>();
         var fakeGameWagersClient = Substitute.For<IGameWagersClient>();
-        var fakeBrandGameService = Substitute.For<IBrandGameService>();
 
-        var sut = new GetTopTenGameQueryService(fakeBrandServiceClient, fakeGameWagersClient, fakeBrandGameService);
+        var sut = new GetTopTenGameQueryService(fakeBrandServiceClient, fakeGameWagersClient);
 
         var brandId = Guid.NewGuid();
         var brandCode = "GPI";
         var sortType = TopTenGameSortType.WinLoss;
-        var gameName = "Happy Red Packets";
-        var gameProviderName = "KY";
+        var gameId = 5300023;
+        var gameProviderId = Guid.Parse("a0f49ce0-2c1d-4f50-9fc5-58b610a30bf5");
 
         _ = fakeBrandServiceClient.GetBrandInfoAsync(Arg.Is(brandId))
             .Returns(new BrandInfo
@@ -703,9 +659,9 @@ public class OverviewTests
             .Returns(new BrandWagerGameStatsInfo[]
             {
                 new BrandWagerGameStatsInfo(
-                    GameProviderId: Guid.Parse("a0f49ce0-2c1d-4f50-9fc5-58b610a30bf5"),
+                    GameProviderId: gameProviderId,
                     GameProviderCode: "KY",
-                    GameId: 1000010,
+                    GameId: gameId,
                     Guid.NewGuid(),
                     "ResellerCode",
                     Guid.NewGuid(),
@@ -722,30 +678,13 @@ public class OverviewTests
                     -100m)
             }.ToAsyncEnumerable());
 
-        _ = fakeBrandGameService.GetBrandGameQueries()
-            .Returns(new BrandGame[]
-            {
-                new BrandGame
-                {
-                    BrandId = brandId,
-                    GameId = 1000010,
-                    Game = new Game()
-                    {
-                        GameProviderId = Guid.Parse("a0f49ce0-2c1d-4f50-9fc5-58b610a30bf5"),
-                        Name = gameName,
-                        SubGameProvider = new SubGameProvider
-                        {
-                            Name = gameProviderName
-                        }
-                    }
-                }
-            }.AsQueryable());
-
-        var actual = await sut.QueryAsync(new GetTopTenGameQuery(brandId, sortType, false, CultureInfo.GetCultureInfo("en-US"))).ToArrayAsync();
+        var actual = await sut
+            .QueryAsync(new GetTopTenGameQuery(brandId, sortType, false))
+            .ToArrayAsync();
 
         Assert.AreEqual(1, actual.Length);
-        Assert.AreEqual(gameName, actual[0].GameName);
-        Assert.AreEqual(gameProviderName, actual[0].GameProviderName);
+        Assert.AreEqual(gameId, actual[0].GameId);
+        Assert.AreEqual(gameProviderId, actual[0].GameProviderId);
         Assert.AreEqual(100m, actual[0].Bet);
         Assert.AreEqual(-100m, actual[0].WinLoss);
     }

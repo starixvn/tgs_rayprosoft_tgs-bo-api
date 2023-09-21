@@ -4,6 +4,7 @@ using System;
 using System.Collections.Generic;
 using System.Globalization;
 using System.Linq;
+using System.Text.Json.Nodes;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
@@ -76,21 +77,42 @@ public class OverviewController : BaseContextController
     [HttpGet("top-ten/game/{brandId}")]
     public async IAsyncEnumerable<TopTenGameViewModel> GetTopTenGamesAsync(
         [FromServices] IQueryService<GetTopTenGameQuery, TopTenGameInfo> queryService,
+        [FromServices] IQueryService<GetBrandGameQuery, BrandGameInfo> brandGameQueryService,
         Guid brandId,
         [FromQuery] TopTenGameSortType sortType,
         [FromQuery] bool ascending = false)
     {
-        var infos = await queryService
-            .QueryAsync(new GetTopTenGameQuery(brandId, sortType, ascending, CultureInfo.CurrentUICulture), HttpContext.RequestAborted)
+        var topTenGameInfos = await queryService
+            .QueryAsync(new GetTopTenGameQuery(brandId, sortType, ascending), HttpContext.RequestAborted)
             .ToArrayAsync(HttpContext.RequestAborted)
             .ConfigureAwait(false);
 
-        foreach (var info in infos)
+        var gameIds = topTenGameInfos.Select(x => x.GameId);
+
+        var brandGameInfos = await brandGameQueryService
+            .QueryAsync(new GetBrandGameQuery(brandId, gameIds), HttpContext.RequestAborted)
+            .ToArrayAsync(HttpContext.RequestAborted)
+            .ConfigureAwait(false);
+
+        var cultureCode = CultureInfo.CurrentUICulture.Name;
+
+        foreach (var info in topTenGameInfos)
         {
+            var brandGame = brandGameInfos
+                        .Where(x => x.GameProviderId == info.GameProviderId
+                            && x.GameId == info.GameId)
+                        .First();
+
+            var localization = string.IsNullOrWhiteSpace(brandGame.Localization)
+                        ? JsonNode.Parse("{}")
+                        : JsonNode.Parse(brandGame.Localization);
+
+            var translateGameName = localization?.Root[cultureCode]?["name"]?.ToString();
+
             yield return new TopTenGameViewModel
             {
-                GameName = info.GameName,
-                GameProviderName = info.GameProviderName,
+                GameName = string.IsNullOrWhiteSpace(translateGameName) ? brandGame.GameName : translateGameName,
+                GameProviderName = brandGame.GameProviderName,
                 Bet = info.Bet,
                 WinLoss = info.WinLoss,
             };
