@@ -2,6 +2,7 @@
 
 using System;
 using System.Collections.Generic;
+using System.Globalization;
 using System.Linq;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Http;
@@ -80,7 +81,7 @@ public class OverviewController : BaseContextController
         [FromQuery] bool ascending = false)
     {
         var infos = await queryService
-            .QueryAsync(new GetTopTenGameQuery(brandId, sortType, ascending), HttpContext.RequestAborted)
+            .QueryAsync(new GetTopTenGameQuery(brandId, sortType, ascending, CultureInfo.CurrentUICulture), HttpContext.RequestAborted)
             .ToArrayAsync(HttpContext.RequestAborted)
             .ConfigureAwait(false);
 

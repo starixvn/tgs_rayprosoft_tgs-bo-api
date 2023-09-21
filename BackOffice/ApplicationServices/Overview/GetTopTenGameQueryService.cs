@@ -1,7 +1,10 @@
-﻿using System;
+﻿#nullable enable
+
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Runtime.CompilerServices;
+using System.Text.Json.Nodes;
 using System.Threading;
 using Tgs.BrandCertificate.Clients;
 using Tgs.GameWagers.Client;
@@ -35,6 +38,7 @@ internal class GetTopTenGameQueryService : IQueryService<GetTopTenGameQuery, Top
     {
         var now = DateTimeOffset.UtcNow.ToOffset(TimeSpan.FromHours(8D));
         var currentDay = new DateTimeOffset(now.Date, TimeSpan.FromHours(8D)).UtcDateTime;
+        var cultureCode = query.CultureInfo?.Name ?? "en-US";
 
         var brandInfo = await _brandServiceClient
             .GetBrandInfoAsync(query.BrandId, cancellationToken)
@@ -45,7 +49,7 @@ internal class GetTopTenGameQueryService : IQueryService<GetTopTenGameQuery, Top
             case TopTenGameSortType.Bet:
                 var wagerInfos = await _gameWagersClient
                     .BrandWagerGameStatsQueryAsync(
-                        brandInfo.Code,
+                        brandInfo!.Code,
                         currentDay,
                         now,
                         BrandWagerGameMinsStatsSort.Bet,
@@ -64,6 +68,7 @@ internal class GetTopTenGameQueryService : IQueryService<GetTopTenGameQuery, Top
                     {
                         x.GameId,
                         GameName = x.Game.Name,
+                        x.Game.Localization,
                         x.Game.GameProviderId,
                         GameProviderName = x.Game.SubGameProvider.Name
                     });
@@ -74,9 +79,16 @@ internal class GetTopTenGameQueryService : IQueryService<GetTopTenGameQuery, Top
                         .Where(x => x.GameProviderId == item.GameProviderId
                             && x.GameId == item.GameId)
                         .First();
+
+                    var localization = string.IsNullOrWhiteSpace(brandGame.Localization)
+                        ? JsonNode.Parse("{}")
+                        : JsonNode.Parse(brandGame.Localization);
+
+                    var gameName = localization?.Root[cultureCode]?["name"]?.ToString();
+
                     yield return new TopTenGameInfo
                     {
-                        GameName = brandGame.GameName,
+                        GameName = string.IsNullOrWhiteSpace(gameName) ? brandGame.GameName : gameName,
                         GameProviderName = brandGame.GameProviderName,
                         Bet = item.Bet,
                         WinLoss = item.WinLoss,
@@ -87,7 +99,7 @@ internal class GetTopTenGameQueryService : IQueryService<GetTopTenGameQuery, Top
             case TopTenGameSortType.WinLoss:
                 wagerInfos = await _gameWagersClient
                    .BrandWagerGameStatsQueryAsync(
-                       brandInfo.Code,
+                       brandInfo!.Code,
                        currentDay,
                        now,
                        BrandWagerGameMinsStatsSort.WinLoss,
@@ -106,6 +118,7 @@ internal class GetTopTenGameQueryService : IQueryService<GetTopTenGameQuery, Top
                     {
                         x.GameId,
                         GameName = x.Game.Name,
+                        x.Game.Localization,
                         x.Game.GameProviderId,
                         GameProviderName = x.Game.SubGameProvider.Name
                     });
@@ -116,9 +129,16 @@ internal class GetTopTenGameQueryService : IQueryService<GetTopTenGameQuery, Top
                        .Where(x => x.GameProviderId == item.GameProviderId
                            && x.GameId == item.GameId)
                        .First();
+
+                    var localization = string.IsNullOrWhiteSpace(brandGame.Localization)
+                        ? JsonNode.Parse("{}")
+                        : JsonNode.Parse(brandGame.Localization);
+
+                    var gameName = localization?.Root[cultureCode]?["name"]?.ToString();
+
                     yield return new TopTenGameInfo
                     {
-                        GameName = brandGame.GameName,
+                        GameName = string.IsNullOrWhiteSpace(gameName) ? brandGame.GameName : gameName,
                         GameProviderName = brandGame.GameProviderName,
                         Bet = item.Bet,
                         WinLoss = item.WinLoss,

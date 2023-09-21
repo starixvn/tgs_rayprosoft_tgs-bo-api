@@ -1,4 +1,5 @@
-﻿using NSubstitute;
+﻿using System.Globalization;
+using NSubstitute;
 using Tgs.BrandCertificate.Clients;
 using Tgs.GameWagers.Client;
 using Tgs.GameWagers.Common;
@@ -525,86 +526,6 @@ public class OverviewTests
 
         _ = fakeBrandServiceClient.GetBrandInfoAsync(Arg.Is(brandId))
             .Returns(new BrandInfo
-            { 
-                Id = brandId,
-                Code = brandCode,
-            });
-
-        _ = fakeGameWagersClient
-            .BrandWagerGameStatsQueryAsync(
-                Arg.Is(brandCode), 
-                Arg.Any<DateTimeOffset>(), 
-                Arg.Any<DateTimeOffset>(), 
-                Arg.Is(BrandWagerGameMinsStatsSort.Bet), 
-                Arg.Is(false))
-            .Returns(new BrandWagerGameStatsInfo[] 
-            {
-                new BrandWagerGameStatsInfo(
-                    GameProviderId: Guid.Parse("a0f49ce0-2c1d-4f50-9fc5-58b610a30bf5"),
-                    GameProviderCode: "KY",
-                    GameId: 1000010, 
-                    Guid.NewGuid(),
-                    "ResellerCode",
-                    Guid.NewGuid(),
-                    "LicenseeCode",
-                    brandId,
-                    brandCode,
-                    "CNY",
-                    1,
-                    100m,
-                    100m,
-                    0m,
-                    0m,
-                    100m,
-                    -100m)
-            }.ToAsyncEnumerable());
-
-        _ = fakeBrandGameService.GetBrandGameQueries()
-            .Returns(new BrandGame[] 
-            {
-                new BrandGame
-                {
-                    BrandId = brandId,
-                    GameId = 1000010,
-                    Game = new Game()
-                    {
-                        GameProviderId = Guid.Parse("a0f49ce0-2c1d-4f50-9fc5-58b610a30bf5"),
-                        Name = gameName,
-                        SubGameProvider = new SubGameProvider
-                        {
-                            Name = gameProviderName
-                        }
-                    }
-                }
-            }.AsQueryable());
-
-
-        var actual = await sut.QueryAsync(new GetTopTenGameQuery(brandId, sortType, false)).ToArrayAsync();
-
-        Assert.AreEqual(1, actual.Length);
-        Assert.AreEqual(gameName, actual[0].GameName);
-        Assert.AreEqual(gameProviderName, actual[0].GameProviderName);
-        Assert.AreEqual(100m, actual[0].Bet);
-        Assert.AreEqual(-100m, actual[0].WinLoss);        
-    }
-
-    [Test]
-    public async Task 查詢當日十大遊戲_輸贏降冪()
-    {
-        var fakeBrandServiceClient = Substitute.For<IBrandServiceClient>();
-        var fakeGameWagersClient = Substitute.For<IGameWagersClient>();
-        var fakeBrandGameService = Substitute.For<IBrandGameService>();
-
-        var sut = new GetTopTenGameQueryService(fakeBrandServiceClient, fakeGameWagersClient, fakeBrandGameService);
-
-        var brandId = Guid.NewGuid();
-        var brandCode = "GPI";
-        var sortType = TopTenGameSortType.WinLoss;
-        var gameName = "Happy Red Packets";
-        var gameProviderName = "KY";
-
-        _ = fakeBrandServiceClient.GetBrandInfoAsync(Arg.Is(brandId))
-            .Returns(new BrandInfo
             {
                 Id = brandId,
                 Code = brandCode,
@@ -615,7 +536,7 @@ public class OverviewTests
                 Arg.Is(brandCode),
                 Arg.Any<DateTimeOffset>(),
                 Arg.Any<DateTimeOffset>(),
-                Arg.Is(BrandWagerGameMinsStatsSort.WinLoss),
+                Arg.Is(BrandWagerGameMinsStatsSort.Bet),
                 Arg.Is(false))
             .Returns(new BrandWagerGameStatsInfo[]
             {
@@ -658,8 +579,9 @@ public class OverviewTests
                 }
             }.AsQueryable());
 
-
-        var actual = await sut.QueryAsync(new GetTopTenGameQuery(brandId, sortType, false)).ToArrayAsync();
+        var actual = await sut
+            .QueryAsync(new GetTopTenGameQuery(brandId, sortType, false, CultureInfo.GetCultureInfo("en-US")))
+            .ToArrayAsync();
 
         Assert.AreEqual(1, actual.Length);
         Assert.AreEqual(gameName, actual[0].GameName);
@@ -738,8 +660,88 @@ public class OverviewTests
                 }
             }.AsQueryable());
 
+        var actual = await sut
+            .QueryAsync(new GetTopTenGameQuery(brandId, sortType, true, CultureInfo.GetCultureInfo("en-US")))
+            .ToArrayAsync();
 
-        var actual = await sut.QueryAsync(new GetTopTenGameQuery(brandId, sortType, true)).ToArrayAsync();
+        Assert.AreEqual(1, actual.Length);
+        Assert.AreEqual(gameName, actual[0].GameName);
+        Assert.AreEqual(gameProviderName, actual[0].GameProviderName);
+        Assert.AreEqual(100m, actual[0].Bet);
+        Assert.AreEqual(-100m, actual[0].WinLoss);
+    }
+
+    [Test]
+    public async Task 查詢當日十大遊戲_輸贏降冪()
+    {
+        var fakeBrandServiceClient = Substitute.For<IBrandServiceClient>();
+        var fakeGameWagersClient = Substitute.For<IGameWagersClient>();
+        var fakeBrandGameService = Substitute.For<IBrandGameService>();
+
+        var sut = new GetTopTenGameQueryService(fakeBrandServiceClient, fakeGameWagersClient, fakeBrandGameService);
+
+        var brandId = Guid.NewGuid();
+        var brandCode = "GPI";
+        var sortType = TopTenGameSortType.WinLoss;
+        var gameName = "Happy Red Packets";
+        var gameProviderName = "KY";
+
+        _ = fakeBrandServiceClient.GetBrandInfoAsync(Arg.Is(brandId))
+            .Returns(new BrandInfo
+            {
+                Id = brandId,
+                Code = brandCode,
+            });
+
+        _ = fakeGameWagersClient
+            .BrandWagerGameStatsQueryAsync(
+                Arg.Is(brandCode),
+                Arg.Any<DateTimeOffset>(),
+                Arg.Any<DateTimeOffset>(),
+                Arg.Is(BrandWagerGameMinsStatsSort.WinLoss),
+                Arg.Is(false))
+            .Returns(new BrandWagerGameStatsInfo[]
+            {
+                new BrandWagerGameStatsInfo(
+                    GameProviderId: Guid.Parse("a0f49ce0-2c1d-4f50-9fc5-58b610a30bf5"),
+                    GameProviderCode: "KY",
+                    GameId: 1000010,
+                    Guid.NewGuid(),
+                    "ResellerCode",
+                    Guid.NewGuid(),
+                    "LicenseeCode",
+                    brandId,
+                    brandCode,
+                    "CNY",
+                    1,
+                    100m,
+                    100m,
+                    0m,
+                    0m,
+                    100m,
+                    -100m)
+            }.ToAsyncEnumerable());
+
+        _ = fakeBrandGameService.GetBrandGameQueries()
+            .Returns(new BrandGame[]
+            {
+                new BrandGame
+                {
+                    BrandId = brandId,
+                    GameId = 1000010,
+                    Game = new Game()
+                    {
+                        GameProviderId = Guid.Parse("a0f49ce0-2c1d-4f50-9fc5-58b610a30bf5"),
+                        Name = gameName,
+                        SubGameProvider = new SubGameProvider
+                        {
+                            Name = gameProviderName
+                        }
+                    }
+                }
+            }.AsQueryable());
+
+        var actual = await sut.QueryAsync(new GetTopTenGameQuery(brandId, sortType, false, CultureInfo.GetCultureInfo("en-US"))).ToArrayAsync();
 
         Assert.AreEqual(1, actual.Length);
         Assert.AreEqual(gameName, actual[0].GameName);
