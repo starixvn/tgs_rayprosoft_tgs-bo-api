@@ -7,7 +7,7 @@ public record BrandGameInfo
 {
     public int GameId { get; set; }
     public string GameName { get; set; }
-    public Dictionary<string, GameNameLocalization> LocalizationDicts { get; set; }
+    public Dictionary<string, GameLocalization> LocalizationDicts { get; set; }
     public Guid GameProviderId { get; set; }
     public string GameProviderName { get; set; }
 }

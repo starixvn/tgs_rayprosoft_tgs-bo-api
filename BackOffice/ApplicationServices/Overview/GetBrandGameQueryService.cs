@@ -37,7 +37,9 @@ internal class GetBrandGameQueryService : IQueryService<GetBrandGameQuery, Brand
         {
             var localization = !string.IsNullOrWhiteSpace(x.Localization) ? x.Localization : "{}";
 
-            var gameNameCultureDict = JsonSerializer.Deserialize<Dictionary<string, GameNameLocalization>>(localization);
+            var gameNameCultureDict = JsonSerializer.Deserialize<Dictionary<string, GameLocalization>>(localization)
+            .Where(kv => !string.IsNullOrWhiteSpace(kv.Value.Name))
+            .ToDictionary(kv => kv.Key, kv => kv.Value);
 
             return new BrandGameInfo
             {
