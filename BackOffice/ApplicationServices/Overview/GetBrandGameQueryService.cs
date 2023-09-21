@@ -1,7 +1,10 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Text.Json;
+using System.Text.Json.Nodes;
 using System.Threading;
+using Microsoft.EntityFrameworkCore;
 using Tgs.ServiceUtility;
 using TGS.Services.BackOffice.Infrastructure.DataService;
 
@@ -21,13 +24,37 @@ internal class GetBrandGameQueryService : IQueryService<GetBrandGameQuery, Brand
         var brandGameInfos = _brandGameService.GetBrandGameQueries()
                     .Where(x => x.BrandId == query.BrandId
                         && query.GameIds.Contains(x.GameId))
-                    .Select(x => new BrandGameInfo(
+                    .AsNoTracking()
+                    .Select(x => new
+                    {
                         x.GameId,
-                        x.Game.Name,
+                        GameName = x.Game.Name,
                         x.Game.Localization,
                         x.Game.GameProviderId,
-                        x.Game.SubGameProvider.Name));
+                        GameProviderName = x.Game.SubGameProvider.Name
+                    }).ToAsyncEnumerable();
 
-        return brandGameInfos.ToAsyncEnumerable();
+        return brandGameInfos.Select(x =>
+        {
+            var localization = !string.IsNullOrWhiteSpace(x.Localization) ? x.Localization : "{}";
+
+            var keyValues = JsonSerializer.Deserialize<Dictionary<string, JsonNode>>(localization);
+
+            var keyValuePairs = keyValues
+                .Select(o => new KeyValuePair<string, string>(o.Key, o.Value?["name"].GetValue<string>()));
+
+            var gameNameCultureDict = keyValuePairs
+                .Where(p => !string.IsNullOrWhiteSpace(p.Value))
+                .ToDictionary(pair => pair.Key, pair => pair.Value);
+
+            return new BrandGameInfo
+            {
+                GameId = x.GameId,
+                GameName = x.GameName,
+                LocalizationDicts = gameNameCultureDict,
+                GameProviderId = x.GameProviderId,
+                GameProviderName = x.GameProviderName
+            };
+        });
     }
 }

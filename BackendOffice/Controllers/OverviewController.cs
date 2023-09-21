@@ -103,15 +103,11 @@ public class OverviewController : BaseContextController
                             && x.GameId == info.GameId)
                         .First();
 
-            var localization = string.IsNullOrWhiteSpace(brandGame.Localization)
-                        ? JsonNode.Parse("{}")
-                        : JsonNode.Parse(brandGame.Localization);
-
-            var translateGameName = localization?.Root[cultureCode]?["name"]?.ToString();
+            _ = brandGame.LocalizationDicts.TryGetValue(cultureCode, out var locale);
 
             yield return new TopTenGameViewModel
             {
-                GameName = string.IsNullOrWhiteSpace(translateGameName) ? brandGame.GameName : translateGameName,
+                GameName = locale ?? brandGame.GameName,
                 GameProviderName = brandGame.GameProviderName,
                 Bet = info.Bet,
                 WinLoss = info.WinLoss,

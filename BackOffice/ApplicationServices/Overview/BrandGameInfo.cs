@@ -1,10 +1,13 @@
 ﻿using System;
+using System.Collections.Generic;
 
 namespace TGS.Services.BackOffice.ApplicationServices.Overview;
 
-public record BrandGameInfo(
-    int GameId,
-    string GameName,
-    string Localization,
-    Guid GameProviderId,
-    string GameProviderName);
+public record BrandGameInfo
+{
+    public int GameId { get; set; }
+    public string GameName { get; set; }
+    public Dictionary<string, string> LocalizationDicts { get; set; }
+    public Guid GameProviderId { get; set; }
+    public string GameProviderName { get; set; }
+}
