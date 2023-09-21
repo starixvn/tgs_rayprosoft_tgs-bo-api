@@ -2,7 +2,6 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Text.Json;
-using System.Text.Json.Nodes;
 using System.Threading;
 using Microsoft.EntityFrameworkCore;
 using Tgs.ServiceUtility;
@@ -22,30 +21,23 @@ internal class GetBrandGameQueryService : IQueryService<GetBrandGameQuery, Brand
     public IAsyncEnumerable<BrandGameInfo> QueryAsync(GetBrandGameQuery query, CancellationToken cancellationToken = default)
     {
         var brandGameInfos = _brandGameService.GetBrandGameQueries()
-                    .Where(x => x.BrandId == query.BrandId
-                        && query.GameIds.Contains(x.GameId))
-                    .AsNoTracking()
-                    .Select(x => new
-                    {
-                        x.GameId,
-                        GameName = x.Game.Name,
-                        x.Game.Localization,
-                        x.Game.GameProviderId,
-                        GameProviderName = x.Game.SubGameProvider.Name
-                    }).ToAsyncEnumerable();
+            .Where(x => x.BrandId == query.BrandId
+                && query.GameIds.Contains(x.GameId))
+            .AsNoTracking()
+            .Select(x => new
+            {
+                x.GameId,
+                GameName = x.Game.Name,
+                x.Game.Localization,
+                x.Game.GameProviderId,
+                GameProviderName = x.Game.SubGameProvider.Name
+            }).ToAsyncEnumerable();
 
         return brandGameInfos.Select(x =>
         {
             var localization = !string.IsNullOrWhiteSpace(x.Localization) ? x.Localization : "{}";
 
-            var keyValues = JsonSerializer.Deserialize<Dictionary<string, JsonNode>>(localization);
-
-            var keyValuePairs = keyValues
-                .Select(o => new KeyValuePair<string, string>(o.Key, o.Value?["name"].GetValue<string>()));
-
-            var gameNameCultureDict = keyValuePairs
-                .Where(p => !string.IsNullOrWhiteSpace(p.Value))
-                .ToDictionary(pair => pair.Key, pair => pair.Value);
+            var gameNameCultureDict = JsonSerializer.Deserialize<Dictionary<string, GameNameLocalization>>(localization);
 
             return new BrandGameInfo
             {

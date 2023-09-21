@@ -4,7 +4,6 @@ using System;
 using System.Collections.Generic;
 using System.Globalization;
 using System.Linq;
-using System.Text.Json.Nodes;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
@@ -99,15 +98,15 @@ public class OverviewController : BaseContextController
         foreach (var info in topTenGameInfos)
         {
             var brandGame = brandGameInfos
-                        .Where(x => x.GameProviderId == info.GameProviderId
-                            && x.GameId == info.GameId)
-                        .First();
+                .Where(x => x.GameProviderId == info.GameProviderId
+                    && x.GameId == info.GameId)
+                .First();
 
             _ = brandGame.LocalizationDicts.TryGetValue(cultureCode, out var locale);
 
             yield return new TopTenGameViewModel
             {
-                GameName = locale ?? brandGame.GameName,
+                GameName = locale?.Name ?? brandGame.GameName,
                 GameProviderName = brandGame.GameProviderName,
                 Bet = info.Bet,
                 WinLoss = info.WinLoss,

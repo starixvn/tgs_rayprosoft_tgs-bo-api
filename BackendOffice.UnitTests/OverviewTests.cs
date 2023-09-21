@@ -4,14 +4,84 @@ using Tgs.GameWagers.Client;
 using Tgs.GameWagers.Common;
 using Tgs.Payment.Clients;
 using Tgs.PlayerService.Client;
+using TGS.Core.DataServices.Tgs.Models;
 using TGS.Services.BackOffice.ApplicationServices.Overview;
 using TGS.Services.BackOffice.Domain.Enums;
+using TGS.Services.BackOffice.Infrastructure.DataService;
 
 namespace TGS.Tests.BackendOffice.UnitTests;
 
 [TestFixture]
 public class OverviewTests
 {
+    [Test]
+    public async Task 查詢Brand_Game()
+    {
+        var fakeBrandGameService = Substitute.For<IBrandGameService>();
+
+        var sut = new GetBrandGameQueryService(fakeBrandGameService);
+        var localization = """
+            {
+              "en-US": {
+                "name": ""
+              },
+              "id-ID": {
+                "name": ""
+              },
+              "ja-JP": {
+                "name": ""
+              },
+              "ko-KR": {
+                "name": ""
+              },
+              "th-TH": {
+                "name": ""
+              },
+              "vi-VN": {
+                "name": ""
+              },
+              "zh-CN": {
+                "name": "百家乐"
+              },
+              "zh-TW": {
+                "name": "百家樂"
+              }
+            }
+            """;
+
+        var brandId = Guid.NewGuid();
+        var gameIds = new int[] { 1000017 };
+        var gameProviderId = Guid.NewGuid();
+
+        _ = fakeBrandGameService
+            .GetBrandGameQueries()
+            .Returns(new BrandGame[]
+            {
+                new BrandGame
+                {
+                    BrandId = brandId,
+                    GameId = gameIds[0],
+                    Game = new Game()
+                    {
+                        SubGameProvider = new SubGameProvider
+                        {
+                            Name = "KY"
+                        },
+                        Localization = localization,
+                        GameProviderId = gameProviderId
+                    }
+                }
+            }.AsQueryable());
+
+        var actual = await sut
+            .QueryAsync(new GetBrandGameQuery(brandId, gameIds))
+            .ToArrayAsync();
+
+        Assert.AreEqual("KY", actual[0].GameProviderName);
+        Assert.AreEqual(gameIds[0], actual[0].GameId);
+        Assert.AreEqual(gameProviderId, actual[0].GameProviderId);
+    }
+
     [Test]
     public async Task 查詢存提差()
     {
