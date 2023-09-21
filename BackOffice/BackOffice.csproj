@@ -65,7 +65,7 @@
     <PackageReference Include="Tgs.DepositAccumulateRoulette.Client" Version="0.0.6" />
     <PackageReference Include="Tgs.GameProviders.Pluggable.Client" Version="0.0.33" />
     <PackageReference Include="Tgs.DomainSetting.Client" Version="0.0.7" />
-    <PackageReference Include="Tgs.GameWagers.Client" Version="0.0.3" />
+    <PackageReference Include="Tgs.GameWagers.Client" Version="0.0.4" />
     <PackageReference Include="Tgs.MarketingReport.Client" Version="0.0.9" />
     <PackageReference Include="Tgs.Paging.AsyncEnumerable" Version="1.2.1" />
     <PackageReference Include="Tgs.Payment.Client" Version="0.5.0" />
