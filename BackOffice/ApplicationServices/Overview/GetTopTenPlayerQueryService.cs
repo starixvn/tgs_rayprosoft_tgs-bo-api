@@ -217,6 +217,7 @@ internal class GetTopTenPlayerQueryService : IQueryService<GetTopTenPlayerQuery,
                         PlayerCode = item.PlayerCode,
                     };
                 }
+
                 break;
 
             case TopTenPlayerSortType.WinLoss:

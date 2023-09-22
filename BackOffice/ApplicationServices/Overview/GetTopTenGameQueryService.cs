@@ -64,6 +64,7 @@ internal class GetTopTenGameQueryService : IQueryService<GetTopTenGameQuery, Top
                         WinLoss = item.WinLoss,
                     };
                 }
+
                 break;
 
             case TopTenGameSortType.WinLoss:
@@ -90,6 +91,7 @@ internal class GetTopTenGameQueryService : IQueryService<GetTopTenGameQuery, Top
                         WinLoss = item.WinLoss,
                     };
                 }
+
                 break;
 
             default:
