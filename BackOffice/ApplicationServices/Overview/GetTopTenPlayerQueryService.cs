@@ -126,7 +126,15 @@ internal class GetTopTenPlayerQueryService : IQueryService<GetTopTenPlayerQuery,
 
             case TopTenPlayerSortType.Bet:
                 var topTenBets = await _gameWagersClient
-                    .BrandWagerPlayerStatsQueryAsync(brandInfo.Code, currentDay, now, BrandWagerPlayerMinsStatsSort.Bet, false, cancellationToken: cancellationToken)
+                    .BrandWagerPlayerStatsQueryAsync(
+                        brandInfo.Code,
+                        startOn: currentDay,
+                        endOn: now,
+                        BrandWagerPlayerMinsStatsSort.Bet,
+                        false,
+                        page: 1,
+                        pageSize: 10,
+                        cancellationToken: cancellationToken)
                     .ToArrayAsync(cancellationToken)
                     .ConfigureAwait(false);
 
@@ -166,7 +174,15 @@ internal class GetTopTenPlayerQueryService : IQueryService<GetTopTenPlayerQuery,
 
             case TopTenPlayerSortType.Settle:
                 var topTenSettle = await _gameWagersClient
-                    .BrandWagerPlayerStatsQueryAsync(brandInfo.Code, currentDay, now, BrandWagerPlayerMinsStatsSort.Settle, false, cancellationToken: cancellationToken)
+                    .BrandWagerPlayerStatsQueryAsync(
+                        brandInfo.Code,
+                        startOn: currentDay,
+                        endOn: now,
+                        BrandWagerPlayerMinsStatsSort.Settle,
+                        false,
+                        page: 1,
+                        pageSize: 10,
+                        cancellationToken: cancellationToken)
                     .ToArrayAsync(cancellationToken)
                     .ConfigureAwait(false);
 
@@ -206,7 +222,15 @@ internal class GetTopTenPlayerQueryService : IQueryService<GetTopTenPlayerQuery,
             case TopTenPlayerSortType.WinLoss:
 
                 var topTenWinLoss = await _gameWagersClient
-                    .BrandWagerPlayerStatsQueryAsync(brandInfo.Code, currentDay, now, BrandWagerPlayerMinsStatsSort.WinLoss, query.Ascending, cancellationToken: cancellationToken)
+                    .BrandWagerPlayerStatsQueryAsync(
+                        brandInfo.Code,
+                        startOn: currentDay,
+                        endOn: now,
+                        BrandWagerPlayerMinsStatsSort.WinLoss,
+                        isAscending: query.Ascending,
+                        page: 1,
+                        pageSize: 10,
+                        cancellationToken: cancellationToken)
                     .ToArrayAsync(cancellationToken)
                     .ConfigureAwait(false);
 

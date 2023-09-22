@@ -69,7 +69,7 @@ public class OverviewTests
 
         _ = fakeBrandServiceClient
             .GetBrandInfoAsync(
-                Arg.Is(brandId), 
+                Arg.Is(brandId),
                 Arg.Any<CancellationToken>())
             .Returns(new BrandInfo
             {
@@ -78,7 +78,7 @@ public class OverviewTests
 
         _ = fakePaymentServiceClient
             .GetCurrentDayTopTenDepositPlayersAsync(
-                Arg.Is(brandId), 
+                Arg.Is(brandId),
                 Arg.Any<CancellationToken>())
             .Returns(new TopTenDepositWithdrawInfo[]
             {
@@ -99,12 +99,30 @@ public class OverviewTests
                 Arg.Any<CancellationToken>())
             .Returns(new BrandWagerPlayerStatsInfo[]
             {
-                new BrandWagerPlayerStatsInfo(Guid.NewGuid(),"GPCode",123, Guid.NewGuid(),"ResellerCode",Guid.NewGuid(),"LicenseeCode",brandId,brandCode,playerCodes[0],"username","CNY",1,100m,100m,0m,0m,100m,-100m)
+                new BrandWagerPlayerStatsInfo(
+                    GameProviderId: Guid.NewGuid(),
+                    GameProviderCode: "GPCode",
+                    ResellerId: Guid.NewGuid(),
+                    ResellerCode: "ResellerCode",
+                    LicenseeId: Guid.NewGuid(),
+                    LicenseeCode: "LicenseeCode",
+                    brandId,
+                    brandCode,
+                    playerCodes[0],
+                    "username",
+                    CurrencyCode: "CNY",
+                    Count: 1,
+                    Bet: 100m,
+                    ValidBet: 100m,
+                    Settle: 0m,
+                    Commission: 0m,
+                    Turnover: 100m,
+                    WinLoss: -100m)
             }.ToAsyncEnumerable());
 
         _ = fakePlayerServiceClient
             .QueryPlayerInfoListAsync(
-                Arg.Is(brandId), 
+                Arg.Is(brandId),
                 Arg.Is<IEnumerable<string>>(p => p.SequenceEqual(playerCodes)),
                 Arg.Any<CancellationToken>())
             .Returns(new Tgs.PlayerService.Client.PlayerInfo[]
@@ -197,7 +215,7 @@ public class OverviewTests
 
         _ = fakeBrandServiceClient
             .GetBrandInfoAsync(
-                Arg.Is(brandId), 
+                Arg.Is(brandId),
                 Arg.Any<CancellationToken>())
             .Returns(new BrandInfo
             {
@@ -211,10 +229,30 @@ public class OverviewTests
                 Arg.Any<DateTimeOffset>(),
                 Arg.Is(BrandWagerPlayerMinsStatsSort.Bet),
                 Arg.Is(false),
+                page: Arg.Is(1),
+                pageSize: Arg.Is(10),
                 cancellationToken: Arg.Any<CancellationToken>())
             .Returns(new BrandWagerPlayerStatsInfo[]
             {
-                new BrandWagerPlayerStatsInfo(Guid.NewGuid(),"GPCode",123, Guid.NewGuid(),"ResellerCode",Guid.NewGuid(),"LicenseeCode",brandId,brandCode,playerCodes[0],"username","CNY",1,100m,100m,0m,0m,100m,-100m)
+                new BrandWagerPlayerStatsInfo(
+                   GameProviderId: Guid.NewGuid(),
+                   "GPCode",
+                   ResellerId: Guid.NewGuid(),
+                   "ResellerCode",
+                   LicenseeId: Guid.NewGuid(),
+                   "LicenseeCode",
+                   brandId,
+                   brandCode,
+                   playerCodes[0],
+                   "username",
+                   CurrencyCode: "CNY",
+                   Count: 1,
+                   Bet:100m,
+                   ValidBet: 100m,
+                   Settle: 0m,
+                   Commission: 0m,
+                   Turnover: 100m,
+                   WinLoss: -100m)
             }.ToAsyncEnumerable());
 
         _ = fakePaymentServiceClient
@@ -233,8 +271,8 @@ public class OverviewTests
 
         _ = fakePlayerServiceClient
             .QueryPlayerInfoListAsync(
-                Arg.Is(brandId), 
-                Arg.Is<IEnumerable<string>>(p => p.SequenceEqual(playerCodes)), 
+                Arg.Is(brandId),
+                Arg.Is<IEnumerable<string>>(p => p.SequenceEqual(playerCodes)),
                 Arg.Any<CancellationToken>())
             .Returns(new Tgs.PlayerService.Client.PlayerInfo[]
             {
@@ -326,7 +364,7 @@ public class OverviewTests
 
         _ = fakeBrandServiceClient
             .GetBrandInfoAsync(
-                Arg.Is(brandId), 
+                Arg.Is(brandId),
                 Arg.Any<CancellationToken>())
             .Returns(new BrandInfo
             {
@@ -340,15 +378,17 @@ public class OverviewTests
                 Arg.Any<DateTimeOffset>(),
                 Arg.Is(BrandWagerPlayerMinsStatsSort.Settle),
                 Arg.Is(false),
+                page: Arg.Is(1),
+                pageSize: Arg.Is(10),
                 cancellationToken: Arg.Any<CancellationToken>())
             .Returns(new BrandWagerPlayerStatsInfo[]
             {
-                new BrandWagerPlayerStatsInfo(Guid.NewGuid(),"GPCode",123, Guid.NewGuid(),"ResellerCode",Guid.NewGuid(),"LicenseeCode",brandId,brandCode,playerCodes[0],"username","CNY",1,100m,100m,0m,0m,100m,-100m)
+                new BrandWagerPlayerStatsInfo(Guid.NewGuid(),"GPCode", Guid.NewGuid(),"ResellerCode",Guid.NewGuid(),"LicenseeCode",brandId,brandCode,playerCodes[0],"username","CNY",1,100m,100m,0m,0m,100m,-100m)
             }.ToAsyncEnumerable());
 
         _ = fakePaymentServiceClient
             .GetCurrentDayDepositWithdrawTotalAmountAsync(
-                Arg.Is<IEnumerable<string>>(p => p.SequenceEqual(playerCodes)), 
+                Arg.Is<IEnumerable<string>>(p => p.SequenceEqual(playerCodes)),
                 Arg.Any<CancellationToken>())
             .Returns(new TopTenDepositWithdrawInfo[]
             {
@@ -362,8 +402,8 @@ public class OverviewTests
 
         _ = fakePlayerServiceClient
             .QueryPlayerInfoListAsync(
-                Arg.Is(brandId), 
-                Arg.Is<IEnumerable<string>>(p => p.SequenceEqual(playerCodes)), 
+                Arg.Is(brandId),
+                Arg.Is<IEnumerable<string>>(p => p.SequenceEqual(playerCodes)),
                 Arg.Any<CancellationToken>())
             .Returns(new Tgs.PlayerService.Client.PlayerInfo[]
             {
@@ -481,16 +521,16 @@ public class OverviewTests
                 Arg.Is(brandCode),
                 Arg.Any<DateTimeOffset>(),
                 Arg.Any<DateTimeOffset>(),
-                Arg.Is<IEnumerable<string>>(x => x.SequenceEqual(playerCodes)), 
+                Arg.Is<IEnumerable<string>>(x => x.SequenceEqual(playerCodes)),
                 Arg.Any<CancellationToken>())
             .Returns(new BrandWagerPlayerStatsInfo[]
             {
-                new BrandWagerPlayerStatsInfo(Guid.NewGuid(),"GPCode",123, Guid.NewGuid(),"ResellerCode",Guid.NewGuid(),"LicenseeCode",brandId,brandCode,playerCodes[0],"username","CNY",1,100m,100m,0m,0m,100m,-100m)
+                new BrandWagerPlayerStatsInfo(Guid.NewGuid(),"GPCode", Guid.NewGuid(),"ResellerCode",Guid.NewGuid(),"LicenseeCode",brandId,brandCode,playerCodes[0],"username","CNY",1,100m,100m,0m,0m,100m,-100m)
             }.ToAsyncEnumerable());
 
         _ = fakePlayerServiceClient
             .QueryPlayerInfoListAsync(
-                Arg.Is(brandId), 
+                Arg.Is(brandId),
                 Arg.Is<IEnumerable<string>>(p => p.SequenceEqual(playerCodes)),
                 Arg.Any<CancellationToken>())
             .Returns(new Tgs.PlayerService.Client.PlayerInfo[]
@@ -583,7 +623,7 @@ public class OverviewTests
 
         _ = fakeBrandServiceClient
             .GetBrandInfoAsync(
-                Arg.Is(brandId), 
+                Arg.Is(brandId),
                 Arg.Any<CancellationToken>())
             .Returns(new BrandInfo
             {
@@ -597,10 +637,12 @@ public class OverviewTests
                 Arg.Any<DateTimeOffset>(),
                 Arg.Is(BrandWagerPlayerMinsStatsSort.WinLoss),
                 Arg.Is(true),
+                page: Arg.Is(1),
+                pageSize: Arg.Is(10),
                 cancellationToken: Arg.Any<CancellationToken>())
             .Returns(new BrandWagerPlayerStatsInfo[]
             {
-                new BrandWagerPlayerStatsInfo(Guid.NewGuid(),"GPCode",123, Guid.NewGuid(),"ResellerCode",Guid.NewGuid(),"LicenseeCode",brandId,brandCode,playerCodes[0],"username","CNY",1,100m,100m,0m,0m,100m,-100m)
+                new BrandWagerPlayerStatsInfo(Guid.NewGuid(),"GPCode", Guid.NewGuid(),"ResellerCode",Guid.NewGuid(),"LicenseeCode",brandId,brandCode,playerCodes[0],"username","CNY",1,100m,100m,0m,0m,100m,-100m)
             }.ToAsyncEnumerable());
 
         _ = fakePaymentServiceClient
@@ -619,7 +661,7 @@ public class OverviewTests
 
         _ = fakePlayerServiceClient
             .QueryPlayerInfoListAsync(
-                Arg.Is(brandId), 
+                Arg.Is(brandId),
                 Arg.Is<IEnumerable<string>>(p => p.SequenceEqual(playerCodes)),
                 Arg.Any<CancellationToken>())
             .Returns(new Tgs.PlayerService.Client.PlayerInfo[]
@@ -726,10 +768,12 @@ public class OverviewTests
                 Arg.Any<DateTimeOffset>(),
                 Arg.Is(BrandWagerPlayerMinsStatsSort.WinLoss),
                 Arg.Is(false),
+                page: Arg.Is(1),
+                pageSize: Arg.Is(10),
                 cancellationToken: Arg.Any<CancellationToken>())
             .Returns(new BrandWagerPlayerStatsInfo[]
             {
-                new BrandWagerPlayerStatsInfo(Guid.NewGuid(),"GPCode",123, Guid.NewGuid(),"ResellerCode",Guid.NewGuid(),"LicenseeCode",brandId,brandCode,playerCodes[0],"username","CNY",1,100m,100m,0m,0m,100m,-100m)
+                new BrandWagerPlayerStatsInfo(Guid.NewGuid(),"GPCode",Guid.NewGuid(),"ResellerCode",Guid.NewGuid(),"LicenseeCode",brandId,brandCode,playerCodes[0],"username","CNY",1,100m,100m,0m,0m,100m,-100m)
             }.ToAsyncEnumerable());
 
         _ = fakePaymentServiceClient
@@ -748,7 +792,7 @@ public class OverviewTests
 
         _ = fakePlayerServiceClient
             .QueryPlayerInfoListAsync(
-                Arg.Is(brandId), 
+                Arg.Is(brandId),
                 Arg.Is<IEnumerable<string>>(p => p.SequenceEqual(playerCodes)),
                 Arg.Any<CancellationToken>())
             .Returns(new Tgs.PlayerService.Client.PlayerInfo[]
@@ -808,7 +852,7 @@ public class OverviewTests
 
         var fakeBrandServiceClient = Substitute.For<IBrandServiceClient>();
         var fakeGameWagersClient = Substitute.For<IGameWagersClient>();
-        var fakeBrandGameService = Substitute.For<IBrandGameService>();        
+        var fakeBrandGameService = Substitute.For<IBrandGameService>();
 
         using var web = TestBackendOfficeApplication.Builder
             .UseTestChannelServer(channelName)
@@ -824,7 +868,7 @@ public class OverviewTests
                     })
                 .Services
                 .AddSingleton(fakeBrandServiceClient)
-                .AddSingleton(fakeGameWagersClient)                
+                .AddSingleton(fakeGameWagersClient)
                 .AddSingleton(fakeBrandGameService))
             .Build();
 
@@ -853,138 +897,8 @@ public class OverviewTests
                 Arg.Any<DateTimeOffset>(),
                 Arg.Is(BrandWagerGameMinsStatsSort.Bet),
                 Arg.Is(false),
-                cancellationToken: Arg.Any<CancellationToken>())
-            .Returns(new BrandWagerGameStatsInfo[]
-            {
-                new BrandWagerGameStatsInfo(
-                    GameProviderId: Guid.Parse("a0f49ce0-2c1d-4f50-9fc5-58b610a30bf5"),
-                    GameProviderCode: "KY",
-                    GameId: 1000010,
-                    Guid.NewGuid(),
-                    "ResellerCode",
-                    Guid.NewGuid(),
-                    "LicenseeCode",
-                    brandId,
-                    brandCode,
-                    "CNY",
-                    1,
-                    100m,
-                    100m,
-                    0m,
-                    0m,
-                    100m,
-                    -100m)
-            }.ToAsyncEnumerable());
-
-        _ = fakeBrandGameService.GetBrandGameQueries()
-            .Returns(new BrandGame[]
-            {
-                new BrandGame
-                {
-                    BrandId = brandId,
-                    GameId = 1000010,
-                    Game = new Game()
-                    {
-                        GameProviderId = Guid.Parse("a0f49ce0-2c1d-4f50-9fc5-58b610a30bf5"),
-                        Name = gameName,
-                        SubGameProvider = new SubGameProvider
-                        {
-                            Name = gameProviderName
-                        }
-                    }
-                }
-            }.AsQueryable());
-
-        var expected = new TopTenGameViewModel[]
-        {
-            new TopTenGameViewModel
-            {
-                GameName = gameName,
-                GameProviderName = gameProviderName,
-                Bet = 100m,
-                WinLoss = -100m
-            }
-        };
-
-        var isWindows = RuntimeInformation.IsOSPlatform(OSPlatform.Windows) ? "true" : "false";
-
-        var nodeModule = $$"""
-            const axiosConfigFactory = require('./models/axios-configuration.js').default;
-            const BackOfficeService = require('./services/bo-service.js').default;
-
-            module.exports = async (brandId, sortType, winLossAscending) =>
-            {
-                let instance = axiosConfigFactory("{{channelName}}", {{isWindows}});
-
-                let svc = new BackOfficeService(instance);
-
-                return await svc.getTopTenGames(brandId, sortType, winLossAscending);
-            };
-            """;
-
-        // Act
-        var actual = await StaticNodeJSService.InvokeFromStringAsync<TopTenGameViewModel[]>(
-            nodeModule,
-            args: new object[] { brandId, sortType, winLossAscending });
-
-        // Assert
-        expected.ToExpectedObject().ShouldEqual(actual);
-    }
-
-    [Fact]
-    public async Task 查詢十大遊戲_輸贏降冪()
-    {
-        // Arrange
-        var channelName = Guid.NewGuid().ToString();
-        var userId = Guid.NewGuid();
-
-        var fakeBrandServiceClient = Substitute.For<IBrandServiceClient>();
-        var fakeGameWagersClient = Substitute.For<IGameWagersClient>();
-        var fakeBrandGameService = Substitute.For<IBrandGameService>();
-
-        using var web = TestBackendOfficeApplication.Builder
-            .UseTestChannelServer(channelName)
-            .ConfigureLogging(logging => logging.AddXUnit(_testOutputHelper))
-            .ConfigureServices(services => services
-                .AddAuthentication("Fake")
-                .AddScheme<FakeAuthenticationSchemaOptions, FakeAuthenticationHandler>(
-                    "Fake",
-                    options =>
-                    {
-                        options.UserId = userId;
-                        options.UserName = "system";
-                    })
-                .Services
-                .AddSingleton(fakeBrandServiceClient)
-                .AddSingleton(fakeGameWagersClient)
-                .AddSingleton(fakeBrandGameService))
-            .Build();
-
-        await web.StartAsync();
-
-        var brandId = Guid.Parse("4e86719f-243f-46f6-b010-5c758b7285af");
-        var brandCode = "GPI";
-        var sortType = TopTenGameSortType.WinLoss;
-        var gameName = "Happy Red Packets";
-        var gameProviderName = "KY";
-        var winLossAscending = false;
-
-        _ = fakeBrandServiceClient.GetBrandInfoAsync(
-                Arg.Is(brandId),
-                Arg.Any<CancellationToken>())
-            .Returns(new BrandInfo
-            {
-                Id = brandId,
-                Code = brandCode,
-            });
-
-        _ = fakeGameWagersClient
-            .BrandWagerGameStatsQueryAsync(
-                Arg.Is(brandCode),
-                Arg.Any<DateTimeOffset>(),
-                Arg.Any<DateTimeOffset>(),
-                Arg.Is(BrandWagerGameMinsStatsSort.WinLoss),
-                Arg.Is(false),
+                page: Arg.Is(1),
+                pageSize: Arg.Is(10),
                 cancellationToken: Arg.Any<CancellationToken>())
             .Returns(new BrandWagerGameStatsInfo[]
             {
@@ -1117,6 +1031,8 @@ public class OverviewTests
                 Arg.Any<DateTimeOffset>(),
                 Arg.Is(BrandWagerGameMinsStatsSort.WinLoss),
                 Arg.Is(true),
+                page: Arg.Is(1),
+                pageSize: Arg.Is(10),
                 cancellationToken: Arg.Any<CancellationToken>())
             .Returns(new BrandWagerGameStatsInfo[]
             {
@@ -1190,6 +1106,140 @@ public class OverviewTests
         var actual = await StaticNodeJSService.InvokeFromStringAsync<TopTenGameViewModel[]>(
             nodeModule,
             args: new object[] { brandId, sortType, ascending });
+
+        // Assert
+        expected.ToExpectedObject().ShouldEqual(actual);
+    }
+
+    [Fact]
+    public async Task 查詢十大遊戲_輸贏降冪()
+    {
+        // Arrange
+        var channelName = Guid.NewGuid().ToString();
+        var userId = Guid.NewGuid();
+
+        var fakeBrandServiceClient = Substitute.For<IBrandServiceClient>();
+        var fakeGameWagersClient = Substitute.For<IGameWagersClient>();
+        var fakeBrandGameService = Substitute.For<IBrandGameService>();
+
+        using var web = TestBackendOfficeApplication.Builder
+            .UseTestChannelServer(channelName)
+            .ConfigureLogging(logging => logging.AddXUnit(_testOutputHelper))
+            .ConfigureServices(services => services
+                .AddAuthentication("Fake")
+                .AddScheme<FakeAuthenticationSchemaOptions, FakeAuthenticationHandler>(
+                    "Fake",
+                    options =>
+                    {
+                        options.UserId = userId;
+                        options.UserName = "system";
+                    })
+                .Services
+                .AddSingleton(fakeBrandServiceClient)
+                .AddSingleton(fakeGameWagersClient)
+                .AddSingleton(fakeBrandGameService))
+            .Build();
+
+        await web.StartAsync();
+
+        var brandId = Guid.Parse("4e86719f-243f-46f6-b010-5c758b7285af");
+        var brandCode = "GPI";
+        var sortType = TopTenGameSortType.WinLoss;
+        var gameName = "Happy Red Packets";
+        var gameProviderName = "KY";
+        var winLossAscending = false;
+
+        _ = fakeBrandServiceClient.GetBrandInfoAsync(
+                Arg.Is(brandId),
+                Arg.Any<CancellationToken>())
+            .Returns(new BrandInfo
+            {
+                Id = brandId,
+                Code = brandCode,
+            });
+
+        _ = fakeGameWagersClient
+            .BrandWagerGameStatsQueryAsync(
+                Arg.Is(brandCode),
+                Arg.Any<DateTimeOffset>(),
+                Arg.Any<DateTimeOffset>(),
+                Arg.Is(BrandWagerGameMinsStatsSort.WinLoss),
+                Arg.Is(false),
+                page: Arg.Is(1),
+                pageSize: Arg.Is(10),
+                cancellationToken: Arg.Any<CancellationToken>())
+            .Returns(new BrandWagerGameStatsInfo[]
+            {
+                new BrandWagerGameStatsInfo(
+                    GameProviderId: Guid.Parse("a0f49ce0-2c1d-4f50-9fc5-58b610a30bf5"),
+                    GameProviderCode: "KY",
+                    GameId: 1000010,
+                    Guid.NewGuid(),
+                    "ResellerCode",
+                    Guid.NewGuid(),
+                    "LicenseeCode",
+                    brandId,
+                    brandCode,
+                    "CNY",
+                    1,
+                    100m,
+                    100m,
+                    0m,
+                    0m,
+                    100m,
+                    -100m)
+            }.ToAsyncEnumerable());
+
+        _ = fakeBrandGameService.GetBrandGameQueries()
+            .Returns(new BrandGame[]
+            {
+                new BrandGame
+                {
+                    BrandId = brandId,
+                    GameId = 1000010,
+                    Game = new Game()
+                    {
+                        GameProviderId = Guid.Parse("a0f49ce0-2c1d-4f50-9fc5-58b610a30bf5"),
+                        Name = gameName,
+                        SubGameProvider = new SubGameProvider
+                        {
+                            Name = gameProviderName
+                        }
+                    }
+                }
+            }.AsQueryable());
+
+        var expected = new TopTenGameViewModel[]
+        {
+            new TopTenGameViewModel
+            {
+                GameName = gameName,
+                GameProviderName = gameProviderName,
+                Bet = 100m,
+                WinLoss = -100m
+            }
+        };
+
+        var isWindows = RuntimeInformation.IsOSPlatform(OSPlatform.Windows) ? "true" : "false";
+
+        var nodeModule = $$"""
+            const axiosConfigFactory = require('./models/axios-configuration.js').default;
+            const BackOfficeService = require('./services/bo-service.js').default;
+
+            module.exports = async (brandId, sortType, winLossAscending) =>
+            {
+                let instance = axiosConfigFactory("{{channelName}}", {{isWindows}});
+
+                let svc = new BackOfficeService(instance);
+
+                return await svc.getTopTenGames(brandId, sortType, winLossAscending);
+            };
+            """;
+
+        // Act
+        var actual = await StaticNodeJSService.InvokeFromStringAsync<TopTenGameViewModel[]>(
+            nodeModule,
+            args: new object[] { brandId, sortType, winLossAscending });
 
         // Assert
         expected.ToExpectedObject().ShouldEqual(actual);

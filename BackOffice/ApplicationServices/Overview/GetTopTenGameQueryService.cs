@@ -44,10 +44,12 @@ internal class GetTopTenGameQueryService : IQueryService<GetTopTenGameQuery, Top
                 var wagerInfos = await _gameWagersClient
                     .BrandWagerGameStatsQueryAsync(
                         brandInfo!.Code,
-                        currentDay,
-                        now,
+                        startOn: currentDay,
+                        endOn: now,
                         BrandWagerGameMinsStatsSort.Bet,
-                        false,
+                        isAscending: false,
+                        page: 1,
+                        pageSize: 10,
                         cancellationToken: cancellationToken)
                     .ToArrayAsync(cancellationToken)
                     .ConfigureAwait(false);
@@ -68,10 +70,12 @@ internal class GetTopTenGameQueryService : IQueryService<GetTopTenGameQuery, Top
                 wagerInfos = await _gameWagersClient
                    .BrandWagerGameStatsQueryAsync(
                        brandInfo!.Code,
-                       currentDay,
-                       now,
+                       startOn: currentDay,
+                       endOn: now,
                        BrandWagerGameMinsStatsSort.WinLoss,
-                       query.Ascending,
+                       isAscending: query.Ascending,
+                       page: 1,
+                       pageSize: 10,
                        cancellationToken: cancellationToken)
                    .ToArrayAsync(cancellationToken)
                    .ConfigureAwait(false);
