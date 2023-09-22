@@ -171,7 +171,7 @@ public class OverviewTests
                 Arg.Is<IEnumerable<string>>(x => x.SequenceEqual(playerCodes)))
             .Returns(new BrandWagerPlayerStatsInfo[]
             {
-                new BrandWagerPlayerStatsInfo(Guid.NewGuid(),"GPCode",123, Guid.NewGuid(),"ResellerCode",Guid.NewGuid(),"LicenseeCode",brandId,brandCode,playerCodes[0],"username","CNY",1,100m,100m,0m,0m,100m,-100m)
+                new BrandWagerPlayerStatsInfo(Guid.NewGuid(),"GPCode", Guid.NewGuid(),"ResellerCode",Guid.NewGuid(),"LicenseeCode",brandId,brandCode,playerCodes[0],"username","CNY",1,100m,100m,0m,0m,100m,-100m)
             }.ToAsyncEnumerable());
 
         _ = fakePlayerServiceClient
@@ -230,10 +230,12 @@ public class OverviewTests
                 Arg.Any<DateTimeOffset>(),
                 Arg.Any<DateTimeOffset>(),
                 Arg.Is(BrandWagerPlayerMinsStatsSort.Bet),
-                Arg.Is(false))
+                Arg.Is(false),
+                page: Arg.Is(1),
+                pageSize: Arg.Is(10))
             .Returns(new BrandWagerPlayerStatsInfo[]
             {
-                new BrandWagerPlayerStatsInfo(Guid.NewGuid(),"GPCode",123, Guid.NewGuid(),"ResellerCode",Guid.NewGuid(),"LicenseeCode",brandId,brandCode,playerCodes[0],"username","CNY",1,100m,100m,0m,0m,100m,-100m)
+                new BrandWagerPlayerStatsInfo(Guid.NewGuid(),"GPCode", Guid.NewGuid(),"ResellerCode",Guid.NewGuid(),"LicenseeCode",brandId,brandCode,playerCodes[0],"username","CNY",1,100m,100m,0m,0m,100m,-100m)
             }.ToAsyncEnumerable());
 
         _ = fakePaymentServiceClient
@@ -305,10 +307,12 @@ public class OverviewTests
                 Arg.Any<DateTimeOffset>(),
                 Arg.Any<DateTimeOffset>(),
                 Arg.Is(BrandWagerPlayerMinsStatsSort.Settle),
-                Arg.Is(false))
+                Arg.Is(false),
+                page: Arg.Is(1),
+                pageSize: Arg.Is(10))
             .Returns(new BrandWagerPlayerStatsInfo[]
             {
-                new BrandWagerPlayerStatsInfo(Guid.NewGuid(),"GPCode",123, Guid.NewGuid(),"ResellerCode",Guid.NewGuid(),"LicenseeCode",brandId,brandCode,playerCodes[0],"username","CNY",1,100m,100m,0m,0m,100m,-100m)
+                new BrandWagerPlayerStatsInfo(Guid.NewGuid(),"GPCode", Guid.NewGuid(),"ResellerCode",Guid.NewGuid(),"LicenseeCode",brandId,brandCode,playerCodes[0],"username","CNY",1,100m,100m,0m,0m,100m,-100m)
             }.ToAsyncEnumerable());
 
         _ = fakePaymentServiceClient
@@ -394,7 +398,7 @@ public class OverviewTests
                 Arg.Is<IEnumerable<string>>(x => x.SequenceEqual(playerCodes)))
             .Returns(new BrandWagerPlayerStatsInfo[]
             {
-                new BrandWagerPlayerStatsInfo(Guid.NewGuid(),"GPCode",123, Guid.NewGuid(),"ResellerCode",Guid.NewGuid(),"LicenseeCode",brandId,brandCode,playerCodes[0],"username","CNY",1,100m,100m,0m,0m,100m,-100m)
+                new BrandWagerPlayerStatsInfo(Guid.NewGuid(),"GPCode", Guid.NewGuid(),"ResellerCode",Guid.NewGuid(),"LicenseeCode",brandId,brandCode,playerCodes[0],"username","CNY",1,100m,100m,0m,0m,100m,-100m)
             }.ToAsyncEnumerable());
 
         _ = fakePlayerServiceClient
@@ -453,10 +457,12 @@ public class OverviewTests
                 Arg.Any<DateTimeOffset>(),
                 Arg.Any<DateTimeOffset>(),
                 Arg.Is(BrandWagerPlayerMinsStatsSort.WinLoss),
-                Arg.Is(true))
+                Arg.Is(true),
+                page: Arg.Is(1),
+                pageSize: Arg.Is(10))
             .Returns(new BrandWagerPlayerStatsInfo[]
             {
-                new BrandWagerPlayerStatsInfo(Guid.NewGuid(),"GPCode",123, Guid.NewGuid(),"ResellerCode",Guid.NewGuid(),"LicenseeCode",brandId,brandCode,playerCodes[0],"username","CNY",1,100m,100m,0m,0m,100m,-100m)
+                new BrandWagerPlayerStatsInfo(Guid.NewGuid(),"GPCode", Guid.NewGuid(),"ResellerCode",Guid.NewGuid(),"LicenseeCode",brandId,brandCode,playerCodes[0],"username","CNY",1,100m,100m,0m,0m,100m,-100m)
             }.ToAsyncEnumerable());
 
         _ = fakePaymentServiceClient
@@ -528,10 +534,12 @@ public class OverviewTests
                 Arg.Any<DateTimeOffset>(),
                 Arg.Any<DateTimeOffset>(),
                 Arg.Is(BrandWagerPlayerMinsStatsSort.WinLoss),
-                Arg.Is(false))
+                Arg.Is(false),
+                page: Arg.Is(1),
+                pageSize: Arg.Is(10))
             .Returns(new BrandWagerPlayerStatsInfo[]
             {
-                new BrandWagerPlayerStatsInfo(Guid.NewGuid(),"GPCode",123, Guid.NewGuid(),"ResellerCode",Guid.NewGuid(),"LicenseeCode",brandId,brandCode,playerCodes[0],"username","CNY",1,100m,100m,0m,0m,100m,-100m)
+                new BrandWagerPlayerStatsInfo(Guid.NewGuid(),"GPCode", Guid.NewGuid(),"ResellerCode",Guid.NewGuid(),"LicenseeCode",brandId,brandCode,playerCodes[0],"username","CNY",1,100m,100m,0m,0m,100m,-100m)
             }.ToAsyncEnumerable());
 
         _ = fakePaymentServiceClient
@@ -603,7 +611,9 @@ public class OverviewTests
                 Arg.Any<DateTimeOffset>(),
                 Arg.Any<DateTimeOffset>(),
                 Arg.Is(BrandWagerGameMinsStatsSort.Bet),
-                Arg.Is(false))
+                Arg.Is(false),
+                page: Arg.Is(1),
+                pageSize: Arg.Is(10))
             .Returns(new BrandWagerGameStatsInfo[]
             {
                 new BrandWagerGameStatsInfo(
@@ -664,7 +674,9 @@ public class OverviewTests
                 Arg.Any<DateTimeOffset>(),
                 Arg.Any<DateTimeOffset>(),
                 Arg.Is(BrandWagerGameMinsStatsSort.WinLoss),
-                Arg.Is(true))
+                Arg.Is(true),
+                page: Arg.Is(1),
+                pageSize: Arg.Is(10))
             .Returns(new BrandWagerGameStatsInfo[]
             {
                 new BrandWagerGameStatsInfo(
@@ -725,7 +737,9 @@ public class OverviewTests
                 Arg.Any<DateTimeOffset>(),
                 Arg.Any<DateTimeOffset>(),
                 Arg.Is(BrandWagerGameMinsStatsSort.WinLoss),
-                Arg.Is(false))
+                Arg.Is(false),
+                page: Arg.Is(1),
+                pageSize: Arg.Is(10))
             .Returns(new BrandWagerGameStatsInfo[]
             {
                 new BrandWagerGameStatsInfo(
