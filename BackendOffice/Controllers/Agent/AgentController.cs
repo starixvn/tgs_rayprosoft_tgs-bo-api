@@ -129,9 +129,9 @@ public partial class AgentController : BaseContextController
     [Description("Get agent operations")]
     public async Task<PagedResponse<AgentOperationModel>> GetAgentOperationsAsync(
         Guid id,
-        [FromQuery] PageableRequest pageableRequest,
+        [FromServices] IGetService<GetAgentOperationQuery, PagingResponse<AgentAuditLogInfo>> getService,
         [FromQuery] GetAgentOperationsRequest request,
-        [FromServices] IGetService<GetAgentOperationQuery, PagingResponse<AgentAuditLogInfo>> getService)
+        [FromQuery] PageableRequest pageableRequest)
     {
         var result = await getService
             .GetAsync(new GetAgentOperationQuery(request.BrandId, id, request.From, request.To, pageableRequest), HttpContext.RequestAborted)
