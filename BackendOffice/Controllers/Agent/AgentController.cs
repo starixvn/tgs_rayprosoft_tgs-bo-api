@@ -5,6 +5,7 @@ using System.Threading.Tasks;
 using MediatR;
 using Microsoft.AspNetCore.Mvc;
 using Tgs.Agent.Client;
+using Tgs.Agent.Client.Models;
 using Tgs.Report.Client;
 using Tgs.Report.Client.Models.Agent;
 using Tgs.ServiceUtility;
@@ -126,8 +127,29 @@ public partial class AgentController : BaseContextController
 
     [HttpGet("{id:guid}/operations")]
     [Description("Get agent operations")]
-    public Task<PagedResponse<AgentOperationModel>> GetAgentOperationsAsync(Guid id) =>
-        _mediator.Send(new GetAgentOperationsRequest(id));
+    public async Task<PagedResponse<AgentOperationModel>> GetAgentOperationsAsync(
+        Guid id,
+        [FromQuery] PageableRequest pageableRequest,
+        [FromQuery] GetAgentOperationsRequest request,
+        [FromServices] IGetService<GetAgentOperationQuery, PagingResponse<AgentAuditLogInfo>> getService)
+    {
+        var result = await getService
+            .GetAsync(new GetAgentOperationQuery(request.BrandId, id, request.From, request.To, pageableRequest), HttpContext.RequestAborted)
+            .ConfigureAwait(false);
+
+        return new PagedResponse<AgentOperationModel>
+        {
+            Valid = true,
+            TotalCount = result.TotalCount,
+            Items = result.Items.Select(x => new AgentOperationModel
+            {
+                Id = x.Id,
+                CreatedByUsername = x.CreatedByUsername,
+                CreatedOn = x.CreatedOn,
+                Operation = x.Operation
+            }).ToArray()
+        };
+    }
 
     [HttpGet]
     [Description("Get agents")]

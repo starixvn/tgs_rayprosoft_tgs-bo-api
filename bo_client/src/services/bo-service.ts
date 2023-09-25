@@ -901,4 +901,24 @@ export default class BackOfficeService {
             })
             .then(res=>res.data);
     }
+
+    public getAgentOperations(id: string, paging: PageableRequest, request: GetAgentOperationsRequest):Promise<PagedResponse<AgentOperationModel>>{   
+        const queryString = {
+            brandId: request.brandId,
+            from: request.from,
+            to: request.to,
+            page: paging.page,
+            rows: paging.rows,
+            showAll: paging.showAll,
+            sortBy: paging.sortBy,
+            orderBy: paging.orderBy
+        };
+
+        return this.http
+            .get(`/api/agent/${id}/operations`,{
+                params: queryString
+            })
+        .then(res=>res.data);
+    }
+
 }
