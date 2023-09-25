@@ -1,5 +1,5 @@
 ﻿using System;
-using TGS.Core.Models.Enums;
+using Tgs.Agent.Client.Models.Enums;
 
 namespace TGS.Services.BackOffice.Application.Models.Agent;
 
