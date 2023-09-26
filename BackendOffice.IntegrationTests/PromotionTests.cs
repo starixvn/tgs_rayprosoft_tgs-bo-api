@@ -488,11 +488,11 @@ public class PromotionTests
             };
         """;
 
-        var request = new PromotionListQueryViewModel
+        var request = new
         {
             BrandId = brandId,
-            From = DateTimeOffset.Parse("2023-01-01+8").ToUniversalTime(),
-            To = DateTimeOffset.Parse("2023-02-01+8").ToUniversalTime()
+            From = DateOnly.Parse("2023-01-01"),
+            To = DateOnly.Parse("2023-02-01")
         };
 
         var paging = new PageableRequest
@@ -623,7 +623,7 @@ public class PromotionTests
             };
         """;
 
-        var request = new PromotionListQueryViewModel
+        var request = new
         {
             BrandId = brandId,
             From = DateTimeOffset.Parse("2022-12-31T16:00:00.000Z"),

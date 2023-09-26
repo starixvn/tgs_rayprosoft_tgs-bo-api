@@ -254,8 +254,8 @@ public class PromotionController : BaseContextController
         if (viewModel.From.HasValue && viewModel.To.HasValue)
         {
             var offset = TimeSpan.FromHours(8D);
-            var from = new DateTimeOffset(viewModel.From.Value.ToOffset(offset).Date, offset).UtcDateTime;
-            var to = new DateTimeOffset(viewModel.To.Value.ToOffset(offset).DateTime, offset).UtcDateTime;
+            var from = new DateTimeOffset(viewModel.From.Value.ToDateTime(TimeOnly.MinValue), offset).UtcDateTime;
+            var to = new DateTimeOffset(viewModel.To.Value.ToDateTime(TimeOnly.MinValue), offset).UtcDateTime;
 
             query = query with
             {

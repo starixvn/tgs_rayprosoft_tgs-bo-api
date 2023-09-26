@@ -11,7 +11,8 @@ public class PromotionListQueryViewModel
 {
     public Guid BrandId { get; init; }
 
-    public DateTimeOffset? From { get; init; }
+    [ModelBinder(typeof(DateTimeOffsetToDateOnlyModelBinder), Name = "from")]
+    public DateOnly? From { get; init; }
 
     public string? Name { get; init; }
 
@@ -20,5 +21,6 @@ public class PromotionListQueryViewModel
 
     public SwitchStatus? Status { get; init; }
 
-    public DateTimeOffset? To { get; init; }
+    [ModelBinder(typeof(DateTimeOffsetToDateOnlyModelBinder), Name = "to")]
+    public DateOnly? To { get; init; }
 }
