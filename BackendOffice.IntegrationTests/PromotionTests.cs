@@ -281,6 +281,803 @@ public class PromotionTests
     }
 
     [Fact]
+    public async Task 查詢Promotion列表()
+    {
+        // Arrange
+        var channelName = Guid.NewGuid().ToString();
+        var userId = Guid.NewGuid();
+
+        var fakePromotionServiceClient = Substitute.For<IPromotionServiceClient>();
+
+        using var web = TestBackendOfficeApplication.Builder
+            .UseTestChannelServer(channelName)
+            .ConfigureLogging(logging => logging.AddXUnit(_testOutputHelper))
+            .ConfigureServices(services => services
+                .AddAuthentication("Fake")
+                .AddScheme<FakeAuthenticationSchemaOptions, FakeAuthenticationHandler>(
+                    "Fake",
+                    options =>
+                    {
+                        options.UserId = userId;
+                        options.UserName = "system";
+                    })
+                .Services
+                .AddSingleton(fakePromotionServiceClient))
+            .Build();
+
+        await web.StartAsync();
+
+        var brandId = Guid.Parse("4e86719f-243f-46f6-b010-5c758b7285af");
+
+        var page = 1;
+        var rows = 20;
+        var sortby = "name";
+        var orderby = SortOrder.Ascending;
+        var showAll = false;
+
+        _ = fakePromotionServiceClient.ListPromotionsAsync(
+            Arg.Is(brandId),
+            Arg.Any<During?>(),
+            Arg.Any<string?>(),
+            Arg.Any<IEnumerable<string>>(),
+            Arg.Any<PromotionStatus?>(),
+            Arg.Any<CancellationToken>())
+            .Returns(new[]
+            {
+                new PromotionView
+                {
+                    Id = Guid.Parse("0186da45-97f8-0000-0001-07e720dd98d5"),
+                    Name = "TestPromotion",
+                    PromotionType = "TestPromotion",
+                    EventDuring = (From: DateTime.Parse("2023-01-01 10:00:00"),
+                        To: DateTime.Parse("2023-02-01 10:00:00")),
+                    Order = 1,
+                    UsedAmount = 10_000m,
+                    PromotionLimitAmount = null,
+                    Status = PromotionStatus.Enabled,
+                    VipLevels = new[] { 0, 1, 2 }
+                }
+            }.ToAsyncEnumerable());
+
+        var isWindows = RuntimeInformation.IsOSPlatform(OSPlatform.Windows) ? "true" : "false";
+
+        var nodeModule = $$"""
+            const axiosConfigFactory = require('./models/axios-configuration.js').default;
+            const BackOfficeService = require('./services/bo-service.js').default;
+
+            module.exports = async (request, paging) =>
+            {
+                let instance = axiosConfigFactory("{{channelName}}", {{isWindows}});
+
+                let svc = new BackOfficeService(instance);
+
+                return await svc.getPromotionList({...request, ...paging });
+            };
+        """;
+
+        var request = new PromotionListQueryViewModel
+        {
+            BrandId = brandId,
+        };
+
+        var paging = new PageableRequest
+        {
+            OrderBy = orderby,
+            Page = page,
+            Rows = rows,
+            SortBy = sortby,
+            ShowAll = showAll
+        };
+
+        var expected = new PagedResponse<PromotionListItemViewModel>
+        {
+            TotalCount = 1,
+            Valid = true,
+            Items = new[]
+            {
+                new PromotionListItemViewModel
+                {
+                    Id = Guid.Parse("0186da45-97f8-0000-0001-07e720dd98d5"),
+                    Name = "TestPromotion",
+                    PromotionType = "TestPromotion",
+                    From = DateTime.Parse("2023-01-01 10:00:00"),
+                    To = DateTime.Parse("2023-02-01 10:00:00"),
+                    Number = 1,
+                    AmountUsed = 10_000m,
+                    TotalAmountLimit = null,
+                    Unlimited = true,
+                    Status = SwitchStatus.Enabled,
+                    VipLevels = new[] { 0, 1, 2 }
+                }
+            }
+        };
+
+        // Act
+        var actual = await StaticNodeJSService.InvokeFromStringAsync<string>(
+            nodeModule,
+            args: new object[] { request, paging });
+
+        // Assert
+        Assert.NotNull(actual);
+
+        var jsonOptions = web.Services.GetRequiredService<IOptions<JsonOptions>>().Value;
+        var result = JsonSerializer.Deserialize<PagedResponse<PromotionListItemViewModel>>(
+            actual!,
+            jsonOptions.JsonSerializerOptions);
+
+        Assert.True(result?.Valid);
+        Assert.Equal(1, result?.TotalCount);
+        expected.Items.ToExpectedObject(ctx =>
+            _ = ctx.IgnoreEqualsOverride()).ShouldMatch(result?.Items);
+    }
+
+    [Fact]
+    public async Task 查詢Promotion列表_以DateOnly活動日期區間查詢()
+    {
+        // Arrange
+        var channelName = Guid.NewGuid().ToString();
+        var userId = Guid.NewGuid();
+
+        var fakePromotionServiceClient = Substitute.For<IPromotionServiceClient>();
+
+        using var web = TestBackendOfficeApplication.Builder
+            .UseTestChannelServer(channelName)
+            .ConfigureLogging(logging => logging.AddXUnit(_testOutputHelper))
+            .ConfigureServices(services => services
+                .AddAuthentication("Fake")
+                .AddScheme<FakeAuthenticationSchemaOptions, FakeAuthenticationHandler>(
+                    "Fake",
+                    options =>
+                    {
+                        options.UserId = userId;
+                        options.UserName = "system";
+                    })
+                .Services
+                .AddSingleton(fakePromotionServiceClient))
+            .Build();
+
+        await web.StartAsync();
+
+        var brandId = Guid.Parse("4e86719f-243f-46f6-b010-5c758b7285af");
+
+        var page = 1;
+        var rows = 20;
+        var sortby = "name";
+        var orderby = SortOrder.Ascending;
+        var showAll = false;
+
+        _ = fakePromotionServiceClient.ListPromotionsAsync(
+            Arg.Is(brandId),
+            Arg.Is(new During(
+                From: DateTime.Parse("2022-12-31 16:00:00"),
+                To: DateTime.Parse("2023-01-31 16:00:00"))),
+            Arg.Any<string?>(),
+            Arg.Any<IEnumerable<string>>(),
+            Arg.Any<PromotionStatus?>(),
+            Arg.Any<CancellationToken>())
+            .Returns(new[]
+            {
+                new PromotionView
+                {
+                    Id = Guid.Parse("0186da45-97f8-0000-0001-07e720dd98d5"),
+                    Name = "TestPromotion",
+                    PromotionType = "TestPromotion",
+                    EventDuring = (From: DateTime.Parse("2023-01-10 10:00:00"),
+                        To: DateTime.Parse("2023-01-31 10:00:00")),
+                    Order = 1,
+                    UsedAmount = 10_000m,
+                    PromotionLimitAmount = null,
+                    Status = PromotionStatus.Disabled,
+                    VipLevels = new[] { 0, 1, 2 }
+                }
+            }.ToAsyncEnumerable());
+
+        var isWindows = RuntimeInformation.IsOSPlatform(OSPlatform.Windows) ? "true" : "false";
+
+        var nodeModule = $$"""
+            const axiosConfigFactory = require('./models/axios-configuration.js').default;
+            const BackOfficeService = require('./services/bo-service.js').default;
+
+            module.exports = async (request, paging) =>
+            {
+                let instance = axiosConfigFactory("{{channelName}}", {{isWindows}});
+
+                let svc = new BackOfficeService(instance);
+
+                return await svc.getPromotionList({ ...request, ...paging });
+            };
+        """;
+
+        var request = new
+        {
+            BrandId = brandId,
+            From = DateOnly.Parse("2023-01-01"),
+            To = DateOnly.Parse("2023-02-01")
+        };
+
+        var paging = new PageableRequest
+        {
+            OrderBy = orderby,
+            Page = page,
+            Rows = rows,
+            SortBy = sortby,
+            ShowAll = showAll
+        };
+
+        var expected = new PagedResponse<PromotionListItemViewModel>
+        {
+            TotalCount = 1,
+            Valid = true,
+            Items = new[]
+            {
+                new PromotionListItemViewModel
+                {
+                    Id = Guid.Parse("0186da45-97f8-0000-0001-07e720dd98d5"),
+                    Name = "TestPromotion",
+                    PromotionType = "TestPromotion",
+                    From = DateTime.Parse("2023-01-10 10:00:00"),
+                    To = DateTime.Parse("2023-01-31 10:00:00"),
+                    Number = 1,
+                    AmountUsed = 10_000m,
+                    TotalAmountLimit = null,
+                    Unlimited = true,
+                    Status = SwitchStatus.Disabled,
+                    VipLevels = new[] { 0, 1, 2 }
+                }
+            }
+        };
+
+        // Act
+        var actual = await StaticNodeJSService.InvokeFromStringAsync<string>(
+            nodeModule,
+            args: new object[] { request, paging });
+
+        // Assert
+        Assert.NotNull(actual);
+
+        var jsonOptions = web.Services.GetRequiredService<IOptions<JsonOptions>>().Value;
+        var result = JsonSerializer.Deserialize<PagedResponse<PromotionListItemViewModel>>(
+            actual!,
+            jsonOptions.JsonSerializerOptions);
+
+        Assert.True(result?.Valid);
+        Assert.Equal(1, result?.TotalCount);
+        expected.Items.ToExpectedObject(ctx =>
+            _ = ctx.IgnoreEqualsOverride()).ShouldMatch(result?.Items);
+    }
+
+    [Fact]
+    public async Task 查詢Promotion列表_以DateTimeOffset活動日期區間查詢()
+    {
+        // Arrange
+        var channelName = Guid.NewGuid().ToString();
+        var userId = Guid.NewGuid();
+
+        var fakePromotionServiceClient = Substitute.For<IPromotionServiceClient>();
+
+        using var web = TestBackendOfficeApplication.Builder
+            .UseTestChannelServer(channelName)
+            .ConfigureLogging(logging => logging.AddXUnit(_testOutputHelper))
+            .ConfigureServices(services => services
+                .AddAuthentication("Fake")
+                .AddScheme<FakeAuthenticationSchemaOptions, FakeAuthenticationHandler>(
+                    "Fake",
+                    options =>
+                    {
+                        options.UserId = userId;
+                        options.UserName = "system";
+                    })
+                .Services
+                .AddSingleton(fakePromotionServiceClient))
+            .Build();
+
+        await web.StartAsync();
+
+        var brandId = Guid.Parse("4e86719f-243f-46f6-b010-5c758b7285af");
+
+        var page = 1;
+        var rows = 20;
+        var sortby = "name";
+        var orderby = SortOrder.Ascending;
+        var showAll = false;
+
+        _ = fakePromotionServiceClient.ListPromotionsAsync(
+            Arg.Is(brandId),
+            Arg.Is(new During(
+                From: DateTime.Parse("2022-12-31 16:00:00"),
+                To: DateTime.Parse("2023-01-31 16:00:00"))),
+            Arg.Any<string?>(),
+            Arg.Any<IEnumerable<string>>(),
+            Arg.Any<PromotionStatus?>(),
+            Arg.Any<CancellationToken>())
+            .Returns(new[]
+            {
+                new PromotionView
+                {
+                    Id = Guid.Parse("0186da45-97f8-0000-0001-07e720dd98d5"),
+                    Name = "TestPromotion",
+                    PromotionType = "TestPromotion",
+                    EventDuring = (From: DateTime.Parse("2023-01-10 10:00:00"),
+                        To: DateTime.Parse("2023-01-31 10:00:00")),
+                    Order = 1,
+                    UsedAmount = 10_000m,
+                    PromotionLimitAmount = null,
+                    Status = PromotionStatus.Disabled,
+                    VipLevels = new[] { 0, 1, 2 }
+                }
+            }.ToAsyncEnumerable());
+
+        var isWindows = RuntimeInformation.IsOSPlatform(OSPlatform.Windows) ? "true" : "false";
+
+        var nodeModule = $$"""
+            const axiosConfigFactory = require('./models/axios-configuration.js').default;
+            const BackOfficeService = require('./services/bo-service.js').default;
+
+            module.exports = async (request, paging) =>
+            {
+                let instance = axiosConfigFactory("{{channelName}}", {{isWindows}});
+
+                let svc = new BackOfficeService(instance);
+
+                return await svc.getPromotionList({ ...request, ...paging });
+            };
+        """;
+
+        var request = new
+        {
+            BrandId = brandId,
+            From = DateTimeOffset.Parse("2022-12-31T16:00:00.000Z"),
+            To = DateTimeOffset.Parse("2023-01-31T16:00:00.000Z"),
+        };
+
+        var paging = new PageableRequest
+        {
+            OrderBy = orderby,
+            Page = page,
+            Rows = rows,
+            SortBy = sortby,
+            ShowAll = showAll
+        };
+
+        var expected = new PagedResponse<PromotionListItemViewModel>
+        {
+            TotalCount = 1,
+            Valid = true,
+            Items = new[]
+            {
+                new PromotionListItemViewModel
+                {
+                    Id = Guid.Parse("0186da45-97f8-0000-0001-07e720dd98d5"),
+                    Name = "TestPromotion",
+                    PromotionType = "TestPromotion",
+                    From = DateTime.Parse("2023-01-10 10:00:00"),
+                    To = DateTime.Parse("2023-01-31 10:00:00"),
+                    Number = 1,
+                    AmountUsed = 10_000m,
+                    TotalAmountLimit = null,
+                    Unlimited = true,
+                    Status = SwitchStatus.Disabled,
+                    VipLevels = new[] { 0, 1, 2 }
+                }
+            }
+        };
+
+        // Act
+        var actual = await StaticNodeJSService.InvokeFromStringAsync<string>(
+            nodeModule,
+            args: new object[] { request, paging });
+
+        // Assert
+        Assert.NotNull(actual);
+
+        var jsonOptions = web.Services.GetRequiredService<IOptions<JsonOptions>>().Value;
+        var result = JsonSerializer.Deserialize<PagedResponse<PromotionListItemViewModel>>(
+            actual!,
+            jsonOptions.JsonSerializerOptions);
+
+        Assert.True(result?.Valid);
+        Assert.Equal(1, result?.TotalCount);
+        expected.Items.ToExpectedObject(ctx =>
+            _ = ctx.IgnoreEqualsOverride()).ShouldMatch(result?.Items);
+    }
+
+    [Fact]
+    public async Task 查詢Promotion列表_以Name查詢()
+    {
+        // Arrange
+        var channelName = Guid.NewGuid().ToString();
+        var userId = Guid.NewGuid();
+
+        var fakePromotionServiceClient = Substitute.For<IPromotionServiceClient>();
+
+        using var web = TestBackendOfficeApplication.Builder
+            .UseTestChannelServer(channelName)
+            .ConfigureLogging(logging => logging.AddXUnit(_testOutputHelper))
+            .ConfigureServices(services => services
+                .AddAuthentication("Fake")
+                .AddScheme<FakeAuthenticationSchemaOptions, FakeAuthenticationHandler>(
+                    "Fake",
+                    options =>
+                    {
+                        options.UserId = userId;
+                        options.UserName = "system";
+                    })
+                .Services
+                .AddSingleton(fakePromotionServiceClient))
+            .Build();
+
+        await web.StartAsync();
+
+        var brandId = Guid.Parse("4e86719f-243f-46f6-b010-5c758b7285af");
+
+        var page = 1;
+        var rows = 20;
+        var sortby = "name";
+        var orderby = SortOrder.Ascending;
+        var showAll = false;
+
+        _ = fakePromotionServiceClient.ListPromotionsAsync(
+            Arg.Is(brandId),
+            Arg.Any<During?>(),
+            Arg.Is("TestPromotion"),
+            Arg.Any<IEnumerable<string>>(),
+            Arg.Any<PromotionStatus?>(),
+            Arg.Any<CancellationToken>())
+            .Returns(new[]
+            {
+                new PromotionView
+                {
+                    Id = Guid.Parse("0186da45-97f8-0000-0001-07e720dd98d5"),
+                    Name = "TestPromotion",
+                    PromotionType = "TestPromotion",
+                    EventDuring = (From: DateTime.Parse("2023-01-01 10:00:00"),
+                        To: DateTime.Parse("2023-02-01 10:00:00")),
+                    Order = 1,
+                    UsedAmount = 10_000m,
+                    PromotionLimitAmount = null,
+                    Status = PromotionStatus.Enabled,
+                    VipLevels = new[] { 0, 1, 2 }
+                }
+            }.ToAsyncEnumerable());
+
+        var isWindows = RuntimeInformation.IsOSPlatform(OSPlatform.Windows) ? "true" : "false";
+
+        var nodeModule = $$"""
+            const axiosConfigFactory = require('./models/axios-configuration.js').default;
+            const BackOfficeService = require('./services/bo-service.js').default;
+
+            module.exports = async (request, paging) =>
+            {
+                let instance = axiosConfigFactory("{{channelName}}", {{isWindows}});
+
+                let svc = new BackOfficeService(instance);
+
+                return await svc.getPromotionList({...request, ...paging });
+            };
+        """;
+
+        var request = new PromotionListQueryViewModel
+        {
+            BrandId = brandId,
+            Name = "TestPromotion",
+        };
+
+        var paging = new PageableRequest
+        {
+            OrderBy = orderby,
+            Page = page,
+            Rows = rows,
+            SortBy = sortby,
+            ShowAll = showAll
+        };
+
+        var expected = new PagedResponse<PromotionListItemViewModel>
+        {
+            TotalCount = 1,
+            Valid = true,
+            Items = new[]
+            {
+                new PromotionListItemViewModel
+                {
+                    Id = Guid.Parse("0186da45-97f8-0000-0001-07e720dd98d5"),
+                    Name = "TestPromotion",
+                    PromotionType = "TestPromotion",
+                    From = DateTime.Parse("2023-01-01 10:00:00"),
+                    To = DateTime.Parse("2023-02-01 10:00:00"),
+                    Number = 1,
+                    AmountUsed = 10_000m,
+                    TotalAmountLimit = null,
+                    Unlimited = true,
+                    Status = SwitchStatus.Enabled,
+                    VipLevels = new[] { 0, 1, 2 }
+                }
+            }
+        };
+
+        // Act
+        var actual = await StaticNodeJSService.InvokeFromStringAsync<string>(
+            nodeModule,
+            args: new object[] { request, paging });
+
+        // Assert
+        Assert.NotNull(actual);
+
+        var jsonOptions = web.Services.GetRequiredService<IOptions<JsonOptions>>().Value;
+        var result = JsonSerializer.Deserialize<PagedResponse<PromotionListItemViewModel>>(
+            actual!,
+            jsonOptions.JsonSerializerOptions);
+
+        Assert.True(result?.Valid);
+        Assert.Equal(1, result?.TotalCount);
+        expected.Items.ToExpectedObject(ctx =>
+            _ = ctx.IgnoreEqualsOverride()).ShouldMatch(result?.Items);
+    }
+
+    [Fact]
+    public async Task 查詢Promotion列表_以PromotionType查詢()
+    {
+        // Arrange
+        var channelName = Guid.NewGuid().ToString();
+        var userId = Guid.NewGuid();
+
+        var fakePromotionServiceClient = Substitute.For<IPromotionServiceClient>();
+
+        using var web = TestBackendOfficeApplication.Builder
+            .UseTestChannelServer(channelName)
+            .ConfigureLogging(logging => logging.AddXUnit(_testOutputHelper))
+            .ConfigureServices(services => services
+                .AddAuthentication("Fake")
+                .AddScheme<FakeAuthenticationSchemaOptions, FakeAuthenticationHandler>(
+                    "Fake",
+                    options =>
+                    {
+                        options.UserId = userId;
+                        options.UserName = "system";
+                    })
+                .Services
+                .AddSingleton(fakePromotionServiceClient))
+            .Build();
+
+        await web.StartAsync();
+
+        var brandId = Guid.Parse("4e86719f-243f-46f6-b010-5c758b7285af");
+
+        var page = 1;
+        var rows = 20;
+        var sortby = "name";
+        var orderby = SortOrder.Ascending;
+        var showAll = false;
+
+        _ = fakePromotionServiceClient.ListPromotionsAsync(
+            Arg.Is(brandId),
+            Arg.Any<During?>(),
+            Arg.Any<string?>(),
+            Arg.Is<IEnumerable<string>>(types => new[] { "TestType" }.SequenceEqual(types)),
+            Arg.Any<PromotionStatus?>(),
+            Arg.Any<CancellationToken>())
+            .Returns(new[]
+            {
+                new PromotionView
+                {
+                    Id = Guid.Parse("0186da45-97f8-0000-0001-07e720dd98d5"),
+                    Name = "TestPromotion",
+                    PromotionType = "TestType",
+                    EventDuring = (From: DateTime.Parse("2023-01-01 10:00:00"),
+                        To: DateTime.Parse("2023-02-01 10:00:00")),
+                    Order = 1,
+                    UsedAmount = 10_000m,
+                    PromotionLimitAmount = null,
+                    Status = PromotionStatus.Disabled,
+                    VipLevels = new[] { 0, 1, 2 }
+                }
+            }.ToAsyncEnumerable());
+
+        var isWindows = RuntimeInformation.IsOSPlatform(OSPlatform.Windows) ? "true" : "false";
+
+        var nodeModule = $$"""
+            const axiosConfigFactory = require('./models/axios-configuration.js').default;
+            const BackOfficeService = require('./services/bo-service.js').default;
+
+            module.exports = async (request, paging) =>
+            {
+                let instance = axiosConfigFactory("{{channelName}}", {{isWindows}});
+
+                let svc = new BackOfficeService(instance);
+
+                return await svc.getPromotionList({...request, ...paging });
+            };
+        """;
+
+        var request = new PromotionListQueryViewModel
+        {
+            BrandId = brandId,
+            PromotionTypes = new[] { "TestType" }
+        };
+
+        var paging = new PageableRequest
+        {
+            OrderBy = orderby,
+            Page = page,
+            Rows = rows,
+            SortBy = sortby,
+            ShowAll = showAll
+        };
+
+        var expected = new PagedResponse<PromotionListItemViewModel>
+        {
+            TotalCount = 1,
+            Valid = true,
+            Items = new[]
+            {
+                new PromotionListItemViewModel
+                {
+                    Id = Guid.Parse("0186da45-97f8-0000-0001-07e720dd98d5"),
+                    Name = "TestPromotion",
+                    PromotionType = "TestType",
+                    From = DateTime.Parse("2023-01-01 10:00:00"),
+                    To = DateTime.Parse("2023-02-01 10:00:00"),
+                    Number = 1,
+                    AmountUsed = 10_000m,
+                    TotalAmountLimit = null,
+                    Unlimited = true,
+                    Status = SwitchStatus.Disabled,
+                    VipLevels = new[] { 0, 1, 2 }
+                }
+            }
+        };
+
+        // Act
+        var actual = await StaticNodeJSService.InvokeFromStringAsync<string>(
+            nodeModule,
+            args: new object[] { request, paging });
+
+        // Assert
+        Assert.NotNull(actual);
+
+        var jsonOptions = web.Services.GetRequiredService<IOptions<JsonOptions>>().Value;
+        var result = JsonSerializer.Deserialize<PagedResponse<PromotionListItemViewModel>>(
+            actual!,
+            jsonOptions.JsonSerializerOptions);
+
+        Assert.True(result?.Valid);
+        Assert.Equal(1, result?.TotalCount);
+        expected.Items.ToExpectedObject(ctx =>
+            _ = ctx.IgnoreEqualsOverride()).ShouldMatch(result?.Items);
+    }
+
+    [Fact]
+    public async Task 查詢Promotion列表_以Status查詢()
+    {
+        // Arrange
+        var channelName = Guid.NewGuid().ToString();
+        var userId = Guid.NewGuid();
+
+        var fakePromotionServiceClient = Substitute.For<IPromotionServiceClient>();
+
+        using var web = TestBackendOfficeApplication.Builder
+            .UseTestChannelServer(channelName)
+            .ConfigureLogging(logging => logging.AddXUnit(_testOutputHelper))
+            .ConfigureServices(services => services
+                .AddAuthentication("Fake")
+                .AddScheme<FakeAuthenticationSchemaOptions, FakeAuthenticationHandler>(
+                    "Fake",
+                    options =>
+                    {
+                        options.UserId = userId;
+                        options.UserName = "system";
+                    })
+                .Services
+                .AddSingleton(fakePromotionServiceClient))
+            .Build();
+
+        await web.StartAsync();
+
+        var brandId = Guid.Parse("4e86719f-243f-46f6-b010-5c758b7285af");
+
+        var page = 1;
+        var rows = 20;
+        var sortby = "name";
+        var orderby = SortOrder.Ascending;
+        var showAll = false;
+
+        _ = fakePromotionServiceClient.ListPromotionsAsync(
+            Arg.Is(brandId),
+            Arg.Any<During?>(),
+            Arg.Any<string?>(),
+            Arg.Any<IEnumerable<string>>(),
+            Arg.Is(PromotionStatus.Disabled),
+            Arg.Any<CancellationToken>())
+            .Returns(new[]
+            {
+                new PromotionView
+                {
+                    Id = Guid.Parse("0186da45-97f8-0000-0001-07e720dd98d5"),
+                    Name = "TestPromotion",
+                    PromotionType = "TestPromotion",
+                    EventDuring = (From: DateTime.Parse("2023-01-01 10:00:00"),
+                        To: DateTime.Parse("2023-02-01 10:00:00")),
+                    Order = 1,
+                    UsedAmount = 10_000m,
+                    PromotionLimitAmount = null,
+                    Status = PromotionStatus.Disabled,
+                    VipLevels = new[] { 0, 1, 2 }
+                }
+            }.ToAsyncEnumerable());
+
+        var isWindows = RuntimeInformation.IsOSPlatform(OSPlatform.Windows) ? "true" : "false";
+
+        var nodeModule = $$"""
+            const axiosConfigFactory = require('./models/axios-configuration.js').default;
+            const BackOfficeService = require('./services/bo-service.js').default;
+
+            module.exports = async (request, paging) =>
+            {
+                let instance = axiosConfigFactory("{{channelName}}", {{isWindows}});
+
+                let svc = new BackOfficeService(instance);
+
+                return await svc.getPromotionList({ ...request, ...paging });
+            };
+        """;
+
+        var request = new PromotionListQueryViewModel
+        {
+            BrandId = brandId,
+            Status = SwitchStatus.Disabled,
+        };
+
+        var paging = new PageableRequest
+        {
+            OrderBy = orderby,
+            Page = page,
+            Rows = rows,
+            SortBy = sortby,
+            ShowAll = showAll
+        };
+
+        var expected = new PagedResponse<PromotionListItemViewModel>
+        {
+            TotalCount = 1,
+            Valid = true,
+            Items = new[]
+            {
+                new PromotionListItemViewModel
+                {
+                    Id = Guid.Parse("0186da45-97f8-0000-0001-07e720dd98d5"),
+                    Name = "TestPromotion",
+                    PromotionType = "TestPromotion",
+                    From = DateTime.Parse("2023-01-01 10:00:00"),
+                    To = DateTime.Parse("2023-02-01 10:00:00"),
+                    Number = 1,
+                    AmountUsed = 10_000m,
+                    TotalAmountLimit = null,
+                    Unlimited = true,
+                    Status = SwitchStatus.Disabled,
+                    VipLevels = new[] { 0, 1, 2 }
+                }
+            }
+        };
+
+        // Act
+        var actual = await StaticNodeJSService.InvokeFromStringAsync<string>(
+            nodeModule,
+            args: new object[] { request, paging });
+
+        // Assert
+        Assert.NotNull(actual);
+
+        var jsonOptions = web.Services.GetRequiredService<IOptions<JsonOptions>>().Value;
+        var result = JsonSerializer.Deserialize<PagedResponse<PromotionListItemViewModel>>(
+            actual!,
+            jsonOptions.JsonSerializerOptions);
+
+        Assert.True(result?.Valid);
+        Assert.Equal(1, result?.TotalCount);
+        expected.Items.ToExpectedObject(ctx =>
+            _ = ctx.IgnoreEqualsOverride()).ShouldMatch(result?.Items);
+    }
+
+    [Fact]
     public async Task 新增活動()
     {
         // Arrange
@@ -1072,778 +1869,5 @@ public class PromotionTests
                 Arg.Is<IEnumerable<int>>(x => x.SequenceEqual(request.VipLevels)),
                 Arg.Any<string>(),
                 Arg.Any<CancellationToken>());
-    }
-
-    [Fact]
-    public async Task 查詢Promotion列表()
-    {
-        // Arrange
-        var channelName = Guid.NewGuid().ToString();
-        var userId = Guid.NewGuid();
-
-        var fakePromotionServiceClient = Substitute.For<IPromotionServiceClient>();
-
-        using var web = TestBackendOfficeApplication.Builder
-            .UseTestChannelServer(channelName)
-            .ConfigureLogging(logging => logging.AddXUnit(_testOutputHelper))
-            .ConfigureServices(services => services
-                .AddAuthentication("Fake")
-                .AddScheme<FakeAuthenticationSchemaOptions, FakeAuthenticationHandler>(
-                    "Fake",
-                    options =>
-                    {
-                        options.UserId = userId;
-                        options.UserName = "system";
-                    })
-                .Services
-                .AddSingleton(fakePromotionServiceClient))
-            .Build();
-
-        await web.StartAsync();
-
-        var brandId = Guid.Parse("4e86719f-243f-46f6-b010-5c758b7285af");
-
-        var page = 1;
-        var rows = 20;
-        var sortby = "name";
-        var orderby = SortOrder.Ascending;
-        var showAll = false;
-
-        _ = fakePromotionServiceClient.ListPromotionsAsync(
-            Arg.Is(brandId),
-            Arg.Any<During?>(),
-            Arg.Any<string?>(),
-            Arg.Any<string?>(),
-            Arg.Any<PromotionStatus?>(),
-            Arg.Any<CancellationToken>())
-            .Returns(new[]
-            {
-                new PromotionView
-                {
-                    Id = Guid.Parse("0186da45-97f8-0000-0001-07e720dd98d5"),
-                    Name = "TestPromotion",
-                    PromotionType = "TestPromotion",
-                    EventDuring = (From: DateTime.Parse("2023-01-01 10:00:00"),
-                        To: DateTime.Parse("2023-02-01 10:00:00")),
-                    Order = 1,
-                    UsedAmount = 10_000m,
-                    PromotionLimitAmount = null,
-                    Status = PromotionStatus.Enabled,
-                    VipLevels = new[] { 0, 1, 2 }
-                }
-            }.ToAsyncEnumerable());
-
-        var isWindows = RuntimeInformation.IsOSPlatform(OSPlatform.Windows) ? "true" : "false";
-
-        var nodeModule = $$"""
-            const axiosConfigFactory = require('./models/axios-configuration.js').default;
-            const BackOfficeService = require('./services/bo-service.js').default;
-
-            module.exports = async (request) =>
-            {
-                let instance = axiosConfigFactory("{{channelName}}", {{isWindows}});
-
-                let svc = new BackOfficeService(instance);
-
-                return await svc.getPromotionList(request);
-            };
-        """;
-
-        var request = new StubPromotionListQueryRequest
-        {
-            BrandId = brandId,
-            OrderBy = orderby,
-            Page = page,
-            Rows = rows,
-            SortBy = sortby,
-            ShowAll = showAll
-        };
-
-        var expected = new PagedResponse<PromotionListItemViewModel>
-        {
-            TotalCount = 1,
-            Valid = true,
-            Items = new[]
-            {
-                new PromotionListItemViewModel
-                {
-                    Id = Guid.Parse("0186da45-97f8-0000-0001-07e720dd98d5"),
-                    Name = "TestPromotion",
-                    PromotionType = "TestPromotion",
-                    From = DateTime.Parse("2023-01-01 10:00:00"),
-                    To = DateTime.Parse("2023-02-01 10:00:00"),
-                    Number = 1,
-                    AmountUsed = 10_000m,
-                    TotalAmountLimit = null,
-                    Unlimited = true,
-                    Status = SwitchStatus.Enabled,
-                    VipLevels = new[] { 0, 1, 2 }
-                }
-            }
-        };
-
-        // Act
-        var actual = await StaticNodeJSService.InvokeFromStringAsync<string>(
-            nodeModule,
-            args: new object[] { request });
-
-        // Assert
-        Assert.NotNull(actual);
-
-        var jsonOptions = web.Services.GetRequiredService<IOptions<JsonOptions>>().Value;
-        var result = JsonSerializer.Deserialize<PagedResponse<PromotionListItemViewModel>>(
-            actual!,
-            jsonOptions.JsonSerializerOptions);
-
-        Assert.True(result?.Valid);
-        Assert.Equal(1, result?.TotalCount);
-        expected.Items.ToExpectedObject(ctx =>
-            _ = ctx.IgnoreEqualsOverride()).ShouldMatch(result?.Items);
-    }
-
-    [Fact]
-    public async Task 查詢Promotion列表_以Name查詢()
-    {
-        // Arrange
-        var channelName = Guid.NewGuid().ToString();
-        var userId = Guid.NewGuid();
-
-        var fakePromotionServiceClient = Substitute.For<IPromotionServiceClient>();
-
-        using var web = TestBackendOfficeApplication.Builder
-            .UseTestChannelServer(channelName)
-            .ConfigureLogging(logging => logging.AddXUnit(_testOutputHelper))
-            .ConfigureServices(services => services
-                .AddAuthentication("Fake")
-                .AddScheme<FakeAuthenticationSchemaOptions, FakeAuthenticationHandler>(
-                    "Fake",
-                    options =>
-                    {
-                        options.UserId = userId;
-                        options.UserName = "system";
-                    })
-                .Services
-                .AddSingleton(fakePromotionServiceClient))
-            .Build();
-
-        await web.StartAsync();
-
-        var brandId = Guid.Parse("4e86719f-243f-46f6-b010-5c758b7285af");
-
-        var page = 1;
-        var rows = 20;
-        var sortby = "name";
-        var orderby = SortOrder.Ascending;
-        var showAll = false;
-
-        _ = fakePromotionServiceClient.ListPromotionsAsync(
-            Arg.Is(brandId),
-            Arg.Any<During?>(),
-            Arg.Is("TestPromotion"),
-            Arg.Any<string?>(),
-            Arg.Any<PromotionStatus?>(),
-            Arg.Any<CancellationToken>())
-            .Returns(new[]
-            {
-                new PromotionView
-                {
-                    Id = Guid.Parse("0186da45-97f8-0000-0001-07e720dd98d5"),
-                    Name = "TestPromotion",
-                    PromotionType = "TestPromotion",
-                    EventDuring = (From: DateTime.Parse("2023-01-01 10:00:00"),
-                        To: DateTime.Parse("2023-02-01 10:00:00")),
-                    Order = 1,
-                    UsedAmount = 10_000m,
-                    PromotionLimitAmount = null,
-                    Status = PromotionStatus.Enabled,
-                    VipLevels = new[] { 0, 1, 2 }
-                }
-            }.ToAsyncEnumerable());
-
-        var isWindows = RuntimeInformation.IsOSPlatform(OSPlatform.Windows) ? "true" : "false";
-
-        var nodeModule = $$"""
-            const axiosConfigFactory = require('./models/axios-configuration.js').default;
-            const BackOfficeService = require('./services/bo-service.js').default;
-
-            module.exports = async (request) =>
-            {
-                let instance = axiosConfigFactory("{{channelName}}", {{isWindows}});
-
-                let svc = new BackOfficeService(instance);
-
-                return await svc.getPromotionList(request);
-            };
-        """;
-
-        var request = new StubPromotionListQueryRequest
-        {
-            BrandId = brandId,
-            Name = "TestPromotion",
-            OrderBy = orderby,
-            Page = page,
-            Rows = rows,
-            SortBy = sortby,
-            ShowAll = showAll
-        };
-
-        var expected = new PagedResponse<PromotionListItemViewModel>
-        {
-            TotalCount = 1,
-            Valid = true,
-            Items = new[]
-            {
-                new PromotionListItemViewModel
-                {
-                    Id = Guid.Parse("0186da45-97f8-0000-0001-07e720dd98d5"),
-                    Name = "TestPromotion",
-                    PromotionType = "TestPromotion",
-                    From = DateTime.Parse("2023-01-01 10:00:00"),
-                    To = DateTime.Parse("2023-02-01 10:00:00"),
-                    Number = 1,
-                    AmountUsed = 10_000m,
-                    TotalAmountLimit = null,
-                    Unlimited = true,
-                    Status = SwitchStatus.Enabled,
-                    VipLevels = new[] { 0, 1, 2 }
-                }
-            }
-        };
-
-        // Act
-        var actual = await StaticNodeJSService.InvokeFromStringAsync<string>(
-            nodeModule,
-            args: new object[] { request });
-
-        // Assert
-        Assert.NotNull(actual);
-
-        var jsonOptions = web.Services.GetRequiredService<IOptions<JsonOptions>>().Value;
-        var result = JsonSerializer.Deserialize<PagedResponse<PromotionListItemViewModel>>(
-            actual!,
-            jsonOptions.JsonSerializerOptions);
-
-        Assert.True(result?.Valid);
-        Assert.Equal(1, result?.TotalCount);
-        expected.Items.ToExpectedObject(ctx =>
-            _ = ctx.IgnoreEqualsOverride()).ShouldMatch(result?.Items);
-    }
-
-    [Fact]
-    public async Task 查詢Promotion列表_以Status查詢()
-    {
-        // Arrange
-        var channelName = Guid.NewGuid().ToString();
-        var userId = Guid.NewGuid();
-
-        var fakePromotionServiceClient = Substitute.For<IPromotionServiceClient>();
-
-        using var web = TestBackendOfficeApplication.Builder
-            .UseTestChannelServer(channelName)
-            .ConfigureLogging(logging => logging.AddXUnit(_testOutputHelper))
-            .ConfigureServices(services => services
-                .AddAuthentication("Fake")
-                .AddScheme<FakeAuthenticationSchemaOptions, FakeAuthenticationHandler>(
-                    "Fake",
-                    options =>
-                    {
-                        options.UserId = userId;
-                        options.UserName = "system";
-                    })
-                .Services
-                .AddSingleton(fakePromotionServiceClient))
-            .Build();
-
-        await web.StartAsync();
-
-        var brandId = Guid.Parse("4e86719f-243f-46f6-b010-5c758b7285af");
-
-        var page = 1;
-        var rows = 20;
-        var sortby = "name";
-        var orderby = SortOrder.Ascending;
-        var showAll = false;
-
-        _ = fakePromotionServiceClient.ListPromotionsAsync(
-            Arg.Is(brandId),
-            Arg.Any<During?>(),
-            Arg.Any<string?>(),
-            Arg.Any<string?>(),
-            Arg.Is(PromotionStatus.Disabled),
-            Arg.Any<CancellationToken>())
-            .Returns(new[]
-            {
-                new PromotionView
-                {
-                    Id = Guid.Parse("0186da45-97f8-0000-0001-07e720dd98d5"),
-                    Name = "TestPromotion",
-                    PromotionType = "TestPromotion",
-                    EventDuring = (From: DateTime.Parse("2023-01-01 10:00:00"),
-                        To: DateTime.Parse("2023-02-01 10:00:00")),
-                    Order = 1,
-                    UsedAmount = 10_000m,
-                    PromotionLimitAmount = null,
-                    Status = PromotionStatus.Disabled,
-                    VipLevels = new[] { 0, 1, 2 }
-                }
-            }.ToAsyncEnumerable());
-
-        var isWindows = RuntimeInformation.IsOSPlatform(OSPlatform.Windows) ? "true" : "false";
-
-        var nodeModule = $$"""
-            const axiosConfigFactory = require('./models/axios-configuration.js').default;
-            const BackOfficeService = require('./services/bo-service.js').default;
-
-            module.exports = async (request) =>
-            {
-                let instance = axiosConfigFactory("{{channelName}}", {{isWindows}});
-
-                let svc = new BackOfficeService(instance);
-
-                return await svc.getPromotionList(request);
-            };
-        """;
-
-        var request = new StubPromotionListQueryRequest
-        {
-            BrandId = brandId,
-            Status = SwitchStatus.Disabled,
-            OrderBy = orderby,
-            Page = page,
-            Rows = rows,
-            SortBy = sortby,
-            ShowAll = showAll
-        };
-
-        var expected = new PagedResponse<PromotionListItemViewModel>
-        {
-            TotalCount = 1,
-            Valid = true,
-            Items = new[]
-            {
-                new PromotionListItemViewModel
-                {
-                    Id = Guid.Parse("0186da45-97f8-0000-0001-07e720dd98d5"),
-                    Name = "TestPromotion",
-                    PromotionType = "TestPromotion",
-                    From = DateTime.Parse("2023-01-01 10:00:00"),
-                    To = DateTime.Parse("2023-02-01 10:00:00"),
-                    Number = 1,
-                    AmountUsed = 10_000m,
-                    TotalAmountLimit = null,
-                    Unlimited = true,
-                    Status = SwitchStatus.Disabled,
-                    VipLevels = new[] { 0, 1, 2 }
-                }
-            }
-        };
-
-        // Act
-        var actual = await StaticNodeJSService.InvokeFromStringAsync<string>(
-            nodeModule,
-            args: new object[] { request });
-
-        // Assert
-        Assert.NotNull(actual);
-
-        var jsonOptions = web.Services.GetRequiredService<IOptions<JsonOptions>>().Value;
-        var result = JsonSerializer.Deserialize<PagedResponse<PromotionListItemViewModel>>(
-            actual!,
-            jsonOptions.JsonSerializerOptions);
-
-        Assert.True(result?.Valid);
-        Assert.Equal(1, result?.TotalCount);
-        expected.Items.ToExpectedObject(ctx =>
-            _ = ctx.IgnoreEqualsOverride()).ShouldMatch(result?.Items);
-    }
-
-    [Fact]
-    public async Task 查詢Promotion列表_以DateOnly活動日期區間查詢()
-    {
-        // Arrange
-        var channelName = Guid.NewGuid().ToString();
-        var userId = Guid.NewGuid();
-
-        var fakePromotionServiceClient = Substitute.For<IPromotionServiceClient>();
-
-        using var web = TestBackendOfficeApplication.Builder
-            .UseTestChannelServer(channelName)
-            .ConfigureLogging(logging => logging.AddXUnit(_testOutputHelper))
-            .ConfigureServices(services => services
-                .AddAuthentication("Fake")
-                .AddScheme<FakeAuthenticationSchemaOptions, FakeAuthenticationHandler>(
-                    "Fake",
-                    options =>
-                    {
-                        options.UserId = userId;
-                        options.UserName = "system";
-                    })
-                .Services
-                .AddSingleton(fakePromotionServiceClient))
-            .Build();
-
-        await web.StartAsync();
-
-        var brandId = Guid.Parse("4e86719f-243f-46f6-b010-5c758b7285af");
-
-        var page = 1;
-        var rows = 20;
-        var sortby = "name";
-        var orderby = SortOrder.Ascending;
-        var showAll = false;
-
-        _ = fakePromotionServiceClient.ListPromotionsAsync(
-            Arg.Is(brandId),
-            Arg.Is(new During(
-                From: DateTime.Parse("2022-12-31 16:00:00"),
-                To: DateTime.Parse("2023-01-31 16:00:00"))),
-            Arg.Any<string?>(),
-            Arg.Any<string?>(),
-            Arg.Any<PromotionStatus?>(),
-            Arg.Any<CancellationToken>())
-            .Returns(new[]
-            {
-                new PromotionView
-                {
-                    Id = Guid.Parse("0186da45-97f8-0000-0001-07e720dd98d5"),
-                    Name = "TestPromotion",
-                    PromotionType = "TestPromotion",
-                    EventDuring = (From: DateTime.Parse("2023-01-10 10:00:00"),
-                        To: DateTime.Parse("2023-01-31 10:00:00")),
-                    Order = 1,
-                    UsedAmount = 10_000m,
-                    PromotionLimitAmount = null,
-                    Status = PromotionStatus.Disabled,
-                    VipLevels = new[] { 0, 1, 2 }
-                }
-            }.ToAsyncEnumerable());
-
-        var isWindows = RuntimeInformation.IsOSPlatform(OSPlatform.Windows) ? "true" : "false";
-
-        var nodeModule = $$"""
-            const axiosConfigFactory = require('./models/axios-configuration.js').default;
-            const BackOfficeService = require('./services/bo-service.js').default;
-
-            module.exports = async (request) =>
-            {
-                let instance = axiosConfigFactory("{{channelName}}", {{isWindows}});
-
-                let svc = new BackOfficeService(instance);
-
-                return await svc.getPromotionList(request);
-            };
-        """;
-
-        var request = new StubPromotionListQueryRequest
-        {
-            BrandId = brandId,
-            From = DateOnly.Parse("2023-01-01"),
-            To = DateOnly.Parse("2023-02-01"),
-            OrderBy = orderby,
-            Page = page,
-            Rows = rows,
-            SortBy = sortby,
-            ShowAll = showAll
-        };
-
-        var expected = new PagedResponse<PromotionListItemViewModel>
-        {
-            TotalCount = 1,
-            Valid = true,
-            Items = new[]
-            {
-                new PromotionListItemViewModel
-                {
-                    Id = Guid.Parse("0186da45-97f8-0000-0001-07e720dd98d5"),
-                    Name = "TestPromotion",
-                    PromotionType = "TestPromotion",
-                    From = DateTime.Parse("2023-01-10 10:00:00"),
-                    To = DateTime.Parse("2023-01-31 10:00:00"),
-                    Number = 1,
-                    AmountUsed = 10_000m,
-                    TotalAmountLimit = null,
-                    Unlimited = true,
-                    Status = SwitchStatus.Disabled,
-                    VipLevels = new[] { 0, 1, 2 }
-                }
-            }
-        };
-
-        // Act
-        var actual = await StaticNodeJSService.InvokeFromStringAsync<string>(
-            nodeModule,
-            args: new object[] { request });
-
-        // Assert
-        Assert.NotNull(actual);
-
-        var jsonOptions = web.Services.GetRequiredService<IOptions<JsonOptions>>().Value;
-        var result = JsonSerializer.Deserialize<PagedResponse<PromotionListItemViewModel>>(
-            actual!,
-            jsonOptions.JsonSerializerOptions);
-
-        Assert.True(result?.Valid);
-        Assert.Equal(1, result?.TotalCount);
-        expected.Items.ToExpectedObject(ctx =>
-            _ = ctx.IgnoreEqualsOverride()).ShouldMatch(result?.Items);
-    }
-
-    [Fact]
-    public async Task 查詢Promotion列表_以DateTimeOffset活動日期區間查詢()
-    {
-        // Arrange
-        var channelName = Guid.NewGuid().ToString();
-        var userId = Guid.NewGuid();
-
-        var fakePromotionServiceClient = Substitute.For<IPromotionServiceClient>();
-
-        using var web = TestBackendOfficeApplication.Builder
-            .UseTestChannelServer(channelName)
-            .ConfigureLogging(logging => logging.AddXUnit(_testOutputHelper))
-            .ConfigureServices(services => services
-                .AddAuthentication("Fake")
-                .AddScheme<FakeAuthenticationSchemaOptions, FakeAuthenticationHandler>(
-                    "Fake",
-                    options =>
-                    {
-                        options.UserId = userId;
-                        options.UserName = "system";
-                    })
-                .Services
-                .AddSingleton(fakePromotionServiceClient))
-            .Build();
-
-        await web.StartAsync();
-
-        var brandId = Guid.Parse("4e86719f-243f-46f6-b010-5c758b7285af");
-
-        var page = 1;
-        var rows = 20;
-        var sortby = "name";
-        var orderby = SortOrder.Ascending;
-        var showAll = false;
-
-        _ = fakePromotionServiceClient.ListPromotionsAsync(
-            Arg.Is(brandId),
-            Arg.Is(new During(
-                From: DateTime.Parse("2022-12-31 16:00:00"),
-                To: DateTime.Parse("2023-01-31 16:00:00"))),
-            Arg.Any<string?>(),
-            Arg.Any<string?>(),
-            Arg.Any<PromotionStatus?>(),
-            Arg.Any<CancellationToken>())
-            .Returns(new[]
-            {
-                new PromotionView
-                {
-                    Id = Guid.Parse("0186da45-97f8-0000-0001-07e720dd98d5"),
-                    Name = "TestPromotion",
-                    PromotionType = "TestPromotion",
-                    EventDuring = (From: DateTime.Parse("2023-01-10 10:00:00"),
-                        To: DateTime.Parse("2023-01-31 10:00:00")),
-                    Order = 1,
-                    UsedAmount = 10_000m,
-                    PromotionLimitAmount = null,
-                    Status = PromotionStatus.Disabled,
-                    VipLevels = new[] { 0, 1, 2 }
-                }
-            }.ToAsyncEnumerable());
-
-        var isWindows = RuntimeInformation.IsOSPlatform(OSPlatform.Windows) ? "true" : "false";
-
-        var nodeModule = $$"""
-            const axiosConfigFactory = require('./models/axios-configuration.js').default;
-            const BackOfficeService = require('./services/bo-service.js').default;
-
-            module.exports = async (request) =>
-            {
-                let instance = axiosConfigFactory("{{channelName}}", {{isWindows}});
-
-                let svc = new BackOfficeService(instance);
-
-                return await svc.getPromotionList(request);
-            };
-        """;
-
-        var request = new StubDateTimeOffsetPromotionListQueryRequest
-        {
-            BrandId = brandId,
-            From = DateTimeOffset.Parse("2022-12-31T16:00:00.000Z"),
-            To = DateTimeOffset.Parse("2023-01-31T16:00:00.000Z"),
-            OrderBy = orderby,
-            Page = page,
-            Rows = rows,
-            SortBy = sortby,
-            ShowAll = showAll
-        };
-
-        var expected = new PagedResponse<PromotionListItemViewModel>
-        {
-            TotalCount = 1,
-            Valid = true,
-            Items = new[]
-            {
-                new PromotionListItemViewModel
-                {
-                    Id = Guid.Parse("0186da45-97f8-0000-0001-07e720dd98d5"),
-                    Name = "TestPromotion",
-                    PromotionType = "TestPromotion",
-                    From = DateTime.Parse("2023-01-10 10:00:00"),
-                    To = DateTime.Parse("2023-01-31 10:00:00"),
-                    Number = 1,
-                    AmountUsed = 10_000m,
-                    TotalAmountLimit = null,
-                    Unlimited = true,
-                    Status = SwitchStatus.Disabled,
-                    VipLevels = new[] { 0, 1, 2 }
-                }
-            }
-        };
-
-        // Act
-        var actual = await StaticNodeJSService.InvokeFromStringAsync<string>(
-            nodeModule,
-            args: new object[] { request });
-
-        // Assert
-        Assert.NotNull(actual);
-
-        var jsonOptions = web.Services.GetRequiredService<IOptions<JsonOptions>>().Value;
-        var result = JsonSerializer.Deserialize<PagedResponse<PromotionListItemViewModel>>(
-            actual!,
-            jsonOptions.JsonSerializerOptions);
-
-        Assert.True(result?.Valid);
-        Assert.Equal(1, result?.TotalCount);
-        expected.Items.ToExpectedObject(ctx =>
-            _ = ctx.IgnoreEqualsOverride()).ShouldMatch(result?.Items);
-    }
-
-    [Fact]
-    public async Task 查詢Promotion列表_以PromotionType查詢()
-    {
-        // Arrange
-        var channelName = Guid.NewGuid().ToString();
-        var userId = Guid.NewGuid();
-
-        var fakePromotionServiceClient = Substitute.For<IPromotionServiceClient>();
-
-        using var web = TestBackendOfficeApplication.Builder
-            .UseTestChannelServer(channelName)
-            .ConfigureLogging(logging => logging.AddXUnit(_testOutputHelper))
-            .ConfigureServices(services => services
-                .AddAuthentication("Fake")
-                .AddScheme<FakeAuthenticationSchemaOptions, FakeAuthenticationHandler>(
-                    "Fake",
-                    options =>
-                    {
-                        options.UserId = userId;
-                        options.UserName = "system";
-                    })
-                .Services
-                .AddSingleton(fakePromotionServiceClient))
-            .Build();
-
-        await web.StartAsync();
-
-        var brandId = Guid.Parse("4e86719f-243f-46f6-b010-5c758b7285af");
-
-        var page = 1;
-        var rows = 20;
-        var sortby = "name";
-        var orderby = SortOrder.Ascending;
-        var showAll = false;
-
-        _ = fakePromotionServiceClient.ListPromotionsAsync(
-            Arg.Is(brandId),
-            Arg.Any<During?>(),
-            Arg.Any<string?>(),
-            Arg.Is("TestType"),
-            Arg.Any<PromotionStatus?>(),
-            Arg.Any<CancellationToken>())
-            .Returns(new[]
-            {
-                new PromotionView
-                {
-                    Id = Guid.Parse("0186da45-97f8-0000-0001-07e720dd98d5"),
-                    Name = "TestPromotion",
-                    PromotionType = "TestType",
-                    EventDuring = (From: DateTime.Parse("2023-01-01 10:00:00"),
-                        To: DateTime.Parse("2023-02-01 10:00:00")),
-                    Order = 1,
-                    UsedAmount = 10_000m,
-                    PromotionLimitAmount = null,
-                    Status = PromotionStatus.Disabled,
-                    VipLevels = new[] { 0, 1, 2 }
-                }
-            }.ToAsyncEnumerable());
-
-        var isWindows = RuntimeInformation.IsOSPlatform(OSPlatform.Windows) ? "true" : "false";
-
-        var nodeModule = $$"""
-            const axiosConfigFactory = require('./models/axios-configuration.js').default;
-            const BackOfficeService = require('./services/bo-service.js').default;
-
-            module.exports = async (request) =>
-            {
-                let instance = axiosConfigFactory("{{channelName}}", {{isWindows}});
-
-                let svc = new BackOfficeService(instance);
-
-                return await svc.getPromotionList(request);
-            };
-        """;
-
-        var request = new StubPromotionListQueryRequest
-        {
-            BrandId = brandId,
-            PromotionType = "TestType",
-            OrderBy = orderby,
-            Page = page,
-            Rows = rows,
-            SortBy = sortby,
-            ShowAll = showAll
-        };
-
-        var expected = new PagedResponse<PromotionListItemViewModel>
-        {
-            TotalCount = 1,
-            Valid = true,
-            Items = new[]
-            {
-                new PromotionListItemViewModel
-                {
-                    Id = Guid.Parse("0186da45-97f8-0000-0001-07e720dd98d5"),
-                    Name = "TestPromotion",
-                    PromotionType = "TestType",
-                    From = DateTime.Parse("2023-01-01 10:00:00"),
-                    To = DateTime.Parse("2023-02-01 10:00:00"),
-                    Number = 1,
-                    AmountUsed = 10_000m,
-                    TotalAmountLimit = null,
-                    Unlimited = true,
-                    Status = SwitchStatus.Disabled,
-                    VipLevels = new[] { 0, 1, 2 }
-                }
-            }
-        };
-
-        // Act
-        var actual = await StaticNodeJSService.InvokeFromStringAsync<string>(
-            nodeModule,
-            args: new object[] { request });
-
-        // Assert
-        Assert.NotNull(actual);
-
-        var jsonOptions = web.Services.GetRequiredService<IOptions<JsonOptions>>().Value;
-        var result = JsonSerializer.Deserialize<PagedResponse<PromotionListItemViewModel>>(
-            actual!,
-            jsonOptions.JsonSerializerOptions);
-
-        Assert.True(result?.Valid);
-        Assert.Equal(1, result?.TotalCount);
-        expected.Items.ToExpectedObject(ctx =>
-            _ = ctx.IgnoreEqualsOverride()).ShouldMatch(result?.Items);
     }
 }

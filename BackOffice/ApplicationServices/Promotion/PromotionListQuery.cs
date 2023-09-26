@@ -1,14 +1,15 @@
 ﻿#nullable enable
 
 using System;
+using System.Collections.Generic;
+using Tgs.Promotion.Clients;
 using TGS.Core.Models.Enums;
 
 namespace TGS.Services.BackOffice.ApplicationServices.Promotion;
 
 public record PromotionListQuery(
-    Guid BrandId, 
+    Guid BrandId,
     string? Name,
-    DateOnly? From,
-    DateOnly? To,
+    During? EventDuring,
     SwitchStatus? Status,
-    string? PromotionType);
+    IEnumerable<string>? PromotionTypes);
