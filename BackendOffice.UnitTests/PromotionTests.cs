@@ -113,9 +113,7 @@ public class PromotionTests
             null,
             null,
             null,
-            null,
-
-           null);
+            null);
 
         _ = await sut.QueryAsync(query).ToArrayAsync();
 
@@ -124,7 +122,7 @@ public class PromotionTests
                 Arg.Is(query.BrandId),
                 Arg.Is((During?)null),
                 Arg.Is(query.Name),
-                Arg.Is(query.PromotionType),
+                Arg.Is(query.PromotionTypes),
                 Arg.Is((PromotionStatus?)null),
                 Arg.Any<CancellationToken>());
     }

@@ -3,6 +3,6 @@ interface GetPromotionsRequest extends PageableRequest {
     from?: Date;
     to?: Date;
     name?: string;
-    promotionType?: string;
+    promotionTypes?: string[];
     status?: string;
 }

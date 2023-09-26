@@ -247,10 +247,21 @@ public class PromotionController : BaseContextController
         var query = new PromotionListQuery(
             viewModel.BrandId,
             viewModel.Name,
-            From: viewModel.From?.Date,
-            To: viewModel.To?.Date,
+            null,
             viewModel.Status,
-            viewModel.PromotionType);
+            viewModel.PromotionTypes);
+
+        if (viewModel.From.HasValue && viewModel.To.HasValue)
+        {
+            var offset = TimeSpan.FromHours(8D);
+            var from = new DateTimeOffset(viewModel.From.Value.ToOffset(offset).Date, offset).UtcDateTime;
+            var to = new DateTimeOffset(viewModel.To.Value.ToOffset(offset).DateTime, offset).UtcDateTime;
+
+            query = query with
+            {
+                EventDuring = (from, to)
+            };
+        }
 
         var promotions = queryService.QueryAsync(query, HttpContext.RequestAborted);
 

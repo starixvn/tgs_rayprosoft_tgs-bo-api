@@ -64,7 +64,7 @@
     <PackageReference Include="OpenTelemetry.Instrumentation.Http" Version="1.0.0-rc9.14" />
     <PackageReference Include="ProfileViewer.OpenTelemetry.Exporter" Version="0.2.1" />
     <PackageReference Include="Tgs.MessageQueue.Compatible" Version="0.0.2" />
-    <PackageReference Include="Tgs.Promotion.Client" Version="1.0.42" />
+    <PackageReference Include="Tgs.Promotion.Client" Version="1.0.44" />
     <PackageReference Include="Tgs.WebApi.Toolkits" Version="0.3.0" />
   </ItemGroup>
 

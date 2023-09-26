@@ -1,8 +1,9 @@
-﻿import { AxiosInstance } from "axios";
+﻿import * as qs from 'qs';
+
+import { AxiosInstance } from "axios";
 import FormData from 'form-data';
 import fs from 'fs';
 import path from 'path';
-import { promises } from "dns";
 
 export default class BackOfficeService {
     constructor(private http: AxiosInstance) { }
@@ -460,11 +461,22 @@ export default class BackOfficeService {
 
     public getPromotionList(
         request: GetPromotionsRequest): Promise<PagedResponse<PromotionModel>> {
+        let queryStrings = {
+            ...request,
+            promotionType: request.promotionTypes
+        };
+
+        delete queryStrings.promotionTypes;
+
         return this.http
-            .get('/api/promotion',
+            .get(
+                '/api/promotion',
                 {
-                    params: {
-                        ...request
+                    params: queryStrings,
+                    paramsSerializer: {
+                        serialize: params => {
+                            return qs.stringify(params, { arrayFormat: "repeat" });
+                        }
                     }
                 }
             )
@@ -866,7 +878,7 @@ export default class BackOfficeService {
             .then(res => res.data);
     }
 
-    public getTopTenPlayers(brandId: string, sortType:string, ascending: boolean): Promise<TopTenPlayerViewModel>{            
+    public getTopTenPlayers(brandId: string, sortType: string, ascending: boolean): Promise<TopTenPlayerViewModel> {
         const queryString = {
             sortType: sortType,
             ascending: ascending
@@ -874,13 +886,13 @@ export default class BackOfficeService {
 
         return this.http
             .get(`/api/overview/top-ten/${brandId}`,
-            {
-                params: queryString
-            })
-            .then(res=>res.data);
+                {
+                    params: queryString
+                })
+            .then(res => res.data);
     }
 
-    public getTopTenGames(brandId: string, sortType:string, ascending: boolean): Promise<TopTenGameViewModel>{            
+    public getTopTenGames(brandId: string, sortType: string, ascending: boolean): Promise<TopTenGameViewModel> {
         const queryString = {
             sortType: sortType,
             ascending: ascending
@@ -888,18 +900,18 @@ export default class BackOfficeService {
 
         return this.http
             .get(`/api/overview/top-ten/game/${brandId}`,
-            {
-                params: queryString
-            })
-            .then(res=>res.data);
+                {
+                    params: queryString
+                })
+            .then(res => res.data);
     }
 
-    public updateAgentPayPassword(request: UpdateAgentPayPasswordRequest): Promise<MessageResponse>{
+    public updateAgentPayPassword(request: UpdateAgentPayPasswordRequest): Promise<MessageResponse> {
         return this.http
-            .patch("/api/agent/pay-password",{
+            .patch("/api/agent/pay-password", {
                 ...request
             })
-            .then(res=>res.data);
+            .then(res => res.data);
     }
 
     public getAgentOperations(id: string, paging: PageableRequest, request: GetAgentOperationsRequest):Promise<PagedResponse<AgentOperationModel>>{   
