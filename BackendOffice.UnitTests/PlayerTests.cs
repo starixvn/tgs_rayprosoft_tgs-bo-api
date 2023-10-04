@@ -482,6 +482,10 @@ internal class PlayerTests
         await sut.ExecuteAsync(command);
 
         _ = fakePlayerSerivceClient.Received(1)
-            .SetPlayerPropertiesAsync(Arg.Is(command.PlayerCode), Arg.Any<IImmutableDictionary<PlayerPropertyName, string?>>());
+            .SetPlayerPropertiesAsync(
+                Arg.Is(command.PlayerCode),
+                Arg.Any<IImmutableDictionary<PlayerPropertyName, string?>>(),
+                Arg.Is(command.ModifyUser),
+                Arg.Any<CancellationToken>());
     }
 }
