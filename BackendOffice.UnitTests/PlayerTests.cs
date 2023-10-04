@@ -1,11 +1,12 @@
 ﻿using System.Collections.Immutable;
+using System.Text.Json;
 using NSubstitute;
 using Tgs.CashService.Client;
 using Tgs.PlayerService.Client;
 using TGS.Services.BackOffice.Application.Queries.PlayerHandlers;
 using TGS.Services.BackOffice.ApplicationServices;
-using BoEnums = TGS.Services.BackOffice.Domain.Enums;
 using TGS.Services.BackOffice.ApplicationServices.Players;
+using BoEnums = TGS.Services.BackOffice.Domain.Enums;
 
 namespace TGS.Tests.BackendOffice.UnitTests;
 
@@ -399,17 +400,92 @@ internal class PlayerTests
     }
 
     [Test]
+    public async Task 查詢玩家歷史紀錄()
+    {
+        var fakePlayerServiceClient = Substitute.For<IPlayerServiceClient>();
+
+        var sut = new PlayerHistoriesQueryService(fakePlayerServiceClient);
+
+        var playerCode = "playerCode";
+        var from = DateTime.Now.AddDays(-14);
+        var to = DateTime.Now;
+
+        _ = fakePlayerServiceClient
+            .CountPlayerHistoriesAsync(new GetPlayerHistoriesQueryConditions(playerCode, from, to))
+            .Returns(20);
+
+        _ = await sut.QueryAsync(new PlayerHistoriesQuery(playerCode, from, to)).ToArrayAsync();
+
+        var conditions = new GetPlayerHistoriesQueryConditions(playerCode, from, to);
+
+        _ = fakePlayerServiceClient
+            .Received(1)
+            .GetPlayerHistoriesAsync(Arg.Is(conditions), Arg.Is(20));
+    }
+
+    [Test]
+    public async Task 查詢玩家歷史紀錄內容()
+    {
+        var fakePlayerServiceClient = Substitute.For<IPlayerServiceClient>();
+
+        var sut = new PlayerHistoryQueryService(fakePlayerServiceClient);
+
+        var eventId = Guid.NewGuid();
+
+        _ = fakePlayerServiceClient
+            .GetPlayerHistoryAsync(Arg.Is(eventId))
+            .Returns(new PlayerEventInfo()
+            {
+                Action = EventAction.Create,
+                ChangeSets = JsonDocument.Parse("{}"),
+                CreatedOn = DateTime.Now.AddDays(-1),
+            });
+
+        var actual = await sut.GetAsync(new PlayerHistoryQuery(eventId));
+
+        Assert.AreEqual(EventAction.Create, actual.Action);
+    }
+
+    [Test]
+    public async Task 查詢玩家歷史紀錄總筆數()
+    {
+        var fakePlayerServiceClient = Substitute.For<IPlayerServiceClient>();
+
+        var sut = new PlayerHistoriesQueryService(fakePlayerServiceClient);
+
+        var playerCode = "playerCode";
+        var from = DateTime.Now.AddDays(-14);
+        var to = DateTime.Now;
+
+        _ = fakePlayerServiceClient
+            .CountPlayerHistoriesAsync(new GetPlayerHistoriesQueryConditions(playerCode, from, to))
+            .Returns(20);
+
+        _ = await sut.GetAsync(new PlayerHistoriesQuery(playerCode, from, to));
+
+        var conditions = new GetPlayerHistoriesQueryConditions(playerCode, from, to);
+
+        _ = fakePlayerServiceClient
+            .Received(1)
+            .CountPlayerHistoriesAsync(Arg.Is(conditions));
+    }
+
+    [Test]
     public async Task 修改玩家身分審核()
     {
         var fakePlayerSerivceClient = Substitute.For<IPlayerServiceClient>();
 
         var sut = new UpdatePlayerIdentityAuthenticationCommandService(fakePlayerSerivceClient);
 
-        var command = new UpdatePlayerIdentityAuthenticationCommand("playerCode", true);
+        var command = new UpdatePlayerIdentityAuthenticationCommand("playerCode", true, "6a379883-d8d2-4ffb-3d05-08d9262ce1a5");
 
         await sut.ExecuteAsync(command);
 
         _ = fakePlayerSerivceClient.Received(1)
-            .SetPlayerPropertiesAsync(Arg.Is(command.PlayerCode), Arg.Any<IImmutableDictionary<PlayerPropertyName, string?>>());
+            .SetPlayerPropertiesAsync(
+                Arg.Is(command.PlayerCode),
+                Arg.Any<IImmutableDictionary<PlayerPropertyName, string?>>(),
+                Arg.Is(command.ModifyUser),
+                Arg.Any<CancellationToken>());
     }
 }

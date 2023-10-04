@@ -7,6 +7,7 @@ using System.Threading;
 using System.Threading.Tasks;
 using MediatR;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.EntityFrameworkCore;
 using Tgs.CashQueryService.Client;
 using Tgs.CashService.Client;
 using Tgs.Paging;
@@ -19,6 +20,8 @@ using TGS.Apis.BackendOffice.Attributes;
 using TGS.Apis.BackendOffice.Controllers.Messages.Promotion;
 using TGS.Apis.BackendOffice.Models;
 using TGS.Apis.BackendOffice.Resources;
+using TGS.Apis.BackendOffice.ViewModels;
+using TGS.Core.DataServices.Base.Interfaces;
 using TGS.Core.Models.Enums;
 using TGS.Core.Models.Messages;
 using TGS.Services.BackOffice.Application.Models.Player;
@@ -388,6 +391,80 @@ public partial class PlayerController : BaseContextController
         }
     }
 
+    [HttpGet("histories/{playerCode}", Name = "GetPlayerHistories")]
+    public async ValueTask<PagedResponse<PlayerHistoryViewModel>> GetPlayerHistoriesAsync(
+        [FromServices] IQueryService<PlayerHistoriesQuery, PlayerHistoryInfo> queryService,
+        [FromServices] IGetService<PlayerHistoriesQuery, int> countService,
+
+        [FromServices] ITgsQueries<Core.DataServices.Tgs.Models.User> userQueries,
+        string playerCode,
+        [FromQuery] PlayerHistoriesQueryViewModel queryViewModel,
+        [FromQuery(Name = "page")] int page = 1,
+        [FromQuery(Name = "rows")] int rows = 10)
+    {
+        var query = new PlayerHistoriesQuery(
+            playerCode,
+            queryViewModel.From,
+            queryViewModel.To,
+            (page - 1) * rows);
+
+        var totalCount = await countService
+            .GetAsync(query, HttpContext.RequestAborted)
+            .ConfigureAwait(false);
+
+        var infos = await queryService
+            .QueryAsync(query, HttpContext.RequestAborted)
+            .ToArrayAsync(HttpContext.RequestAborted).ConfigureAwait(false);
+
+        var userIds = infos.Select(x => x.Modifier).Cast<Guid>();
+
+        var userQuery = userQueries.GetQueries().Where(u => userIds.Contains(u.Id)).ToArray();
+
+        var user = userQuery.Any()
+            ? userQuery.ToDictionary(x => x.Id, x => x.Username)
+            : new Dictionary<Guid, string>();
+
+        return new PagedResponse<PlayerHistoryViewModel>
+        {
+            Valid = true,
+            TotalCount = totalCount,
+            Items = infos.Select(x => new PlayerHistoryViewModel
+            {
+                Action = x.Action,
+                CreatedOn = x.CreatedOn,
+                EventId = x.EventId,
+                Modifier = TryParseUsername(user, x.Modifier)
+            }).ToArray(),
+        };
+    }
+
+    [HttpGet("history/{eventId}", Name = "GetPlayerHistory")]
+    public async ValueTask<PlayerHistoryContentViewModel> GetPlayerHistoryAsync(
+        [FromServices] IGetService<PlayerHistoryQuery, PlayerHistoryEventInfo> getService,
+        [FromServices] ITgsQueries<Core.DataServices.Tgs.Models.User> userQueries,
+        Guid eventId)
+    {
+        var info = await getService
+            .GetAsync(new PlayerHistoryQuery(eventId), HttpContext.RequestAborted)
+            .ConfigureAwait(false);
+
+        _ = Guid.TryParse(info.Modifier, out var userId);
+
+        var user = userQueries.GetQueries()
+            .Where(u => u.Id == userId)
+            .FirstOrDefault();
+
+        return new PlayerHistoryContentViewModel
+        {
+            Action = info.Action,
+            ChangeSets = info.ChangeSets,
+            CreatedOn = info.CreatedOn,
+            ModifyUsername = user == null
+                ? info.Modifier
+                : user.Username
+        };
+    }
+
     [HttpGet("{playerCode}/mainwallet", Name = "GetPlayerMainWalletBalance")]
     [Description("Get Player Main wallet")]
     public ValueTask<decimal> GetPlayerMainWalletBalanceAsync(
@@ -513,7 +590,7 @@ public partial class PlayerController : BaseContextController
         bool identityAuthentication,
         [FromServices] ICommandService<UpdatePlayerIdentityAuthenticationCommand> updateIdentityAuthService)
     {
-        var command = new UpdatePlayerIdentityAuthenticationCommand(playerCode, identityAuthentication);
+        var command = new UpdatePlayerIdentityAuthenticationCommand(playerCode, identityAuthentication, UserId);
 
         await updateIdentityAuthService
             .ExecuteAsync(command)
@@ -555,5 +632,17 @@ public partial class PlayerController : BaseContextController
             default:
                 return string.Empty;
         }
+    }
+
+    private static string TryParseUsername(Dictionary<Guid, string> UserDicts, string Modifier)
+    {
+        if (Guid.TryParse(Modifier, out var userId) && UserDicts.Any())
+        {
+            _ = UserDicts.TryGetValue(userId, out var userName);
+
+            return userName;
+        }
+
+        return Modifier;
     }
 }

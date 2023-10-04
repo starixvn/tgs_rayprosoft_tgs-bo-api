@@ -18,6 +18,8 @@ using Tgs.PlayerService.Client;
 using Tgs.Service.PlayerBuckets;
 using Tgs.ServiceUtility;
 using Tgs.VipLevelService.Clients;
+using TGS.Apis.BackendOffice.ViewModels;
+using TGS.Core.DataServices.Base.Interfaces;
 using TGS.Core.Models.Enums;
 using TGS.Core.Models.Messages;
 using TGS.Services.BackOffice.Application.Models.Player;
@@ -985,5 +987,185 @@ public class PlayerTests
             jsonOptions.JsonSerializerOptions);
 
         Assert.Equal(168000000M, result!.Amount);
+    }
+
+    [Fact]
+    public async Task 查詢玩家歷史紀錄()
+    {
+        // Arrange
+        var channelName = Guid.NewGuid().ToString();
+        var userId = Guid.NewGuid();
+
+        var fakePlayerServiceClient = Substitute.For<IPlayerServiceClient>();
+        var fakeUserService = Substitute.For<ITgsQueries<TGS.Core.DataServices.Tgs.Models.User>>();
+
+        using var web = TestBackendOfficeApplication.Builder
+            .UseTestChannelServer(channelName)
+            .ConfigureLogging(logging => logging.AddXUnit(_testOutputHelper))
+            .ConfigureServices(services => services
+                .AddAuthentication("Fake")
+                .AddScheme<FakeAuthenticationSchemaOptions, FakeAuthenticationHandler>(
+                    "Fake",
+                    options =>
+                    {
+                        options.UserId = userId;
+                        options.UserName = "system";
+                    })
+                .Services
+                .AddSingleton(fakePlayerServiceClient)
+                .AddSingleton(fakeUserService))
+            .Build();
+
+        await web.StartAsync();
+
+        var playerCode = "playerCode";
+        var from = DateTime.UtcNow.AddDays(-1);
+        var to = DateTime.UtcNow;
+
+        var brandId = Guid.Parse("4e86719f-243f-46f6-b010-5c758b7285af");
+
+        var conditions = new GetPlayerHistoriesQueryConditions(playerCode, from, to);
+
+        _ = fakePlayerServiceClient.CountPlayerHistoriesAsync(conditions, Arg.Any<CancellationToken>())
+            .Returns(3);
+
+        var eventId = Guid.NewGuid();
+        _ = fakePlayerServiceClient.GetPlayerHistoriesAsync(
+            conditions, 3, cancellationToken: Arg.Any<CancellationToken>())
+            .Returns(new PlayerHistoryInfo[]
+            {
+                new PlayerHistoryInfo
+                {
+                    Action = EventAction.Create,
+                    CreatedOn = DateTimeOffset.Now.AddDays(-1),
+                    EventId = eventId,
+                }
+            }.ToAsyncEnumerable());
+
+        _ = fakeUserService
+            .GetQueries()
+            .Returns(Array.Empty<TGS.Core.DataServices.Tgs.Models.User>().AsQueryable());
+
+        var isWindows = RuntimeInformation.IsOSPlatform(OSPlatform.Windows) ? "true" : "false";
+
+        var nodeModule = $$"""
+            const axiosConfigFactory = require('./models/axios-configuration.js').default;
+            const BackOfficeService = require('./services/bo-service.js').default;
+
+            module.exports = async (playerCode, request, page, rows) =>
+            {
+                let instance = axiosConfigFactory("{{channelName}}", {{isWindows}});
+
+                let svc = new BackOfficeService(instance);
+
+                return await svc.getPlayerHistories(playerCode, request, page, rows);
+            };
+        """;
+
+        var request = new PlayerHistoriesQueryViewModel
+        {
+            From = from,
+            To = to,
+        };
+
+        var page = 1;
+        var rows = 1;
+
+        // Act
+        var actual = await StaticNodeJSService.InvokeFromStringAsync<string>(
+            nodeModule,
+            args: new object[] { playerCode, request, page, rows });
+
+        // Assert
+        Assert.NotNull(actual);
+
+        var jsonOptions = web.Services.GetRequiredService<IOptions<JsonOptions>>().Value;
+        var result = JsonSerializer.Deserialize<PagedResponse<PlayerHistoryViewModel>>(
+            actual!,
+            jsonOptions.JsonSerializerOptions);
+
+        Assert.NotNull(result);
+        Assert.True(result.Valid);
+        Assert.Equal(3, result.TotalCount);
+        Assert.Equal(eventId, result.Items.First().EventId);
+    }
+
+    [Fact]
+    public async Task 查詢玩家歷史紀錄內容()
+    {
+        // Arrange
+        var channelName = Guid.NewGuid().ToString();
+        var userId = Guid.NewGuid();
+
+        var fakePlayerServiceClient = Substitute.For<IPlayerServiceClient>();
+        var fakeUserService = Substitute.For<ITgsQueries<TGS.Core.DataServices.Tgs.Models.User>>();
+
+        using var web = TestBackendOfficeApplication.Builder
+            .UseTestChannelServer(channelName)
+            .ConfigureLogging(logging => logging.AddXUnit(_testOutputHelper))
+            .ConfigureServices(services => services
+                .AddAuthentication("Fake")
+                .AddScheme<FakeAuthenticationSchemaOptions, FakeAuthenticationHandler>(
+                    "Fake",
+                    options =>
+                    {
+                        options.UserId = userId;
+                        options.UserName = "system";
+                    })
+                .Services
+                .AddSingleton(fakePlayerServiceClient)
+                .AddSingleton(fakeUserService))
+            .Build();
+
+        var eventId = Guid.NewGuid();
+        _ = fakePlayerServiceClient.GetPlayerHistoryAsync(
+            eventId, cancellationToken: Arg.Any<CancellationToken>())
+            .Returns(
+                new PlayerEventInfo
+                {
+                    Action = EventAction.Create,
+                    ChangeSets = JsonDocument.Parse("{}"),
+                    CreatedOn = DateTime.UtcNow.AddDays(-1),
+                    Modifier = null,
+                }
+            );
+
+        _ = fakeUserService
+            .GetQueries()
+            .Returns(Array.Empty<TGS.Core.DataServices.Tgs.Models.User>().AsQueryable());
+
+        await web.StartAsync();
+
+        var isWindows = RuntimeInformation.IsOSPlatform(OSPlatform.Windows) ? "true" : "false";
+
+        var nodeModule = $$"""
+            const axiosConfigFactory = require('./models/axios-configuration.js').default;
+            const BackOfficeService = require('./services/bo-service.js').default;
+
+            module.exports = async (eventId) =>
+            {
+                let instance = axiosConfigFactory("{{channelName}}", {{isWindows}});
+
+                let svc = new BackOfficeService(instance);
+
+                return await svc.getPlayerHistory(eventId);
+            };
+        """;
+
+        // Act
+        var actual = await StaticNodeJSService.InvokeFromStringAsync<string>(
+            nodeModule,
+            args: new object[] { eventId });
+
+        // Assert
+        Assert.NotNull(actual);
+
+        var jsonOptions = web.Services.GetRequiredService<IOptions<JsonOptions>>().Value;
+        var result = JsonSerializer.Deserialize<PlayerHistoryContentViewModel>(
+            actual!,
+            jsonOptions.JsonSerializerOptions);
+
+        Assert.NotNull(result);
+        Assert.Equal(EventAction.Create, result.Action);
     }
 }

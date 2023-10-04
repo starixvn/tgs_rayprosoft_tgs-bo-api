@@ -933,4 +933,23 @@ export default class BackOfficeService {
         .then(res=>res.data);
     }
 
+    public getPlayerHistories(playerCode:string, request: PlayerHistoriesQueryViewModel, page: number, rows:number): Promise<PagedResponse<PlayerHistoryViewModel>>{
+        const queryString = {
+            from: request.from,
+            to : request.to,
+            page:page,
+            rows:rows,
+        }
+        return this.http
+            .get(`/api/player/histories/${playerCode}`,{
+                params:queryString
+            })
+            .then(res=>res.data);
+    }
+
+    public getPlayerHistory(eventId:string): Promise<PlayerHistoryContentViewModel>{
+        return this.http
+            .get(`/api/player/history/${eventId}`)
+            .then(res=>res.data);
+    }
 }
