@@ -1036,7 +1036,7 @@ public class PlayerTests
             {
                 new PlayerHistoryInfo
                 {
-                    Action = EventAction.Create.ToString(),
+                    Action = EventAction.Create,
                     CreatedOn = DateTimeOffset.Now.AddDays(-1),
                     EventId = eventId,
                 }
