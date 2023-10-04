@@ -29,7 +29,7 @@ internal class UpdatePlayerIdentityAuthenticationCommandService : ICommandServic
         await _playerServiceClient.SetPlayerPropertiesAsync(
             command.PlayerCode,
             properties.ToImmutableDictionary(),
-            cancellationToken)
-            .ConfigureAwait(false);
+            command.ModifyUser,
+            cancellationToken).ConfigureAwait(false);
     }
 }

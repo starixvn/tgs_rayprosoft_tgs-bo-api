@@ -125,7 +125,7 @@ public class UpdatePlayerHandler : Handler<UpdatePlayerRequest, MessageResponse>
             };
 
             await _playerServiceClient
-                .SetPlayerPropertiesAsync(player.PlayerCode, properties.ToImmutableDictionary(), cancellationToken)
+                .SetPlayerPropertiesAsync(player.PlayerCode, properties.ToImmutableDictionary(), "6a379883-d8d2-4ffb-3d05-08d9262ce1a5", cancellationToken)
                 .ConfigureAwait(false);
         }
 
@@ -143,6 +143,7 @@ public class UpdatePlayerHandler : Handler<UpdatePlayerRequest, MessageResponse>
             await _playerServiceClient.SetPlayerPropertiesAsync(
                 player.PlayerCode,
                 properties.ToImmutableDictionary(),
+                modifyUser: UserId,
                 cancellationToken)
                 .ConfigureAwait(false);
         }
