@@ -395,7 +395,6 @@ public partial class PlayerController : BaseContextController
     public async ValueTask<PagedResponse<PlayerHistoryViewModel>> GetPlayerHistoriesAsync(
         [FromServices] IQueryService<PlayerHistoriesQuery, PlayerHistoryInfo> queryService,
         [FromServices] IGetService<PlayerHistoriesQuery, int> countService,
-
         [FromServices] ITgsQueries<Core.DataServices.Tgs.Models.User> userQueries,
         string playerCode,
         [FromQuery] PlayerHistoriesQueryViewModel queryViewModel,
@@ -416,7 +415,10 @@ public partial class PlayerController : BaseContextController
             .QueryAsync(query, HttpContext.RequestAborted)
             .ToArrayAsync(HttpContext.RequestAborted).ConfigureAwait(false);
 
-        var userIds = infos.Select(x => x.Modifier).Cast<Guid>();
+        var userIds = infos
+            .Where(x => !string.IsNullOrWhiteSpace(x.Modifier) && Guid.TryParse(x.Modifier, out var _) == true)
+            .Select(x => x.Modifier)
+            .Select(x => new Guid(x));
 
         var userQuery = userQueries.GetQueries().Where(u => userIds.Contains(u.Id)).ToArray();
 
