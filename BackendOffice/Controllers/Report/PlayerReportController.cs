@@ -1,4 +1,5 @@
-﻿using System.ComponentModel;
+﻿using System.Collections.Generic;
+using System.ComponentModel;
 using System.IO;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Mvc;
@@ -48,4 +49,45 @@ public class PlayerReportController : BaseContextController
         => await playersAccountChangesService
             .GetAsync(request)
             .ConfigureAwait(false);
+
+    [HttpGet("player-all-agent-rebate-total-amount")]
+    [Description("Get player all agent rebate total amount")]
+    public async Task<PlayerAllAgentRebateTotalAmountReportModel> GetPlayerAllAgentRebateTotalAmountAsync(
+        [FromServices]
+        IGetService<GetPlayerAllAgentRebateTotalAmountReportRequest, PlayerAllAgentRebateTotalAmountReportModel>
+            playerAllAgentRebateTotalAmountService,
+        [FromQuery] GetPlayerAllAgentRebateTotalAmountReportRequest request)
+        => await playerAllAgentRebateTotalAmountService
+            .GetAsync(request)
+            .ConfigureAwait(false);
+
+    [HttpGet("player-all-agent-rebates")]
+    [Description("Get player all agent rebates")]
+    public IAsyncEnumerable<PlayerAllAgentRebateReportModel> GetPlayerAllAgentRebatesAsync(
+        [FromServices]
+        IQueryService<GetPlayerAllAgentRebatesReportRequest, PlayerAllAgentRebateReportModel>
+            playerAllAgentRebatesService,
+        [FromQuery] GetPlayerAllAgentRebatesReportRequest request)
+        => playerAllAgentRebatesService
+            .QueryAsync(request);
+
+    [HttpGet("player-all-agent-rebate-details")]
+    [Description("Get player all agent rebate details")]
+    public IAsyncEnumerable<PlayerAllAgentRebateDetailReportModel> GetPlayerAllAgentRebateDetailsAsync(
+        [FromServices]
+        IQueryService<GetPlayerAllAgentRebatesDetailsReportRequest, PlayerAllAgentRebateDetailReportModel>
+            playerAllAgentRebateDetailService,
+        [FromQuery] GetPlayerAllAgentRebatesDetailsReportRequest request)
+        => playerAllAgentRebateDetailService
+            .QueryAsync(request);
+
+    [HttpGet("player-all-agent-rebate-detail-game-types")]
+    [Description("Get player all agent rebate detail game types")]
+    public IAsyncEnumerable<PlayerAllAgentRebateDetailGameTypeReportModel> GetPlayerAllAgentRebateDetailGameTypesAsync(
+        [FromServices]
+        IQueryService<GetPlayerAllAgentRebateDetailGameTypesReportRequest, PlayerAllAgentRebateDetailGameTypeReportModel>
+            playerAllAgentRebateDetailGameTypeService,
+        [FromQuery] GetPlayerAllAgentRebateDetailGameTypesReportRequest request)
+        => playerAllAgentRebateDetailGameTypeService
+            .QueryAsync(request);
 }
