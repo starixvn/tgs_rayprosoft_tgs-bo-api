@@ -1,10 +1,10 @@
 ﻿#nullable enable
 using System;
-using Tgs.Report.Client.Models;
+using TGS.Core.Models.Messages;
 
 namespace TGS.Services.BackOffice.Application.Models.ReportPlayer
 {
-    public record GetPlayerAllAgentRebatesReportRequest : PageableRequest
+    public class GetPlayerAllAgentRebatesReportRequest : PageableRequest
     {
         public Guid BrandId { get; set; }
         public string? Username { get; set; }

@@ -27,7 +27,7 @@ internal class
             To = request.To,
             Page = request.Page,
             Rows = request.Rows,
-            OrderBy = request.OrderBy,
+            OrderBy = (short)request.OrderBy,
             SortBy = request.SortBy,
             ShowAll = request.ShowAll
         };
