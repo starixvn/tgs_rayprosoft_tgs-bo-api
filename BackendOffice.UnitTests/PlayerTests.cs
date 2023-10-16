@@ -5,8 +5,6 @@ using Tgs.CashService.Client;
 using Tgs.PlayerService.Client;
 using TGS.Core.DataServices.Tgs;
 using TGS.Core.DataServices.Tgs.Models;
-using TGS.Core.Infrastructures.Redis;
-using TGS.Core.Models.Enums;
 using TGS.Services.BackOffice.Application.Queries.PlayerHandlers;
 using TGS.Services.BackOffice.ApplicationServices;
 using TGS.Services.BackOffice.ApplicationServices.Players;
@@ -497,10 +495,9 @@ internal class PlayerTests
     public async Task 修改玩家密碼()
     {
         var fakePlayerSerivceClient = Substitute.For<IPlayerServiceClient>();
-        var fakeRedisCacheManager = Substitute.For<IRedisCacheManager>();
         var fakeTgsRepository = Substitute.For<ITgsRepository>();
 
-        var sut = new SetPlayerPasswordCommandService(fakePlayerSerivceClient, fakeRedisCacheManager, fakeTgsRepository);
+        var sut = new SetPlayerPasswordCommandService(fakePlayerSerivceClient, fakeTgsRepository);
 
         var playerCode = "playerCode";
         var password = "newPassword";
@@ -513,10 +510,6 @@ internal class PlayerTests
         _ = fakePlayerSerivceClient
             .Received(1)
             .SetPlayerPasswordAsync(Arg.Is(playerCode), Arg.Is(password), Arg.Is(modifyUsername), Arg.Is(modifyUserId));
-
-        _ = fakeRedisCacheManager
-            .Received(1)
-            .ClearCacheAsync(Arg.Is(RedisCacheType.Player), Arg.Is(playerCode));
 
         _ = fakeTgsRepository.Received(1)
             .PlayerAuditLogs
