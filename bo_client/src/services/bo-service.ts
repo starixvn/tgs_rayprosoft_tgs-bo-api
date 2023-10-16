@@ -952,4 +952,10 @@ export default class BackOfficeService {
             .get(`/api/player/history/${eventId}`)
             .then(res=>res.data);
     }
+    
+    public async setPlayerPassword(playerCode: string, password: string) : Promise<MessageResponse>{
+        return this.http
+            .patch(`/api/player/password/${playerCode}/${password}`)
+            .then(res=>res.data);
+    }
 }

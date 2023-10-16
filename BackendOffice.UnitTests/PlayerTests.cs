@@ -3,6 +3,10 @@ using System.Text.Json;
 using NSubstitute;
 using Tgs.CashService.Client;
 using Tgs.PlayerService.Client;
+using TGS.Core.DataServices.Tgs;
+using TGS.Core.DataServices.Tgs.Models;
+using TGS.Core.Infrastructures.Redis;
+using TGS.Core.Models.Enums;
 using TGS.Services.BackOffice.Application.Queries.PlayerHandlers;
 using TGS.Services.BackOffice.ApplicationServices;
 using TGS.Services.BackOffice.ApplicationServices.Players;
@@ -487,5 +491,38 @@ internal class PlayerTests
                 Arg.Any<IImmutableDictionary<PlayerPropertyName, string?>>(),
                 Arg.Is(command.ModifyUser),
                 Arg.Any<CancellationToken>());
+    }
+
+    [Test]
+    public async Task 修改玩家密碼()
+    {
+        var fakePlayerSerivceClient = Substitute.For<IPlayerServiceClient>();
+        var fakeRedisCacheManager = Substitute.For<IRedisCacheManager>();
+        var fakeTgsRepository = Substitute.For<ITgsRepository>();
+
+        var sut = new SetPlayerPasswordCommandService(fakePlayerSerivceClient, fakeRedisCacheManager, fakeTgsRepository);
+
+        var playerCode = "playerCode";
+        var password = "newPassword";
+        var modifyUserId = "6a379883-d8d2-4ffb-3d05-08d9262ce1a5";
+        var modifyUsername = "username";
+
+        var command = new SetPlayerPasswordCommand(playerCode, password, modifyUserId, modifyUsername);
+        await sut.ExecuteAsync(command);
+
+        _ = fakePlayerSerivceClient
+            .Received(1)
+            .SetPlayerPasswordAsync(Arg.Is(playerCode), Arg.Is(password), Arg.Is(modifyUsername), Arg.Is(modifyUserId));
+
+        _ = fakeRedisCacheManager
+            .Received(1)
+            .ClearCacheAsync(Arg.Is(RedisCacheType.Player), Arg.Is(playerCode));
+
+        _ = fakeTgsRepository.Received(1)
+            .PlayerAuditLogs
+            .AddAsync(Arg.Any<PlayerAuditLog>());
+
+        _ = fakeTgsRepository.Received(1)
+            .SaveChangesAsync();
     }
 }
