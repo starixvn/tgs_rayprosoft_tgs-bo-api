@@ -1178,8 +1178,7 @@ public class PlayerTests
         var channelName = Guid.NewGuid().ToString();
         var userId = Guid.NewGuid();
 
-        var fakePlayerServiceClient = Substitute.For<IPlayerServiceClient>();
-        var fakeRedisCacheManager = Substitute.For<IRedisCacheManager>();
+        var fakePlayerServiceClient = Substitute.For<IPlayerServiceClient>();        
         var fakeTgsRepository = Substitute.For<ITgsRepository>();
 
         using var web = TestBackendOfficeApplication.Builder
@@ -1195,8 +1194,7 @@ public class PlayerTests
                         options.UserName = "system";
                     })
                 .Services
-                .AddSingleton(fakePlayerServiceClient)
-                .AddSingleton(fakeRedisCacheManager)
+                .AddSingleton(fakePlayerServiceClient)                
                 .AddSingleton(fakeTgsRepository))
             .Build();
 
