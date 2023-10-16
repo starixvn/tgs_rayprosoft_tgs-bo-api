@@ -518,4 +518,87 @@ internal class PlayerTests
         _ = fakeTgsRepository.Received(1)
             .SaveChangesAsync();
     }
+
+    [Test]
+    public async Task 修改玩家聯絡資訊_Email()
+    {
+        var fakePlayerSerivceClient = Substitute.For<IPlayerServiceClient>();
+        var fakeTgsRepository = Substitute.For<ITgsRepository>();
+
+        var sut = new SetPlayerContactCommandService(fakePlayerSerivceClient, fakeTgsRepository);
+
+        var playerCode = "playerCode";
+        var modifyUserId = "6a379883-d8d2-4ffb-3d05-08d9262ce1a5";
+        var modifyUsername = "username";
+
+        var dict = new Dictionary<string, string?>
+        {
+            { PlayerPropertyName.Email.ToString(), "test@test.com" }
+        };
+
+        var command = new SetPlayerContactCommand(playerCode, modifyUserId, modifyUsername, dict);
+
+        await sut.ExecuteAsync(command);
+
+        var editDict = new Dictionary<PlayerPropertyName, string?>
+        {
+            { PlayerPropertyName.Email, "test@test.com" }
+        };
+
+        _ = fakePlayerSerivceClient
+            .Received(1)
+            .SetPlayerPropertiesAsync(
+                Arg.Is(playerCode),
+                Arg.Is<IImmutableDictionary<PlayerPropertyName, string?>>(x => x.SequenceEqual(editDict.ToImmutableDictionary())),
+                Arg.Is(modifyUserId));
+
+        _ = fakeTgsRepository.Received(1)
+            .PlayerAuditLogs
+            .AddAsync(Arg.Any<PlayerAuditLog>());
+
+        _ = fakeTgsRepository.Received(1)
+            .SaveChangesAsync();
+    }
+
+    [Test]
+    public async Task 修改玩家聯絡資訊_電話號碼()
+    {
+        var fakePlayerSerivceClient = Substitute.For<IPlayerServiceClient>();
+        var fakeTgsRepository = Substitute.For<ITgsRepository>();
+
+        var sut = new SetPlayerContactCommandService(fakePlayerSerivceClient, fakeTgsRepository);
+
+        var playerCode = "playerCode";
+        var modifyUserId = "6a379883-d8d2-4ffb-3d05-08d9262ce1a5";
+        var modifyUsername = "username";
+
+        var dict = new Dictionary<string, string?>
+        {
+            { PlayerPropertyName.Phone.ToString(), "1234567890" }
+        };
+
+        var command = new SetPlayerContactCommand(playerCode, modifyUserId, modifyUsername, dict);
+
+        await sut.ExecuteAsync(command);
+
+        var editDict = new Dictionary<PlayerPropertyName, string?>
+        {
+            { PlayerPropertyName.Phone, "1234567890" },
+            { PlayerPropertyName.PhoneAuthentication, true.ToString() }
+        };
+
+        _ = fakePlayerSerivceClient
+            .Received(1)
+            .SetPlayerPropertiesAsync(
+                Arg.Is(playerCode),
+                Arg.Is<IImmutableDictionary<PlayerPropertyName, string?>>(x => x.SequenceEqual(editDict.ToImmutableDictionary())),
+                Arg.Is(modifyUserId));
+
+        _ = fakeTgsRepository.Received(1)
+            .PlayerAuditLogs
+            .AddAsync(Arg.Any<PlayerAuditLog>());
+
+        _ = fakeTgsRepository.Received(1)
+            .SaveChangesAsync();
+    }
 }

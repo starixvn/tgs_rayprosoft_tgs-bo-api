@@ -548,6 +548,19 @@ public partial class PlayerController : BaseContextController
             .Select(info => JsonDocument.Parse($$"""{"{{info.Value}}":"{{info.Key}}"}"""));
     }
 
+    [HttpPatch("contact/{playerCode}")]
+    public async ValueTask<MessageResponse> SetPlayerContactAsync(
+        [FromServices] ICommandService<SetPlayerContactCommand> setPlayerContactService,
+        string playerCode,
+        [FromBody] SetPlayerContactRequest request)
+    {
+        await setPlayerContactService
+            .ExecuteAsync(new SetPlayerContactCommand(playerCode, UserId, Username, request), HttpContext.RequestAborted)
+            .ConfigureAwait(false);
+
+        return CreateValidResponse<MessageResponse>();
+    }
+
     [HttpPatch("password/{playerCode}/{password}")]
     [Description("Update player login password")]
     public async ValueTask<MessageResponse> SetPlayerPasswordAsync(
