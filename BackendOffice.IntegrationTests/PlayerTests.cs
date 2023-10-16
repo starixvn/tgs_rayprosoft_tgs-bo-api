@@ -20,6 +20,8 @@ using Tgs.ServiceUtility;
 using Tgs.VipLevelService.Clients;
 using TGS.Apis.BackendOffice.ViewModels;
 using TGS.Core.DataServices.Base.Interfaces;
+using TGS.Core.DataServices.Tgs;
+using TGS.Core.Infrastructures.Redis;
 using TGS.Core.Models.Enums;
 using TGS.Core.Models.Messages;
 using TGS.Services.BackOffice.Application.Models.Player;
@@ -1167,5 +1169,65 @@ public class PlayerTests
 
         Assert.NotNull(result);
         Assert.Equal(EventAction.Create, result.Action);
+    }
+
+    [Fact]
+    public async Task 修改玩家密碼()
+    {
+        // Arrange
+        var channelName = Guid.NewGuid().ToString();
+        var userId = Guid.NewGuid();
+
+        var fakePlayerServiceClient = Substitute.For<IPlayerServiceClient>();
+        var fakeRedisCacheManager = Substitute.For<IRedisCacheManager>();
+        var fakeTgsRepository = Substitute.For<ITgsRepository>();
+
+        using var web = TestBackendOfficeApplication.Builder
+            .UseTestChannelServer(channelName)
+            .ConfigureLogging(logging => logging.AddXUnit(_testOutputHelper))
+            .ConfigureServices(services => services
+                .AddAuthentication("Fake")
+                .AddScheme<FakeAuthenticationSchemaOptions, FakeAuthenticationHandler>(
+                    "Fake",
+                    options =>
+                    {
+                        options.UserId = userId;
+                        options.UserName = "system";
+                    })
+                .Services
+                .AddSingleton(fakePlayerServiceClient)
+                .AddSingleton(fakeRedisCacheManager)
+                .AddSingleton(fakeTgsRepository))
+            .Build();
+
+        await web.StartAsync();
+
+        var playerCode = "playereCode";
+        var password = "newPassword";
+
+        var isWindows = RuntimeInformation.IsOSPlatform(OSPlatform.Windows) ? "true" : "false";
+
+        var nodeModule = $$"""
+            const axiosConfigFactory = require('./models/axios-configuration.js').default;
+            const BackOfficeService = require('./services/bo-service.js').default;
+
+            module.exports = async (playerCode, password) =>
+            {
+                let instance = axiosConfigFactory("{{channelName}}", {{isWindows}});
+
+                let svc = new BackOfficeService(instance);
+
+                return await svc.setPlayerPassword(playerCode, password);
+            };
+            """;
+
+        // Act
+        var actual = await StaticNodeJSService.InvokeFromStringAsync<MessageResponse>(
+            nodeModule,
+            args: new object[] { playerCode, password });
+
+        // Assert
+        Assert.NotNull(actual);
+        Assert.True(actual.Valid);
     }
 }
