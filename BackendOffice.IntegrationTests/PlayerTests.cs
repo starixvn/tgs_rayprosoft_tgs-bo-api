@@ -1320,6 +1320,19 @@ public class PlayerTests
         var fakePlayerServiceClient = Substitute.For<IPlayerServiceClient>();
         var fakeTgsRepository = Substitute.For<ITgsRepository>();
 
+        var playerCode = "playereCode";
+
+        _ = fakePlayerServiceClient
+            .GetPlayerInfoAsync(Arg.Is(playerCode))
+            .Returns(new Tgs.PlayerService.Client.PlayerInfo
+            {
+                PlayerCode = playerCode,
+            });
+
+        _ = fakePlayerServiceClient
+            .GetPlayerPropertiesAsync(Arg.Is(playerCode))
+            .Returns(new Dictionary<string, string> { { "Email", "old@test.com" } }.ToImmutableDictionary());
+
         using var web = TestBackendOfficeApplication.Builder
             .UseTestChannelServer(channelName)
             .ConfigureLogging(logging => logging.AddXUnit(_testOutputHelper))
@@ -1339,7 +1352,6 @@ public class PlayerTests
 
         await web.StartAsync();
 
-        var playerCode = "playereCode";
         var request = new SetPlayerContactRequest
         {
             { PlayerPropertyName.Phone.ToString(),"1223334444" }
