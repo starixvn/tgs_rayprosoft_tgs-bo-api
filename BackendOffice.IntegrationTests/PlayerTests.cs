@@ -1180,6 +1180,15 @@ public class PlayerTests
         var fakePlayerServiceClient = Substitute.For<IPlayerServiceClient>();
         var fakeTgsRepository = Substitute.For<ITgsRepository>();
 
+        var playerCode = "playereCode";
+        var password = "newPassword";
+        _ = fakePlayerServiceClient
+            .GetPlayerInfoAsync(Arg.Is(playerCode))
+            .Returns(new Tgs.PlayerService.Client.PlayerInfo
+            {
+                PlayerCode = playerCode,
+            });
+
         using var web = TestBackendOfficeApplication.Builder
             .UseTestChannelServer(channelName)
             .ConfigureLogging(logging => logging.AddXUnit(_testOutputHelper))
@@ -1198,9 +1207,6 @@ public class PlayerTests
             .Build();
 
         await web.StartAsync();
-
-        var playerCode = "playereCode";
-        var password = "newPassword";
 
         var isWindows = RuntimeInformation.IsOSPlatform(OSPlatform.Windows) ? "true" : "false";
 
@@ -1238,6 +1244,22 @@ public class PlayerTests
         var fakePlayerServiceClient = Substitute.For<IPlayerServiceClient>();
         var fakeTgsRepository = Substitute.For<ITgsRepository>();
 
+        var playerCode = "playerCode";
+        var brandId = Guid.NewGuid();
+        var modifyEmail = "test@test.com";
+
+        _ = fakePlayerServiceClient
+            .GetPlayerInfoAsync(Arg.Is(playerCode))
+            .Returns(new Tgs.PlayerService.Client.PlayerInfo
+            {
+                BrandId = brandId,
+                PlayerCode = playerCode,
+            });
+
+        _ = fakePlayerServiceClient
+            .GetPlayerPropertiesAsync(Arg.Is(playerCode))
+            .Returns(new Dictionary<string, string> { { "Email", "old@test.com" } }.ToImmutableDictionary());
+
         using var web = TestBackendOfficeApplication.Builder
             .UseTestChannelServer(channelName)
             .ConfigureLogging(logging => logging.AddXUnit(_testOutputHelper))
@@ -1257,10 +1279,9 @@ public class PlayerTests
 
         await web.StartAsync();
 
-        var playerCode = "playereCode";
         var request = new SetPlayerContactRequest
         {
-            { PlayerPropertyName.Email.ToString(),"test@test.com" }
+            { PlayerPropertyName.Email.ToString(), modifyEmail }
         };
 
         var isWindows = RuntimeInformation.IsOSPlatform(OSPlatform.Windows) ? "true" : "false";

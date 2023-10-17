@@ -550,31 +550,39 @@ public partial class PlayerController : BaseContextController
 
     [HttpPatch("contact/{playerCode}")]
     public async ValueTask<MessageResponse> SetPlayerContactAsync(
-        [FromServices] ICommandService<SetPlayerContactCommand> setPlayerContactService,
+        [FromServices] IGetService<SetPlayerContactCommand, SetPlayerContactInfo> setPlayerContactService,
         string playerCode,
         [FromBody] SetPlayerContactRequest request)
     {
-        await setPlayerContactService
-            .ExecuteAsync(new SetPlayerContactCommand(playerCode, UserId, Username, request), HttpContext.RequestAborted)
+        var processInfo = await setPlayerContactService
+            .GetAsync(new SetPlayerContactCommand(playerCode, UserId, Username, request), HttpContext.RequestAborted)
             .ConfigureAwait(false);
 
-        return CreateValidResponse<MessageResponse>();
+        return new MessageResponse
+        {
+            Valid = processInfo.Valid,
+            Message = processInfo.Message
+        };
     }
 
     [HttpPatch("password/{playerCode}/{password}")]
     [Description("Update player login password")]
     public async ValueTask<MessageResponse> SetPlayerPasswordAsync(
-        [FromServices] ICommandService<SetPlayerPasswordCommand> setPlayerPasswordService,
+        [FromServices] IGetService<SetPlayerPasswordCommand, SetPlayerPasswordInfo> setPlayerPasswordService,
         string playerCode,
         string password)
     {
         var command = new SetPlayerPasswordCommand(playerCode, password, UserId, Username);
 
-        await setPlayerPasswordService
-            .ExecuteAsync(command, HttpContext.RequestAborted)
+        var processInfo = await setPlayerPasswordService
+            .GetAsync(command, HttpContext.RequestAborted)
             .ConfigureAwait(false);
 
-        return CreateValidResponse<MessageResponse>();
+        return new MessageResponse
+        {
+            Valid = processInfo.Valid,
+            Message = processInfo.Message
+        };
     }
 
     [HttpPut("{playerCode}/{type}", Name = "UpdatePlayer")]

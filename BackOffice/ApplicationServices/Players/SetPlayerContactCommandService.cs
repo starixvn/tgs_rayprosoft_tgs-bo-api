@@ -3,8 +3,10 @@
 using System;
 using System.Collections.Generic;
 using System.Collections.Immutable;
+using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
+using Microsoft.EntityFrameworkCore;
 using Tgs.PlayerService.Client;
 using Tgs.ServiceUtility;
 using TGS.Core.DataServices.Tgs;
@@ -13,7 +15,7 @@ using TGS.Core.Infrastructures.Extensions;
 
 namespace TGS.Services.BackOffice.ApplicationServices.Players;
 
-internal class SetPlayerContactCommandService : ICommandService<SetPlayerContactCommand>
+internal class SetPlayerContactCommandService : IGetService<SetPlayerContactCommand, SetPlayerContactInfo>
 {
     private readonly IPlayerServiceClient _playerServiceClient;
     private readonly ITgsRepository _tgsRepository;
@@ -26,9 +28,22 @@ internal class SetPlayerContactCommandService : ICommandService<SetPlayerContact
         _tgsRepository = tgsRepository ?? throw new ArgumentNullException(nameof(tgsRepository));
     }
 
-    public async ValueTask ExecuteAsync(SetPlayerContactCommand command, CancellationToken cancellationToken = default)
+    public async ValueTask<SetPlayerContactInfo> GetAsync(SetPlayerContactCommand command, CancellationToken cancellationToken = default)
     {
-        var dict = new Dictionary<PlayerPropertyName, string?>();
+        var player = await _playerServiceClient
+            .GetPlayerInfoAsync(command.PlayerCode, cancellationToken)
+            .ConfigureAwait(false);
+
+        if (player is null)
+            return new SetPlayerContactInfo(false, Application.Resources.Player.NotFound);
+
+        var props = await _playerServiceClient
+            .GetPlayerPropertiesAsync(command.PlayerCode, cancellationToken)
+            .ConfigureAwait(false);
+
+        _ = props.TryGetValue("Phone", out var playerPhone);
+
+        var modifyDict = new Dictionary<PlayerPropertyName, string?>();
 
         var availablePropertyNames = new HashSet<string>(
             new string[]
@@ -51,15 +66,35 @@ internal class SetPlayerContactCommandService : ICommandService<SetPlayerContact
         {
             if (availablePropertyNames.Contains(item.Key))
             {
-                dict.Add(Enum.Parse<PlayerPropertyName>(item.Key), item.Value);
+                if (!string.IsNullOrEmpty(playerPhone) && item.Key.ToLower() == "phone" && string.IsNullOrEmpty(item.Value))
+                {
+                    return new SetPlayerContactInfo(false, Application.Resources.Player.PhoneRequired);
+                }
 
-                if (item.Key.ToLower() == "phone" && !string.IsNullOrEmpty(item.Value))
-                    dict.Add(PlayerPropertyName.PhoneAuthentication, true.ToString());
+                if (!string.IsNullOrEmpty(playerPhone))
+                {
+                    modifyDict.Add(PlayerPropertyName.PhoneAuthentication, true.ToString());
+                }
+
+                if (item.Key.ToLower() == "email" && !string.IsNullOrEmpty(item.Value))
+                {
+                    var playerInfo = await _playerServiceClient.GetPlayerInfoByEmailAsync(player.BrandId, item.Value, cancellationToken).ConfigureAwait(false);
+
+                    if (playerInfo is not null && player.PlayerCode != playerInfo.PlayerCode)
+                    {
+                        return new SetPlayerContactInfo(false, Application.Resources.Player.BrandEmailDuplicate);
+                    }
+                }
+
+                modifyDict.Add(Enum.Parse<PlayerPropertyName>(item.Key), item.Value);
             }
         }
 
+        if (!modifyDict.Any())
+            return new SetPlayerContactInfo(false, string.Empty);
+
         await _playerServiceClient
-            .SetPlayerPropertiesAsync(command.PlayerCode, dict.ToImmutableDictionary(), command.ModifyUserId, cancellationToken)
+            .SetPlayerPropertiesAsync(command.PlayerCode, modifyDict.ToImmutableDictionary(), command.ModifyUserId, cancellationToken)
             .ConfigureAwait(false);
 
         var auditLog = new PlayerAuditLog
@@ -79,5 +114,7 @@ internal class SetPlayerContactCommandService : ICommandService<SetPlayerContact
         _ = await _tgsRepository
             .SaveChangesAsync(cancellationToken)
             .ConfigureAwait(false);
+
+        return new SetPlayerContactInfo(true, string.Empty);
     }
 }

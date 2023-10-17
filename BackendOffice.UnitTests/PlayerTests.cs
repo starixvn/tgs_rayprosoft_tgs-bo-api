@@ -1,5 +1,6 @@
 ﻿using System.Collections.Immutable;
 using System.Text.Json;
+using Microsoft.EntityFrameworkCore;
 using NSubstitute;
 using Tgs.CashService.Client;
 using Tgs.PlayerService.Client;
@@ -504,8 +505,22 @@ internal class PlayerTests
         var modifyUserId = "6a379883-d8d2-4ffb-3d05-08d9262ce1a5";
         var modifyUsername = "username";
 
+        _ = fakePlayerSerivceClient.GetPlayerInfoAsync(Arg.Is(playerCode))
+            .Returns(new PlayerInfo
+            {
+                BrandId = Guid.NewGuid(),
+                EmailAuthentication = true,
+                IdentityAuthentication = true,
+                IsSetPayPassword = false,
+                PhoneAuthentication = true,
+                PlayerCode = playerCode,
+                RegisteredOn = DateTime.UtcNow.AddDays(-1),
+                UserName = "username",
+                VipLevelId = Guid.NewGuid(),
+            });
+
         var command = new SetPlayerPasswordCommand(playerCode, password, modifyUserId, modifyUsername);
-        await sut.ExecuteAsync(command);
+        var actual = await sut.GetAsync(command);
 
         _ = fakePlayerSerivceClient
             .Received(1)
@@ -517,77 +532,265 @@ internal class PlayerTests
 
         _ = fakeTgsRepository.Received(1)
             .SaveChangesAsync();
+
+        Assert.NotNull(actual);
+        Assert.True(actual.Valid);
     }
 
     [Test]
-    public async Task 修改玩家聯絡資訊_Email()
+    public async Task 修改玩家密碼_玩家不存在()
     {
         var fakePlayerSerivceClient = Substitute.For<IPlayerServiceClient>();
         var fakeTgsRepository = Substitute.For<ITgsRepository>();
 
-        var sut = new SetPlayerContactCommandService(fakePlayerSerivceClient, fakeTgsRepository);
+        var sut = new SetPlayerPasswordCommandService(fakePlayerSerivceClient, fakeTgsRepository);
+
+        var playerCode = "playerCode";
+        var password = "newPassword";
+        var modifyUserId = "6a379883-d8d2-4ffb-3d05-08d9262ce1a5";
+        var modifyUsername = "username";
+
+        var command = new SetPlayerPasswordCommand(playerCode, password, modifyUserId, modifyUsername);
+        var actual = await sut.GetAsync(command);
+
+        Assert.NotNull(actual);
+        Assert.False(actual.Valid);
+    }
+
+    [Test]
+    public async Task 修改玩家聯絡資訊_0玩家不存在()
+    {
+        var fakePlayerServiceClient = Substitute.For<IPlayerServiceClient>();
+        var fakeTgsRepository = Substitute.For<ITgsRepository>();
+
+        var sut = new SetPlayerContactCommandService(fakePlayerServiceClient, fakeTgsRepository);
 
         var playerCode = "playerCode";
         var modifyUserId = "6a379883-d8d2-4ffb-3d05-08d9262ce1a5";
         var modifyUsername = "username";
 
-        var dict = new Dictionary<string, string?>
+        var queryDict = new Dictionary<string, string?>
         {
             { PlayerPropertyName.Email.ToString(), "test@test.com" }
         };
 
-        var command = new SetPlayerContactCommand(playerCode, modifyUserId, modifyUsername, dict);
+        var command = new SetPlayerContactCommand(playerCode, modifyUserId, modifyUsername, queryDict);
 
-        await sut.ExecuteAsync(command);
+        var actual = await sut.GetAsync(command);
 
-        var editDict = new Dictionary<PlayerPropertyName, string?>
-        {
-            { PlayerPropertyName.Email, "test@test.com" }
-        };
-
-        _ = fakePlayerSerivceClient
-            .Received(1)
-            .SetPlayerPropertiesAsync(
-                Arg.Is(playerCode),
-                Arg.Is<IImmutableDictionary<PlayerPropertyName, string?>>(x => x.SequenceEqual(editDict.ToImmutableDictionary())),
-                Arg.Is(modifyUserId));
-
-        _ = fakeTgsRepository.Received(1)
-            .PlayerAuditLogs
-            .AddAsync(Arg.Any<PlayerAuditLog>());
-
-        _ = fakeTgsRepository.Received(1)
-            .SaveChangesAsync();
+        Assert.False(actual.Valid);
     }
 
     [Test]
-    public async Task 修改玩家聯絡資訊_電話號碼()
+    public async Task 修改玩家聯絡資訊_1不允許修改的屬性()
     {
-        var fakePlayerSerivceClient = Substitute.For<IPlayerServiceClient>();
+        var fakePlayerServiceClient = Substitute.For<IPlayerServiceClient>();
         var fakeTgsRepository = Substitute.For<ITgsRepository>();
 
-        var sut = new SetPlayerContactCommandService(fakePlayerSerivceClient, fakeTgsRepository);
+        var sut = new SetPlayerContactCommandService(fakePlayerServiceClient, fakeTgsRepository);
 
         var playerCode = "playerCode";
         var modifyUserId = "6a379883-d8d2-4ffb-3d05-08d9262ce1a5";
         var modifyUsername = "username";
 
-        var dict = new Dictionary<string, string?>
+        _ = fakePlayerServiceClient.GetPlayerInfoAsync(Arg.Is(playerCode))
+            .Returns(new PlayerInfo
+            {
+                PlayerCode = playerCode,
+            });
+
+        _ = fakePlayerServiceClient.GetPlayerPropertiesAsync(Arg.Is(playerCode))
+            .Returns(new Dictionary<string, string>().ToImmutableDictionary());
+
+        var queryDict = new Dictionary<string, string?>
         {
-            { PlayerPropertyName.Phone.ToString(), "1234567890" }
+            { PlayerPropertyName.IdentityAuthentication.ToString(), true.ToString() }
         };
 
-        var command = new SetPlayerContactCommand(playerCode, modifyUserId, modifyUsername, dict);
+        var command = new SetPlayerContactCommand(playerCode, modifyUserId, modifyUsername, queryDict);
 
-        await sut.ExecuteAsync(command);
+        var actual = await sut.GetAsync(command);
+
+        Assert.False(actual.Valid);
+    }
+
+    [Test]
+    public async Task 修改玩家聯絡資訊_2玩家電話號碼存在時_不能設置為空()
+    {
+        var fakePlayerServiceClient = Substitute.For<IPlayerServiceClient>();
+        var fakeTgsRepository = Substitute.For<ITgsRepository>();
+
+        var sut = new SetPlayerContactCommandService(fakePlayerServiceClient, fakeTgsRepository);
+
+        var playerCode = "playerCode";
+        var modifyUserId = "6a379883-d8d2-4ffb-3d05-08d9262ce1a5";
+        var modifyUsername = "username";
+
+        var playerProps = new Dictionary<string, string>
+        {
+            { "Phone", "22345678" }
+        };
+        _ = fakePlayerServiceClient
+            .GetPlayerPropertiesAsync(Arg.Is(playerCode))
+            .Returns(playerProps.ToImmutableDictionary());
+
+        var queryDict = new Dictionary<string, string?>
+        {
+            { PlayerPropertyName.Phone.ToString(), "" }
+        };
+
+        var command = new SetPlayerContactCommand(playerCode, modifyUserId, modifyUsername, queryDict);
+
+        var actual = await sut.GetAsync(command);
+
+        Assert.False(actual.Valid);
+    }
+
+    [Test]
+    public async Task 修改玩家聯絡資訊_3玩家電話號碼存在時_電話驗證會設置true()
+    {
+        var fakePlayerServiceClient = Substitute.For<IPlayerServiceClient>();
+        var fakeTgsRepository = Substitute.For<ITgsRepository>();
+
+        var sut = new SetPlayerContactCommandService(fakePlayerServiceClient, fakeTgsRepository);
+
+        var playerCode = "playerCode";
+        var modifyUserId = "6a379883-d8d2-4ffb-3d05-08d9262ce1a5";
+        var modifyUsername = "username";
+
+        _ = fakePlayerServiceClient.GetPlayerInfoAsync(Arg.Is(playerCode))
+            .Returns(new PlayerInfo
+            {
+                PlayerCode = playerCode,
+            });
+
+        var playerProps = new Dictionary<string, string>
+        {
+            { "Phone", "22345678" }
+        };
+        _ = fakePlayerServiceClient
+            .GetPlayerPropertiesAsync(Arg.Is(playerCode))
+            .Returns(playerProps.ToImmutableDictionary());
+
+        var queryDict = new Dictionary<string, string?>
+        {
+            { PlayerPropertyName.Phone.ToString(), "3345678" }
+        };
+
+        var command = new SetPlayerContactCommand(playerCode, modifyUserId, modifyUsername, queryDict);
+
+        var actual = await sut.GetAsync(command);
 
         var editDict = new Dictionary<PlayerPropertyName, string?>
         {
-            { PlayerPropertyName.Phone, "1234567890" },
-            { PlayerPropertyName.PhoneAuthentication, true.ToString() }
+            { PlayerPropertyName.PhoneAuthentication, true.ToString() },
+            { PlayerPropertyName.Phone, "3345678" },
         };
 
-        _ = fakePlayerSerivceClient
+        _ = fakePlayerServiceClient
+            .Received(1)
+            .SetPlayerPropertiesAsync(
+                Arg.Is(playerCode),
+                Arg.Is<ImmutableDictionary<PlayerPropertyName, string?>>(x => x.SequenceEqual(editDict.ToImmutableDictionary())),
+                Arg.Is(modifyUserId));
+
+        _ = fakeTgsRepository
+            .Received(1).PlayerAuditLogs
+            .AddAsync(Arg.Any<PlayerAuditLog>());
+
+        _ = fakeTgsRepository
+            .Received(1)
+            .SaveChangesAsync();
+
+        Assert.True(actual.Valid);
+    }
+
+    [Test]
+    public async Task 修改玩家聯絡資訊_4設置Email時_同一個Brand裡Email不能重複()
+    {
+        var fakePlayerServiceClient = Substitute.For<IPlayerServiceClient>();
+        var fakeTgsRepository = Substitute.For<ITgsRepository>();
+
+        var sut = new SetPlayerContactCommandService(fakePlayerServiceClient, fakeTgsRepository);
+
+        var playerCode = "playerCode";
+        var modifyUserId = "6a379883-d8d2-4ffb-3d05-08d9262ce1a5";
+        var modifyUsername = "username";
+        var brandId = Guid.NewGuid();
+        var modifyEmail = "test@test.com";
+
+        _ = fakePlayerServiceClient
+            .GetPlayerInfoAsync(Arg.Is(playerCode))
+            .Returns(new PlayerInfo
+            {
+                BrandId = brandId,
+                PlayerCode = playerCode,
+            });
+
+        _ = fakePlayerServiceClient
+            .GetPlayerPropertiesAsync(Arg.Is(playerCode))
+            .Returns(new Dictionary<string, string> { { "Email", modifyEmail } }.ToImmutableDictionary());
+
+        _ = fakePlayerServiceClient
+            .GetPlayerInfoByEmailAsync(brandId, modifyEmail)
+            .Returns(new PlayerInfo
+            {
+                PlayerCode = "otherPlayerCode",
+            });
+
+        var queryDict = new Dictionary<string, string?>
+        {
+            { PlayerPropertyName.Email.ToString(), modifyEmail }
+        };
+
+        var command = new SetPlayerContactCommand(playerCode, modifyUserId, modifyUsername, queryDict);
+
+        var actual = await sut.GetAsync(command);
+
+        Assert.False(actual.Valid);
+    }
+
+    [Test]
+    public async Task 修改玩家聯絡資訊_5設置Email()
+    {
+        var fakePlayerServiceClient = Substitute.For<IPlayerServiceClient>();
+        var fakeTgsRepository = Substitute.For<ITgsRepository>();
+
+        var sut = new SetPlayerContactCommandService(fakePlayerServiceClient, fakeTgsRepository);
+
+        var playerCode = "playerCode";
+        var modifyUserId = "6a379883-d8d2-4ffb-3d05-08d9262ce1a5";
+        var modifyUsername = "username";
+        var brandId = Guid.NewGuid();
+        var modifyEmail = "test@test.com";
+
+        _ = fakePlayerServiceClient
+            .GetPlayerInfoAsync(Arg.Is(playerCode))
+            .Returns(new PlayerInfo
+            {
+                BrandId = brandId,
+                PlayerCode = playerCode,
+            });
+
+        _ = fakePlayerServiceClient
+            .GetPlayerPropertiesAsync(Arg.Is(playerCode))
+            .Returns(new Dictionary<string, string> { { "Email", "old@test.com" } }.ToImmutableDictionary());
+
+        var queryDict = new Dictionary<string, string?>
+        {
+            { PlayerPropertyName.Email.ToString(), modifyEmail }
+        };
+
+        var command = new SetPlayerContactCommand(playerCode, modifyUserId, modifyUsername, queryDict);
+
+        var actual = await sut.GetAsync(command);
+
+        var editDict = new Dictionary<PlayerPropertyName, string?>
+        {
+            { PlayerPropertyName.Email, modifyEmail }
+        };
+
+        _ = fakePlayerServiceClient
             .Received(1)
             .SetPlayerPropertiesAsync(
                 Arg.Is(playerCode),
@@ -600,5 +803,7 @@ internal class PlayerTests
 
         _ = fakeTgsRepository.Received(1)
             .SaveChangesAsync();
+
+        Assert.True(actual.Valid);
     }
 }
