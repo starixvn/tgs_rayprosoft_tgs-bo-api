@@ -6,7 +6,6 @@ using System.Collections.Immutable;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
-using Microsoft.EntityFrameworkCore;
 using Tgs.PlayerService.Client;
 using Tgs.ServiceUtility;
 using TGS.Core.DataServices.Tgs;
@@ -48,17 +47,17 @@ internal class SetPlayerContactCommandService : IGetService<SetPlayerContactComm
         var availablePropertyNames = new HashSet<string>(
             new string[]
             {
-                PlayerPropertyName.AreaCode.ToString(),
-                PlayerPropertyName.Phone.ToString(),
-                PlayerPropertyName.Email.ToString(),
-                PlayerPropertyName.Qq.ToString(),
-                PlayerPropertyName.Wechat.ToString(),
-                PlayerPropertyName.Telegram.ToString(),
-                PlayerPropertyName.Viber.ToString(),
-                PlayerPropertyName.FacebookMessenger.ToString(),
-                PlayerPropertyName.Line.ToString(),
-                PlayerPropertyName.WhatsApp.ToString(),
-                PlayerPropertyName.PhoneAuthentication.ToString(),
+                nameof(PlayerPropertyName.AreaCode),
+                nameof(PlayerPropertyName.Phone),
+                nameof(PlayerPropertyName.Email),
+                nameof(PlayerPropertyName.Qq),
+                nameof(PlayerPropertyName.Wechat),
+                nameof(PlayerPropertyName.Telegram),
+                nameof(PlayerPropertyName.Viber),
+                nameof(PlayerPropertyName.FacebookMessenger),
+                nameof(PlayerPropertyName.Line),
+                nameof(PlayerPropertyName.WhatsApp),
+                nameof(PlayerPropertyName.PhoneAuthentication),
             },
             StringComparer.OrdinalIgnoreCase);
 
@@ -66,7 +65,7 @@ internal class SetPlayerContactCommandService : IGetService<SetPlayerContactComm
         {
             if (availablePropertyNames.Contains(item.Key))
             {
-                if (!string.IsNullOrEmpty(playerPhone) && item.Key.ToLower() == "phone" && string.IsNullOrEmpty(item.Value))
+                if (!string.IsNullOrEmpty(playerPhone) && item.Key.Equals("phone", StringComparison.OrdinalIgnoreCase) && string.IsNullOrEmpty(item.Value))
                 {
                     return new SetPlayerContactInfo(false, Application.Resources.Player.PhoneRequired);
                 }
