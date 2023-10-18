@@ -548,6 +548,24 @@ public partial class PlayerController : BaseContextController
             .Select(info => JsonDocument.Parse($$"""{"{{info.Value}}":"{{info.Key}}"}"""));
     }
 
+    [HttpPatch("agent/{playerCode}", Name = "SetPlayerAgent")]
+    [Description("Update player's agent")]
+    public async ValueTask<MessageResponse> SetPlayerAgentAsync(
+        [FromServices] IGetService<SetPlayerAgentCommand, SetPlayerAgentResult> getService,
+        string playerCode,
+        [FromBody] UpdatePlayerAgentViewModel request)
+    {
+        var processInfo = await getService
+            .GetAsync(new SetPlayerAgentCommand(playerCode, request.AgentUsername, UserId, Username), HttpContext.RequestAborted)
+            .ConfigureAwait(false);
+
+        return new MessageResponse
+        {
+            Valid = processInfo.Valid,
+            Message = processInfo.Message,
+        };
+    }
+
     [HttpPatch("contact/{playerCode}")]
     public async ValueTask<MessageResponse> SetPlayerContactAsync(
         [FromServices] IGetService<SetPlayerContactCommand, SetPlayerContactInfo> setPlayerContactService,
@@ -573,7 +591,7 @@ public partial class PlayerController : BaseContextController
         [FromBody] SetPlayerInfoRequest request)
     {
         var processInfo = await getService
-            .GetAsync(new SetPlayerInfoCommand(playerCode, UserId, Username, request))
+            .GetAsync(new SetPlayerInfoCommand(playerCode, UserId, Username, request), HttpContext.RequestAborted)
             .ConfigureAwait(false);
 
         return new MessageResponse

@@ -4,6 +4,8 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging.Abstractions;
 using NSubstitute;
 using NUnit.Framework.Internal;
+using Tgs.Agent.Client;
+using Tgs.Agent.Client.Models.Enums;
 using Tgs.CashService.Client;
 using Tgs.GameProviders.Pluggable.Client;
 using Tgs.PlayerService.Client;
@@ -474,6 +476,165 @@ internal class PlayerTests
         _ = fakePlayerServiceClient
             .Received(1)
             .CountPlayerHistoriesAsync(Arg.Is(conditions));
+    }
+
+    [Test]
+    public async Task 修改玩家上級代理()
+    {
+        var fakePlayerServiceClient = Substitute.For<IPlayerServiceClient>();
+        var fakeAgentClient = Substitute.For<IAgentClient>();
+        var fakeRepository = Substitute.For<ITgsRepository>();
+
+        var sut = new SetPlayerAgentCommandService(fakePlayerServiceClient, fakeAgentClient, fakeRepository);
+
+        var playerCode = "playerCode";
+        var brandId = Guid.NewGuid();
+        var agentUsername = "agentUsername";
+        var modifyUsername = "username";
+        var modifyUserId = "6a379883-d8d2-4ffb-3d05-08d9262ce1a5";
+        var agentId = Guid.NewGuid();
+
+        _ = fakePlayerServiceClient
+            .GetPlayerInfoAsync(Arg.Is(playerCode))
+            .Returns(new PlayerInfo
+            {
+                PlayerCode = playerCode,
+                BrandId = brandId,
+            });
+
+        _ = fakeAgentClient
+            .GetAgentInfoByUsernameAsync(new Tgs.Agent.Client.Models.GetAgentInfoByUsernameRequest(brandId, agentUsername))
+            .Returns(new Tgs.Agent.Client.Models.AgentInfoModel(
+                Id: agentId,
+                Username: agentUsername,
+                null,
+                null,
+                null,
+                null,
+                null,
+                "invitationCode",
+                null,
+                DateTimeOffset.UtcNow.AddMonths(-1),
+                Status: AgentStatus.Enabled,
+                AgentType.Cash,
+                AgentLevelType.Chief,
+                0m,
+                0,
+                0m));
+
+        var actual = await sut.GetAsync(new SetPlayerAgentCommand(playerCode, agentUsername, modifyUserId, modifyUsername));
+
+        var modifyDict = new Dictionary<PlayerPropertyName, string?>
+        {
+            { PlayerPropertyName.AgentId, $"{agentId}" }
+        };
+
+        _ = fakePlayerServiceClient
+            .Received(1)
+            .SetPlayerPropertiesAsync(
+                Arg.Is(playerCode),
+                Arg.Is<ImmutableDictionary<PlayerPropertyName, string?>>(x => x.SequenceEqual(modifyDict)),
+                Arg.Is(modifyUserId));
+
+        _ = fakeRepository
+            .Received(1)
+            .PlayerAuditLogs
+            .AddAsync(Arg.Any<PlayerAuditLog>());
+
+        _ = fakeRepository
+            .Received(1)
+            .SaveChangesAsync();
+
+        Assert.True(actual.Valid);
+    }
+
+    [Test]
+    public async Task 修改玩家上級代理_找不到代理()
+    {
+        var fakePlayerServiceClient = Substitute.For<IPlayerServiceClient>();
+        var fakeAgentClient = Substitute.For<IAgentClient>();
+        var fakeRepository = Substitute.For<ITgsRepository>();
+
+        var sut = new SetPlayerAgentCommandService(fakePlayerServiceClient, fakeAgentClient, fakeRepository);
+
+        var playerCode = "playerCode";
+        var brandId = Guid.NewGuid();
+        var agentUsername = "agentUsername";
+        var modifyUsername = "username";
+        var modifyUserId = "6a379883-d8d2-4ffb-3d05-08d9262ce1a5";
+        var agentId = Guid.NewGuid();
+
+        _ = fakePlayerServiceClient
+            .GetPlayerInfoAsync(Arg.Is(playerCode))
+            .Returns(new PlayerInfo
+            {
+                PlayerCode = playerCode,
+                BrandId = brandId,
+            });        
+
+        var actual = await sut.GetAsync(new SetPlayerAgentCommand(playerCode, agentUsername, modifyUserId, modifyUsername));
+
+        var modifyDict = new Dictionary<PlayerPropertyName, string?>
+        {
+            { PlayerPropertyName.AgentId, $"{agentId}" }
+        };        
+
+        Assert.False(actual.Valid);
+    }
+
+    [Test]
+    public async Task 修改玩家上級代理_代理非正常狀態()
+    {
+        var fakePlayerServiceClient = Substitute.For<IPlayerServiceClient>();
+        var fakeAgentClient = Substitute.For<IAgentClient>();
+        var fakeRepository = Substitute.For<ITgsRepository>();
+
+        var sut = new SetPlayerAgentCommandService(fakePlayerServiceClient, fakeAgentClient, fakeRepository);
+
+        var playerCode = "playerCode";
+        var brandId = Guid.NewGuid();
+        var agentUsername = "agentUsername";
+        var modifyUsername = "username";
+        var modifyUserId = "6a379883-d8d2-4ffb-3d05-08d9262ce1a5";
+        var agentId = Guid.NewGuid();
+        var agentStatus = AgentStatus.Disabled;
+
+        _ = fakePlayerServiceClient
+            .GetPlayerInfoAsync(Arg.Is(playerCode))
+            .Returns(new PlayerInfo
+            {
+                PlayerCode = playerCode,
+                BrandId = brandId,
+            });
+
+        _ = fakeAgentClient
+            .GetAgentInfoByUsernameAsync(new Tgs.Agent.Client.Models.GetAgentInfoByUsernameRequest(brandId, agentUsername))
+            .Returns(new Tgs.Agent.Client.Models.AgentInfoModel(
+                Id: agentId,
+                Username: agentUsername,
+                null,
+                null,
+                null,
+                null,
+                null,
+                "invitationCode",
+                null,
+                DateTimeOffset.UtcNow.AddMonths(-1),
+                Status: agentStatus,
+                AgentType.Cash,
+                AgentLevelType.Chief,
+                0m,
+                0,
+                0m));
+
+        var actual = await sut.GetAsync(new SetPlayerAgentCommand(playerCode, agentUsername, modifyUserId, modifyUsername));
+
+        var modifyDict = new Dictionary<PlayerPropertyName, string?>
+        {
+            { PlayerPropertyName.AgentId, $"{agentId}" }
+        };        
+
+        Assert.False(actual.Valid);
     }
 
     [Test]

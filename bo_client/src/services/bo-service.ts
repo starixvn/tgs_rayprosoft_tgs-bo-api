@@ -977,7 +977,15 @@ export default class BackOfficeService {
 
     public setPlayerInfo(playerCode:string, request: SetPlayerInfoRequest): Promise<MessageResponse>{
         return this.http
-            .patch(`/api/player/status/${playerCode}`,{
+            .patch(`/api/player/info/${playerCode}`,{
+                ...request
+            })
+            .then(res => res.data);
+    }
+
+    public setPlayerAgent(playerCode:string, request: UpdatePlayerAgentViewModel): Promise<MessageResponse>{
+        return this.http
+            .patch(`/api/player/agent/${playerCode}`,{
                 ...request
             })
             .then(res => res.data);
