@@ -1,9 +1,8 @@
-﻿namespace TGS.Services.BackOffice.Application.Models.ReportPlayer
+﻿namespace TGS.Services.BackOffice.Application.Models.ReportPlayer;
+
+public class PlayerAllAgentRebateTotalAmountReportModel
 {
-    public class PlayerAllAgentRebateTotalAmountReportModel
-    {
-        public int TotalCount { get; set; }
-        public decimal ValidBet { get; set; }
-        public decimal Rebate { get; set; }
-    }
+    public int TotalCount { get; set; }
+    public decimal ValidBet { get; set; }
+    public decimal Rebate { get; set; }
 }

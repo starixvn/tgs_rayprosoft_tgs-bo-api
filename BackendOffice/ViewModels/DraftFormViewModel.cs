@@ -1,0 +1,26 @@
+﻿using System;
+using System.Collections.Generic;
+using Tgs.ArticleManagement;
+
+namespace TGS.Apis.BackendOffice.ViewModels;
+
+public class DraftFormViewModel
+{
+    public required Guid Id { get; set; }
+
+    public required Guid BrandId { get; set; }
+
+    public required string Description { get; set; }
+
+    public required string Modifier { get; set; }
+
+    public DateOnly? PublishDate { get; set; }
+
+    public required ArticleStatus Status { get; set; }
+
+    public required DateTime CreatedOn { get; set; }
+
+    public required DateTime UpdatedOn { get; set; }
+
+    public required IReadOnlyDictionary<string, ArticleViewModel> LocalizedArticles { get; set; }
+}

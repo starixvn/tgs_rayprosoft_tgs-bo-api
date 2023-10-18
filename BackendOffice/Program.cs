@@ -183,7 +183,10 @@ builder.Services
             builder.Configuration.GetValue<Uri>("BackOffice:CashQueryBaseUrl"))
         .AddLoggingHandler<ICashQueryClient>())
     .AddAgentClient((options, _) => options.BaseUrl =
-        builder.Configuration.GetValue<Uri>("BackOffice:AgentBaseUrl"));
+        builder.Configuration.GetValue<Uri>("BackOffice:AgentBaseUrl"))
+    .AddArticleManagementClient(httpBuilder => httpBuilder
+        .ConfigureHttpClient(httpClient => httpClient.BaseAddress =
+            builder.Configuration.GetValue<Uri>("BackOffice:ArticleManagementBaseUrl")));
 
 builder.Services
     .AddLocalization(options => options.ResourcesPath = "Resources");

@@ -7,6 +7,7 @@
     <AssemblyName>TGS.Tests.BackendOffice.UnitTests</AssemblyName>
     <Nullable>enable</Nullable>
     <ImplicitUsings>enable</ImplicitUsings>
+    <SqlQueryToolsConnectionString />
   </PropertyGroup>
 
   <ItemGroup>
