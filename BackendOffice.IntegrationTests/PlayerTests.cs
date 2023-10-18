@@ -1183,7 +1183,7 @@ public class PlayerTests
         var playerCode = "playereCode";
         var password = "newPassword";
         _ = fakePlayerServiceClient
-            .GetPlayerInfoAsync(Arg.Is(playerCode))
+            .GetPlayerInfoAsync(Arg.Is(playerCode), Arg.Any<CancellationToken>())
             .Returns(new Tgs.PlayerService.Client.PlayerInfo
             {
                 PlayerCode = playerCode,
@@ -1249,7 +1249,7 @@ public class PlayerTests
         var modifyEmail = "test@test.com";
 
         _ = fakePlayerServiceClient
-            .GetPlayerInfoAsync(Arg.Is(playerCode))
+            .GetPlayerInfoAsync(Arg.Is(playerCode), Arg.Any<CancellationToken>())
             .Returns(new Tgs.PlayerService.Client.PlayerInfo
             {
                 BrandId = brandId,
