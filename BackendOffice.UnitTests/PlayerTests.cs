@@ -1,8 +1,10 @@
 ﻿using System.Collections.Immutable;
 using System.Text.Json;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.Logging.Abstractions;
 using NSubstitute;
 using Tgs.CashService.Client;
+using Tgs.GameProviders.Pluggable.Client;
 using Tgs.PlayerService.Client;
 using TGS.Core.DataServices.Tgs;
 using TGS.Core.DataServices.Tgs.Models;
@@ -805,5 +807,59 @@ internal class PlayerTests
         var actual = await sut.GetAsync(command);
 
         Assert.False(actual.Valid);
+    }
+
+    [Test]
+    public async Task 變更玩家狀態_玩家不存在()
+    {
+        var fakePlayerServiceClient = Substitute.For<IPlayerServiceClient>();
+
+        var fakePluggableClient = Substitute.For<IGameProvidersBackofficePluggableClient>();
+        var fakeRepository = Substitute.For<ITgsRepository>();
+
+        var sut = new SetPlayerStatusCommandService(fakePlayerServiceClient, fakePluggableClient, fakeRepository, NullLogger<SetPlayerStatusCommandService>.Instance);
+
+        var playerCode = "playerCode";
+        var status = Core.Models.Enums.PlayerStatus.InBlacklist;
+        var modifyUsername = "username";
+        var modifyUserId = "6a379883-d8d2-4ffb-3d05-08d9262ce1a5";
+
+        var actual = await sut.GetAsync(new SetPlayerStatusCommand(playerCode, status, modifyUserId, modifyUsername));
+
+        Assert.False(actual.Valid);
+    }
+
+    [Test]
+    public async Task 變更玩家狀態_封鎖或黑名單會踢遊戲中玩家()
+    {
+        var fakePlayerServiceClient = Substitute.For<IPlayerServiceClient>();
+
+        var fakePluggableClient = Substitute.For<IGameProvidersBackofficePluggableClient>();
+        var fakeRepository = Substitute.For<ITgsRepository>();
+
+        var sut = new SetPlayerStatusCommandService(fakePlayerServiceClient, fakePluggableClient, fakeRepository, NullLogger<SetPlayerStatusCommandService>.Instance);
+
+        var playerCode = "playerCode";
+        var status = Core.Models.Enums.PlayerStatus.InBlacklist;
+        var modifyUsername = "username";
+        var modifyUserId = "6a379883-d8d2-4ffb-3d05-08d9262ce1a5";
+
+        _ = fakePlayerServiceClient
+            .GetPlayerInfoAsync(Arg.Is(playerCode))
+            .Returns(new PlayerInfo 
+            { 
+                PlayerCode = playerCode,
+            });
+
+        _ = fakePlayerServiceClient
+            .GetPlayerStatusAsync(Arg.Is(playerCode))
+            .Returns(PlayerStatus.Enabled);
+
+        var actual = await sut.GetAsync(new SetPlayerStatusCommand(playerCode, status, modifyUserId, modifyUsername));
+
+        _ = fakePluggableClient.Received(1)
+            .KickPlayerAsync(playerCode);
+
+        Assert.True(actual.Valid);
     }
 }

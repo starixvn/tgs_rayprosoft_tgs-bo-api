@@ -1323,14 +1323,14 @@ public class PlayerTests
         var playerCode = "playereCode";
 
         _ = fakePlayerServiceClient
-            .GetPlayerInfoAsync(Arg.Is(playerCode))
+            .GetPlayerInfoAsync(Arg.Is(playerCode), Arg.Any<CancellationToken>())
             .Returns(new Tgs.PlayerService.Client.PlayerInfo
             {
                 PlayerCode = playerCode,
             });
 
         _ = fakePlayerServiceClient
-            .GetPlayerPropertiesAsync(Arg.Is(playerCode))
+            .GetPlayerPropertiesAsync(Arg.Is(playerCode), Arg.Any<CancellationToken>())
             .Returns(new Dictionary<string, string> { { "Email", "old@test.com" } }.ToImmutableDictionary());
 
         using var web = TestBackendOfficeApplication.Builder
