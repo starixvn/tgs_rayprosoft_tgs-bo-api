@@ -13,6 +13,7 @@ using Microsoft.Extensions.Options;
 using NSubstitute;
 using Tgs.CashQueryService.Client;
 using Tgs.CashService.Client;
+using Tgs.GameProviders.Pluggable.Client;
 using Tgs.Payment.Clients;
 using Tgs.PlayerService.Client;
 using Tgs.Service.PlayerBuckets;
@@ -21,7 +22,6 @@ using Tgs.VipLevelService.Clients;
 using TGS.Apis.BackendOffice.ViewModels;
 using TGS.Core.DataServices.Base.Interfaces;
 using TGS.Core.DataServices.Tgs;
-using TGS.Core.Infrastructures.Redis;
 using TGS.Core.Models.Enums;
 using TGS.Core.Models.Messages;
 using TGS.Services.BackOffice.Application.Models.Player;
@@ -1178,8 +1178,17 @@ public class PlayerTests
         var channelName = Guid.NewGuid().ToString();
         var userId = Guid.NewGuid();
 
-        var fakePlayerServiceClient = Substitute.For<IPlayerServiceClient>();        
+        var fakePlayerServiceClient = Substitute.For<IPlayerServiceClient>();
         var fakeTgsRepository = Substitute.For<ITgsRepository>();
+
+        var playerCode = "playereCode";
+        var password = "newPassword";
+        _ = fakePlayerServiceClient
+            .GetPlayerInfoAsync(Arg.Is(playerCode), Arg.Any<CancellationToken>())
+            .Returns(new Tgs.PlayerService.Client.PlayerInfo
+            {
+                PlayerCode = playerCode,
+            });
 
         using var web = TestBackendOfficeApplication.Builder
             .UseTestChannelServer(channelName)
@@ -1194,14 +1203,11 @@ public class PlayerTests
                         options.UserName = "system";
                     })
                 .Services
-                .AddSingleton(fakePlayerServiceClient)                
+                .AddSingleton(fakePlayerServiceClient)
                 .AddSingleton(fakeTgsRepository))
             .Build();
 
         await web.StartAsync();
-
-        var playerCode = "playereCode";
-        var password = "newPassword";
 
         var isWindows = RuntimeInformation.IsOSPlatform(OSPlatform.Windows) ? "true" : "false";
 
@@ -1223,6 +1229,230 @@ public class PlayerTests
         var actual = await StaticNodeJSService.InvokeFromStringAsync<MessageResponse>(
             nodeModule,
             args: new object[] { playerCode, password });
+
+        // Assert
+        Assert.NotNull(actual);
+        Assert.True(actual.Valid);
+    }
+
+    [Fact]
+    public async Task 修改玩家聯絡資訊_Email()
+    {
+        // Arrange
+        var channelName = Guid.NewGuid().ToString();
+        var userId = Guid.NewGuid();
+
+        var fakePlayerServiceClient = Substitute.For<IPlayerServiceClient>();
+        var fakeTgsRepository = Substitute.For<ITgsRepository>();
+
+        var playerCode = "playerCode";
+        var brandId = Guid.NewGuid();
+        var modifyEmail = "test@test.com";
+
+        _ = fakePlayerServiceClient
+            .GetPlayerInfoAsync(Arg.Is(playerCode), Arg.Any<CancellationToken>())
+            .Returns(new Tgs.PlayerService.Client.PlayerInfo
+            {
+                BrandId = brandId,
+                PlayerCode = playerCode,
+            });
+
+        _ = fakePlayerServiceClient
+            .GetPlayerPropertiesAsync(Arg.Is(playerCode), Arg.Any<CancellationToken>())
+            .Returns(new Dictionary<string, string> { { "Email", "old@test.com" } }.ToImmutableDictionary());
+
+        using var web = TestBackendOfficeApplication.Builder
+            .UseTestChannelServer(channelName)
+            .ConfigureLogging(logging => logging.AddXUnit(_testOutputHelper))
+            .ConfigureServices(services => services
+                .AddAuthentication("Fake")
+                .AddScheme<FakeAuthenticationSchemaOptions, FakeAuthenticationHandler>(
+                    "Fake",
+                    options =>
+                    {
+                        options.UserId = userId;
+                        options.UserName = "system";
+                    })
+                .Services
+                .AddSingleton(fakePlayerServiceClient)
+                .AddSingleton(fakeTgsRepository))
+            .Build();
+
+        await web.StartAsync();
+
+        var request = new SetPlayerContactRequest
+        {
+            { PlayerPropertyName.Email.ToString(), modifyEmail }
+        };
+
+        var isWindows = RuntimeInformation.IsOSPlatform(OSPlatform.Windows) ? "true" : "false";
+
+        var nodeModule = $$"""
+            const axiosConfigFactory = require('./models/axios-configuration.js').default;
+            const BackOfficeService = require('./services/bo-service.js').default;
+
+            module.exports = async (playerCode, request) =>
+            {
+                let instance = axiosConfigFactory("{{channelName}}", {{isWindows}});
+
+                let svc = new BackOfficeService(instance);
+
+                return await svc.setPlayerContact(playerCode, request);
+            };
+            """;
+
+        // Act
+        var actual = await StaticNodeJSService.InvokeFromStringAsync<MessageResponse>(
+            nodeModule,
+            args: new object[] { playerCode, request });
+
+        // Assert
+        Assert.NotNull(actual);
+        Assert.True(actual.Valid);
+    }
+
+    [Fact]
+    public async Task 修改玩家聯絡資訊_電話號碼()
+    {
+        // Arrange
+        var channelName = Guid.NewGuid().ToString();
+        var userId = Guid.NewGuid();
+
+        var fakePlayerServiceClient = Substitute.For<IPlayerServiceClient>();
+        var fakeTgsRepository = Substitute.For<ITgsRepository>();
+
+        var playerCode = "playereCode";
+
+        _ = fakePlayerServiceClient
+            .GetPlayerInfoAsync(Arg.Is(playerCode), Arg.Any<CancellationToken>())
+            .Returns(new Tgs.PlayerService.Client.PlayerInfo
+            {
+                PlayerCode = playerCode,
+            });
+
+        _ = fakePlayerServiceClient
+            .GetPlayerPropertiesAsync(Arg.Is(playerCode), Arg.Any<CancellationToken>())
+            .Returns(new Dictionary<string, string> { { "Email", "old@test.com" } }.ToImmutableDictionary());
+
+        using var web = TestBackendOfficeApplication.Builder
+            .UseTestChannelServer(channelName)
+            .ConfigureLogging(logging => logging.AddXUnit(_testOutputHelper))
+            .ConfigureServices(services => services
+                .AddAuthentication("Fake")
+                .AddScheme<FakeAuthenticationSchemaOptions, FakeAuthenticationHandler>(
+                    "Fake",
+                    options =>
+                    {
+                        options.UserId = userId;
+                        options.UserName = "system";
+                    })
+                .Services
+                .AddSingleton(fakePlayerServiceClient)
+                .AddSingleton(fakeTgsRepository))
+            .Build();
+
+        await web.StartAsync();
+
+        var request = new SetPlayerContactRequest
+        {
+            { PlayerPropertyName.Phone.ToString(),"1223334444" }
+        };
+
+        var isWindows = RuntimeInformation.IsOSPlatform(OSPlatform.Windows) ? "true" : "false";
+
+        var nodeModule = $$"""
+            const axiosConfigFactory = require('./models/axios-configuration.js').default;
+            const BackOfficeService = require('./services/bo-service.js').default;
+
+            module.exports = async (playerCode, request) =>
+            {
+                let instance = axiosConfigFactory("{{channelName}}", {{isWindows}});
+
+                let svc = new BackOfficeService(instance);
+
+                return await svc.setPlayerContact(playerCode, request);
+            };
+            """;
+
+        // Act
+        var actual = await StaticNodeJSService.InvokeFromStringAsync<MessageResponse>(
+            nodeModule,
+            args: new object[] { playerCode, request });
+
+        // Assert
+        Assert.NotNull(actual);
+        Assert.True(actual.Valid);
+    }
+
+    [Fact]
+    public async Task 修改玩家狀態()
+    {
+        // Arrange
+        var channelName = Guid.NewGuid().ToString();
+        var userId = Guid.NewGuid();
+
+        var fakePlayerServiceClient = Substitute.For<IPlayerServiceClient>();
+        var fakeTgsRepository = Substitute.For<ITgsRepository>();
+        var fakeGameProvidersBackofficePluggableClient = Substitute.For<IGameProvidersBackofficePluggableClient>();
+
+        var playerCode = "playerCode";                
+
+        _ = fakePlayerServiceClient
+            .GetPlayerInfoAsync(Arg.Is(playerCode), Arg.Any<CancellationToken>())
+            .Returns(new Tgs.PlayerService.Client.PlayerInfo
+            {                
+                PlayerCode = playerCode,
+            });
+
+        _ = fakePlayerServiceClient
+            .GetPlayerStatusAsync(Arg.Is(playerCode), Arg.Any<CancellationToken>())
+            .Returns(Tgs.PlayerService.Client.PlayerStatus.Enabled);
+
+        using var web = TestBackendOfficeApplication.Builder
+            .UseTestChannelServer(channelName)
+            .ConfigureLogging(logging => logging.AddXUnit(_testOutputHelper))
+            .ConfigureServices(services => services
+                .AddAuthentication("Fake")
+                .AddScheme<FakeAuthenticationSchemaOptions, FakeAuthenticationHandler>(
+                    "Fake",
+                    options =>
+                    {
+                        options.UserId = userId;
+                        options.UserName = "system";
+                    })
+                .Services
+                .AddSingleton(fakePlayerServiceClient)
+                .AddSingleton(fakeTgsRepository)
+                .AddSingleton(fakeGameProvidersBackofficePluggableClient))
+            .Build();
+
+        await web.StartAsync();
+
+        var request = new UpdatePlayerStatusViewModel
+        {
+            Status = TGS.Core.Models.Enums.PlayerStatus.InBlacklist
+        };
+
+        var isWindows = RuntimeInformation.IsOSPlatform(OSPlatform.Windows) ? "true" : "false";
+
+        var nodeModule = $$"""
+            const axiosConfigFactory = require('./models/axios-configuration.js').default;
+            const BackOfficeService = require('./services/bo-service.js').default;
+
+            module.exports = async (playerCode, request) =>
+            {
+                let instance = axiosConfigFactory("{{channelName}}", {{isWindows}});
+
+                let svc = new BackOfficeService(instance);
+
+                return await svc.setPlayerStatus(playerCode, request);
+            };
+            """;
+
+        // Act
+        var actual = await StaticNodeJSService.InvokeFromStringAsync<MessageResponse>(
+            nodeModule,
+            args: new object[] { playerCode, request });
 
         // Assert
         Assert.NotNull(actual);

@@ -548,20 +548,41 @@ public partial class PlayerController : BaseContextController
             .Select(info => JsonDocument.Parse($$"""{"{{info.Value}}":"{{info.Key}}"}"""));
     }
 
+    [HttpPatch("contact/{playerCode}")]
+    public async ValueTask<MessageResponse> SetPlayerContactAsync(
+        [FromServices] IGetService<SetPlayerContactCommand, SetPlayerContactInfo> setPlayerContactService,
+        string playerCode,
+        [FromBody] SetPlayerContactRequest request)
+    {
+        var processInfo = await setPlayerContactService
+            .GetAsync(new SetPlayerContactCommand(playerCode, UserId, Username, request), HttpContext.RequestAborted)
+            .ConfigureAwait(false);
+
+        return new MessageResponse
+        {
+            Valid = processInfo.Valid,
+            Message = processInfo.Message
+        };
+    }
+
     [HttpPatch("password/{playerCode}/{password}")]
     [Description("Update player login password")]
     public async ValueTask<MessageResponse> SetPlayerPasswordAsync(
-        [FromServices] ICommandService<SetPlayerPasswordCommand> setPlayerPasswordService,
+        [FromServices] IGetService<SetPlayerPasswordCommand, SetPlayerPasswordInfo> setPlayerPasswordService,
         string playerCode,
         string password)
     {
         var command = new SetPlayerPasswordCommand(playerCode, password, UserId, Username);
 
-        await setPlayerPasswordService
-            .ExecuteAsync(command, HttpContext.RequestAborted)
+        var processInfo = await setPlayerPasswordService
+            .GetAsync(command, HttpContext.RequestAborted)
             .ConfigureAwait(false);
 
-        return CreateValidResponse<MessageResponse>();
+        return new MessageResponse
+        {
+            Valid = processInfo.Valid,
+            Message = processInfo.Message
+        };
     }
 
     [HttpPut("{playerCode}/{type}", Name = "UpdatePlayer")]
@@ -613,6 +634,42 @@ public partial class PlayerController : BaseContextController
         await updateIdentityAuthService
             .ExecuteAsync(command)
             .ConfigureAwait(false);
+    }
+
+    [HttpPatch("parent-player/{playerCode}")]
+    [Description("Update player's parent player")]
+    public async ValueTask<MessageResponse> UpdatePlayerParentPlayerAsync(
+        [FromServices] IGetService<SetPlayerParentPlayerCommand, SetPlayerParentPlayerInfo> getService,
+        string playerCode,
+        [FromBody] UpdatePlayerParentPlayerViewModel request)
+    {
+        var proccessInfo = await getService
+            .GetAsync(new SetPlayerParentPlayerCommand(playerCode, request.ParentPlayerUsername, Username), HttpContext.RequestAborted)
+            .ConfigureAwait(false);
+
+        return new MessageResponse
+        {
+            Valid = proccessInfo.Valid,
+            Message = proccessInfo.Message,
+        };
+    }
+
+    [HttpPatch("status/{playerCode}")]
+    [Description("Update player status")]
+    public async ValueTask<MessageResponse> UpdatePlayerStatusAsync(
+        [FromServices] IGetService<SetPlayerStatusCommand, SetPlayerStatusResult> getService,
+        string playerCode,
+        [FromBody] UpdatePlayerStatusViewModel request)
+    {
+        var processInfo = await getService
+            .GetAsync(new SetPlayerStatusCommand(playerCode, request.Status, UserId, Username), HttpContext.RequestAborted)
+            .ConfigureAwait(false);
+
+        return new MessageResponse
+        {
+            Valid = processInfo.Valid,
+            Message = processInfo.Message,
+        };
     }
 
     private static string GetRemark(BoEnums.TransactionType? transactionType, string description)

@@ -953,9 +953,25 @@ export default class BackOfficeService {
             .then(res=>res.data);
     }
     
-    public async setPlayerPassword(playerCode: string, password: string) : Promise<MessageResponse>{
+    public setPlayerPassword(playerCode: string, password: string) : Promise<MessageResponse>{
         return this.http
             .patch(`/api/player/password/${playerCode}/${password}`)
             .then(res=>res.data);
+    }
+
+    public setPlayerContact(playerCode: string, request: SetPlayerContactRequest) : Promise<MessageResponse>{
+        return this.http
+            .patch(`/api/player/contact/${playerCode}`,{
+                ...request
+            })
+            .then(res => res.data);
+    }
+
+    public setPlayerStatus(playerCode:string, request: UpdatePlayerStatusViewModel) : Promise<MessageResponse>{
+        return this.http
+            .patch(`/api/player/status/${playerCode}`,{
+                ...request
+            })
+            .then(res => res.data);
     }
 }

@@ -9,7 +9,7 @@ using TGS.Core.Infrastructures.Extensions;
 
 namespace TGS.Services.BackOffice.ApplicationServices.Players;
 
-internal class SetPlayerPasswordCommandService : ICommandService<SetPlayerPasswordCommand>
+internal class SetPlayerPasswordCommandService : IGetService<SetPlayerPasswordCommand, SetPlayerPasswordInfo>
 {
     private readonly IPlayerServiceClient _playerServiceClient;
     private readonly ITgsRepository _tgsRepository;
@@ -22,8 +22,15 @@ internal class SetPlayerPasswordCommandService : ICommandService<SetPlayerPasswo
         _tgsRepository = tgsRepository ?? throw new ArgumentNullException(nameof(tgsRepository));
     }
 
-    public async ValueTask ExecuteAsync(SetPlayerPasswordCommand command, CancellationToken cancellationToken = default)
+    public async ValueTask<SetPlayerPasswordInfo> GetAsync(SetPlayerPasswordCommand command, CancellationToken cancellationToken = default)
     {
+        var player = await _playerServiceClient
+            .GetPlayerInfoAsync(command.PlayerCode, cancellationToken)
+            .ConfigureAwait(false);
+
+        if (player is null)
+            return new SetPlayerPasswordInfo(false, Application.Resources.Player.NotFound);
+
         await _playerServiceClient
             .SetPlayerPasswordAsync(command.PlayerCode, command.Password, command.ModifyUsername, command.ModifyUserId, cancellationToken)
             .ConfigureAwait(false);
@@ -45,5 +52,7 @@ internal class SetPlayerPasswordCommandService : ICommandService<SetPlayerPasswo
         _ = await _tgsRepository
             .SaveChangesAsync(cancellationToken)
             .ConfigureAwait(false);
+
+        return new SetPlayerPasswordInfo(true, string.Empty);
     }
 }
