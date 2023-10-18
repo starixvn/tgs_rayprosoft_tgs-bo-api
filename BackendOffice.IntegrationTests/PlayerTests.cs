@@ -1257,7 +1257,7 @@ public class PlayerTests
             });
 
         _ = fakePlayerServiceClient
-            .GetPlayerPropertiesAsync(Arg.Is(playerCode))
+            .GetPlayerPropertiesAsync(Arg.Is(playerCode), Arg.Any<CancellationToken>())
             .Returns(new Dictionary<string, string> { { "Email", "old@test.com" } }.ToImmutableDictionary());
 
         using var web = TestBackendOfficeApplication.Builder
