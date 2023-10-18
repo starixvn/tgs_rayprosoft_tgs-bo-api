@@ -1,0 +1,3 @@
+interface UpdatePlayerStatusViewModel{
+    status: string;
+}

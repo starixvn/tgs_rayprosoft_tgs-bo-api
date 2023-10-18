@@ -966,4 +966,12 @@ export default class BackOfficeService {
             })
             .then(res => res.data);
     }
+
+    public setPlayerStatus(playerCode:string, request: UpdatePlayerStatusViewModel) : Promise<MessageResponse>{
+        return this.http
+            .patch(`/api/player/status/${playerCode}`,{
+                ...request
+            })
+            .then(res => res.data);
+    }
 }
