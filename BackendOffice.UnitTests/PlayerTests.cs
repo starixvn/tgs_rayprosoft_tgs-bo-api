@@ -3,6 +3,7 @@ using System.Text.Json;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging.Abstractions;
 using NSubstitute;
+using NUnit.Framework.Internal;
 using Tgs.CashService.Client;
 using Tgs.GameProviders.Pluggable.Client;
 using Tgs.PlayerService.Client;
@@ -833,7 +834,6 @@ internal class PlayerTests
     public async Task 變更玩家狀態_封鎖或黑名單會踢遊戲中玩家()
     {
         var fakePlayerServiceClient = Substitute.For<IPlayerServiceClient>();
-
         var fakePluggableClient = Substitute.For<IGameProvidersBackofficePluggableClient>();
         var fakeRepository = Substitute.For<ITgsRepository>();
 
@@ -846,8 +846,8 @@ internal class PlayerTests
 
         _ = fakePlayerServiceClient
             .GetPlayerInfoAsync(Arg.Is(playerCode))
-            .Returns(new PlayerInfo 
-            { 
+            .Returns(new PlayerInfo
+            {
                 PlayerCode = playerCode,
             });
 
@@ -859,6 +859,58 @@ internal class PlayerTests
 
         _ = fakePluggableClient.Received(1)
             .KickPlayerAsync(playerCode);
+
+        Assert.True(actual.Valid);
+    }
+
+    [Test]
+    public async Task 變更玩家信息_Vip等級()
+    {
+        var fakePlayerServiceClient = Substitute.For<IPlayerServiceClient>();
+        var fakeRepository = Substitute.For<ITgsRepository>();
+
+        var sut = new SetPlayerInfoCommandService(fakePlayerServiceClient, fakeRepository);
+
+        var playerCode = "playerCode";
+        var modifyUserId = "6a379883-d8d2-4ffb-3d05-08d9262ce1a5";
+        var modifyUsername = "username";
+        var modifyVipId = "a5e5afe0-e87b-483d-98db-71629ba93290";
+
+        _ = fakePlayerServiceClient
+            .GetPlayerInfoAsync(Arg.Is(playerCode))
+            .Returns(new PlayerInfo
+            {
+                PlayerCode = playerCode,
+                VipLevelId = Guid.Parse("3a6b6f1d-3094-4b66-3c7a-08d9262ce1a5")
+            });
+
+        var queryDict = new Dictionary<string, string?>
+        {
+            { nameof(PlayerPropertyName.VipId), modifyVipId }
+        };
+
+        var actual = await sut.GetAsync(new SetPlayerInfoCommand(playerCode, modifyUserId, modifyUsername, queryDict));
+
+        var modifyDict = new Dictionary<PlayerPropertyName, string?>
+        {
+            { PlayerPropertyName.VipId, modifyVipId }
+        };
+
+        _ = fakePlayerServiceClient
+            .Received(1)
+            .SetPlayerPropertiesAsync(
+                Arg.Is(playerCode),
+                Arg.Is<ImmutableDictionary<PlayerPropertyName, string?>>(x => x.SequenceEqual(modifyDict.ToImmutableDictionary())),
+                Arg.Is(modifyUserId));
+
+        _ = fakeRepository
+            .Received(1)
+            .PlayerAuditLogs
+            .AddAsync(Arg.Any<PlayerAuditLog>());
+
+        _ = fakeRepository
+            .Received(1)
+            .SaveChangesAsync();
 
         Assert.True(actual.Valid);
     }
