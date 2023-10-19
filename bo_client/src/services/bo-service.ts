@@ -985,19 +985,25 @@ export default class BackOfficeService {
             .then(res => res.data);
     }
 
-    public setPlayerInfo(playerCode:string, request: SetPlayerInfoRequest): Promise<MessageResponse>{
+    public setPlayerInfo(playerCode: string, request: SetPlayerInfoRequest): Promise<MessageResponse> {
         return this.http
-            .patch(`/api/player/info/${playerCode}`,{
+            .patch(`/api/player/info/${playerCode}`, {
                 ...request
             })
             .then(res => res.data);
     }
 
-    public setPlayerAgent(playerCode:string, request: UpdatePlayerAgentViewModel): Promise<MessageResponse>{
+    public setPlayerAgent(playerCode: string, request: UpdatePlayerAgentViewModel): Promise<MessageResponse> {
         return this.http
-            .patch(`/api/player/agent/${playerCode}`,{
+            .patch(`/api/player/agent/${playerCode}`, {
                 ...request
             })
+            .then(res => res.data);
+    }
+
+    public createNewDraftForm(brandId: string, request: CreateNewDraftForm): Promise<string> {
+        return this.http
+            .put(`/api/article/${brandId}`, request)
             .then(res => res.data);
     }
 }

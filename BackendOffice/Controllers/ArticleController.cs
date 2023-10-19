@@ -15,7 +15,7 @@ namespace TGS.Apis.BackendOffice.Controllers;
 
 [Route("api/[controller]")]
 [ApiController]
-public class ArticleController : ControllerBase
+public class ArticleController : BaseContextController
 {
     [HttpGet("{brandId:Guid}", Name = "ListDraftForms")]
     public IAsyncEnumerable<DraftListItemViewModel> ListDraftFormsAsync(
@@ -73,5 +73,29 @@ public class ArticleController : ControllerBase
                         })
                     .AsReadOnly()
             };
+    }
+
+    [HttpPut("{brandId:Guid}", Name = "CreateNewDraft")]
+    public ValueTask<Guid> CreateNewDraftAsync(
+        [FromServices] IGetService<CreateNewDraftCommand, Guid> createDraftService,
+        Guid brandId,
+        [FromBody] CreateDraftFormViewModel viewModel)
+    {
+        var command = new CreateNewDraftCommand(
+            brandId,
+            viewModel.Description,
+            viewModel.PublishDate,
+            viewModel.LocalizedArticles
+                .ToDictionary(
+                    kv => kv.Key,
+                    kv => new Article(
+                        kv.Value.Title,
+                        kv.Value.Brief,
+                        kv.Value.Content,
+                        kv.Value.Writer,
+                        kv.Value.Banners)),
+            Username);
+
+        return createDraftService.GetAsync(command, HttpContext.RequestAborted);
     }
 }

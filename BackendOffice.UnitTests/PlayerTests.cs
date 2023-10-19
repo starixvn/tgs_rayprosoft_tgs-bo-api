@@ -562,7 +562,6 @@ internal class PlayerTests
         var agentUsername = "agentUsername";
         var modifyUsername = "username";
         var modifyUserId = "6a379883-d8d2-4ffb-3d05-08d9262ce1a5";
-        var agentId = Guid.NewGuid();
 
         _ = fakePlayerServiceClient
             .GetPlayerInfoAsync(Arg.Is(playerCode))
@@ -570,14 +569,9 @@ internal class PlayerTests
             {
                 PlayerCode = playerCode,
                 BrandId = brandId,
-            });        
+            });
 
         var actual = await sut.GetAsync(new SetPlayerAgentCommand(playerCode, agentUsername, modifyUserId, modifyUsername));
-
-        var modifyDict = new Dictionary<PlayerPropertyName, string?>
-        {
-            { PlayerPropertyName.AgentId, $"{agentId}" }
-        };        
 
         Assert.False(actual.Valid);
     }
@@ -628,11 +622,6 @@ internal class PlayerTests
                 0m));
 
         var actual = await sut.GetAsync(new SetPlayerAgentCommand(playerCode, agentUsername, modifyUserId, modifyUsername));
-
-        var modifyDict = new Dictionary<PlayerPropertyName, string?>
-        {
-            { PlayerPropertyName.AgentId, $"{agentId}" }
-        };        
 
         Assert.False(actual.Valid);
     }
