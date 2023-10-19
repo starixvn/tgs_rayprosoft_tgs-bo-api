@@ -6,10 +6,11 @@ using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 using ClosedXML.Excel;
+using ClosedXML.Graphics;
 using Tgs.ServiceUtility;
 using TGS.Services.BackOffice.Domain;
 
-namespace TGS.Services.BackOffice.Application.Commands.Localization;
+namespace TGS.Services.BackOffice.ApplicationServices.Localization;
 
 internal class ImportLocalizationFileCommandService : ICommandService<ImportLocalizationFileCommand>
 {
@@ -29,7 +30,10 @@ internal class ImportLocalizationFileCommandService : ICommandService<ImportLoca
 
     private static async IAsyncEnumerable<LocalizationStringInfo> ReadLocalizationFileAsync(string systemCode, Stream fileStream)
     {
-        using var reader = new XLWorkbook(fileStream);
+        using var reader = new XLWorkbook(fileStream, new LoadOptions
+        {
+            GraphicEngine = new DefaultGraphicEngine("DejaVu Sans")
+        });
 
         foreach (var sheet in reader.Worksheets)
         {
