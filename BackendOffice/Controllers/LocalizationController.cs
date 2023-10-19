@@ -4,8 +4,7 @@ using System.Threading.Tasks;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Tgs.ServiceUtility;
-using TGS.Services.BackOffice.Application.Commands.Localization;
-using TGS.Services.BackOffice.Application.Queries.Localization;
+using TGS.Services.BackOffice.ApplicationServices.Localization;
 
 namespace TGS.Apis.BackendOffice.Controllers;
 
