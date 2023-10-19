@@ -1006,4 +1006,9 @@ export default class BackOfficeService {
             .put(`/api/article/${brandId}`, request)
             .then(res => res.data);
     }
+
+    public async deleteDraftForm(formId: string): Promise<void> {
+        await this.http
+            .delete(`/api/article/${formId}`);
+    }
 }

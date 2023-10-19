@@ -98,4 +98,14 @@ public class ArticleController : BaseContextController
 
         return createDraftService.GetAsync(command, HttpContext.RequestAborted);
     }
+
+    [HttpDelete("{formId:Guid}")]
+    public ValueTask DeleteDraftAsync(
+        [FromServices] ICommandService<DeleteDraftCommand> deleteService,
+        Guid formId)
+    {
+        var command = new DeleteDraftCommand(formId);
+
+        return deleteService.ExecuteAsync(command, HttpContext.RequestAborted);
+    }
 }

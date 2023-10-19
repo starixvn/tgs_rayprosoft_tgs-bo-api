@@ -11,6 +11,7 @@ using NSubstitute;
 using Tgs.ArticleManagement;
 using Tgs.ArticleManagement.Clients;
 using TGS.Apis.BackendOffice.ViewModels;
+using Xunit;
 using Xunit.Abstractions;
 
 namespace BackendOffice.IntegrationTests;
@@ -329,5 +330,60 @@ public class ArticleManagementTests
 
         // Assert
         Assert.Equal(formId, actual);
+    }
+
+    [Fact]
+    public async Task 刪除草稿()
+    {
+        // Arrange
+        var channelName = Guid.NewGuid().ToString();
+        var userId = Guid.NewGuid();
+
+        var fakeArticleManagementClient = Substitute.For<IArticleManagementClient>();
+
+        using var web = TestBackendOfficeApplication.Builder
+            .UseTestChannelServer(channelName)
+            .ConfigureLogging(logging => logging.AddXUnit(_testOutputHelper))
+            .ConfigureServices(services => services
+                .AddAuthentication("Fake")
+                .AddScheme<FakeAuthenticationSchemaOptions, FakeAuthenticationHandler>(
+                    "Fake",
+                    options =>
+                    {
+                        options.UserId = userId;
+                        options.UserName = "system";
+                    })
+                .Services
+                .AddSingleton(fakeArticleManagementClient))
+            .Build();
+
+        await web.StartAsync();
+
+        var formId = Guid.NewGuid();
+
+        var isWindows = RuntimeInformation.IsOSPlatform(OSPlatform.Windows) ? "true" : "false";
+
+        var nodeModule = $$"""
+            const axiosConfigFactory = require('./models/axios-configuration.js').default;
+            const BackOfficeService = require('./services/bo-service.js').default;
+
+            module.exports = async (brandId, request) =>
+            {
+                let instance = axiosConfigFactory("{{channelName}}", {{isWindows}});
+
+                let svc = new BackOfficeService(instance);
+
+                return await svc.deleteDraftForm(brandId, request);
+            };
+        """;
+
+        // Act
+        _ = await StaticNodeJSService.InvokeFromStringAsync<string>(
+            nodeModule,
+            args: new object[] { formId });
+
+        // Assert
+        _ = fakeArticleManagementClient.Received(1)
+            .DeleteDraftAsync(Arg.Is(formId), Arg.Any<CancellationToken>());
     }
 }
