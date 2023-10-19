@@ -171,7 +171,23 @@ public class OverviewTests
                 Arg.Is<IEnumerable<string>>(x => x.SequenceEqual(playerCodes)))
             .Returns(new BrandWagerPlayerStatsInfo[]
             {
-                new BrandWagerPlayerStatsInfo(Guid.NewGuid(),"GPCode", Guid.NewGuid(),"ResellerCode",Guid.NewGuid(),"LicenseeCode",brandId,brandCode,playerCodes[0],"username","CNY",1,100m,100m,0m,0m,100m,-100m)
+                new BrandWagerPlayerStatsInfo(
+                    Guid.NewGuid(),
+                    "ResellerCode",
+                    Guid.NewGuid(),
+                    "LicenseeCode",
+                    brandId,
+                    brandCode,
+                    playerCodes[0],
+                    "username",
+                    "CNY",
+                    1,
+                    100m,
+                    100m,
+                    0m,
+                    0m,
+                    100m,
+                    -100m)
             }.ToAsyncEnumerable());
 
         _ = fakePlayerServiceClient
@@ -235,7 +251,23 @@ public class OverviewTests
                 pageSize: Arg.Is(10))
             .Returns(new BrandWagerPlayerStatsInfo[]
             {
-                new BrandWagerPlayerStatsInfo(Guid.NewGuid(),"GPCode", Guid.NewGuid(),"ResellerCode",Guid.NewGuid(),"LicenseeCode",brandId,brandCode,playerCodes[0],"username","CNY",1,100m,100m,0m,0m,100m,-100m)
+                new BrandWagerPlayerStatsInfo(
+                    Guid.NewGuid(),
+                    "ResellerCode",
+                    Guid.NewGuid(),
+                    "LicenseeCode",
+                    brandId,
+                    brandCode,
+                    playerCodes[0],
+                    "username",
+                    "CNY",
+                    1,
+                    100m,
+                    100m,
+                    0m,
+                    0m,
+                    100m,
+                    -100m)
             }.ToAsyncEnumerable());
 
         _ = fakePaymentServiceClient
@@ -312,7 +344,23 @@ public class OverviewTests
                 pageSize: Arg.Is(10))
             .Returns(new BrandWagerPlayerStatsInfo[]
             {
-                new BrandWagerPlayerStatsInfo(Guid.NewGuid(),"GPCode", Guid.NewGuid(),"ResellerCode",Guid.NewGuid(),"LicenseeCode",brandId,brandCode,playerCodes[0],"username","CNY",1,100m,100m,0m,0m,100m,-100m)
+                new BrandWagerPlayerStatsInfo(
+                    Guid.NewGuid(),
+                    "ResellerCode",
+                    Guid.NewGuid(),
+                    "LicenseeCode",
+                    brandId,
+                    brandCode,
+                    playerCodes[0],
+                    "username",
+                    "CNY",
+                    1,
+                    100m,
+                    100m,
+                    0m,
+                    0m,
+                    100m,
+                    -100m)
             }.ToAsyncEnumerable());
 
         _ = fakePaymentServiceClient
@@ -398,7 +446,23 @@ public class OverviewTests
                 Arg.Is<IEnumerable<string>>(x => x.SequenceEqual(playerCodes)))
             .Returns(new BrandWagerPlayerStatsInfo[]
             {
-                new BrandWagerPlayerStatsInfo(Guid.NewGuid(),"GPCode", Guid.NewGuid(),"ResellerCode",Guid.NewGuid(),"LicenseeCode",brandId,brandCode,playerCodes[0],"username","CNY",1,100m,100m,0m,0m,100m,-100m)
+                new BrandWagerPlayerStatsInfo(
+                    Guid.NewGuid(),
+                    "ResellerCode",
+                    Guid.NewGuid(),
+                    "LicenseeCode",
+                    brandId,
+                    brandCode,
+                    playerCodes[0],
+                    "username",
+                    "CNY",
+                    1,
+                    100m,
+                    100m,
+                    0m,
+                    0m,
+                    100m,
+                    -100m)
             }.ToAsyncEnumerable());
 
         _ = fakePlayerServiceClient
@@ -462,7 +526,23 @@ public class OverviewTests
                 pageSize: Arg.Is(10))
             .Returns(new BrandWagerPlayerStatsInfo[]
             {
-                new BrandWagerPlayerStatsInfo(Guid.NewGuid(),"GPCode", Guid.NewGuid(),"ResellerCode",Guid.NewGuid(),"LicenseeCode",brandId,brandCode,playerCodes[0],"username","CNY",1,100m,100m,0m,0m,100m,-100m)
+                new BrandWagerPlayerStatsInfo(
+                    Guid.NewGuid(),
+                    "ResellerCode",
+                    Guid.NewGuid(),
+                    "LicenseeCode",
+                    brandId,
+                    brandCode,
+                    playerCodes[0],
+                    "username",
+                    "CNY",
+                    1,
+                    100m,
+                    100m,
+                    0m,
+                    0m,
+                    100m,
+                    -100m)
             }.ToAsyncEnumerable());
 
         _ = fakePaymentServiceClient
@@ -539,7 +619,23 @@ public class OverviewTests
                 pageSize: Arg.Is(10))
             .Returns(new BrandWagerPlayerStatsInfo[]
             {
-                new BrandWagerPlayerStatsInfo(Guid.NewGuid(),"GPCode", Guid.NewGuid(),"ResellerCode",Guid.NewGuid(),"LicenseeCode",brandId,brandCode,playerCodes[0],"username","CNY",1,100m,100m,0m,0m,100m,-100m)
+                new BrandWagerPlayerStatsInfo(
+                    Guid.NewGuid(),
+                    "ResellerCode",
+                    Guid.NewGuid(),
+                    "LicenseeCode",
+                    brandId,
+                    brandCode,
+                    playerCodes[0],
+                    "username",
+                    "CNY",
+                    1,
+                    100m,
+                    100m,
+                    0m,
+                    0m,
+                    100m,
+                    -100m)
             }.ToAsyncEnumerable());
 
         _ = fakePaymentServiceClient

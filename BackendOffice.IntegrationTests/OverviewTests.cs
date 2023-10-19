@@ -100,8 +100,6 @@ public class OverviewTests
             .Returns(new BrandWagerPlayerStatsInfo[]
             {
                 new BrandWagerPlayerStatsInfo(
-                    GameProviderId: Guid.NewGuid(),
-                    GameProviderCode: "GPCode",
                     ResellerId: Guid.NewGuid(),
                     ResellerCode: "ResellerCode",
                     LicenseeId: Guid.NewGuid(),
@@ -235,24 +233,22 @@ public class OverviewTests
             .Returns(new BrandWagerPlayerStatsInfo[]
             {
                 new BrandWagerPlayerStatsInfo(
-                   GameProviderId: Guid.NewGuid(),
-                   "GPCode",
-                   ResellerId: Guid.NewGuid(),
-                   "ResellerCode",
-                   LicenseeId: Guid.NewGuid(),
-                   "LicenseeCode",
-                   brandId,
-                   brandCode,
-                   playerCodes[0],
-                   "username",
-                   CurrencyCode: "CNY",
-                   Count: 1,
-                   Bet:100m,
-                   ValidBet: 100m,
-                   Settle: 0m,
-                   Commission: 0m,
-                   Turnover: 100m,
-                   WinLoss: -100m)
+                    ResellerId: Guid.NewGuid(),
+                    "ResellerCode",
+                    LicenseeId: Guid.NewGuid(),
+                    "LicenseeCode",
+                    brandId,
+                    brandCode,
+                    playerCodes[0],
+                    "username",
+                    CurrencyCode: "CNY",
+                    Count: 1,
+                    Bet:100m,
+                    ValidBet: 100m,
+                    Settle: 0m,
+                    Commission: 0m,
+                    Turnover: 100m,
+                    WinLoss: -100m)
             }.ToAsyncEnumerable());
 
         _ = fakePaymentServiceClient
@@ -383,7 +379,23 @@ public class OverviewTests
                 cancellationToken: Arg.Any<CancellationToken>())
             .Returns(new BrandWagerPlayerStatsInfo[]
             {
-                new BrandWagerPlayerStatsInfo(Guid.NewGuid(),"GPCode", Guid.NewGuid(),"ResellerCode",Guid.NewGuid(),"LicenseeCode",brandId,brandCode,playerCodes[0],"username","CNY",1,100m,100m,0m,0m,100m,-100m)
+                new BrandWagerPlayerStatsInfo(
+                    Guid.NewGuid(),
+                    "ResellerCode",
+                    Guid.NewGuid(),
+                    "LicenseeCode",
+                    brandId,
+                    brandCode,
+                    playerCodes[0],
+                    "username",
+                    "CNY",
+                    1,
+                    100m,
+                    100m,
+                    0m,
+                    0m,
+                    100m,
+                    -100m)
             }.ToAsyncEnumerable());
 
         _ = fakePaymentServiceClient
@@ -525,7 +537,23 @@ public class OverviewTests
                 Arg.Any<CancellationToken>())
             .Returns(new BrandWagerPlayerStatsInfo[]
             {
-                new BrandWagerPlayerStatsInfo(Guid.NewGuid(),"GPCode", Guid.NewGuid(),"ResellerCode",Guid.NewGuid(),"LicenseeCode",brandId,brandCode,playerCodes[0],"username","CNY",1,100m,100m,0m,0m,100m,-100m)
+                new BrandWagerPlayerStatsInfo(
+                    Guid.NewGuid(),
+                    "ResellerCode",
+                    Guid.NewGuid(),
+                    "LicenseeCode",
+                    brandId,
+                    brandCode,
+                    playerCodes[0],
+                    "username",
+                    "CNY",
+                    1,
+                    100m,
+                    100m,
+                    0m,
+                    0m,
+                    100m,
+                    -100m)
             }.ToAsyncEnumerable());
 
         _ = fakePlayerServiceClient
@@ -642,7 +670,23 @@ public class OverviewTests
                 cancellationToken: Arg.Any<CancellationToken>())
             .Returns(new BrandWagerPlayerStatsInfo[]
             {
-                new BrandWagerPlayerStatsInfo(Guid.NewGuid(),"GPCode", Guid.NewGuid(),"ResellerCode",Guid.NewGuid(),"LicenseeCode",brandId,brandCode,playerCodes[0],"username","CNY",1,100m,100m,0m,0m,100m,-100m)
+                new BrandWagerPlayerStatsInfo(
+                    Guid.NewGuid(),
+                    "ResellerCode",
+                    Guid.NewGuid(),
+                    "LicenseeCode",
+                    brandId,
+                    brandCode,
+                    playerCodes[0],
+                    "username",
+                    "CNY",
+                    1,
+                    100m,
+                    100m,
+                    0m,
+                    0m,
+                    100m,
+                    -100m)
             }.ToAsyncEnumerable());
 
         _ = fakePaymentServiceClient
@@ -773,7 +817,23 @@ public class OverviewTests
                 cancellationToken: Arg.Any<CancellationToken>())
             .Returns(new BrandWagerPlayerStatsInfo[]
             {
-                new BrandWagerPlayerStatsInfo(Guid.NewGuid(),"GPCode",Guid.NewGuid(),"ResellerCode",Guid.NewGuid(),"LicenseeCode",brandId,brandCode,playerCodes[0],"username","CNY",1,100m,100m,0m,0m,100m,-100m)
+                new BrandWagerPlayerStatsInfo(
+                    Guid.NewGuid(),
+                    "ResellerCode",
+                    Guid.NewGuid(),
+                    "LicenseeCode",
+                    brandId,
+                    brandCode,
+                    playerCodes[0],
+                    "username",
+                    "CNY",
+                    1,
+                    100m,
+                    100m,
+                    0m,
+                    0m,
+                    100m,
+                    -100m)
             }.ToAsyncEnumerable());
 
         _ = fakePaymentServiceClient
