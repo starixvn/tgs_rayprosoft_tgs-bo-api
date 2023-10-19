@@ -1,7 +1,6 @@
 ﻿using System.Reflection;
 using NSubstitute;
-using TGS.Services.BackOffice.Application.Commands.Localization;
-using TGS.Services.BackOffice.Application.Queries.Localization;
+using TGS.Services.BackOffice.ApplicationServices.Localization;
 using TGS.Services.BackOffice.Domain;
 
 namespace TGS.Tests.BackendOffice.UnitTests;

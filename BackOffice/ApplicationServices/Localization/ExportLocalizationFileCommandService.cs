@@ -6,12 +6,13 @@ using System.Reflection;
 using System.Threading;
 using System.Threading.Tasks;
 using ClosedXML.Excel;
+using ClosedXML.Graphics;
 using ClosedXML.Report;
 using Microsoft.Extensions.FileProviders;
 using Tgs.ServiceUtility;
 using TGS.Services.BackOffice.Domain;
 
-namespace TGS.Services.BackOffice.Application.Queries.Localization;
+namespace TGS.Services.BackOffice.ApplicationServices.Localization;
 
 internal class ExportLocalizationFileCommandService : IGetService<ExportLocalizationFileCommand, Stream>
 {
@@ -38,7 +39,10 @@ internal class ExportLocalizationFileCommandService : IGetService<ExportLocaliza
                                 .ToDictionary(l => l.MessageId, l => l.Text)
                          };
 
-        using var workbook = new XLWorkbook();
+        using var workbook = new XLWorkbook(new LoadOptions
+        {
+            GraphicEngine = new DefaultGraphicEngine("DejaVu Sans")
+        });
 
         await foreach (var g in locStrings)
             GenerateLanguageWorkSheet(workbook, g.CultureCode, g.LocalizationDict);
@@ -57,7 +61,13 @@ internal class ExportLocalizationFileCommandService : IGetService<ExportLocaliza
     private void GenerateEmptyWorkSheet(XLWorkbook target)
     {
         using var fs = _templateFileInfo.CreateReadStream();
-        using var template = new XLTemplate(fs);
+        using var templateWorkbook = new XLWorkbook(
+            fs,
+            new LoadOptions
+            {
+                GraphicEngine = new DefaultGraphicEngine("DejaVu Sans")
+            });
+        using var template = new XLTemplate(templateWorkbook);
 
         template.AddVariable(new
         {
@@ -75,7 +85,13 @@ internal class ExportLocalizationFileCommandService : IGetService<ExportLocaliza
         Dictionary<string, string> locDict)
     {
         using var fs = _templateFileInfo.CreateReadStream();
-        using var template = new XLTemplate(fs);
+        using var templateWorkbook = new XLWorkbook(
+            fs,
+            new LoadOptions
+            {
+                GraphicEngine = new DefaultGraphicEngine("DejaVu Sans")
+            });
+        using var template = new XLTemplate(templateWorkbook);
 
         template.AddVariable(new
         {
