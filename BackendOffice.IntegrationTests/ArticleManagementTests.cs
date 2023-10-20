@@ -7,10 +7,12 @@ using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
+using NATS.Client.JetStream;
 using NSubstitute;
 using Tgs.ArticleManagement;
 using Tgs.ArticleManagement.Clients;
 using TGS.Apis.BackendOffice.ViewModels;
+using Xunit;
 using Xunit.Abstractions;
 
 namespace BackendOffice.IntegrationTests;
@@ -484,6 +486,65 @@ public class ArticleManagementTests
                 Arg.Is(formId),
                 Arg.Is<UpdateDraftForm>(form => expectedUpdateForm.ToExpectedObject(
                     ctx => ctx.IgnoreEqualsOverride()).Matches(form)),
+                Arg.Any<CancellationToken>());
+    }
+
+    [Fact]
+    public async Task 發行文章()
+    {
+        // Arrange
+        var channelName = Guid.NewGuid().ToString();
+        var userId = Guid.NewGuid();
+
+        var fakeArticleManagementClient = Substitute.For<IArticleManagementClient>();
+
+        using var web = TestBackendOfficeApplication.Builder
+            .UseTestChannelServer(channelName)
+            .ConfigureLogging(logging => logging.AddXUnit(_testOutputHelper))
+            .ConfigureServices(services => services
+                .AddAuthentication("Fake")
+                .AddScheme<FakeAuthenticationSchemaOptions, FakeAuthenticationHandler>(
+                    "Fake",
+                    options =>
+                    {
+                        options.UserId = userId;
+                        options.UserName = "system";
+                    })
+                .Services
+                .AddSingleton(fakeArticleManagementClient))
+            .Build();
+
+        await web.StartAsync();
+
+        var formId = Guid.NewGuid();
+        var publishDate = DateOnly.Parse("2023-10-20");
+
+        var isWindows = RuntimeInformation.IsOSPlatform(OSPlatform.Windows) ? "true" : "false";
+
+        var nodeModule = $$"""
+            const axiosConfigFactory = require('./models/axios-configuration.js').default;
+            const BackOfficeService = require('./services/bo-service.js').default;
+
+            module.exports = async (brandId, publishDate) =>
+            {
+                let instance = axiosConfigFactory("{{channelName}}", {{isWindows}});
+
+                let svc = new BackOfficeService(instance);
+
+                return await svc.publishArticle(brandId, publishDate);
+            };
+        """;
+
+        // Act
+        _ = await StaticNodeJSService.InvokeFromStringAsync<string>(
+            nodeModule,
+            args: new object[] { formId, publishDate });
+
+        // Assert
+        _ = fakeArticleManagementClient.Received(1)
+            .PublishDraftAsync(
+                Arg.Is(formId),
+                Arg.Is(publishDate),
                 Arg.Any<CancellationToken>());
     }
 }

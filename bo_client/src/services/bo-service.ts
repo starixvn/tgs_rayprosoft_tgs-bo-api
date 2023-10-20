@@ -1016,4 +1016,16 @@ export default class BackOfficeService {
         await this.http
             .patch(`/api/article/${formId}`, request);
     }
+
+    public async publishArticle(formId: string, publishDate: string): Promise<void> {
+        await this.http
+            .post(
+                `/api/article/${formId}:publish`,
+                publishDate,
+                {
+                    headers: {
+                        'Content-Type': 'application/json;charset=UTF-8'
+                    }
+                });
+    }
 }

@@ -130,4 +130,15 @@ public class ArticleController : BaseContextController
 
         return updateService.ExecuteAsync(command, HttpContext.RequestAborted);
     }
+
+    [HttpPost("{formId:Guid}:publish", Name = "PublishArticle")]
+    public ValueTask PublishArticleAsync(
+        [FromServices] ICommandService<PublishArticleCommand> publishService,
+        Guid formId,
+        [FromBody] DateOnly publishDate)
+    {
+        var command = new PublishArticleCommand(formId, publishDate);
+
+        return publishService.ExecuteAsync(command, HttpContext.RequestAborted);
+    }
 }
