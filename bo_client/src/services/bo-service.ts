@@ -1011,4 +1011,9 @@ export default class BackOfficeService {
         await this.http
             .delete(`/api/article/${formId}`);
     }
+
+    public async updateDraftForm(formId: string, request: ModifyDraftForm): Promise<void> {
+        await this.http
+            .patch(`/api/article/${formId}`, request);
+    }
 }

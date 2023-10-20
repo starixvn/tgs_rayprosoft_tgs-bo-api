@@ -99,7 +99,7 @@ public class ArticleController : BaseContextController
         return createDraftService.GetAsync(command, HttpContext.RequestAborted);
     }
 
-    [HttpDelete("{formId:Guid}")]
+    [HttpDelete("{formId:Guid}", Name = "DeleteDraft")]
     public ValueTask DeleteDraftAsync(
         [FromServices] ICommandService<DeleteDraftCommand> deleteService,
         Guid formId)
@@ -107,5 +107,27 @@ public class ArticleController : BaseContextController
         var command = new DeleteDraftCommand(formId);
 
         return deleteService.ExecuteAsync(command, HttpContext.RequestAborted);
+    }
+
+    [HttpPatch("{formId:Guid}", Name = "UpdateDraft")]
+    public ValueTask UpdateDraftAsync(
+        [FromServices] ICommandService<UpdateDraftCommand> updateService,
+        Guid formId,
+        ModifyDraftFormViewModel viewModel)
+    {
+        var command = new UpdateDraftCommand(
+            formId,
+            new UpdateDraftForm(
+                viewModel.Description,
+                viewModel.LocalizedArticles.ToDictionary(
+                    kv => kv.Key,
+                    kv => new Article(
+                        kv.Value.Title,
+                        kv.Value.Brief,
+                        kv.Value.Content,
+                        kv.Value.Writer,
+                        kv.Value.Banners)).AsReadOnly()));
+
+        return updateService.ExecuteAsync(command, HttpContext.RequestAborted);
     }
 }

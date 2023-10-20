@@ -11,7 +11,6 @@ using NSubstitute;
 using Tgs.ArticleManagement;
 using Tgs.ArticleManagement.Clients;
 using TGS.Apis.BackendOffice.ViewModels;
-using Xunit;
 using Xunit.Abstractions;
 
 namespace BackendOffice.IntegrationTests;
@@ -385,5 +384,106 @@ public class ArticleManagementTests
         // Assert
         _ = fakeArticleManagementClient.Received(1)
             .DeleteDraftAsync(Arg.Is(formId), Arg.Any<CancellationToken>());
+    }
+
+    [Fact]
+    public async Task 編輯文章()
+    {
+        // Arrange
+        var channelName = Guid.NewGuid().ToString();
+        var userId = Guid.NewGuid();
+
+        var fakeArticleManagementClient = Substitute.For<IArticleManagementClient>();
+
+        using var web = TestBackendOfficeApplication.Builder
+            .UseTestChannelServer(channelName)
+            .ConfigureLogging(logging => logging.AddXUnit(_testOutputHelper))
+            .ConfigureServices(services => services
+                .AddAuthentication("Fake")
+                .AddScheme<FakeAuthenticationSchemaOptions, FakeAuthenticationHandler>(
+                    "Fake",
+                    options =>
+                    {
+                        options.UserId = userId;
+                        options.UserName = "system";
+                    })
+                .Services
+                .AddSingleton(fakeArticleManagementClient))
+            .Build();
+
+        await web.StartAsync();
+
+        var brandId = Guid.Parse("4e86719f-243f-46f6-b010-5c758b7285af");
+        var formId = Guid.NewGuid();
+
+        var request = new ModifyDraftFormViewModel
+        {
+            Description = "test1",
+            LocalizedArticles = new Dictionary<string, ArticleViewModel>
+            {
+                ["en-US"] = new ArticleViewModel
+                {
+                    Title = "title",
+                    Brief = "brief",
+                    Content = "content",
+                    Writer = "writer",
+                    Banners = new Dictionary<string, Uri>
+                    {
+                        ["200"] = new Uri("http://localhost/200.jpg")
+                    }.AsReadOnly()
+                }
+            }.AsReadOnly()
+        };
+
+        var expectedUpdateForm = new UpdateDraftForm(
+                request.Description,
+                new Dictionary<string, Article>
+                {
+                    ["en-US"] = new Article(
+                        "title",
+                        "brief",
+                        "content",
+                        "writer",
+                        new Dictionary<string, Uri>
+                        {
+                            ["200"] = new Uri("http://localhost/200.jpg")
+                        }.AsReadOnly())
+                }.AsReadOnly());
+
+        _ = fakeArticleManagementClient.CreateNewDraftAsync(
+            Arg.Is(brandId),
+            Arg.Is<NewDraftForm>(form => expectedUpdateForm.ToExpectedObject(
+                ctx => ctx.IgnoreEqualsOverride()).Matches(form)),
+            Arg.Any<CancellationToken>())
+            .Returns(formId);
+
+        var isWindows = RuntimeInformation.IsOSPlatform(OSPlatform.Windows) ? "true" : "false";
+
+        var nodeModule = $$"""
+            const axiosConfigFactory = require('./models/axios-configuration.js').default;
+            const BackOfficeService = require('./services/bo-service.js').default;
+
+            module.exports = async (brandId, request) =>
+            {
+                let instance = axiosConfigFactory("{{channelName}}", {{isWindows}});
+
+                let svc = new BackOfficeService(instance);
+
+                return await svc.updateDraftForm(brandId, request);
+            };
+        """;
+
+        // Act
+        _ = await StaticNodeJSService.InvokeFromStringAsync<string>(
+            nodeModule,
+            args: new object[] { formId, request });
+
+        // Assert
+        _ = fakeArticleManagementClient.Received(1)
+            .UpdateDraftAsync(
+                Arg.Is(formId),
+                Arg.Is<UpdateDraftForm>(form => expectedUpdateForm.ToExpectedObject(
+                    ctx => ctx.IgnoreEqualsOverride()).Matches(form)),
+                Arg.Any<CancellationToken>());
     }
 }

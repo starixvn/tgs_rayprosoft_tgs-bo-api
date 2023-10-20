@@ -1,4 +1,6 @@
-﻿using System;
+﻿#nullable enable
+
+using System;
 using System.Threading;
 using System.Threading.Tasks;
 using Tgs.ArticleManagement.Clients;
@@ -15,6 +17,6 @@ internal class GetDraftFormQueryService : IGetService<GetDraftFormQuery, DraftFo
         _articleManagementClient = articleManagementClient ?? throw new ArgumentNullException(nameof(articleManagementClient));
     }
 
-    public ValueTask<DraftForm> GetAsync(GetDraftFormQuery query, CancellationToken cancellationToken = default)
+    public ValueTask<DraftForm?> GetAsync(GetDraftFormQuery query, CancellationToken cancellationToken = default)
         => _articleManagementClient.GetDraftFormAsync(query.FormId, cancellationToken);
 }
