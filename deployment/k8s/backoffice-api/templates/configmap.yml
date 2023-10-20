@@ -33,7 +33,8 @@ data:
         "StationLetterBaseUrl": "http://tgs-station-letter",
         "CashQueryBaseUrl": "http://tgs-cashservice-query",
         "AgentBaseUrl": "http://agent-service",
-        "GameWagersServiceBaseUrl": "http://game-gamewagers"
+        "GameWagersServiceBaseUrl": "http://game-gamewagers",
+        "ArticleManagementBaseUrl": "http://tgs-article-management"
       },
       "TGSGameProvidersKickPlayerApi": {
         "BaseUrl": "http://game-kickplayer-server"
