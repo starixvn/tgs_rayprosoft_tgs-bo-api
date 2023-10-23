@@ -11,6 +11,7 @@ using StackExchange.Redis;
 using Tgs.BrandCertificate.Clients;
 using Tgs.CashService.Client;
 using Tgs.Payment.Clients;
+using Tgs.PlayerBucket.Client;
 using Tgs.PlayerService.Client;
 using Tgs.Promotion.Clients;
 using Tgs.Service.PlayerBuckets;
@@ -29,6 +30,7 @@ internal class ReviewDepositFormCommandService : ICommandService<ReviewDepositFo
     private readonly IMessageSender _messageSender;
     private readonly IPaymentServiceClient _paymentServiceClient;
     private readonly IPlayerBucketClient _playerBucketClient;
+    private readonly IPlayerBucketForTypesClient _playerBucketForTypesClient;
     private readonly IPlayerServiceClient _playerServiceClient;
     private readonly IPromotionClient _promotionClient;
     private readonly IPromotionServiceClient _promotionServiceClient;
@@ -38,6 +40,7 @@ internal class ReviewDepositFormCommandService : ICommandService<ReviewDepositFo
         IPaymentServiceClient paymentServiceClient,
         IPlayerServiceClient playerServiceClient,
         IPlayerBucketClient playerBucketClient,
+        IPlayerBucketForTypesClient playerBucketForTypesClient,
         IPromotionClient promotionClient,
         IPromotionServiceClient promotionServiceClient,
         IRedisConnectionFactory redisConnectionFactory,
@@ -52,6 +55,7 @@ internal class ReviewDepositFormCommandService : ICommandService<ReviewDepositFo
         _paymentServiceClient = paymentServiceClient ?? throw new ArgumentNullException(nameof(paymentServiceClient));
         _playerServiceClient = playerServiceClient ?? throw new ArgumentNullException(nameof(playerServiceClient));
         _playerBucketClient = playerBucketClient ?? throw new ArgumentNullException(nameof(playerBucketClient));
+        _playerBucketForTypesClient = playerBucketForTypesClient ?? throw new ArgumentNullException(nameof(playerBucketForTypesClient));
         _promotionClient = promotionClient ?? throw new ArgumentNullException(nameof(promotionClient));
         _promotionServiceClient = promotionServiceClient ?? throw new ArgumentNullException(nameof(promotionServiceClient));
         _redisDatabase = redisConnectionFactory.GetConnection().GetDatabase();
@@ -181,16 +185,25 @@ internal class ReviewDepositFormCommandService : ICommandService<ReviewDepositFo
             {
                 try
                 {
-                    var bucketResult = await _playerBucketClient.ReadBucketsAsync(
+                    var bucketTypes = await _playerBucketClient.GetBrandBucketTypesAsync(
+                        command.BrandId,
+                        cancellationToken)
+                        .ToArrayAsync(cancellationToken: cancellationToken)
+                        .ConfigureAwait(false);
+                    var bucketResults = await _playerBucketForTypesClient.ReadBucketsForBucketTypesAsync(
                         form.PlayerCode,
-                        cancellationToken).ConfigureAwait(false);
+                        bucketTypes,
+                        cancellationToken)
+                        .Where(result => result.Result.Amount > 0M)
+                        .ToArrayAsync(cancellationToken: cancellationToken)
+                        .ConfigureAwait(false);
 
                     var walletBalance = await _cashServiceClient.GetBalanceAsync(
                         walletId,
                         cancellationToken).ConfigureAwait(false);
 
                     if (walletBalance <= brandPaymentSettings.ClearWageringRequirementBalance
-                        && bucketResult.Amount > 0M)
+                        && bucketResults.Length > 0)
                     {
                         await _playerBucketClient.RequestCleanBucketsAsync(
                             form.PlayerCode,
@@ -198,12 +211,9 @@ internal class ReviewDepositFormCommandService : ICommandService<ReviewDepositFo
                                 form.BrandId,
                                 walletId,
                                 walletBalance,
-                                new[]
-                                {
-                                    new TypeBucketResult(
-                                        null,
-                                        bucketResult)
-                                },
+                                bucketResults.Select(result => new TypeBucketResult(
+                                    result.BucketType,
+                                    result.Result)),
                                 form.Id,
                                 brandPaymentSettings.ClearWageringRequirementBalance),
                             cancellationToken).ConfigureAwait(false);
