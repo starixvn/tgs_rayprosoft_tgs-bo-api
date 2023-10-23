@@ -51,7 +51,7 @@ internal class SetPlayerInfoCommandService : IGetService<SetPlayerInfoCommand, S
         {
             if (availablePropertyNames.Contains(item.Key))
             {
-                modifyDict.Add(Enum.Parse<PlayerPropertyName>(item.Key), item.Value);
+                modifyDict.Add(Enum.Parse<PlayerPropertyName>(item.Key, true), item.Value);
             }
         }
 

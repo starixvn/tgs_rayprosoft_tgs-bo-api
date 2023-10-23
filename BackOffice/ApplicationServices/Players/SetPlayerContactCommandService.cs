@@ -75,9 +75,11 @@ internal class SetPlayerContactCommandService : IGetService<SetPlayerContactComm
                     modifyDict.Add(PlayerPropertyName.PhoneAuthentication, true.ToString());
                 }
 
-                if (item.Key.ToLower() == "email" && !string.IsNullOrEmpty(item.Value))
+                if (item.Key.Equals("email", StringComparison.OrdinalIgnoreCase) && !string.IsNullOrEmpty(item.Value))
                 {
-                    var playerInfo = await _playerServiceClient.GetPlayerInfoByEmailAsync(player.BrandId, item.Value, cancellationToken).ConfigureAwait(false);
+                    var playerInfo = await _playerServiceClient
+                        .GetPlayerInfoByEmailAsync(player.BrandId, item.Value, cancellationToken)
+                        .ConfigureAwait(false);
 
                     if (playerInfo is not null && player.PlayerCode != playerInfo.PlayerCode)
                     {
@@ -85,7 +87,7 @@ internal class SetPlayerContactCommandService : IGetService<SetPlayerContactComm
                     }
                 }
 
-                modifyDict.Add(Enum.Parse<PlayerPropertyName>(item.Key), item.Value);
+                modifyDict.Add(Enum.Parse<PlayerPropertyName>(item.Key, true), item.Value);
             }
         }
 
