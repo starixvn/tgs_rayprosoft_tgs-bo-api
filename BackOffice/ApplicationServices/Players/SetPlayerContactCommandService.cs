@@ -72,7 +72,8 @@ internal class SetPlayerContactCommandService : IGetService<SetPlayerContactComm
 
                 if (!string.IsNullOrEmpty(playerPhone))
                 {
-                    modifyDict.Add(PlayerPropertyName.PhoneAuthentication, true.ToString());
+                    if (!modifyDict.ContainsKey(PlayerPropertyName.PhoneAuthentication))
+                        modifyDict.Add(PlayerPropertyName.PhoneAuthentication, true.ToString());
                 }
 
                 if (item.Key.Equals("email", StringComparison.OrdinalIgnoreCase) && !string.IsNullOrEmpty(item.Value))
