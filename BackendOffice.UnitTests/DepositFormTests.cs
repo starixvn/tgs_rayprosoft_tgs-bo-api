@@ -9,6 +9,7 @@ using StackExchange.Redis;
 using Tgs.BrandCertificate.Clients;
 using Tgs.CashService.Client;
 using Tgs.Payment.Clients;
+using Tgs.PlayerBucket.Client;
 using Tgs.PlayerService.Client;
 using Tgs.Promotion.Clients;
 using Tgs.Service.PlayerBuckets;
@@ -48,6 +49,7 @@ public class DepositFormTests
         var fakePaymentServiceClient = Substitute.For<IPaymentServiceClient>();
         var fakePlayerServiceClient = Substitute.For<IPlayerServiceClient>();
         var fakePlayerBucketClient = Substitute.For<IPlayerBucketClient>();
+        var fakePlayerBucketForTypesClient = Substitute.For<IPlayerBucketForTypesClient>();
         var fakePromotionClient = Substitute.For<IPromotionClient>();
         var fakePromotionServiceClient = Substitute.For<IPromotionServiceClient>();
         var fakeRedisDatabase = Substitute.For<IDatabase>();
@@ -67,6 +69,7 @@ public class DepositFormTests
             fakePaymentServiceClient,
             fakePlayerServiceClient,
             fakePlayerBucketClient,
+            fakePlayerBucketForTypesClient,
             fakePromotionClient,
             fakePromotionServiceClient,
             fakeRedisDatabaseFactory,
@@ -113,6 +116,7 @@ public class DepositFormTests
         var fakePaymentServiceClient = Substitute.For<IPaymentServiceClient>();
         var fakePlayerServiceClient = Substitute.For<IPlayerServiceClient>();
         var fakePlayerBucketClient = Substitute.For<IPlayerBucketClient>();
+        var fakePlayerBucketForTypesClient = Substitute.For<IPlayerBucketForTypesClient>();
         var fakePromotionClient = Substitute.For<IPromotionClient>();
         var fakePromotionServiceClient = Substitute.For<IPromotionServiceClient>();
         var fakeRedisDatabase = Substitute.For<IDatabase>();
@@ -132,6 +136,7 @@ public class DepositFormTests
             fakePaymentServiceClient,
             fakePlayerServiceClient,
             fakePlayerBucketClient,
+            fakePlayerBucketForTypesClient,
             fakePromotionClient,
             fakePromotionServiceClient,
             fakeRedisDatabaseFactory,
@@ -246,6 +251,7 @@ public class DepositFormTests
         var fakePaymentServiceClient = Substitute.For<IPaymentServiceClient>();
         var fakePlayerServiceClient = Substitute.For<IPlayerServiceClient>();
         var fakePlayerBucketClient = Substitute.For<IPlayerBucketClient>();
+        var fakePlayerBucketForTypesClient = Substitute.For<IPlayerBucketForTypesClient>();
         var fakePromotionClient = Substitute.For<IPromotionClient>();
         var fakePromotionServiceClient = Substitute.For<IPromotionServiceClient>();
         var fakeRedisDatabase = Substitute.For<IDatabase>();
@@ -265,6 +271,7 @@ public class DepositFormTests
             fakePaymentServiceClient,
             fakePlayerServiceClient,
             fakePlayerBucketClient,
+            fakePlayerBucketForTypesClient,
             fakePromotionClient,
             fakePromotionServiceClient,
             fakeRedisDatabaseFactory,
@@ -337,6 +344,7 @@ public class DepositFormTests
         var fakePaymentServiceClient = Substitute.For<IPaymentServiceClient>();
         var fakePlayerServiceClient = Substitute.For<IPlayerServiceClient>();
         var fakePlayerBucketClient = Substitute.For<IPlayerBucketClient>();
+        var fakePlayerBucketForTypesClient = Substitute.For<IPlayerBucketForTypesClient>();
         var fakePromotionClient = Substitute.For<IPromotionClient>();
         var fakePromotionServiceClient = Substitute.For<IPromotionServiceClient>();
         var fakeRedisDatabase = Substitute.For<IDatabase>();
@@ -356,6 +364,7 @@ public class DepositFormTests
             fakePaymentServiceClient,
             fakePlayerServiceClient,
             fakePlayerBucketClient,
+            fakePlayerBucketForTypesClient,
             fakePromotionClient,
             fakePromotionServiceClient,
             fakeRedisDatabaseFactory,
@@ -439,6 +448,7 @@ public class DepositFormTests
         var fakePaymentServiceClient = Substitute.For<IPaymentServiceClient>();
         var fakePlayerServiceClient = Substitute.For<IPlayerServiceClient>();
         var fakePlayerBucketClient = Substitute.For<IPlayerBucketClient>();
+        var fakePlayerBucketForTypesClient = Substitute.For<IPlayerBucketForTypesClient>();
         var fakePromotionClient = Substitute.For<IPromotionClient>();
         var fakePromotionServiceClient = Substitute.For<IPromotionServiceClient>();
         var fakeRedisDatabase = Substitute.For<IDatabase>();
@@ -458,6 +468,7 @@ public class DepositFormTests
             fakePaymentServiceClient,
             fakePlayerServiceClient,
             fakePlayerBucketClient,
+            fakePlayerBucketForTypesClient,
             fakePromotionClient,
             fakePromotionServiceClient,
             fakeRedisDatabaseFactory,
@@ -529,8 +540,18 @@ public class DepositFormTests
         var bucketResult = new ReadBucketResult(
             1000M,
             Guid.NewGuid());
-        _ = fakePlayerBucketClient.ReadBucketsAsync(Arg.Is(playerCode))
-            .Returns(bucketResult);
+
+        _ = fakePlayerBucketClient.GetBrandBucketTypesAsync(Arg.Is(brandId))
+            .Returns(AsyncEnumerable.Empty<string>());
+        _ = fakePlayerBucketForTypesClient.ReadBucketsForBucketTypesAsync(
+            Arg.Is(playerCode),
+            Arg.Any<IEnumerable<string>>())
+            .Returns(new[]
+            {
+                new TypeBucketResult(
+                    null,
+                    bucketResult)
+            }.ToAsyncEnumerable());
 
         var promotionResponse = new DepositMessageDataResponse(123, 1000M);
 
@@ -566,6 +587,7 @@ public class DepositFormTests
         var fakePaymentServiceClient = Substitute.For<IPaymentServiceClient>();
         var fakePlayerServiceClient = Substitute.For<IPlayerServiceClient>();
         var fakePlayerBucketClient = Substitute.For<IPlayerBucketClient>();
+        var fakePlayerBucketForTypesClient = Substitute.For<IPlayerBucketForTypesClient>();
         var fakePromotionClient = Substitute.For<IPromotionClient>();
         var fakePromotionServiceClient = Substitute.For<IPromotionServiceClient>();
         var fakeRedisDatabase = Substitute.For<IDatabase>();
@@ -585,6 +607,7 @@ public class DepositFormTests
             fakePaymentServiceClient,
             fakePlayerServiceClient,
             fakePlayerBucketClient,
+            fakePlayerBucketForTypesClient,
             fakePromotionClient,
             fakePromotionServiceClient,
             fakeRedisDatabaseFactory,
@@ -646,6 +669,7 @@ public class DepositFormTests
         var fakePaymentServiceClient = Substitute.For<IPaymentServiceClient>();
         var fakePlayerServiceClient = Substitute.For<IPlayerServiceClient>();
         var fakePlayerBucketClient = Substitute.For<IPlayerBucketClient>();
+        var fakePlayerBucketForTypesClient = Substitute.For<IPlayerBucketForTypesClient>();
         var fakePromotionClient = Substitute.For<IPromotionClient>();
         var fakePromotionServiceClient = Substitute.For<IPromotionServiceClient>();
         var fakeRedisDatabase = Substitute.For<IDatabase>();
@@ -665,6 +689,7 @@ public class DepositFormTests
             fakePaymentServiceClient,
             fakePlayerServiceClient,
             fakePlayerBucketClient,
+            fakePlayerBucketForTypesClient,
             fakePromotionClient,
             fakePromotionServiceClient,
             fakeRedisDatabaseFactory,
@@ -769,6 +794,7 @@ public class DepositFormTests
         var fakePaymentServiceClient = Substitute.For<IPaymentServiceClient>();
         var fakePlayerServiceClient = Substitute.For<IPlayerServiceClient>();
         var fakePlayerBucketClient = Substitute.For<IPlayerBucketClient>();
+        var fakePlayerBucketForTypesClient = Substitute.For<IPlayerBucketForTypesClient>();
         var fakePromotionClient = Substitute.For<IPromotionClient>();
         var fakePromotionServiceClient = Substitute.For<IPromotionServiceClient>();
         var fakeRedisDatabase = Substitute.For<IDatabase>();
@@ -788,6 +814,7 @@ public class DepositFormTests
             fakePaymentServiceClient,
             fakePlayerServiceClient,
             fakePlayerBucketClient,
+            fakePlayerBucketForTypesClient,
             fakePromotionClient,
             fakePromotionServiceClient,
             fakeRedisDatabaseFactory,
