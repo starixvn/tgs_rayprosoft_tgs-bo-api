@@ -1,7 +1,6 @@
 ﻿using System.Data.SqlClient;
 using System.Runtime.InteropServices;
 using ExpectedObjects;
-using Jering.Javascript.NodeJS;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
@@ -9,7 +8,6 @@ using NSubstitute;
 using Tgs.ServiceUtility;
 using TGS.Core.Models.Messages;
 using TGS.Services.BackOffice.Application.Models.ReportMarket;
-using TGS.Services.BackOffice.ApplicationServices;
 using Xunit.Abstractions;
 
 namespace BackendOffice.IntegrationTests;

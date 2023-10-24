@@ -2,7 +2,6 @@
 using System.Runtime.InteropServices;
 using System.Text.Json;
 using ExpectedObjects;
-using Jering.Javascript.NodeJS;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
@@ -13,7 +12,6 @@ using Tgs.StationLetterService;
 using Tgs.StationLetterService.Client;
 using TGS.Apis.BackendOffice.ViewModels;
 using TGS.Core.Models.Messages;
-using Xunit;
 using Xunit.Abstractions;
 
 namespace BackendOffice.IntegrationTests;

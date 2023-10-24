@@ -1,5 +1,4 @@
 ﻿using System.Runtime.InteropServices;
-using Jering.Javascript.NodeJS;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
@@ -49,7 +48,7 @@ public class BrandMaintenanceTests
 
         await web.StartAsync();
 
-        var brands = new[] 
+        var brands = new[]
         {
             new BrandListItem(
                 Guid.Parse("4e86719f-243f-46f6-b010-5c758b7285af"),
@@ -71,7 +70,7 @@ public class BrandMaintenanceTests
                 Arg.Is<BrandListQuery>(x => x.Status == BrandStatus.Active),
                 Arg.Any<CancellationToken>())
             .Returns(brands.ToAsyncEnumerable());
-        
+
         using var nodeService = _nodeJsFixture.BuildNodeJsService();
 
         var isWindows = RuntimeInformation.IsOSPlatform(OSPlatform.Windows) ? "true" : "false";
@@ -89,14 +88,14 @@ public class BrandMaintenanceTests
                 return await svc.setAllBrandsMaintenance();
             };
         """;
-        
+
         // Act
         var actual = await nodeService.InvokeFromStringAsync<MessageResponse>(nodeModule);
 
         // Assert
         Assert.NotNull(actual);
         Assert.True(actual.Valid);
-        
+
         _ = fakeBrandServiceClient.Received(2)
             .UpdateBrandStatusAsync(
                 Arg.Any<Guid>(),

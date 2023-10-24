@@ -1,18 +1,15 @@
 ﻿using System.Runtime.InteropServices;
 using System.Text.Json;
 using ExpectedObjects;
-using Jering.Javascript.NodeJS;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
-using NATS.Client.JetStream;
 using NSubstitute;
 using Tgs.ArticleManagement;
 using Tgs.ArticleManagement.Clients;
 using TGS.Apis.BackendOffice.ViewModels;
-using Xunit;
 using Xunit.Abstractions;
 
 namespace BackendOffice.IntegrationTests;

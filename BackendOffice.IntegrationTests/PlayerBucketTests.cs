@@ -2,7 +2,6 @@
 using System.Text.Json;
 using ExpectedObjects;
 using Google.Protobuf;
-using Jering.Javascript.NodeJS;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
@@ -20,7 +19,6 @@ using TGS.Apis.BackendOffice.ViewModels;
 using TGS.Services.BackOffice.Application.Models.Player;
 using TGS.Services.BackOffice.ApplicationServices.PlayerBuckets;
 using TGS.Services.BackOffice.ApplicationServices.Players;
-using Xunit;
 using Xunit.Abstractions;
 
 namespace BackendOffice.IntegrationTests;

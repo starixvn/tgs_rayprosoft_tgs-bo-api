@@ -3,7 +3,6 @@ using System.Reflection;
 using System.Runtime.InteropServices;
 using System.Text.Json.Nodes;
 using ExpectedObjects;
-using Jering.Javascript.NodeJS;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
@@ -13,7 +12,6 @@ using TGS.Apis.BackendOffice.ViewModels;
 using TGS.Core.Models.Enums;
 using TGS.Services.BackOffice.Domain;
 using Valhalla.MessageQueue;
-using Xunit;
 using Xunit.Abstractions;
 
 namespace BackendOffice.IntegrationTests;
