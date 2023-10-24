@@ -16,10 +16,12 @@ namespace BackendOffice.IntegrationTests;
 public class PlayerIpTests
 {
     private readonly ITestOutputHelper _testOutputHelper;
+    private readonly NodeJsFixture _nodeJsFixture;
 
-    public PlayerIpTests(ITestOutputHelper testOutputHelper)
+    public PlayerIpTests(ITestOutputHelper testOutputHelper, NodeJsFixture nodeJsFixture)
     {
         _testOutputHelper = testOutputHelper ?? throw new ArgumentNullException(nameof(testOutputHelper));
+        _nodeJsFixture = nodeJsFixture ?? throw new ArgumentNullException(nameof(nodeJsFixture));
     }
 
     [Fact]
@@ -85,6 +87,8 @@ public class PlayerIpTests
             cancellationToken: Arg.Any<CancellationToken>())
             .Returns(response);
 
+        using var nodeService = _nodeJsFixture.BuildNodeJsService();
+
         var isWindows = RuntimeInformation.IsOSPlatform(OSPlatform.Windows) ? "true" : "false";
 
         var nodeModule = $$"""
@@ -109,7 +113,7 @@ public class PlayerIpTests
         """;
 
         // Act
-        var actual = await StaticNodeJSService.InvokeFromStringAsync<PagedResponse<GetPlayerIpsByUserNameResult>>(
+        var actual = await nodeService.InvokeFromStringAsync<PagedResponse<GetPlayerIpsByUserNameResult>>(
             nodeModule,
             args: new object[] { brandId, userName, page, rows, sortby, orderby, showAll });
 

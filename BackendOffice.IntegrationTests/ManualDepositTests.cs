@@ -16,10 +16,12 @@ namespace BackendOffice.IntegrationTests;
 public class ManualDepositTests
 {
     private readonly ITestOutputHelper _testOutputHelper;
+    private readonly NodeJsFixture _nodeJsFixture;
 
-    public ManualDepositTests(ITestOutputHelper testOutputHelper)
+    public ManualDepositTests(ITestOutputHelper testOutputHelper, NodeJsFixture nodeJsFixture)
     {
         _testOutputHelper = testOutputHelper ?? throw new ArgumentNullException(nameof(testOutputHelper));
+        _nodeJsFixture = nodeJsFixture ?? throw new ArgumentNullException(nameof(nodeJsFixture));
     }
 
     [Fact]
@@ -76,6 +78,8 @@ public class ManualDepositTests
             Phone = "TestPhone"
         };
 
+        using var nodeService = _nodeJsFixture.BuildNodeJsService();
+
         var isWindows = RuntimeInformation.IsOSPlatform(OSPlatform.Windows) ? "true" : "false";
 
         var nodeModule = $$"""
@@ -117,7 +121,7 @@ public class ManualDepositTests
             );
 
         // Act
-        await StaticNodeJSService.InvokeFromStringAsync(
+        await nodeService.InvokeFromStringAsync(
             nodeModule,
             args: new object[] { request });
 
@@ -183,6 +187,8 @@ public class ManualDepositTests
             Phone = "TestPhone"
         };
 
+        using var nodeService = _nodeJsFixture.BuildNodeJsService();
+
         var isWindows = RuntimeInformation.IsOSPlatform(OSPlatform.Windows) ? "true" : "false";
 
         var nodeModule = $$"""
@@ -224,7 +230,7 @@ public class ManualDepositTests
             );
 
         // Act
-        await StaticNodeJSService.InvokeFromStringAsync(
+        await nodeService.InvokeFromStringAsync(
             nodeModule,
             args: new object[] { request });
 
@@ -293,6 +299,8 @@ public class ManualDepositTests
             Amount = amount,
         };
 
+        using var nodeService = _nodeJsFixture.BuildNodeJsService();
+
         var isWindows = RuntimeInformation.IsOSPlatform(OSPlatform.Windows) ? "true" : "false";
 
         var nodeModule = $$"""
@@ -334,7 +342,7 @@ public class ManualDepositTests
             );
 
         // Act
-        await StaticNodeJSService.InvokeFromStringAsync(
+        await nodeService.InvokeFromStringAsync(
             nodeModule,
             args: new object[] { request });
 

@@ -28,10 +28,12 @@ namespace BackendOffice.IntegrationTests;
 public class PlayerBucketTests
 {
     private readonly ITestOutputHelper _testOutputHelper;
+    private readonly NodeJsFixture _nodeJsFixture;
 
-    public PlayerBucketTests(ITestOutputHelper testOutputHelper)
+    public PlayerBucketTests(ITestOutputHelper testOutputHelper, NodeJsFixture nodeJsFixture)
     {
         _testOutputHelper = testOutputHelper ?? throw new ArgumentNullException(nameof(testOutputHelper));
+        _nodeJsFixture = nodeJsFixture ?? throw new ArgumentNullException(nameof(nodeJsFixture));
     }
 
     [Fact]
@@ -122,6 +124,8 @@ public class PlayerBucketTests
             })
             .ToArray();
 
+        using var nodeService = _nodeJsFixture.BuildNodeJsService();
+
         var nodeModule = $$"""
             const axiosConfigFactory = require('./models/axios-configuration.js').default;
             const BackOfficeService = require('./services/bo-service.js').default;
@@ -140,7 +144,7 @@ public class PlayerBucketTests
         """;
 
         // Act
-        var response = await StaticNodeJSService.InvokeFromStringAsync<string>(
+        var response = await nodeService.InvokeFromStringAsync<string>(
             nodeModule,
             args: new object[] { playerCode });
         var actual = JsonSerializer.Deserialize<PlayerBucketViewModel[]>(
@@ -240,6 +244,8 @@ public class PlayerBucketTests
             })
             .ToArray();
 
+        using var nodeService = _nodeJsFixture.BuildNodeJsService();
+
         var nodeModule = $$"""
             const axiosConfigFactory = require('./models/axios-configuration.js').default;
             const BackOfficeService = require('./services/bo-service.js').default;
@@ -258,7 +264,7 @@ public class PlayerBucketTests
         """;
 
         // Act
-        var response = await StaticNodeJSService.InvokeFromStringAsync<string>(
+        var response = await nodeService.InvokeFromStringAsync<string>(
             nodeModule,
             args: new object[] { playerCode, gameType });
         var actual = JsonSerializer.Deserialize<PlayerBucketViewModel[]>(
@@ -325,6 +331,8 @@ public class PlayerBucketTests
                         Guid.NewGuid()))
             }.ToAsyncEnumerable());
 
+        using var nodeService = _nodeJsFixture.BuildNodeJsService();
+
         var nodeModule = $$"""
             const axiosConfigFactory = require('./models/axios-configuration.js').default;
             const BackOfficeService = require('./services/bo-service.js').default;
@@ -343,7 +351,7 @@ public class PlayerBucketTests
         """;
 
         // Act
-        var actual = await StaticNodeJSService.InvokeFromStringAsync<decimal>(
+        var actual = await nodeService.InvokeFromStringAsync<decimal>(
             nodeModule,
             args: new object[] { playerCode });
 
@@ -426,6 +434,8 @@ public class PlayerBucketTests
                         Guid.NewGuid())),
             }.ToAsyncEnumerable());
 
+        using var nodeService = _nodeJsFixture.BuildNodeJsService();
+
         var nodeModule = $$"""
             const axiosConfigFactory = require('./models/axios-configuration.js').default;
             const BackOfficeService = require('./services/bo-service.js').default;
@@ -444,7 +454,7 @@ public class PlayerBucketTests
         """;
 
         // Act
-        var actual = await StaticNodeJSService.InvokeFromStringAsync<decimal>(
+        var actual = await nodeService.InvokeFromStringAsync<decimal>(
             nodeModule,
             args: new object[] { playerCode });
 
@@ -534,6 +544,8 @@ public class PlayerBucketTests
             }
         };
 
+        using var nodeService = _nodeJsFixture.BuildNodeJsService();
+
         var nodeModule = $$"""
             const axiosConfigFactory = require('./models/axios-configuration.js').default;
             const BackOfficeService = require('./services/bo-service.js').default;
@@ -552,7 +564,7 @@ public class PlayerBucketTests
         """;
 
         // Act
-        var actual = await StaticNodeJSService.InvokeFromStringAsync<TypeBucketResultViewModel[]>(
+        var actual = await nodeService.InvokeFromStringAsync<TypeBucketResultViewModel[]>(
             nodeModule,
             args: new object[] { playerCode });
 
@@ -656,6 +668,8 @@ public class PlayerBucketTests
             })
             .ToArray();
 
+        using var nodeService = _nodeJsFixture.BuildNodeJsService();
+
         var nodeModule = $$"""
             const axiosConfigFactory = require('./models/axios-configuration.js').default;
             const BackOfficeService = require('./services/bo-service.js').default;
@@ -683,7 +697,7 @@ public class PlayerBucketTests
             .Returns(forms.ToAsyncEnumerable());
 
         // Act
-        var actual = await StaticNodeJSService.InvokeFromStringAsync<CleanBucketFormViewModel[]>(
+        var actual = await nodeService.InvokeFromStringAsync<CleanBucketFormViewModel[]>(
             nodeModule,
             args: new object[] { playerCode });
 
@@ -785,6 +799,8 @@ public class PlayerBucketTests
             Arg.Any<CancellationToken>())
             .Returns(forms.ToAsyncEnumerable());
 
+        using var nodeService = _nodeJsFixture.BuildNodeJsService();
+
         var nodeModule = $$"""
             const axiosConfigFactory = require('./models/axios-configuration.js').default;
             const BackOfficeService = require('./services/bo-service.js').default;
@@ -803,7 +819,7 @@ public class PlayerBucketTests
         """;
 
         // Act
-        var actual = await StaticNodeJSService.InvokeFromStringAsync<CleanBucketFormViewModel[]>(
+        var actual = await nodeService.InvokeFromStringAsync<CleanBucketFormViewModel[]>(
             nodeModule,
             args: new object[] { playerCode, CleanFlowStatus.Completed });
 
@@ -872,6 +888,8 @@ public class PlayerBucketTests
             Arg.Any<CancellationToken>())
             .Returns(new ReadBucketResult(100M, anchorId3));
 
+        using var nodeService = _nodeJsFixture.BuildNodeJsService();
+
         var nodeModule = $$"""
             const axiosConfigFactory = require('./models/axios-configuration.js').default;
             const BackOfficeService = require('./services/bo-service.js').default;
@@ -890,7 +908,7 @@ public class PlayerBucketTests
         """;
 
         // Act
-        await StaticNodeJSService.InvokeFromStringAsync(
+        await nodeService.InvokeFromStringAsync(
             nodeModule,
             args: new object[] { playerCode });
 
@@ -1059,6 +1077,8 @@ public class PlayerBucketTests
             Amount = 1000M
         };
 
+        using var nodeService = _nodeJsFixture.BuildNodeJsService();
+
         var nodeModule = $$"""
             const axiosConfigFactory = require('./models/axios-configuration.js').default;
             const BackOfficeService = require('./services/bo-service.js').default;
@@ -1080,7 +1100,7 @@ public class PlayerBucketTests
             .Returns(new PlayerInfo());
 
         // Act
-        await StaticNodeJSService.InvokeFromStringAsync(
+        await nodeService.InvokeFromStringAsync(
             nodeModule,
             args: new object[] { playerCode, request });
 
@@ -1130,6 +1150,8 @@ public class PlayerBucketTests
             Amount = -1000M
         };
 
+        using var nodeService = _nodeJsFixture.BuildNodeJsService();
+
         var nodeModule = $$"""
             const axiosConfigFactory = require('./models/axios-configuration.js').default;
             const BackOfficeService = require('./services/bo-service.js').default;
@@ -1155,7 +1177,7 @@ public class PlayerBucketTests
             .Returns(new PlayerInfo());
 
         // Act
-        var actual = await StaticNodeJSService.InvokeFromStringAsync<string>(
+        var actual = await nodeService.InvokeFromStringAsync<string>(
             nodeModule,
             args: new object[] { playerCode, request });
 

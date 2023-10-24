@@ -17,10 +17,12 @@ namespace BackendOffice.IntegrationTests;
 public class PlayerVipAdjustInfosTests
 {
     private readonly ITestOutputHelper _testOutputHelper;
+    private readonly NodeJsFixture _nodeJsFixture;
 
-    public PlayerVipAdjustInfosTests(ITestOutputHelper testOutputHelper)
+    public PlayerVipAdjustInfosTests(ITestOutputHelper testOutputHelper, NodeJsFixture nodeJsFixture)
     {
         _testOutputHelper = testOutputHelper ?? throw new ArgumentNullException(nameof(testOutputHelper));
+        _nodeJsFixture = nodeJsFixture ?? throw new ArgumentNullException(nameof(nodeJsFixture));
     }
 
     [Fact]
@@ -93,6 +95,8 @@ public class PlayerVipAdjustInfosTests
             cancellationToken: Arg.Any<CancellationToken>())
         .Returns(response);
 
+        using var nodeService = _nodeJsFixture.BuildNodeJsService();
+
         var isWindows = RuntimeInformation.IsOSPlatform(OSPlatform.Windows) ? "true" : "false";
 
         var nodeModule = $$"""
@@ -110,7 +114,7 @@ public class PlayerVipAdjustInfosTests
         """;
 
         // Act
-        var actual = await StaticNodeJSService.InvokeFromStringAsync<PagedResponse<PlayerVipAdjustInfo>>(
+        var actual = await nodeService.InvokeFromStringAsync<PagedResponse<PlayerVipAdjustInfo>>(
             nodeModule,
             args: new object[] { playerCode, brandId, from, to, page, rows, sortby, orderby, showAll });
 

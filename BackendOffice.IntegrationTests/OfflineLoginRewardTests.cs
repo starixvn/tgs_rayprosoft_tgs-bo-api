@@ -18,11 +18,14 @@ namespace BackendOffice.IntegrationTests;
 public class OfflineLoginRewardTests
 {
     private readonly ITestOutputHelper _testOutputHelper;
+    private readonly NodeJsFixture _nodeJsFixture;
 
     public OfflineLoginRewardTests(
-        ITestOutputHelper testOutputHelper)
+        ITestOutputHelper testOutputHelper,
+        NodeJsFixture nodeJsFixture)
     {
         _testOutputHelper = testOutputHelper ?? throw new ArgumentNullException(nameof(testOutputHelper));
+        _nodeJsFixture = nodeJsFixture ?? throw new ArgumentNullException(nameof(nodeJsFixture));
     }
 
     [Fact]
@@ -104,6 +107,8 @@ public class OfflineLoginRewardTests
                 Arg.Any<CancellationToken>())
             .Returns(promotionId);
 
+        using var nodeService = _nodeJsFixture.BuildNodeJsService();
+
         var isWindows = RuntimeInformation.IsOSPlatform(OSPlatform.Windows) ? "true" : "false";
 
         var nodeModule = $$"""
@@ -121,7 +126,7 @@ public class OfflineLoginRewardTests
         """;
 
         // Act
-        var actual = await StaticNodeJSService.InvokeFromStringAsync<MessageResponse>(
+        var actual = await nodeService.InvokeFromStringAsync<MessageResponse>(
             nodeModule,
             args: new object[] { brandId, request });
 

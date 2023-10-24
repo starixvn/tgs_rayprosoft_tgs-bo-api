@@ -14,10 +14,12 @@ namespace BackendOffice.IntegrationTests;
 public class BrandMaintenanceTests
 {
     private readonly ITestOutputHelper _testOutputHelper;
+    private readonly NodeJsFixture _nodeJsFixture;
 
-    public BrandMaintenanceTests(ITestOutputHelper testOutputHelper)
+    public BrandMaintenanceTests(ITestOutputHelper testOutputHelper, NodeJsFixture nodeJsFixture)
     {
         _testOutputHelper = testOutputHelper ?? throw new ArgumentNullException(nameof(testOutputHelper));
+        _nodeJsFixture = nodeJsFixture ?? throw new ArgumentNullException(nameof(nodeJsFixture));
     }
 
     [Fact]
@@ -70,6 +72,8 @@ public class BrandMaintenanceTests
                 Arg.Any<CancellationToken>())
             .Returns(brands.ToAsyncEnumerable());
         
+        using var nodeService = _nodeJsFixture.BuildNodeJsService();
+
         var isWindows = RuntimeInformation.IsOSPlatform(OSPlatform.Windows) ? "true" : "false";
 
         var nodeModule = $$"""
@@ -87,7 +91,7 @@ public class BrandMaintenanceTests
         """;
         
         // Act
-        var actual = await StaticNodeJSService.InvokeFromStringAsync<MessageResponse>(nodeModule);
+        var actual = await nodeService.InvokeFromStringAsync<MessageResponse>(nodeModule);
 
         // Assert
         Assert.NotNull(actual);

@@ -20,10 +20,12 @@ namespace BackendOffice.IntegrationTests;
 public class ArticleManagementTests
 {
     private readonly ITestOutputHelper _testOutputHelper;
+    private readonly NodeJsFixture _nodeJsFixture;
 
-    public ArticleManagementTests(ITestOutputHelper testOutputHelper)
+    public ArticleManagementTests(ITestOutputHelper testOutputHelper, NodeJsFixture nodeJsFixture)
     {
         _testOutputHelper = testOutputHelper ?? throw new ArgumentNullException(nameof(testOutputHelper));
+        _nodeJsFixture = nodeJsFixture ?? throw new ArgumentNullException(nameof(nodeJsFixture));
     }
 
     [Fact]
@@ -95,6 +97,9 @@ public class ArticleManagementTests
             .Returns(new QueryResult<DraftListItem>(
                 rows.Length,
                 rows.ToAsyncEnumerable()));
+
+        using var nodeService = _nodeJsFixture.BuildNodeJsService();
+
         var isWindows = RuntimeInformation.IsOSPlatform(OSPlatform.Windows) ? "true" : "false";
 
         var nodeModule = $$"""
@@ -112,7 +117,7 @@ public class ArticleManagementTests
         """;
 
         // Act
-        var response = await StaticNodeJSService.InvokeFromStringAsync<string>(
+        var response = await nodeService.InvokeFromStringAsync<string>(
             nodeModule,
             args: new object[] { brandId });
 
@@ -207,6 +212,8 @@ public class ArticleManagementTests
             PublishDate = draftForm.PublishDate
         };
 
+        using var nodeService = _nodeJsFixture.BuildNodeJsService();
+
         var isWindows = RuntimeInformation.IsOSPlatform(OSPlatform.Windows) ? "true" : "false";
 
         var nodeModule = $$"""
@@ -224,7 +231,7 @@ public class ArticleManagementTests
         """;
 
         // Act
-        var response = await StaticNodeJSService.InvokeFromStringAsync<string>(
+        var response = await nodeService.InvokeFromStringAsync<string>(
             nodeModule,
             args: new object[] { formId });
 
@@ -310,6 +317,8 @@ public class ArticleManagementTests
             Arg.Any<CancellationToken>())
             .Returns(formId);
 
+        using var nodeService = _nodeJsFixture.BuildNodeJsService();
+
         var isWindows = RuntimeInformation.IsOSPlatform(OSPlatform.Windows) ? "true" : "false";
 
         var nodeModule = $$"""
@@ -327,7 +336,7 @@ public class ArticleManagementTests
         """;
 
         // Act
-        var response = await StaticNodeJSService.InvokeFromStringAsync<string>(
+        var response = await nodeService.InvokeFromStringAsync<string>(
             nodeModule,
             args: new object[] { brandId, request });
         var actual = Guid.Parse(response!);
@@ -365,6 +374,8 @@ public class ArticleManagementTests
 
         var formId = Guid.NewGuid();
 
+        using var nodeService = _nodeJsFixture.BuildNodeJsService();
+
         var isWindows = RuntimeInformation.IsOSPlatform(OSPlatform.Windows) ? "true" : "false";
 
         var nodeModule = $$"""
@@ -382,7 +393,7 @@ public class ArticleManagementTests
         """;
 
         // Act
-        _ = await StaticNodeJSService.InvokeFromStringAsync<string>(
+        _ = await nodeService.InvokeFromStringAsync<string>(
             nodeModule,
             args: new object[] { formId });
 
@@ -462,6 +473,8 @@ public class ArticleManagementTests
             Arg.Any<CancellationToken>())
             .Returns(formId);
 
+        using var nodeService = _nodeJsFixture.BuildNodeJsService();
+
         var isWindows = RuntimeInformation.IsOSPlatform(OSPlatform.Windows) ? "true" : "false";
 
         var nodeModule = $$"""
@@ -479,7 +492,7 @@ public class ArticleManagementTests
         """;
 
         // Act
-        _ = await StaticNodeJSService.InvokeFromStringAsync<string>(
+        _ = await nodeService.InvokeFromStringAsync<string>(
             nodeModule,
             args: new object[] { formId, request });
 
@@ -522,6 +535,8 @@ public class ArticleManagementTests
         var formId = Guid.NewGuid();
         var publishDate = DateOnly.Parse("2023-10-20");
 
+        using var nodeService = _nodeJsFixture.BuildNodeJsService();
+
         var isWindows = RuntimeInformation.IsOSPlatform(OSPlatform.Windows) ? "true" : "false";
 
         var nodeModule = $$"""
@@ -539,7 +554,7 @@ public class ArticleManagementTests
         """;
 
         // Act
-        _ = await StaticNodeJSService.InvokeFromStringAsync<string>(
+        _ = await nodeService.InvokeFromStringAsync<string>(
             nodeModule,
             args: new object[] { formId, publishDate });
 

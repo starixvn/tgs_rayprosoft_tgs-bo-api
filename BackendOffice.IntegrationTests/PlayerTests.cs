@@ -3,7 +3,6 @@ using System.Data.SqlClient;
 using System.Runtime.InteropServices;
 using System.Text.Json;
 using ExpectedObjects;
-using Jering.Javascript.NodeJS;
 using MediatR;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.DependencyInjection;
@@ -38,10 +37,12 @@ namespace BackendOffice.IntegrationTests;
 public class PlayerTests
 {
     private readonly ITestOutputHelper _testOutputHelper;
+    private readonly NodeJsFixture _nodeJsFixture;
 
-    public PlayerTests(ITestOutputHelper testOutputHelper)
+    public PlayerTests(ITestOutputHelper testOutputHelper, NodeJsFixture nodeJsFixture)
     {
         _testOutputHelper = testOutputHelper ?? throw new ArgumentNullException(nameof(testOutputHelper));
+        _nodeJsFixture = nodeJsFixture ?? throw new ArgumentNullException(nameof(nodeJsFixture));
     }
 
     [Fact]
@@ -165,6 +166,8 @@ public class PlayerTests
                     ParentPlayerCode:null)
             }.ToAsyncEnumerable());
 
+        using var nodeService = _nodeJsFixture.BuildNodeJsService();
+
         var isWindows = RuntimeInformation.IsOSPlatform(OSPlatform.Windows) ? "true" : "false";
 
         var nodeModule = $$"""
@@ -212,7 +215,7 @@ public class PlayerTests
         };
 
         // Act
-        var actual = await StaticNodeJSService.InvokeFromStringAsync<string>(
+        var actual = await nodeService.InvokeFromStringAsync<string>(
             nodeModule,
             args: new object[] { request });
 
@@ -265,6 +268,8 @@ public class PlayerTests
                 Valid = true
             });
 
+        using var nodeService = _nodeJsFixture.BuildNodeJsService();
+
         var isWindows = RuntimeInformation.IsOSPlatform(OSPlatform.Windows) ? "true" : "false";
 
         var nodeModule = $$"""
@@ -288,7 +293,7 @@ public class PlayerTests
             """;
 
         // Act
-        var actual = await StaticNodeJSService.InvokeFromStringAsync<MessageResponse>(
+        var actual = await nodeService.InvokeFromStringAsync<MessageResponse>(
             nodeModule,
             args: new object[] { playerCode, birthdate.ToString("yyyy/MM/dd") });
 
@@ -408,6 +413,8 @@ public class PlayerTests
                     ParentPlayerCode: null)
             }.ToAsyncEnumerable());
 
+        using var nodeService = _nodeJsFixture.BuildNodeJsService();
+
         var isWindows = RuntimeInformation.IsOSPlatform(OSPlatform.Windows) ? "true" : "false";
 
         var nodeModule = $$"""
@@ -450,7 +457,7 @@ public class PlayerTests
         };
 
         // Act
-        var actual = await StaticNodeJSService.InvokeFromStringAsync<string>(
+        var actual = await nodeService.InvokeFromStringAsync<string>(
             nodeModule,
             args: new object[] { request });
         // Assert
@@ -612,6 +619,8 @@ public class PlayerTests
             },
         };
 
+        using var nodeService = _nodeJsFixture.BuildNodeJsService();
+
         var isWindows = RuntimeInformation.IsOSPlatform(OSPlatform.Windows) ? "true" : "false";
 
         var nodeModule = $$"""
@@ -629,7 +638,7 @@ public class PlayerTests
         """;
 
         // Act
-        var actual = await StaticNodeJSService.InvokeFromStringAsync<string>(
+        var actual = await nodeService.InvokeFromStringAsync<string>(
             nodeModule,
             args: new object[] { playerCode });
 
@@ -690,6 +699,8 @@ public class PlayerTests
             new KeyValuePair<string, string>("player2", "username2")
         };
 
+        using var nodeService = _nodeJsFixture.BuildNodeJsService();
+
         var isWindows = RuntimeInformation.IsOSPlatform(OSPlatform.Windows) ? "true" : "false";
 
         var nodeModule = $$"""
@@ -707,7 +718,7 @@ public class PlayerTests
         """;
 
         // Act
-        var actual = await StaticNodeJSService.InvokeFromStringAsync<JsonDocument[]>(
+        var actual = await nodeService.InvokeFromStringAsync<JsonDocument[]>(
             nodeModule,
             args: new object[] { brandId, userNamePrefix });
 
@@ -811,6 +822,8 @@ public class PlayerTests
                 new PlayerAdjustRecord(transacationId2,false)
             }.ToAsyncEnumerable());
 
+        using var nodeService = _nodeJsFixture.BuildNodeJsService();
+
         var isWindows = RuntimeInformation.IsOSPlatform(OSPlatform.Windows) ? "true" : "false";
 
         var nodeModule = $$"""
@@ -874,7 +887,7 @@ public class PlayerTests
         };
 
         // Act
-        var actual = await StaticNodeJSService.InvokeFromStringAsync<string>(
+        var actual = await nodeService.InvokeFromStringAsync<string>(
             nodeModule,
             args: new object[] { request });
 
@@ -951,6 +964,8 @@ public class PlayerTests
                 Arg.Any<CancellationToken>())
             .Returns(168000000M);
 
+        using var nodeService = _nodeJsFixture.BuildNodeJsService();
+
         var isWindows = RuntimeInformation.IsOSPlatform(OSPlatform.Windows) ? "true" : "false";
 
         var nodeModule = $$"""
@@ -977,7 +992,7 @@ public class PlayerTests
         };
 
         // Act
-        var actual = await StaticNodeJSService.InvokeFromStringAsync<string>(
+        var actual = await nodeService.InvokeFromStringAsync<string>(
             nodeModule,
             args: new object[] { request });
 
@@ -1049,6 +1064,8 @@ public class PlayerTests
             .GetQueries()
             .Returns(Array.Empty<TGS.Core.DataServices.Tgs.Models.User>().AsQueryable());
 
+        using var nodeService = _nodeJsFixture.BuildNodeJsService();
+
         var isWindows = RuntimeInformation.IsOSPlatform(OSPlatform.Windows) ? "true" : "false";
 
         var nodeModule = $$"""
@@ -1075,7 +1092,7 @@ public class PlayerTests
         var rows = 1;
 
         // Act
-        var actual = await StaticNodeJSService.InvokeFromStringAsync<string>(
+        var actual = await nodeService.InvokeFromStringAsync<string>(
             nodeModule,
             args: new object[] { playerCode, request, page, rows });
 
@@ -1139,6 +1156,8 @@ public class PlayerTests
 
         await web.StartAsync();
 
+        using var nodeService = _nodeJsFixture.BuildNodeJsService();
+
         var isWindows = RuntimeInformation.IsOSPlatform(OSPlatform.Windows) ? "true" : "false";
 
         var nodeModule = $$"""
@@ -1156,7 +1175,7 @@ public class PlayerTests
         """;
 
         // Act
-        var actual = await StaticNodeJSService.InvokeFromStringAsync<string>(
+        var actual = await nodeService.InvokeFromStringAsync<string>(
             nodeModule,
             args: new object[] { eventId });
 
@@ -1240,6 +1259,8 @@ public class PlayerTests
             AgentUsername = "agentUsername"
         };
 
+        using var nodeService = _nodeJsFixture.BuildNodeJsService();
+
         var isWindows = RuntimeInformation.IsOSPlatform(OSPlatform.Windows) ? "true" : "false";
 
         var nodeModule = $$"""
@@ -1257,7 +1278,7 @@ public class PlayerTests
             """;
 
         // Act
-        var actual = await StaticNodeJSService.InvokeFromStringAsync<MessageResponse>(
+        var actual = await nodeService.InvokeFromStringAsync<MessageResponse>(
             nodeModule,
             args: new object[] { playerCode, request });
 
@@ -1315,6 +1336,8 @@ public class PlayerTests
             Status = TGS.Core.Models.Enums.PlayerStatus.InBlacklist
         };
 
+        using var nodeService = _nodeJsFixture.BuildNodeJsService();
+
         var isWindows = RuntimeInformation.IsOSPlatform(OSPlatform.Windows) ? "true" : "false";
 
         var nodeModule = $$"""
@@ -1332,7 +1355,7 @@ public class PlayerTests
             """;
 
         // Act
-        var actual = await StaticNodeJSService.InvokeFromStringAsync<MessageResponse>(
+        var actual = await nodeService.InvokeFromStringAsync<MessageResponse>(
             nodeModule,
             args: new object[] { playerCode, request });
 
@@ -1386,6 +1409,8 @@ public class PlayerTests
             { nameof(PlayerPropertyName.VipId), modifyVipId }
         };
 
+        using var nodeService = _nodeJsFixture.BuildNodeJsService();
+
         var isWindows = RuntimeInformation.IsOSPlatform(OSPlatform.Windows) ? "true" : "false";
 
         var nodeModule = $$"""
@@ -1403,7 +1428,7 @@ public class PlayerTests
             """;
 
         // Act
-        var actual = await StaticNodeJSService.InvokeFromStringAsync<MessageResponse>(
+        var actual = await nodeService.InvokeFromStringAsync<MessageResponse>(
             nodeModule,
             args: new object[] { playerCode, request });
 
@@ -1450,6 +1475,8 @@ public class PlayerTests
 
         await web.StartAsync();
 
+        using var nodeService = _nodeJsFixture.BuildNodeJsService();
+
         var isWindows = RuntimeInformation.IsOSPlatform(OSPlatform.Windows) ? "true" : "false";
 
         var nodeModule = $$"""
@@ -1467,7 +1494,7 @@ public class PlayerTests
             """;
 
         // Act
-        var actual = await StaticNodeJSService.InvokeFromStringAsync<MessageResponse>(
+        var actual = await nodeService.InvokeFromStringAsync<MessageResponse>(
             nodeModule,
             args: new object[] { playerCode, password });
 
@@ -1526,6 +1553,8 @@ public class PlayerTests
             { PlayerPropertyName.Email.ToString(), modifyEmail }
         };
 
+        using var nodeService = _nodeJsFixture.BuildNodeJsService();
+
         var isWindows = RuntimeInformation.IsOSPlatform(OSPlatform.Windows) ? "true" : "false";
 
         var nodeModule = $$"""
@@ -1543,7 +1572,7 @@ public class PlayerTests
             """;
 
         // Act
-        var actual = await StaticNodeJSService.InvokeFromStringAsync<MessageResponse>(
+        var actual = await nodeService.InvokeFromStringAsync<MessageResponse>(
             nodeModule,
             args: new object[] { playerCode, request });
 
@@ -1599,6 +1628,8 @@ public class PlayerTests
             { PlayerPropertyName.Phone.ToString(),"1223334444" }
         };
 
+        using var nodeService = _nodeJsFixture.BuildNodeJsService();
+
         var isWindows = RuntimeInformation.IsOSPlatform(OSPlatform.Windows) ? "true" : "false";
 
         var nodeModule = $$"""
@@ -1616,7 +1647,7 @@ public class PlayerTests
             """;
 
         // Act
-        var actual = await StaticNodeJSService.InvokeFromStringAsync<MessageResponse>(
+        var actual = await nodeService.InvokeFromStringAsync<MessageResponse>(
             nodeModule,
             args: new object[] { playerCode, request });
 
