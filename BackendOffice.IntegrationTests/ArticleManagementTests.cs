@@ -90,8 +90,11 @@ public class ArticleManagementTests
 
         _ = fakeArticleManagementClient.ListDraftFormsAsync(
             Arg.Is(brandId),
+            Arg.Is(0),
             Arg.Any<CancellationToken>())
-            .Returns(rows.ToAsyncEnumerable());
+            .Returns(new QueryResult<DraftListItem>(
+                rows.Length,
+                rows.ToAsyncEnumerable()));
         var isWindows = RuntimeInformation.IsOSPlatform(OSPlatform.Windows) ? "true" : "false";
 
         var nodeModule = $$"""

@@ -15,9 +15,12 @@ public class ListDraftFormsQueryServiceTests
 
         var query = new ListDraftFormsQuery(Guid.NewGuid());
 
+        _ = fakeArticleManagementClient.ListDraftFormsAsync(Arg.Is(query.BrandId), Arg.Is(0))
+            .Returns(new QueryResult<DraftListItem>(0, AsyncEnumerable.Empty<DraftListItem>()));
+
         _ = await sut.QueryAsync(query).ToArrayAsync();
 
         _ = fakeArticleManagementClient.Received(1)
-            .ListDraftFormsAsync(Arg.Is(query.BrandId));
+            .ListDraftFormsAsync(Arg.Is(query.BrandId), Arg.Is(0));
     }
 }

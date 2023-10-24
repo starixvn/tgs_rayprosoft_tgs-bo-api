@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.Threading;
 using Tgs.ArticleManagement.Clients;
 using Tgs.ServiceUtility;
@@ -16,5 +17,8 @@ internal class ListDraftFormsQueryService : IQueryService<ListDraftFormsQuery, D
     }
 
     public IAsyncEnumerable<DraftListItem> QueryAsync(ListDraftFormsQuery query, CancellationToken cancellationToken = default)
-        => _articleManagementClient.ListDraftFormsAsync(query.BrandId, cancellationToken);
+        => _articleManagementClient.ListDraftFormsAsync(query.BrandId, 0, cancellationToken)
+            .AsTask()
+            .ToAsyncEnumerable()
+            .SelectMany(result => result.Items);
 }
