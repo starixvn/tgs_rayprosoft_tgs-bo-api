@@ -100,9 +100,20 @@ public class OverviewController : BaseContextController
             var brandGame = brandGameInfos
                 .Where(x => x.GameProviderId == info.GameProviderId
                     && x.GameId == info.GameId)
-                .First();
+                .FirstOrDefault();
 
-            _ = brandGame.LocalizationDicts.TryGetValue(cultureCode, out var locale);
+            if (brandGame is null)
+            {
+                yield return new TopTenGameViewModel
+                {
+                    GameName = info.GameId.ToString(),
+                    GameProviderName = info.GameProviderId.ToString(),
+                    Bet = info.Bet,
+                    WinLoss = info.WinLoss,
+                };
+            }
+
+            _ = brandGame!.LocalizationDicts.TryGetValue(cultureCode, out var locale);
 
             yield return new TopTenGameViewModel
             {
