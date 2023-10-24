@@ -1,5 +1,4 @@
 ﻿using System.Runtime.InteropServices;
-using Jering.Javascript.NodeJS;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
@@ -21,10 +20,12 @@ namespace BackendOffice.IntegrationTests;
 public class AgentTests
 {
     private readonly ITestOutputHelper _testOutputHelper;
+    private readonly NodeJsFixture _nodeJsFixture;
 
-    public AgentTests(ITestOutputHelper testOutputHelper)
+    public AgentTests(ITestOutputHelper testOutputHelper, NodeJsFixture nodeJsFixture)
     {
         _testOutputHelper = testOutputHelper ?? throw new ArgumentNullException(nameof(testOutputHelper));
+        _nodeJsFixture = nodeJsFixture ?? throw new ArgumentNullException(nameof(nodeJsFixture));
     }
 
     [Fact]
@@ -57,6 +58,8 @@ public class AgentTests
         _ = fakeService.GetAsync(Arg.Any<AgentReduceAmountQuery>())
             .Returns(new AgentReduceAmountResult(true, string.Empty));
 
+        using var nodeService = _nodeJsFixture.BuildNodeJsService();
+
         var isWindows = RuntimeInformation.IsOSPlatform(OSPlatform.Windows) ? "true" : "false";
 
         var nodeModule = $$"""
@@ -85,7 +88,7 @@ public class AgentTests
         };
 
         // Act
-        var actual = await StaticNodeJSService.InvokeFromStringAsync<PagedResponse<AgentPlayerWinLossReportModel>>(
+        var actual = await nodeService.InvokeFromStringAsync<PagedResponse<AgentPlayerWinLossReportModel>>(
             nodeModule,
             args: new object[] { agentId, request });
 
@@ -120,6 +123,8 @@ public class AgentTests
 
         await web.StartAsync();
 
+        using var nodeService = _nodeJsFixture.BuildNodeJsService();
+
         var isWindows = RuntimeInformation.IsOSPlatform(OSPlatform.Windows) ? "true" : "false";
 
         var nodeModule = $$"""
@@ -145,7 +150,7 @@ public class AgentTests
         };
 
         // Act
-        var actual = await StaticNodeJSService.InvokeFromStringAsync<MessageResponse>(
+        var actual = await nodeService.InvokeFromStringAsync<MessageResponse>(
             nodeModule,
             args: new object[] { request });
 
@@ -189,6 +194,8 @@ public class AgentTests
             .Build();
 
         await web.StartAsync();
+
+        using var nodeService = _nodeJsFixture.BuildNodeJsService();
 
         var isWindows = RuntimeInformation.IsOSPlatform(OSPlatform.Windows) ? "true" : "false";
 
@@ -249,7 +256,7 @@ public class AgentTests
         };
 
         // Act
-        var actual = await StaticNodeJSService.InvokeFromStringAsync<MessageResponse>(
+        var actual = await nodeService.InvokeFromStringAsync<MessageResponse>(
             nodeModule,
             args: new object[] { id, paging, request });
 

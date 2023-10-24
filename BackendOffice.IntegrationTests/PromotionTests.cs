@@ -2,7 +2,6 @@
 using System.Runtime.InteropServices;
 using System.Text.Json;
 using ExpectedObjects;
-using Jering.Javascript.NodeJS;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
@@ -29,10 +28,12 @@ namespace BackendOffice.IntegrationTests;
 public class PromotionTests
 {
     private readonly ITestOutputHelper _testOutputHelper;
+    private readonly NodeJsFixture _nodeJsFixture;
 
-    public PromotionTests(ITestOutputHelper testOutputHelper)
+    public PromotionTests(ITestOutputHelper testOutputHelper, NodeJsFixture nodeJsFixture)
     {
         _testOutputHelper = testOutputHelper ?? throw new ArgumentNullException(nameof(testOutputHelper));
+        _nodeJsFixture = nodeJsFixture ?? throw new ArgumentNullException(nameof(nodeJsFixture));
     }
 
     [Fact]
@@ -80,6 +81,8 @@ public class PromotionTests
                 IsAutoSent = true
             });
 
+        using var nodeService = _nodeJsFixture.BuildNodeJsService();
+
         var isWindows = RuntimeInformation.IsOSPlatform(OSPlatform.Windows) ? "true" : "false";
 
         var nodeModule = $$"""
@@ -110,7 +113,7 @@ public class PromotionTests
         };
 
         // Act
-        var actual = await StaticNodeJSService.InvokeFromStringAsync<PromotionMainInfoViewModel>(
+        var actual = await nodeService.InvokeFromStringAsync<PromotionMainInfoViewModel>(
             nodeModule,
             args: new object[] { promotionId });
 
@@ -160,6 +163,8 @@ public class PromotionTests
                 Localization = JsonDocument.Parse("{}")
             });
 
+        using var nodeService = _nodeJsFixture.BuildNodeJsService();
+
         var isWindows = RuntimeInformation.IsOSPlatform(OSPlatform.Windows) ? "true" : "false";
 
         var nodeModule = $$"""
@@ -185,7 +190,7 @@ public class PromotionTests
         };
 
         // Act
-        var actual = await StaticNodeJSService.InvokeFromStringAsync<PromotionContentViewModel>(
+        var actual = await nodeService.InvokeFromStringAsync<PromotionContentViewModel>(
             nodeModule,
             args: new object[] { promotionId });
 
@@ -243,6 +248,8 @@ public class PromotionTests
             Arg.Any<CancellationToken>())
             .Returns(rule);
 
+        using var nodeService = _nodeJsFixture.BuildNodeJsService();
+
         var isWindows = RuntimeInformation.IsOSPlatform(OSPlatform.Windows) ? "true" : "false";
 
         var nodeModule = $$"""
@@ -267,7 +274,7 @@ public class PromotionTests
             """);
 
         // Act
-        var actual = await StaticNodeJSService.InvokeFromStringAsync<JsonDocument>(
+        var actual = await nodeService.InvokeFromStringAsync<JsonDocument>(
             nodeModule,
             args: new object[] { promotionId });
 
@@ -339,6 +346,8 @@ public class PromotionTests
                 }
             }.ToAsyncEnumerable());
 
+        using var nodeService = _nodeJsFixture.BuildNodeJsService();
+
         var isWindows = RuntimeInformation.IsOSPlatform(OSPlatform.Windows) ? "true" : "false";
 
         var nodeModule = $$"""
@@ -393,7 +402,7 @@ public class PromotionTests
         };
 
         // Act
-        var actual = await StaticNodeJSService.InvokeFromStringAsync<string>(
+        var actual = await nodeService.InvokeFromStringAsync<string>(
             nodeModule,
             args: new object[] { request, paging });
 
@@ -472,6 +481,8 @@ public class PromotionTests
                 }
             }.ToAsyncEnumerable());
 
+        using var nodeService = _nodeJsFixture.BuildNodeJsService();
+
         var isWindows = RuntimeInformation.IsOSPlatform(OSPlatform.Windows) ? "true" : "false";
 
         var nodeModule = $$"""
@@ -528,7 +539,7 @@ public class PromotionTests
         };
 
         // Act
-        var actual = await StaticNodeJSService.InvokeFromStringAsync<string>(
+        var actual = await nodeService.InvokeFromStringAsync<string>(
             nodeModule,
             args: new object[] { request, paging });
 
@@ -607,6 +618,8 @@ public class PromotionTests
                 }
             }.ToAsyncEnumerable());
 
+        using var nodeService = _nodeJsFixture.BuildNodeJsService();
+
         var isWindows = RuntimeInformation.IsOSPlatform(OSPlatform.Windows) ? "true" : "false";
 
         var nodeModule = $$"""
@@ -663,7 +676,7 @@ public class PromotionTests
         };
 
         // Act
-        var actual = await StaticNodeJSService.InvokeFromStringAsync<string>(
+        var actual = await nodeService.InvokeFromStringAsync<string>(
             nodeModule,
             args: new object[] { request, paging });
 
@@ -740,6 +753,8 @@ public class PromotionTests
                 }
             }.ToAsyncEnumerable());
 
+        using var nodeService = _nodeJsFixture.BuildNodeJsService();
+
         var isWindows = RuntimeInformation.IsOSPlatform(OSPlatform.Windows) ? "true" : "false";
 
         var nodeModule = $$"""
@@ -795,7 +810,7 @@ public class PromotionTests
         };
 
         // Act
-        var actual = await StaticNodeJSService.InvokeFromStringAsync<string>(
+        var actual = await nodeService.InvokeFromStringAsync<string>(
             nodeModule,
             args: new object[] { request, paging });
 
@@ -872,6 +887,8 @@ public class PromotionTests
                 }
             }.ToAsyncEnumerable());
 
+        using var nodeService = _nodeJsFixture.BuildNodeJsService();
+
         var isWindows = RuntimeInformation.IsOSPlatform(OSPlatform.Windows) ? "true" : "false";
 
         var nodeModule = $$"""
@@ -927,7 +944,7 @@ public class PromotionTests
         };
 
         // Act
-        var actual = await StaticNodeJSService.InvokeFromStringAsync<string>(
+        var actual = await nodeService.InvokeFromStringAsync<string>(
             nodeModule,
             args: new object[] { request, paging });
 
@@ -1004,6 +1021,8 @@ public class PromotionTests
                 }
             }.ToAsyncEnumerable());
 
+        using var nodeService = _nodeJsFixture.BuildNodeJsService();
+
         var isWindows = RuntimeInformation.IsOSPlatform(OSPlatform.Windows) ? "true" : "false";
 
         var nodeModule = $$"""
@@ -1059,7 +1078,7 @@ public class PromotionTests
         };
 
         // Act
-        var actual = await StaticNodeJSService.InvokeFromStringAsync<string>(
+        var actual = await nodeService.InvokeFromStringAsync<string>(
             nodeModule,
             args: new object[] { request, paging });
 
@@ -1141,6 +1160,8 @@ public class PromotionTests
             Arg.Any<CancellationToken>())
             .Returns(promotionId);
 
+        using var nodeService = _nodeJsFixture.BuildNodeJsService();
+
         var isWindows = RuntimeInformation.IsOSPlatform(OSPlatform.Windows) ? "true" : "false";
 
         var nodeModule = $$"""
@@ -1158,7 +1179,7 @@ public class PromotionTests
         """;
 
         // Act
-        var actual = await StaticNodeJSService.InvokeFromStringAsync<MessageResponse>(
+        var actual = await nodeService.InvokeFromStringAsync<MessageResponse>(
             nodeModule,
             args: new object[] { request });
 
@@ -1241,6 +1262,8 @@ public class PromotionTests
             Unlimited = true,
         };
 
+        using var nodeService = _nodeJsFixture.BuildNodeJsService();
+
         var isWindows = RuntimeInformation.IsOSPlatform(OSPlatform.Windows) ? "true" : "false";
 
         var nodeModule = $$"""
@@ -1258,7 +1281,7 @@ public class PromotionTests
         """;
 
         // Act
-        var actual = await StaticNodeJSService.InvokeFromStringAsync<MessageResponse>(
+        var actual = await nodeService.InvokeFromStringAsync<MessageResponse>(
             nodeModule,
             args: new object[] { brandId, request });
 
@@ -1400,6 +1423,8 @@ public class PromotionTests
             Arg.Any<CancellationToken>())
             .Returns(expectedPromotionId);
 
+        using var nodeService = _nodeJsFixture.BuildNodeJsService();
+
         var isWindows = RuntimeInformation.IsOSPlatform(OSPlatform.Windows) ? "true" : "false";
 
         var nodeModule = $$"""
@@ -1417,7 +1442,7 @@ public class PromotionTests
         """;
 
         // Act
-        var actual = await StaticNodeJSService.InvokeFromStringAsync<ResponseViewModel<Guid?>>(
+        var actual = await nodeService.InvokeFromStringAsync<ResponseViewModel<Guid?>>(
             nodeModule,
             args: new object[] { basePromotionId });
 
@@ -1496,6 +1521,8 @@ public class PromotionTests
                 BrandId = Guid.NewGuid()
             });
 
+        using var nodeService = _nodeJsFixture.BuildNodeJsService();
+
         var isWindows = RuntimeInformation.IsOSPlatform(OSPlatform.Windows) ? "true" : "false";
 
         var nodeModule = $$"""
@@ -1513,7 +1540,7 @@ public class PromotionTests
         """;
 
         // Act
-        var actual = await StaticNodeJSService.InvokeFromStringAsync<MessageResponse>(
+        var actual = await nodeService.InvokeFromStringAsync<MessageResponse>(
             nodeModule,
             args: new object[] { promotionId, request });
 
@@ -1617,6 +1644,8 @@ public class PromotionTests
                 BrandId = Guid.NewGuid()
             });
 
+        using var nodeService = _nodeJsFixture.BuildNodeJsService();
+
         var isWindows = RuntimeInformation.IsOSPlatform(OSPlatform.Windows) ? "true" : "false";
 
         var nodeModule = $$"""
@@ -1634,7 +1663,7 @@ public class PromotionTests
         """;
 
         // Act
-        var actual = await StaticNodeJSService.InvokeFromStringAsync<MessageResponse>(
+        var actual = await nodeService.InvokeFromStringAsync<MessageResponse>(
             nodeModule,
             args: new object[] { promotionId, request });
 
@@ -1699,6 +1728,8 @@ public class PromotionTests
             Localization = JsonDocument.Parse("{}")
         };
 
+        using var nodeService = _nodeJsFixture.BuildNodeJsService();
+
         var isWindows = RuntimeInformation.IsOSPlatform(OSPlatform.Windows) ? "true" : "false";
 
         var nodeModule = $$"""
@@ -1716,7 +1747,7 @@ public class PromotionTests
         """;
 
         // Act
-        var actual = await StaticNodeJSService.InvokeFromStringAsync<MessageResponse>(
+        var actual = await nodeService.InvokeFromStringAsync<MessageResponse>(
             nodeModule,
             args: new object[] { promotionId, request });
 
@@ -1762,6 +1793,8 @@ public class PromotionTests
         var promotionId = Guid.NewGuid();
         var status = TGS.Core.Models.Enums.PromotionStatus.Enabled;
 
+        using var nodeService = _nodeJsFixture.BuildNodeJsService();
+
         var isWindows = RuntimeInformation.IsOSPlatform(OSPlatform.Windows) ? "true" : "false";
 
         var nodeModule = $$"""
@@ -1779,7 +1812,7 @@ public class PromotionTests
         """;
 
         // Act
-        var actual = await StaticNodeJSService.InvokeFromStringAsync<MessageResponse>(
+        var actual = await nodeService.InvokeFromStringAsync<MessageResponse>(
             nodeModule,
             args: new object[] { promotionId, status });
 
@@ -1831,6 +1864,8 @@ public class PromotionTests
             VipLevels = new[] { 1, 2, 3 }
         };
 
+        using var nodeService = _nodeJsFixture.BuildNodeJsService();
+
         var isWindows = RuntimeInformation.IsOSPlatform(OSPlatform.Windows) ? "true" : "false";
 
         var nodeModule = $$"""
@@ -1848,7 +1883,7 @@ public class PromotionTests
         """;
 
         // Act
-        var actual = await StaticNodeJSService.InvokeFromStringAsync<MessageResponse>(
+        var actual = await nodeService.InvokeFromStringAsync<MessageResponse>(
             nodeModule,
             args: new object[] { promotionId, request });
 

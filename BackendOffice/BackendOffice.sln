@@ -1,0 +1,31 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 12.00
+# Visual Studio Version 17
+VisualStudioVersion = 17.5.002.0
+MinimumVisualStudioVersion = 10.0.40219.1
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "BackendOffice - Backup", "BackendOffice - Backup.csproj", "{90A190CC-FBE8-4448-840D-0DC9AFFB0087}"
+EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "BackendOffice", "BackendOffice.csproj", "{DC69D9C7-A8F3-4F3E-A84E-F4FC2405A87E}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Any CPU = Debug|Any CPU
+		Release|Any CPU = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{90A190CC-FBE8-4448-840D-0DC9AFFB0087}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{90A190CC-FBE8-4448-840D-0DC9AFFB0087}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{90A190CC-FBE8-4448-840D-0DC9AFFB0087}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{90A190CC-FBE8-4448-840D-0DC9AFFB0087}.Release|Any CPU.Build.0 = Release|Any CPU
+		{DC69D9C7-A8F3-4F3E-A84E-F4FC2405A87E}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{DC69D9C7-A8F3-4F3E-A84E-F4FC2405A87E}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{DC69D9C7-A8F3-4F3E-A84E-F4FC2405A87E}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{DC69D9C7-A8F3-4F3E-A84E-F4FC2405A87E}.Release|Any CPU.Build.0 = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(ExtensibilityGlobals) = postSolution
+		SolutionGuid = {A2B40B87-6231-470A-A857-E06C0D056A23}
+	EndGlobalSection
+EndGlobal

@@ -1,5 +1,4 @@
 ﻿using System.Runtime.InteropServices;
-using Jering.Javascript.NodeJS;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
@@ -15,10 +14,12 @@ namespace BackendOffice.IntegrationTests;
 public class DepositTests
 {
     private readonly ITestOutputHelper _testOutputHelper;
+    private readonly NodeJsFixture _nodeJsFixture;
 
-    public DepositTests(ITestOutputHelper testOutputHelper)
+    public DepositTests(ITestOutputHelper testOutputHelper, NodeJsFixture nodeJsFixture)
     {
         _testOutputHelper = testOutputHelper ?? throw new ArgumentNullException(nameof(testOutputHelper));
+        _nodeJsFixture = nodeJsFixture ?? throw new ArgumentNullException(nameof(nodeJsFixture));
     }
 
     [Fact]
@@ -89,6 +90,8 @@ public class DepositTests
                 }
             }.ToAsyncEnumerable());
 
+        using var nodeService = _nodeJsFixture.BuildNodeJsService();
+
         var isWindows = RuntimeInformation.IsOSPlatform(OSPlatform.Windows) ? "true" : "false";
 
         var nodeModule = $$"""
@@ -106,7 +109,7 @@ public class DepositTests
             """;
 
         // Act
-        var actual = await StaticNodeJSService.InvokeFromStringAsync<string>(
+        var actual = await nodeService.InvokeFromStringAsync<string>(
             nodeModule,
             args: new object[] {
                 brandId,

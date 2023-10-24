@@ -1,5 +1,4 @@
 ﻿using System.Runtime.InteropServices;
-using Jering.Javascript.NodeJS;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
@@ -13,10 +12,12 @@ namespace BackendOffice.IntegrationTests;
 public class AgentDomainTests
 {
     private readonly ITestOutputHelper _testOutputHelper;
+    private readonly NodeJsFixture _nodeJsFixture;
 
-    public AgentDomainTests(ITestOutputHelper testOutputHelper)
+    public AgentDomainTests(ITestOutputHelper testOutputHelper, NodeJsFixture nodeJsFixture)
     {
         _testOutputHelper = testOutputHelper ?? throw new ArgumentNullException(nameof(testOutputHelper));
+        _nodeJsFixture = nodeJsFixture ?? throw new ArgumentNullException(nameof(nodeJsFixture));
     }
 
     [Fact]
@@ -62,6 +63,8 @@ public class AgentDomainTests
         _ = fakeAgentRepository.QueryDomainsFromAgentAsync(Arg.Is(agentId))
             .Returns(expected.Data.ToAsyncEnumerable());
 
+        using var nodeService = _nodeJsFixture.BuildNodeJsService();
+
         var isWindows = RuntimeInformation.IsOSPlatform(OSPlatform.Windows) ? "true" : "false";
 
         var nodeModule = $$"""
@@ -79,7 +82,7 @@ public class AgentDomainTests
         """;
 
         // Act
-        var actual = await StaticNodeJSService.InvokeFromStringAsync<ResponseViewModel<string[]>>(
+        var actual = await nodeService.InvokeFromStringAsync<ResponseViewModel<string[]>>(
             nodeModule,
             args: new object[] { brandId, agentId });
 
@@ -119,6 +122,8 @@ public class AgentDomainTests
         var agentId = Guid.NewGuid();
         var domain = "test.com";
 
+        using var nodeService = _nodeJsFixture.BuildNodeJsService();
+
         var isWindows = RuntimeInformation.IsOSPlatform(OSPlatform.Windows) ? "true" : "false";
 
         var nodeModule = $$"""
@@ -136,7 +141,7 @@ public class AgentDomainTests
         """;
 
         // Act
-        await StaticNodeJSService.InvokeFromStringAsync(
+        await nodeService.InvokeFromStringAsync(
             nodeModule,
             args: new object[] { brandId, agentId, domain });
 
@@ -178,6 +183,8 @@ public class AgentDomainTests
         var agentId = Guid.NewGuid();
         var domain = "test.com";
 
+        using var nodeService = _nodeJsFixture.BuildNodeJsService();
+
         var isWindows = RuntimeInformation.IsOSPlatform(OSPlatform.Windows) ? "true" : "false";
 
         var nodeModule = $$"""
@@ -195,7 +202,7 @@ public class AgentDomainTests
         """;
 
         // Act
-        await StaticNodeJSService.InvokeFromStringAsync(
+        await nodeService.InvokeFromStringAsync(
             nodeModule,
             args: new object[] { brandId, agentId, domain });
 

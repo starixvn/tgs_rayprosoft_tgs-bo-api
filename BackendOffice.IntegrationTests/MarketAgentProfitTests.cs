@@ -1,7 +1,6 @@
 ﻿using System.Data.SqlClient;
 using System.Runtime.InteropServices;
 using ExpectedObjects;
-using Jering.Javascript.NodeJS;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
@@ -9,7 +8,6 @@ using NSubstitute;
 using Tgs.ServiceUtility;
 using TGS.Core.Models.Messages;
 using TGS.Services.BackOffice.Application.Models.ReportMarket;
-using TGS.Services.BackOffice.ApplicationServices;
 using Xunit.Abstractions;
 
 namespace BackendOffice.IntegrationTests;
@@ -17,10 +15,12 @@ namespace BackendOffice.IntegrationTests;
 public class MarketAgentProfitTests
 {
     private readonly ITestOutputHelper _testOutputHelper;
+    private readonly NodeJsFixture _nodeJsFixture;
 
-    public MarketAgentProfitTests(ITestOutputHelper testOutputHelper)
+    public MarketAgentProfitTests(ITestOutputHelper testOutputHelper, NodeJsFixture nodeJsFixture)
     {
         _testOutputHelper = testOutputHelper ?? throw new ArgumentNullException(nameof(testOutputHelper));
+        _nodeJsFixture = nodeJsFixture ?? throw new ArgumentNullException(nameof(nodeJsFixture));
     }
 
     [Fact]
@@ -83,6 +83,8 @@ public class MarketAgentProfitTests
             cancellationToken: Arg.Any<CancellationToken>())
             .Returns(response);
 
+        using var nodeService = _nodeJsFixture.BuildNodeJsService();
+
         var isWindows = RuntimeInformation.IsOSPlatform(OSPlatform.Windows) ? "true" : "false";
 
         var nodeModule = $$"""
@@ -100,7 +102,7 @@ public class MarketAgentProfitTests
         """;
 
         // Act
-        var actual = await StaticNodeJSService.InvokeFromStringAsync<PagedResponse<MarketAgentProfitReportModel>>(
+        var actual = await nodeService.InvokeFromStringAsync<PagedResponse<MarketAgentProfitReportModel>>(
             nodeModule,
             args: new object[] { request });
 

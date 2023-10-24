@@ -3,7 +3,6 @@ using System.Reflection;
 using System.Runtime.InteropServices;
 using System.Text.Json.Nodes;
 using ExpectedObjects;
-using Jering.Javascript.NodeJS;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
@@ -13,7 +12,6 @@ using TGS.Apis.BackendOffice.ViewModels;
 using TGS.Core.Models.Enums;
 using TGS.Services.BackOffice.Domain;
 using Valhalla.MessageQueue;
-using Xunit;
 using Xunit.Abstractions;
 
 namespace BackendOffice.IntegrationTests;
@@ -21,10 +19,12 @@ namespace BackendOffice.IntegrationTests;
 public class BatchAdjustBalanceTests
 {
     private readonly ITestOutputHelper _testOutputHelper;
+    private readonly NodeJsFixture _nodeJsFixture;
 
-    public BatchAdjustBalanceTests(ITestOutputHelper testOutputHelper)
+    public BatchAdjustBalanceTests(ITestOutputHelper testOutputHelper, NodeJsFixture nodeJsFixture)
     {
         _testOutputHelper = testOutputHelper ?? throw new ArgumentNullException(nameof(testOutputHelper));
+        _nodeJsFixture = nodeJsFixture ?? throw new ArgumentNullException(nameof(nodeJsFixture));
     }
 
     [Fact]
@@ -166,6 +166,8 @@ public class BatchAdjustBalanceTests
                 return batchId;
             });
 
+        using var nodeService = _nodeJsFixture.BuildNodeJsService();
+
         var isWindows = RuntimeInformation.IsOSPlatform(OSPlatform.Windows) ? "true" : "false";
 
         var nodeModule = $$"""
@@ -183,7 +185,7 @@ public class BatchAdjustBalanceTests
         """;
 
         // Act
-        var actual = await StaticNodeJSService.InvokeFromStringAsync<string>(
+        var actual = await nodeService.InvokeFromStringAsync<string>(
             nodeModule,
             args: new object[] { brandId, clientToken, importFilePath });
 
@@ -221,6 +223,8 @@ public class BatchAdjustBalanceTests
 
         await web.StartAsync();
 
+        using var nodeService = _nodeJsFixture.BuildNodeJsService();
+
         var isWindows = RuntimeInformation.IsOSPlatform(OSPlatform.Windows) ? "true" : "false";
 
         var nodeModule = $$"""
@@ -238,7 +242,7 @@ public class BatchAdjustBalanceTests
         """;
 
         // Act
-        var actual = await StaticNodeJSService.InvokeFromStringAsync<JsonNode>(
+        var actual = await nodeService.InvokeFromStringAsync<JsonNode>(
             nodeModule);
 
         // Assert
@@ -284,6 +288,8 @@ public class BatchAdjustBalanceTests
             TransactionType = PlayerAdjustmentTransactionType.CompanyAdjust
         };
 
+        using var nodeService = _nodeJsFixture.BuildNodeJsService();
+
         var isWindows = RuntimeInformation.IsOSPlatform(OSPlatform.Windows) ? "true" : "false";
 
         var nodeModule = $$"""
@@ -301,7 +307,7 @@ public class BatchAdjustBalanceTests
         """;
 
         // Act
-        var actual = await StaticNodeJSService.InvokeFromStringAsync<int>(
+        var actual = await nodeService.InvokeFromStringAsync<int>(
             nodeModule, args: new object[] { batchId, brandId, condition });
 
         // Assert
@@ -342,6 +348,8 @@ public class BatchAdjustBalanceTests
         await web.StartAsync();
 
         var batchId = Guid.NewGuid();
+
+        using var nodeService = _nodeJsFixture.BuildNodeJsService();
 
         var isWindows = RuntimeInformation.IsOSPlatform(OSPlatform.Windows) ? "true" : "false";
 
@@ -396,7 +404,7 @@ public class BatchAdjustBalanceTests
         }).ToArray();
 
         // Act
-        var actual = await StaticNodeJSService.InvokeFromStringAsync<BatchAdjustBalanceItemViewModel[]>(
+        var actual = await nodeService.InvokeFromStringAsync<BatchAdjustBalanceItemViewModel[]>(
             nodeModule,
             args: new object[] { batchId });
 
@@ -437,6 +445,8 @@ public class BatchAdjustBalanceTests
             Arg.Is(batchId),
             Arg.Any<CancellationToken>()).Returns(true);
 
+        using var nodeService = _nodeJsFixture.BuildNodeJsService();
+
         var isWindows = RuntimeInformation.IsOSPlatform(OSPlatform.Windows) ? "true" : "false";
 
         var nodeModule = $$"""
@@ -454,7 +464,7 @@ public class BatchAdjustBalanceTests
         """;
 
         // Act
-        var actual = await StaticNodeJSService.InvokeFromStringAsync<int>(
+        var actual = await nodeService.InvokeFromStringAsync<int>(
             nodeModule, args: new object[] { batchId });
 
         // Assert
@@ -489,6 +499,8 @@ public class BatchAdjustBalanceTests
         await web.StartAsync();
 
         var batchId = Guid.NewGuid();
+
+        using var nodeService = _nodeJsFixture.BuildNodeJsService();
 
         var isWindows = RuntimeInformation.IsOSPlatform(OSPlatform.Windows) ? "true" : "false";
 
@@ -528,7 +540,7 @@ public class BatchAdjustBalanceTests
         }).ToArray();
 
         // Act
-        var actual = await StaticNodeJSService.InvokeFromStringAsync<BatchAdjustBalanceItemResultViewModel[]>(
+        var actual = await nodeService.InvokeFromStringAsync<BatchAdjustBalanceItemResultViewModel[]>(
             nodeModule,
             args: new object[] { batchId });
 

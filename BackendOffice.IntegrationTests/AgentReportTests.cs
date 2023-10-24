@@ -1,7 +1,6 @@
 ﻿using System.Data.SqlClient;
 using System.Runtime.InteropServices;
 using ExpectedObjects;
-using Jering.Javascript.NodeJS;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
@@ -17,10 +16,12 @@ namespace BackendOffice.IntegrationTests;
 public class AgentReportTests
 {
     private readonly ITestOutputHelper _testOutputHelper;
+    private readonly NodeJsFixture _nodeJsFixture;
 
-    public AgentReportTests(ITestOutputHelper testOutputHelper)
+    public AgentReportTests(ITestOutputHelper testOutputHelper, NodeJsFixture nodeJsFixture)
     {
         _testOutputHelper = testOutputHelper ?? throw new ArgumentNullException(nameof(testOutputHelper));
+        _nodeJsFixture = nodeJsFixture ?? throw new ArgumentNullException(nameof(nodeJsFixture));
     }
 
     [Fact]
@@ -98,6 +99,8 @@ public class AgentReportTests
         _ = fakeReportClient.GetAgentPlayerWinLossAsync(Arg.Any<GetAgentPlayerWinLossRequest>())
             .Returns(response);
 
+        using var nodeService = _nodeJsFixture.BuildNodeJsService();
+
         var isWindows = RuntimeInformation.IsOSPlatform(OSPlatform.Windows) ? "true" : "false";
 
         var nodeModule = $$"""
@@ -115,7 +118,7 @@ public class AgentReportTests
         """;
 
         // Act
-        var actual = await StaticNodeJSService.InvokeFromStringAsync<PagedResponse<AgentPlayerWinLossReportModel>>(
+        var actual = await nodeService.InvokeFromStringAsync<PagedResponse<AgentPlayerWinLossReportModel>>(
             nodeModule,
             args: new object[] { agentId, queryCondition, paging });
 

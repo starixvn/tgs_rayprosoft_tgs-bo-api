@@ -3,7 +3,6 @@ using System.Globalization;
 using System.Runtime.InteropServices;
 using System.Text.Json;
 using ExpectedObjects;
-using Jering.Javascript.NodeJS;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
@@ -27,10 +26,12 @@ namespace BackendOffice.IntegrationTests;
 public class BrandTests
 {
     private readonly ITestOutputHelper _testOutputHelper;
+    private readonly NodeJsFixture _nodeJsFixture;
 
-    public BrandTests(ITestOutputHelper testOutputHelper)
+    public BrandTests(ITestOutputHelper testOutputHelper, NodeJsFixture nodeJsFixture)
     {
         _testOutputHelper = testOutputHelper ?? throw new ArgumentNullException(nameof(testOutputHelper));
+        _nodeJsFixture = nodeJsFixture ?? throw new ArgumentNullException(nameof(nodeJsFixture));
     }
 
     [Fact]
@@ -98,6 +99,8 @@ public class BrandTests
                     "TGS")
             }.ToAsyncEnumerable());
 
+        using var nodeService = _nodeJsFixture.BuildNodeJsService();
+
         var isWindows = RuntimeInformation.IsOSPlatform(OSPlatform.Windows) ? "true" : "false";
 
         var nodeModule = $$"""
@@ -153,7 +156,7 @@ public class BrandTests
         };
 
         // Act
-        var actual = await StaticNodeJSService.InvokeFromStringAsync<string>(
+        var actual = await nodeService.InvokeFromStringAsync<string>(
             nodeModule,
             args: new object[] { request, paging });
 
@@ -235,6 +238,8 @@ public class BrandTests
                     "TGS")
             }.ToAsyncEnumerable());
 
+        using var nodeService = _nodeJsFixture.BuildNodeJsService();
+
         var isWindows = RuntimeInformation.IsOSPlatform(OSPlatform.Windows) ? "true" : "false";
 
         var nodeModule = $$"""
@@ -290,7 +295,7 @@ public class BrandTests
         };
 
         // Act
-        var actual = await StaticNodeJSService.InvokeFromStringAsync<string>(
+        var actual = await nodeService.InvokeFromStringAsync<string>(
             nodeModule,
             args: new object[] { request, paging });
 
@@ -370,6 +375,8 @@ public class BrandTests
                     "TGS")
             }.ToAsyncEnumerable());
 
+        using var nodeService = _nodeJsFixture.BuildNodeJsService();
+
         var isWindows = RuntimeInformation.IsOSPlatform(OSPlatform.Windows) ? "true" : "false";
 
         var nodeModule = $$"""
@@ -425,7 +432,7 @@ public class BrandTests
         };
 
         // Act
-        var actual = await StaticNodeJSService.InvokeFromStringAsync<string>(
+        var actual = await nodeService.InvokeFromStringAsync<string>(
             nodeModule,
             args: new object[] { request, paging });
 
@@ -507,6 +514,8 @@ public class BrandTests
                     "TGS")
             }.ToAsyncEnumerable());
 
+        using var nodeService = _nodeJsFixture.BuildNodeJsService();
+
         var isWindows = RuntimeInformation.IsOSPlatform(OSPlatform.Windows) ? "true" : "false";
 
         var nodeModule = $$"""
@@ -562,7 +571,7 @@ public class BrandTests
         };
 
         // Act
-        var actual = await StaticNodeJSService.InvokeFromStringAsync<string>(
+        var actual = await nodeService.InvokeFromStringAsync<string>(
             nodeModule,
             args: new object[] { request, paging });
 
@@ -661,6 +670,8 @@ public class BrandTests
                     "TGS")
             }.ToAsyncEnumerable());
 
+        using var nodeService = _nodeJsFixture.BuildNodeJsService();
+
         var isWindows = RuntimeInformation.IsOSPlatform(OSPlatform.Windows) ? "true" : "false";
 
         var nodeModule = $$"""
@@ -731,7 +742,7 @@ public class BrandTests
         };
 
         // Act
-        var actual = await StaticNodeJSService.InvokeFromStringAsync<string>(
+        var actual = await nodeService.InvokeFromStringAsync<string>(
             nodeModule,
             args: new object[] { request, paging });
 
@@ -799,6 +810,8 @@ public class BrandTests
                 Arg.Any<CreateBrandInfo>(),
                 Arg.Any<CancellationToken>())
             .Returns(brandId);
+
+        using var nodeService = _nodeJsFixture.BuildNodeJsService();
 
         var isWindows = RuntimeInformation.IsOSPlatform(OSPlatform.Windows) ? "true" : "false";
 
@@ -870,7 +883,7 @@ public class BrandTests
         };
 
         // Act
-        var actual = await StaticNodeJSService.InvokeFromStringAsync<MessageResponse>(
+        var actual = await nodeService.InvokeFromStringAsync<MessageResponse>(
             nodeModule,
             args: new object[] { request });
 
@@ -937,6 +950,8 @@ public class BrandTests
                 Arg.Any<CreateBrandInfo>(),
                 Arg.Any<CancellationToken>())
             .Returns(brandId);
+
+        using var nodeService = _nodeJsFixture.BuildNodeJsService();
 
         var isWindows = RuntimeInformation.IsOSPlatform(OSPlatform.Windows) ? "true" : "false";
 
@@ -1008,7 +1023,7 @@ public class BrandTests
         };
 
         // Act
-        var actual = await StaticNodeJSService.InvokeFromStringAsync<MessageResponse>(
+        var actual = await nodeService.InvokeFromStringAsync<MessageResponse>(
             nodeModule,
             args: new object[] { request });
 
@@ -1076,6 +1091,8 @@ public class BrandTests
                 Arg.Any<CreateBrandInfo>(),
                 Arg.Any<CancellationToken>())
             .Returns(brandId);
+
+        using var nodeService = _nodeJsFixture.BuildNodeJsService();
 
         var isWindows = RuntimeInformation.IsOSPlatform(OSPlatform.Windows) ? "true" : "false";
 
@@ -1147,7 +1164,7 @@ public class BrandTests
         };
 
         // Act
-        var actual = await StaticNodeJSService.InvokeFromStringAsync<MessageResponse>(
+        var actual = await nodeService.InvokeFromStringAsync<MessageResponse>(
             nodeModule,
             args: new object[] { request });
 
@@ -1276,6 +1293,8 @@ public class BrandTests
                     "TGS"),
             }.ToAsyncEnumerable());
 
+        using var nodeService = _nodeJsFixture.BuildNodeJsService();
+
         var isWindows = RuntimeInformation.IsOSPlatform(OSPlatform.Windows) ? "true" : "false";
 
         var nodeModule = $$"""
@@ -1343,7 +1362,7 @@ public class BrandTests
         };
 
         // Act
-        var actual = await StaticNodeJSService.InvokeFromStringAsync<string>(
+        var actual = await nodeService.InvokeFromStringAsync<string>(
             nodeModule,
             args: new object[] { request, paging });
 
@@ -1399,6 +1418,8 @@ public class BrandTests
                 Status = BrandStatus.Active
             });
 
+        using var nodeService = _nodeJsFixture.BuildNodeJsService();
+
         var isWindows = RuntimeInformation.IsOSPlatform(OSPlatform.Windows) ? "true" : "false";
 
         var nodeModule = $$"""
@@ -1416,7 +1437,7 @@ public class BrandTests
         """;
 
         // Act
-        var actual = await StaticNodeJSService.InvokeFromStringAsync<MessageResponse>(
+        var actual = await nodeService.InvokeFromStringAsync<MessageResponse>(
             nodeModule,
             args: new object[] { brandId, Enums.BrandStatus.Maintenance.ToString() });
 
@@ -1464,6 +1485,8 @@ public class BrandTests
                 Status = BrandStatus.Archived
             });
 
+        using var nodeService = _nodeJsFixture.BuildNodeJsService();
+
         var isWindows = RuntimeInformation.IsOSPlatform(OSPlatform.Windows) ? "true" : "false";
 
         var nodeModule = $$"""
@@ -1481,7 +1504,7 @@ public class BrandTests
         """;
 
         // Act
-        var actual = await StaticNodeJSService.InvokeFromStringAsync<MessageResponse>(
+        var actual = await nodeService.InvokeFromStringAsync<MessageResponse>(
             nodeModule,
             args: new object[] { brandId, Enums.BrandStatus.Maintenance.ToString() });
 

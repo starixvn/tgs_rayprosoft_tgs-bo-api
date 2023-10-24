@@ -1,6 +1,5 @@
 ﻿using System.Runtime.InteropServices;
 using ExpectedObjects;
-using Jering.Javascript.NodeJS;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
@@ -21,10 +20,12 @@ namespace BackendOffice.IntegrationTests;
 public class OverviewTests
 {
     private readonly ITestOutputHelper _testOutputHelper;
+    private readonly NodeJsFixture _nodeJsFixture;
 
-    public OverviewTests(ITestOutputHelper testOutputHelper)
+    public OverviewTests(ITestOutputHelper testOutputHelper, NodeJsFixture nodeJsFixture)
     {
         _testOutputHelper = testOutputHelper ?? throw new ArgumentNullException(nameof(testOutputHelper));
+        _nodeJsFixture = nodeJsFixture ?? throw new ArgumentNullException(nameof(nodeJsFixture));
     }
 
     [Fact]
@@ -146,6 +147,8 @@ public class OverviewTests
             }
         };
 
+        using var nodeService = _nodeJsFixture.BuildNodeJsService();
+
         var isWindows = RuntimeInformation.IsOSPlatform(OSPlatform.Windows) ? "true" : "false";
 
         var nodeModule = $$"""
@@ -163,7 +166,7 @@ public class OverviewTests
             """;
 
         // Act
-        var actual = await StaticNodeJSService.InvokeFromStringAsync<TopTenPlayerViewModel[]>(
+        var actual = await nodeService.InvokeFromStringAsync<TopTenPlayerViewModel[]>(
             nodeModule,
             args: new object[] { brandId, sortType, ascending });
 
@@ -293,6 +296,8 @@ public class OverviewTests
             }
         };
 
+        using var nodeService = _nodeJsFixture.BuildNodeJsService();
+
         var isWindows = RuntimeInformation.IsOSPlatform(OSPlatform.Windows) ? "true" : "false";
 
         var nodeModule = $$"""
@@ -310,7 +315,7 @@ public class OverviewTests
             """;
 
         // Act
-        var actual = await StaticNodeJSService.InvokeFromStringAsync<TopTenPlayerViewModel[]>(
+        var actual = await nodeService.InvokeFromStringAsync<TopTenPlayerViewModel[]>(
             nodeModule,
             args: new object[] { brandId, sortType, ascending });
 
@@ -440,6 +445,8 @@ public class OverviewTests
             }
         };
 
+        using var nodeService = _nodeJsFixture.BuildNodeJsService();
+
         var isWindows = RuntimeInformation.IsOSPlatform(OSPlatform.Windows) ? "true" : "false";
 
         var nodeModule = $$"""
@@ -457,7 +464,7 @@ public class OverviewTests
             """;
 
         // Act
-        var actual = await StaticNodeJSService.InvokeFromStringAsync<TopTenPlayerViewModel[]>(
+        var actual = await nodeService.InvokeFromStringAsync<TopTenPlayerViewModel[]>(
             nodeModule,
             args: new object[] { brandId, sortType, ascending });
 
@@ -584,6 +591,8 @@ public class OverviewTests
             }
         };
 
+        using var nodeService = _nodeJsFixture.BuildNodeJsService();
+
         var isWindows = RuntimeInformation.IsOSPlatform(OSPlatform.Windows) ? "true" : "false";
 
         var nodeModule = $$"""
@@ -601,7 +610,7 @@ public class OverviewTests
             """;
 
         // Act
-        var actual = await StaticNodeJSService.InvokeFromStringAsync<TopTenPlayerViewModel[]>(
+        var actual = await nodeService.InvokeFromStringAsync<TopTenPlayerViewModel[]>(
             nodeModule,
             args: new object[] { brandId, sortType, ascending });
 
@@ -731,6 +740,8 @@ public class OverviewTests
             }
         };
 
+        using var nodeService = _nodeJsFixture.BuildNodeJsService();
+
         var isWindows = RuntimeInformation.IsOSPlatform(OSPlatform.Windows) ? "true" : "false";
 
         var nodeModule = $$"""
@@ -748,7 +759,7 @@ public class OverviewTests
             """;
 
         // Act
-        var actual = await StaticNodeJSService.InvokeFromStringAsync<TopTenPlayerViewModel[]>(
+        var actual = await nodeService.InvokeFromStringAsync<TopTenPlayerViewModel[]>(
             nodeModule,
             args: new object[] { brandId, sortType, ascending });
 
@@ -878,6 +889,8 @@ public class OverviewTests
             }
         };
 
+        using var nodeService = _nodeJsFixture.BuildNodeJsService();
+
         var isWindows = RuntimeInformation.IsOSPlatform(OSPlatform.Windows) ? "true" : "false";
 
         var nodeModule = $$"""
@@ -895,7 +908,7 @@ public class OverviewTests
             """;
 
         // Act
-        var actual = await StaticNodeJSService.InvokeFromStringAsync<TopTenPlayerViewModel[]>(
+        var actual = await nodeService.InvokeFromStringAsync<TopTenPlayerViewModel[]>(
             nodeModule,
             args: new object[] { brandId, sortType, ascending });
 
@@ -1008,6 +1021,8 @@ public class OverviewTests
             }
         };
 
+        using var nodeService = _nodeJsFixture.BuildNodeJsService();
+
         var isWindows = RuntimeInformation.IsOSPlatform(OSPlatform.Windows) ? "true" : "false";
 
         var nodeModule = $$"""
@@ -1025,7 +1040,7 @@ public class OverviewTests
             """;
 
         // Act
-        var actual = await StaticNodeJSService.InvokeFromStringAsync<TopTenGameViewModel[]>(
+        var actual = await nodeService.InvokeFromStringAsync<TopTenGameViewModel[]>(
             nodeModule,
             args: new object[] { brandId, sortType, winLossAscending });
 
@@ -1138,6 +1153,8 @@ public class OverviewTests
             }
         };
 
+        using var nodeService = _nodeJsFixture.BuildNodeJsService();
+
         var isWindows = RuntimeInformation.IsOSPlatform(OSPlatform.Windows) ? "true" : "false";
 
         var nodeModule = $$"""
@@ -1155,7 +1172,7 @@ public class OverviewTests
             """;
 
         // Act
-        var actual = await StaticNodeJSService.InvokeFromStringAsync<TopTenGameViewModel[]>(
+        var actual = await nodeService.InvokeFromStringAsync<TopTenGameViewModel[]>(
             nodeModule,
             args: new object[] { brandId, sortType, ascending });
 
@@ -1268,6 +1285,8 @@ public class OverviewTests
             }
         };
 
+        using var nodeService = _nodeJsFixture.BuildNodeJsService();
+
         var isWindows = RuntimeInformation.IsOSPlatform(OSPlatform.Windows) ? "true" : "false";
 
         var nodeModule = $$"""
@@ -1285,7 +1304,7 @@ public class OverviewTests
             """;
 
         // Act
-        var actual = await StaticNodeJSService.InvokeFromStringAsync<TopTenGameViewModel[]>(
+        var actual = await nodeService.InvokeFromStringAsync<TopTenGameViewModel[]>(
             nodeModule,
             args: new object[] { brandId, sortType, winLossAscending });
 
@@ -1330,6 +1349,8 @@ public class OverviewTests
             .GetBrandReportDateNetDepositAsync(Arg.Is(brandId), Arg.Any<DateOnly>(), Arg.Any<CancellationToken>())
             .Returns(168000m);
 
+        using var nodeService = _nodeJsFixture.BuildNodeJsService();
+
         var isWindows = RuntimeInformation.IsOSPlatform(OSPlatform.Windows) ? "true" : "false";
 
         var nodeModule = $$"""
@@ -1347,7 +1368,7 @@ public class OverviewTests
             """;
 
         // Act
-        var actual = await StaticNodeJSService.InvokeFromStringAsync<NetDepositViewModel>(
+        var actual = await nodeService.InvokeFromStringAsync<NetDepositViewModel>(
             nodeModule,
             args: new object[] { brandId });
 
@@ -1399,6 +1420,8 @@ public class OverviewTests
                 Arg.Any<CancellationToken>())
             .Returns(88m);
 
+        using var nodeService = _nodeJsFixture.BuildNodeJsService();
+
         var isWindows = RuntimeInformation.IsOSPlatform(OSPlatform.Windows) ? "true" : "false";
 
         var nodeModule = $$"""
@@ -1416,7 +1439,7 @@ public class OverviewTests
             """;
 
         // Act
-        var actual = await StaticNodeJSService.InvokeFromStringAsync<DayDepositSuccessRateViewModel>(
+        var actual = await nodeService.InvokeFromStringAsync<DayDepositSuccessRateViewModel>(
             nodeModule,
             args: new object[] { brandId });
 
@@ -1468,6 +1491,8 @@ public class OverviewTests
                 Arg.Any<CancellationToken>())
             .Returns(88);
 
+        using var nodeService = _nodeJsFixture.BuildNodeJsService();
+
         var isWindows = RuntimeInformation.IsOSPlatform(OSPlatform.Windows) ? "true" : "false";
 
         var nodeModule = $$"""
@@ -1485,7 +1510,7 @@ public class OverviewTests
             """;
 
         // Act
-        var actual = await StaticNodeJSService.InvokeFromStringAsync<DayPlayerRegisterCountViewModel>(
+        var actual = await nodeService.InvokeFromStringAsync<DayPlayerRegisterCountViewModel>(
             nodeModule,
             args: new object[] { brandId });
 
@@ -1530,6 +1555,8 @@ public class OverviewTests
                 Arg.Any<CancellationToken>())
             .Returns(168);
 
+        using var nodeService = _nodeJsFixture.BuildNodeJsService();
+
         var isWindows = RuntimeInformation.IsOSPlatform(OSPlatform.Windows) ? "true" : "false";
 
         var nodeModule = $$"""
@@ -1547,7 +1574,7 @@ public class OverviewTests
             """;
 
         // Act
-        var actual = await StaticNodeJSService.InvokeFromStringAsync<decimal>(
+        var actual = await nodeService.InvokeFromStringAsync<decimal>(
             nodeModule,
             args: new object[] { brandId });
 

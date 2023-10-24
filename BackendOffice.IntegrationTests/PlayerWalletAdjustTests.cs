@@ -1,6 +1,5 @@
 ﻿using System.Collections.Immutable;
 using System.Runtime.InteropServices;
-using Jering.Javascript.NodeJS;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
@@ -18,10 +17,12 @@ namespace BackendOffice.IntegrationTests;
 public class PlayerWalletAdjustTests
 {
     private readonly ITestOutputHelper _testOutputHelper;
+    private readonly NodeJsFixture _nodeJsFixture;
 
-    public PlayerWalletAdjustTests(ITestOutputHelper testOutputHelper)
+    public PlayerWalletAdjustTests(ITestOutputHelper testOutputHelper, NodeJsFixture nodeJsFixture)
     {
         _testOutputHelper = testOutputHelper ?? throw new ArgumentNullException(nameof(testOutputHelper));
+        _nodeJsFixture = nodeJsFixture ?? throw new ArgumentNullException(nameof(nodeJsFixture));
     }
 
     [Fact]
@@ -107,6 +108,8 @@ public class PlayerWalletAdjustTests
             request.IncludeInNetProfit,
             request.Remark);
 
+        using var nodeService = _nodeJsFixture.BuildNodeJsService();
+
         var isWindows = RuntimeInformation.IsOSPlatform(OSPlatform.Windows) ? "true" : "false";
 
         var nodeModule = $$"""
@@ -124,7 +127,7 @@ public class PlayerWalletAdjustTests
         """;
 
         // Act
-        var actual = await StaticNodeJSService.InvokeFromStringAsync<MessageResponse>(
+        var actual = await nodeService.InvokeFromStringAsync<MessageResponse>(
             nodeModule,
             args: new object[] { playerCode, request });
 
@@ -221,6 +224,8 @@ public class PlayerWalletAdjustTests
             request.IncludeInNetProfit,
             request.Remark);
 
+        using var nodeService = _nodeJsFixture.BuildNodeJsService();
+
         var isWindows = RuntimeInformation.IsOSPlatform(OSPlatform.Windows) ? "true" : "false";
 
         var nodeModule = $$"""
@@ -238,7 +243,7 @@ public class PlayerWalletAdjustTests
         """;
 
         // Act
-        var actual = await StaticNodeJSService.InvokeFromStringAsync<MessageResponse>(
+        var actual = await nodeService.InvokeFromStringAsync<MessageResponse>(
             nodeModule,
             args: new object[] { playerCode, request });
 
@@ -295,6 +300,8 @@ public class PlayerWalletAdjustTests
                 ["DefaultWalletId"] = walletId.ToString()
             }.ToImmutableDictionary());
 
+        using var nodeService = _nodeJsFixture.BuildNodeJsService();
+
         var isWindows = RuntimeInformation.IsOSPlatform(OSPlatform.Windows) ? "true" : "false";
 
         var nodeModule = $$"""
@@ -312,7 +319,7 @@ public class PlayerWalletAdjustTests
         """;
 
         // Act
-        await StaticNodeJSService.InvokeFromStringAsync(
+        await nodeService.InvokeFromStringAsync(
             nodeModule,
             args: new object[] { playerCode, lockAmount, remark });
 

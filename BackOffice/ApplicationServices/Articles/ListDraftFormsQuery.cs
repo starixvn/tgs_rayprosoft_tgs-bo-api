@@ -1,4 +1,4 @@
 ﻿using System;
 
 namespace TGS.Services.BackOffice.ApplicationServices.Articles;
-public record ListDraftFormsQuery(Guid BrandId);
+public record ListDraftFormsQuery(Guid BrandId, int Skip = 0);

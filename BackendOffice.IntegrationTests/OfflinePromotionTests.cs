@@ -1,7 +1,6 @@
 ﻿using System.Runtime.InteropServices;
 using System.Text.Json.Nodes;
 using ExpectedObjects;
-using Jering.Javascript.NodeJS;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
@@ -18,10 +17,12 @@ namespace BackendOffice.IntegrationTests;
 public class OfflinePromotionTests
 {
     private readonly ITestOutputHelper _testOutputHelper;
+    private readonly NodeJsFixture _nodeJsFixture;
 
-    public OfflinePromotionTests(ITestOutputHelper testOutputHelper)
+    public OfflinePromotionTests(ITestOutputHelper testOutputHelper, NodeJsFixture nodeJsFixture)
     {
         _testOutputHelper = testOutputHelper ?? throw new ArgumentNullException(nameof(testOutputHelper));
+        _nodeJsFixture = nodeJsFixture ?? throw new ArgumentNullException(nameof(nodeJsFixture));
     }
 
     [Fact]
@@ -70,6 +71,8 @@ public class OfflinePromotionTests
             Arg.Any<CancellationToken>())
             .Returns(batchId);
 
+        using var nodeService = _nodeJsFixture.BuildNodeJsService();
+
         var isWindows = RuntimeInformation.IsOSPlatform(OSPlatform.Windows) ? "true" : "false";
 
         var nodeModule = $$"""
@@ -95,7 +98,7 @@ public class OfflinePromotionTests
         var filePath = Path.Combine(Directory.GetCurrentDirectory(), "Assets/TestOfflineLoginReward.xlsx");
 
         // Act
-        var actual = await StaticNodeJSService.InvokeFromStringAsync<ResponseViewModel<Guid?>>(
+        var actual = await nodeService.InvokeFromStringAsync<ResponseViewModel<Guid?>>(
             nodeModule,
             args: new object[] { brandId, filePath });
 
@@ -143,6 +146,8 @@ public class OfflinePromotionTests
                 Arg.Any<CancellationToken>())
             .Returns(new MemoryStream());
 
+        using var nodeService = _nodeJsFixture.BuildNodeJsService();
+
         var isWindows = RuntimeInformation.IsOSPlatform(OSPlatform.Windows) ? "true" : "false";
 
         var nodeModule = $$"""
@@ -160,7 +165,7 @@ public class OfflinePromotionTests
         """;
 
         // Act
-        var actual = await StaticNodeJSService.InvokeFromStringAsync<JsonNode>(nodeModule);
+        var actual = await nodeService.InvokeFromStringAsync<JsonNode>(nodeModule);
 
         Assert.NotNull(actual);
         Assert.Equal(200, actual["status"]!.GetValue<int>());
@@ -202,6 +207,8 @@ public class OfflinePromotionTests
 
         var batchId = Guid.NewGuid();
 
+        using var nodeService = _nodeJsFixture.BuildNodeJsService();
+
         var isWindows = RuntimeInformation.IsOSPlatform(OSPlatform.Windows) ? "true" : "false";
 
         var nodeModule = $$"""
@@ -219,7 +226,7 @@ public class OfflinePromotionTests
         """;
 
         // Act
-        var actual = await StaticNodeJSService.InvokeFromStringAsync<int>(
+        var actual = await nodeService.InvokeFromStringAsync<int>(
             nodeModule,
             args: new object[] { batchId });
 

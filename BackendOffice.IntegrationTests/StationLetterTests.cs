@@ -2,7 +2,6 @@
 using System.Runtime.InteropServices;
 using System.Text.Json;
 using ExpectedObjects;
-using Jering.Javascript.NodeJS;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
@@ -13,7 +12,6 @@ using Tgs.StationLetterService;
 using Tgs.StationLetterService.Client;
 using TGS.Apis.BackendOffice.ViewModels;
 using TGS.Core.Models.Messages;
-using Xunit;
 using Xunit.Abstractions;
 
 namespace BackendOffice.IntegrationTests;
@@ -21,10 +19,12 @@ namespace BackendOffice.IntegrationTests;
 public class StationLetterTests
 {
     private readonly ITestOutputHelper _testOutputHelper;
+    private readonly NodeJsFixture _nodeJsFixture;
 
-    public StationLetterTests(ITestOutputHelper testOutputHelper)
+    public StationLetterTests(ITestOutputHelper testOutputHelper, NodeJsFixture nodeJsFixture)
     {
         _testOutputHelper = testOutputHelper ?? throw new ArgumentNullException(nameof(testOutputHelper));
+        _nodeJsFixture = nodeJsFixture ?? throw new ArgumentNullException(nameof(nodeJsFixture));
     }
 
     [Fact]
@@ -82,6 +82,8 @@ public class StationLetterTests
                 false,
                 false));
 
+        using var nodeService = _nodeJsFixture.BuildNodeJsService();
+
         var isWindows = RuntimeInformation.IsOSPlatform(OSPlatform.Windows) ? "true" : "false";
 
         var nodeModule = $$"""
@@ -99,7 +101,7 @@ public class StationLetterTests
             """;
 
         // Act
-        await StaticNodeJSService.InvokeFromStringAsync(
+        await nodeService.InvokeFromStringAsync(
             nodeModule,
             args: new object[] { brandId, letterId, content });
 
@@ -190,6 +192,8 @@ public class StationLetterTests
             SentOn = letter.SentOn
         };
 
+        using var nodeService = _nodeJsFixture.BuildNodeJsService();
+
         var isWindows = RuntimeInformation.IsOSPlatform(OSPlatform.Windows) ? "true" : "false";
 
         var nodeModule = $$"""
@@ -207,7 +211,7 @@ public class StationLetterTests
             """;
 
         // Act
-        var actual = await StaticNodeJSService.InvokeFromStringAsync<PagedResponse<StationLetterListItemViewModel>>(
+        var actual = await nodeService.InvokeFromStringAsync<PagedResponse<StationLetterListItemViewModel>>(
             nodeModule,
             args: new object[] { brandId, 1, 10 });
 
@@ -317,6 +321,8 @@ public class StationLetterTests
             SentOn = letters[1].SentOn
         };
 
+        using var nodeService = _nodeJsFixture.BuildNodeJsService();
+
         var isWindows = RuntimeInformation.IsOSPlatform(OSPlatform.Windows) ? "true" : "false";
 
         var nodeModule = $$"""
@@ -334,7 +340,7 @@ public class StationLetterTests
             """;
 
         // Act
-        var actual = await StaticNodeJSService.InvokeFromStringAsync<PagedResponse<StationLetterListItemViewModel>>(
+        var actual = await nodeService.InvokeFromStringAsync<PagedResponse<StationLetterListItemViewModel>>(
             nodeModule,
             args: new object[] { brandId, 2, 1 });
 
@@ -445,6 +451,8 @@ public class StationLetterTests
             SentOn = letters[1].SentOn
         };
 
+        using var nodeService = _nodeJsFixture.BuildNodeJsService();
+
         var isWindows = RuntimeInformation.IsOSPlatform(OSPlatform.Windows) ? "true" : "false";
 
         var nodeModule = $$"""
@@ -462,7 +470,7 @@ public class StationLetterTests
             """;
 
         // Act
-        var actual = await StaticNodeJSService.InvokeFromStringAsync<PagedResponse<StationLetterListItemViewModel>>(
+        var actual = await nodeService.InvokeFromStringAsync<PagedResponse<StationLetterListItemViewModel>>(
             nodeModule,
             args: new object[] { brandId, searchPlayerCode, 1, 10 });
 
@@ -556,6 +564,8 @@ public class StationLetterTests
             letters[1].Operator
         };
 
+        using var nodeService = _nodeJsFixture.BuildNodeJsService();
+
         var isWindows = RuntimeInformation.IsOSPlatform(OSPlatform.Windows) ? "true" : "false";
 
         var nodeModule = $$"""
@@ -573,7 +583,7 @@ public class StationLetterTests
             """;
 
         // Act
-        var actual = await StaticNodeJSService.InvokeFromStringAsync<PagedResponse<DeliveryLetterListItemViewModel>>(
+        var actual = await nodeService.InvokeFromStringAsync<PagedResponse<DeliveryLetterListItemViewModel>>(
             nodeModule,
             args: new object[] { brandId, 2, 1 });
 
@@ -668,6 +678,8 @@ public class StationLetterTests
             letters[1].Operator
         };
 
+        using var nodeService = _nodeJsFixture.BuildNodeJsService();
+
         var isWindows = RuntimeInformation.IsOSPlatform(OSPlatform.Windows) ? "true" : "false";
 
         var nodeModule = $$"""
@@ -685,7 +697,7 @@ public class StationLetterTests
             """;
 
         // Act
-        var actual = await StaticNodeJSService.InvokeFromStringAsync<PagedResponse<DeliveryLetterListItemViewModel>>(
+        var actual = await nodeService.InvokeFromStringAsync<PagedResponse<DeliveryLetterListItemViewModel>>(
             nodeModule,
             args: new object[] { brandId, operatorUser, 1, 10 });
 
@@ -763,6 +775,8 @@ public class StationLetterTests
             Quotation = letter.Quotation
         };
 
+        using var nodeService = _nodeJsFixture.BuildNodeJsService();
+
         var isWindows = RuntimeInformation.IsOSPlatform(OSPlatform.Windows) ? "true" : "false";
 
         var nodeModule = $$"""
@@ -780,7 +794,7 @@ public class StationLetterTests
             """;
 
         // Act
-        var actual = await StaticNodeJSService.InvokeFromStringAsync<StationLetterViewModel>(
+        var actual = await nodeService.InvokeFromStringAsync<StationLetterViewModel>(
             nodeModule,
             args: new object[] { brandId, letterId });
 
@@ -855,6 +869,8 @@ public class StationLetterTests
             letter.Operator
         };
 
+        using var nodeService = _nodeJsFixture.BuildNodeJsService();
+
         var isWindows = RuntimeInformation.IsOSPlatform(OSPlatform.Windows) ? "true" : "false";
 
         var nodeModule = $$"""
@@ -872,7 +888,7 @@ public class StationLetterTests
             """;
 
         // Act
-        var actual = await StaticNodeJSService.InvokeFromStringAsync<DeliveryLetterViewModel>(
+        var actual = await nodeService.InvokeFromStringAsync<DeliveryLetterViewModel>(
             nodeModule,
             args: new object[] { brandId, deliveryId });
 
@@ -928,6 +944,8 @@ public class StationLetterTests
                 Code = "GPI"
             });
 
+        using var nodeService = _nodeJsFixture.BuildNodeJsService();
+
         var isWindows = RuntimeInformation.IsOSPlatform(OSPlatform.Windows) ? "true" : "false";
 
         var nodeModule = $$"""
@@ -945,7 +963,7 @@ public class StationLetterTests
             """;
 
         // Act
-        await StaticNodeJSService.InvokeFromStringAsync(
+        await nodeService.InvokeFromStringAsync(
             nodeModule,
             args: new object[] { brandId, request });
 
@@ -1012,6 +1030,8 @@ public class StationLetterTests
                 Code = "GPI"
             });
 
+        using var nodeService = _nodeJsFixture.BuildNodeJsService();
+
         var isWindows = RuntimeInformation.IsOSPlatform(OSPlatform.Windows) ? "true" : "false";
 
         var nodeModule = $$"""
@@ -1029,7 +1049,7 @@ public class StationLetterTests
             """;
 
         // Act
-        await StaticNodeJSService.InvokeFromStringAsync(
+        await nodeService.InvokeFromStringAsync(
             nodeModule,
             args: new object[] { brandId, request });
 

@@ -1,12 +1,12 @@
 ﻿using System;
-using System.Collections.Generic;
 using System.Threading;
+using System.Threading.Tasks;
 using Tgs.ArticleManagement.Clients;
 using Tgs.ServiceUtility;
 
 namespace TGS.Services.BackOffice.ApplicationServices.Articles;
 
-internal class ListDraftFormsQueryService : IQueryService<ListDraftFormsQuery, DraftListItem>
+internal class ListDraftFormsQueryService : IGetService<ListDraftFormsQuery, QueryResult<DraftListItem>>
 {
     private readonly IArticleManagementClient _articleManagementClient;
 
@@ -15,6 +15,6 @@ internal class ListDraftFormsQueryService : IQueryService<ListDraftFormsQuery, D
         _articleManagementClient = articleManagementClient ?? throw new ArgumentNullException(nameof(articleManagementClient));
     }
 
-    public IAsyncEnumerable<DraftListItem> QueryAsync(ListDraftFormsQuery query, CancellationToken cancellationToken = default)
-        => _articleManagementClient.ListDraftFormsAsync(query.BrandId, cancellationToken);
+    public ValueTask<QueryResult<DraftListItem>> GetAsync(ListDraftFormsQuery query, CancellationToken cancellationToken = default)
+        => _articleManagementClient.ListDraftFormsAsync(query.BrandId, query.Skip, cancellationToken);
 }

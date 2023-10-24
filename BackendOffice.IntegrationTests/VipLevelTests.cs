@@ -1,6 +1,5 @@
 ﻿using System.Runtime.InteropServices;
 using ExpectedObjects;
-using Jering.Javascript.NodeJS;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
@@ -16,10 +15,12 @@ namespace BackendOffice.IntegrationTests;
 public class VipLevelTests
 {
     private readonly ITestOutputHelper _testOutputHelper;
+    private readonly NodeJsFixture _nodeJsFixture;
 
-    public VipLevelTests(ITestOutputHelper testOutputHelper)
+    public VipLevelTests(ITestOutputHelper testOutputHelper, NodeJsFixture nodeJsFixture)
     {
         _testOutputHelper = testOutputHelper ?? throw new ArgumentNullException(nameof(testOutputHelper));
+        _nodeJsFixture = nodeJsFixture ?? throw new ArgumentNullException(nameof(nodeJsFixture));
     }
 
     [Fact]
@@ -122,6 +123,8 @@ public class VipLevelTests
             updateVipLevelModel.WithdrawTransactionsPerDay,
             updateVipLevelModel.WithdrawTotalAmountPerDay);
 
+        using var nodeService = _nodeJsFixture.BuildNodeJsService();
+
         var isWindows = RuntimeInformation.IsOSPlatform(OSPlatform.Windows) ? "true" : "false";
 
         var nodeModule = $$"""
@@ -139,7 +142,7 @@ public class VipLevelTests
         """;
 
         // Act
-        var actual = await StaticNodeJSService.InvokeFromStringAsync<MessageResponse>(
+        var actual = await nodeService.InvokeFromStringAsync<MessageResponse>(
             nodeModule,
             args: new object[] { updateVipLevelModel.BrandId, vipLevelId, updateVipLevelModel });
 
@@ -235,6 +238,8 @@ public class VipLevelTests
             Arg.Any<CancellationToken>())
             .Returns(expected.ToAsyncEnumerable());
 
+        using var nodeService = _nodeJsFixture.BuildNodeJsService();
+
         var isWindows = RuntimeInformation.IsOSPlatform(OSPlatform.Windows) ? "true" : "false";
 
         var nodeModule = $$"""
@@ -252,7 +257,7 @@ public class VipLevelTests
         """;
 
         // Act
-        var actual = await StaticNodeJSService.InvokeFromStringAsync<PagedResponse<VipLevelViewModel>>(
+        var actual = await nodeService.InvokeFromStringAsync<PagedResponse<VipLevelViewModel>>(
             nodeModule,
             args: new object[] { brandId });
 
@@ -338,6 +343,8 @@ public class VipLevelTests
             createVipLevelViewModel.WithdrawTransactionsPerDay,
             createVipLevelViewModel.WithdrawTotalAmountPerDay);
 
+        using var nodeService = _nodeJsFixture.BuildNodeJsService();
+
         var isWindows = RuntimeInformation.IsOSPlatform(OSPlatform.Windows) ? "true" : "false";
 
         var nodeModule = $$"""
@@ -355,7 +362,7 @@ public class VipLevelTests
         """;
 
         // Act
-        var actual = await StaticNodeJSService.InvokeFromStringAsync<MessageResponse>(
+        var actual = await nodeService.InvokeFromStringAsync<MessageResponse>(
             nodeModule,
             args: new object[] { createVipLevelViewModel.BrandId, createVipLevelViewModel });
 
