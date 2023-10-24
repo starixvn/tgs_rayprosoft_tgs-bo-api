@@ -32,7 +32,6 @@ unit-test:
     reports:
       junit: ./TestReports/TestResults.xml
 
-
 push-docker-image:
   extends: .push-docker-image-template
   variables:

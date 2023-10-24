@@ -9,6 +9,7 @@ using Microsoft.AspNetCore.Mvc;
 using Tgs.ArticleManagement.Clients;
 using Tgs.ServiceUtility;
 using TGS.Apis.BackendOffice.ViewModels;
+using TGS.Core.Models.Messages;
 using TGS.Services.BackOffice.ApplicationServices.Articles;
 
 namespace TGS.Apis.BackendOffice.Controllers;
@@ -18,23 +19,34 @@ namespace TGS.Apis.BackendOffice.Controllers;
 public class ArticleController : BaseContextController
 {
     [HttpGet("{brandId:Guid}", Name = "ListDraftForms")]
-    public IAsyncEnumerable<DraftListItemViewModel> ListDraftFormsAsync(
-        [FromServices] IQueryService<ListDraftFormsQuery, DraftListItem> queryService,
-        Guid brandId)
+    public async ValueTask<PagedResponse<DraftListItemViewModel>> ListDraftFormsAsync(
+        [FromServices] IGetService<ListDraftFormsQuery, QueryResult<DraftListItem>> queryService,
+        Guid brandId,
+        [FromQuery] PageableRequest paging)
     {
-        var query = new ListDraftFormsQuery(brandId);
+        var query = new ListDraftFormsQuery(brandId, (paging.Page - 1) * paging.Rows);
 
-        return queryService.QueryAsync(query, HttpContext.RequestAborted)
-            .Select(item => new DraftListItemViewModel
-            {
-                Id = item.Id,
-                Description = item.Description,
-                Status = item.Status,
-                Modifier = item.Modifier,
-                PublishDate = item.PublishDate,
-                CreatedOn = item.CreatedOn,
-                UpdatedOn = item.UpdatedOn
-            });
+        var result = await queryService.GetAsync(
+            query,
+            HttpContext.RequestAborted).ConfigureAwait(false);
+        return new PagedResponse<DraftListItemViewModel>
+        {
+            Valid = true,
+            TotalCount = result.TotalCount,
+            Items = await result.Items.Take(paging.Rows)
+                .Select(item => new DraftListItemViewModel
+                {
+                    Id = item.Id,
+                    Description = item.Description,
+                    Status = item.Status,
+                    Modifier = item.Modifier,
+                    PublishDate = item.PublishDate,
+                    CreatedOn = item.CreatedOn,
+                    UpdatedOn = item.UpdatedOn
+                })
+                .ToArrayAsync(HttpContext.RequestAborted)
+                .ConfigureAwait(false)
+        };
     }
 
     [HttpGet("detail/{formId:Guid}", Name = "GetDraftForm")]

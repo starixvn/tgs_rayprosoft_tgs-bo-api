@@ -10,6 +10,7 @@ using NSubstitute;
 using Tgs.ArticleManagement;
 using Tgs.ArticleManagement.Clients;
 using TGS.Apis.BackendOffice.ViewModels;
+using TGS.Core.Models.Messages;
 using Xunit.Abstractions;
 
 namespace BackendOffice.IntegrationTests;
@@ -103,29 +104,30 @@ public class ArticleManagementTests
             const axiosConfigFactory = require('./models/axios-configuration.js').default;
             const BackOfficeService = require('./services/bo-service.js').default;
 
-            module.exports = async (brandId) =>
+            module.exports = async (brandId, page, rows) =>
             {
                 let instance = axiosConfigFactory("{{channelName}}", {{isWindows}});
 
                 let svc = new BackOfficeService(instance);
 
-                return await svc.listDraftForms(brandId);
+                return await svc.listDraftForms(brandId, page, rows);
             };
         """;
 
         // Act
         var response = await nodeService.InvokeFromStringAsync<string>(
             nodeModule,
-            args: new object[] { brandId });
+            args: new object[] { brandId, 1, 10 });
 
         var jsonOptions = web.Services.GetRequiredService<IOptions<JsonOptions>>().Value;
-        var actual = JsonSerializer.Deserialize<DraftListItemViewModel[]>(
+        var actual = JsonSerializer.Deserialize<PagedResponse<DraftListItemViewModel>>(
             response!,
             jsonOptions.JsonSerializerOptions);
 
         // Assert
         Assert.NotNull(actual);
-        expected.ToExpectedObject().ShouldEqual(actual);
+        Assert.Equal(2, actual.TotalCount);
+        expected.ToExpectedObject().ShouldEqual(actual.Items);
     }
 
     [Fact]

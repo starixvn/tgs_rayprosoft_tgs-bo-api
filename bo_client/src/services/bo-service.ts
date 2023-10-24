@@ -702,9 +702,16 @@ export default class BackOfficeService {
             .then(res => res.data);
     }
 
-    public listDraftForms(brandId: string): Promise<Iterable<DraftFormListItem>> {
+    public listDraftForms(brandId: string, page: Number = 1, rows: Number = 10): Promise<PagedResponse<DraftFormListItem>> {
         return this.http
-            .get(`/api/article/${brandId}`)
+            .get(
+                `/api/article/${brandId}`,
+                {
+                    params: {
+                        page,
+                        rows
+                    }
+                })
             .then(res => res.data);
     }
 
