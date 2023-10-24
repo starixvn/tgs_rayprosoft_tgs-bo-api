@@ -3,6 +3,6 @@ using System.Collections.Generic;
 
 namespace TGS.Services.BackOffice.ApplicationServices.Overview;
 
-public record GetBrandGameQuery(
-    Guid BrandId,
+public record GetTopGameInfoQuery(
+    IEnumerable<Guid> GameProviderIds,
     IEnumerable<int> GameIds);

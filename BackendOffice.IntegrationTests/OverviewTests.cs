@@ -912,7 +912,7 @@ public class OverviewTests
 
         var fakeBrandServiceClient = Substitute.For<IBrandServiceClient>();
         var fakeGameWagersClient = Substitute.For<IGameWagersClient>();
-        var fakeBrandGameService = Substitute.For<IBrandGameService>();
+        var fakeGameService = Substitute.For<IGameService>();
 
         using var web = TestBackendOfficeApplication.Builder
             .UseTestChannelServer(channelName)
@@ -929,7 +929,7 @@ public class OverviewTests
                 .Services
                 .AddSingleton(fakeBrandServiceClient)
                 .AddSingleton(fakeGameWagersClient)
-                .AddSingleton(fakeBrandGameService))
+                .AddSingleton(fakeGameService))
             .Build();
 
         await web.StartAsync();
@@ -982,21 +982,17 @@ public class OverviewTests
                     -100m)
             }.ToAsyncEnumerable());
 
-        _ = fakeBrandGameService.GetBrandGameQueries()
-            .Returns(new BrandGame[]
+        _ = fakeGameService.GetGameQueries()
+            .Returns(new Game[]
             {
-                new BrandGame
+                new Game
                 {
-                    BrandId = brandId,
-                    GameId = 1000010,
-                    Game = new Game()
+                    Id = 1000010,
+                    GameProviderId = Guid.Parse("a0f49ce0-2c1d-4f50-9fc5-58b610a30bf5"),
+                    Name = gameName,
+                    SubGameProvider = new SubGameProvider
                     {
-                        GameProviderId = Guid.Parse("a0f49ce0-2c1d-4f50-9fc5-58b610a30bf5"),
-                        Name = gameName,
-                        SubGameProvider = new SubGameProvider
-                        {
-                            Name = gameProviderName
-                        }
+                        Name = gameProviderName
                     }
                 }
             }.AsQueryable());
@@ -1046,7 +1042,7 @@ public class OverviewTests
 
         var fakeBrandServiceClient = Substitute.For<IBrandServiceClient>();
         var fakeGameWagersClient = Substitute.For<IGameWagersClient>();
-        var fakeBrandGameService = Substitute.For<IBrandGameService>();
+        var fakeGameService = Substitute.For<IGameService>();
 
         using var web = TestBackendOfficeApplication.Builder
             .UseTestChannelServer(channelName)
@@ -1063,7 +1059,7 @@ public class OverviewTests
                 .Services
                 .AddSingleton(fakeBrandServiceClient)
                 .AddSingleton(fakeGameWagersClient)
-                .AddSingleton(fakeBrandGameService))
+                .AddSingleton(fakeGameService))
             .Build();
 
         await web.StartAsync();
@@ -1116,21 +1112,17 @@ public class OverviewTests
                     -100m)
             }.ToAsyncEnumerable());
 
-        _ = fakeBrandGameService.GetBrandGameQueries()
-            .Returns(new BrandGame[]
+        _ = fakeGameService.GetGameQueries()
+            .Returns(new Game[]
             {
-                new BrandGame
+                new Game
                 {
-                    BrandId = brandId,
-                    GameId = 1000010,
-                    Game = new Game()
+                    Id = 1000010,
+                    GameProviderId = Guid.Parse("a0f49ce0-2c1d-4f50-9fc5-58b610a30bf5"),
+                    Name = gameName,
+                    SubGameProvider = new SubGameProvider
                     {
-                        GameProviderId = Guid.Parse("a0f49ce0-2c1d-4f50-9fc5-58b610a30bf5"),
-                        Name = gameName,
-                        SubGameProvider = new SubGameProvider
-                        {
-                            Name = gameProviderName
-                        }
+                        Name = gameProviderName
                     }
                 }
             }.AsQueryable());
@@ -1180,7 +1172,7 @@ public class OverviewTests
 
         var fakeBrandServiceClient = Substitute.For<IBrandServiceClient>();
         var fakeGameWagersClient = Substitute.For<IGameWagersClient>();
-        var fakeBrandGameService = Substitute.For<IBrandGameService>();
+        var fakeGameService = Substitute.For<IGameService>();
 
         using var web = TestBackendOfficeApplication.Builder
             .UseTestChannelServer(channelName)
@@ -1197,7 +1189,7 @@ public class OverviewTests
                 .Services
                 .AddSingleton(fakeBrandServiceClient)
                 .AddSingleton(fakeGameWagersClient)
-                .AddSingleton(fakeBrandGameService))
+                .AddSingleton(fakeGameService))
             .Build();
 
         await web.StartAsync();
@@ -1250,21 +1242,17 @@ public class OverviewTests
                     -100m)
             }.ToAsyncEnumerable());
 
-        _ = fakeBrandGameService.GetBrandGameQueries()
-            .Returns(new BrandGame[]
+        _ = fakeGameService.GetGameQueries()
+            .Returns(new Game[]
             {
-                new BrandGame
+                new Game
                 {
-                    BrandId = brandId,
-                    GameId = 1000010,
-                    Game = new Game()
+                    Id = 1000010,
+                    GameProviderId = Guid.Parse("a0f49ce0-2c1d-4f50-9fc5-58b610a30bf5"),
+                    Name = gameName,
+                    SubGameProvider = new SubGameProvider
                     {
-                        GameProviderId = Guid.Parse("a0f49ce0-2c1d-4f50-9fc5-58b610a30bf5"),
-                        Name = gameName,
-                        SubGameProvider = new SubGameProvider
-                        {
-                            Name = gameProviderName
-                        }
+                        Name = gameProviderName
                     }
                 }
             }.AsQueryable());
