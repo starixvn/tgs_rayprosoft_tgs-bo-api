@@ -115,7 +115,7 @@ public class GetSinglePlayerQueryService : IGetService<GetSinglePlayerQuery, Pla
             Phone = playerProperties.GetValueOrDefault("Phone"),
             Email = playerProperties.GetValueOrDefault("Email"),
             QQ = playerProperties.GetValueOrDefault("QQ"),
-            WeChat = playerProperties.GetValueOrDefault("WeChat"),
+            WeChat = playerProperties.GetValueOrDefault("Wechat"),
             Line = playerProperties.GetValueOrDefault("Line"),
             Viber = playerProperties.GetValueOrDefault("Viber"),
             FacebookMessenger = playerProperties.GetValueOrDefault("FacebookMessenger"),
