@@ -76,7 +76,7 @@ public class OverviewController : BaseContextController
     [HttpGet("top-ten/game/{brandId}")]
     public async IAsyncEnumerable<TopTenGameViewModel> GetTopTenGamesAsync(
         [FromServices] IQueryService<GetTopTenGameQuery, TopTenGameInfo> queryService,
-        [FromServices] IQueryService<GetBrandGameQuery, BrandGameInfo> brandGameQueryService,
+        [FromServices] IQueryService<GetTopGameInfoQuery, TopGameInfo> gameQueryService,
         Guid brandId,
         [FromQuery] TopTenGameSortType sortType,
         [FromQuery] bool ascending = false)
@@ -86,10 +86,11 @@ public class OverviewController : BaseContextController
             .ToArrayAsync(HttpContext.RequestAborted)
             .ConfigureAwait(false);
 
+        var gameProviderIds = topTenGameInfos.Select(x => x.GameProviderId);
         var gameIds = topTenGameInfos.Select(x => x.GameId);
 
-        var brandGameInfos = await brandGameQueryService
-            .QueryAsync(new GetBrandGameQuery(brandId, gameIds), HttpContext.RequestAborted)
+        var gameInfos = await gameQueryService
+            .QueryAsync(new GetTopGameInfoQuery(gameProviderIds, gameIds), HttpContext.RequestAborted)
             .ToArrayAsync(HttpContext.RequestAborted)
             .ConfigureAwait(false);
 
@@ -97,28 +98,17 @@ public class OverviewController : BaseContextController
 
         foreach (var info in topTenGameInfos)
         {
-            var brandGame = brandGameInfos
+            var gameInfo = gameInfos
                 .Where(x => x.GameProviderId == info.GameProviderId
                     && x.GameId == info.GameId)
-                .FirstOrDefault();
+                .First();
 
-            if (brandGame is null)
-            {
-                yield return new TopTenGameViewModel
-                {
-                    GameName = info.GameId.ToString(),
-                    GameProviderName = info.GameProviderId.ToString(),
-                    Bet = info.Bet,
-                    WinLoss = info.WinLoss,
-                };
-            }
-
-            _ = brandGame!.LocalizationDicts.TryGetValue(cultureCode, out var locale);
+            _ = gameInfo!.LocalizationDicts.TryGetValue(cultureCode, out var locale);
 
             yield return new TopTenGameViewModel
             {
-                GameName = locale?.Name ?? brandGame.GameName,
-                GameProviderName = brandGame.GameProviderName,
+                GameName = locale?.Name ?? gameInfo.GameName,
+                GameProviderName = gameInfo.SubGameProviderName,
                 Bet = info.Bet,
                 WinLoss = info.WinLoss,
             };

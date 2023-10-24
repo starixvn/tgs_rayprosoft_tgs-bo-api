@@ -15,11 +15,11 @@ namespace TGS.Tests.BackendOffice.UnitTests;
 public class OverviewTests
 {
     [Test]
-    public async Task 查詢Brand_Game()
+    public async Task 查詢Top_Game()
     {
-        var fakeBrandGameService = Substitute.For<IBrandGameService>();
+        var fakeGameService = Substitute.For<IGameService>();
 
-        var sut = new GetBrandGameQueryService(fakeBrandGameService);
+        var sut = new GetTopGameInfoQueryService(fakeGameService);
         var localization = """
             {
               "en-US": {
@@ -49,35 +49,32 @@ public class OverviewTests
             }
             """;
 
-        var brandId = Guid.NewGuid();
-        var gameIds = new int[] { 1000017 };
         var gameProviderId = Guid.NewGuid();
+        var gameProviderIds = new Guid[] { gameProviderId };
+        var gameIds = new int[] { 1000017 };
 
-        _ = fakeBrandGameService
-            .GetBrandGameQueries()
-            .Returns(new BrandGame[]
+        _ = fakeGameService
+            .GetGameQueries()
+            .Returns(new Game[]
             {
-                new BrandGame
+                new Game
                 {
-                    BrandId = brandId,
-                    GameId = gameIds[0],
-                    Game = new Game()
+                    Id = gameIds[0],    
+                    Name = "百家乐",
+                    SubGameProvider = new SubGameProvider
                     {
-                        SubGameProvider = new SubGameProvider
-                        {
-                            Name = "KY"
-                        },
-                        Localization = localization,
-                        GameProviderId = gameProviderId
-                    }
+                        Name = "KY"
+                    },
+                    Localization = localization,
+                    GameProviderId = gameProviderId
                 }
             }.AsQueryable());
 
         var actual = await sut
-            .QueryAsync(new GetBrandGameQuery(brandId, gameIds))
+            .QueryAsync(new GetTopGameInfoQuery(gameProviderIds, gameIds))
             .ToArrayAsync();
 
-        Assert.AreEqual("KY", actual[0].GameProviderName);
+        Assert.AreEqual("KY", actual[0].SubGameProviderName);
         Assert.AreEqual(gameIds[0], actual[0].GameId);
         Assert.AreEqual(gameProviderId, actual[0].GameProviderId);
     }
