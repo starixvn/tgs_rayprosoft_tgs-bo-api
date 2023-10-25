@@ -1,5 +1,6 @@
 ﻿using System.Collections.Immutable;
 using System.Runtime.InteropServices;
+using ExpectedObjects;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
@@ -60,19 +61,20 @@ public class PlayerWalletAdjustTests
         await web.StartAsync();
 
         var playerCode = "test1";
-        var request = new CreatePlayerReduceAmountRequest
+        var request = new CreatePlayerIncreaseAmountRequest
         {
             Amount = 1000M,
             BucketAmount = 0M,
             IncludeInNetProfit = true,
             Remark = "test",
-            TransactionType = PlayerReduceTransactionType.SystemAdjust
+            TransactionType = PlayerIncreaseTransactionType.SystemAdjust,
+            PlayerCode = playerCode,
         };
         var walletId = Guid.NewGuid();
         var brandId = Guid.NewGuid();
 
         _ = fakePlayerServiceClient.GetPlayerInfoAsync(Arg.Is(playerCode), Arg.Any<CancellationToken>())
-            .Returns(new Tgs.PlayerService.Client.PlayerInfo
+            .Returns(new PlayerInfo
             {
                 PlayerCode = playerCode,
                 UserName = "tester",
@@ -110,7 +112,7 @@ public class PlayerWalletAdjustTests
             request.BucketAmount,
             request.IncludeInNetProfit,
             request.Remark,
-            Array.Empty<string>());
+            request.BucketTypes).ToExpectedObject(ctx => ctx.IgnoreEqualsOverride());
 
         using var nodeService = _nodeJsFixture.BuildNodeJsService();
 
@@ -139,7 +141,7 @@ public class PlayerWalletAdjustTests
         Assert.True(actual?.Valid);
         _ = fakePlayerAdjustBalanceService.Received(1)
             .ProcessAdjustApplyAsync(
-                Arg.Is(expectedApplyInfo),
+                Arg.Is<PlayerBalanceAdjustmentApplyInfo>(info => expectedApplyInfo.Matches(info)),
                 Arg.Is(userId),
                 Arg.Is("system"),
                 Arg.Any<CancellationToken>());
