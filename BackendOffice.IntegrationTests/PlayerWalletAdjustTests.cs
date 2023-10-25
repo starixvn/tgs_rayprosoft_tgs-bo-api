@@ -5,6 +5,7 @@ using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
 using NSubstitute;
 using Tgs.CashService.Client;
+using Tgs.PlayerBucket.Client;
 using Tgs.PlayerService.Client;
 using TGS.Core.Models.Enums;
 using TGS.Core.Models.Messages;
@@ -35,6 +36,7 @@ public class PlayerWalletAdjustTests
         var fakePlayerServiceClient = Substitute.For<IPlayerServiceClient>();
         var fakeCashServiceClient = Substitute.For<ICashServiceClient>();
         var fakePlayerAdjustBalanceService = Substitute.For<IPlayerAdjustBalanceService>();
+        var fakePlayerBucketForTypesClient = Substitute.For<IPlayerBucketForTypesClient>();
 
         using var web = TestBackendOfficeApplication.Builder
             .UseTestChannelServer(channelName)
@@ -51,7 +53,8 @@ public class PlayerWalletAdjustTests
                 .Services
                 .AddSingleton(fakePlayerServiceClient)
                 .AddSingleton(fakeCashServiceClient)
-                .AddSingleton(fakePlayerAdjustBalanceService))
+                .AddSingleton(fakePlayerAdjustBalanceService)
+                .AddSingleton(fakePlayerBucketForTypesClient))
             .Build();
 
         await web.StartAsync();
@@ -106,7 +109,8 @@ public class PlayerWalletAdjustTests
             request.Amount,
             request.BucketAmount,
             request.IncludeInNetProfit,
-            request.Remark);
+            request.Remark,
+            Array.Empty<string>());
 
         using var nodeService = _nodeJsFixture.BuildNodeJsService();
 
@@ -222,7 +226,8 @@ public class PlayerWalletAdjustTests
             request.Amount,
             request.BucketAmount,
             request.IncludeInNetProfit,
-            request.Remark);
+            request.Remark,
+            Array.Empty<string>());
 
         using var nodeService = _nodeJsFixture.BuildNodeJsService();
 

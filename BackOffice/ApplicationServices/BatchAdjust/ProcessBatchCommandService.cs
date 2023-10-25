@@ -58,7 +58,8 @@ internal class ProcessBatchCommandService : ICommandService<ProcessBatchCommand>
                         Math.Abs(item.AdjustAmount),
                         item.Turnover,
                         command.IncludeInNetProfit,
-                        item.Remark);
+                        item.Remark,
+                        BucketTypes: Array.Empty<string>());
 
                     await _playerAdjustBalanceService.ProcessAdjustApplyAsync(
                         applyInfo,

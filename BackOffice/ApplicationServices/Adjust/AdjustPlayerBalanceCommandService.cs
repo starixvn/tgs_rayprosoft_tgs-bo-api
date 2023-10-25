@@ -46,7 +46,8 @@ internal class AdjustPlayerBalanceCommandService : ICommandService<AdjustPlayerB
             command.Amount,
             command.BucketAmount,
             command.IncludeInNetProfit,
-            command.Remark);
+            command.Remark,
+            command.BucketTypes);
 
         await _playerAdjustBalanceService.ProcessAdjustApplyAsync(
             applyInfo,

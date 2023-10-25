@@ -31,6 +31,7 @@ public class PlayerAdjustTests
             100M,
             "remark",
             true,
+            BucketTypes: Array.Empty<string>(),
             Guid.NewGuid(),
             "modifier");
 
@@ -44,7 +45,8 @@ public class PlayerAdjustTests
             command.Amount,
             command.BucketAmount,
             command.IncludeInNetProfit,
-            command.Remark);
+            command.Remark,
+            command.BucketTypes);
 
         _ = fakePlayerServiceClient.GetPlayerInfoAsync(Arg.Is(command.PlayerCode))
             .Returns(new Tgs.PlayerService.Client.PlayerInfo

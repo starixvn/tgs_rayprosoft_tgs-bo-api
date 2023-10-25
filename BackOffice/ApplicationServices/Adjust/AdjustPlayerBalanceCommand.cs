@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 using TGS.Core.Models.Enums;
 
 #nullable enable
@@ -12,5 +13,6 @@ public record AdjustPlayerBalanceCommand(
     decimal BucketAmount,
     string? Remark,
     bool IncludeInNetProfit,
+    IEnumerable<string> BucketTypes,
     Guid ModifyUserId,
     string ModifyUser);

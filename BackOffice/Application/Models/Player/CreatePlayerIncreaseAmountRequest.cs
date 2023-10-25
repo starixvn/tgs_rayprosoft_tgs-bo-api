@@ -1,5 +1,7 @@
 ﻿#nullable enable
 
+using System;
+using System.Collections.Generic;
 using TGS.Core.Models.Enums;
 
 namespace TGS.Services.BackOffice.Application.Models.Player;
@@ -17,4 +19,6 @@ public record CreatePlayerIncreaseAmountRequest
     public string? Remark { get; set; }
 
     public decimal BucketAmount { get; set; }
+
+    public IEnumerable<string> BucketTypes { get; set; } = Array.Empty<string>();
 }
