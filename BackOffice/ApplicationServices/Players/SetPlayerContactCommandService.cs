@@ -70,9 +70,9 @@ internal class SetPlayerContactCommandService : IGetService<SetPlayerContactComm
                     return new SetPlayerContactInfo(false, Application.Resources.Player.PhoneRequired);
                 }
 
-                if (item.Key.Equals("phone", StringComparison.OrdinalIgnoreCase) && !string.IsNullOrEmpty(item.Value))
+                if (item.Key.Equals("phone", StringComparison.OrdinalIgnoreCase))
                 {
-                    modifyDict[PlayerPropertyName.PhoneAuthentication] = true.ToString();
+                    modifyDict[PlayerPropertyName.PhoneAuthentication] = (!string.IsNullOrEmpty(item.Value)).ToString();
                 }
 
                 if (item.Key.Equals("email", StringComparison.OrdinalIgnoreCase) && !string.IsNullOrEmpty(item.Value))
