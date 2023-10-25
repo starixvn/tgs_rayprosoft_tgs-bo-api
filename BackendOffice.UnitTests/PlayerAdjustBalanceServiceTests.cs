@@ -328,13 +328,14 @@ public class PlayerAdjustBalanceServiceTests
 
         await sut.ProcessAdjustApplyAsync(applyInfo, modifyUserId, modifyUser);
 
-        _ = fakePlayerBucketClient.Received(1)
-            .CreateBucketAsync(
+        _ = fakePlayerBucketForTypesClient.Received(1)
+            .CreateBucketForBucketTypesAsync(
                 Arg.Is(applyInfo.PlayerCode),
                 Arg.Is(applyInfo.BucketAmount),
                 Arg.Is(Tgs.Service.PlayerBuckets.BucketType.Adjustment),
                 Arg.Any<string>(),
-                Arg.Any<string>());
+                Arg.Any<string>(),
+                bucketTypes: Arg.Is(applyInfo.BucketTypes));
         _ = fakeBackOfficeRepository.Received(1)
             .InsertAdjustPlayerRecordAsync(Arg.Is(expectedCreateInfo), Arg.Is(modifyUser));
     }

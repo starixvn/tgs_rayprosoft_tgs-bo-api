@@ -44,14 +44,6 @@ internal class PlayerAdjustBalanceService : IPlayerAdjustBalanceService
     {
         if (applyInfo.BucketAmount > 0M)
         {
-            _ = await _playerBucketClient.CreateBucketAsync(
-                applyInfo.PlayerCode,
-                applyInfo.BucketAmount,
-                BucketType.Adjustment,
-                null,
-                applyInfo.Remark,
-                cancellationToken).ConfigureAwait(false);
-
             await _playerBucketForTypesClient.CreateBucketForBucketTypesAsync(
                 applyInfo.PlayerCode,
                 applyInfo.BucketAmount,
@@ -59,8 +51,7 @@ internal class PlayerAdjustBalanceService : IPlayerAdjustBalanceService
                 null,
                 applyInfo.Remark,
                 applyInfo.BucketTypes,
-                cancellationToken)
-                .ConfigureAwait(false);
+                cancellationToken).ConfigureAwait(false);
         }
 
         var transactionId = applyInfo.Amount > 0M
