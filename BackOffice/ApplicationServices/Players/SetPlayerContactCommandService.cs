@@ -70,7 +70,7 @@ internal class SetPlayerContactCommandService : IGetService<SetPlayerContactComm
                     return new SetPlayerContactInfo(false, Application.Resources.Player.PhoneRequired);
                 }
 
-                if (!string.IsNullOrEmpty(playerPhone))
+                if (item.Key.Equals("phone", StringComparison.OrdinalIgnoreCase) && !string.IsNullOrEmpty(item.Value))
                 {
                     modifyDict[PlayerPropertyName.PhoneAuthentication] = true.ToString();
                 }
