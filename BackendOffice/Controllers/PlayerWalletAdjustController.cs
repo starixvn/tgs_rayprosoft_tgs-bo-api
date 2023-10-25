@@ -71,6 +71,7 @@ public class PlayerWalletAdjustController : BaseContextController
                 request.BucketAmount,
                 request.Remark,
                 request.IncludeInNetProfit,
+                request.BucketTypes,
                 Guid.Parse(UserId),
                 Username);
 
@@ -145,6 +146,7 @@ public class PlayerWalletAdjustController : BaseContextController
                     request.BucketAmount,
                     request.Remark,
                     request.IncludeInNetProfit,
+                    BucketTypes: Array.Empty<string>(),
                     Guid.Parse(UserId),
                     Username);
 

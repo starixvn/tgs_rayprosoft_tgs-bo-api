@@ -1,5 +1,6 @@
 ﻿using NSubstitute;
 using Tgs.CashService.Client;
+using Tgs.PlayerBucket.Client;
 using Tgs.SerialNumberGenerator;
 using Tgs.Service.PlayerBuckets;
 using TGS.Core.Models.Enums;
@@ -18,13 +19,15 @@ public class PlayerAdjustBalanceServiceTests
         var fakePlayerBucketClient = Substitute.For<IPlayerBucketClient>();
         var fakeSerialNumberGenerator = Substitute.For<ISerialNumberGenerator>();
         var fakeAgentWalletRepository = Substitute.For<IAgentWalletRepository>();
+        var fakePlayerBucketForTypesClient = Substitute.For<IPlayerBucketForTypesClient>();
 
         var sut = new PlayerAdjustBalanceService(
             fakeBackOfficeRepository,
             fakeCashServiceClient,
             fakePlayerBucketClient,
             fakeSerialNumberGenerator,
-            fakeAgentWalletRepository);
+            fakeAgentWalletRepository,
+            fakePlayerBucketForTypesClient);
 
         var applyInfo = new PlayerBalanceAdjustmentApplyInfo(
             Guid.NewGuid(),
@@ -36,7 +39,8 @@ public class PlayerAdjustBalanceServiceTests
             100M,
             0M,
             true,
-            "aaa");
+            "aaa",
+            BucketTypes: Array.Empty<string>());
 
         var modifyUserId = Guid.NewGuid();
         var modifyUser = "system";
@@ -79,13 +83,15 @@ public class PlayerAdjustBalanceServiceTests
         var fakePlayerBucketClient = Substitute.For<IPlayerBucketClient>();
         var fakeSerialNumberGenerator = Substitute.For<ISerialNumberGenerator>();
         var fakeAgentWalletRepository = Substitute.For<IAgentWalletRepository>();
+        var fakePlayerBucketForTypesClient = Substitute.For<IPlayerBucketForTypesClient>();
 
         var sut = new PlayerAdjustBalanceService(
             fakeBackOfficeRepository,
             fakeCashServiceClient,
             fakePlayerBucketClient,
             fakeSerialNumberGenerator,
-            fakeAgentWalletRepository);
+            fakeAgentWalletRepository,
+            fakePlayerBucketForTypesClient);
 
         var applyInfo = new PlayerBalanceAdjustmentApplyInfo(
             Guid.NewGuid(),
@@ -97,7 +103,8 @@ public class PlayerAdjustBalanceServiceTests
             100M,
             0M,
             true,
-            "aaa");
+            "aaa",
+            Array.Empty<string>());
 
         var modifyUserId = Guid.NewGuid();
         var modifyUser = "system";
@@ -140,13 +147,15 @@ public class PlayerAdjustBalanceServiceTests
         var fakePlayerBucketClient = Substitute.For<IPlayerBucketClient>();
         var fakeSerialNumberGenerator = Substitute.For<ISerialNumberGenerator>();
         var fakeAgentWalletRepository = Substitute.For<IAgentWalletRepository>();
+        var fakePlayerBucketForTypesClient = Substitute.For<IPlayerBucketForTypesClient>();
 
         var sut = new PlayerAdjustBalanceService(
             fakeBackOfficeRepository,
             fakeCashServiceClient,
             fakePlayerBucketClient,
             fakeSerialNumberGenerator,
-            fakeAgentWalletRepository);
+            fakeAgentWalletRepository,
+            fakePlayerBucketForTypesClient);
 
         var applyInfo = new PlayerBalanceAdjustmentApplyInfo(
             Guid.NewGuid(),
@@ -158,7 +167,8 @@ public class PlayerAdjustBalanceServiceTests
             100M,
             0M,
             true,
-            "aaa");
+            "aaa",
+            Array.Empty<string>());
 
         var modifyUserId = Guid.NewGuid();
         var modifyUser = "system";
@@ -201,13 +211,15 @@ public class PlayerAdjustBalanceServiceTests
         var fakePlayerBucketClient = Substitute.For<IPlayerBucketClient>();
         var fakeSerialNumberGenerator = Substitute.For<ISerialNumberGenerator>();
         var fakeAgentWalletRepository = Substitute.For<IAgentWalletRepository>();
+        var fakePlayerBucketForTypesClient = Substitute.For<IPlayerBucketForTypesClient>();
 
         var sut = new PlayerAdjustBalanceService(
             fakeBackOfficeRepository,
             fakeCashServiceClient,
             fakePlayerBucketClient,
             fakeSerialNumberGenerator,
-            fakeAgentWalletRepository);
+            fakeAgentWalletRepository,
+            fakePlayerBucketForTypesClient);
 
         var applyInfo = new PlayerBalanceAdjustmentApplyInfo(
             Guid.NewGuid(),
@@ -219,7 +231,8 @@ public class PlayerAdjustBalanceServiceTests
             100M,
             0M,
             true,
-            "aaa");
+            "aaa",
+            Array.Empty<string>());
 
         var modifyUserId = Guid.NewGuid();
         var modifyUser = "system";
@@ -262,13 +275,15 @@ public class PlayerAdjustBalanceServiceTests
         var fakePlayerBucketClient = Substitute.For<IPlayerBucketClient>();
         var fakeSerialNumberGenerator = Substitute.For<ISerialNumberGenerator>();
         var fakeAgentWalletRepository = Substitute.For<IAgentWalletRepository>();
+        var fakePlayerBucketForTypesClient = Substitute.For<IPlayerBucketForTypesClient>();
 
         var sut = new PlayerAdjustBalanceService(
             fakeBackOfficeRepository,
             fakeCashServiceClient,
             fakePlayerBucketClient,
             fakeSerialNumberGenerator,
-            fakeAgentWalletRepository);
+            fakeAgentWalletRepository,
+            fakePlayerBucketForTypesClient);
 
         var applyInfo = new PlayerBalanceAdjustmentApplyInfo(
             Guid.NewGuid(),
@@ -280,7 +295,8 @@ public class PlayerAdjustBalanceServiceTests
             100M,
             100M,
             true,
-            "aaa");
+            "aaa",
+            Array.Empty<string>());
 
         var modifyUserId = Guid.NewGuid();
         var modifyUser = "system";
@@ -312,13 +328,14 @@ public class PlayerAdjustBalanceServiceTests
 
         await sut.ProcessAdjustApplyAsync(applyInfo, modifyUserId, modifyUser);
 
-        _ = fakePlayerBucketClient.Received(1)
-            .CreateBucketAsync(
+        _ = fakePlayerBucketForTypesClient.Received(1)
+            .CreateBucketForBucketTypesAsync(
                 Arg.Is(applyInfo.PlayerCode),
                 Arg.Is(applyInfo.BucketAmount),
                 Arg.Is(Tgs.Service.PlayerBuckets.BucketType.Adjustment),
                 Arg.Any<string>(),
-                Arg.Any<string>());
+                Arg.Any<string>(),
+                bucketTypes: Arg.Is(applyInfo.BucketTypes));
         _ = fakeBackOfficeRepository.Received(1)
             .InsertAdjustPlayerRecordAsync(Arg.Is(expectedCreateInfo), Arg.Is(modifyUser));
     }
@@ -331,13 +348,15 @@ public class PlayerAdjustBalanceServiceTests
         var fakePlayerBucketClient = Substitute.For<IPlayerBucketClient>();
         var fakeSerialNumberGenerator = Substitute.For<ISerialNumberGenerator>();
         var fakeAgentWalletRepository = Substitute.For<IAgentWalletRepository>();
+        var fakePlayerBucketForTypesClient = Substitute.For<IPlayerBucketForTypesClient>();
 
         var sut = new PlayerAdjustBalanceService(
             fakeBackOfficeRepository,
             fakeCashServiceClient,
             fakePlayerBucketClient,
             fakeSerialNumberGenerator,
-            fakeAgentWalletRepository);
+            fakeAgentWalletRepository,
+            fakePlayerBucketForTypesClient);
 
         var applyInfo = new PlayerBalanceAdjustmentApplyInfo(
             Guid.NewGuid(),
@@ -349,7 +368,8 @@ public class PlayerAdjustBalanceServiceTests
             100M,
             0M,
             true,
-            "aaa");
+            "aaa",
+            Array.Empty<string>());
 
         var modifyUserId = Guid.NewGuid();
         var modifyUser = "system";
