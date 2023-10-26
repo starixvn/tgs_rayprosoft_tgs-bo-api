@@ -554,7 +554,7 @@ public partial class PlayerController : BaseContextController
         [FromServices] IGetService<SetPlayerAgentCommand, SetPlayerAgentResult> getService,
         string playerCode,
         [FromBody] UpdatePlayerAgentViewModel request)
-    {
+    {        
         var processInfo = await getService
             .GetAsync(new SetPlayerAgentCommand(playerCode, request.AgentUsername, UserId, Username), HttpContext.RequestAborted)
             .ConfigureAwait(false);

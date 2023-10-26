@@ -1,6 +1,8 @@
-﻿namespace TGS.Apis.BackendOffice.ViewModels;
+﻿#nullable enable
+
+namespace TGS.Apis.BackendOffice.ViewModels;
 
 public class UpdatePlayerAgentViewModel
 {
-    public string AgentUsername { get; set; }
+    public string? AgentUsername { get; set; }
 }

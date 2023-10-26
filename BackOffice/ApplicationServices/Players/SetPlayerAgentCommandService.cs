@@ -42,16 +42,22 @@ internal class SetPlayerAgentCommandService : IGetService<SetPlayerAgentCommand,
         if (player is null)
             return new SetPlayerAgentResult(false, Resources.Player.NotFound);
 
-        var agent = await _agentClient
-            .GetAgentInfoByUsernameAsync(new GetAgentInfoByUsernameRequest(player.BrandId, command.AgentUsername), cancellationToken)
-            .ConfigureAwait(false);
+        string? agentId = null;
+        if (!string.IsNullOrWhiteSpace(command.AgentUsername))
+        {
+            var agent = await _agentClient
+                .GetAgentInfoByUsernameAsync(new GetAgentInfoByUsernameRequest(player.BrandId, command.AgentUsername), cancellationToken)
+                .ConfigureAwait(false);
 
-        if (agent is null || agent.Status != AgentStatus.Enabled)
-            return new SetPlayerAgentResult(false, Resources.Agent.NotFound);
+            if (agent is null || agent.Status != AgentStatus.Enabled)
+                return new SetPlayerAgentResult(false, Resources.Agent.NotFound);
+
+            agentId = agent.Id.ToString();
+        }
 
         var modifyDict = new Dictionary<PlayerPropertyName, string?>()
         {
-            { PlayerPropertyName.AgentId, agent.Id.ToString() }
+            { PlayerPropertyName.AgentId, agentId }
         };
 
         await _playerServiceClient
