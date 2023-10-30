@@ -3,6 +3,7 @@
 using System;
 using System.Collections.Generic;
 using System.Collections.Immutable;
+using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 using Tgs.PlayerService.Client;
@@ -28,6 +29,9 @@ internal class SetPlayerInfoCommandService : IGetService<SetPlayerInfoCommand, S
 
     public async ValueTask<SetPlayerInfoResult> GetAsync(SetPlayerInfoCommand command, CancellationToken cancellationToken = default)
     {
+        if (!command.ModifyInfo.Any())
+            return new SetPlayerInfoResult(false, string.Empty);
+
         var player = await _playerServiceClient
             .GetPlayerInfoAsync(command.PlayerCode, cancellationToken)
             .ConfigureAwait(false);
