@@ -29,6 +29,9 @@ internal class SetPlayerContactCommandService : IGetService<SetPlayerContactComm
 
     public async ValueTask<SetPlayerContactInfo> GetAsync(SetPlayerContactCommand command, CancellationToken cancellationToken = default)
     {
+        if (!command.ModifyContact.Any())
+            return new SetPlayerContactInfo(false, string.Empty);
+
         var player = await _playerServiceClient
             .GetPlayerInfoAsync(command.PlayerCode, cancellationToken)
             .ConfigureAwait(false);
