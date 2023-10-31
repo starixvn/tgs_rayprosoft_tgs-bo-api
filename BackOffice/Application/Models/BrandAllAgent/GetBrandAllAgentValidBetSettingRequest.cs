@@ -5,4 +5,4 @@ using TGS.Core.Models.Enums;
 namespace TGS.Services.BackOffice.Application.Models.BrandAllAgent;
 
 public record GetBrandAllAgentValidBetSettingRequest
-    (Guid BrandId, AllAgentGameType AllAgentGameType) : IRequest<ValidBetConditionModel[]>;
+    (Guid BrandId, AllAgentGameType AllAgentGameType) : IStreamRequest<ValidBetConditionModel>;

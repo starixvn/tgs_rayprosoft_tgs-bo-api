@@ -8,7 +8,5 @@ public record BrandAllAgentGameTypeModel
 
     public bool HasValidBet { get; set; }
 
-    public bool HasWinLoss { get; set; }
-
     public AllAgentGameType AllAgentGameType { get; set; }
 }

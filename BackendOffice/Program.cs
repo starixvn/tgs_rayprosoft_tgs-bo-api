@@ -45,6 +45,7 @@ using TGS.Apis.BackendOffice.Workers;
 using TGS.Core.Infrastructures.Redis;
 using TGS.Core.Models;
 using TGS.Payment.ManualDeposit;
+using Tgs.Player.All.Agent.Client.DependencyInjection;
 using TGS.Services.BackOffice.Domain;
 
 AppContext.SetSwitch("Npgsql.EnableLegacyTimestampBehavior", true);
@@ -290,6 +291,12 @@ builder.Services.AddGameWagersClient((options, sp) =>
 {
     var config = sp.GetRequiredService<IConfiguration>();
     options.BaseUrl = config.GetValue<Uri>("BackOffice:GameWagersServiceBaseUrl");
+});
+
+builder.Services.AddPlayerAllAgentClient((options, sp) =>
+{
+    var config = sp.GetRequiredService<IConfiguration>();
+    options.Url = config.GetValue<Uri>("BackOffice:PlayerAllAgentBaseUrl");
 });
 
 builder.Services.AddSwaggerGen(c =>
