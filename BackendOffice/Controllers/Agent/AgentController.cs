@@ -176,4 +176,41 @@ public partial class AgentController : BaseContextController
 
         return CreateValidResponse<MessageResponse>();
     }
+
+    [HttpPatch("contact/{agentId}", Name = "SetAgentContact")]
+    public async ValueTask<MessageResponse> SetAgentContactAsync(
+        [FromServices] IGetService<SetAgentContactCommand, SetAgentContactResult> setService,
+        Guid agentId,
+        [FromBody] ViewModels.SetAgentContactRequest request)
+    {
+        var processInfo = await setService
+            .GetAsync(new SetAgentContactCommand(agentId, request, UserId, Username), HttpContext.RequestAborted)
+            .ConfigureAwait(false);
+
+        return new MessageResponse
+        {
+            Valid = processInfo.Valid,
+            Message = processInfo.Message
+        };
+    }
+
+    [HttpPatch("password/{agentId}/{password}", Name = "SetAgentPassword")]
+    [Description("Update agent login password")]
+    public async ValueTask<MessageResponse> SetAgentPasswordAsync(
+        [FromServices] IGetService<SetAgentPasswordCommand, SetAgentPasswordResult> setPlayerPasswordService,
+        Guid agentId,
+        string password)
+    {
+        var command = new SetAgentPasswordCommand(agentId, password, UserId, Username);
+
+        var processInfo = await setPlayerPasswordService
+            .GetAsync(command, HttpContext.RequestAborted)
+            .ConfigureAwait(false);
+
+        return new MessageResponse
+        {
+            Valid = processInfo.Valid,
+            Message = processInfo.Message
+        };
+    }
 }
