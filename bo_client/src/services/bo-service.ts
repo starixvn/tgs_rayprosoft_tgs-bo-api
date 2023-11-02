@@ -13,7 +13,7 @@ export default class BackOfficeService {
 
     // #endregion Constructors (1)
 
-    // #region Public Methods (99)
+    // #region Public Methods (103)
 
     public addAgentDomain(brandId: string, agentId: string, domain: string): Promise<void> {
         return this.http
@@ -316,6 +316,26 @@ export default class BackOfficeService {
             .then(res => res.data);
     }
 
+    public getAgentHistories(agentId: string, request: AgentHistoriesQueryViewModel, page: number, rows: number): Promise<PagedResponse<AgentHistoryViewModel>> {
+        const queryString = {
+            from: request.from,
+            to: request.to,
+            page: page,
+            rows: rows,
+        }
+        return this.http
+            .get(`/api/agent/histories/${agentId}`, {
+                params: queryString
+            })
+            .then(res => res.data);
+    }
+
+    public getAgentHistory(eventId: string): Promise<AgentHistoryContentViewModel> {
+        return this.http
+            .get(`/api/agent/history/${eventId}`)
+            .then(res => res.data);
+    }
+
     public getAgentOperations(id: string, paging: PageableRequest, request: GetAgentOperationsRequest): Promise<PagedResponse<AgentOperationModel>> {
         const queryString = {
             brandId: request.brandId,
@@ -492,26 +512,6 @@ export default class BackOfficeService {
     public getPlayerHistory(eventId: string): Promise<PlayerHistoryContentViewModel> {
         return this.http
             .get(`/api/player/history/${eventId}`)
-            .then(res => res.data);
-    }
-
-    public getAgentHistories(agentId: string, request: AgentHistoriesQueryViewModel, page: number, rows: number): Promise<PagedResponse<AgentHistoryViewModel>> {
-        const queryString = {
-            from: request.from,
-            to: request.to,
-            page: page,
-            rows: rows,
-        }
-        return this.http
-            .get(`/api/agent/histories/${agentId}`, {
-                params: queryString
-            })
-            .then(res => res.data);
-    }
-
-    public getAgentHistory(eventId: string): Promise<AgentHistoryContentViewModel> {
-        return this.http
-            .get(`/api/agent/history/${eventId}`)
             .then(res => res.data);
     }
 
@@ -886,9 +886,25 @@ export default class BackOfficeService {
             .then(res => res.data);
     }
 
+    public setAgentInfo(agentId: string, request: SetAgentInfoViewModel): Promise<MessageResponse> {
+        return this.http
+            .patch(`/api/agent/info/${agentId}`, {
+                ...request
+            })
+            .then(res => res.data);
+    }
+
     public setAgentPassword(agentId: string, password: string): Promise<MessageResponse> {
         return this.http
             .patch(`/api/agent/password/${agentId}/${password}`)
+            .then(res => res.data);
+    }
+
+    public setAgentStatus(agentId: string, request: SetAgentStatusViewModel): Promise<MessageResponse> {
+        return this.http
+            .patch(`/api/agent/status/${agentId}`,{
+                ...request
+            })
             .then(res => res.data);
     }
 
@@ -1076,5 +1092,5 @@ export default class BackOfficeService {
             .then(res => res.data);
     }
 
-    // #endregion Public Methods (99)
+    // #endregion Public Methods (103)
 }

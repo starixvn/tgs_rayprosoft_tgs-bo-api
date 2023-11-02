@@ -1,0 +1,3 @@
+interface SetAgentStatusViewModel{
+    agentStatus: string;
+}
