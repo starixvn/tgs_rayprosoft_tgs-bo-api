@@ -566,7 +566,7 @@ public partial class PlayerController : BaseContextController
         };
     }
 
-    [HttpPatch("contact/{playerCode}")]
+    [HttpPatch("contact/{playerCode}",Name = "SetPlayerContact")]
     public async ValueTask<MessageResponse> SetPlayerContactAsync(
         [FromServices] IGetService<SetPlayerContactCommand, SetPlayerContactInfo> setPlayerContactService,
         string playerCode,

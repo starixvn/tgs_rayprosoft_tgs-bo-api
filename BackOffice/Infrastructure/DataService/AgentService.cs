@@ -196,7 +196,7 @@ public class AgentService : BaseRepositoryOperations<ITgsRepository>, IAgentServ
 
             _ = await UpdateSubAgentsPathAsync(agent, nLevel, parentAgent).ConfigureAwait(false);
         }
-
+        
         switch (request.UpdateType)
         {
             case MemberUpdateType.Info:

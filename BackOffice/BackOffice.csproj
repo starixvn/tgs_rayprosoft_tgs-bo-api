@@ -55,7 +55,7 @@
     <PackageReference Include="Scrutor" Version="4.2.2" />
     <PackageReference Include="System.Interactive.Async" Version="6.0.1" />
     <PackageReference Include="System.Linq.Async" Version="6.0.1" />
-    <PackageReference Include="Tgs.Agent.Client" Version="0.0.12" />
+    <PackageReference Include="Tgs.Agent.Client" Version="0.0.14" />
     <PackageReference Include="Tgs.ArticleManagementClient" Version="0.0.3" />
     <PackageReference Include="Tgs.BrandCertificateClient" Version="0.0.29" />
     <PackageReference Include="Tgs.CashQuery.Client" Version="0.0.8" />
