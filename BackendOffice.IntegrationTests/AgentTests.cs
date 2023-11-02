@@ -332,9 +332,9 @@ public class AgentTests
                 "jhmdpi",
                 null,
                 DateTimeOffset.UtcNow.AddMonths(-1),
-                Tgs.Agent.Client.Models.Enums.AgentStatus.Enabled,
-                Tgs.Agent.Client.Models.Enums.AgentType.Cash,
-                Tgs.Agent.Client.Models.Enums.AgentLevelType.Chief,
+                AgentStatus.Enabled,
+                AgentType.Cash,
+                AgentLevelType.Chief,
                 0m,
                 0,
                 0m));
@@ -514,6 +514,86 @@ public class AgentTests
             .Received(1)
             .AddAgentAuditLogAsync(Arg.Is(new AddAgentAuditLogRequest(agentId, AgentOperation.Info, "system")), Arg.Any<CancellationToken>());
 
+        Assert.True(actual?.Valid);
+    }
+
+    [Fact]
+    public async Task 更新代理資訊()
+    {
+        // Arrange
+        var channelName = Guid.NewGuid().ToString();
+        var userId = Guid.NewGuid();
+
+        var fakeAgentClient = Substitute.For<IAgentClient>();
+
+        using var web = TestBackendOfficeApplication.Builder
+            .UseTestChannelServer(channelName)
+            .ConfigureLogging(logging => logging.AddXUnit(_testOutputHelper))
+            .ConfigureServices(services => services
+                .AddAuthentication("Fake")
+                .AddScheme<FakeAuthenticationSchemaOptions, FakeAuthenticationHandler>(
+                    "Fake",
+                    options =>
+                    {
+                        options.UserId = userId;
+                        options.UserName = "system";
+                    })
+                .Services
+                .AddSingleton(fakeAgentClient))
+            .Build();
+
+        await web.StartAsync();
+
+        using var nodeService = _nodeJsFixture.BuildNodeJsService();
+
+        var isWindows = RuntimeInformation.IsOSPlatform(OSPlatform.Windows) ? "true" : "false";
+
+        var nodeModule = $$"""
+            const axiosConfigFactory = require('./models/axios-configuration.js').default;
+            const BackOfficeService = require('./services/bo-service.js').default;
+
+            module.exports = async (agentId,request) =>
+            {
+                let instance = axiosConfigFactory("{{channelName}}", {{isWindows}});
+
+                let svc = new BackOfficeService(instance);
+
+                return await svc.setAgentInfo(agentId,request);
+            };
+        """;
+
+        var agentId = Guid.Parse("5056ebbf-a975-42f1-9e97-b3299f0cab06");
+
+        _ = fakeAgentClient.GetAgentInfoAsync(new GetAgentInfoRequest(agentId), Arg.Any<CancellationToken>())
+            .Returns(new AgentInfoModel(
+                agentId,
+                "agentUsername",
+                null,
+                null,
+                null,
+                null,
+                null,
+                "jhmdpi",
+                null,
+                DateTimeOffset.UtcNow.AddMonths(-1),
+                AgentStatus.Enabled,
+                AgentType.Cash,
+                AgentLevelType.Chief,
+                0m,
+                0,
+                0m));
+
+        var request = new SetAgentInfoViewModel
+        {
+            { "Remark", "test Remark" }
+        };
+
+        // Act
+        var actual = await nodeService.InvokeFromStringAsync<MessageResponse>(
+            nodeModule,
+            args: new object[] { agentId, request });
+
+        // Assert
         Assert.True(actual?.Valid);
     }
 

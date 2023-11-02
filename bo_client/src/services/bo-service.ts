@@ -13,7 +13,7 @@ export default class BackOfficeService {
 
     // #endregion Constructors (1)
 
-    // #region Public Methods (102)
+    // #region Public Methods (103)
 
     public addAgentDomain(brandId: string, agentId: string, domain: string): Promise<void> {
         return this.http
@@ -886,6 +886,14 @@ export default class BackOfficeService {
             .then(res => res.data);
     }
 
+    public setAgentInfo(agentId: string, request: SetAgentInfoViewModel): Promise<MessageResponse> {
+        return this.http
+            .patch(`/api/agent/info/${agentId}`, {
+                ...request
+            })
+            .then(res => res.data);
+    }
+
     public setAgentPassword(agentId: string, password: string): Promise<MessageResponse> {
         return this.http
             .patch(`/api/agent/password/${agentId}/${password}`)
@@ -1084,5 +1092,5 @@ export default class BackOfficeService {
             .then(res => res.data);
     }
 
-    // #endregion Public Methods (102)
+    // #endregion Public Methods (103)
 }

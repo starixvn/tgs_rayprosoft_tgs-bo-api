@@ -18,6 +18,7 @@ using TGS.Services.BackOffice.Application.Models.Agent;
 using TGS.Services.BackOffice.Application.Models.AgentAdjust;
 using TGS.Services.BackOffice.Application.Models.ReportAgent;
 using TGS.Services.BackOffice.ApplicationServices.Agents;
+using TGS.Services.BackOffice.ApplicationServices.Players;
 
 namespace TGS.Apis.BackendOffice.Controllers.Agent;
 
@@ -225,6 +226,24 @@ public partial class AgentController : BaseContextController
     {
         var processInfo = await getService
             .GetAsync(new SetAgentStatusCommand(agentId, request.Status, UserId, Username), HttpContext.RequestAborted)
+            .ConfigureAwait(false);
+
+        return new MessageResponse
+        {
+            Valid = processInfo.Valid,
+            Message = processInfo.Message,
+        };
+    }
+
+    [HttpPatch("info/{agentId}", Name = "SetAgentInfo")]
+    [Description("Update agent info (realname or remark)")]
+    public async ValueTask<MessageResponse> SetAgentInfoAsync(
+        [FromServices] IGetService<SetAgentInfoCommand, SetAgentInfoResult> getService,
+        Guid agentId,
+        [FromBody] SetAgentInfoViewModel request)
+    {
+        var processInfo = await getService
+            .GetAsync(new SetAgentInfoCommand(agentId, request, UserId, Username), HttpContext.RequestAborted)
             .ConfigureAwait(false);
 
         return new MessageResponse
