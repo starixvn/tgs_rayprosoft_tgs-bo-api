@@ -13,7 +13,7 @@ export default class BackOfficeService {
 
     // #endregion Constructors (1)
 
-    // #region Public Methods (98)
+    // #region Public Methods (99)
 
     public addAgentDomain(brandId: string, agentId: string, domain: string): Promise<void> {
         return this.http
@@ -492,6 +492,26 @@ export default class BackOfficeService {
     public getPlayerHistory(eventId: string): Promise<PlayerHistoryContentViewModel> {
         return this.http
             .get(`/api/player/history/${eventId}`)
+            .then(res => res.data);
+    }
+
+    public getAgentHistories(agentId: string, request: AgentHistoriesQueryViewModel, page: number, rows: number): Promise<PagedResponse<AgentHistoryViewModel>> {
+        const queryString = {
+            from: request.from,
+            to: request.to,
+            page: page,
+            rows: rows,
+        }
+        return this.http
+            .get(`/api/agent/histories/${agentId}`, {
+                params: queryString
+            })
+            .then(res => res.data);
+    }
+
+    public getAgentHistory(eventId: string): Promise<AgentHistoryContentViewModel> {
+        return this.http
+            .get(`/api/agent/history/${eventId}`)
             .then(res => res.data);
     }
 
@@ -1056,5 +1076,5 @@ export default class BackOfficeService {
             .then(res => res.data);
     }
 
-    // #endregion Public Methods (98)
+    // #endregion Public Methods (99)
 }

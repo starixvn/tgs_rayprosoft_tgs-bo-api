@@ -15,6 +15,7 @@ using TGS.Services.BackOffice.Application.Queries.PlayerHandlers;
 using TGS.Services.BackOffice.ApplicationServices;
 using TGS.Services.BackOffice.ApplicationServices.Players;
 using BoEnums = TGS.Services.BackOffice.Domain.Enums;
+using EventAction = Tgs.PlayerService.Client.EventAction;
 
 namespace TGS.Tests.BackendOffice.UnitTests;
 

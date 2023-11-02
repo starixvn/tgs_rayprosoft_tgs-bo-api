@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.ComponentModel;
 using System.Linq;
 using System.Threading.Tasks;
@@ -10,6 +11,7 @@ using Tgs.Report.Client;
 using Tgs.Report.Client.Models.Agent;
 using Tgs.ServiceUtility;
 using TGS.Apis.BackendOffice.ViewModels;
+using TGS.Core.DataServices.Base.Interfaces;
 using TGS.Core.Models.Enums;
 using TGS.Core.Models.Messages;
 using TGS.Services.BackOffice.Application.Models.Agent;
@@ -212,5 +214,93 @@ public partial class AgentController : BaseContextController
             Valid = processInfo.Valid,
             Message = processInfo.Message
         };
+    }
+
+    [HttpGet("histories/{agentId}", Name = "GetAgentHistories")]
+    public async ValueTask<PagedResponse<AgentHistoryViewModel>> GetAgentHistoriesAsync(
+        [FromServices] IQueryService<AgentHistoriesQuery, AgentHistoryInfo> queryService,
+        [FromServices] IGetService<AgentHistoriesQuery, int> countService,
+        [FromServices] ITgsQueries<Core.DataServices.Tgs.Models.User> userQueries,
+        Guid agentId,
+        [FromQuery] AgentHistoriesQueryViewModel queryViewModel,
+        [FromQuery(Name = "page")] int page = 1,
+        [FromQuery(Name = "rows")] int rows = 10)
+    {
+        var query = new AgentHistoriesQuery(
+            agentId,
+            queryViewModel.From,
+            queryViewModel.To,
+            (page - 1) * rows);
+
+        var totalCount = await countService
+            .GetAsync(query, HttpContext.RequestAborted)
+            .ConfigureAwait(false);
+
+        var infos = await queryService
+            .QueryAsync(query, HttpContext.RequestAborted)
+            .ToArrayAsync(HttpContext.RequestAborted).ConfigureAwait(false);
+
+        var userIds = infos
+            .Where(x => !string.IsNullOrWhiteSpace(x.Modifier) && Guid.TryParse(x.Modifier, out var _) == true)
+            .Select(x => x.Modifier)
+            .Select(x => new Guid(x));
+
+        var userQuery = userQueries.GetQueries().Where(u => userIds.Contains(u.Id)).ToArray();
+
+        var user = userQuery.Any()
+            ? userQuery.ToDictionary(x => x.Id, x => x.Username)
+            : new Dictionary<Guid, string>();
+
+        return new PagedResponse<AgentHistoryViewModel>
+        {
+            Valid = true,
+            TotalCount = totalCount,
+            Items = infos.Select(x => new AgentHistoryViewModel
+            {
+                Action = x.Action,
+                CreatedOn = x.CreatedOn,
+                EventId = x.EventId,
+                Modifier = TryParseUsername(user, x.Modifier)
+            }).ToArray(),
+        };
+    }
+
+    [HttpGet("history/{eventId}", Name = "GetAgentHistory")]
+    public async ValueTask<AgentHistoryContentViewModel> GetAgentHistoryAsync(
+        [FromServices] IGetService<AgentHistoryQuery, AgentHistoryEventInfo> getService,
+        [FromServices] ITgsQueries<Core.DataServices.Tgs.Models.User> userQueries,
+        Guid eventId)
+    {
+        var info = await getService
+            .GetAsync(new AgentHistoryQuery(eventId), HttpContext.RequestAborted)
+            .ConfigureAwait(false);
+
+        _ = Guid.TryParse(info.Modifier, out var userId);
+
+        var user = userQueries.GetQueries()
+            .Where(u => u.Id == userId)
+            .FirstOrDefault();
+
+        return new AgentHistoryContentViewModel
+        {
+            Action = info.Action,
+            ChangeSets = info.ChangeSets,
+            CreatedOn = info.CreatedOn,
+            ModifyUsername = user == null
+                ? info.Modifier
+                : user.Username
+        };
+    }
+
+    private static string TryParseUsername(Dictionary<Guid, string> UserDicts, string Modifier)
+    {
+        if (Guid.TryParse(Modifier, out var userId) && UserDicts.Any())
+        {
+            _ = UserDicts.TryGetValue(userId, out var userName);
+
+            return userName;
+        }
+
+        return Modifier;
     }
 }
