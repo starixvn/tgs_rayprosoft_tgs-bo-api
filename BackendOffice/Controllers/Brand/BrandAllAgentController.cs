@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.ComponentModel;
 using System.Threading.Tasks;
 using MediatR;
@@ -24,15 +25,9 @@ public class BrandAllAgentController : BaseContextController
 
     [HttpGet("{id}/{allAgentGameType}/validBet")]
     [Description("Get the brand's all agent valid bet settings")]
-    public Task<ValidBetConditionModel[]> GetBrandAllAgentValidBetConditionAsync(Guid id,
+    public IAsyncEnumerable<ValidBetConditionModel> GetBrandAllAgentValidBetConditionAsync(Guid id,
         AllAgentGameType allAgentGameType)
-        => _mediator.Send(new GetBrandAllAgentValidBetSettingRequest(id, allAgentGameType));
-
-    [HttpGet("{id}/{allAgentGameType}/winLoss")]
-    [Description("Get the brand's all agent settings")]
-    public Task<WinLossConditionModel[]> GetBrandAllAgentWinLossConditionAsync(Guid id,
-        AllAgentGameType allAgentGameType)
-        => _mediator.Send(new GetBrandAllAgentWinLossSettingRequest(id, allAgentGameType));
+        => _mediator.CreateStream(new GetBrandAllAgentValidBetSettingRequest(id, allAgentGameType));
 
     [HttpPut("gameType")]
     [Description("Update the brand's all agent game type switch")]
@@ -46,15 +41,15 @@ public class BrandAllAgentController : BaseContextController
         UpdateBrandAllAgentSwitchRequest request)
         => _mediator.Send(request);
 
+    [HttpPatch("settlement-interval")]
+    [Description("Update the brand's all agent settlement interval")]
+    public Task<MessageResponse> UpdateBrandAllAgentSettlementIntervalAsync(
+        UpdateBrandAllAgentSettleIntervalRequest request)
+        => _mediator.Send(request);
+
     [HttpPut("validBet")]
     [Description("Update the brand's all agent valid bet conditions")]
     public Task<MessageResponse> UpdateBrandAllAgentValidBetConditionsAsync(
         UpdateBrandAllAgentValidBetConditionRequest request)
-        => _mediator.Send(request);
-
-    [HttpPut("winLoss")]
-    [Description("Update the brand's all agent win loss conditions")]
-    public Task<MessageResponse> UpdateBrandAllAgentWinLossConditionsAsync(
-        UpdateBrandAllAgentWinLossConditionRequest request)
         => _mediator.Send(request);
 }
