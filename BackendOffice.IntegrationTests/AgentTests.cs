@@ -8,9 +8,9 @@ using Microsoft.Extensions.Options;
 using NSubstitute;
 using Tgs.Agent.Client;
 using Tgs.Agent.Client.Models;
-using EventAction = Tgs.Agent.Client.Models.Enums.EventAction;
 using Tgs.ServiceUtility;
 using TGS.Apis.BackendOffice.ViewModels;
+using TGS.Core.DataServices.Base.Interfaces;
 using TGS.Core.Models.Enums;
 using TGS.Core.Models.Messages;
 using TGS.Services.BackOffice.Application.Models.Agent;
@@ -18,9 +18,11 @@ using TGS.Services.BackOffice.Application.Models.AgentAdjust;
 using TGS.Services.BackOffice.Application.Models.ReportAgent;
 using TGS.Services.BackOffice.ApplicationServices.Agents;
 using Xunit.Abstractions;
-using static Microsoft.IO.RecyclableMemoryStreamManager;
-using TGS.Core.DataServices.Base.Interfaces;
-using Tgs.PlayerService.Client;
+using AgentLevelType = Tgs.Agent.Client.Models.Enums.AgentLevelType;
+using AgentOperation = Tgs.Agent.Client.Models.Enums.AgentOperation;
+using AgentStatus = Tgs.Agent.Client.Models.Enums.AgentStatus;
+using AgentType = Tgs.Agent.Client.Models.Enums.AgentType;
+using EventAction = Tgs.Agent.Client.Models.Enums.EventAction;
 
 namespace BackendOffice.IntegrationTests;
 
@@ -411,9 +413,9 @@ public class AgentTests
                 "jhmdpi",
                 null,
                 DateTimeOffset.UtcNow.AddMonths(-1),
-                Tgs.Agent.Client.Models.Enums.AgentStatus.Enabled,
-                Tgs.Agent.Client.Models.Enums.AgentType.Cash,
-                Tgs.Agent.Client.Models.Enums.AgentLevelType.Chief,
+                AgentStatus.Enabled,
+                AgentType.Cash,
+                AgentLevelType.Chief,
                 0m,
                 0,
                 0m));
@@ -424,6 +426,94 @@ public class AgentTests
             args: new object[] { agentId, password });
 
         // Assert
+        Assert.True(actual?.Valid);
+    }
+
+    [Fact]
+    public async Task 更新代理狀態()
+    {
+        // Arrange
+        var channelName = Guid.NewGuid().ToString();
+        var userId = Guid.NewGuid();
+
+        var fakeAgentClient = Substitute.For<IAgentClient>();
+
+        using var web = TestBackendOfficeApplication.Builder
+            .UseTestChannelServer(channelName)
+            .ConfigureLogging(logging => logging.AddXUnit(_testOutputHelper))
+            .ConfigureServices(services => services
+                .AddAuthentication("Fake")
+                .AddScheme<FakeAuthenticationSchemaOptions, FakeAuthenticationHandler>(
+                    "Fake",
+                    options =>
+                    {
+                        options.UserId = userId;
+                        options.UserName = "system";
+                    })
+                .Services
+                .AddSingleton(fakeAgentClient))
+            .Build();
+
+        await web.StartAsync();
+
+        using var nodeService = _nodeJsFixture.BuildNodeJsService();
+
+        var isWindows = RuntimeInformation.IsOSPlatform(OSPlatform.Windows) ? "true" : "false";
+
+        var nodeModule = $$"""
+            const axiosConfigFactory = require('./models/axios-configuration.js').default;
+            const BackOfficeService = require('./services/bo-service.js').default;
+
+            module.exports = async (agentId,request) =>
+            {
+                let instance = axiosConfigFactory("{{channelName}}", {{isWindows}});
+
+                let svc = new BackOfficeService(instance);
+
+                return await svc.setAgentStatus(agentId,request);
+            };
+        """;
+
+        var agentId = Guid.Parse("5056ebbf-a975-42f1-9e97-b3299f0cab06");
+
+        var request = new SetAgentStatusViewModel()
+        {
+            Status = AgentStatus.InBlacklist
+        };
+
+        _ = fakeAgentClient.GetAgentInfoAsync(new GetAgentInfoRequest(agentId), Arg.Any<CancellationToken>())
+            .Returns(new AgentInfoModel(
+                agentId,
+                "agentUsername",
+                null,
+                null,
+                null,
+                null,
+                null,
+                "jhmdpi",
+                null,
+                DateTimeOffset.UtcNow.AddMonths(-1),
+                AgentStatus.Enabled,
+                AgentType.Cash,
+                AgentLevelType.Chief,
+                0m,
+                0,
+                0m));
+
+        // Act
+        var actual = await nodeService.InvokeFromStringAsync<MessageResponse>(
+            nodeModule,
+            args: new object[] { agentId, request });
+
+        // Assert
+        _ = fakeAgentClient
+            .Received(1)
+            .SetAgentStatusAsync(Arg.Is(agentId), Arg.Is(request.Status), Arg.Is(userId.ToString()), Arg.Any<CancellationToken>());
+
+        _ = fakeAgentClient
+            .Received(1)
+            .AddAgentAuditLogAsync(Arg.Is(new AddAgentAuditLogRequest(agentId, AgentOperation.Info, "system")), Arg.Any<CancellationToken>());
+
         Assert.True(actual?.Valid);
     }
 
@@ -571,7 +661,7 @@ public class AgentTests
             .GetQueries()
             .Returns(Array.Empty<TGS.Core.DataServices.Tgs.Models.User>().AsQueryable());
 
-        await web.StartAsync();        
+        await web.StartAsync();
 
         using var nodeService = _nodeJsFixture.BuildNodeJsService();
 
@@ -590,7 +680,6 @@ public class AgentTests
                 return await svc.getAgentHistory(eventId);
             };
         """;
-        
 
         // Act
         var actual = await nodeService.InvokeFromStringAsync<string>(

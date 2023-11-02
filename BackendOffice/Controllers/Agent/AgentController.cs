@@ -216,6 +216,24 @@ public partial class AgentController : BaseContextController
         };
     }
 
+    [HttpPatch("status/{agentId}", Name = "SetAgentStatus")]
+    [Description("Update agent status")]
+    public async ValueTask<MessageResponse> SetAgentStatusAsync(
+        [FromServices] IGetService<SetAgentStatusCommand, SetAgentStatusResult> getService,
+        Guid agentId,
+        [FromBody] SetAgentStatusViewModel request)
+    {
+        var processInfo = await getService
+            .GetAsync(new SetAgentStatusCommand(agentId, request.Status, UserId, Username), HttpContext.RequestAborted)
+            .ConfigureAwait(false);
+
+        return new MessageResponse
+        {
+            Valid = processInfo.Valid,
+            Message = processInfo.Message,
+        };
+    }
+
     [HttpGet("histories/{agentId}", Name = "GetAgentHistories")]
     public async ValueTask<PagedResponse<AgentHistoryViewModel>> GetAgentHistoriesAsync(
         [FromServices] IQueryService<AgentHistoriesQuery, AgentHistoryInfo> queryService,
