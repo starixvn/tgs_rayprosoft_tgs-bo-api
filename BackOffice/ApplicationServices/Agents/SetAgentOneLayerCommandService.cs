@@ -7,6 +7,7 @@ using System.Threading;
 using System.Threading.Tasks;
 using System.Transactions;
 using Microsoft.EntityFrameworkCore;
+using NATS.Client.Service;
 using Tgs.Agent.Client;
 using Tgs.Agent.Client.Models;
 using Tgs.ServiceUtility;
@@ -71,7 +72,9 @@ internal class SetAgentOneLayerCommandService : IGetService<SetAgentOneLayerComm
 
         if (agent.Brand.AgentDividendType == AgentDividendType.OneLayer)
         {
-            var childAgentMaxDividendPercentage = childAgents.Max(c => c.DividendPercentage);
+            var childAgentMaxDividendPercentage =  childAgents.Any() 
+                ? childAgents.Max(c => c.DividendPercentage)
+                : 0m;
 
             if (command.DividendPercentage < childAgentMaxDividendPercentage)
                 return new SetAgentOneLayerResult(false, Application.Resources.Agent.DividendPercentageMustGreaterThanOrEqualToLowerLayer);
@@ -92,9 +95,13 @@ internal class SetAgentOneLayerCommandService : IGetService<SetAgentOneLayerComm
 
             _repository.Agents.UpdateRange(updateAgents);
             _ = await _repository.SaveChangesAsync(cancellationToken)
-                .ConfigureAwait(false);
+            .ConfigureAwait(false);
 
-            var nLevel = agent.Path.NLevel;
+            var nLevel = await _repository.Agents
+                .Where(x => x.Id == command.AgentId)
+                .Select(x => x.Path.NLevel)
+                .FirstOrDefaultAsync(cancellationToken)
+                .ConfigureAwait(false);
 
             _ = await UpdateSubAgentsPathAsync(agent, nLevel, parentAgent!)
                 .ConfigureAwait(false);
