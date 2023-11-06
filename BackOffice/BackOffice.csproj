@@ -9,8 +9,11 @@
 
   <ItemGroup>
     <Compile Remove="Application\Commands\Aggregate\**" />
+    <Compile Remove="Application\Models\VipLevel\**" />
     <EmbeddedResource Remove="Application\Commands\Aggregate\**" />
+    <EmbeddedResource Remove="Application\Models\VipLevel\**" />
     <None Remove="Application\Commands\Aggregate\**" />
+    <None Remove="Application\Models\VipLevel\**" />
   </ItemGroup>
 
   <ItemGroup>
@@ -254,10 +257,6 @@
       <Generator>PublicResXFileCodeGenerator</Generator>
       <LastGenOutput>Language.Designer.cs</LastGenOutput>
     </EmbeddedResource>
-  </ItemGroup>
-
-  <ItemGroup>
-    <Folder Include="Application\Models\VipLevel\" />
   </ItemGroup>
 
 </Project>
