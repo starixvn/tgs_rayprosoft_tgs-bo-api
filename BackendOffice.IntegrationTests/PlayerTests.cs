@@ -1232,7 +1232,8 @@ public class PlayerTests
                 Tgs.Agent.Client.Models.Enums.AgentLevelType.Chief,
                 0m,
                 0,
-                0m));
+                0m,
+                brandId));
 
         using var web = TestBackendOfficeApplication.Builder
             .UseTestChannelServer(channelName)

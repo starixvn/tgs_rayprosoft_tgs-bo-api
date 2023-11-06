@@ -37,7 +37,7 @@
     <PackageReference Include="FluentValidation.AspNetCore" Version="11.3.0" />
     <PackageReference Include="JsonCons.Utilities" Version="1.0.0" />
     <PackageReference Include="Microsoft.AspNetCore.Antiforgery" Version="2.2.0" />
-    <PackageReference Include="Microsoft.AspNetCore.DataProtection.StackExchangeRedis" Version="7.0.12" />
+    <PackageReference Include="Microsoft.AspNetCore.DataProtection.StackExchangeRedis" Version="7.0.13" />
     <PackageReference Include="Microsoft.AspNetCore.HttpOverrides" Version="2.2.0" />
     <PackageReference Include="Microsoft.VisualStudio.Azure.Containers.Tools.Targets" Version="1.19.5" />
     <PackageReference Include="Microsoft.VisualStudio.Azure.Kubernetes.Tools.Targets" Version="1.1.0" />
@@ -52,7 +52,7 @@
     <PackageReference Include="OpenTelemetry.Api.ProviderBuilderExtensions" Version="1.6.0" />
     <PackageReference Include="OpenTelemetry.Exporter.OpenTelemetryProtocol.Logs" Version="1.4.0-rc.4" />
     <PackageReference Include="OpenTelemetry.Instrumentation.Runtime" Version="1.5.1" />
-    <PackageReference Include="PhoenixToolkits.MessageQueue.Nats" Version="1.0.3" />
+    <PackageReference Include="PhoenixToolkits.MessageQueue.Nats" Version="1.0.6" />
     <PackageReference Include="Swashbuckle.AspNetCore" Version="6.5.0" />
     <PackageReference Include="System.Reactive" Version="6.0.0" />
     <PackageReference Include="TGS.FileService.Client" Version="0.0.5" />
