@@ -1,5 +1,4 @@
-﻿# nullable enable
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.Collections.Immutable;
 using System.Linq;
@@ -55,8 +54,9 @@ internal class SetAgentInfoCommandService : IGetService<SetAgentInfoCommand, Set
             .SetAgentPropertiesAsync(command.AgentId, modifyDict.ToImmutableDictionary(), command.ModifyUserId, cancellationToken)
             .ConfigureAwait(false);
 
-        await _agentClient.
-            AddAgentAuditLogAsync(new AddAgentAuditLogRequest(command.AgentId, AgentOperation.Info, command.ModifyUsername), cancellationToken)
+        await _agentClient.AddAgentAuditLogAsync(
+            new AddAgentAuditLogRequest(command.AgentId, AgentOperation.Info, command.ModifyUsername),
+            cancellationToken)
             .ConfigureAwait(false);
 
         return new SetAgentInfoResult(true, string.Empty);

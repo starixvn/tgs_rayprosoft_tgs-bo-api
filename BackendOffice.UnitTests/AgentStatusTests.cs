@@ -37,8 +37,8 @@ public class AgentStatusTests
                 AgentLevelType.Chief,
                 0m,
                 0,
-                0m, 
-                BrandId: Guid.NewGuid()));
+                0m,
+                Guid.NewGuid()));
 
         var actual = await sut.GetAsync(new SetAgentStatusCommand(agentId, status, modifyUserId, modifyUsername));
 

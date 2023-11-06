@@ -39,7 +39,7 @@ public class AgentInfoTests
                 0m,
                 0,
                 0m,
-                BrandId: Guid.NewGuid()));
+                Guid.NewGuid()));
 
         var queryDict = new Dictionary<string, string?>()
         {

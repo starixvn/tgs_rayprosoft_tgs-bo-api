@@ -1,35 +1,33 @@
-﻿using System.Linq;
+﻿using System.Collections.Generic;
+using System.Linq;
 using System.Threading;
-using System.Threading.Tasks;
-using Microsoft.AspNetCore.Http;
-using Microsoft.EntityFrameworkCore;
-using TGS.Core.Models.Enums;
+using MediatR;
+using Tgs.Player.All.Agent.Client;
+using Tgs.Player.All.Agent.Client.Models;
 using TGS.Services.BackOffice.Application.Models.BrandAllAgent;
-using TGS.Services.BackOffice.Infrastructure.DataService;
+using ValidBetConditionModel = TGS.Services.BackOffice.Application.Models.BrandAllAgent.ValidBetConditionModel;
 
 namespace TGS.Services.BackOffice.Application.Queries.BrandAllAgentHandlers;
 
-public class GetBrandAllAgentValidBetSettingQueryHandler : Handler<GetBrandAllAgentValidBetSettingRequest,
-    ValidBetConditionModel[]>
+public class GetBrandAllAgentValidBetSettingQueryHandler : IStreamRequestHandler<GetBrandAllAgentValidBetSettingRequest,
+    ValidBetConditionModel>
 {
-    private readonly IBrandAllAgentGameTypeConditionService _brandAllAgentGameTypeConditionService;
+    private readonly IBrandAllAgentClient _client;
 
     public GetBrandAllAgentValidBetSettingQueryHandler(
-        IBrandAllAgentGameTypeConditionService brandAllAgentGameTypeConditionService,
-        IHttpContextAccessor accessor) : base(accessor)
-        => _brandAllAgentGameTypeConditionService = brandAllAgentGameTypeConditionService;
+        IBrandAllAgentClient client) =>
+        _client = client;
 
-    public override Task<ValidBetConditionModel[]> Handle(
+    public IAsyncEnumerable<ValidBetConditionModel> Handle(
         GetBrandAllAgentValidBetSettingRequest request,
-        CancellationToken cancellationToken)
-        => _brandAllAgentGameTypeConditionService.GetBrandAllAgentGameTypeConditionQueries()
-            .Where(x => x.BrandId == request.BrandId && x.AllAgentGameType == request.AllAgentGameType &&
-                x.AllAgentRebateType == AllAgentRebateType.ValidBet).Select(x => new ValidBetConditionModel
-                {
-                    Rank = x.Rank,
-                    ActiveNumber = x.ActiveNumber,
-                    NetProfit = x.NetProfit,
-                    RebatePercentage = x.RebatePercentage
-                })
-            .ToArrayAsync(cancellationToken);
+        CancellationToken cancellationToken) =>
+        _client.GetValidBetConditionsAsync(
+                new GetValidBetConditionsRequest(request.BrandId, (AllAgentGameType)request.AllAgentGameType))
+            .Select(x => new ValidBetConditionModel
+            {
+                Rank = x.Rank,
+                ActiveNumber = x.ActiveNumber,
+                NetProfit = x.NetProfit,
+                RebatePercentage = x.RebatePercentage
+            });
 }
