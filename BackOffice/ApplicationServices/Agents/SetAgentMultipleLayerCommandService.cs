@@ -82,16 +82,26 @@ internal class SetAgentMultipleLayerCommandService : IGetService<SetAgentMultipl
         {
             operation = Tgs.Agent.Client.Models.Enums.AgentOperation.Agent;
 
-            var agents = await _repository.Agents.AsQueryable().Where(x => x.BrandId == agent.BrandId)
-                .ToArrayAsync().ConfigureAwait(false);
+            var agents = await _repository.Agents.AsQueryable()
+                .Where(x => x.BrandId == agent.BrandId)
+                .ToArrayAsync(cancellationToken: cancellationToken)
+                .ConfigureAwait(false);
 
             var updateAgents = GetChildAgents(command.AgentId, agents);
 
             _repository.Agents.UpdateRange(updateAgents);
-            _ = await _repository.SaveChangesAsync(cancellationToken).ConfigureAwait(false);
+            _ = await _repository
+                .SaveChangesAsync(cancellationToken)
+                .ConfigureAwait(false);
 
-            var nLevel = agent.Path.NLevel;
-            _ = await UpdateSubAgentsPathAsync(agent, nLevel, parentAgent).ConfigureAwait(false);
+            var nLevel = await _repository.Agents
+                .Where(x => x.Id == command.AgentId)
+                .Select(x => x.Path.NLevel)
+                .FirstOrDefaultAsync(cancellationToken)
+                .ConfigureAwait(false);
+
+            _ = await UpdateSubAgentsPathAsync(agent, nLevel, parentAgent)
+                .ConfigureAwait(false);
         }
 
         _repository
