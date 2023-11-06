@@ -294,7 +294,8 @@ public class AdjustWalletTests
                 AgentLevelType.Agent,
                 0M,
                 0,
-                0M));
+                0M,
+                brandId));
 
         var queryCondition = new AdjustRecordQueryCondition(
             (queryViewModel.From.ToUniversalTime(), queryViewModel.To.ToUniversalTime()),
@@ -347,7 +348,8 @@ public class AdjustWalletTests
                 AgentLevelType.Agent,
                 0M,
                 0,
-                0M));
+                0M,
+                brandId));
 
         var expected = queryRecords.Select(record => new AdjustRecordListItemViewModel
         {
@@ -515,7 +517,8 @@ public class AdjustWalletTests
                 AgentLevelType.Agent,
                 0M,
                 0,
-                0M));
+                0M, 
+                brandId));
 
         using var nodeService = _nodeJsFixture.BuildNodeJsService();
 
@@ -973,7 +976,8 @@ public class AdjustWalletTests
                 AgentLevelType.Agent,
                 0M,
                 0,
-                0M));
+                0M, 
+                brandId));
 
         using var nodeService = _nodeJsFixture.BuildNodeJsService();
 
@@ -1162,7 +1166,8 @@ public class AdjustWalletTests
                 AgentLevelType.Agent,
                 0M,
                 0,
-                0M));
+                0M, 
+                brandId));
 
         using var nodeService = _nodeJsFixture.BuildNodeJsService();
 

@@ -1,4 +1,6 @@
-﻿using System;
+﻿# nullable enable
+
+using System;
 using System.Text.Json;
 using Tgs.Agent.Client.Models.Enums;
 

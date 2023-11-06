@@ -1,4 +1,5 @@
-﻿using System;
+﻿# nullable enable
+using System;
 using System.Collections.Generic;
 using System.Collections.Immutable;
 using System.Linq;
@@ -26,7 +27,7 @@ internal class SetAgentInfoCommandService : IGetService<SetAgentInfoCommand, Set
             return new SetAgentInfoResult(false, string.Empty);
 
         var agent = await _agentClient
-            .GetAgentInfoAsync(new GetAgentInfoRequest(command.AgentId))
+            .GetAgentInfoAsync(new GetAgentInfoRequest(command.AgentId), cancellationToken)
             .ConfigureAwait(false);
 
         if (agent is null)
@@ -55,7 +56,7 @@ internal class SetAgentInfoCommandService : IGetService<SetAgentInfoCommand, Set
             .ConfigureAwait(false);
 
         await _agentClient.
-            AddAgentAuditLogAsync(new AddAgentAuditLogRequest(command.AgentId, AgentOperation.Info, command.ModifyUsername))
+            AddAgentAuditLogAsync(new AddAgentAuditLogRequest(command.AgentId, AgentOperation.Info, command.ModifyUsername), cancellationToken)
             .ConfigureAwait(false);
 
         return new SetAgentInfoResult(true, string.Empty);

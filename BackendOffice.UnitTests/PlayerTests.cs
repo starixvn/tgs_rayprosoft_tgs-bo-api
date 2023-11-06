@@ -521,7 +521,8 @@ internal class PlayerTests
                 AgentLevelType.Chief,
                 0m,
                 0,
-                0m));
+                0m,
+                brandId));
 
         var actual = await sut.GetAsync(new SetPlayerAgentCommand(playerCode, agentUsername, modifyUserId, modifyUsername));
 
@@ -620,7 +621,8 @@ internal class PlayerTests
                 AgentLevelType.Chief,
                 0m,
                 0,
-                0m));
+                0m,
+                brandId));
 
         var actual = await sut.GetAsync(new SetPlayerAgentCommand(playerCode, agentUsername, modifyUserId, modifyUsername));
 

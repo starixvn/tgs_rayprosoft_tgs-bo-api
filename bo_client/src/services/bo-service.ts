@@ -13,7 +13,7 @@ export default class BackOfficeService {
 
     // #endregion Constructors (1)
 
-    // #region Public Methods (103)
+    // #region Public Methods (105)
 
     public addAgentDomain(brandId: string, agentId: string, domain: string): Promise<void> {
         return this.http
@@ -914,6 +914,22 @@ export default class BackOfficeService {
             .then(res => res.data);
     }
 
+    public setMultipleLayerAgent(agentId:string, request: SetMultipleLayerAgentInfoViewModel): Promise<MessageResponse>{
+        return this.http
+            .patch(`/api/agent/multiple-layer/${agentId}`,{
+                ...request
+            })            
+            .then(res => res.data);
+    }
+
+    public setOneLayerAgent(agentId:string, request: SetOneLayerAgentInfoViewModel): Promise<MessageResponse>{
+        return this.http
+            .patch(`/api/agent/one-layer/${agentId}`,{
+                ...request
+            })            
+            .then(res => res.data);
+    }
+
     public setPlayerAgent(playerCode: string, request: UpdatePlayerAgentViewModel): Promise<MessageResponse> {
         return this.http
             .patch(`/api/player/agent/${playerCode}`, {
@@ -1092,5 +1108,5 @@ export default class BackOfficeService {
             .then(res => res.data);
     }
 
-    // #endregion Public Methods (103)
+    // #endregion Public Methods (105)
 }

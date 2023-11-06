@@ -38,7 +38,8 @@ public class AgentInfoTests
                 AgentLevelType.Chief,
                 0m,
                 0,
-                0m));
+                0m,
+                BrandId: Guid.NewGuid()));
 
         var queryDict = new Dictionary<string, string?>()
         {
