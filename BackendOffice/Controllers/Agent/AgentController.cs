@@ -18,7 +18,6 @@ using TGS.Services.BackOffice.Application.Models.Agent;
 using TGS.Services.BackOffice.Application.Models.AgentAdjust;
 using TGS.Services.BackOffice.Application.Models.ReportAgent;
 using TGS.Services.BackOffice.ApplicationServices.Agents;
-using TGS.Services.BackOffice.ApplicationServices.Players;
 
 namespace TGS.Apis.BackendOffice.Controllers.Agent;
 
@@ -244,6 +243,42 @@ public partial class AgentController : BaseContextController
     {
         var processInfo = await getService
             .GetAsync(new SetAgentInfoCommand(agentId, request, UserId, Username), HttpContext.RequestAborted)
+            .ConfigureAwait(false);
+
+        return new MessageResponse
+        {
+            Valid = processInfo.Valid,
+            Message = processInfo.Message,
+        };
+    }
+
+    [HttpPatch("one-layer/{agentId}", Name = "SetOneLayerAgent")]
+    [Description("Update one layer agent's parent or dividend percentage or type")]
+    public async ValueTask<MessageResponse> SetOneLayerAgentAsync(
+        [FromServices] IGetService<SetAgentOneLayerCommand, SetAgentOneLayerResult> getService,
+        Guid agentId,
+        [FromBody] SetOneLayerAgentInfoViewModel request)
+    {
+        var processInfo = await getService
+            .GetAsync(new SetAgentOneLayerCommand(agentId, request.ParentUsername, request.DividendPercentage, request.Type, Username))
+            .ConfigureAwait(false);
+
+        return new MessageResponse
+        {
+            Valid = processInfo.Valid,
+            Message = processInfo.Message,
+        };
+    }
+
+    [HttpPatch("multiple-layer/{agentId}", Name = "SetMultipleLayerAgent")]
+    [Description("Update multiple layer agent's parent or dividend percentage or type")]
+    public async ValueTask<MessageResponse> SetMultipleLayerAgentAsync(
+        [FromServices] IGetService<SetAgentMultipleLayerCommand, SetAgentMultipleLayerResult> getService,
+        Guid agentId,
+        [FromBody] SetMultipleLayerAgentInfoViewModel request)
+    {
+        var processInfo = await getService
+            .GetAsync(new SetAgentMultipleLayerCommand(agentId, request.ParentUsername, request.AgentDividendConditions, request.Type, Username))
             .ConfigureAwait(false);
 
         return new MessageResponse

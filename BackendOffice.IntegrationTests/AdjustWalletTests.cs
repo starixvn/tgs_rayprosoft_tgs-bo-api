@@ -1166,7 +1166,7 @@ public class AdjustWalletTests
                 AgentLevelType.Agent,
                 0M,
                 0,
-                0M,
+                0M, 
                 brandId));
 
         using var nodeService = _nodeJsFixture.BuildNodeJsService();
