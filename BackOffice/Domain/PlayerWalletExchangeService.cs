@@ -19,29 +19,6 @@ internal class PlayerWalletExchangeService : IPlayerWalletExchangeService
         _cashServiceClient = cashServiceClient ?? throw new ArgumentNullException(nameof(cashServiceClient));
     }
 
-    public async ValueTask<TransactionResponse> CancelWithdrawalAsync(
-        string playerCode,
-        decimal amount,
-        string description,
-        string externalId,
-        Guid? createdByUserId,
-        CancellationToken cancellationToken = default)
-    {
-        var playerProps = await _playerServiceClient
-            .GetPlayerPropertiesAsync(playerCode, cancellationToken)
-            .ConfigureAwait(false);
-
-        var walletId = Guid.Parse(playerProps["DefaultWalletId"]);
-
-        return await _cashServiceClient.CancelWithdrawalAsync(
-            walletId,
-            amount,
-            description,
-            externalId,
-            createdByUserId,
-            cancellationToken).ConfigureAwait(false);
-    }
-
     public async ValueTask<TransactionResponse> CommitWithdrawalAsync(
         string playerCode,
         decimal amount,
