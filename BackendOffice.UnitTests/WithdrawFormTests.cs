@@ -259,7 +259,7 @@ public class WithdrawFormTests
     }
 
     [Test]
-    public async Task Cancel_Withdraw_By_Player_Should_Call_PlayerWalletExchangeService()
+    public void CancelWithdrawal_玩家不能處理()
     {
         var moqPlayerWalletExchangeService = Substitute.For<IPlayerWalletExchangeService>();
         var moqAgentService = Substitute.For<IAgentService>();
@@ -276,20 +276,12 @@ public class WithdrawFormTests
         var amount = 1000M;
         var userId = Guid.NewGuid();
 
-        await sut.CancelWithdrawAsync(
+        _ = Assert.ThrowsAsync<InvalidOperationException>(async () => await sut.CancelWithdrawAsync(
             brandId,
             userType,
             playerCode,
             amount,
-            userId.ToString());
-
-        _ = moqPlayerWalletExchangeService.Received(1).CancelWithdrawalAsync(
-            Arg.Is<string>(x => x == playerCode),
-            Arg.Is<decimal>(x => x == amount),
-            Arg.Any<string>(),
-            Arg.Any<string>(),
-            Arg.Any<Guid?>(),
-            Arg.Any<CancellationToken>());
+            userId.ToString()));
     }
 
     [Test]

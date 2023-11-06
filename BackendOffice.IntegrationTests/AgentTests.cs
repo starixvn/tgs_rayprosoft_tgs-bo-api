@@ -337,7 +337,8 @@ public class AgentTests
                 AgentLevelType.Chief,
                 0m,
                 0,
-                0m));
+                0m,
+                Guid.NewGuid()));
 
         var request = new TGS.Apis.BackendOffice.ViewModels.SetAgentContactRequest
         {
@@ -418,7 +419,8 @@ public class AgentTests
                 AgentLevelType.Chief,
                 0m,
                 0,
-                0m));
+                0m,
+                Guid.NewGuid()));
 
         // Act
         var actual = await nodeService.InvokeFromStringAsync<MessageResponse>(
@@ -498,7 +500,8 @@ public class AgentTests
                 AgentLevelType.Chief,
                 0m,
                 0,
-                0m));
+                0m,
+                Guid.NewGuid()));
 
         // Act
         var actual = await nodeService.InvokeFromStringAsync<MessageResponse>(
@@ -581,7 +584,8 @@ public class AgentTests
                 AgentLevelType.Chief,
                 0m,
                 0,
-                0m));
+                0m,
+                Guid.NewGuid()));
 
         var request = new SetAgentInfoViewModel
         {

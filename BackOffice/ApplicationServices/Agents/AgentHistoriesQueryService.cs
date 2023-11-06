@@ -19,7 +19,8 @@ internal class AgentHistoriesQueryService : IQueryService<AgentHistoriesQuery, A
 
     public ValueTask<int> GetAsync(AgentHistoriesQuery query, CancellationToken cancellationToken = default)
         => _agentClient.CountAgentHistoriesAsync(
-            new GetAgentHistoriesQueryConditions(query.AgentId, query.From, query.To));
+            new GetAgentHistoriesQueryConditions(query.AgentId, query.From, query.To),
+            cancellationToken);
 
     public IAsyncEnumerable<AgentHistoryInfo> QueryAsync(AgentHistoriesQuery query, CancellationToken cancellationToken = default)
         => AsyncEnumerableEx.Return(new GetAgentHistoriesQueryConditions(query.AgentId, query.From, query.To))

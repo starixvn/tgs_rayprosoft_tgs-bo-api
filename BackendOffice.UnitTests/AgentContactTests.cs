@@ -38,7 +38,8 @@ public class AgentContactTests
                 AgentLevelType.Chief,
                 0m,
                 0,
-                0m));
+                0m,
+                Guid.NewGuid()));
 
         var queryDict = new Dictionary<string, string?>
         {
