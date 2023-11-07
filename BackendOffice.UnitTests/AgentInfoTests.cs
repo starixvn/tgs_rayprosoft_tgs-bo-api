@@ -43,14 +43,14 @@ public class AgentInfoTests
 
         var queryDict = new Dictionary<string, string?>()
         {
-            { nameof(AgentPropertyName.Remark), remark }
+            { nameof(AgentPropertyName.Remarks), remark }
         };
 
         var actual = await sut.GetAsync(new SetAgentInfoCommand(agentId, queryDict, modifyUserId, modifyUsername));
 
         var modifyDict = new Dictionary<AgentPropertyName, string?>
         {
-            { AgentPropertyName.Remark, remark }
+            { AgentPropertyName.Remarks, remark }
         };
 
         _ = fakeAgentClient
