@@ -38,7 +38,7 @@ internal class SetAgentInfoCommandService : IGetService<SetAgentInfoCommand, Set
             new string[]
             {
                 nameof(AgentPropertyName.RealName),
-                nameof(AgentPropertyName.Remark),
+                nameof(AgentPropertyName.Remarks),
             },
             StringComparer.OrdinalIgnoreCase);
 
