@@ -535,7 +535,7 @@ public class UserControllerTests : BaseTests
     }
 
     [Test]
-    public async Task Cannot_Create_Admin_User()
+    public async Task Can_Create_Admin_User()
     {
         var roleQueriesMock = Substitute.For<ITgsQueries<Role>>();
         var userQueriesMock = Substitute.For<ITgsQueries<User>>();
@@ -550,7 +550,15 @@ public class UserControllerTests : BaseTests
             roleQueriesMock,
             userCommandsMock) { ControllerContext = { HttpContext = HttpContextMock } };
 
+        var users = CreateUserFixture().CreateMany<User>(10).AsQueryable().BuildMock();
+
         var request = new Fixture().Create<CreateUserRequest>();
+
+        _ = userQueriesMock.GetQueries().Returns(users);
+
+        _ = departmentQueriesMock.GetSingleAsync(Arg.Any<Expression<Func<Department, bool>>>(),
+                Arg.Any<Func<IQueryable<Department>, IQueryable<Department>>>())
+            .Returns(Task.FromResult(new Department()));
 
         _ = roleQueriesMock.GetSingleAsync(Arg.Any<Expression<Func<Role, bool>>>(),
                 Arg.Any<Func<IQueryable<Role>, IQueryable<Role>>>())
@@ -560,7 +568,7 @@ public class UserControllerTests : BaseTests
 
         _ = response.Valid.Should().BeTrue();
 
-        _ = userCommandsMock.Received(0).CreateAsync(Arg.Any<User>());
+        _ = userCommandsMock.Received(1).CreateAsync(Arg.Any<User>());
     }
 
     private static Fixture CreateUserFixture()
