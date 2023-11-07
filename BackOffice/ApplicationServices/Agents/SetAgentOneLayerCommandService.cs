@@ -7,7 +7,6 @@ using System.Threading;
 using System.Threading.Tasks;
 using System.Transactions;
 using Microsoft.EntityFrameworkCore;
-using NATS.Client.Service;
 using Tgs.Agent.Client;
 using Tgs.Agent.Client.Models;
 using Tgs.ServiceUtility;
@@ -58,7 +57,7 @@ internal class SetAgentOneLayerCommandService : IGetService<SetAgentOneLayerComm
                 return new SetAgentOneLayerResult(false, Application.Resources.Agent.ParentAgentNotExists);
             }
 
-            if (parentAgent.Brand.AgentDividendType == AgentDividendType.OneLayer 
+            if (parentAgent.Brand.AgentDividendType == AgentDividendType.OneLayer
                 && parentAgent.DividendPercentage < command.DividendPercentage)
             {
                 return new SetAgentOneLayerResult(false, Application.Resources.Agent.DividendPercentageMustLessThanOrEqualToUpperLayer);
@@ -72,7 +71,7 @@ internal class SetAgentOneLayerCommandService : IGetService<SetAgentOneLayerComm
 
         if (agent.Brand.AgentDividendType == AgentDividendType.OneLayer)
         {
-            var childAgentMaxDividendPercentage =  childAgents.Any() 
+            var childAgentMaxDividendPercentage = childAgents.Any()
                 ? childAgents.Max(c => c.DividendPercentage)
                 : 0m;
 
@@ -107,7 +106,7 @@ internal class SetAgentOneLayerCommandService : IGetService<SetAgentOneLayerComm
                 .ConfigureAwait(false);
         }
 
-        agent.Path = 
+        agent.Path =
             operation == Tgs.Agent.Client.Models.Enums.AgentOperation.Agent
             && !string.IsNullOrEmpty(command.ParentUsername)
             && agent.ParentAgentId != parentAgent?.Id
@@ -121,6 +120,9 @@ internal class SetAgentOneLayerCommandService : IGetService<SetAgentOneLayerComm
             : AgentLevelType.Agent;
 
         agent.Type = (AgentType)command.Type;
+        agent.DividendPercentage = operation == Tgs.Agent.Client.Models.Enums.AgentOperation.Agent
+            ? -1
+            : command.DividendPercentage;
 
         agent.AgentStatus = operation == Tgs.Agent.Client.Models.Enums.AgentOperation.Agent
             ? AgentConfigStatus.WaitForConfigurePercentage
