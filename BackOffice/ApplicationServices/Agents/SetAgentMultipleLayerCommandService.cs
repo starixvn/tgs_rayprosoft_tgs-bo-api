@@ -94,21 +94,13 @@ internal class SetAgentMultipleLayerCommandService : IGetService<SetAgentMultipl
                 .SaveChangesAsync(cancellationToken)
                 .ConfigureAwait(false);
 
-            var nLevel = await _repository.Agents
-                .Where(x => x.Id == command.AgentId)
-                .Select(x => x.Path.NLevel)
-                .FirstOrDefaultAsync(cancellationToken)
-                .ConfigureAwait(false);
-
-            _ = await UpdateSubAgentsPathAsync(agent, nLevel, parentAgent)
+            await _agentClient
+                .UpdateSubAgentsPathAsync(agent.Id, parentAgent!.Id, cancellationToken)
                 .ConfigureAwait(false);
         }
 
-        _repository
-            .Set<AgentDividendCondition>()
-            .RemoveRange(agent.AgentDividendConditions);
-        _ = await _repository
-            .SaveChangesAsync(cancellationToken)
+        await _agentClient
+            .ClearAgentDividendConditionsAsync(agent.Id, cancellationToken)
             .ConfigureAwait(false);
 
         agent.Path =
