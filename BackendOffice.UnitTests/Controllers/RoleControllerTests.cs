@@ -1525,6 +1525,138 @@ public class RoleControllerTests : BaseTests
     }
 
     [Test]
+    public async Task Can_Update_Role_With_Lower_Level_Name_Exists()
+    {
+        var brandQueriesMock = Substitute.For<ITgsQueries<Brand>>();
+
+        var jsonSerializationProviderMock = Substitute.For<IJsonSerializationProvider>();
+
+        var licenseeQueriesMock = Substitute.For<ITgsQueries<Licensee>>();
+
+        var resellerQueriesMock = Substitute.For<ITgsQueries<Reseller>>();
+
+        var roleCommandsMock = Substitute.For<ITgsCommands<Role>>();
+
+        var roleQueriesMock = Substitute.For<ITgsQueries<Role>>();
+
+        var settingQueriesMock = Substitute.For<ITgsQueries<Setting>>();
+
+        var controller =
+            new RoleController(roleQueriesMock, settingQueriesMock, roleCommandsMock, resellerQueriesMock,
+                licenseeQueriesMock, brandQueriesMock, jsonSerializationProviderMock)
+            {
+                ControllerContext = { HttpContext = HttpContextMock }
+            };
+
+        var role = CreateRoleFixture().Create<Role>();
+
+        var request = UpdateRoleRequestFixture().Create<UpdateRoleRequest>();
+
+        var roles = CreateRoleFixture().CreateMany<Role>(10).AsQueryable().BuildMock();
+
+        var resellerId = Guid.NewGuid();
+        var licenseeId = Guid.NewGuid();
+        var brandId = Guid.NewGuid();
+
+        request.Name = "Name";
+        role.ResellerId = resellerId;
+        role.LicenseeId = licenseeId;
+        role.BrandId = null;
+
+        var firstRole = roles.First();
+        firstRole.Name = "Name";
+        firstRole.ResellerId = resellerId;
+        firstRole.LicenseeId = licenseeId;
+        firstRole.BrandId = brandId;
+
+        _ = roleQueriesMock.GetQueries().Returns(roles);
+
+        _ = roleQueriesMock.GetSingleAsync(Arg.Any<Expression<Func<Role, bool>>>(),
+                Arg.Any<Func<IQueryable<Role>, IQueryable<Role>>>())
+            .Returns(Task.FromResult(role));
+
+        _ = roleQueriesMock.ExistsAsync(Arg.Any<Expression<Func<Role, bool>>>())
+            .Returns(Task.FromResult(true));
+
+        var response = await controller.UpdateAsync(role.Id, request);
+
+        _ = response.Valid.Should().BeTrue();
+
+        _ = response.Message.Should().NotBe(Apis.BackendOffice.Resources.Role.NameExists);
+
+        _ = roleCommandsMock.Received(1).UpdateAsync(Arg.Is<Role>(r =>
+            r.Name == role.Name &&
+            r.DisplayName == role.DisplayName &&
+            r.Description == role.Description));
+    }
+
+    [Test]
+    public async Task Can_Update_Role_With_Upper_Level_Name_Exists()
+    {
+        var brandQueriesMock = Substitute.For<ITgsQueries<Brand>>();
+
+        var jsonSerializationProviderMock = Substitute.For<IJsonSerializationProvider>();
+
+        var licenseeQueriesMock = Substitute.For<ITgsQueries<Licensee>>();
+
+        var resellerQueriesMock = Substitute.For<ITgsQueries<Reseller>>();
+
+        var roleCommandsMock = Substitute.For<ITgsCommands<Role>>();
+
+        var roleQueriesMock = Substitute.For<ITgsQueries<Role>>();
+
+        var settingQueriesMock = Substitute.For<ITgsQueries<Setting>>();
+
+        var controller =
+            new RoleController(roleQueriesMock, settingQueriesMock, roleCommandsMock, resellerQueriesMock,
+                licenseeQueriesMock, brandQueriesMock, jsonSerializationProviderMock)
+            {
+                ControllerContext = { HttpContext = HttpContextMock }
+            };
+
+        var role = CreateRoleFixture().Create<Role>();
+
+        var request = UpdateRoleRequestFixture().Create<UpdateRoleRequest>();
+
+        var roles = CreateRoleFixture().CreateMany<Role>(10).AsQueryable().BuildMock();
+
+        var resellerId = Guid.NewGuid();
+        var licenseeId = Guid.NewGuid();
+        var brandId = Guid.NewGuid();
+
+        request.Name = "Name";
+        role.ResellerId = resellerId;
+        role.LicenseeId = licenseeId;
+        role.BrandId = null;
+
+        var firstRole = roles.First();
+        firstRole.Name = "Name";
+        firstRole.ResellerId = resellerId;
+        firstRole.LicenseeId = null;
+        firstRole.BrandId = null;
+
+        _ = roleQueriesMock.GetQueries().Returns(roles);
+
+        _ = roleQueriesMock.GetSingleAsync(Arg.Any<Expression<Func<Role, bool>>>(),
+                Arg.Any<Func<IQueryable<Role>, IQueryable<Role>>>())
+            .Returns(Task.FromResult(role));
+
+        _ = roleQueriesMock.ExistsAsync(Arg.Any<Expression<Func<Role, bool>>>())
+            .Returns(Task.FromResult(true));
+
+        var response = await controller.UpdateAsync(role.Id, request);
+
+        _ = response.Valid.Should().BeTrue();
+
+        _ = response.Message.Should().NotBe(Apis.BackendOffice.Resources.Role.NameExists);
+
+        _ = roleCommandsMock.Received(1).UpdateAsync(Arg.Is<Role>(r =>
+            r.Name == role.Name &&
+            r.DisplayName == role.DisplayName &&
+            r.Description == role.Description));
+    }
+
+    [Test]
     public async Task Cannot_Update_Role_With_Name_Exists()
     {
         var brandQueriesMock = Substitute.For<ITgsQueries<Brand>>();
