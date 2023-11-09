@@ -95,9 +95,14 @@ internal class SetAgentOneLayerCommandService : IGetService<SetAgentOneLayerComm
             _repository.Agents.UpdateRange(updateAgents);
             _ = await _repository.SaveChangesAsync(cancellationToken)
             .ConfigureAwait(false);
-            
-            await _agentClient
-                .UpdateSubAgentsPathAsync(agent.Id,parentAgent!.Id, cancellationToken)
+
+            var nLevel = await _repository.Agents
+                .Where(x => x.Id == command.AgentId)
+                .Select(x => x.Path.NLevel)
+                .FirstOrDefaultAsync(cancellationToken)
+                .ConfigureAwait(false);
+
+            _ = await UpdateSubAgentsPathAsync(agent, nLevel, parentAgent!)
                 .ConfigureAwait(false);
         }
 
@@ -139,20 +144,6 @@ internal class SetAgentOneLayerCommandService : IGetService<SetAgentOneLayerComm
         return new SetAgentOneLayerResult(true, string.Empty);
     }
 
-    public async ValueTask<int> UpdateSubAgentsPathAsync(Agent agent, int nLevel, Agent newParentAgent)
-    {
-        const string spName = "dbo.agent_update_path";
-
-        return await _repository.ExecuteSqlCommandAsync(spName,
-            parameters: new Dictionary<string, object>
-            {
-                { "_agent_id", agent.Id },
-                { "_agent_nlevel", nLevel },
-                { "_agent_path", agent.Path.ToString() },
-                { "_new_agent_path", newParentAgent.Path.ToString() }
-            });
-    }
-
     private static IEnumerable<Agent> GetChildAgents(Guid parentAgentId, Agent[] agents)
     {
         var childAgents = agents.Where(x => x.ParentAgentId == parentAgentId).ToArray();
@@ -165,5 +156,19 @@ internal class SetAgentOneLayerCommandService : IGetService<SetAgentOneLayerComm
                 foreach (var childAgent in GetChildAgents(agent.Id, agents))
                     yield return childAgent;
         }
+    }
+
+    private async ValueTask<int> UpdateSubAgentsPathAsync(Agent agent, int nLevel, Agent newParentAgent)
+    {
+        const string spName = "dbo.agent_update_path";
+
+        return await _repository.ExecuteSqlCommandAsync(spName,
+            parameters: new Dictionary<string, object>
+            {
+                { "_agent_id", agent.Id },
+                { "_agent_nlevel", nLevel },
+                { "_agent_path", agent.Path.ToString() },
+                { "_new_agent_path", newParentAgent.Path.ToString() }
+            });
     }
 }
