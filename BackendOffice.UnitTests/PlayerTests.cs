@@ -15,6 +15,7 @@ using TGS.Services.BackOffice.Application.Queries.PlayerHandlers;
 using TGS.Services.BackOffice.ApplicationServices;
 using TGS.Services.BackOffice.ApplicationServices.Players;
 using BoEnums = TGS.Services.BackOffice.Domain.Enums;
+using EventAction = Tgs.PlayerService.Client.EventAction;
 
 namespace TGS.Tests.BackendOffice.UnitTests;
 
@@ -520,7 +521,10 @@ internal class PlayerTests
                 AgentLevelType.Chief,
                 0m,
                 0,
-                0m));
+                0m,
+                brandId,
+                Guid.NewGuid(),
+                null));
 
         var actual = await sut.GetAsync(new SetPlayerAgentCommand(playerCode, agentUsername, modifyUserId, modifyUsername));
 
@@ -619,7 +623,10 @@ internal class PlayerTests
                 AgentLevelType.Chief,
                 0m,
                 0,
-                0m));
+                0m,
+                brandId,
+                Guid.NewGuid(),
+                null));
 
         var actual = await sut.GetAsync(new SetPlayerAgentCommand(playerCode, agentUsername, modifyUserId, modifyUsername));
 

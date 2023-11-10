@@ -35,16 +35,6 @@ internal class WalletExchangeService : IWalletExchangeService
     {
         switch (userType)
         {
-            case UserType.Player:
-                _ = await _playerWalletExchangeService.CancelWithdrawalAsync(
-                    userId,
-                    amount,
-                    null,
-                    null,
-                    string.IsNullOrWhiteSpace(reviewUserId) ? null : Guid.Parse(reviewUserId),
-                    cancellationToken).ConfigureAwait(false);
-                return;
-
             case UserType.Agent:
                 await ExchangeAgentWalletAsync(
                     brandId,

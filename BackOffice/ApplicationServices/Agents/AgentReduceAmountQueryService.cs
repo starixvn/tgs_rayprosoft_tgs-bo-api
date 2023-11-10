@@ -12,7 +12,7 @@ using TGS.Services.WalletService;
 
 namespace TGS.Services.BackOffice.ApplicationServices.Agents;
 
-internal class AgentReduceAmountQueryService : IGetService<AgentReduceAmountQuery, AgentReduceAmountResult>
+internal class AgentReduceAmountQueryService : IGetService<AgentReduceAmountQuery, AgentAdjustAmountResult>
 {
     private readonly IAdjustAgentAccountService _adjustAgentAccountService;
     private readonly IAdjustTransferService _adjustTransferService;
@@ -40,19 +40,19 @@ internal class AgentReduceAmountQueryService : IGetService<AgentReduceAmountQuer
         _adjustTransferService = adjustTransferService ?? throw new ArgumentNullException(nameof(adjustTransferService));
     }
 
-    public async ValueTask<AgentReduceAmountResult> GetAsync(AgentReduceAmountQuery query, CancellationToken cancellationToken = default)
+    public async ValueTask<AgentAdjustAmountResult> GetAsync(AgentReduceAmountQuery query, CancellationToken cancellationToken = default)
     {
         if (!Enum.IsDefined(query.TransactionType) ||
             !Enum.IsDefined((AgentAdjustmentTransactionType)query.TransactionType))
         {
-            return new AgentReduceAmountResult(false, "is not define type");
+            return new AgentAdjustAmountResult(false, "is not define type");
         }
 
         var agent = await _agentService.GetAgentAsync(x => x.Id == query.AgentId).ConfigureAwait(false);
 
         if (agent is null)
         {
-            return new AgentReduceAmountResult(false, Agent.NotFound);
+            return new AgentAdjustAmountResult(false, Agent.NotFound);
         }
 
         var targetAgent = IsTransferToAgent(query)
@@ -62,10 +62,10 @@ internal class AgentReduceAmountQueryService : IGetService<AgentReduceAmountQuer
         if (IsTransferToAgent(query))
         {
             if (targetAgent is null)
-                return new AgentReduceAmountResult(false, Agent.TargetAgentNotFound);
+                return new AgentAdjustAmountResult(false, Agent.TargetAgentNotFound);
 
             if (!(targetAgent.ParentAgentId == agent.Id || targetAgent.Id == agent.ParentAgentId))
-                return new AgentReduceAmountResult(false, Agent.TargetAgentNotHomologue);
+                return new AgentAdjustAmountResult(false, Agent.TargetAgentNotHomologue);
         }
 
         var targetPlayer = IsTransferToPlayer(query)
@@ -75,10 +75,10 @@ internal class AgentReduceAmountQueryService : IGetService<AgentReduceAmountQuer
         if (IsTransferToPlayer(query))
         {
             if (targetPlayer is null)
-                return new AgentReduceAmountResult(false, Agent.TargetPlayerNotFound);
+                return new AgentAdjustAmountResult(false, Agent.TargetPlayerNotFound);
 
             if (targetPlayer.AgentId != agent.Id)
-                return new AgentReduceAmountResult(false, Agent.TargetPlayerNotUnderAgent);
+                return new AgentAdjustAmountResult(false, Agent.TargetPlayerNotUnderAgent);
         }
 
         var remark = _jsonSerializationProvider.SerializeToString(new
@@ -150,7 +150,7 @@ internal class AgentReduceAmountQueryService : IGetService<AgentReduceAmountQuer
 
         scope.Complete();
 
-        return new AgentReduceAmountResult(true, string.Empty);
+        return new AgentAdjustAmountResult(true, string.Empty);
     }
 
     private static bool IsTransferToAgent(AgentReduceAmountQuery query)

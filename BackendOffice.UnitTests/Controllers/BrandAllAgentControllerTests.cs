@@ -124,7 +124,7 @@ public class BrandAllAgentControllerTests : BaseTests
 
         _ = mediatorMock
             .CreateStream(Arg.Any<GetBrandAllAgentValidBetSettingRequest>(), Arg.Any<CancellationToken>())
-            .Returns(new[]{new ValidBetConditionModel{ Rank = 1 }}.ToAsyncEnumerable());
+            .Returns(new[] { new ValidBetConditionModel { Rank = 1 } }.ToAsyncEnumerable());
 
         var response = await controller.GetBrandAllAgentValidBetConditionAsync(brandId, AllAgentGameType.CardGame).ToArrayAsync();
 
@@ -132,5 +132,4 @@ public class BrandAllAgentControllerTests : BaseTests
 
         _ = mediatorMock.Received(1).CreateStream(Arg.Any<GetBrandAllAgentValidBetSettingRequest>(), Arg.Any<CancellationToken>());
     }
-
 }

@@ -91,7 +91,10 @@ public class ExportAdjustRecordsCommandServiceTests
                 Tgs.Agent.Client.Models.Enums.AgentLevelType.Agent,
                 0M,
                 0,
-                0M));
+                0M,
+                Guid.NewGuid(),
+                Guid.NewGuid(),
+                null));
 
         await sut.ExecuteAsync(command);
 
@@ -225,7 +228,10 @@ public class ExportAdjustRecordsCommandServiceTests
                 Tgs.Agent.Client.Models.Enums.AgentLevelType.Agent,
                 0M,
                 0,
-                0M));
+                0M,
+                brandId,
+                Guid.NewGuid(),
+                null));
 
         await sut.ExecuteAsync(command);
 

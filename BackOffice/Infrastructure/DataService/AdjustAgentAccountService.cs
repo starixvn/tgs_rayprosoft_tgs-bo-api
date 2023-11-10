@@ -7,16 +7,6 @@ using TGS.Core.Models.Enums;
 
 namespace TGS.Services.BackOffice.Infrastructure.DataService;
 
-public interface IAdjustAgentAccountService
-{
-    ValueTask<AdjustAgentRecord> CreateAsync(Guid transactionId, Guid brandId, Guid agentId,
-        AdjustmentType adjustmentType,
-        AgentAdjustmentTransactionType transactionType, AdjustTransferType transferType, decimal amount,
-        string remark, string username, string targetAgentUsername = null);
-
-    Task UpdateAdjustAgentRecordAsync(AdjustAgentRecord record);
-}
-
 public class AdjustAgentAccountService : BaseRepositoryOperations<ITgsRepository>, IAdjustAgentAccountService
 {
     public AdjustAgentAccountService(ITgsRepository tgsRepository) : base(
@@ -24,10 +14,17 @@ public class AdjustAgentAccountService : BaseRepositoryOperations<ITgsRepository
     {
     }
 
-    public async ValueTask<AdjustAgentRecord> CreateAsync(Guid transactionId, Guid brandId, Guid agentId,
+    public async ValueTask<AdjustAgentRecord> CreateAsync(
+        Guid transactionId,
+        Guid brandId,
+        Guid agentId,
         AdjustmentType adjustmentType,
-        AgentAdjustmentTransactionType transactionType, AdjustTransferType transferType, decimal amount,
-        string remark, string username, string targetAgentUsername)
+        AgentAdjustmentTransactionType transactionType,
+        AdjustTransferType transferType,
+        decimal amount,
+        string remark,
+        string username,
+        string targetAgentUsername)
     {
         var vipLevel = new AdjustAgentRecord
         {

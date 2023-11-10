@@ -55,10 +55,7 @@ internal class AgentWalletRepository : IAgentWalletRepository
                     TransactionTypes.Deposit => AgentTransactionType.Deposit,
                     TransactionTypes.Withdrawal => AgentTransactionType.Withdrawal,
                     TransactionTypes.CompanyAdjust => AgentTransactionType.CompanyAdjust,
-                    TransactionTypes.Bonus => AgentTransactionType.Bonus,
-                    TransactionTypes.Rebate => AgentTransactionType.Rebate,
                     TransactionTypes.Dividend => AgentTransactionType.Dividend,
-                    TransactionTypes.Promotion => AgentTransactionType.Promotion,
                     TransactionTypes.CancelWithdrawal => AgentTransactionType.CancelWithdrawal,
                     _ => AgentTransactionType.Other
                 },

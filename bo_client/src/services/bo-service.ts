@@ -7,7 +7,13 @@ import path from 'path';
 import { promises } from 'dns';
 
 export default class BackOfficeService {
+    // #region Constructors (1)
+
     constructor(private http: AxiosInstance) { }
+
+    // #endregion Constructors (1)
+
+    // #region Public Methods (105)
 
     public addAgentDomain(brandId: string, agentId: string, domain: string): Promise<void> {
         return this.http
@@ -52,23 +58,18 @@ export default class BackOfficeService {
             .then(res => res.data);
     }
 
-    public createAgentReduceAmount(
-        id: string,
-        request: CreateAgentReduceAmountRequest): Promise<MessageResponse> {
-        return this.http
-            .post(`api/Agent/${id}/adjust/reduce`,
-                {
-                    params: {
-                        ...request
-                    }
-                })
-            .then(res => res.data);
-    }
+
 
     public createBrand(
         request: CreateBrandRequest): Promise<MessageResponse> {
         return this.http
             .post('/api/brand', request)
+            .then(res => res.data);
+    }
+
+    public createNewDraftForm(brandId: string, request: CreateNewDraftForm): Promise<string> {
+        return this.http
+            .put(`/api/article/${brandId}`, request)
             .then(res => res.data);
     }
 
@@ -116,6 +117,11 @@ export default class BackOfficeService {
                 ...request
             })
             .then(res => res.data);
+    }
+
+    public async deleteDraftForm(formId: string): Promise<void> {
+        await this.http
+            .delete(`/api/article/${formId}`);
     }
 
     public downloadBatchAdjustFormTemplate(): Promise<{ status: number; contentType: string }> {
@@ -296,6 +302,26 @@ export default class BackOfficeService {
                         ...request
                     }
                 })
+            .then(res => res.data);
+    }
+
+    public getAgentHistories(agentId: string, request: AgentHistoriesQueryViewModel, page: number, rows: number): Promise<PagedResponse<AgentHistoryViewModel>> {
+        const queryString = {
+            from: request.from,
+            to: request.to,
+            page: page,
+            rows: rows,
+        }
+        return this.http
+            .get(`/api/agent/histories/${agentId}`, {
+                params: queryString
+            })
+            .then(res => res.data);
+    }
+
+    public getAgentHistory(eventId: string): Promise<AgentHistoryContentViewModel> {
+        return this.http
+            .get(`/api/agent/history/${eventId}`)
             .then(res => res.data);
     }
 
@@ -739,6 +765,18 @@ export default class BackOfficeService {
             .then(res => res.status);
     }
 
+    public async publishArticle(formId: string, publishDate: string): Promise<void> {
+        await this.http
+            .post(
+                `/api/article/${formId}:publish`,
+                publishDate,
+                {
+                    headers: {
+                        'Content-Type': 'application/json;charset=UTF-8'
+                    }
+                });
+    }
+
     public queryAdjustSummaries(resellerId: string, from: Date, to: Date): Promise<Iterable<AdjustSummaryListItem>> {
         return this.http
             .get(
@@ -829,15 +867,77 @@ export default class BackOfficeService {
             .put(`/api/station-letter/player/${brandId}`, request);
     }
 
+    public setAgentContact(agentId: string, request: SetAgentContactRequest): Promise<MessageResponse> {
+        return this.http
+            .patch(`/api/agent/contact/${agentId}`, {
+                ...request
+            })
+            .then(res => res.data);
+    }
+
+    public setAgentInfo(agentId: string, request: SetAgentInfoViewModel): Promise<MessageResponse> {
+        return this.http
+            .patch(`/api/agent/info/${agentId}`, {
+                ...request
+            })
+            .then(res => res.data);
+    }
+
+    public setAgentPassword(agentId: string, password: string): Promise<MessageResponse> {
+        return this.http
+            .patch(`/api/agent/password/${agentId}/${password}`)
+            .then(res => res.data);
+    }
+
+    public setAgentStatus(agentId: string, request: SetAgentStatusViewModel): Promise<MessageResponse> {
+        return this.http
+            .patch(`/api/agent/status/${agentId}`, {
+                ...request
+            })
+            .then(res => res.data);
+    }
+
     public setAllBrandsMaintenance(): Promise<MessageResponse> {
         return this.http
             .put('/api/brandmaintenance/allmaintain')
             .then(res => res.data);
     }
 
+    public setMultipleLayerAgent(agentId: string, request: SetMultipleLayerAgentInfoViewModel): Promise<MessageResponse> {
+        return this.http
+            .patch(`/api/agent/multiple-layer/${agentId}`, {
+                ...request
+            })
+            .then(res => res.data);
+    }
+
+    public setOneLayerAgent(agentId: string, request: SetOneLayerAgentInfoViewModel): Promise<MessageResponse> {
+        return this.http
+            .patch(`/api/agent/one-layer/${agentId}`, {
+                ...request
+            })
+            .then(res => res.data);
+    }
+
+    public setPlayerAgent(playerCode: string, request: UpdatePlayerAgentViewModel): Promise<MessageResponse> {
+        return this.http
+            .patch(`/api/player/agent/${playerCode}`, {
+                ...request
+            })
+            .then(res => res.data);
+    }
+
     public setPlayerContact(playerCode: string, request: SetPlayerContactRequest): Promise<MessageResponse> {
         return this.http
             .patch(`/api/player/contact/${playerCode}`, {
+                ...request
+            })
+            .then(res => res.data);
+    }
+
+    public setPlayerInfo(playerCode: string, request: SetPlayerInfoRequest): Promise<MessageResponse> {
+        return this.http
+            .patch(`/api/player/info/${playerCode}`, {
                 ...request
             })
             .then(res => res.data);
@@ -889,6 +989,11 @@ export default class BackOfficeService {
         return this.http
             .put(`/api/brand/${brandId}/${status}`)
             .then(res => res.data);
+    }
+
+    public async updateDraftForm(formId: string, request: ModifyDraftForm): Promise<void> {
+        await this.http
+            .patch(`/api/article/${formId}`, request);
     }
 
     public updatePlayer(playerCode: string, type: string, request: UpdatePlayerRequest): Promise<MessageResponse> {
@@ -992,47 +1097,30 @@ export default class BackOfficeService {
             .then(res => res.data);
     }
 
-    public setPlayerInfo(playerCode: string, request: SetPlayerInfoRequest): Promise<MessageResponse> {
+    public reduceAgentAmount(
+        walleId: string,
+        request: CreateAgentReduceAmountRequest): Promise<MessageResponse> {
         return this.http
-            .patch(`/api/player/info/${playerCode}`, {
-                ...request
-            })
-            .then(res => res.data);
-    }
-
-    public setPlayerAgent(playerCode: string, request: UpdatePlayerAgentViewModel): Promise<MessageResponse> {
-        return this.http
-            .patch(`/api/player/agent/${playerCode}`, {
-                ...request
-            })
-            .then(res => res.data);
-    }
-
-    public createNewDraftForm(brandId: string, request: CreateNewDraftForm): Promise<string> {
-        return this.http
-            .put(`/api/article/${brandId}`, request)
-            .then(res => res.data);
-    }
-
-    public async deleteDraftForm(formId: string): Promise<void> {
-        await this.http
-            .delete(`/api/article/${formId}`);
-    }
-
-    public async updateDraftForm(formId: string, request: ModifyDraftForm): Promise<void> {
-        await this.http
-            .patch(`/api/article/${formId}`, request);
-    }
-
-    public async publishArticle(formId: string, publishDate: string): Promise<void> {
-        await this.http
             .post(
-                `/api/article/${formId}:publish`,
-                publishDate,
+                `api/Agent/${walleId}/adjust/reduce`,
                 {
-                    headers: {
-                        'Content-Type': 'application/json;charset=UTF-8'
+                    params: {
+                        ...request
                     }
-                });
+                })
+            .then(res => res.data);
     }
+
+    public increaseAgentAmount(
+        walletId: string,
+        request: CreateAgentIncreaseAmountRequest
+    ): Promise<MessageResponse> {
+        return this.http
+            .post(
+                `/api/agent/${walletId}/adjust/increase`,
+                request)
+            .then(res => res.data);
+    }
+
+    // #endregion Public Methods (105)
 }

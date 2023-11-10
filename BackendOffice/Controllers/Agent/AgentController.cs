@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.ComponentModel;
 using System.Linq;
 using System.Threading.Tasks;
@@ -10,6 +11,7 @@ using Tgs.Report.Client;
 using Tgs.Report.Client.Models.Agent;
 using Tgs.ServiceUtility;
 using TGS.Apis.BackendOffice.ViewModels;
+using TGS.Core.DataServices.Base.Interfaces;
 using TGS.Core.Models.Enums;
 using TGS.Core.Models.Messages;
 using TGS.Services.BackOffice.Application.Models.Agent;
@@ -49,10 +51,30 @@ public partial class AgentController : BaseContextController
 
     [HttpPost("{id:guid}/adjust/increase")]
     [Description("Create an agent adjustment to increase amount")]
-    public Task<MessageResponse> CreateAgentIncreaseAmountAsync(Guid id, CreateAgentIncreaseAmountRequest request)
+    public async Task<MessageResponse> CreateAgentIncreaseAmountAsync(
+        [FromServices] IGetService<AgentIncreaseAmountCommand, AgentAdjustAmountResult> adjustService,
+        Guid id,
+        CreateAgentIncreaseAmountViewModel viewModel)
     {
-        request.AgentId = id;
-        return _mediator.Send(request);
+        if (!Enum.IsDefined(viewModel.TransactionType) ||
+            !Enum.IsDefined((AgentAdjustmentTransactionType)viewModel.TransactionType))
+            return CreateInvalidResponse<MessageResponse>("is not define type");
+
+        var command = new AgentIncreaseAmountCommand(
+            id,
+            viewModel.Amount,
+            viewModel.Remark,
+            (AgentAdjustmentTransactionType)viewModel.TransactionType,
+            Guid.Parse(UserId),
+            Username);
+
+        var result = await adjustService.GetAsync(
+            command,
+            HttpContext.RequestAborted).ConfigureAwait(false);
+
+        return result.Valid
+            ? CreateValidResponse<MessageResponse>()
+            : CreateInvalidResponse<MessageResponse>(result.Message);
     }
 
     [HttpPost("{id:guid}/adjust/reduce")]
@@ -60,11 +82,11 @@ public partial class AgentController : BaseContextController
     public async Task<MessageResponse> CreateAgentReduceAmountAsync(
         Guid id,
         CreateAgentReduceAmountRequest request,
-        [FromServices] IGetService<AgentReduceAmountQuery, AgentReduceAmountResult> getService)
+        [FromServices] IGetService<AgentReduceAmountQuery, AgentAdjustAmountResult> getService)
     {
         var result = await getService
             .GetAsync(new AgentReduceAmountQuery(
-                AgentId: id,
+                id,
                 request.Amount,
                 request.Remark,
                 request.TargetName,
@@ -175,5 +197,202 @@ public partial class AgentController : BaseContextController
             .ConfigureAwait(false);
 
         return CreateValidResponse<MessageResponse>();
+    }
+
+    [HttpPatch("contact/{agentId}", Name = "SetAgentContact")]
+    public async ValueTask<MessageResponse> SetAgentContactAsync(
+        [FromServices] IGetService<SetAgentContactCommand, SetAgentContactResult> setService,
+        Guid agentId,
+        [FromBody] ViewModels.SetAgentContactRequest request)
+    {
+        var processInfo = await setService
+            .GetAsync(new SetAgentContactCommand(agentId, request, UserId, Username), HttpContext.RequestAborted)
+            .ConfigureAwait(false);
+
+        return new MessageResponse
+        {
+            Valid = processInfo.Valid,
+            Message = processInfo.Message
+        };
+    }
+
+    [HttpPatch("password/{agentId}/{password}", Name = "SetAgentPassword")]
+    [Description("Update agent login password")]
+    public async ValueTask<MessageResponse> SetAgentPasswordAsync(
+        [FromServices] IGetService<SetAgentPasswordCommand, SetAgentPasswordResult> setPlayerPasswordService,
+        Guid agentId,
+        string password)
+    {
+        var command = new SetAgentPasswordCommand(agentId, password, UserId, Username);
+
+        var processInfo = await setPlayerPasswordService
+            .GetAsync(command, HttpContext.RequestAborted)
+            .ConfigureAwait(false);
+
+        return new MessageResponse
+        {
+            Valid = processInfo.Valid,
+            Message = processInfo.Message
+        };
+    }
+
+    [HttpPatch("status/{agentId}", Name = "SetAgentStatus")]
+    [Description("Update agent status")]
+    public async ValueTask<MessageResponse> SetAgentStatusAsync(
+        [FromServices] IGetService<SetAgentStatusCommand, SetAgentStatusResult> getService,
+        Guid agentId,
+        [FromBody] SetAgentStatusViewModel request)
+    {
+        var processInfo = await getService
+            .GetAsync(new SetAgentStatusCommand(agentId, request.Status, UserId, Username), HttpContext.RequestAborted)
+            .ConfigureAwait(false);
+
+        return new MessageResponse
+        {
+            Valid = processInfo.Valid,
+            Message = processInfo.Message,
+        };
+    }
+
+    [HttpPatch("info/{agentId}", Name = "SetAgentInfo")]
+    [Description("Update agent info (realname or remark)")]
+    public async ValueTask<MessageResponse> SetAgentInfoAsync(
+        [FromServices] IGetService<SetAgentInfoCommand, SetAgentInfoResult> getService,
+        Guid agentId,
+        [FromBody] SetAgentInfoViewModel request)
+    {
+        var processInfo = await getService
+            .GetAsync(new SetAgentInfoCommand(agentId, request, UserId, Username), HttpContext.RequestAborted)
+            .ConfigureAwait(false);
+
+        return new MessageResponse
+        {
+            Valid = processInfo.Valid,
+            Message = processInfo.Message,
+        };
+    }
+
+    [HttpPatch("one-layer/{agentId}", Name = "SetOneLayerAgent")]
+    [Description("Update one layer agent's parent or dividend percentage or type")]
+    public async ValueTask<MessageResponse> SetOneLayerAgentAsync(
+        [FromServices] IGetService<SetAgentOneLayerCommand, SetAgentOneLayerResult> getService,
+        Guid agentId,
+        [FromBody] SetOneLayerAgentInfoViewModel request)
+    {
+        var processInfo = await getService
+            .GetAsync(new SetAgentOneLayerCommand(agentId, request.ParentUsername, request.DividendPercentage, request.Type, Username))
+            .ConfigureAwait(false);
+
+        return new MessageResponse
+        {
+            Valid = processInfo.Valid,
+            Message = processInfo.Message,
+        };
+    }
+
+    [HttpPatch("multiple-layer/{agentId}", Name = "SetMultipleLayerAgent")]
+    [Description("Update multiple layer agent's parent or dividend percentage or type")]
+    public async ValueTask<MessageResponse> SetMultipleLayerAgentAsync(
+        [FromServices] IGetService<SetAgentMultipleLayerCommand, SetAgentMultipleLayerResult> getService,
+        Guid agentId,
+        [FromBody] SetMultipleLayerAgentInfoViewModel request)
+    {
+        var processInfo = await getService
+            .GetAsync(new SetAgentMultipleLayerCommand(agentId, request.ParentUsername, request.AgentDividendConditions, request.Type, Username))
+            .ConfigureAwait(false);
+
+        return new MessageResponse
+        {
+            Valid = processInfo.Valid,
+            Message = processInfo.Message,
+        };
+    }
+
+    [HttpGet("histories/{agentId}", Name = "GetAgentHistories")]
+    public async ValueTask<PagedResponse<AgentHistoryViewModel>> GetAgentHistoriesAsync(
+        [FromServices] IQueryService<AgentHistoriesQuery, AgentHistoryInfo> queryService,
+        [FromServices] IGetService<AgentHistoriesQuery, int> countService,
+        [FromServices] ITgsQueries<Core.DataServices.Tgs.Models.User> userQueries,
+        Guid agentId,
+        [FromQuery] AgentHistoriesQueryViewModel queryViewModel,
+        [FromQuery(Name = "page")] int page = 1,
+        [FromQuery(Name = "rows")] int rows = 10)
+    {
+        var query = new AgentHistoriesQuery(
+            agentId,
+            queryViewModel.From,
+            queryViewModel.To,
+            (page - 1) * rows);
+
+        var totalCount = await countService
+            .GetAsync(query, HttpContext.RequestAborted)
+            .ConfigureAwait(false);
+
+        var infos = await queryService
+            .QueryAsync(query, HttpContext.RequestAborted)
+            .ToArrayAsync(HttpContext.RequestAborted).ConfigureAwait(false);
+
+        var userIds = infos
+            .Where(x => !string.IsNullOrWhiteSpace(x.Modifier) && Guid.TryParse(x.Modifier, out var _) == true)
+            .Select(x => x.Modifier)
+            .Select(x => new Guid(x));
+
+        var userQuery = userQueries.GetQueries().Where(u => userIds.Contains(u.Id)).ToArray();
+
+        var user = userQuery.Any()
+            ? userQuery.ToDictionary(x => x.Id, x => x.Username)
+            : new Dictionary<Guid, string>();
+
+        return new PagedResponse<AgentHistoryViewModel>
+        {
+            Valid = true,
+            TotalCount = totalCount,
+            Items = infos.Select(x => new AgentHistoryViewModel
+            {
+                Action = x.Action,
+                CreatedOn = x.CreatedOn,
+                EventId = x.EventId,
+                Modifier = TryParseUsername(user, x.Modifier)
+            }).ToArray(),
+        };
+    }
+
+    [HttpGet("history/{eventId}", Name = "GetAgentHistory")]
+    public async ValueTask<AgentHistoryContentViewModel> GetAgentHistoryAsync(
+        [FromServices] IGetService<AgentHistoryQuery, AgentHistoryEventInfo> getService,
+        [FromServices] ITgsQueries<Core.DataServices.Tgs.Models.User> userQueries,
+        Guid eventId)
+    {
+        var info = await getService
+            .GetAsync(new AgentHistoryQuery(eventId), HttpContext.RequestAborted)
+            .ConfigureAwait(false);
+
+        _ = Guid.TryParse(info.Modifier, out var userId);
+
+        var user = userQueries.GetQueries()
+            .Where(u => u.Id == userId)
+            .FirstOrDefault();
+
+        return new AgentHistoryContentViewModel
+        {
+            Action = info.Action,
+            ChangeSets = info.ChangeSets,
+            CreatedOn = info.CreatedOn,
+            ModifyUsername = user == null
+                ? info.Modifier
+                : user.Username
+        };
+    }
+
+    private static string TryParseUsername(Dictionary<Guid, string> UserDicts, string Modifier)
+    {
+        if (Guid.TryParse(Modifier, out var userId) && UserDicts.Any())
+        {
+            _ = UserDicts.TryGetValue(userId, out var userName);
+
+            return userName;
+        }
+
+        return Modifier;
     }
 }
