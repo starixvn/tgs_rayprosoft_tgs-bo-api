@@ -8,6 +8,7 @@ using Microsoft.Extensions.Options;
 using NSubstitute;
 using Tgs.Agent.Client;
 using Tgs.Agent.Client.Models;
+using Tgs.CashService.Client;
 using Tgs.ServiceUtility;
 using TGS.Apis.BackendOffice.ViewModels;
 using TGS.Core.DataServices.Base.Interfaces;
@@ -17,6 +18,8 @@ using TGS.Services.BackOffice.Application.Models.Agent;
 using TGS.Services.BackOffice.Application.Models.AgentAdjust;
 using TGS.Services.BackOffice.Application.Models.ReportAgent;
 using TGS.Services.BackOffice.ApplicationServices.Agents;
+using TGS.Services.BackOffice.Infrastructure.DataService;
+using Xunit;
 using Xunit.Abstractions;
 using AgentLevelType = Tgs.Agent.Client.Models.Enums.AgentLevelType;
 using AgentOperation = Tgs.Agent.Client.Models.Enums.AgentOperation;
@@ -44,7 +47,7 @@ public class AgentTests
         var channelName = Guid.NewGuid().ToString();
         var userId = Guid.NewGuid();
 
-        var fakeService = Substitute.For<IGetService<AgentReduceAmountQuery, AgentReduceAmountResult>>();
+        var fakeService = Substitute.For<IGetService<AgentReduceAmountQuery, AgentAdjustAmountResult>>();
 
         using var web = TestBackendOfficeApplication.Builder
             .UseTestChannelServer(channelName)
@@ -65,7 +68,7 @@ public class AgentTests
         await web.StartAsync();
 
         _ = fakeService.GetAsync(Arg.Any<AgentReduceAmountQuery>())
-            .Returns(new AgentReduceAmountResult(true, string.Empty));
+            .Returns(new AgentAdjustAmountResult(true, string.Empty));
 
         using var nodeService = _nodeJsFixture.BuildNodeJsService();
 
@@ -81,7 +84,7 @@ public class AgentTests
 
                 let svc = new BackOfficeService(instance);
 
-                return await svc.createAgentReduceAmount(id, request);
+                return await svc.reduceAgentAmount(id, request);
             };
         """;
 
@@ -103,6 +106,123 @@ public class AgentTests
 
         // Assert
         Assert.True(actual?.Valid);
+    }
+
+    [Fact]
+    public async Task 代理加錢()
+    {
+        // Arrange
+        var channelName = Guid.NewGuid().ToString();
+        var userId = Guid.NewGuid();
+
+        var fakeAgentClient = Substitute.For<IAgentClient>();
+        var fakeCashServiceClient = Substitute.For<ICashServiceClient>();
+        var fakeAdjustAgentAccountService = Substitute.For<IAdjustAgentAccountService>();
+
+        using var web = TestBackendOfficeApplication.Builder
+            .UseTestChannelServer(channelName)
+            .ConfigureLogging(logging => logging.AddXUnit(_testOutputHelper))
+            .ConfigureServices(services => services
+                .AddAuthentication("Fake")
+                .AddScheme<FakeAuthenticationSchemaOptions, FakeAuthenticationHandler>(
+                    "Fake",
+                    options =>
+                    {
+                        options.UserId = userId;
+                        options.UserName = "system";
+                    })
+                .Services
+                .AddSingleton(fakeAgentClient)
+                .AddSingleton(fakeCashServiceClient)
+                .AddSingleton(fakeAdjustAgentAccountService))
+            .Build();
+
+        await web.StartAsync();
+
+        using var nodeService = _nodeJsFixture.BuildNodeJsService();
+
+        var isWindows = RuntimeInformation.IsOSPlatform(OSPlatform.Windows) ? "true" : "false";
+
+        var nodeModule = $$"""
+            const axiosConfigFactory = require('./models/axios-configuration.js').default;
+            const BackOfficeService = require('./services/bo-service.js').default;
+
+            module.exports = async (id, request) =>
+            {
+                let instance = axiosConfigFactory("{{channelName}}", {{isWindows}});
+
+                let svc = new BackOfficeService(instance);
+
+                return await svc.increaseAgentAmount(id, request);
+            };
+        """;
+
+        var agentId = Guid.Parse("5056ebbf-a975-42f1-9e97-b3299f0cab06");
+        var request = new CreateAgentIncreaseAmountViewModel
+        {
+            Amount = 100M,
+            Remark = "20230822",
+            TransactionType = AgentIncreaseTransactionType.Bonus
+        };
+        var brandId = Guid.NewGuid();
+        var walletId = Guid.NewGuid();
+
+        _ = fakeAgentClient.GetAgentInfoAsync(
+            Arg.Is(new GetAgentInfoRequest(agentId)),
+            Arg.Any<CancellationToken>())
+            .Returns(new AgentInfoModel(
+                agentId,
+                "agent1",
+                null,
+                null,
+                null,
+                null,
+                null,
+                "abce",
+                null,
+                DateTimeOffset.UtcNow,
+                AgentStatus.Enabled,
+                AgentType.Cash,
+                AgentLevelType.Agent,
+                0M,
+                0,
+                0M,
+                brandId,
+                Guid.NewGuid(),
+                walletId));
+
+        var transactionId = Guid.NewGuid();
+
+        _ = fakeCashServiceClient.AdjustCompanyV2Async(
+            Arg.Is(walletId),
+            Arg.Is(request.Amount),
+            Arg.Is(request.Remark),
+            Arg.Any<string>(),
+            Arg.Is(userId),
+            Arg.Any<CancellationToken>())
+            .Returns(new TransactionResponse
+            {
+                TransactionId = transactionId
+            });
+
+        // Act
+        var actual = await nodeService.InvokeFromStringAsync<PagedResponse<AgentPlayerWinLossReportModel>>(
+            nodeModule,
+            args: new object[] { agentId, request });
+
+        // Assert
+        Assert.True(actual?.Valid);
+        _ = fakeAdjustAgentAccountService.Received(1)
+            .CreateAsync(
+                Arg.Is(transactionId),
+                Arg.Is(brandId),
+                Arg.Is(agentId),
+                Arg.Is(AdjustmentType.Add),
+                Arg.Is((AgentAdjustmentTransactionType)request.TransactionType),
+                Arg.Is(AdjustTransferType.None),
+                Arg.Is(request.Amount),
+                Arg.Is(request.Remark),
+                Arg.Any<string>());
     }
 
     [Fact]
@@ -232,7 +352,7 @@ public class AgentTests
                 Arg.Any<GetAgentAuditLogQueryConditions>(),
                 Arg.Any<Paging>(),
                 Arg.Any<CancellationToken>())
-           .Returns(new PagingResponse<AgentAuditLogInfo>
+           .Returns(new Tgs.Agent.Client.Models.PagingResponse<AgentAuditLogInfo>
            {
                Items = new AgentAuditLogInfo[]
                {
@@ -338,7 +458,9 @@ public class AgentTests
                 0m,
                 0,
                 0m,
-                Guid.NewGuid()));
+                Guid.NewGuid(),
+                Guid.NewGuid(),
+                null));
 
         var request = new TGS.Apis.BackendOffice.ViewModels.SetAgentContactRequest
         {
@@ -420,7 +542,9 @@ public class AgentTests
                 0m,
                 0,
                 0m,
-                Guid.NewGuid()));
+                Guid.NewGuid(),
+                Guid.NewGuid(),
+                null));
 
         // Act
         var actual = await nodeService.InvokeFromStringAsync<MessageResponse>(
@@ -501,7 +625,9 @@ public class AgentTests
                 0m,
                 0,
                 0m,
-                Guid.NewGuid()));
+                Guid.NewGuid(),
+                Guid.NewGuid(),
+                null));
 
         // Act
         var actual = await nodeService.InvokeFromStringAsync<MessageResponse>(
@@ -584,8 +710,10 @@ public class AgentTests
                 AgentLevelType.Chief,
                 0m,
                 0,
-                0m, 
-                Guid.NewGuid()));
+                0m,
+                Guid.NewGuid(),
+                Guid.NewGuid(),
+                null));
 
         var request = new SetAgentInfoViewModel
         {
@@ -780,176 +908,5 @@ public class AgentTests
 
         Assert.NotNull(result);
         Assert.Equal(EventAction.Create, result.Action);
-    }
-
-    [Fact]
-    public async Task 更新單一分紅制代理()
-    {
-        // Arrange
-        var channelName = Guid.NewGuid().ToString();
-        var userId = Guid.NewGuid();
-
-        var fakeService = Substitute.For<IGetService<SetAgentOneLayerCommand, SetAgentOneLayerResult>>();
-
-        using var web = TestBackendOfficeApplication.Builder
-            .UseTestChannelServer(channelName)
-            .ConfigureLogging(logging => logging.AddXUnit(_testOutputHelper))
-            .ConfigureServices(services => services
-                .AddAuthentication("Fake")
-                .AddScheme<FakeAuthenticationSchemaOptions, FakeAuthenticationHandler>(
-                    "Fake",
-                    options =>
-                    {
-                        options.UserId = userId;
-                        options.UserName = "system";
-                    })
-                .Services
-                .AddSingleton(fakeService))
-            .Build();
-
-        var agentId = Guid.NewGuid();
-        var parentUsername = "parentUsername";
-        var dividendPercentage = 10m;
-        var type = AgentType.Cash;
-
-        _ = fakeService.GetAsync(new SetAgentOneLayerCommand(agentId, parentUsername, dividendPercentage, type, "system"), cancellationToken: Arg.Any<CancellationToken>())
-            .Returns(new SetAgentOneLayerResult(true, string.Empty));
-
-        await web.StartAsync();
-
-        using var nodeService = _nodeJsFixture.BuildNodeJsService();
-
-        var isWindows = RuntimeInformation.IsOSPlatform(OSPlatform.Windows) ? "true" : "false";
-
-        var request = new SetOneLayerAgentInfoViewModel
-        {
-            DividendPercentage = dividendPercentage,
-            ParentUsername = parentUsername,
-            Type = type,
-        };
-
-        var nodeModule = $$"""
-            const axiosConfigFactory = require('./models/axios-configuration.js').default;
-            const BackOfficeService = require('./services/bo-service.js').default;
-
-            module.exports = async (agentId,request) =>
-            {
-                let instance = axiosConfigFactory("{{channelName}}", {{isWindows}});
-
-                let svc = new BackOfficeService(instance);
-
-                return await svc.setOneLayerAgent(agentId,request);
-            };
-        """;
-
-        // Act
-        var actual = await nodeService.InvokeFromStringAsync<string>(
-            nodeModule,
-            args: new object[] { agentId, request });
-
-        // Assert
-        Assert.NotNull(actual);
-
-        var jsonOptions = web.Services.GetRequiredService<IOptions<JsonOptions>>().Value;
-        var result = JsonSerializer.Deserialize<MessageResponse>(
-            actual!,
-            jsonOptions.JsonSerializerOptions);
-
-        Assert.NotNull(result);
-        Assert.True(result.Valid);
-    }
-
-    [Fact]
-    public async Task 更新階梯分紅制代理()
-    {
-        // Arrange
-        var channelName = Guid.NewGuid().ToString();
-        var userId = Guid.NewGuid();
-
-        var fakeService = Substitute.For<IGetService<SetAgentMultipleLayerCommand, SetAgentMultipleLayerResult>>();
-
-        using var web = TestBackendOfficeApplication.Builder
-            .UseTestChannelServer(channelName)
-            .ConfigureLogging(logging => logging.AddXUnit(_testOutputHelper))
-            .ConfigureServices(services => services
-                .AddAuthentication("Fake")
-                .AddScheme<FakeAuthenticationSchemaOptions, FakeAuthenticationHandler>(
-                    "Fake",
-                    options =>
-                    {
-                        options.UserId = userId;
-                        options.UserName = "system";
-                    })
-                .Services
-                .AddSingleton(fakeService))
-            .Build();
-
-        var agentId = Guid.NewGuid();
-        var parentUsername = "parentUsername";
-        var type = AgentType.Cash;
-        var dividendCondition = new AgentDividendConditionModel[]
-        {
-            new AgentDividendConditionModel
-            {
-                ActiveNumber = 10,
-                DividendPercentage = 15,
-                NetProfit = 10,
-                Rank = 1,
-            },
-            new AgentDividendConditionModel
-            {
-                ActiveNumber = 20,
-                DividendPercentage = 18,
-                NetProfit = 20,
-                Rank = 2,
-            }
-        };
-
-        _ = fakeService
-            .GetAsync(Arg.Any<SetAgentMultipleLayerCommand>(), Arg.Any<CancellationToken>())
-            .Returns(new SetAgentMultipleLayerResult(true, string.Empty));
-
-        await web.StartAsync();
-
-        using var nodeService = _nodeJsFixture.BuildNodeJsService();
-
-        var isWindows = RuntimeInformation.IsOSPlatform(OSPlatform.Windows) ? "true" : "false";
-
-        var request = new SetMultipleLayerAgentInfoViewModel
-        {
-            AgentDividendConditions = dividendCondition,
-            ParentUsername = parentUsername,
-            Type = type,
-        };
-
-        var nodeModule = $$"""
-            const axiosConfigFactory = require('./models/axios-configuration.js').default;
-            const BackOfficeService = require('./services/bo-service.js').default;
-
-            module.exports = async (agentId,request) =>
-            {
-                let instance = axiosConfigFactory("{{channelName}}", {{isWindows}});
-
-                let svc = new BackOfficeService(instance);
-
-                return await svc.setMultipleLayerAgent(agentId,request);
-            };
-        """;
-
-        // Act
-        var actual = await nodeService.InvokeFromStringAsync<string>(
-            nodeModule,
-            args: new object[] { agentId, request });
-
-        // Assert
-        Assert.NotNull(actual);
-
-        var jsonOptions = web.Services.GetRequiredService<IOptions<JsonOptions>>().Value;
-        var result = JsonSerializer.Deserialize<MessageResponse>(
-            actual!,
-            jsonOptions.JsonSerializerOptions);
-
-        Assert.NotNull(result);
-        Assert.True(result.Valid);
     }
 }

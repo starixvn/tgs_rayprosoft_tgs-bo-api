@@ -58,18 +58,7 @@ export default class BackOfficeService {
             .then(res => res.data);
     }
 
-    public createAgentReduceAmount(
-        id: string,
-        request: CreateAgentReduceAmountRequest): Promise<MessageResponse> {
-        return this.http
-            .post(`api/Agent/${id}/adjust/reduce`,
-                {
-                    params: {
-                        ...request
-                    }
-                })
-            .then(res => res.data);
-    }
+
 
     public createBrand(
         request: CreateBrandRequest): Promise<MessageResponse> {
@@ -902,7 +891,7 @@ export default class BackOfficeService {
 
     public setAgentStatus(agentId: string, request: SetAgentStatusViewModel): Promise<MessageResponse> {
         return this.http
-            .patch(`/api/agent/status/${agentId}`,{
+            .patch(`/api/agent/status/${agentId}`, {
                 ...request
             })
             .then(res => res.data);
@@ -914,19 +903,19 @@ export default class BackOfficeService {
             .then(res => res.data);
     }
 
-    public setMultipleLayerAgent(agentId:string, request: SetMultipleLayerAgentInfoViewModel): Promise<MessageResponse>{
+    public setMultipleLayerAgent(agentId: string, request: SetMultipleLayerAgentInfoViewModel): Promise<MessageResponse> {
         return this.http
-            .patch(`/api/agent/multiple-layer/${agentId}`,{
+            .patch(`/api/agent/multiple-layer/${agentId}`, {
                 ...request
-            })            
+            })
             .then(res => res.data);
     }
 
-    public setOneLayerAgent(agentId:string, request: SetOneLayerAgentInfoViewModel): Promise<MessageResponse>{
+    public setOneLayerAgent(agentId: string, request: SetOneLayerAgentInfoViewModel): Promise<MessageResponse> {
         return this.http
-            .patch(`/api/agent/one-layer/${agentId}`,{
+            .patch(`/api/agent/one-layer/${agentId}`, {
                 ...request
-            })            
+            })
             .then(res => res.data);
     }
 
@@ -1105,6 +1094,31 @@ export default class BackOfficeService {
                         ...request
                     }
                 })
+            .then(res => res.data);
+    }
+
+    public reduceAgentAmount(
+        walleId: string,
+        request: CreateAgentReduceAmountRequest): Promise<MessageResponse> {
+        return this.http
+            .post(
+                `api/Agent/${walleId}/adjust/reduce`,
+                {
+                    params: {
+                        ...request
+                    }
+                })
+            .then(res => res.data);
+    }
+
+    public increaseAgentAmount(
+        walletId: string,
+        request: CreateAgentIncreaseAmountRequest
+    ): Promise<MessageResponse> {
+        return this.http
+            .post(
+                `/api/agent/${walletId}/adjust/increase`,
+                request)
             .then(res => res.data);
     }
 
