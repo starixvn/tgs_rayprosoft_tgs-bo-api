@@ -25,7 +25,7 @@ public class BaseTests
 
     protected static ClaimsPrincipal GetUserClaimsPrincipal(
         string username = "admin.enabled",
-        string rolename = "Admin",
+        string roleName = "Admin",
         RoleType roleType = RoleType.Admin,
         string id = "e4ecfa98-b373-4123-87e0-cb9e883d0691")
         => new(new[]
@@ -34,15 +34,15 @@ public class BaseTests
             {
                 new Claim(Consts.BackendOffice.UserInfo.UserIdKey, id),
                 new Claim(Consts.BackendOffice.UserInfo.UsernameKey, username),
-                new Claim(Consts.BackendOffice.UserInfo.RolenameKey, rolename),
+                new Claim(Consts.BackendOffice.UserInfo.RolenameKey, roleName),
                 new Claim(Consts.BackendOffice.UserInfo.PortalKey, roleType.ToString())
             })
         });
 
-    private void Login(
+    public void Login(
         string username = "admin.enabled",
-        string rolename = "Admin",
+        string roleName = "Admin",
         RoleType roleType = RoleType.Admin)
         => _ = HttpContextMock.User
-            .Returns(GetUserClaimsPrincipal(username, rolename, roleType));
+            .Returns(GetUserClaimsPrincipal(username, roleName, roleType));
 }
