@@ -17,10 +17,10 @@ public class NodeJsFixture : IDisposable
         var services = new ServiceCollection();
         _ = services.AddNodeJS()
             .Configure<NodeJSProcessOptions>(nodeOptions => nodeOptions.ProjectPath =
-            Path.GetFullPath(Path.Combine(
-                Environment.CurrentDirectory,
-                "../../../..",
-                "bo_client")))
+                Path.GetFullPath(Path.Combine(
+                    Environment.CurrentDirectory,
+                    "../../../..",
+                    "bo_client")))
             .Configure<OutOfProcessNodeJSServiceOptions>(
             processOptions =>
             {
@@ -56,7 +56,8 @@ public class NodeJsFixture : IDisposable
 
                     return new HttpNodeJSPoolService(new ReadOnlyCollection<HttpNodeJSService>(httpNodeJSServices));
                 }
-            });
+            })
+            .AddSingleton<IJsonService, NodeJsonService>();
 
         _serviceProvider = services.BuildServiceProvider();
     }
