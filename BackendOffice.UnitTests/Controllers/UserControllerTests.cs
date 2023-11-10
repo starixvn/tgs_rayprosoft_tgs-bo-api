@@ -535,8 +535,10 @@ public class UserControllerTests : BaseTests
     }
 
     [Test]
-    public async Task Can_Create_Admin_User()
+    public async Task Only_Defined_User_Can_Create_Admin_User()
     {
+        Login("hank.wu");
+
         var roleQueriesMock = Substitute.For<ITgsQueries<Role>>();
         var userQueriesMock = Substitute.For<ITgsQueries<User>>();
         var userCommandsMock = Substitute.For<ITgsCommands<User>>();

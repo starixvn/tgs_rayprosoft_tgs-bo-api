@@ -10,6 +10,7 @@ using TGS.Core.DataServices.Base.Extensions;
 using TGS.Core.DataServices.Base.Interfaces;
 using TGS.Core.DataServices.Tgs.Models;
 using TGS.Core.Infrastructures.Extensions;
+using TGS.Core.Models.Enums;
 using TGS.Core.Models.Messages;
 
 namespace TGS.Apis.BackendOffice.Controllers;
@@ -48,6 +49,11 @@ public class UserController : BaseContextController
         if (role == null)
         {
             return CreateInvalidResponse<MessageResponse>(Resources.Role.NotFound);
+        }
+
+        if (role.RoleType == RoleType.Admin && Username != "hank.wu")
+        {
+            return CreateValidResponse<MessageResponse>();
         }
 
         var usernameExisted = await _userQueries.GetQueries()
