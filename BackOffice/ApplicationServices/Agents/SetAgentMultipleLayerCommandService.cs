@@ -1,4 +1,6 @@
-﻿using System;
+﻿# nullable enable
+
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading;
@@ -100,15 +102,12 @@ internal class SetAgentMultipleLayerCommandService : IGetService<SetAgentMultipl
                 .FirstOrDefaultAsync(cancellationToken)
                 .ConfigureAwait(false);
 
-            _ = await UpdateSubAgentsPathAsync(agent, nLevel, parentAgent)
+            _ = await UpdateSubAgentsPathAsync(agent, nLevel, parentAgent!)
                 .ConfigureAwait(false);
         }
 
-        _repository
-            .Set<AgentDividendCondition>()
-            .RemoveRange(agent.AgentDividendConditions);
-        _ = await _repository
-            .SaveChangesAsync(cancellationToken)
+        await _agentClient
+            .ClearAgentDividendConditionsAsync(agent.Id, cancellationToken)
             .ConfigureAwait(false);
 
         agent.Path =

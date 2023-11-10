@@ -347,9 +347,9 @@ public class RoleController : BaseContextController
         }
 
         var roleNameExisted = await _roleQueries.GetQueries()
-            .Where(role.ResellerId, x => x.ResellerId == role.ResellerId)
-            .Where(role.LicenseeId, x => x.LicenseeId == role.LicenseeId)
-            .Where(role.BrandId, x => x.BrandId == role.BrandId)
+            .Where(x => x.ResellerId == role.ResellerId)
+            .Where(x => x.LicenseeId == role.LicenseeId)
+            .Where(x => x.BrandId == role.BrandId)
             .AnyAsync(x => x.Id != role.Id && x.Name == request.Name);
 
         if (roleNameExisted)
