@@ -77,24 +77,28 @@ public partial class AgentController : BaseContextController
             : CreateInvalidResponse<MessageResponse>(result.Message);
     }
 
-    [HttpPost("{id:guid}/adjust/reduce")]
+    [HttpPost("{walletId:guid}/adjust/reduce")]
     [Description("Create an agent adjustment to reduce amount")]
     public async Task<MessageResponse> CreateAgentReduceAmountAsync(
-        Guid id,
-        CreateAgentReduceAmountRequest request,
-        [FromServices] IGetService<AgentReduceAmountQuery, AgentAdjustAmountResult> getService)
+        [FromServices] IGetService<AgentReduceAmountCommand, AgentAdjustAmountResult> getService,
+        Guid walletId,
+        CreateAgentReduceAmountViewModel viewModel)
     {
-        var result = await getService
-            .GetAsync(new AgentReduceAmountQuery(
-                id,
-                request.Amount,
-                request.Remark,
-                request.TargetName,
-                request.TransactionType,
-                request.AccountType,
+        if (!Enum.IsDefined(viewModel.TransactionType)
+            || !Enum.IsDefined((AgentAdjustmentTransactionType)viewModel.TransactionType))
+            return CreateInvalidResponse<MessageResponse>("is not define type");
+
+        var result = await getService.GetAsync(
+            new AgentReduceAmountCommand(
+                walletId,
+                viewModel.Amount,
+                viewModel.Remark,
+                viewModel.TargetName,
+                (AgentAdjustmentTransactionType)viewModel.TransactionType,
+                viewModel.AccountType,
                 Username,
-                UserId))
-            .ConfigureAwait(false);
+                Guid.Parse(UserId)),
+            HttpContext.RequestAborted).ConfigureAwait(false);
 
         return result.Valid
             ? CreateValidResponse<MessageResponse>()

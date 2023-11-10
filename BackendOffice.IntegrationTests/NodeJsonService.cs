@@ -1,14 +1,12 @@
 ﻿using System.Text.Json;
-using System.Text.Json.Nodes;
 using System.Text.Json.Serialization;
 using Jering.Javascript.NodeJS;
-using Json.More;
 
 namespace BackendOffice.IntegrationTests;
 
 internal class NodeJsonService : IJsonService
 {
-    private JsonSerializerOptions _serializerOptions = new(JsonSerializerDefaults.Web)
+    private readonly static JsonSerializerOptions _SerializerOptions = new(JsonSerializerDefaults.Web)
     {
         Converters =
         {
@@ -20,14 +18,14 @@ internal class NodeJsonService : IJsonService
     public ValueTask<T?> DeserializeAsync<T>(Stream stream, CancellationToken cancellationToken = default)
         => JsonSerializer.DeserializeAsync<T>(
             stream,
-            _serializerOptions,
+            _SerializerOptions,
             cancellationToken);
 
     public Task SerializeAsync<T>(Stream stream, T value, CancellationToken cancellationToken = default)
         => JsonSerializer.SerializeAsync(
             stream,
             value,
-            _serializerOptions,
+            _SerializerOptions,
             cancellationToken);
 
     private class InvocationRequestConverter : JsonConverter<InvocationRequest>

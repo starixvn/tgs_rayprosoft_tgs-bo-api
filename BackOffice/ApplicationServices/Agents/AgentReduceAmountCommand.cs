@@ -3,12 +3,12 @@ using TGS.Core.Models.Enums;
 
 namespace TGS.Services.BackOffice.ApplicationServices.Agents;
 
-public record AgentReduceAmountQuery(
+public record AgentReduceAmountCommand(
     Guid AgentId,
     decimal Amount,
     string Remark,
     string TargetName,
-    AgentReduceTransactionType TransactionType,
+    AgentAdjustmentTransactionType TransactionType,
     AccountType? AccountType,
     string Username,
-    string UserId);
+    Guid UserId);

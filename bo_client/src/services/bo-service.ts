@@ -1103,11 +1103,7 @@ export default class BackOfficeService {
         return this.http
             .post(
                 `api/Agent/${walleId}/adjust/reduce`,
-                {
-                    params: {
-                        ...request
-                    }
-                })
+                request)
             .then(res => res.data);
     }
 

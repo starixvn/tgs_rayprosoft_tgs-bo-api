@@ -47,7 +47,9 @@ public class AgentTests
         var channelName = Guid.NewGuid().ToString();
         var userId = Guid.NewGuid();
 
-        var fakeService = Substitute.For<IGetService<AgentReduceAmountQuery, AgentAdjustAmountResult>>();
+        var fakeAgentClient = Substitute.For<IAgentClient>();
+        var fakeCashServiceClient = Substitute.For<ICashServiceClient>();
+        var fakeAdjustAgentAccountService = Substitute.For<IAdjustAgentAccountService>();
 
         using var web = TestBackendOfficeApplication.Builder
             .UseTestChannelServer(channelName)
@@ -62,13 +64,12 @@ public class AgentTests
                         options.UserName = "system";
                     })
                 .Services
-                .AddSingleton(fakeService))
+                .AddSingleton(fakeAgentClient)
+                .AddSingleton(fakeCashServiceClient)
+                .AddSingleton(fakeAdjustAgentAccountService))
             .Build();
 
         await web.StartAsync();
-
-        _ = fakeService.GetAsync(Arg.Any<AgentReduceAmountQuery>())
-            .Returns(new AgentAdjustAmountResult(true, string.Empty));
 
         using var nodeService = _nodeJsFixture.BuildNodeJsService();
 
@@ -89,15 +90,57 @@ public class AgentTests
         """;
 
         var agentId = Guid.Parse("5056ebbf-a975-42f1-9e97-b3299f0cab06");
-        var request = new CreateAgentReduceAmountRequest
+        var request = new CreateAgentReduceAmountViewModel
         {
             AccountType = AccountType.Player,
             AgentId = agentId,
             Amount = 1,
             Remark = "20230822",
             TargetName = "shaun01",
-            TransactionType = AgentReduceTransactionType.Transfer
+            TransactionType = AgentReduceTransactionType.Bonus
         };
+
+        var brandId = Guid.NewGuid();
+        var walletId = Guid.NewGuid();
+
+        _ = fakeAgentClient.GetAgentInfoAsync(
+            Arg.Is(new GetAgentInfoRequest(agentId)),
+            Arg.Any<CancellationToken>())
+            .Returns(new AgentInfoModel(
+                agentId,
+                "agent1",
+                null,
+                null,
+                null,
+                null,
+                null,
+                "abce",
+                null,
+                DateTimeOffset.UtcNow,
+                AgentStatus.Enabled,
+                AgentType.Cash,
+                AgentLevelType.Agent,
+                0M,
+                0,
+                0M,
+                brandId,
+                Guid.NewGuid(),
+                walletId));
+
+        var transactionId = Guid.NewGuid();
+
+        _ = fakeCashServiceClient.AdjustCompanyV2Async(
+            Arg.Is(walletId),
+            Arg.Is(-request.Amount),
+            Arg.Is(request.Remark),
+            Arg.Any<string>(),
+            Arg.Is(userId),
+            Arg.Any<CancellationToken>())
+            .Returns(new TransactionResponse
+            {
+                TransactionId = transactionId
+            });
+
 
         // Act
         var actual = await nodeService.InvokeFromStringAsync<PagedResponse<AgentPlayerWinLossReportModel>>(
@@ -106,6 +149,17 @@ public class AgentTests
 
         // Assert
         Assert.True(actual?.Valid);
+        _ = fakeAdjustAgentAccountService.Received(1)
+            .CreateAsync(
+                Arg.Is(transactionId),
+                Arg.Is(brandId),
+                Arg.Is(agentId),
+                Arg.Is(AdjustmentType.Subtract),
+                Arg.Is((AgentAdjustmentTransactionType)request.TransactionType),
+                Arg.Is(AdjustTransferType.None),
+                Arg.Is(request.Amount),
+                Arg.Is(request.Remark),
+                Arg.Any<string>());
     }
 
     [Fact]
