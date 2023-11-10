@@ -94,9 +94,9 @@ public class RoleController : BaseContextController
     public async Task<MessageResponse> CreateAsync([FromBody] CreateRoleRequest request)
     {
         var roleNameExisted = await _roleQueries.GetQueries()
-            .Where(request.ResellerId, x => x.ResellerId == request.ResellerId)
-            .Where(request.LicenseeId, x => x.LicenseeId == request.LicenseeId)
-            .Where(request.BrandId, x => x.BrandId == request.BrandId)
+            .Where(x => x.ResellerId == request.ResellerId)
+            .Where(x => x.LicenseeId == request.LicenseeId)
+            .Where(x => x.BrandId == request.BrandId)
             .AnyAsync(x => x.Name == request.Name);
 
         if (roleNameExisted)
