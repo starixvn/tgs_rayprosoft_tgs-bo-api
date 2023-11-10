@@ -42,7 +42,9 @@ internal class
                 ValidBet = x.ValidBet,
                 Rebate = x.Rebate,
                 SettleDateTime = x.SettleDateTime,
-                SentOn = x.SentOn
+                SentOn = x.SentOn,
+                From = x.From,
+                To = x.To
             });
     }
 }
