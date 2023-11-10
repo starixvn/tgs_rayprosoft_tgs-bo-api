@@ -1,9 +1,9 @@
 ﻿using System;
 using TGS.Core.Models.Enums;
 
-namespace TGS.Services.BackOffice.Application.Models.AgentAdjust;
+namespace TGS.Apis.BackendOffice.ViewModels;
 
-public class CreateAgentReduceAmountRequest
+public class CreateAgentReduceAmountViewModel
 {
     public AccountType? AccountType { get; set; }
 
