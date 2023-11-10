@@ -58,11 +58,11 @@
     <PackageReference Include="Scrutor" Version="4.2.2" />
     <PackageReference Include="System.Interactive.Async" Version="6.0.1" />
     <PackageReference Include="System.Linq.Async" Version="6.0.1" />
-    <PackageReference Include="Tgs.Agent.Client" Version="0.0.16" />
+    <PackageReference Include="Tgs.Agent.Client" Version="0.0.19" />
     <PackageReference Include="Tgs.ArticleManagementClient" Version="0.0.4" />
     <PackageReference Include="Tgs.BrandCertificateClient" Version="0.0.29" />
     <PackageReference Include="Tgs.CashQuery.Client" Version="0.0.8" />
-    <PackageReference Include="Tgs.CashService.Client" Version="0.2.3" />
+    <PackageReference Include="Tgs.CashService.Client" Version="0.2.7" />
     <PackageReference Include="Tgs.Core" Version="1.0.18" />
     <PackageReference Include="TGS.Core.Infrastructures.Json" Version="0.0.1" />
     <PackageReference Include="Tgs.Core.Infrastructures.Security" Version="0.0.2" />

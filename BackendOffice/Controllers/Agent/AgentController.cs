@@ -51,10 +51,30 @@ public partial class AgentController : BaseContextController
 
     [HttpPost("{id:guid}/adjust/increase")]
     [Description("Create an agent adjustment to increase amount")]
-    public Task<MessageResponse> CreateAgentIncreaseAmountAsync(Guid id, CreateAgentIncreaseAmountRequest request)
+    public async Task<MessageResponse> CreateAgentIncreaseAmountAsync(
+        [FromServices] IGetService<AgentIncreaseAmountCommand, AgentAdjustAmountResult> adjustService,
+        Guid id,
+        CreateAgentIncreaseAmountViewModel viewModel)
     {
-        request.AgentId = id;
-        return _mediator.Send(request);
+        if (!Enum.IsDefined(viewModel.TransactionType) ||
+            !Enum.IsDefined((AgentAdjustmentTransactionType)viewModel.TransactionType))
+            return CreateInvalidResponse<MessageResponse>("is not define type");
+
+        var command = new AgentIncreaseAmountCommand(
+            id,
+            viewModel.Amount,
+            viewModel.Remark,
+            (AgentAdjustmentTransactionType)viewModel.TransactionType,
+            Guid.Parse(UserId),
+            Username);
+
+        var result = await adjustService.GetAsync(
+            command,
+            HttpContext.RequestAborted).ConfigureAwait(false);
+
+        return result.Valid
+            ? CreateValidResponse<MessageResponse>()
+            : CreateInvalidResponse<MessageResponse>(result.Message);
     }
 
     [HttpPost("{id:guid}/adjust/reduce")]
@@ -62,11 +82,11 @@ public partial class AgentController : BaseContextController
     public async Task<MessageResponse> CreateAgentReduceAmountAsync(
         Guid id,
         CreateAgentReduceAmountRequest request,
-        [FromServices] IGetService<AgentReduceAmountQuery, AgentReduceAmountResult> getService)
+        [FromServices] IGetService<AgentReduceAmountQuery, AgentAdjustAmountResult> getService)
     {
         var result = await getService
             .GetAsync(new AgentReduceAmountQuery(
-                AgentId: id,
+                id,
                 request.Amount,
                 request.Remark,
                 request.TargetName,

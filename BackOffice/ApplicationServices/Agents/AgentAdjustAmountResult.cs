@@ -1,5 +1,5 @@
 ﻿namespace TGS.Services.BackOffice.ApplicationServices.Agents;
 
-public record AgentReduceAmountResult(
+public record AgentAdjustAmountResult(
     bool Valid,
     string Message);

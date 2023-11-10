@@ -44,7 +44,7 @@ public class AgentTests
         var channelName = Guid.NewGuid().ToString();
         var userId = Guid.NewGuid();
 
-        var fakeService = Substitute.For<IGetService<AgentReduceAmountQuery, AgentReduceAmountResult>>();
+        var fakeService = Substitute.For<IGetService<AgentReduceAmountQuery, AgentAdjustAmountResult>>();
 
         using var web = TestBackendOfficeApplication.Builder
             .UseTestChannelServer(channelName)
@@ -65,7 +65,7 @@ public class AgentTests
         await web.StartAsync();
 
         _ = fakeService.GetAsync(Arg.Any<AgentReduceAmountQuery>())
-            .Returns(new AgentReduceAmountResult(true, string.Empty));
+            .Returns(new AgentAdjustAmountResult(true, string.Empty));
 
         using var nodeService = _nodeJsFixture.BuildNodeJsService();
 
@@ -338,7 +338,9 @@ public class AgentTests
                 0m,
                 0,
                 0m,
-                Guid.NewGuid()));
+                Guid.NewGuid(),
+                Guid.NewGuid(),
+                null));
 
         var request = new TGS.Apis.BackendOffice.ViewModels.SetAgentContactRequest
         {
@@ -420,7 +422,9 @@ public class AgentTests
                 0m,
                 0,
                 0m,
-                Guid.NewGuid()));
+                Guid.NewGuid(),
+                Guid.NewGuid(),
+                null));
 
         // Act
         var actual = await nodeService.InvokeFromStringAsync<MessageResponse>(
@@ -501,7 +505,9 @@ public class AgentTests
                 0m,
                 0,
                 0m,
-                Guid.NewGuid()));
+                Guid.NewGuid(),
+                Guid.NewGuid(),
+                null));
 
         // Act
         var actual = await nodeService.InvokeFromStringAsync<MessageResponse>(
@@ -584,8 +590,10 @@ public class AgentTests
                 AgentLevelType.Chief,
                 0m,
                 0,
-                0m, 
-                Guid.NewGuid()));
+                0m,
+                Guid.NewGuid(),
+                Guid.NewGuid(),
+                null));
 
         var request = new SetAgentInfoViewModel
         {
@@ -780,176 +788,5 @@ public class AgentTests
 
         Assert.NotNull(result);
         Assert.Equal(EventAction.Create, result.Action);
-    }
-
-    [Fact]
-    public async Task 更新單一分紅制代理()
-    {
-        // Arrange
-        var channelName = Guid.NewGuid().ToString();
-        var userId = Guid.NewGuid();
-
-        var fakeService = Substitute.For<IGetService<SetAgentOneLayerCommand, SetAgentOneLayerResult>>();
-
-        using var web = TestBackendOfficeApplication.Builder
-            .UseTestChannelServer(channelName)
-            .ConfigureLogging(logging => logging.AddXUnit(_testOutputHelper))
-            .ConfigureServices(services => services
-                .AddAuthentication("Fake")
-                .AddScheme<FakeAuthenticationSchemaOptions, FakeAuthenticationHandler>(
-                    "Fake",
-                    options =>
-                    {
-                        options.UserId = userId;
-                        options.UserName = "system";
-                    })
-                .Services
-                .AddSingleton(fakeService))
-            .Build();
-
-        var agentId = Guid.NewGuid();
-        var parentUsername = "parentUsername";
-        var dividendPercentage = 10m;
-        var type = AgentType.Cash;
-
-        _ = fakeService.GetAsync(new SetAgentOneLayerCommand(agentId, parentUsername, dividendPercentage, type, "system"), cancellationToken: Arg.Any<CancellationToken>())
-            .Returns(new SetAgentOneLayerResult(true, string.Empty));
-
-        await web.StartAsync();
-
-        using var nodeService = _nodeJsFixture.BuildNodeJsService();
-
-        var isWindows = RuntimeInformation.IsOSPlatform(OSPlatform.Windows) ? "true" : "false";
-
-        var request = new SetOneLayerAgentInfoViewModel
-        {
-            DividendPercentage = dividendPercentage,
-            ParentUsername = parentUsername,
-            Type = type,
-        };
-
-        var nodeModule = $$"""
-            const axiosConfigFactory = require('./models/axios-configuration.js').default;
-            const BackOfficeService = require('./services/bo-service.js').default;
-
-            module.exports = async (agentId,request) =>
-            {
-                let instance = axiosConfigFactory("{{channelName}}", {{isWindows}});
-
-                let svc = new BackOfficeService(instance);
-
-                return await svc.setOneLayerAgent(agentId,request);
-            };
-        """;
-
-        // Act
-        var actual = await nodeService.InvokeFromStringAsync<string>(
-            nodeModule,
-            args: new object[] { agentId, request });
-
-        // Assert
-        Assert.NotNull(actual);
-
-        var jsonOptions = web.Services.GetRequiredService<IOptions<JsonOptions>>().Value;
-        var result = JsonSerializer.Deserialize<MessageResponse>(
-            actual!,
-            jsonOptions.JsonSerializerOptions);
-
-        Assert.NotNull(result);
-        Assert.True(result.Valid);
-    }
-
-    [Fact]
-    public async Task 更新階梯分紅制代理()
-    {
-        // Arrange
-        var channelName = Guid.NewGuid().ToString();
-        var userId = Guid.NewGuid();
-
-        var fakeService = Substitute.For<IGetService<SetAgentMultipleLayerCommand, SetAgentMultipleLayerResult>>();
-
-        using var web = TestBackendOfficeApplication.Builder
-            .UseTestChannelServer(channelName)
-            .ConfigureLogging(logging => logging.AddXUnit(_testOutputHelper))
-            .ConfigureServices(services => services
-                .AddAuthentication("Fake")
-                .AddScheme<FakeAuthenticationSchemaOptions, FakeAuthenticationHandler>(
-                    "Fake",
-                    options =>
-                    {
-                        options.UserId = userId;
-                        options.UserName = "system";
-                    })
-                .Services
-                .AddSingleton(fakeService))
-            .Build();
-
-        var agentId = Guid.NewGuid();
-        var parentUsername = "parentUsername";
-        var type = AgentType.Cash;
-        var dividendCondition = new AgentDividendConditionModel[]
-        {
-            new AgentDividendConditionModel
-            {
-                ActiveNumber = 10,
-                DividendPercentage = 15,
-                NetProfit = 10,
-                Rank = 1,
-            },
-            new AgentDividendConditionModel
-            {
-                ActiveNumber = 20,
-                DividendPercentage = 18,
-                NetProfit = 20,
-                Rank = 2,
-            }
-        };
-
-        _ = fakeService
-            .GetAsync(Arg.Any<SetAgentMultipleLayerCommand>(), Arg.Any<CancellationToken>())
-            .Returns(new SetAgentMultipleLayerResult(true, string.Empty));
-
-        await web.StartAsync();
-
-        using var nodeService = _nodeJsFixture.BuildNodeJsService();
-
-        var isWindows = RuntimeInformation.IsOSPlatform(OSPlatform.Windows) ? "true" : "false";
-
-        var request = new SetMultipleLayerAgentInfoViewModel
-        {
-            AgentDividendConditions = dividendCondition,
-            ParentUsername = parentUsername,
-            Type = type,
-        };
-
-        var nodeModule = $$"""
-            const axiosConfigFactory = require('./models/axios-configuration.js').default;
-            const BackOfficeService = require('./services/bo-service.js').default;
-
-            module.exports = async (agentId,request) =>
-            {
-                let instance = axiosConfigFactory("{{channelName}}", {{isWindows}});
-
-                let svc = new BackOfficeService(instance);
-
-                return await svc.setMultipleLayerAgent(agentId,request);
-            };
-        """;
-
-        // Act
-        var actual = await nodeService.InvokeFromStringAsync<string>(
-            nodeModule,
-            args: new object[] { agentId, request });
-
-        // Assert
-        Assert.NotNull(actual);
-
-        var jsonOptions = web.Services.GetRequiredService<IOptions<JsonOptions>>().Value;
-        var result = JsonSerializer.Deserialize<MessageResponse>(
-            actual!,
-            jsonOptions.JsonSerializerOptions);
-
-        Assert.NotNull(result);
-        Assert.True(result.Valid);
     }
 }

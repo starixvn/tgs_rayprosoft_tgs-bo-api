@@ -92,7 +92,9 @@ public class ExportAdjustRecordsCommandServiceTests
                 0M,
                 0,
                 0M,
-                Guid.NewGuid()));
+                Guid.NewGuid(),
+                Guid.NewGuid(),
+                null));
 
         await sut.ExecuteAsync(command);
 
@@ -227,7 +229,9 @@ public class ExportAdjustRecordsCommandServiceTests
                 0M,
                 0,
                 0M,
-                brandId));
+                brandId,
+                Guid.NewGuid(),
+                null));
 
         await sut.ExecuteAsync(command);
 

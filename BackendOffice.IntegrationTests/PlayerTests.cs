@@ -1233,7 +1233,9 @@ public class PlayerTests
                 0m,
                 0,
                 0m,
-                brandId));
+                brandId,
+                Guid.NewGuid(),
+                null));
 
         using var web = TestBackendOfficeApplication.Builder
             .UseTestChannelServer(channelName)
