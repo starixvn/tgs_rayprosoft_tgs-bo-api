@@ -106,8 +106,9 @@ internal class SetAgentMultipleLayerCommandService : IGetService<SetAgentMultipl
                 .ConfigureAwait(false);
         }
 
-        await _agentClient
-            .ClearAgentDividendConditionsAsync(agent.Id, cancellationToken)
+        _repository.Set<AgentDividendCondition>().RemoveRange(agent.AgentDividendConditions);
+        _ = await _repository
+            .SaveChangesAsync(cancellationToken)
             .ConfigureAwait(false);
 
         agent.Path =
@@ -130,13 +131,13 @@ internal class SetAgentMultipleLayerCommandService : IGetService<SetAgentMultipl
             : AgentConfigStatus.DoneForConfigurePercentage;
 
         agent.AgentDividendConditions = command.AgentDividendConditions.Select(x
-                    => new AgentDividendCondition
-                    {
-                        Rank = x.Rank,
-                        NetProfit = x.NetProfit,
-                        ActiveNumber = x.ActiveNumber,
-                        DividendPercentage = operation == Tgs.Agent.Client.Models.Enums.AgentOperation.Agent ? 0 : x.DividendPercentage
-                    }).ToHashSet();
+            => new AgentDividendCondition
+            {
+                Rank = x.Rank,
+                NetProfit = x.NetProfit,
+                ActiveNumber = x.ActiveNumber,
+                DividendPercentage = operation == Tgs.Agent.Client.Models.Enums.AgentOperation.Agent ? 0 : x.DividendPercentage
+            }).ToHashSet();
 
         agent.UpdatedByUsername = command.ModifyUsername;
         agent.UpdatedOn = DateTimeOffset.Now;
