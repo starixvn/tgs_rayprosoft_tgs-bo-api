@@ -92,9 +92,7 @@ internal class SetAgentOneLayerCommandService : IGetService<SetAgentOneLayerComm
 
             var updateAgents = GetChildAgents(command.AgentId, agents);
 
-            _repository.Agents.UpdateRange(updateAgents);
-            _ = await _repository.SaveChangesAsync(cancellationToken)
-            .ConfigureAwait(false);
+            _repository.Agents.UpdateRange(updateAgents);            
 
             var nLevel = await _repository.Agents
                 .Where(x => x.Id == command.AgentId)
