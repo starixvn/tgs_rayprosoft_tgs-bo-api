@@ -91,8 +91,6 @@ internal class SetAgentMultipleLayerCommandService : IGetService<SetAgentMultipl
 
             var updateAgents = GetChildAgents(command.AgentId, agents);
 
-            _repository.Agents.UpdateRange(updateAgents);            
-
             var nLevel = await _repository.Agents
                 .Where(x => x.Id == command.AgentId)
                 .Select(x => x.Path.NLevel)
@@ -104,7 +102,7 @@ internal class SetAgentMultipleLayerCommandService : IGetService<SetAgentMultipl
         }
 
         _repository.Set<AgentDividendCondition>().RemoveRange(agent.AgentDividendConditions);
-        
+
         agent.Path =
             operation == Tgs.Agent.Client.Models.Enums.AgentOperation.Agent
             && !string.IsNullOrEmpty(command.ParentUsername)
@@ -136,7 +134,6 @@ internal class SetAgentMultipleLayerCommandService : IGetService<SetAgentMultipl
         agent.UpdatedByUsername = command.ModifyUsername;
         agent.UpdatedOn = DateTimeOffset.Now;
 
-        _ = _repository.Agents.Update(agent);
         _ = await _repository
             .SaveChangesAsync(cancellationToken)
             .ConfigureAwait(false);
