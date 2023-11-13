@@ -1,10 +1,8 @@
 ﻿using System.Collections.Immutable;
 using NSubstitute;
-using NUnit.Framework;
 using Tgs.Agent.Client;
 using Tgs.Agent.Client.Models;
 using Tgs.CashService.Client;
-using Tgs.Payment.Clients;
 using Tgs.PlayerService.Client;
 using TGS.Core.DataServices.Tgs.Models;
 using TGS.Core.Models.Enums;
@@ -297,7 +295,6 @@ public class AgentReduceAmountQueryServiceTests
                 Arg.Is(command.Remark),
                 Arg.Is(adjustFormId),
                 Arg.Is(command.UserId));
-
     }
 
     [Test]
@@ -372,7 +369,6 @@ public class AgentReduceAmountQueryServiceTests
             fakePlayerService,
             fakeAdjustAgentAccountService,
             fakeAdjustTransferService);
-
 
         var brandId = Guid.NewGuid();
 
@@ -494,7 +490,6 @@ public class AgentReduceAmountQueryServiceTests
                 Arg.Is(command.Remark),
                 Arg.Is(adjustFormId),
                 Arg.Is(command.UserId));
-
     }
 
     [Test]
@@ -669,8 +664,6 @@ public class AgentReduceAmountQueryServiceTests
             {
                 TransactionId = transactionId
             });
-
-
 
         var actual = await sut.GetAsync(command);
 

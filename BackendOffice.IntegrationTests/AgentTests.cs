@@ -9,17 +9,13 @@ using NSubstitute;
 using Tgs.Agent.Client;
 using Tgs.Agent.Client.Models;
 using Tgs.CashService.Client;
-using Tgs.ServiceUtility;
 using TGS.Apis.BackendOffice.ViewModels;
 using TGS.Core.DataServices.Base.Interfaces;
 using TGS.Core.Models.Enums;
 using TGS.Core.Models.Messages;
 using TGS.Services.BackOffice.Application.Models.Agent;
-using TGS.Services.BackOffice.Application.Models.AgentAdjust;
 using TGS.Services.BackOffice.Application.Models.ReportAgent;
-using TGS.Services.BackOffice.ApplicationServices.Agents;
 using TGS.Services.BackOffice.Infrastructure.DataService;
-using Xunit;
 using Xunit.Abstractions;
 using AgentLevelType = Tgs.Agent.Client.Models.Enums.AgentLevelType;
 using AgentOperation = Tgs.Agent.Client.Models.Enums.AgentOperation;
@@ -140,7 +136,6 @@ public class AgentTests
             {
                 TransactionId = transactionId
             });
-
 
         // Act
         var actual = await nodeService.InvokeFromStringAsync<PagedResponse<AgentPlayerWinLossReportModel>>(
