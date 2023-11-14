@@ -6,6 +6,7 @@ using Microsoft.Extensions.Hosting;
 using Tgs.Core.Infrastructures.Security;
 using TGS.Apis.BackendOffice.DataService.Repositories;
 using TGS.Core.DataServices.Base.Interfaces;
+using TGS.Core.DataServices.Tgs;
 using TGS.Core.DataServices.Tgs.Extensions;
 using TGS.Core.DataServices.Tgs.Models;
 using TGS.Core.Infrastructures.Extensions;
@@ -17,9 +18,6 @@ var builder = Host.CreateApplicationBuilder(args);
 {
     _ = builder.Services
         .AddTgsRepository(builder.Configuration, "Tgs")
-        .AddTransient(typeof(ITgsCommands<>), typeof(ITgsCommands<>))
-        .AddTransient(typeof(ITgsQueries<>), typeof(ITgsQueries<>))
-        .AddTransient<ILogQueries, LogQueries>()
         .AddSecurity();
 }
 
@@ -28,7 +26,7 @@ var app = builder.Build();
 await app.StartAsync();
 
 var passwordHandler = app.Services.GetRequiredService<IPasswordHandler>();
-var userCommand = app.Services.GetRequiredService<ITgsCommands<User>>();
+var dbContext = app.Services.GetRequiredService<TgsRepository>();
 
 var (salt, password) = passwordHandler.GenerateCredential(builder.Configuration.GetValue<string>("BO:Pass")!);
 
@@ -48,4 +46,5 @@ var user = new User
     UpdatedOn = DateTimeOffset.UtcNow
 };
 
-await userCommand.CreateAsync(user);
+await dbContext.Users.AddAsync(user);
+await dbContext.SaveChangesAsync();
