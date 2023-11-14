@@ -5,7 +5,6 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
-using System.Transactions;
 using Microsoft.EntityFrameworkCore;
 using Tgs.Agent.Client;
 using Tgs.Agent.Client.Models;
@@ -85,8 +84,6 @@ internal class SetAgentOneLayerCommandService : IGetService<SetAgentOneLayerComm
             .FirstOrDefaultAsync(cancellationToken)
             .ConfigureAwait(false);
 
-        using var scope = new TransactionScope(TransactionScopeAsyncFlowOption.Enabled);
-
         if (!string.IsNullOrEmpty(command.ParentUsername) && agent.ParentAgentId != parentAgent?.Id)
         {
             operation = Tgs.Agent.Client.Models.Enums.AgentOperation.Agent;
@@ -133,8 +130,6 @@ internal class SetAgentOneLayerCommandService : IGetService<SetAgentOneLayerComm
         _ = await _repository
             .SaveChangesAsync(cancellationToken)
             .ConfigureAwait(false);
-
-        scope.Complete();
 
         await _agentClient
             .AddAgentAuditLogAsync(new AddAgentAuditLogRequest(command.AgentId, operation, command.ModifyUsername), cancellationToken)
