@@ -79,6 +79,12 @@ internal class SetAgentOneLayerCommandService : IGetService<SetAgentOneLayerComm
                 return new SetAgentOneLayerResult(false, Application.Resources.Agent.DividendPercentageMustGreaterThanOrEqualToLowerLayer);
         }
 
+        var nLevel = await _repository.Agents
+            .Where(x => x.Id == command.AgentId)
+            .Select(x => x.Path.NLevel)
+            .FirstOrDefaultAsync(cancellationToken)
+            .ConfigureAwait(false);
+
         using var scope = new TransactionScope(TransactionScopeAsyncFlowOption.Enabled);
 
         if (!string.IsNullOrEmpty(command.ParentUsername) && agent.ParentAgentId != parentAgent?.Id)
@@ -91,12 +97,7 @@ internal class SetAgentOneLayerCommandService : IGetService<SetAgentOneLayerComm
                 .ConfigureAwait(false);
 
             var updateAgents = GetChildAgents(command.AgentId, agents);
-
-            var nLevel = await _repository.Agents
-                .Where(x => x.Id == command.AgentId)
-                .Select(x => x.Path.NLevel)
-                .FirstOrDefaultAsync(cancellationToken)
-                .ConfigureAwait(false);
+            _repository.Set<Agent>().UpdateRange(updateAgents);
 
             _ = await UpdateSubAgentsPathAsync(agent, nLevel, parentAgent!)
                 .ConfigureAwait(false);
@@ -126,6 +127,8 @@ internal class SetAgentOneLayerCommandService : IGetService<SetAgentOneLayerComm
 
         agent.UpdatedByUsername = command.ModifyUsername;
         agent.UpdatedOn = DateTimeOffset.Now;
+
+        _repository.Entry(agent).State = EntityState.Modified;
 
         _ = await _repository
             .SaveChangesAsync(cancellationToken)
