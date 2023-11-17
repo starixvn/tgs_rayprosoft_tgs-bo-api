@@ -7,6 +7,7 @@ using System.Threading;
 using System.Threading.Tasks;
 using System.Transactions;
 using Microsoft.EntityFrameworkCore;
+using NATS.Client.Service;
 using Tgs.Agent.Client;
 using Tgs.Agent.Client.Models;
 using Tgs.ServiceUtility;
@@ -41,11 +42,6 @@ internal class SetAgentOneLayerCommandService : IGetService<SetAgentOneLayerComm
         if (agent is null)
             return new SetAgentOneLayerResult(false, Application.Resources.Agent.NotFound);
 
-        var childAgents = await _agentClient
-            .GetChildAgentInfosAsync(new GetChildAgentInfosRequest(command.AgentId), cancellationToken)
-            .ToArrayAsync(cancellationToken)
-            .ConfigureAwait(false);
-
         var parentAgent = await _repository.Agents.AsQueryable()
             .FirstOrDefaultAsync(x => x.BrandId == agent.BrandId && x.Username == command.ParentUsername, cancellationToken)
             .ConfigureAwait(false);
@@ -63,7 +59,10 @@ internal class SetAgentOneLayerCommandService : IGetService<SetAgentOneLayerComm
                 return new SetAgentOneLayerResult(false, Application.Resources.Agent.DividendPercentageMustLessThanOrEqualToUpperLayer);
             }
 
-            if (childAgents.Any(a => a.AgentId == parentAgent.Id))
+            if (await _repository.Agents
+                    .Where(x => x.Id == parentAgent.Id)
+                    .AnyAsync(x => x.Path.MatchesLTxtQuery(agent.Id.ToString("N")), cancellationToken: cancellationToken)
+                    .ConfigureAwait(false))
             {
                 return new SetAgentOneLayerResult(false, Application.Resources.Agent.UnderSubAgentInvalid);
             }
@@ -71,9 +70,10 @@ internal class SetAgentOneLayerCommandService : IGetService<SetAgentOneLayerComm
 
         if (agent.Brand.AgentDividendType == AgentDividendType.OneLayer)
         {
-            var childAgentMaxDividendPercentage = childAgents.Any()
-                ? childAgents.Max(c => c.DividendPercentage)
-                : 0m;
+            var childAgentMaxDividendPercentage = await _repository.Agents
+                .Where(x => x.ParentAgentId == agent.Id)
+                .MaxAsync(x => (decimal?)x.DividendPercentage, cancellationToken)
+                .ConfigureAwait(false) ?? 0M;
 
             if (command.DividendPercentage < childAgentMaxDividendPercentage)
                 return new SetAgentOneLayerResult(false, Application.Resources.Agent.DividendPercentageMustGreaterThanOrEqualToLowerLayer);
