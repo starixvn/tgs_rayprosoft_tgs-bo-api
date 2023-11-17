@@ -5,7 +5,6 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
-using System.Transactions;
 using Microsoft.EntityFrameworkCore;
 using Tgs.Agent.Client;
 using Tgs.Agent.Client.Models;
@@ -78,7 +77,11 @@ internal class SetAgentMultipleLayerCommandService : IGetService<SetAgentMultipl
             }
         }
 
-        using var scope = new TransactionScope(TransactionScopeAsyncFlowOption.Enabled);
+        var nLevel = await _repository.Agents
+                .Where(x => x.Id == command.AgentId)
+                .Select(x => x.Path.NLevel)
+                .FirstOrDefaultAsync(cancellationToken)
+                .ConfigureAwait(false);
 
         if (!string.IsNullOrEmpty(command.ParentUsername) && agent.ParentAgentId != parentAgent?.Id)
         {
@@ -90,25 +93,13 @@ internal class SetAgentMultipleLayerCommandService : IGetService<SetAgentMultipl
                 .ConfigureAwait(false);
 
             var updateAgents = GetChildAgents(command.AgentId, agents);
-
-            _repository.Agents.UpdateRange(updateAgents);
-            _ = await _repository
-                .SaveChangesAsync(cancellationToken)
-                .ConfigureAwait(false);
-
-            var nLevel = await _repository.Agents
-                .Where(x => x.Id == command.AgentId)
-                .Select(x => x.Path.NLevel)
-                .FirstOrDefaultAsync(cancellationToken)
-                .ConfigureAwait(false);
+            _repository.Set<Agent>().UpdateRange(updateAgents);
 
             _ = await UpdateSubAgentsPathAsync(agent, nLevel, parentAgent!)
                 .ConfigureAwait(false);
         }
 
-        await _agentClient
-            .ClearAgentDividendConditionsAsync(agent.Id, cancellationToken)
-            .ConfigureAwait(false);
+        _repository.Set<AgentDividendCondition>().RemoveRange(agent.AgentDividendConditions);
 
         agent.Path =
             operation == Tgs.Agent.Client.Models.Enums.AgentOperation.Agent
@@ -130,23 +121,22 @@ internal class SetAgentMultipleLayerCommandService : IGetService<SetAgentMultipl
             : AgentConfigStatus.DoneForConfigurePercentage;
 
         agent.AgentDividendConditions = command.AgentDividendConditions.Select(x
-                    => new AgentDividendCondition
-                    {
-                        Rank = x.Rank,
-                        NetProfit = x.NetProfit,
-                        ActiveNumber = x.ActiveNumber,
-                        DividendPercentage = operation == Tgs.Agent.Client.Models.Enums.AgentOperation.Agent ? 0 : x.DividendPercentage
-                    }).ToHashSet();
+            => new AgentDividendCondition
+            {
+                Rank = x.Rank,
+                NetProfit = x.NetProfit,
+                ActiveNumber = x.ActiveNumber,
+                DividendPercentage = operation == Tgs.Agent.Client.Models.Enums.AgentOperation.Agent ? 0 : x.DividendPercentage
+            }).ToHashSet();
 
         agent.UpdatedByUsername = command.ModifyUsername;
         agent.UpdatedOn = DateTimeOffset.Now;
 
-        _ = _repository.Agents.Update(agent);
+        _repository.Entry(agent).State = EntityState.Modified;
+
         _ = await _repository
             .SaveChangesAsync(cancellationToken)
             .ConfigureAwait(false);
-
-        scope.Complete();
 
         await _agentClient
             .AddAgentAuditLogAsync(new AddAgentAuditLogRequest(command.AgentId, operation, command.ModifyUsername), cancellationToken)

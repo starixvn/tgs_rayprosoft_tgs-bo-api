@@ -5,7 +5,6 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
-using System.Transactions;
 using Microsoft.EntityFrameworkCore;
 using NATS.Client.Service;
 using Tgs.Agent.Client;
@@ -79,7 +78,11 @@ internal class SetAgentOneLayerCommandService : IGetService<SetAgentOneLayerComm
                 return new SetAgentOneLayerResult(false, Application.Resources.Agent.DividendPercentageMustGreaterThanOrEqualToLowerLayer);
         }
 
-        using var scope = new TransactionScope(TransactionScopeAsyncFlowOption.Enabled);
+        var nLevel = await _repository.Agents
+            .Where(x => x.Id == command.AgentId)
+            .Select(x => x.Path.NLevel)
+            .FirstOrDefaultAsync(cancellationToken)
+            .ConfigureAwait(false);
 
         if (!string.IsNullOrEmpty(command.ParentUsername) && agent.ParentAgentId != parentAgent?.Id)
         {
@@ -91,16 +94,7 @@ internal class SetAgentOneLayerCommandService : IGetService<SetAgentOneLayerComm
                 .ConfigureAwait(false);
 
             var updateAgents = GetChildAgents(command.AgentId, agents);
-
-            _repository.Agents.UpdateRange(updateAgents);
-            _ = await _repository.SaveChangesAsync(cancellationToken)
-            .ConfigureAwait(false);
-
-            var nLevel = await _repository.Agents
-                .Where(x => x.Id == command.AgentId)
-                .Select(x => x.Path.NLevel)
-                .FirstOrDefaultAsync(cancellationToken)
-                .ConfigureAwait(false);
+            _repository.Set<Agent>().UpdateRange(updateAgents);
 
             _ = await UpdateSubAgentsPathAsync(agent, nLevel, parentAgent!)
                 .ConfigureAwait(false);
@@ -131,12 +125,11 @@ internal class SetAgentOneLayerCommandService : IGetService<SetAgentOneLayerComm
         agent.UpdatedByUsername = command.ModifyUsername;
         agent.UpdatedOn = DateTimeOffset.Now;
 
-        _ = _repository.Agents.Update(agent);
+        _repository.Entry(agent).State = EntityState.Modified;
+
         _ = await _repository
             .SaveChangesAsync(cancellationToken)
             .ConfigureAwait(false);
-
-        scope.Complete();
 
         await _agentClient
             .AddAgentAuditLogAsync(new AddAgentAuditLogRequest(command.AgentId, operation, command.ModifyUsername), cancellationToken)
