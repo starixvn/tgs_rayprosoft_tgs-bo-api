@@ -44,7 +44,7 @@ push-docker-image:
     untracked: true   
     policy: pull
   script:
-    - docker build -t "$ImageName:$Tag" --build-arg [BUILD_CONFIGURATION]=$BuildConfiguration -f "BackendOffice/Dockerfile" . --no-cache
+    - docker build -t "$ImageName:$Tag" --build-arg [BuildConfiguration]=$BuildConfiguration -f "BackendOffice/Dockerfile" . --no-cache
     - docker push $ImageName:$Tag
 
 push-k8s-template:
