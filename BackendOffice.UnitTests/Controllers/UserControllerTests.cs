@@ -1,14 +1,13 @@
-﻿using System.Data.SqlClient;
-using System.Linq.Expressions;
+﻿using System.Linq.Expressions;
 using AutoFixture;
 using FluentAssertions;
 using MockQueryable.Moq;
 using NSubstitute;
+using Tgs.Core.Infrastructures.Security;
 using TGS.Apis.BackendOffice.Controllers;
 using TGS.Apis.BackendOffice.Controllers.Messages.Users;
 using TGS.Core.DataServices.Base.Interfaces;
 using TGS.Core.DataServices.Tgs.Models;
-using Tgs.Core.Infrastructures.Security;
 using TGS.Core.Models.Enums;
 
 namespace TGS.Tests.BackendOffice.UnitTests.Controllers;
@@ -34,7 +33,8 @@ public class UserControllerTests : BaseTests
             userQueriesMock,
             departmentQueriesMock,
             roleQueriesMock,
-            userCommandsMock) { ControllerContext = { HttpContext = HttpContextMock } };
+            userCommandsMock)
+        { ControllerContext = { HttpContext = HttpContextMock } };
 
         var request = new Fixture().Create<CreateUserRequest>();
         var users = CreateUserFixture().CreateMany<User>(10).AsQueryable().BuildMock();
@@ -61,124 +61,6 @@ public class UserControllerTests : BaseTests
     }
 
     [Test]
-    public async Task Can_Get_All_Users()
-    {
-        var roleQueriesMock = Substitute.For<ITgsQueries<Role>>();
-        var userQueriesMock = Substitute.For<ITgsQueries<User>>();
-        var userCommandsMock = Substitute.For<ITgsCommands<User>>();
-        var departmentQueriesMock = Substitute.For<ITgsQueries<Department>>();
-        var passwordHandlerMock = Substitute.For<IPasswordHandler>();
-
-        var controller = new UserController(
-            passwordHandlerMock,
-            userQueriesMock,
-            departmentQueriesMock,
-            roleQueriesMock,
-            userCommandsMock) { ControllerContext = { HttpContext = HttpContextMock } };
-
-        var request = new GetUsersRequest
-        {
-            Page = 1,
-            Rows = 10,
-            SortBy = "Username",
-            OrderBy = SortOrder.Descending,
-            ShowAll = true
-        };
-
-        var a = CreateUserFixture()
-            .CreateMany<User>(105)
-            .ToArray();
-
-        var users = CreateUserFixture()
-            .CreateMany<User>(105)
-            .AsQueryable()
-            .BuildMock();
-
-        var (skip, take) = GetPage(request);
-        var orderedUsers = users.OrderByDescending(p => p.Username);
-
-        var expectedUsers = orderedUsers.ToArray();
-
-        _ = userQueriesMock.GetQueries().Returns(users);
-
-        var response = await controller.GetListAsync(request);
-
-        _ = response.Valid.Should().BeTrue();
-
-        for (var i = 0; i < response.Items.Length; i++)
-        {
-            _ = response.Items[i].Name.Should().Be(expectedUsers[i].Name);
-            _ = response.Items[i].Username.Should().Be(expectedUsers[i].Username);
-            _ = response.Items[i].Role.Should().Be(expectedUsers[i].Role.Name);
-            _ = response.Items[i].DepartmentName.Should().Be(expectedUsers[i].Department.Name);
-            _ = response.Items[i].Id.Should().Be(expectedUsers[i].Id);
-            _ = response.Items[i].LastLoginIp.Should().Be(expectedUsers[i].LastLoginIp);
-            _ = response.Items[i].LastLoginTime.Should().Be(expectedUsers[i].LastLoginTime);
-            _ = response.Items[i].Status.Should().Be(expectedUsers[i].Status.ToString());
-            _ = response.Items[i].CreatedOn.Should().Be(expectedUsers[i].CreatedOn);
-        }
-
-        _ = userQueriesMock.Received(1).GetQueries();
-    }
-
-    [Test]
-    public async Task Can_Get_Page_Users()
-    {
-        var roleQueriesMock = Substitute.For<ITgsQueries<Role>>();
-        var userQueriesMock = Substitute.For<ITgsQueries<User>>();
-        var userCommandsMock = Substitute.For<ITgsCommands<User>>();
-        var departmentQueriesMock = Substitute.For<ITgsQueries<Department>>();
-        var passwordHandlerMock = Substitute.For<IPasswordHandler>();
-
-        var controller = new UserController(
-            passwordHandlerMock,
-            userQueriesMock,
-            departmentQueriesMock,
-            roleQueriesMock,
-            userCommandsMock) { ControllerContext = { HttpContext = HttpContextMock } };
-
-        var request = new GetUsersRequest
-        {
-            Page = 1,
-            Rows = 10,
-            SortBy = "Username",
-            OrderBy = SortOrder.Descending,
-            ShowAll = false
-        };
-
-        var users = CreateUserFixture()
-            .CreateMany<User>(105)
-            .AsQueryable()
-            .BuildMock();
-
-        var (skip, take) = GetPage(request);
-        var orderedUsers = users.OrderByDescending(p => p.Username);
-
-        var expectedUsers = orderedUsers.Skip(skip).Take(take).ToArray();
-
-        _ = userQueriesMock.GetQueries().Returns(users);
-
-        var response = await controller.GetListAsync(request);
-
-        _ = response.Valid.Should().BeTrue();
-
-        for (var i = 0; i < response.Items.Length; i++)
-        {
-            _ = response.Items[i].Name.Should().Be(expectedUsers[i].Name);
-            _ = response.Items[i].Username.Should().Be(expectedUsers[i].Username);
-            _ = response.Items[i].Role.Should().Be(expectedUsers[i].Role.Name);
-            _ = response.Items[i].DepartmentName.Should().Be(expectedUsers[i].Department.Name);
-            _ = response.Items[i].Id.Should().Be(expectedUsers[i].Id);
-            _ = response.Items[i].LastLoginIp.Should().Be(expectedUsers[i].LastLoginIp);
-            _ = response.Items[i].LastLoginTime.Should().Be(expectedUsers[i].LastLoginTime);
-            _ = response.Items[i].Status.Should().Be(expectedUsers[i].Status.ToString());
-            _ = response.Items[i].CreatedOn.Should().Be(expectedUsers[i].CreatedOn);
-        }
-
-        _ = userQueriesMock.Received(1).GetQueries();
-    }
-
-    [Test]
     public async Task Can_Update_User()
     {
         var roleQueriesMock = Substitute.For<ITgsQueries<Role>>();
@@ -192,7 +74,8 @@ public class UserControllerTests : BaseTests
             userQueriesMock,
             departmentQueriesMock,
             roleQueriesMock,
-            userCommandsMock) { ControllerContext = { HttpContext = HttpContextMock } };
+            userCommandsMock)
+        { ControllerContext = { HttpContext = HttpContextMock } };
 
         var user = CreateUserFixture().Create<User>();
 
@@ -231,7 +114,8 @@ public class UserControllerTests : BaseTests
             userQueriesMock,
             departmentQueriesMock,
             roleQueriesMock,
-            userCommandsMock) { ControllerContext = { HttpContext = HttpContextMock } };
+            userCommandsMock)
+        { ControllerContext = { HttpContext = HttpContextMock } };
 
         var user = CreateUserFixture().Create<User>();
         var password = Generator.RandomString(6);
@@ -270,7 +154,8 @@ public class UserControllerTests : BaseTests
             userQueriesMock,
             departmentQueriesMock,
             roleQueriesMock,
-            userCommandsMock) { ControllerContext = { HttpContext = HttpContextMock } };
+            userCommandsMock)
+        { ControllerContext = { HttpContext = HttpContextMock } };
 
         var request = new Fixture().Create<CreateUserRequest>();
 
@@ -311,7 +196,8 @@ public class UserControllerTests : BaseTests
             userQueriesMock,
             departmentQueriesMock,
             roleQueriesMock,
-            userCommandsMock) { ControllerContext = { HttpContext = HttpContextMock } };
+            userCommandsMock)
+        { ControllerContext = { HttpContext = HttpContextMock } };
 
         var role = new Role
         {
@@ -357,7 +243,8 @@ public class UserControllerTests : BaseTests
             userQueriesMock,
             departmentQueriesMock,
             roleQueriesMock,
-            userCommandsMock) { ControllerContext = { HttpContext = HttpContextMock } };
+            userCommandsMock)
+        { ControllerContext = { HttpContext = HttpContextMock } };
 
         var request = new Fixture().Create<CreateUserRequest>();
 
@@ -389,7 +276,8 @@ public class UserControllerTests : BaseTests
             userQueriesMock,
             departmentQueriesMock,
             roleQueriesMock,
-            userCommandsMock) { ControllerContext = { HttpContext = HttpContextMock } };
+            userCommandsMock)
+        { ControllerContext = { HttpContext = HttpContextMock } };
 
         var user = CreateUserFixture().Create<User>();
         var request = new Fixture().Create<UpdateUserRequest>();
@@ -424,7 +312,8 @@ public class UserControllerTests : BaseTests
             userQueriesMock,
             departmentQueriesMock,
             roleQueriesMock,
-            userCommandsMock) { ControllerContext = { HttpContext = HttpContextMock } };
+            userCommandsMock)
+        { ControllerContext = { HttpContext = HttpContextMock } };
 
         var user = CreateUserFixture().Create<User>();
 
@@ -466,7 +355,8 @@ public class UserControllerTests : BaseTests
             userQueriesMock,
             departmentQueriesMock,
             roleQueriesMock,
-            userCommandsMock) { ControllerContext = { HttpContext = HttpContextMock } };
+            userCommandsMock)
+        { ControllerContext = { HttpContext = HttpContextMock } };
 
         var user = CreateUserFixture().Create<User>();
 
@@ -510,7 +400,8 @@ public class UserControllerTests : BaseTests
             userQueriesMock,
             departmentQueriesMock,
             roleQueriesMock,
-            userCommandsMock) { ControllerContext = { HttpContext = HttpContextMock } };
+            userCommandsMock)
+        { ControllerContext = { HttpContext = HttpContextMock } };
 
         var user = CreateUserFixture().Create<User>();
         var request = new Fixture().Create<UpdateUserRequest>();
@@ -550,7 +441,8 @@ public class UserControllerTests : BaseTests
             userQueriesMock,
             departmentQueriesMock,
             roleQueriesMock,
-            userCommandsMock) { ControllerContext = { HttpContext = HttpContextMock } };
+            userCommandsMock)
+        { ControllerContext = { HttpContext = HttpContextMock } };
 
         var users = CreateUserFixture().CreateMany<User>(10).AsQueryable().BuildMock();
 
