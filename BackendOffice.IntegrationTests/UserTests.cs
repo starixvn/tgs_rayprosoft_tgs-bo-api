@@ -148,12 +148,12 @@ public class UserTests
         var expected = new UserModel[]
         {
             new() {
-                CreatedOn = new DateTimeOffset(now,TimeSpan.FromHours(8d)),
+                CreatedOn = new DateTimeOffset(now),
                 DepartmentId = departmentId,
                 Id = id,
                 DepartmentName = departmentName,
                 LastLoginIp = "127.0.0.1",
-                LastLoginTime = new DateTimeOffset(now,TimeSpan.FromHours(8d)),
+                LastLoginTime = new DateTimeOffset(now),
                 LicenseeId = licenseeId,
                 BrandId = brandId,
                 Name = "name",
