@@ -13,7 +13,7 @@ export default class BackOfficeService {
 
     // #endregion Constructors (1)
 
-    // #region Public Methods (105)
+    // #region Public Methods (107)
 
     public addAgentDomain(brandId: string, agentId: string, domain: string): Promise<void> {
         return this.http
@@ -57,8 +57,6 @@ export default class BackOfficeService {
             .delete(`/api/player/bucket/${playerCode}`)
             .then(res => res.data);
     }
-
-
 
     public createBrand(
         request: CreateBrandRequest): Promise<MessageResponse> {
@@ -635,6 +633,21 @@ export default class BackOfficeService {
             .then(res => res.data);
     }
 
+    public getUserList(
+        request: GetUsersRequest,
+        pageableRequest: PageableRequest): Promise<PagedResponse<UserModel>> {
+        return this.http
+            .get(
+                `/api/users`,
+                {
+                    params: {
+                        ...request,
+                        ...pageableRequest
+                    }
+                })
+            .then(res => res.data);
+    }
+
     public getVipAdjustInfos(
         playerCode: string,
         brandId: string,
@@ -697,6 +710,17 @@ export default class BackOfficeService {
                         "Content-Length": formData.getLengthSync()
                     }
                 })
+            .then(res => res.data);
+    }
+
+    public increaseAgentAmount(
+        walletId: string,
+        request: CreateAgentIncreaseAmountRequest
+    ): Promise<MessageResponse> {
+        return this.http
+            .post(
+                `/api/agent/${walletId}/adjust/increase`,
+                request)
             .then(res => res.data);
     }
 
@@ -831,6 +855,16 @@ export default class BackOfficeService {
                         rows
                     }
                 })
+            .then(res => res.data);
+    }
+
+    public reduceAgentAmount(
+        walleId: string,
+        request: CreateAgentReduceAmountRequest): Promise<MessageResponse> {
+        return this.http
+            .post(
+                `api/Agent/${walleId}/adjust/reduce`,
+                request)
             .then(res => res.data);
     }
 
@@ -1097,26 +1131,5 @@ export default class BackOfficeService {
             .then(res => res.data);
     }
 
-    public reduceAgentAmount(
-        walleId: string,
-        request: CreateAgentReduceAmountRequest): Promise<MessageResponse> {
-        return this.http
-            .post(
-                `api/Agent/${walleId}/adjust/reduce`,
-                request)
-            .then(res => res.data);
-    }
-
-    public increaseAgentAmount(
-        walletId: string,
-        request: CreateAgentIncreaseAmountRequest
-    ): Promise<MessageResponse> {
-        return this.http
-            .post(
-                `/api/agent/${walletId}/adjust/increase`,
-                request)
-            .then(res => res.data);
-    }
-
-    // #endregion Public Methods (105)
+    // #endregion Public Methods (107)
 }

@@ -5,6 +5,8 @@ using System.Threading.Tasks;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using Tgs.Core.Infrastructures.Security;
+using Tgs.Paging;
+using Tgs.ServiceUtility;
 using TGS.Apis.BackendOffice.Controllers.Messages.Users;
 using TGS.Core.DataServices.Base.Extensions;
 using TGS.Core.DataServices.Base.Interfaces;
@@ -12,6 +14,8 @@ using TGS.Core.DataServices.Tgs.Models;
 using TGS.Core.Infrastructures.Extensions;
 using TGS.Core.Models.Enums;
 using TGS.Core.Models.Messages;
+using TGS.Services.BackOffice.ApplicationServices;
+using TGS.Services.BackOffice.Domain;
 
 namespace TGS.Apis.BackendOffice.Controllers;
 
@@ -92,33 +96,68 @@ public class UserController : BaseContextController
         return CreateValidResponse<MessageResponse>();
     }
 
-    [Route("")]
-    [HttpGet]
+    [HttpGet(Name = "GetUserList")]
     [Description("Get users")]
-    public Task<PagedResponse<UserModel>> GetListAsync([FromQuery] GetUsersRequest request) =>
-        _userQueries.GetQueries()
-            .Where(ResellerId, r => r.Role.ResellerId == ResellerId)
-            .Where(LicenseeId, l => l.Role.LicenseeId == LicenseeId)
-            .Where(BrandId, l => l.Role.BrandId == BrandId)
-            .Where(request.Username, p => EF.Functions.ILike(p.Username, $"%{request.Username}%"))
-            .Select(user => new UserModel
+    public async Task<PagedResponse<UserModel>> GetUserListAsync(
+        [FromServices] IGetService<GetUsersQuery, int> countService,
+        [FromServices] IQueryService<GetUsersQuery, UserInfo> queryService,
+        [FromQuery] GetUsersRequest request,
+        [FromQuery] PageableRequest pageableRequest)
+    {
+        var paging = new Paging<UserInfo>
+        {
+            RowCount = pageableRequest.Rows,
+            Page = pageableRequest.Page,
+        };
+
+        paging.SortByPropertyName(
+            string.IsNullOrWhiteSpace(pageableRequest.SortBy)
+                ? nameof(UserInfo.Username)
+                : pageableRequest.SortBy,
+            pageableRequest.IsDesc);
+
+        var query = new GetUsersQuery(
+            ResellerId,
+            LicenseeId,
+            BrandId,
+            request.Username,
+            request.DepartmentName,
+            request.Role,
+            paging);
+
+        var totalCount = await countService
+            .GetAsync(query, HttpContext.RequestAborted)
+            .ConfigureAwait(false);
+
+        var items = await queryService
+            .QueryAsync(query, HttpContext.RequestAborted)
+            .Select(u => new UserModel
             {
-                Id = user.Id,
-                Username = user.Username,
-                Name = user.Name,
-                RoleId = user.RoleId,
-                ResellerId = user.Role.ResellerId,
-                LicenseeId = user.Role.LicenseeId,
-                BrandId = user.Role.BrandId,
-                DepartmentId = user.DepartmentId,
-                Role = user.Role.Name,
-                DepartmentName = user.Department.Name,
-                LastLoginIp = user.LastLoginIp,
-                LastLoginTime = user.LastLoginTime,
-                Status = user.Status.ToString(),
-                CreatedOn = user.CreatedOn
+                Id = u.Id,
+                Username = u.Username,
+                Name = u.Name,
+                RoleId = u.RoleId,
+                ResellerId = u.ResellerId,
+                LicenseeId = u.LicenseeId,
+                BrandId = u.BrandId,
+                DepartmentId = u.DepartmentId,
+                DepartmentName = u.DepartmentName,
+                Role = u.RoleName,
+                LastLoginIp = u.LastLoginIp,
+                LastLoginTime = u.LastLoginTime,
+                Status = u.Status,
+                CreatedOn = u.CreatedOn,
             })
-            .CreatePagedResponseAsync(request);
+            .ToArrayAsync(HttpContext.RequestAborted)
+            .ConfigureAwait(false);
+
+        return new PagedResponse<UserModel>
+        {
+            Valid = true,
+            TotalCount = totalCount,
+            Items = items
+        };
+    }
 
     [HttpPut("{userId}")]
     [Description("Update a user")]
