@@ -36,6 +36,7 @@ public class UserTests
             "",
             "",
             "",
+            "",
             paging);
 
         _ = fakeQueries
@@ -97,6 +98,7 @@ public class UserTests
             resellerId,
             licenseeId,
             brandId,
+            "",
             "",
             "",
             "",

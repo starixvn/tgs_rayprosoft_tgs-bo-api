@@ -1,4 +1,5 @@
-﻿using TGS.Core.Models.Messages;
+﻿using TGS.Core.Models.Enums;
+using TGS.Core.Models.Messages;
 
 namespace TGS.Apis.BackendOffice.Controllers.Messages.Users;
 
@@ -9,4 +10,6 @@ public class GetUsersRequest
     public string DepartmentName { get; set; }
 
     public string Role { get; set; }
+
+    public string Status { get; set; }
 }
