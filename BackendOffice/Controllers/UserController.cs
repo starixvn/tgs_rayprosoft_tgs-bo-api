@@ -123,6 +123,7 @@ public class UserController : BaseContextController
             request.Username,
             request.DepartmentName,
             request.Role,
+            request.Status,
             paging);
 
         var totalCount = await countService

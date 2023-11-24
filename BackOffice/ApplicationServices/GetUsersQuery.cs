@@ -10,4 +10,5 @@ public record GetUsersQuery(
     string Username,
     string DepartmentName,
     string RoleName,
+    string Status,
     Paging<UserInfo> Paging);
