@@ -91,6 +91,11 @@ internal class SetPlayerContactCommandService : IGetService<SetPlayerContactComm
                 }
 
                 modifyDict.Add(Enum.Parse<PlayerPropertyName>(item.Key, true), item.Value);
+
+                if (item.Key.Equals("email", StringComparison.OrdinalIgnoreCase) && string.IsNullOrEmpty(item.Value))
+                {
+                    modifyDict[PlayerPropertyName.Email] = null;
+                }
             }
         }
 
