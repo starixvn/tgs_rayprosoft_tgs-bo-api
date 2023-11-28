@@ -337,7 +337,7 @@ public class AgentTests
 
         _ = fakeAgentClient
             .Received(1)
-            .SetAgentPayPasswordAsync(Arg.Is(new SetAgentPayPasswordRequest(agentId, newPayPassword)), Arg.Any<CancellationToken>());
+            .SetAgentPayPasswordAsync(Arg.Is(new SetAgentPayPasswordRequest(agentId, newPayPassword, userId.ToString())), Arg.Any<CancellationToken>());
 
         _ = fakeAgentClient
             .Received(1)

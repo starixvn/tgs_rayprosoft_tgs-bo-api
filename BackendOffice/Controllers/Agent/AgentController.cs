@@ -197,7 +197,7 @@ public partial class AgentController : BaseContextController
         UpdateAgentPayPasswordRequest request)
     {
         await commandService
-            .ExecuteAsync(new UpdateAgentPayPasswordCommand(request.AgentId, request.PayPassword, Username))
+            .ExecuteAsync(new UpdateAgentPayPasswordCommand(request.AgentId, request.PayPassword, Username, UserId))
             .ConfigureAwait(false);
 
         return CreateValidResponse<MessageResponse>();

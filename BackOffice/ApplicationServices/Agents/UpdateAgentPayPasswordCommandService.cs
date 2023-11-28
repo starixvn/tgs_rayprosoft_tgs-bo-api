@@ -20,7 +20,7 @@ internal class UpdateAgentPayPasswordCommandService : ICommandService<UpdateAgen
     public async ValueTask ExecuteAsync(UpdateAgentPayPasswordCommand command, CancellationToken cancellationToken = default)
     {
         await _agentClient
-            .SetAgentPayPasswordAsync(new SetAgentPayPasswordRequest(command.AgentId, command.PayPassword), cancellationToken)
+            .SetAgentPayPasswordAsync(new SetAgentPayPasswordRequest(command.AgentId, command.PayPassword, command.EditUserId), cancellationToken)
             .ConfigureAwait(false);
 
         await _agentClient
