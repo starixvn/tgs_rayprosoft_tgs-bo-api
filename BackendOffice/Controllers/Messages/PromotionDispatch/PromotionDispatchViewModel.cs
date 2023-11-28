@@ -2,7 +2,7 @@
 
 namespace TGS.Apis.BackendOffice.Controllers.Messages.PromotionDispatch;
 
-public class PromotionDispatchModel
+public class PromotionDispatchViewModel
 {
     public decimal BonusAmount { get; set; }
 
