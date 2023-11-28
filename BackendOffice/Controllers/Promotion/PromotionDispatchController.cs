@@ -5,7 +5,9 @@ using System.Threading.Tasks;
 using Microsoft.AspNetCore.Mvc;
 using Tgs.Promotion.Clients;
 using TGS.Apis.BackendOffice.Controllers.Messages.PromotionDispatch;
-using TGS.Core.Models.Messages;
+using Tgs.Promotion.Clients.Models;
+using Tgs.Promotion.Clients.Models.PromotionDispatch;
+using MessageResponse = TGS.Core.Models.Messages.MessageResponse;
 
 namespace TGS.Apis.BackendOffice.Controllers.Promotion;
 
@@ -14,40 +16,54 @@ namespace TGS.Apis.BackendOffice.Controllers.Promotion;
 public class PromotionDispatchController : BaseContextController
 {
     private readonly IPromotionDispatchClient _client;
+    private readonly IPromotionServiceClient _promotionServiceClient;
 
-    public PromotionDispatchController(IPromotionDispatchClient client)
+    public PromotionDispatchController(IPromotionDispatchClient client, IPromotionServiceClient promotionServiceClient)
     {
         _client = client;
+        _promotionServiceClient = promotionServiceClient;
     }
 
     [HttpPost(Name = "DispatchPromotions")]
     [Description("Dispatch promotion")]
     public async Task<MessageResponse> DispatchPromotionsAsync(
-        [FromBody] DispatchPromotionBonusRequest request)
+        [FromBody] DispatchPromotionBonusViewRequest request)
     {
         request.OperatorUserId = Guid.Parse(UserId);
-
-        var promotionRequest = new Tgs.Promotion.Clients.Models.PromotionDispatch.DispatchPromotionBonusRequest
+        
+        var distributeRequest = new DistributePromotionBonusRequest
         {
-            OperatorUserId = Guid.Parse(UserId),
-            Players = request.Players.Select(x => new Tgs.Promotion.Clients.Models.PromotionDispatch.DispatchPlayer
+            Distributor = Username,
+            Players = request.Players.Select(x => new DistributePlayer
             {
                 PromotionBonusId = x.PromotionBonusId,
                 PlayerCode = x.PlayerCode
             }).ToArray()
         };
 
-        var response = await _client.DispatchPromotionAsync(promotionRequest);
+        await _promotionServiceClient.DistributePromotionBonusManuallyAsync(distributeRequest);
+
+        var dispatchRequest = new DispatchPromotionBonusRequest
+        {
+            OperatorUserId = Guid.Parse(UserId),
+            Players = request.Players.Select(x => new DispatchPlayer
+            {
+                PromotionBonusId = x.PromotionBonusId,
+                PlayerCode = x.PlayerCode
+            }).ToArray()
+        };
+
+        var response = await _client.DispatchPromotionAsync(dispatchRequest);
 
         return new MessageResponse { Valid = response.Valid, Message = response.Message };
     }
 
     [HttpGet(Name = "GetPromotionDispatches")]
     [Description("Get promotion dispatches")]
-    public async Task<PagedResponse<PromotionDispatchModel>> GetPromotionDispatchesAsync(
-        [FromQuery] GetPromotionDispatchesRequest request)
+    public async Task<Core.Models.Messages.PagedResponse<PromotionDispatchViewModel>> GetPromotionDispatchesAsync(
+        [FromQuery] GetPromotionDispatchesViewRequest request)
     {
-        var promotionRequest = new Tgs.Promotion.Clients.Models.PromotionDispatch.GetPromotionDispatchesRequest
+        var promotionRequest = new GetPromotionDispatchesRequest
         {
             BrandId = request.BrandId,
             PromotionGroup = request.PromotionGroup,
@@ -64,12 +80,12 @@ public class PromotionDispatchController : BaseContextController
 
         var response = await _client.GetPromotionDispatchesAsync(promotionRequest);
 
-        return new PagedResponse<PromotionDispatchModel>
+        return new Core.Models.Messages.PagedResponse<PromotionDispatchViewModel>
         {
             Valid = response.Valid,
             Message = response.Message,
             TotalCount = response.TotalCount,
-            Items = response.Items.Select(x => new PromotionDispatchModel
+            Items = response.Items.Select(x => new PromotionDispatchViewModel
             {
                 PlayerCode = x.PlayerCode,
                 Username = x.Username,

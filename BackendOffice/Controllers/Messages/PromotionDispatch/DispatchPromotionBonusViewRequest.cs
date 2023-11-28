@@ -2,14 +2,14 @@
 
 namespace TGS.Apis.BackendOffice.Controllers.Messages.PromotionDispatch;
 
-public class DispatchPromotionBonusRequest
+public class DispatchPromotionBonusViewRequest
 {
     public Guid OperatorUserId { get; set; }
 
-    public DispatchPlayer[] Players { get; set; }
+    public DispatchPlayerView[] Players { get; set; }
 }
 
-public class DispatchPlayer
+public class DispatchPlayerView
 {
     public string PlayerCode { get; set; }
 

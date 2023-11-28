@@ -3,7 +3,7 @@ using TGS.Core.Models.Messages;
 
 namespace TGS.Apis.BackendOffice.Controllers.Messages.PromotionDispatch;
 
-public class GetPromotionDispatchesRequest : PageableRequest
+public class GetPromotionDispatchesViewRequest : PageableRequest
 {
     public Guid BrandId { get; set; }
 
