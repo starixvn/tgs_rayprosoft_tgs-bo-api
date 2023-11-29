@@ -13,7 +13,7 @@ export default class BackOfficeService {
 
     // #endregion Constructors (1)
 
-    // #region Public Methods (107)
+    // #region Public Methods (108)
 
     public addAgentDomain(brandId: string, agentId: string, domain: string): Promise<void> {
         return this.http
@@ -444,6 +444,21 @@ export default class BackOfficeService {
                         operator,
                         page,
                         rows
+                    }
+                })
+            .then(res => res.data);
+    }
+
+    public getDepartmentList(
+        request: GetDepartmentsRequest,
+        pageableRequest: PageableRequest): Promise<PagedResponse<DepartmentModel>> {
+        return this.http
+            .get(
+                `/api/department`,
+                {
+                    params: {
+                        ...request,
+                        ...pageableRequest
                     }
                 })
             .then(res => res.data);
@@ -1131,5 +1146,5 @@ export default class BackOfficeService {
             .then(res => res.data);
     }
 
-    // #endregion Public Methods (107)
+    // #endregion Public Methods (108)
 }

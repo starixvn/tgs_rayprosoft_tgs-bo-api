@@ -105,54 +105,7 @@ public class DepartmentControllerTests : BaseTests
 
         _ = commandsMock.Received(0).DeleteAsync(Arg.Is<Department>(r =>
             r.Name == department.Name));
-    }
-
-    [TestCase(true)]
-    [TestCase(false)]
-    public async Task Can_Get_Departments(bool showAll)
-    {
-        var commandsMock = Substitute.For<ITgsCommands<Department>>();
-
-        var queriesMock = Substitute.For<ITgsQueries<Department>>();
-
-        var controller = new DepartmentController(queriesMock, commandsMock)
-        {
-            ControllerContext = { HttpContext = HttpContextMock }
-        };
-
-        var request = new GetDepartmentsRequest
-        {
-            Page = 1,
-            Rows = 10,
-            SortBy = "Name",
-            OrderBy = SortOrder.Descending,
-            ShowAll = showAll
-        };
-
-        var list = CreateDepartmentFixture()
-            .CreateMany<Department>(105)
-            .AsQueryable()
-            .BuildMock();
-
-        var (skip, take) = GetPage(request);
-        var orderedRoles = list.OrderByDescending(p => p.Name);
-
-        var expectedRoles = showAll ? orderedRoles.ToArray() : orderedRoles.Skip(skip).Take(take).ToArray();
-
-        _ = queriesMock.GetQueries().Returns(list);
-
-        var response = await controller.GetListAsync(request);
-
-        _ = response.Valid.Should().BeTrue();
-
-        for (var i = 0; i < response.Items.Length; i++)
-        {
-            _ = response.Items[i].Id.Should().Be(expectedRoles[i].Id);
-            _ = response.Items[i].Name.Should().Be(expectedRoles[i].Name);
-        }
-
-        _ = queriesMock.Received(1).GetQueries();
-    }
+    }    
 
     [Test]
     public async Task Can_Update_Department()

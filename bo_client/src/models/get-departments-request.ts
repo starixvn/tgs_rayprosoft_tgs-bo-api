@@ -1,0 +1,3 @@
+interface GetDepartmentsRequest{
+    name: string;
+}

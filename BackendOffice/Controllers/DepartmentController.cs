@@ -4,12 +4,16 @@ using System.Linq;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
+using Tgs.Paging;
+using Tgs.ServiceUtility;
 using TGS.Apis.BackendOffice.Controllers.Messages.Department;
+using TGS.Apis.BackendOffice.Controllers.Messages.Users;
 using TGS.Core.DataServices.Base.Extensions;
 using TGS.Core.DataServices.Base.Interfaces;
 using TGS.Core.DataServices.Tgs.Models;
 using TGS.Core.Infrastructures.Extensions;
 using TGS.Core.Models.Messages;
+using TGS.Services.BackOffice.ApplicationServices;
 
 namespace TGS.Apis.BackendOffice.Controllers;
 
@@ -80,28 +84,60 @@ public class DepartmentController : BaseContextController
         return CreateValidResponse<MessageResponse>();
     }
 
-    [HttpGet]
+    [HttpGet(Name = "GetDepartmentList")]
     [Description("Get departments")]
-    public Task<PagedResponse<DepartmentModel>> GetListAsync([FromQuery] GetDepartmentsRequest request) =>
-        _queries.GetQueries()
-            .Where(request.ResellerId, r => r.ResellerId == request.ResellerId)
-            .Where(request.LicenseeId, l => l.LicenseeId == request.LicenseeId)
-            .Where(request.BrandId, l => l.BrandId == request.BrandId)
-            .Where(ResellerId != null, r => r.ResellerId == ResellerId)
-            .Where(LicenseeId != null, l => l.LicenseeId == LicenseeId)
-            .Where(BrandId != null, l => l.BrandId == BrandId)
+    public async Task<PagedResponse<DepartmentModel>> GetDepartmentListAsync(
+        [FromServices] IGetService<GetDepartmentsQuery, int> countService,
+        [FromServices] IQueryService<GetDepartmentsQuery, DepartmentInfo> queryService,
+        [FromQuery] GetDepartmentsRequest request,
+        [FromQuery] PageableRequest pageableRequest)
+    {
+        var paging = new Paging<DepartmentInfo>
+        {
+            RowCount = pageableRequest.Rows,
+            Page = pageableRequest.Page,
+        };
+
+        paging.SortByPropertyName(
+            string.IsNullOrWhiteSpace(pageableRequest.SortBy)
+                ? nameof(DepartmentInfo.Name)
+                : pageableRequest.SortBy,
+            pageableRequest.IsDesc);
+
+        var query = new GetDepartmentsQuery(
+            ResellerId,
+            LicenseeId,
+            BrandId,
+            request.Name,
+            paging);
+
+        var totalCount = await countService
+            .GetAsync(query, HttpContext.RequestAborted)
+            .ConfigureAwait(false);
+
+        var items = await queryService
+            .QueryAsync(query, HttpContext.RequestAborted)
             .Select(d => new DepartmentModel
             {
                 Id = d.Id,
                 ResellerId = d.ResellerId,
                 LicenseeId = d.LicenseeId,
                 BrandId = d.BrandId,
-                ResellerName = d.Reseller.Name,
-                LicenseeName = d.Licensee.Name,
-                BrandName = d.Brand.Name,
-                Name = d.Name
+                ResellerName = d.ResellerName,
+                LicenseeName = d.LicenseeName,
+                BrandName = d.BrandName,
+                Name = d.Name,
             })
-            .CreatePagedResponseAsync(request);
+            .ToArrayAsync(HttpContext.RequestAborted)
+            .ConfigureAwait(false);
+
+        return new PagedResponse<DepartmentModel>
+        {
+            Valid = true,
+            TotalCount = totalCount,
+            Items = items
+        };
+    }
 
     [HttpPut("{id}")]
     [Description("Update a department")]

@@ -38,7 +38,7 @@ internal class GetUsersQueryService : IQueryService<GetUsersQuery, UserInfo>,
 
     private IAsyncEnumerable<UserInfo> MakeDataSourceAsync(GetUsersQuery query)
     {
-        Enum.TryParse<UserStatus>(query.Status, out var userStatus);
+        _ = Enum.TryParse<UserStatus>(query.Status, out var userStatus);
 
         var usersQuery = _userQueries.GetQueries()
             .Where(query.ResellerId, user => user.Role.ResellerId == query.ResellerId)
