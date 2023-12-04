@@ -1,14 +1,9 @@
-﻿using MediatR;
-using NSubstitute;
-using Tgs.Agent.Client;
-using Tgs.Agent.Client.Models;
-using TGS.Apis.BackendOffice.Controllers.Agent;
-using TGS.Apis.BackendOffice.Controllers.Messages.PromotionDispatch;
-using Tgs.Report.Client;
+﻿using NSubstitute;
 using Tgs.Promotion.Clients;
-using TGS.Apis.BackendOffice.Controllers.Promotion;
 using Tgs.Promotion.Clients.Models;
 using Tgs.Promotion.Clients.Models.PromotionDispatch;
+using TGS.Apis.BackendOffice.Controllers.Messages.PromotionDispatch;
+using TGS.Apis.BackendOffice.Controllers.Promotion;
 
 namespace TGS.Tests.BackendOffice.UnitTests.Controllers;
 
@@ -37,7 +32,7 @@ public class PromotionDispatchControllerTests : BaseTests
 
         _ = await fakePromotionDispatchClient
             .ReceivedWithAnyArgs(1)
-            .GetPromotionDispatchesAsync(null);
+            .GetPromotionDispatchesAsync(null!);
     }
 
     [Test]
@@ -73,11 +68,11 @@ public class PromotionDispatchControllerTests : BaseTests
 
         _ = await fakePromotionDispatchClient
             .ReceivedWithAnyArgs(1)
-            .DispatchPromotionAsync(null);
+            .DispatchPromotionAsync(null!);
 
         await fakePromotionServiceClient
             .ReceivedWithAnyArgs(1)
-            .DistributePromotionBonusManuallyAsync(null);
+            .DistributePromotionBonusManuallyAsync(null!);
     }
 
     [SetUp]
