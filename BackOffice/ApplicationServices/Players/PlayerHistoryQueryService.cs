@@ -7,14 +7,9 @@ using TGS.Services.BackOffice.Domain;
 
 namespace TGS.Services.BackOffice.ApplicationServices.Players;
 
-internal class PlayerHistoryQueryService : IGetService<PlayerHistoryQuery, PlayerHistoryEventInfo>
+internal class PlayerHistoryQueryService(IPlayerServiceClient playerServiceClient) : IGetService<PlayerHistoryQuery, PlayerHistoryEventInfo>
 {
-    private readonly IPlayerServiceClient _playerServiceClient;
-
-    public PlayerHistoryQueryService(IPlayerServiceClient playerServiceClient)
-    {
-        _playerServiceClient = playerServiceClient ?? throw new ArgumentNullException(nameof(playerServiceClient));
-    }
+    private readonly IPlayerServiceClient _playerServiceClient = playerServiceClient ?? throw new ArgumentNullException(nameof(playerServiceClient));
 
     public async ValueTask<PlayerHistoryEventInfo> GetAsync(PlayerHistoryQuery query, CancellationToken cancellationToken = default)
     {

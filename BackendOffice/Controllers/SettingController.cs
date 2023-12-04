@@ -16,27 +16,16 @@ namespace TGS.Apis.BackendOffice.Controllers;
 
 [Route("api/[controller]")]
 [ApiController]
-public class SettingController : BaseContextController
+public class SettingController(
+    ITgsQueries<Setting> queries,
+    ITgsCommands<Setting> commands,
+    IRedisCacheManager cacheManager) : BaseContextController
 {
-    private readonly IRedisCacheManager _cacheManager;
-    private readonly ITgsCommands<Setting> _commands;
-    private readonly ITgsQueries<Setting> _queries;
-
-    public SettingController(
-        ITgsQueries<Setting> queries,
-        ITgsCommands<Setting> commands,
-        IRedisCacheManager cacheManager)
-    {
-        _queries = queries;
-        _commands = commands;
-        _cacheManager = cacheManager;
-    }
-
     [HttpPost("")]
     [Description("Create a setting")]
     public async Task<MessageResponse> CreateAsync([FromBody] CreateSettingRequest request)
     {
-        var settingExisted = await _queries.GetSingleAsync(p => p.Key == request.Key);
+        var settingExisted = await queries.GetSingleAsync(p => p.Key == request.Key);
         if (settingExisted != null)
         {
             return CreateInvalidResponse<MessageResponse>(Resources.Setting.KeyExists);
@@ -53,7 +42,7 @@ public class SettingController : BaseContextController
             UpdatedByUsername = Username
         };
 
-        await _commands.CreateAsync(setting);
+        await commands.CreateAsync(setting);
         return CreateValidResponse<MessageResponse>();
     }
 
@@ -62,13 +51,13 @@ public class SettingController : BaseContextController
     [Description("Delete setting by key")]
     public async Task<MessageResponse> DeleteAsync(string key)
     {
-        var setting = await _queries.GetSingleAsync(p => p.Key == key);
+        var setting = await queries.GetSingleAsync(p => p.Key == key);
         if (setting == null)
         {
             return CreateInvalidResponse<MessageResponse>(Common.NotFound);
         }
 
-        await _commands.DeleteAsync(setting);
+        await commands.DeleteAsync(setting);
         return CreateValidResponse<MessageResponse>();
     }
 
@@ -76,7 +65,7 @@ public class SettingController : BaseContextController
     [HttpGet]
     [Description("Get setting list")]
     public Task<PagedResponse<SettingModel>> GetListAsync([FromQuery] GetSettingsRequest request) =>
-        _queries.GetQueries()
+        queries.GetQueries()
             .Where(request.Key, p => p.Key.Contains(request.Key))
             .Select(setting => new SettingModel
             {
@@ -94,7 +83,7 @@ public class SettingController : BaseContextController
     [Description("Get setting by key")]
     public async Task<GetSettingResponse> GetSingleAsync(string key)
     {
-        var setting = await _queries.GetSingleAsync(p => p.Key == key);
+        var setting = await queries.GetSingleAsync(p => p.Key == key);
 
         return setting == null
             ? CreateInvalidResponse<GetSettingResponse>(Common.NotFound)
@@ -118,7 +107,7 @@ public class SettingController : BaseContextController
     [Description("Update setting by key")]
     public async Task<MessageResponse> UpdateAsync(string key, [FromBody] UpdateSettingRequest request)
     {
-        var setting = await _queries.GetSingleAsync(p => p.Key == key);
+        var setting = await queries.GetSingleAsync(p => p.Key == key);
         if (setting == null)
         {
             return CreateInvalidResponse<MessageResponse>(Common.NotFound);
@@ -129,9 +118,9 @@ public class SettingController : BaseContextController
         setting.UpdatedOn = DateTimeOffset.Now;
         setting.UpdatedByUsername = Username;
 
-        await _commands.UpdateAsync(setting);
+        await commands.UpdateAsync(setting);
 
-        await _cacheManager.ClearCacheAsync(RedisCacheType.Setting, setting.Key);
+        await cacheManager.ClearCacheAsync(RedisCacheType.Setting, setting.Key);
 
         return CreateValidResponse<MessageResponse>();
     }

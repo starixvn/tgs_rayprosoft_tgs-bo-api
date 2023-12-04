@@ -6,14 +6,9 @@ using Tgs.ServiceUtility;
 
 namespace TGS.Services.BackOffice.Application.Queries.PaymentChannel;
 
-internal class CreatePaymentChannelCommandService : ICommandService<CreatePaymentChannelCommand>
+internal class CreatePaymentChannelCommandService(IPaymentServiceClient paymentServiceClient) : ICommandService<CreatePaymentChannelCommand>
 {
-    private readonly IPaymentServiceClient _paymentServiceClient;
-
-    public CreatePaymentChannelCommandService(IPaymentServiceClient paymentServiceClient)
-    {
-        _paymentServiceClient = paymentServiceClient ?? throw new ArgumentNullException(nameof(paymentServiceClient));
-    }
+    private readonly IPaymentServiceClient _paymentServiceClient = paymentServiceClient ?? throw new ArgumentNullException(nameof(paymentServiceClient));
 
     public ValueTask ExecuteAsync(
         CreatePaymentChannelCommand command,

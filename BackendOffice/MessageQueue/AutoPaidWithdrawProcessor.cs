@@ -9,16 +9,10 @@ using Valhalla.MessageQueue;
 
 namespace TGS.Apis.BackendOffice.MessageQueue;
 
-public class AutoPaidWithdrawProcessor : IMessageHandler
+public class AutoPaidWithdrawProcessor(ICommandService<PaidWithdrawFormCommand> paidService, ILogger<AutoPaidWithdrawProcessor> logger) : IMessageHandler
 {
-    private readonly ILogger<AutoPaidWithdrawProcessor> _logger;
-    private readonly ICommandService<PaidWithdrawFormCommand> _paidService;
-
-    public AutoPaidWithdrawProcessor(ICommandService<PaidWithdrawFormCommand> paidService, ILogger<AutoPaidWithdrawProcessor> logger)
-    {
-        _paidService = paidService ?? throw new ArgumentNullException(nameof(paidService));
-        _logger = logger ?? throw new ArgumentNullException(nameof(logger));
-    }
+    private readonly ILogger<AutoPaidWithdrawProcessor> _logger = logger ?? throw new ArgumentNullException(nameof(logger));
+    private readonly ICommandService<PaidWithdrawFormCommand> _paidService = paidService ?? throw new ArgumentNullException(nameof(paidService));
 
     public async ValueTask HandleAsync(ReadOnlyMemory<byte> data, CancellationToken cancellationToken = default)
     {

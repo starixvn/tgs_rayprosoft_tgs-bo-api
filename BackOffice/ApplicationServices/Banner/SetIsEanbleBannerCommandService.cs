@@ -6,14 +6,9 @@ using TGS.Services.BackOffice.Domain;
 
 namespace TGS.Services.BackOffice.ApplicationServices.Banner;
 
-internal class SetIsEanbleBannerCommandService : ICommandService<SetIsEanbleBannerCommand>
+internal class SetIsEanbleBannerCommandService(IBackOfficeRepository backOfficeRepository) : ICommandService<SetIsEanbleBannerCommand>
 {
-    private readonly IBackOfficeRepository _backOfficeRepository;
-
-    public SetIsEanbleBannerCommandService(IBackOfficeRepository backOfficeRepository)
-    {
-        _backOfficeRepository = backOfficeRepository ?? throw new ArgumentNullException(nameof(backOfficeRepository));
-    }
+    private readonly IBackOfficeRepository _backOfficeRepository = backOfficeRepository ?? throw new ArgumentNullException(nameof(backOfficeRepository));
 
     public ValueTask ExecuteAsync(SetIsEanbleBannerCommand command, CancellationToken cancellationToken = default)
         => _backOfficeRepository.SetIsEnableBannerAsync(

@@ -8,16 +8,11 @@ using Tgs.ServiceUtility;
 
 namespace TGS.Services.BackOffice.ApplicationServices.Adjust;
 
-internal class AgentAdjustRecordsQueryService
-    : IQueryService<AgentAdjustRecordsQuery, AdjustRecordListItem>,
+internal class AgentAdjustRecordsQueryService(ICashQueryClient cashQueryClient)
+        : IQueryService<AgentAdjustRecordsQuery, AdjustRecordListItem>,
     IGetService<AgentAdjustRecordsQuery, int>
 {
-    private readonly ICashQueryClient _cashQueryClient;
-
-    public AgentAdjustRecordsQueryService(ICashQueryClient cashQueryClient)
-    {
-        _cashQueryClient = cashQueryClient ?? throw new ArgumentNullException(nameof(cashQueryClient));
-    }
+    private readonly ICashQueryClient _cashQueryClient = cashQueryClient ?? throw new ArgumentNullException(nameof(cashQueryClient));
 
     public ValueTask<int> GetAsync(AgentAdjustRecordsQuery query, CancellationToken cancellationToken = default)
         => _cashQueryClient.CountAgentAdjustRecordsAsync(

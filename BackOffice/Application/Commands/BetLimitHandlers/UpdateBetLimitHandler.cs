@@ -8,14 +8,9 @@ using TGS.Services.BackOffice.Infrastructure.DataService;
 
 namespace TGS.Services.BackOffice.Application.Commands.BetLimitHandlers;
 
-public class UpdateBetLimitHandler : Handler<UpdateBetLimitRequest, MessageResponse>
+public class UpdateBetLimitHandler(IBetLimitService service, IHttpContextAccessor accessor) : Handler<UpdateBetLimitRequest, MessageResponse>(accessor)
 {
-    private readonly IBetLimitService _service;
-
-    public UpdateBetLimitHandler(IBetLimitService service, IHttpContextAccessor accessor) : base(accessor)
-    {
-        _service = service;
-    }
+    private readonly IBetLimitService _service = service;
 
     public override async Task<MessageResponse> Handle(UpdateBetLimitRequest request,
         CancellationToken cancellationToken)

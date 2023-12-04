@@ -12,14 +12,9 @@ using TGS.Services.BackOffice.Domain;
 
 namespace TGS.BackOffice.Repositories;
 
-internal class AgentRepository : IAgentRepository
+internal class AgentRepository(ITgsRepository tgsRepository) : IAgentRepository
 {
-    private readonly ITgsRepository _tgsRepository;
-
-    public AgentRepository(ITgsRepository tgsRepository)
-    {
-        _tgsRepository = tgsRepository ?? throw new ArgumentNullException(nameof(tgsRepository));
-    }
+    private readonly ITgsRepository _tgsRepository = tgsRepository ?? throw new ArgumentNullException(nameof(tgsRepository));
 
     public async ValueTask AddDomainToAgentAsync(Guid agentId, string domainName)
     {

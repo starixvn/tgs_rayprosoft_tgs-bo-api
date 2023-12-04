@@ -8,14 +8,9 @@ using Tgs.StationLetterService.Client;
 
 namespace TGS.Services.BackOffice.ApplicationServices.StationLetters;
 
-internal class SendAllPlayersLetterCommandService : ICommandService<SendAllPlayersLetterCommand>
+internal class SendAllPlayersLetterCommandService(IStationLetterClient stationLetterClient) : ICommandService<SendAllPlayersLetterCommand>
 {
-    private readonly IStationLetterClient _stationLetterClient;
-
-    public SendAllPlayersLetterCommandService(IStationLetterClient stationLetterClient)
-    {
-        _stationLetterClient = stationLetterClient ?? throw new ArgumentNullException(nameof(stationLetterClient));
-    }
+    private readonly IStationLetterClient _stationLetterClient = stationLetterClient ?? throw new ArgumentNullException(nameof(stationLetterClient));
 
     public ValueTask ExecuteAsync(SendAllPlayersLetterCommand command, CancellationToken cancellationToken = default)
     {

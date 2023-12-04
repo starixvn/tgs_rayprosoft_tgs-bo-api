@@ -8,15 +8,10 @@ using TGS.Services.PlayerBucket;
 
 namespace PlayerBucket.Repositories;
 
-public class PlayerBucketRepository : IPlayerBucketRepository
+public class PlayerBucketRepository(
+    IPlayerBucketClient playerBucketClient) : IPlayerBucketRepository
 {
-    private readonly IPlayerBucketClient _playerBucketClient;
-
-    public PlayerBucketRepository(
-        IPlayerBucketClient playerBucketClient)
-    {
-        _playerBucketClient = playerBucketClient ?? throw new ArgumentNullException(nameof(playerBucketClient));
-    }
+    private readonly IPlayerBucketClient _playerBucketClient = playerBucketClient ?? throw new ArgumentNullException(nameof(playerBucketClient));
 
     public async ValueTask<PlayerBucketInfo> GetPlayerBucketInfoAsync(string playerCode, CancellationToken cancellationToken = default)
     {

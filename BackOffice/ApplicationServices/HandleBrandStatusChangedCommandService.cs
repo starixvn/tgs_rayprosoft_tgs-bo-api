@@ -10,21 +10,14 @@ using ClientBrandStatus = Tgs.BrandCertificate.BrandStatus;
 
 namespace TGS.Services.BackOffice.ApplicationServices;
 
-internal class HandleBrandStatusChangedCommandService : ICommandService<HandleBrandStatusChangedCommand>
+internal class HandleBrandStatusChangedCommandService(
+    IBrandServiceClient brandServiceClient,
+    IRedisCacheManager redisCacheManager,
+    IMaintenanceRedisService maintenanceRedisService) : ICommandService<HandleBrandStatusChangedCommand>
 {
-    private readonly IBrandServiceClient _brandServiceClient;
-    private readonly IRedisCacheManager _redisCacheManager;
-    private readonly IMaintenanceRedisService _maintenanceRedisService;
-
-    public HandleBrandStatusChangedCommandService(
-        IBrandServiceClient brandServiceClient,
-        IRedisCacheManager redisCacheManager,
-        IMaintenanceRedisService maintenanceRedisService)
-    {
-        _brandServiceClient = brandServiceClient ?? throw new ArgumentNullException(nameof(brandServiceClient));
-        _redisCacheManager = redisCacheManager ?? throw new ArgumentNullException(nameof(redisCacheManager));
-        _maintenanceRedisService = maintenanceRedisService ?? throw new ArgumentNullException(nameof(maintenanceRedisService));
-    }
+    private readonly IBrandServiceClient _brandServiceClient = brandServiceClient ?? throw new ArgumentNullException(nameof(brandServiceClient));
+    private readonly IRedisCacheManager _redisCacheManager = redisCacheManager ?? throw new ArgumentNullException(nameof(redisCacheManager));
+    private readonly IMaintenanceRedisService _maintenanceRedisService = maintenanceRedisService ?? throw new ArgumentNullException(nameof(maintenanceRedisService));
 
     public async ValueTask ExecuteAsync(
         HandleBrandStatusChangedCommand command,

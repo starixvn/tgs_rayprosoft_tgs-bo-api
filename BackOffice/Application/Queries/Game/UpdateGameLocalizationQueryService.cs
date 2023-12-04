@@ -9,13 +9,10 @@ using TGS.Core.Infrastructures.Extensions;
 
 namespace TGS.Services.BackOffice.Application.Queries.Game;
 
-internal class UpdateGameLocalizationQueryService : IGetService<UpdateGameLocalizationQuery, UpdateGameLocationInfo>
+internal class UpdateGameLocalizationQueryService(
+    ITgsRepository tgsRepository) : IGetService<UpdateGameLocalizationQuery, UpdateGameLocationInfo>
 {
-    private readonly ITgsRepository _tgsRepository;
-
-    public UpdateGameLocalizationQueryService(
-        ITgsRepository tgsRepository)
-        => _tgsRepository = tgsRepository ?? throw new ArgumentNullException(nameof(tgsRepository));
+    private readonly ITgsRepository _tgsRepository = tgsRepository ?? throw new ArgumentNullException(nameof(tgsRepository));
 
     public async ValueTask<UpdateGameLocationInfo> GetAsync(UpdateGameLocalizationQuery query,
         CancellationToken cancellationToken = default)
@@ -42,7 +39,10 @@ internal class UpdateGameLocalizationQueryService : IGetService<UpdateGameLocali
 
             _ = await _tgsRepository.SaveChangesAsync(cancellationToken);
 
-            return new UpdateGameLocationInfo { DiffGameIds = Array.Empty<int>() };
+            return new UpdateGameLocationInfo
+            {
+                DiffGameIds = []
+            };
         }
 
         return new UpdateGameLocationInfo { DiffGameIds = diffGames };

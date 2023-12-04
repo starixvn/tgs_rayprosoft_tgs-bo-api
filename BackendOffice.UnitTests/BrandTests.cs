@@ -229,7 +229,7 @@ internal class BrandTests
             480,
             false,
             Guid.NewGuid(),
-            new[] { "CNY" },
+            ["CNY"],
             languages,
             SettlementIntervalType.Daily,
             7,

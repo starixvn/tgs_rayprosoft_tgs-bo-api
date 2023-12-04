@@ -4,12 +4,7 @@ using TGS.Core.Models.Messages;
 
 namespace TGS.Services.BackOffice.Application.Models.Agent;
 
-public class DeleteAgentBankRequest : BaseRequest, IRequest<MessageResponse>
+public class DeleteAgentBankRequest(Guid id) : BaseRequest, IRequest<MessageResponse>
 {
-    public Guid Id { get; set; }
-
-    public DeleteAgentBankRequest(Guid id)
-    {
-        Id = id;
-    }
+    public Guid Id { get; set; } = id;
 }

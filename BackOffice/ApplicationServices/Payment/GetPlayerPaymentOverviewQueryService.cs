@@ -8,14 +8,9 @@ using TGS.Services.BackOffice.Domain;
 
 namespace TGS.Services.BackOffice.ApplicationServices.Payment;
 
-internal class GetPlayerPaymentOverviewQueryService : IGetService<GetPlayerPaymentOverviewQuery, PlayerPaymentOverview>
+internal class GetPlayerPaymentOverviewQueryService(IPaymentServiceClient paymentServiceClient) : IGetService<GetPlayerPaymentOverviewQuery, PlayerPaymentOverview>
 {
-    private readonly IPaymentServiceClient _paymentServiceClient;
-
-    public GetPlayerPaymentOverviewQueryService(IPaymentServiceClient paymentServiceClient)
-    {
-        _paymentServiceClient = paymentServiceClient ?? throw new ArgumentNullException(nameof(paymentServiceClient));
-    }
+    private readonly IPaymentServiceClient _paymentServiceClient = paymentServiceClient ?? throw new ArgumentNullException(nameof(paymentServiceClient));
 
     public async ValueTask<PlayerPaymentOverview> GetAsync(GetPlayerPaymentOverviewQuery query, CancellationToken cancellationToken = default)
         => await _paymentServiceClient

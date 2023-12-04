@@ -10,12 +10,9 @@ using TGS.Services.WalletService;
 
 namespace TGS.Wallet.Repositories;
 
-internal class AgentWalletRepository : IAgentWalletRepository
+internal class AgentWalletRepository(ITgsRepository tgsRepository) : IAgentWalletRepository
 {
-    private readonly ITgsRepository _tgsRepository;
-
-    public AgentWalletRepository(ITgsRepository tgsRepository)
-        => _tgsRepository = tgsRepository ?? throw new ArgumentNullException(nameof(tgsRepository));
+    private readonly ITgsRepository _tgsRepository = tgsRepository ?? throw new ArgumentNullException(nameof(tgsRepository));
 
     public async ValueTask<(Guid TransactionId, decimal PostBalance)> ExchangeAsync(
         Guid brandId,

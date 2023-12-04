@@ -25,16 +25,10 @@ using EventAction = Tgs.Agent.Client.Models.Enums.EventAction;
 
 namespace BackendOffice.IntegrationTests;
 
-public class AgentTests
+public class AgentTests(ITestOutputHelper testOutputHelper, NodeJsFixture nodeJsFixture)
 {
-    private readonly ITestOutputHelper _testOutputHelper;
-    private readonly NodeJsFixture _nodeJsFixture;
-
-    public AgentTests(ITestOutputHelper testOutputHelper, NodeJsFixture nodeJsFixture)
-    {
-        _testOutputHelper = testOutputHelper ?? throw new ArgumentNullException(nameof(testOutputHelper));
-        _nodeJsFixture = nodeJsFixture ?? throw new ArgumentNullException(nameof(nodeJsFixture));
-    }
+    private readonly ITestOutputHelper _testOutputHelper = testOutputHelper ?? throw new ArgumentNullException(nameof(testOutputHelper));
+    private readonly NodeJsFixture _nodeJsFixture = nodeJsFixture ?? throw new ArgumentNullException(nameof(nodeJsFixture));
 
     [Fact]
     public async Task 代理扣錢()

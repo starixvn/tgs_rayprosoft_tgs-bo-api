@@ -10,12 +10,9 @@ using TGS.Services.BackOffice.Application.Models.ReportAgent;
 
 namespace TGS.Services.BackOffice.Application.Queries.ReportAgentQueries;
 
-public class GetAgentPlayerWinLossQuery : IGetService<GetAgentPlayerWinLossReportRequest, PagedResponse<AgentPlayerWinLossReportModel>>
+public class GetAgentPlayerWinLossQuery(IReportClient reportClient) : IGetService<GetAgentPlayerWinLossReportRequest, PagedResponse<AgentPlayerWinLossReportModel>>
 {
-    private readonly IReportClient _reportClient;
-
-    public GetAgentPlayerWinLossQuery(IReportClient reportClient)
-        => _reportClient = reportClient ?? throw new ArgumentNullException(nameof(reportClient));
+    private readonly IReportClient _reportClient = reportClient ?? throw new ArgumentNullException(nameof(reportClient));
 
     public async ValueTask<PagedResponse<AgentPlayerWinLossReportModel>> GetAsync(
         GetAgentPlayerWinLossReportRequest request,

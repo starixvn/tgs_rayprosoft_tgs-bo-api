@@ -9,13 +9,10 @@ using Tgs.ServiceUtility;
 namespace TGS.Services.BackOffice.Application.Queries.ReportExportVipReport;
 
 public class
-    ExportVipReportQuery : IGetService<ExportVipReportRequest,
+    ExportVipReportQuery(IReportClient reportClient) : IGetService<ExportVipReportRequest,
         Stream>
 {
-    private readonly IReportClient _reportClient;
-
-    public ExportVipReportQuery(IReportClient reportClient)
-        => _reportClient = reportClient ?? throw new ArgumentNullException(nameof(reportClient));
+    private readonly IReportClient _reportClient = reportClient ?? throw new ArgumentNullException(nameof(reportClient));
 
     public async ValueTask<Stream> GetAsync(ExportVipReportRequest request,
         CancellationToken cancellationToken = default)

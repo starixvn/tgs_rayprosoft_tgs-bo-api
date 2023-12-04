@@ -7,14 +7,9 @@ using TGS.Services.BackOffice.Domain;
 
 namespace TGS.Services.BackOffice.ApplicationServices.Overview;
 
-internal class GetDaySuccessRateQueryService : IGetService<GetDaySuccessRateQuery, DaySuccessRateInfo>
+internal class GetDaySuccessRateQueryService(IPaymentServiceClient paymentServiceClient) : IGetService<GetDaySuccessRateQuery, DaySuccessRateInfo>
 {
-    private readonly IPaymentServiceClient _paymentServiceClient;
-
-    public GetDaySuccessRateQueryService(IPaymentServiceClient paymentServiceClient)
-    {
-        _paymentServiceClient = paymentServiceClient ?? throw new ArgumentNullException(nameof(paymentServiceClient));
-    }
+    private readonly IPaymentServiceClient _paymentServiceClient = paymentServiceClient ?? throw new ArgumentNullException(nameof(paymentServiceClient));
 
     public async ValueTask<DaySuccessRateInfo> GetAsync(GetDaySuccessRateQuery query, CancellationToken cancellationToken = default)
     {

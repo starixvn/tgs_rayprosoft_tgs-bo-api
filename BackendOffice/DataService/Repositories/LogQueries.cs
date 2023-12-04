@@ -11,29 +11,22 @@ using TGS.Core.DataServices.Tgs;
 
 namespace TGS.Apis.BackendOffice.DataService.Repositories;
 
-public class LogQueries : ILogQueries
+public class LogQueries(ITgsRepository repository) : ILogQueries
 {
-    private readonly ITgsRepository _repository;
-
-    public LogQueries(ITgsRepository repository)
-    {
-        _repository = repository;
-    }
-
     Task<bool> ILogQueries.ExistsAsync<T>(Expression<Func<T, bool>> predicate) =>
-        _repository.Set<T>().AnyAsync(predicate);
+        repository.Set<T>().AnyAsync(predicate);
 
     Task<LogDetailModel> ILogQueries.GetAdminLogAsync(Guid trackingId)
     {
         const string spName = "log.log_get_admin_log";
-        return _repository.SqlQuerySingleAsync<LogDetailModel>(spName,
+        return repository.SqlQuerySingleAsync<LogDetailModel>(spName,
             parameters: new Dictionary<string, object> { { "_tracking_id", trackingId } });
     }
 
     async Task<(IEnumerable<AdminLogModel>, int)> ILogQueries.GetAdminLogsAsync(AdminLogRequest request)
     {
         const string spName = "log.log_get_admin_logs";
-        var results = await _repository.SqlQueryMultipleAsync<AdminLogModel>(spName,
+        var results = await repository.SqlQueryMultipleAsync<AdminLogModel>(spName,
             parameters: new Dictionary<string, object>
             {
                 {"_from", request.From},
@@ -55,14 +48,14 @@ public class LogQueries : ILogQueries
     Task<LogDetailModel> ILogQueries.GetApiLogAsync(Guid trackingId)
     {
         const string spName = "log.log_get_api_log";
-        return _repository.SqlQuerySingleAsync<LogDetailModel>(spName,
+        return repository.SqlQuerySingleAsync<LogDetailModel>(spName,
             parameters: new Dictionary<string, object> { { "_tracking_id", trackingId } });
     }
 
     async Task<(IEnumerable<ApiLogModel>, int)> ILogQueries.GetApiLogsAsync(ApiLogRequest request)
     {
         const string spName = "log.log_get_api_logs";
-        var results = await _repository.SqlQueryMultipleAsync<ApiLogModel>(spName,
+        var results = await repository.SqlQueryMultipleAsync<ApiLogModel>(spName,
             parameters: new Dictionary<string, object>
             {
                 {"_from", request.From},
@@ -85,7 +78,7 @@ public class LogQueries : ILogQueries
     async Task<(IEnumerable<LogRecordModel>, int)> ILogQueries.GetLogRecordsAsync(LogRecordRequest request)
     {
         const string spName = "log.log_get_log_records";
-        var results = await _repository.SqlQueryMultipleAsync<LogRecordModel>(spName,
+        var results = await repository.SqlQueryMultipleAsync<LogRecordModel>(spName,
             parameters: new Dictionary<string, object>
             {
                 {"_from", request.From},
@@ -101,12 +94,12 @@ public class LogQueries : ILogQueries
         return (results, results.Any() ? results.First().TotalCount : 0);
     }
 
-    IQueryable<T> ILogQueries.GetQueries<T>() => _repository.Set<T>().AsQueryable();
+    IQueryable<T> ILogQueries.GetQueries<T>() => repository.Set<T>().AsQueryable();
 
     Task<T> ILogQueries.GetSingleAsync<T>(Expression<Func<T, bool>> predicate,
         Func<IQueryable<T>, IQueryable<T>> preQuery)
     {
         preQuery ??= c => c;
-        return preQuery(_repository.Set<T>()).FirstOrDefaultAsync(predicate);
+        return preQuery(repository.Set<T>()).FirstOrDefaultAsync(predicate);
     }
 }

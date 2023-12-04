@@ -18,26 +18,18 @@ using TGS.Services.BackOffice.Domain;
 namespace TGS.Services.BackOffice.Application.Queries.ReportRoundQueries;
 
 public class
-    GetBetRecordsQuery : IGetService<GetBetRecordsReportRequest,
+    GetBetRecordsQuery(IOptions<JsonOptions> jsonOptionsAccessor,
+    IQueryService<GetAllGamesByBrandIdQuery, GameData> gameQueryService,
+    IReportClient reportClient,
+    IJsonSerializationProvider jsonSerializationProvider) : IGetService<GetBetRecordsReportRequest,
         GetBetRecordsReportResponse>
 {
-    private readonly IQueryService<GetAllGamesByBrandIdQuery, GameData> _gameQueryService;
-    private readonly IOptions<JsonOptions> _jsonOptionsAccessor;
-    private readonly IJsonSerializationProvider _jsonSerializationProvider;
-
-    private readonly IReportClient _reportClient;
-
-    public GetBetRecordsQuery(IOptions<JsonOptions> jsonOptionsAccessor,
-        IQueryService<GetAllGamesByBrandIdQuery, GameData> gameQueryService,
-        IReportClient reportClient,
-        IJsonSerializationProvider jsonSerializationProvider)
-    {
-        _jsonOptionsAccessor = jsonOptionsAccessor ?? throw new ArgumentNullException(nameof(jsonOptionsAccessor));
-        _gameQueryService = gameQueryService ?? throw new ArgumentNullException(nameof(gameQueryService));
-        _reportClient = reportClient ?? throw new ArgumentNullException(nameof(reportClient));
-        _jsonSerializationProvider = jsonSerializationProvider ??
+    private readonly IQueryService<GetAllGamesByBrandIdQuery, GameData> _gameQueryService = gameQueryService ?? throw new ArgumentNullException(nameof(gameQueryService));
+    private readonly IOptions<JsonOptions> _jsonOptionsAccessor = jsonOptionsAccessor ?? throw new ArgumentNullException(nameof(jsonOptionsAccessor));
+    private readonly IJsonSerializationProvider _jsonSerializationProvider = jsonSerializationProvider ??
             throw new ArgumentNullException(nameof(jsonSerializationProvider));
-    }
+
+    private readonly IReportClient _reportClient = reportClient ?? throw new ArgumentNullException(nameof(reportClient));
 
     public async ValueTask<GetBetRecordsReportResponse> GetAsync(
         GetBetRecordsReportRequest request,

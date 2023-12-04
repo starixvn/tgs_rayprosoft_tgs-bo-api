@@ -10,14 +10,11 @@ using TGS.Services.BackOffice.Application.Models.ReportLicenseeMarket;
 namespace TGS.Services.BackOffice.Application.Queries.ReportLicenseeMarketQueries;
 
 public class
-    GetLicenseeMarketsQuery
-    : IGetService<GetLicenseeMarketsReportRequest,
+    GetLicenseeMarketsQuery(IReportClient reportClient)
+        : IGetService<GetLicenseeMarketsReportRequest,
         LicenseeMarketsReportResponse>
 {
-    private readonly IReportClient _reportClient;
-
-    public GetLicenseeMarketsQuery(IReportClient reportClient)
-        => _reportClient = reportClient ?? throw new ArgumentNullException(nameof(reportClient));
+    private readonly IReportClient _reportClient = reportClient ?? throw new ArgumentNullException(nameof(reportClient));
 
     public async ValueTask<LicenseeMarketsReportResponse> GetAsync(
         GetLicenseeMarketsReportRequest request,

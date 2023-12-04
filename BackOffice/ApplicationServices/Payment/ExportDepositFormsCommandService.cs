@@ -16,20 +16,14 @@ using TGS.Services.BackOffice.Application.Models.Deposit;
 
 namespace TGS.Services.BackOffice.Application.Queries.Deposit;
 
-public class ExportDepositFormsCommandService : IGetService<ExportDepositFormsCommand, MemoryStream>
+public class ExportDepositFormsCommandService(
+    IPaymentServiceClient paymentServiceClient) : IGetService<ExportDepositFormsCommand, MemoryStream>
 {
     private static readonly EmbeddedFileProvider _EmbeddedFileProvider =
         new(Assembly.GetExecutingAssembly());
 
-    private readonly IPaymentServiceClient _paymentServiceClient;
-    private readonly IFileInfo _templateFileInfo;
-
-    public ExportDepositFormsCommandService(
-        IPaymentServiceClient paymentServiceClient)
-    {
-        _paymentServiceClient = paymentServiceClient ?? throw new ArgumentNullException(nameof(paymentServiceClient));
-        _templateFileInfo = _EmbeddedFileProvider.GetFileInfo("/Assets/deposit_forms_template.xlsx");
-    }
+    private readonly IPaymentServiceClient _paymentServiceClient = paymentServiceClient ?? throw new ArgumentNullException(nameof(paymentServiceClient));
+    private readonly IFileInfo _templateFileInfo = _EmbeddedFileProvider.GetFileInfo("/Assets/deposit_forms_template.xlsx");
 
     public async ValueTask<MemoryStream> GetAsync(ExportDepositFormsCommand query, CancellationToken cancellationToken)
     {

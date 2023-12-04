@@ -14,22 +14,15 @@ using Tgs.ServiceUtility;
 namespace TGS.Services.BackOffice.Application.Queries.ReportAgentWinLossQueries;
 
 public class
-    GetAgentWinLossBreadcrumbQuery : IGetService<GetAgentWinLossBreadcrumbReportRequest,
+    GetAgentWinLossBreadcrumbQuery(
+    IReportClient reportClient,
+    IAgentService agentService,
+    IPlayerService playerService) : IGetService<GetAgentWinLossBreadcrumbReportRequest,
         IEnumerable<AgentWinLossBreadcrumbReportModel>>
 {
-    private readonly IAgentService _agentService;
-    private readonly IPlayerService _playerService;
-    private readonly IReportClient _reportClient;
-
-    public GetAgentWinLossBreadcrumbQuery(
-        IReportClient reportClient,
-        IAgentService agentService,
-        IPlayerService playerService)
-    {
-        _reportClient = reportClient ?? throw new ArgumentNullException(nameof(reportClient));
-        _agentService = agentService ?? throw new ArgumentNullException(nameof(agentService));
-        _playerService = playerService ?? throw new ArgumentNullException(nameof(playerService));
-    }
+    private readonly IAgentService _agentService = agentService ?? throw new ArgumentNullException(nameof(agentService));
+    private readonly IPlayerService _playerService = playerService ?? throw new ArgumentNullException(nameof(playerService));
+    private readonly IReportClient _reportClient = reportClient ?? throw new ArgumentNullException(nameof(reportClient));
 
     public async ValueTask<IEnumerable<AgentWinLossBreadcrumbReportModel>> GetAsync(
         GetAgentWinLossBreadcrumbReportRequest request,

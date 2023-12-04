@@ -13,17 +13,8 @@ namespace TGS.Apis.BackendOffice.Controllers.Promotion;
 
 [Route("api/[controller]")]
 [ApiController]
-public class PromotionDispatchController : BaseContextController
+public class PromotionDispatchController(IPromotionDispatchClient client, IPromotionServiceClient promotionServiceClient) : BaseContextController
 {
-    private readonly IPromotionDispatchClient _client;
-    private readonly IPromotionServiceClient _promotionServiceClient;
-
-    public PromotionDispatchController(IPromotionDispatchClient client, IPromotionServiceClient promotionServiceClient)
-    {
-        _client = client;
-        _promotionServiceClient = promotionServiceClient;
-    }
-
     [HttpPost(Name = "DispatchPromotions")]
     [Description("Dispatch promotion")]
     public async Task<MessageResponse> DispatchPromotionsAsync(
@@ -41,7 +32,7 @@ public class PromotionDispatchController : BaseContextController
             }).ToArray()
         };
 
-        await _promotionServiceClient.DistributePromotionBonusManuallyAsync(distributeRequest);
+        await promotionServiceClient.DistributePromotionBonusManuallyAsync(distributeRequest);
 
         var dispatchRequest = new DispatchPromotionBonusRequest
         {
@@ -53,7 +44,7 @@ public class PromotionDispatchController : BaseContextController
             }).ToArray()
         };
 
-        var response = await _client.DispatchPromotionAsync(dispatchRequest);
+        var response = await client.DispatchPromotionAsync(dispatchRequest);
 
         return new MessageResponse { Valid = response.Valid, Message = response.Message };
     }
@@ -78,7 +69,7 @@ public class PromotionDispatchController : BaseContextController
             ShowAll = request.ShowAll
         };
 
-        var response = await _client.GetPromotionDispatchesAsync(promotionRequest);
+        var response = await client.GetPromotionDispatchesAsync(promotionRequest);
 
         return new Core.Models.Messages.PagedResponse<PromotionDispatchViewModel>
         {

@@ -23,16 +23,10 @@ using Xunit.Abstractions;
 
 namespace BackendOffice.IntegrationTests;
 
-public class PlayerBucketTests
+public class PlayerBucketTests(ITestOutputHelper testOutputHelper, NodeJsFixture nodeJsFixture)
 {
-    private readonly ITestOutputHelper _testOutputHelper;
-    private readonly NodeJsFixture _nodeJsFixture;
-
-    public PlayerBucketTests(ITestOutputHelper testOutputHelper, NodeJsFixture nodeJsFixture)
-    {
-        _testOutputHelper = testOutputHelper ?? throw new ArgumentNullException(nameof(testOutputHelper));
-        _nodeJsFixture = nodeJsFixture ?? throw new ArgumentNullException(nameof(nodeJsFixture));
-    }
+    private readonly ITestOutputHelper _testOutputHelper = testOutputHelper ?? throw new ArgumentNullException(nameof(testOutputHelper));
+    private readonly NodeJsFixture _nodeJsFixture = nodeJsFixture ?? throw new ArgumentNullException(nameof(nodeJsFixture));
 
     [Fact]
     public async Task 取得玩家一般水桶列表()
@@ -400,14 +394,14 @@ public class PlayerBucketTests
                 BrandId = brandId
             });
 
+        var games = new[]{
+            "Game1",
+            "Game2"
+        };
         _ = fakePlayerBucketClient.GetBrandBucketTypesAsync(
             Arg.Is(brandId),
             Arg.Any<CancellationToken>())
-            .Returns(new[]
-            {
-                "Game1",
-                "Game2"
-            }.ToAsyncEnumerable());
+            .Returns(games.ToAsyncEnumerable());
 
         _ = fakePlayerBucketForTypesClient.ReadBucketsForBucketTypesAsync(
             Arg.Is(playerCode),
@@ -501,10 +495,11 @@ public class PlayerBucketTests
                 BrandId = brandId
             });
 
+        var games = new[] { "Game1", "Game2" };
         _ = fakePlayerBucketClient.GetBrandBucketTypesAsync(
             Arg.Is(brandId),
             Arg.Any<CancellationToken>())
-            .Returns(new[] { "Game1", "Game2" }.ToAsyncEnumerable());
+            .Returns(games.ToAsyncEnumerable());
 
         var normalResult = new ReadBucketResult(1000M, Guid.NewGuid());
         var game1Result = new ReadBucketResult(2000M, Guid.NewGuid());
@@ -868,10 +863,11 @@ public class PlayerBucketTests
                 BrandId = brandId
             });
 
+        var games = new[] { "Game1", "Game2" };
         _ = fakePlayerBucketClient.GetBrandBucketTypesAsync(
             Arg.Is(brandId),
             Arg.Any<CancellationToken>())
-            .Returns(new[] { "Game1", "Game2" }.ToAsyncEnumerable());
+            .Returns(games.ToAsyncEnumerable());
 
         _ = fakePlayerBucketClient.ReadBucketsAsync(
             Arg.Is(playerCode),

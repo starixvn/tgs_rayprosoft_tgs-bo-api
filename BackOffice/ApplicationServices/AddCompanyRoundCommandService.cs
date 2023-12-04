@@ -9,21 +9,14 @@ using Tgs.ServiceUtility;
 
 namespace TGS.Services.BackOffice.ApplicationServices;
 
-internal class AddCompanyRoundCommandService : ICommandService<AddCompanyRoundCommand>
+internal class AddCompanyRoundCommandService(
+    IPlayerServiceClient playerServiceClient,
+    IGameProvidersBackofficePluggableClient pluggableClient,
+    IBrandServiceClient brandServiceClient) : ICommandService<AddCompanyRoundCommand>
 {
-    private readonly IBrandServiceClient _brandServiceClient;
-    private readonly IPlayerServiceClient _playerServiceClient;
-    private readonly IGameProvidersBackofficePluggableClient _pluggableClient;
-
-    public AddCompanyRoundCommandService(
-        IPlayerServiceClient playerServiceClient,
-        IGameProvidersBackofficePluggableClient pluggableClient,
-        IBrandServiceClient brandServiceClient)
-    {
-        _playerServiceClient = playerServiceClient ?? throw new ArgumentNullException(nameof(playerServiceClient));
-        _pluggableClient = pluggableClient ?? throw new ArgumentNullException(nameof(pluggableClient));
-        _brandServiceClient = brandServiceClient ?? throw new ArgumentNullException(nameof(brandServiceClient));
-    }
+    private readonly IBrandServiceClient _brandServiceClient = brandServiceClient ?? throw new ArgumentNullException(nameof(brandServiceClient));
+    private readonly IPlayerServiceClient _playerServiceClient = playerServiceClient ?? throw new ArgumentNullException(nameof(playerServiceClient));
+    private readonly IGameProvidersBackofficePluggableClient _pluggableClient = pluggableClient ?? throw new ArgumentNullException(nameof(pluggableClient));
 
     public async ValueTask ExecuteAsync(AddCompanyRoundCommand command, CancellationToken cancellationToken = default)
     {

@@ -9,15 +9,9 @@ using TGS.Services.BackOffice.Infrastructure.DataService;
 
 namespace TGS.Services.BackOffice.Application.Queries.GameProviderHandlers;
 
-public class GetGameProvidersQueryHandler : Handler<GetGameProvidersRequest, PagedResponse<GameProviderBaseModel>>
+public class GetGameProvidersQueryHandler(IGameProviderService service, IHttpContextAccessor accessor) : Handler<GetGameProvidersRequest, PagedResponse<GameProviderBaseModel>>(accessor)
 {
-    private readonly IGameProviderService _service;
-
-    public GetGameProvidersQueryHandler(IGameProviderService service, IHttpContextAccessor accessor)
-        : base(accessor)
-    {
-        _service = service;
-    }
+    private readonly IGameProviderService _service = service;
 
     public override Task<PagedResponse<GameProviderBaseModel>> Handle(GetGameProvidersRequest request,
         CancellationToken cancellationToken) =>

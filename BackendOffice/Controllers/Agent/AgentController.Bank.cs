@@ -14,19 +14,19 @@ public partial class AgentController
     public Task<MessageResponse> CreateAgentBankAsync(Guid agentId, [FromBody] CreateAgentBankRequest request)
     {
         request.AgentId = agentId;
-        return _mediator.Send(request);
+        return mediator.Send(request);
     }
 
     [HttpDelete("bank/{id}")]
     [Description("Delete an Agent bank")]
     public Task<MessageResponse> DeleteAgentBankAsync(Guid id) =>
-        _mediator.Send(new DeleteAgentBankRequest(id));
+        mediator.Send(new DeleteAgentBankRequest(id));
 
     [HttpPut("bank/{id}")]
     [Description("Update an Agent bank")]
     public Task<MessageResponse> UpdateAgentBankAsync(Guid id, [FromBody] UpdateAgentBankRequest request)
     {
         request.Id = id;
-        return _mediator.Send(request);
+        return mediator.Send(request);
     }
 }

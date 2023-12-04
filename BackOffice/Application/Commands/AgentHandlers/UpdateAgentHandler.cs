@@ -12,14 +12,11 @@ using TGS.Services.BackOffice.Infrastructure.DataService;
 
 namespace TGS.Services.BackOffice.Application.Commands.AgentHandlers;
 
-public class UpdateAgentHandler : Handler<UpdateAgentRequest, MessageResponse>
+public class UpdateAgentHandler(
+    IAgentService service,
+    IHttpContextAccessor accessor) : Handler<UpdateAgentRequest, MessageResponse>(accessor)
 {
-    private readonly IAgentService _service;
-
-    public UpdateAgentHandler(
-        IAgentService service,
-        IHttpContextAccessor accessor) : base(accessor)
-        => _service = service;
+    private readonly IAgentService _service = service;
 
     public override async Task<MessageResponse> Handle(
         UpdateAgentRequest request,

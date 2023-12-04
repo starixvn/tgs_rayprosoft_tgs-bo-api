@@ -26,13 +26,9 @@ public interface IBrandAllAgentService
     Task UpdateBrandAllAgentSwitchAsync(BrandAllAgent brandAllAgent);
 }
 
-public class BrandAllAgentService : BaseRepositoryOperations<ITgsRepository>,
+public class BrandAllAgentService(ITgsRepository tgsRepository) : BaseRepositoryOperations<ITgsRepository>(tgsRepository),
     IBrandAllAgentService
 {
-    public BrandAllAgentService(ITgsRepository tgsRepository) : base(tgsRepository)
-    {
-    }
-
     public Task CreateBrandAllAgentAsync(BrandAllAgent brandAllAgent)
         => CreateEntityAsync(brandAllAgent);
 

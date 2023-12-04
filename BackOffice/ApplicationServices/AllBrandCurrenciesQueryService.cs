@@ -6,14 +6,9 @@ using Tgs.ServiceUtility;
 
 namespace TGS.Services.BackOffice.ApplicationServices;
 
-internal class AllBrandCurrenciesQueryService : IQueryService<AllBrandCurrenciesQuery, BrandCurrencyInfo>
+internal class AllBrandCurrenciesQueryService(IBrandServiceClient brandServiceClient) : IQueryService<AllBrandCurrenciesQuery, BrandCurrencyInfo>
 {
-    private readonly IBrandServiceClient _brandServiceClient;
-
-    public AllBrandCurrenciesQueryService(IBrandServiceClient brandServiceClient)
-    {
-        _brandServiceClient = brandServiceClient ?? throw new ArgumentNullException(nameof(brandServiceClient));
-    }
+    private readonly IBrandServiceClient _brandServiceClient = brandServiceClient ?? throw new ArgumentNullException(nameof(brandServiceClient));
 
     public IAsyncEnumerable<BrandCurrencyInfo> QueryAsync(
         AllBrandCurrenciesQuery query,

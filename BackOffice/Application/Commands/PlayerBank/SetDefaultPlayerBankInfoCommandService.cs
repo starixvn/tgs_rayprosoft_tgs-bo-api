@@ -6,15 +6,10 @@ using Tgs.ServiceUtility;
 
 namespace TGS.Services.BackOffice.Application.Commands.PlayerBank;
 
-internal class SetDefaultPlayerBankInfoCommandService : ICommandService<SetDefaultPlayerBankInfoCommand>
+internal class SetDefaultPlayerBankInfoCommandService(
+    IPaymentServiceClient paymentServiceClient) : ICommandService<SetDefaultPlayerBankInfoCommand>
 {
-    private readonly IPaymentServiceClient _paymentServiceClient;
-
-    public SetDefaultPlayerBankInfoCommandService(
-        IPaymentServiceClient paymentServiceClient)
-    {
-        _paymentServiceClient = paymentServiceClient ?? throw new ArgumentNullException(nameof(paymentServiceClient));
-    }
+    private readonly IPaymentServiceClient _paymentServiceClient = paymentServiceClient ?? throw new ArgumentNullException(nameof(paymentServiceClient));
 
     public ValueTask ExecuteAsync(SetDefaultPlayerBankInfoCommand command,
         CancellationToken cancellationToken = default)

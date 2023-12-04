@@ -21,34 +21,19 @@ namespace TGS.Apis.BackendOffice.Controllers;
 
 [Route("api/users")]
 [ApiController]
-public class UserController : BaseContextController
+public class UserController(
+    IPasswordHandler passwordHandler,
+    ITgsQueries<User> userQueries,
+    ITgsQueries<Department> departmentQueries,
+    ITgsQueries<Role> roleQueries,
+    ITgsCommands<User> userCommands) : BaseContextController
 {
-    private readonly ITgsQueries<Department> _departmentQueries;
-    private readonly IPasswordHandler _passwordHandler;
-    private readonly ITgsQueries<Role> _roleQueries;
-    private readonly ITgsCommands<User> _userCommands;
-    private readonly ITgsQueries<User> _userQueries;
-
-    public UserController(
-        IPasswordHandler passwordHandler,
-        ITgsQueries<User> userQueries,
-        ITgsQueries<Department> departmentQueries,
-        ITgsQueries<Role> roleQueries,
-        ITgsCommands<User> userCommands)
-    {
-        _passwordHandler = passwordHandler;
-        _userQueries = userQueries;
-        _departmentQueries = departmentQueries;
-        _roleQueries = roleQueries;
-        _userCommands = userCommands;
-    }
-
     [Route("")]
     [HttpPost]
     [Description("Create a user")]
     public async Task<MessageResponse> CreateAsync([FromBody] CreateUserRequest request)
     {
-        var role = await _roleQueries.GetSingleAsync(p => p.Id == request.RoleId);
+        var role = await roleQueries.GetSingleAsync(p => p.Id == request.RoleId);
 
         if (role == null)
         {
@@ -60,7 +45,7 @@ public class UserController : BaseContextController
             return CreateValidResponse<MessageResponse>();
         }
 
-        var usernameExisted = await _userQueries.GetQueries()
+        var usernameExisted = await userQueries.GetQueries()
             .AnyAsync(x => x.Username == request.Username);
 
         if (usernameExisted)
@@ -68,12 +53,12 @@ public class UserController : BaseContextController
             return CreateInvalidResponse<MessageResponse>(Resources.User.UsernameExistedAlready);
         }
 
-        if (await _departmentQueries.GetSingleAsync(p => p.Id == request.DepartmentId) == null)
+        if (await departmentQueries.GetSingleAsync(p => p.Id == request.DepartmentId) == null)
         {
             return CreateInvalidResponse<MessageResponse>(Resources.Department.NotFound);
         }
 
-        var (salt, password) = _passwordHandler.GenerateCredential(request.Password);
+        var (salt, password) = passwordHandler.GenerateCredential(request.Password);
 
         var user = new User
         {
@@ -91,7 +76,7 @@ public class UserController : BaseContextController
             UpdatedOn = DateTimeOffset.Now
         };
 
-        await _userCommands.CreateAsync(user);
+        await userCommands.CreateAsync(user);
 
         return CreateValidResponse<MessageResponse>();
     }
@@ -164,19 +149,19 @@ public class UserController : BaseContextController
     [Description("Update a user")]
     public async Task<MessageResponse> UpdateAsync(Guid userId, [FromBody] UpdateUserRequest request)
     {
-        var user = await _userQueries.GetSingleAsync(p => p.Id == userId);
+        var user = await userQueries.GetSingleAsync(p => p.Id == userId);
 
         if (user == null)
         {
             return CreateInvalidResponse<MessageResponse>(Resources.User.NotFound);
         }
 
-        if (await _roleQueries.GetSingleAsync(r => r.Id == request.RoleId) == null)
+        if (await roleQueries.GetSingleAsync(r => r.Id == request.RoleId) == null)
         {
             return CreateInvalidResponse<MessageResponse>(Resources.Role.NotFound);
         }
 
-        if (await _departmentQueries.GetSingleAsync(p => p.Id == request.DepartmentId) == null)
+        if (await departmentQueries.GetSingleAsync(p => p.Id == request.DepartmentId) == null)
         {
             return CreateInvalidResponse<MessageResponse>(Resources.Department.NotFound);
         }
@@ -188,7 +173,7 @@ public class UserController : BaseContextController
         user.UpdatedByUsername = Username;
         user.UpdatedOn = DateTimeOffset.Now;
 
-        await _userCommands.UpdateAsync(user);
+        await userCommands.UpdateAsync(user);
 
         return CreateValidResponse<MessageResponse>();
     }
@@ -197,20 +182,20 @@ public class UserController : BaseContextController
     [Description("Update user password")]
     public async Task<MessageResponse> UpdatePasswordAsync(Guid userId, [FromBody] UpdatePasswordRequest request)
     {
-        var user = await _userQueries.GetSingleAsync(p => p.Id == userId);
+        var user = await userQueries.GetSingleAsync(p => p.Id == userId);
 
         if (user == null)
         {
             return CreateInvalidResponse<MessageResponse>(Resources.User.NotFound);
         }
 
-        var (salt, password) = _passwordHandler.GenerateCredential(request.Password);
+        var (salt, password) = passwordHandler.GenerateCredential(request.Password);
         user.Password = password;
         user.Salt = salt;
         user.UpdatedByUsername = Username;
         user.UpdatedOn = DateTimeOffset.Now;
 
-        await _userCommands.UpdateAsync(user);
+        await userCommands.UpdateAsync(user);
 
         return CreateValidResponse<MessageResponse>();
     }

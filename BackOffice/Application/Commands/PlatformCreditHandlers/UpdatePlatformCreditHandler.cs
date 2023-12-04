@@ -8,15 +8,9 @@ using TGS.Services.BackOffice.Infrastructure.DataService;
 
 namespace TGS.Services.BackOffice.Application.Commands.PlatformCreditHandlers;
 
-public class UpdatePlatformCreditHandler : Handler<UpdatePlatformCreditRequest, MessageResponse>
+public class UpdatePlatformCreditHandler(IPlatformCreditService service, IHttpContextAccessor accessor) : Handler<UpdatePlatformCreditRequest, MessageResponse>(accessor)
 {
-    private readonly IPlatformCreditService _service;
-
-    public UpdatePlatformCreditHandler(IPlatformCreditService service, IHttpContextAccessor accessor)
-        : base(accessor)
-    {
-        _service = service;
-    }
+    private readonly IPlatformCreditService _service = service;
 
     public override async Task<MessageResponse> Handle(UpdatePlatformCreditRequest request,
         CancellationToken cancellationToken)

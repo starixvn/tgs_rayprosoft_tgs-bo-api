@@ -9,15 +9,11 @@ using TGS.Services.BackOffice.Application.Models.BrandAllAgent;
 namespace TGS.Services.BackOffice.Application.Commands.BrandAllAgentHandlers;
 
 public class
-    UpdateBrandAllAgentSettleIntervalHandler : Handler<UpdateBrandAllAgentSettleIntervalRequest, MessageResponse>
+    UpdateBrandAllAgentSettleIntervalHandler(
+    IBrandAllAgentClient client,
+    IHttpContextAccessor accessor) : Handler<UpdateBrandAllAgentSettleIntervalRequest, MessageResponse>(accessor)
 {
-    private readonly IBrandAllAgentClient _client;
-
-    public UpdateBrandAllAgentSettleIntervalHandler(
-        IBrandAllAgentClient client,
-        IHttpContextAccessor accessor)
-        : base(accessor) =>
-        _client = client;
+    private readonly IBrandAllAgentClient _client = client;
 
     public override async Task<MessageResponse> Handle(UpdateBrandAllAgentSettleIntervalRequest request,
         CancellationToken cancellationToken)

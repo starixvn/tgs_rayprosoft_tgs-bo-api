@@ -2,12 +2,7 @@
 
 namespace TGS.Services.BackOffice.Application.Models.Language;
 
-public class GetLanguageRequest : IRequest<GetLanguageResponse>
+public class GetLanguageRequest(string cultureCode) : IRequest<GetLanguageResponse>
 {
-    public string CultureCode { get; set; }
-
-    public GetLanguageRequest(string cultureCode)
-    {
-        CultureCode = cultureCode;
-    }
+    public string CultureCode { get; set; } = cultureCode;
 }

@@ -6,15 +6,10 @@ using Tgs.ServiceUtility;
 
 namespace TGS.Services.BackOffice.ApplicationServices;
 
-internal class ListPlayerCodesByUserNamePrefixQueryService
-    : IQueryService<ListPlayerCodesByUserNamePrefixQuery, KeyValuePair<string, string>>
+internal class ListPlayerCodesByUserNamePrefixQueryService(IPlayerServiceClient playerServiceClient)
+        : IQueryService<ListPlayerCodesByUserNamePrefixQuery, KeyValuePair<string, string>>
 {
-    private readonly IPlayerServiceClient _playerServiceClient;
-
-    public ListPlayerCodesByUserNamePrefixQueryService(IPlayerServiceClient playerServiceClient)
-    {
-        _playerServiceClient = playerServiceClient ?? throw new ArgumentNullException(nameof(playerServiceClient));
-    }
+    private readonly IPlayerServiceClient _playerServiceClient = playerServiceClient ?? throw new ArgumentNullException(nameof(playerServiceClient));
 
     public IAsyncEnumerable<KeyValuePair<string, string>> QueryAsync(
         ListPlayerCodesByUserNamePrefixQuery query,

@@ -11,13 +11,10 @@ using TGS.Services.BackOffice.Application.Models.ReportResellerMarket;
 namespace TGS.Services.BackOffice.Application.Queries.ReportResellerMarketQueries;
 
 public class
-    GetResellerMarketsQuery : IGetService<GetResellerMarketsReportRequest,
+    GetResellerMarketsQuery(IReportClient reportClient) : IGetService<GetResellerMarketsReportRequest,
         ResellerMarketsReportResponse>
 {
-    private readonly IReportClient _reportClient;
-
-    public GetResellerMarketsQuery(IReportClient reportClient)
-        => _reportClient = reportClient ?? throw new ArgumentNullException(nameof(reportClient));
+    private readonly IReportClient _reportClient = reportClient ?? throw new ArgumentNullException(nameof(reportClient));
 
     public async ValueTask<ResellerMarketsReportResponse> GetAsync(
         GetResellerMarketsReportRequest request,

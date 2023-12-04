@@ -13,12 +13,8 @@ public interface IBrandGroupService
         bool tracking = false);
 }
 
-public class BrandGroupService : BaseRepositoryOperations<ITgsRepository>, IBrandGroupService
+public class BrandGroupService(ITgsRepository tgsRepository) : BaseRepositoryOperations<ITgsRepository>(tgsRepository), IBrandGroupService
 {
-    public BrandGroupService(ITgsRepository tgsRepository) : base(tgsRepository)
-    {
-    }
-
     IQueryable<BrandGroup> IBrandGroupService.GetBrandGroupsQueries(
         Func<IQueryable<BrandGroup>, IQueryable<BrandGroup>> preQuery,
         bool tracking) =>

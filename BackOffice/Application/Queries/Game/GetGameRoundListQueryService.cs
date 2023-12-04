@@ -8,12 +8,9 @@ using Tgs.ServiceUtility;
 
 namespace TGS.Services.BackOffice.Application.Queries.Game;
 
-internal class GetGameRoundListQueryService : IGetService<GetGameRoundListQuery, PagedResponse<RoundModel>>
+internal class GetGameRoundListQueryService(IReportClient reportClient) : IGetService<GetGameRoundListQuery, PagedResponse<RoundModel>>
 {
-    private readonly IReportClient _reportClient;
-
-    public GetGameRoundListQueryService(IReportClient reportClient)
-        => _reportClient = reportClient ?? throw new ArgumentNullException(nameof(reportClient));
+    private readonly IReportClient _reportClient = reportClient ?? throw new ArgumentNullException(nameof(reportClient));
 
     public async ValueTask<PagedResponse<RoundModel>> GetAsync(
         GetGameRoundListQuery query,

@@ -8,15 +8,10 @@ using TGS.Services.BackOffice.Infrastructure.DataService;
 
 namespace TGS.Services.BackOffice.Application.Commands.GameProviderHandlers;
 
-public class UpdateGameProviderHandler : Handler<UpdateGameProviderRequest, MessageResponse>
+public class UpdateGameProviderHandler(IGameProviderService service,
+    IHttpContextAccessor accessor) : Handler<UpdateGameProviderRequest, MessageResponse>(accessor)
 {
-    private readonly IGameProviderService _service;
-
-    public UpdateGameProviderHandler(IGameProviderService service,
-        IHttpContextAccessor accessor) : base(accessor)
-    {
-        _service = service;
-    }
+    private readonly IGameProviderService _service = service;
 
     public override async Task<MessageResponse> Handle(UpdateGameProviderRequest request,
         CancellationToken cancellationToken)

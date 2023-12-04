@@ -11,14 +11,9 @@ using TGS.Services.BackOffice.Domain;
 
 namespace TGS.BackOffice.Repositories;
 
-internal class RedisBatchTempRepository : IBatchTempRepository
+internal class RedisBatchTempRepository(IDatabase database) : IBatchTempRepository
 {
-    private readonly IDatabase _database;
-
-    public RedisBatchTempRepository(IDatabase database)
-    {
-        _database = database ?? throw new ArgumentNullException(nameof(database));
-    }
+    private readonly IDatabase _database = database ?? throw new ArgumentNullException(nameof(database));
 
     public async ValueTask<bool> BidBatchAsync(Guid batchId, CancellationToken cancellationToken = default)
     {

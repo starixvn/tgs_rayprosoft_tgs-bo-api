@@ -8,18 +8,12 @@ using ClientBrandStatus = Tgs.BrandCertificate.BrandStatus;
 
 namespace TGS.Services.BackOffice.ApplicationServices;
 
-internal class UpdateBrandStatusCommandService : ICommandService<UpdateBrandStatusCommand>
+internal class UpdateBrandStatusCommandService(
+    IBrandServiceClient brandServiceClient,
+    ICommandService<HandleBrandStatusChangedCommand> statusChangedCommandService) : ICommandService<UpdateBrandStatusCommand>
 {
-    private readonly IBrandServiceClient _brandServiceClient;
-    private readonly ICommandService<HandleBrandStatusChangedCommand> _statusChangedCommandService;
-
-    public UpdateBrandStatusCommandService(
-        IBrandServiceClient brandServiceClient,
-        ICommandService<HandleBrandStatusChangedCommand> statusChangedCommandService)
-    {
-        _brandServiceClient = brandServiceClient ?? throw new ArgumentNullException(nameof(brandServiceClient));
-        _statusChangedCommandService = statusChangedCommandService ?? throw new ArgumentNullException(nameof(statusChangedCommandService));
-    }
+    private readonly IBrandServiceClient _brandServiceClient = brandServiceClient ?? throw new ArgumentNullException(nameof(brandServiceClient));
+    private readonly ICommandService<HandleBrandStatusChangedCommand> _statusChangedCommandService = statusChangedCommandService ?? throw new ArgumentNullException(nameof(statusChangedCommandService));
 
     public async ValueTask ExecuteAsync(
         UpdateBrandStatusCommand command,

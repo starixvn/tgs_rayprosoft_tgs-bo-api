@@ -10,17 +10,11 @@ using TGS.Services.BackOffice.Infrastructure.DataService;
 
 namespace TGS.Services.BackOffice.Application.Commands.BrandAgentDividendHandlers;
 
-public class UpdateBrandAgentDividendHandler : Handler<UpdateBrandAgentDividendConditionRequest, MessageResponse>
+public class UpdateBrandAgentDividendHandler(IBrandAgentDividendConditionService service, IBrandService brandService,
+    IHttpContextAccessor accessor) : Handler<UpdateBrandAgentDividendConditionRequest, MessageResponse>(accessor)
 {
-    private readonly IBrandService _brandService;
-    private readonly IBrandAgentDividendConditionService _service;
-
-    public UpdateBrandAgentDividendHandler(IBrandAgentDividendConditionService service, IBrandService brandService,
-        IHttpContextAccessor accessor) : base(accessor)
-    {
-        _service = service;
-        _brandService = brandService;
-    }
+    private readonly IBrandService _brandService = brandService;
+    private readonly IBrandAgentDividendConditionService _service = service;
 
     public override async Task<MessageResponse> Handle(UpdateBrandAgentDividendConditionRequest request,
         CancellationToken cancellationToken)

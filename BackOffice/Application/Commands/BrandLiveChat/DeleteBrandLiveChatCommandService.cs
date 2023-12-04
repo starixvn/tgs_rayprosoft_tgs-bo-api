@@ -6,18 +6,12 @@ using CoreModels = TGS.Core.DataServices.Tgs.Models;
 
 namespace TGS.Services.BackOffice.Application.Commands.BrandLiveChat;
 
-internal class DeleteBrandLiveChatCommandService : ICommandService<DeleteBrandLiveChatCommand>
+internal class DeleteBrandLiveChatCommandService(
+    ITgsQueries<CoreModels.BrandLiveChat> tgsQueries,
+    ITgsCommands<CoreModels.BrandLiveChat> commands) : ICommandService<DeleteBrandLiveChatCommand>
 {
-    private readonly ITgsCommands<CoreModels.BrandLiveChat> _commands;
-    private readonly ITgsQueries<CoreModels.BrandLiveChat> _tgsQueries;
-
-    public DeleteBrandLiveChatCommandService(
-        ITgsQueries<CoreModels.BrandLiveChat> tgsQueries,
-        ITgsCommands<CoreModels.BrandLiveChat> commands)
-    {
-        _tgsQueries = tgsQueries ?? throw new System.ArgumentNullException(nameof(tgsQueries));
-        _commands = commands;
-    }
+    private readonly ITgsCommands<CoreModels.BrandLiveChat> _commands = commands;
+    private readonly ITgsQueries<CoreModels.BrandLiveChat> _tgsQueries = tgsQueries ?? throw new System.ArgumentNullException(nameof(tgsQueries));
 
     public async ValueTask ExecuteAsync(DeleteBrandLiveChatCommand command, CancellationToken cancellationToken = default)
     {

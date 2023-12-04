@@ -22,35 +22,20 @@ using TGS.Core.Models.Services;
 namespace TGS.Apis.BackendOffice.Controllers;
 
 [Route("api")]
-public class AuthenticateController : BaseContextController
+public class AuthenticateController(
+    IPasswordHandler passwordHandler,
+    IAntiforgery antiForgery,
+    ITgsQueries<User> userQueries,
+    ITgsCommands<User> userCommands,
+    IJsonSerializationProvider jsonSerializationProvider) : BaseContextController
 {
-    private readonly IAntiforgery _antiForgery;
-    private readonly IJsonSerializationProvider _jsonSerializationProvider;
-    private readonly IPasswordHandler _passwordHandler;
-    private readonly ITgsCommands<User> _userCommands;
-    private readonly ITgsQueries<User> _userQueries;
-
-    public AuthenticateController(
-        IPasswordHandler passwordHandler,
-        IAntiforgery antiForgery,
-        ITgsQueries<User> userQueries,
-        ITgsCommands<User> userCommands,
-        IJsonSerializationProvider jsonSerializationProvider)
-    {
-        _passwordHandler = passwordHandler;
-        _antiForgery = antiForgery;
-        _userQueries = userQueries;
-        _userCommands = userCommands;
-        _jsonSerializationProvider = jsonSerializationProvider;
-    }
-
     [AllowAnonymous]
     [IgnoreAntiforgeryToken]
     [HttpPost("auth")]
     [Description("Authenticate user login")]
     public async Task<AuthenticateUserResponse> AuthenticateAsync([FromBody] AuthenticateUserRequest request)
     {
-        var user = await _userQueries.GetSingleAsync(p => p.Username == request.Username,
+        var user = await userQueries.GetSingleAsync(p => p.Username == request.Username,
             u => u.Include(p => p.Role));
 
         if (user == null)
@@ -58,7 +43,7 @@ public class AuthenticateController : BaseContextController
             return CreateInvalidResponse<AuthenticateUserResponse>(Resources.User.NotFound);
         }
 
-        if (!_passwordHandler.Verify(user.Password, user.Salt, request.Password))
+        if (!passwordHandler.Verify(user.Password, user.Salt, request.Password))
         {
             return CreateInvalidResponse<AuthenticateUserResponse>(Resources.User.InvalidPassword);
         }
@@ -75,7 +60,7 @@ public class AuthenticateController : BaseContextController
 
         user.LastLoginTime = DateTimeOffset.Now;
 
-        await _userCommands.UpdateAsync(user);
+        await userCommands.UpdateAsync(user);
         await SignInAsync(user);
 
         return new()
@@ -93,7 +78,7 @@ public class AuthenticateController : BaseContextController
                 Username = user.Username,
                 UserId = user.Id,
                 TimeZone = user.TimeZone,
-                Menus = _jsonSerializationProvider.DeserializeFromString<MenuSetting[]>(user.Role
+                Menus = jsonSerializationProvider.DeserializeFromString<MenuSetting[]>(user.Role
                     .MenuSetting)
             }
         };
@@ -105,7 +90,7 @@ public class AuthenticateController : BaseContextController
 
     private void SetCsrfToken()
     {
-        var tokens = _antiForgery.GetAndStoreTokens(HttpContext);
+        var tokens = antiForgery.GetAndStoreTokens(HttpContext);
 
         HttpContext.Response.Cookies.Append(
             Consts.BackendOffice.CsrfTokenName,

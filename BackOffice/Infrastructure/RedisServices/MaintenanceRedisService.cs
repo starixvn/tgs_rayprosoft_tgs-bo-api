@@ -6,23 +6,16 @@ using TGS.Core.Infrastructures.Redis;
 
 namespace TGS.Services.BackOffice.Infrastructure.RedisServices;
 
-public sealed class MaintenanceRedisService : IMaintenanceRedisService
+public sealed class MaintenanceRedisService(IRedisCacheManager cacheManager) : IMaintenanceRedisService
 {
     private const string Brands = "Brands";
     private const string Licensees = "Licensees";
     private const string Maintenance = "Maintenance";
     private const string Resellers = "Resellers";
-    private readonly IRedisCacheManager _cacheManager;
-
-    public MaintenanceRedisService(IRedisCacheManager cacheManager)
-    {
-        _cacheManager = cacheManager ?? throw new ArgumentNullException(nameof(cacheManager));
-    }
+    private readonly IRedisCacheManager _cacheManager = cacheManager ?? throw new ArgumentNullException(nameof(cacheManager));
 
     async ValueTask IMaintenanceRedisService.AddBrandMaintenanceAsync(Guid id)
-    {
-        await AddMaintenanceAsync(Brands, id).ConfigureAwait(false);
-    }
+        => await AddMaintenanceAsync(Brands, id).ConfigureAwait(false);
 
     async ValueTask IMaintenanceRedisService.AddBrandMaintenancesAsync(Guid[] ids)
     {
@@ -129,7 +122,7 @@ public sealed class MaintenanceRedisService : IMaintenanceRedisService
             tasks.Add(task);
         }
 
-        await Task.WhenAll(tasks.ToArray()).ConfigureAwait(false);
+        await Task.WhenAll([.. tasks]).ConfigureAwait(false);
     }
 
     private async ValueTask ClearMaintenanceAsync(string merchantKey, Guid id)

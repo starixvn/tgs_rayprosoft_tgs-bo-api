@@ -8,15 +8,11 @@ using TGS.Services.BackOffice.Application.Models.BrandAllAgent;
 
 namespace TGS.Services.BackOffice.Application.Commands.BrandAllAgentHandlers;
 
-public class UpdateBrandAllAgentSwitchHandler : Handler<UpdateBrandAllAgentSwitchRequest, MessageResponse>
+public class UpdateBrandAllAgentSwitchHandler(
+    IBrandAllAgentClient client,
+    IHttpContextAccessor accessor) : Handler<UpdateBrandAllAgentSwitchRequest, MessageResponse>(accessor)
 {
-    private readonly IBrandAllAgentClient _client;
-
-    public UpdateBrandAllAgentSwitchHandler(
-        IBrandAllAgentClient client,
-        IHttpContextAccessor accessor)
-        : base(accessor) =>
-        _client = client;
+    private readonly IBrandAllAgentClient _client = client;
 
     public override async Task<MessageResponse> Handle(UpdateBrandAllAgentSwitchRequest request,
         CancellationToken cancellationToken)

@@ -6,14 +6,9 @@ using TGS.Services.BackOffice.Domain;
 
 namespace TGS.Services.BackOffice.ApplicationServices;
 
-internal class RemoveAgentDomainCommandService : ICommandService<RemoveAgentDomainCommand>
+internal class RemoveAgentDomainCommandService(IAgentRepository agentRepository) : ICommandService<RemoveAgentDomainCommand>
 {
-    private readonly IAgentRepository _agentRepository;
-
-    public RemoveAgentDomainCommandService(IAgentRepository agentRepository)
-    {
-        _agentRepository = agentRepository ?? throw new ArgumentNullException(nameof(agentRepository));
-    }
+    private readonly IAgentRepository _agentRepository = agentRepository ?? throw new ArgumentNullException(nameof(agentRepository));
 
     public ValueTask ExecuteAsync(RemoveAgentDomainCommand command, CancellationToken cancellationToken = default)
         => _agentRepository.RemoveDomainFromAgentAsync(command.AgentId, command.DomainName);

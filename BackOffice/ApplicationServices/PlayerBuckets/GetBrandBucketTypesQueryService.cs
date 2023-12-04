@@ -6,14 +6,9 @@ using Tgs.ServiceUtility;
 
 namespace TGS.Services.BackOffice.ApplicationServices.PlayerBuckets;
 
-internal class GetBrandBucketTypesQueryService : IQueryService<GetBrandBucketTypesQuery, string>
+internal class GetBrandBucketTypesQueryService(IPlayerBucketClient playerBucketClient) : IQueryService<GetBrandBucketTypesQuery, string>
 {
-    private readonly IPlayerBucketClient _playerBucketClient;
-
-    public GetBrandBucketTypesQueryService(IPlayerBucketClient playerBucketClient)
-    {
-        _playerBucketClient = playerBucketClient ?? throw new ArgumentNullException(nameof(playerBucketClient));
-    }
+    private readonly IPlayerBucketClient _playerBucketClient = playerBucketClient ?? throw new ArgumentNullException(nameof(playerBucketClient));
 
     public IAsyncEnumerable<string> QueryAsync(GetBrandBucketTypesQuery query, CancellationToken cancellationToken = default)
         => _playerBucketClient.GetBrandBucketTypesAsync(query.BrandId, cancellationToken);

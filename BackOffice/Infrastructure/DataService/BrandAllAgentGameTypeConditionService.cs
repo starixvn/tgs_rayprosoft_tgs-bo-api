@@ -27,14 +27,9 @@ public interface IBrandAllAgentGameTypeConditionService
     Task UpdateBrandAllAgentGameTypeConditionsAsync(BrandAllAgentGameTypeCondition[] brandAllAgents);
 }
 
-public class BrandAllAgentGameTypeConditionService : BaseRepositoryOperations<ITgsRepository>,
+public class BrandAllAgentGameTypeConditionService(ITgsRepository tgsRepository) : BaseRepositoryOperations<ITgsRepository>(tgsRepository),
     IBrandAllAgentGameTypeConditionService
 {
-    public BrandAllAgentGameTypeConditionService(ITgsRepository tgsRepository)
-        : base(tgsRepository)
-    {
-    }
-
     public Task CreateBrandAllAgentGameTypeConditionsAsync(BrandAllAgentGameTypeCondition[] brandAllAgents)
         => CreateEntitiesAsync(brandAllAgents);
 

@@ -9,15 +9,10 @@ using TGS.Core.Models.Enums;
 
 namespace TGS.Services.BackOffice.Application.Queries.GameProviders;
 
-internal class GameProvidersBrandQueryService
-    : IGetService<GameProvidersBrandQueryQuery, GameProvidersBrandQueryResult>
+internal class GameProvidersBrandQueryService(ITgsRepository tgsRepository)
+        : IGetService<GameProvidersBrandQueryQuery, GameProvidersBrandQueryResult>
 {
-    private readonly ITgsRepository _tgsRepository;
-
-    public GameProvidersBrandQueryService(ITgsRepository tgsRepository)
-    {
-        _tgsRepository = tgsRepository ?? throw new ArgumentNullException(nameof(tgsRepository));
-    }
+    private readonly ITgsRepository _tgsRepository = tgsRepository ?? throw new ArgumentNullException(nameof(tgsRepository));
 
     public ValueTask<GameProvidersBrandQueryResult> GetAsync(GameProvidersBrandQueryQuery query, CancellationToken cancellationToken = default)
     {

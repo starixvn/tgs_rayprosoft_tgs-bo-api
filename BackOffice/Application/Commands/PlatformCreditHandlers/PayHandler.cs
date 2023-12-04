@@ -8,14 +8,9 @@ using TGS.Services.BackOffice.Infrastructure.DataService;
 
 namespace TGS.Services.BackOffice.Application.Commands.PlatformCreditHandlers;
 
-public class PayHandler : Handler<PayRequest, MessageResponse>
+public class PayHandler(IPlatformCreditService service, IHttpContextAccessor accessor) : Handler<PayRequest, MessageResponse>(accessor)
 {
-    private readonly IPlatformCreditService _service;
-
-    public PayHandler(IPlatformCreditService service, IHttpContextAccessor accessor) : base(accessor)
-    {
-        _service = service;
-    }
+    private readonly IPlatformCreditService _service = service;
 
     public override async Task<MessageResponse> Handle(PayRequest request,
         CancellationToken cancellationToken)

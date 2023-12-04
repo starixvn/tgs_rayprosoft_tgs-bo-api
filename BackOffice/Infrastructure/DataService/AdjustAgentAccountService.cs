@@ -7,13 +7,9 @@ using TGS.Core.Models.Enums;
 
 namespace TGS.Services.BackOffice.Infrastructure.DataService;
 
-public class AdjustAgentAccountService : BaseRepositoryOperations<ITgsRepository>, IAdjustAgentAccountService
+public class AdjustAgentAccountService(ITgsRepository tgsRepository) : BaseRepositoryOperations<ITgsRepository>(
+    tgsRepository), IAdjustAgentAccountService
 {
-    public AdjustAgentAccountService(ITgsRepository tgsRepository) : base(
-        tgsRepository)
-    {
-    }
-
     public async ValueTask<AdjustAgentRecord> CreateAsync(
         Guid transactionId,
         Guid brandId,

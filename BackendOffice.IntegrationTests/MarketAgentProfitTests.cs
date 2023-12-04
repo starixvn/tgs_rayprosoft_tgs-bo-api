@@ -12,16 +12,10 @@ using Xunit.Abstractions;
 
 namespace BackendOffice.IntegrationTests;
 
-public class MarketAgentProfitTests
+public class MarketAgentProfitTests(ITestOutputHelper testOutputHelper, NodeJsFixture nodeJsFixture)
 {
-    private readonly ITestOutputHelper _testOutputHelper;
-    private readonly NodeJsFixture _nodeJsFixture;
-
-    public MarketAgentProfitTests(ITestOutputHelper testOutputHelper, NodeJsFixture nodeJsFixture)
-    {
-        _testOutputHelper = testOutputHelper ?? throw new ArgumentNullException(nameof(testOutputHelper));
-        _nodeJsFixture = nodeJsFixture ?? throw new ArgumentNullException(nameof(nodeJsFixture));
-    }
+    private readonly ITestOutputHelper _testOutputHelper = testOutputHelper ?? throw new ArgumentNullException(nameof(testOutputHelper));
+    private readonly NodeJsFixture _nodeJsFixture = nodeJsFixture ?? throw new ArgumentNullException(nameof(nodeJsFixture));
 
     [Fact]
     public async Task Get_Market_Agent_Profit_Report()
@@ -72,11 +66,13 @@ public class MarketAgentProfitTests
         {
             TotalCount = 1,
             Valid = true,
-            Items = new[] {
-                new MarketAgentProfitReportModel{
-                    MasterAgentName="agentName",
-                    Percentage=10M }
-            }
+            Items = [
+                new MarketAgentProfitReportModel
+                {
+                    MasterAgentName = "agentName",
+                    Percentage = 10M
+                }
+            ]
         };
         _ = fakeService.GetAsync(
             Arg.Any<GetMarketAgentProfitsReportRequest>(),

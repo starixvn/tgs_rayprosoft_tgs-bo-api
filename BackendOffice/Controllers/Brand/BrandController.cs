@@ -27,15 +27,8 @@ namespace TGS.Apis.BackendOffice.Controllers.Brand;
 
 [Route("api/[controller]")]
 [ApiController]
-public partial class BrandController : BaseContextController
+public partial class BrandController(IMediator mediator) : BaseContextController
 {
-    private readonly IMediator _mediator;
-
-    public BrandController(IMediator mediator)
-    {
-        _mediator = mediator;
-    }
-
     [HttpPost(Name = "CreateBrand")]
     [Description("Create a Brand")]
     public async ValueTask<MessageResponse> CreateBrandAsync(
@@ -106,7 +99,7 @@ public partial class BrandController : BaseContextController
     [HttpGet("{id}", Name = "GetBrand")]
     [Description("Get a Brand")]
     public Task<GetBrandResponse> GetBrandAsync(Guid id)
-        => _mediator.Send(new GetBrandRequest(id), HttpContext.RequestAborted);
+        => mediator.Send(new GetBrandRequest(id), HttpContext.RequestAborted);
 
     [HttpGet("logo/{brandId}", Name = "GetBrandLogoInfo")]
     public async ValueTask<ResponseViewModel<BrandLogoInfoViewModel>> GetBrandLogoInfoAsync(
@@ -300,13 +293,13 @@ public partial class BrandController : BaseContextController
     [HttpGet("{id}/syncGames", Name = "SyncBrandGames")]
     [Description("sync brand games")]
     public Task<MessageResponse> SyncBrandGamesAsync(Guid id)
-        => _mediator.Send(new SyncGamesRequest(id));
+        => mediator.Send(new SyncGamesRequest(id));
 
     [HttpPut("{id}", Name = "UpdateBrand")]
     [Description("Update a Brand")]
     public Task<MessageResponse> UpdateBrandAsync(Guid id, UpdateBrandRequest request)
     {
         request.Id = id;
-        return _mediator.Send(request);
+        return mediator.Send(request);
     }
 }

@@ -46,10 +46,7 @@ public class GameProviderBetLimitControllerTests : BaseTests
 
         var request = new GetGameProviderBetLimitsRequest
         {
-            GameProviderIds = new[]
-            {
-                Guid.NewGuid()
-            }
+            GameProviderIds = [Guid.NewGuid()]
         };
 
         _ = mediatorMock

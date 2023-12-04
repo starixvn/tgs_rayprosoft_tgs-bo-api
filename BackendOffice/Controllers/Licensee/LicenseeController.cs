@@ -13,32 +13,25 @@ namespace TGS.Apis.BackendOffice.Controllers.Licensee;
 
 [Route("api/[controller]")]
 [ApiController]
-public partial class LicenseeController : BaseContextController
+public partial class LicenseeController(ILicenseeService service) : BaseContextController
 {
-    private readonly ILicenseeService _service;
-
-    public LicenseeController(ILicenseeService service)
-    {
-        _service = service;
-    }
-
     [HttpPost]
     [Description("Create a Licensee")]
     public async Task<MessageResponse> CreateLicenseeAsync(CreateLicenseeRequest request)
     {
-        if (await _service.ExistsAsync(x => x.Name == request.Name))
+        if (await service.ExistsAsync(x => x.Name == request.Name))
         {
             return CreateInvalidResponse<MessageResponse>(Resources.Licensee.NameExists);
         }
 
 #pragma warning disable CA1862 // 使用 'StringComparison' 方法多載來執行不區分大小寫的字串比較
-        if (await _service.ExistsAsync(x => x.Code.ToLower() == request.Code.ToLower()))
+        if (await service.ExistsAsync(x => x.Code.ToLower() == request.Code.ToLower()))
         {
             return CreateInvalidResponse<MessageResponse>(Resources.Licensee.CodeExists);
         }
 #pragma warning restore CA1862 // 使用 'StringComparison' 方法多載來執行不區分大小寫的字串比較
 
-        await _service.CreateLicenseeAsync(request, Username);
+        await service.CreateLicenseeAsync(request, Username);
 
         return CreateValidResponse<MessageResponse>();
     }
@@ -47,7 +40,7 @@ public partial class LicenseeController : BaseContextController
     [Description("Get a Licensee")]
     public async Task<GetLicenseeResponse> GetLicenseeAsync(Guid id)
     {
-        var licensee = await _service.GetLicenseeAsync(x => x.Id == id,
+        var licensee = await service.GetLicenseeAsync(x => x.Id == id,
             x => x.Include(i => i.Currencies)
                 .Include(i => i.Languages)
                 .Include(i => i.GameProviders)
@@ -107,7 +100,7 @@ public partial class LicenseeController : BaseContextController
     [Description("Get licensees: 營運商列表")]
     public Task<PagedResponse<LicenseeModel>> GetLicenseesAsync([FromQuery] GetLicenseesRequest request)
     {
-        return _service.GetLicensees(request)
+        return service.GetLicensees(request)
             .Where(request.ResellerId, x => x.ResellerId == request.ResellerId)
             .Where(ResellerId, x => x.ResellerId == ResellerId)
             .Where(LicenseeId, x => x.Id == LicenseeId)
@@ -130,24 +123,24 @@ public partial class LicenseeController : BaseContextController
     [Description("Update a Licensee")]
     public async Task<MessageResponse> UpdateLicenseeAsync(Guid id, UpdateLicenseeRequest request)
     {
-        var licensee = await _service.GetLicenseeAsync(q => q.Id == id, tracking: true);
+        var licensee = await service.GetLicenseeAsync(q => q.Id == id, tracking: true);
 
         if (licensee == null)
         {
             return CreateInvalidResponse<MessageResponse>(Resources.Licensee.NotFound);
         }
 
-        if (await _service.ExistsAsync(x => x.Id != id && x.Name == request.Name))
+        if (await service.ExistsAsync(x => x.Id != id && x.Name == request.Name))
         {
             return CreateInvalidResponse<MessageResponse>(Resources.Licensee.NameExists);
         }
 
-        if (await _service.ExistsAsync(x => x.Id != id && x.Code == request.Code))
+        if (await service.ExistsAsync(x => x.Id != id && x.Code == request.Code))
         {
             return CreateInvalidResponse<MessageResponse>(Resources.Licensee.CodeExists);
         }
 
-        await _service.UpdateLicenseeAsync(licensee, request, Username);
+        await service.UpdateLicenseeAsync(licensee, request, Username);
 
         return CreateValidResponse<MessageResponse>();
     }

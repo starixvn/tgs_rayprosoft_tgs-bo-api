@@ -16,27 +16,19 @@ using Tgs.ServiceUtility;
 
 namespace TGS.Services.BackOffice.ApplicationServices.Adjust;
 
-internal class ExportAdjustRecordsCommandService
-    : ICommandService<ExportAgentAdjustRecordsCommand>,
-    ICommandService<ExportPlayerAdjustRecordsCommand>,
-    ICommandService<ExportAllAdjustRecordsCommand>
+internal class ExportAdjustRecordsCommandService(
+    ICashQueryClient cashQueryClient,
+    IQueryService<BrandRelationQuery, BrandRelationInfo> brandRelationQueryService,
+    IAgentClient agentClient,
+    IPlayerServiceClient playerServiceClient)
+    : ICommandService<ExportAgentAdjustRecordsCommand>
+    , ICommandService<ExportPlayerAdjustRecordsCommand>
+    , ICommandService<ExportAllAdjustRecordsCommand>
 {
-    private readonly IAgentClient _agentClient;
-    private readonly IQueryService<BrandRelationQuery, BrandRelationInfo> _brandRelationQueryService;
-    private readonly ICashQueryClient _cashQueryClient;
-    private readonly IPlayerServiceClient _playerServiceClient;
-
-    public ExportAdjustRecordsCommandService(
-        ICashQueryClient cashQueryClient,
-        IQueryService<BrandRelationQuery, BrandRelationInfo> brandRelationQueryService,
-        IAgentClient agentClient,
-        IPlayerServiceClient playerServiceClient)
-    {
-        _cashQueryClient = cashQueryClient ?? throw new ArgumentNullException(nameof(cashQueryClient));
-        _brandRelationQueryService = brandRelationQueryService ?? throw new ArgumentNullException(nameof(brandRelationQueryService));
-        _agentClient = agentClient ?? throw new ArgumentNullException(nameof(agentClient));
-        _playerServiceClient = playerServiceClient ?? throw new ArgumentNullException(nameof(playerServiceClient));
-    }
+    private readonly IAgentClient _agentClient = agentClient ?? throw new ArgumentNullException(nameof(agentClient));
+    private readonly IQueryService<BrandRelationQuery, BrandRelationInfo> _brandRelationQueryService = brandRelationQueryService ?? throw new ArgumentNullException(nameof(brandRelationQueryService));
+    private readonly ICashQueryClient _cashQueryClient = cashQueryClient ?? throw new ArgumentNullException(nameof(cashQueryClient));
+    private readonly IPlayerServiceClient _playerServiceClient = playerServiceClient ?? throw new ArgumentNullException(nameof(playerServiceClient));
 
     public async ValueTask ExecuteAsync(ExportAgentAdjustRecordsCommand command, CancellationToken cancellationToken = default)
     {

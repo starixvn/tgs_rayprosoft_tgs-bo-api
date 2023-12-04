@@ -20,29 +20,18 @@ using PlayerStatus = TGS.Core.Models.Enums.PlayerStatus;
 
 namespace TGS.Services.BackOffice.Application.Commands.PlayerHandlers;
 
-public class UpdatePlayerHandler : Handler<UpdatePlayerRequest, MessageResponse>
+public class UpdatePlayerHandler(
+    ILogger<UpdatePlayerHandler> logger,
+    IPlayerService service,
+    IAgentService agentService,
+    IHttpContextAccessor accessor,
+    IGameProvidersBackofficePluggableClient gameProvidersBackofficePluggableClient,
+    IPlayerServiceClient playerServiceClient)
+    : Handler<UpdatePlayerRequest, MessageResponse>(accessor)
 {
-    private readonly IAgentService _agentService;
-    private readonly IGameProvidersBackofficePluggableClient _gameProvidersBackofficePluggableClient;
-    private readonly ILogger<UpdatePlayerHandler> _logger;
-    private readonly IPlayerServiceClient _playerServiceClient;
-    private readonly IPlayerService _service;
-
-    public UpdatePlayerHandler(
-        ILogger<UpdatePlayerHandler> logger,
-        IPlayerService service,
-        IAgentService agentService,
-        IHttpContextAccessor accessor,
-        IGameProvidersBackofficePluggableClient gameProvidersBackofficePluggableClient,
-        IPlayerServiceClient playerServiceClient)
-        : base(accessor)
-    {
-        _logger = logger ?? throw new ArgumentNullException(nameof(logger));
-        _service = service;
-        _agentService = agentService;
-        _gameProvidersBackofficePluggableClient = gameProvidersBackofficePluggableClient ?? throw new ArgumentNullException(nameof(gameProvidersBackofficePluggableClient));
-        _playerServiceClient = playerServiceClient ?? throw new ArgumentNullException(nameof(playerServiceClient));
-    }
+    private readonly IGameProvidersBackofficePluggableClient _gameProvidersBackofficePluggableClient = gameProvidersBackofficePluggableClient ?? throw new ArgumentNullException(nameof(gameProvidersBackofficePluggableClient));
+    private readonly ILogger<UpdatePlayerHandler> _logger = logger ?? throw new ArgumentNullException(nameof(logger));
+    private readonly IPlayerServiceClient _playerServiceClient = playerServiceClient ?? throw new ArgumentNullException(nameof(playerServiceClient));
 
     public override async Task<MessageResponse> Handle(
         UpdatePlayerRequest request,
@@ -60,7 +49,7 @@ public class UpdatePlayerHandler : Handler<UpdatePlayerRequest, MessageResponse>
             return CreateInvalidResponse<MessageResponse>(Player.UpdateTypeNotFound);
         }
 
-        var player = await _service.GetPlayerAsync(p => p.PlayerCode == request.PlayerCode)
+        var player = await service.GetPlayerAsync(p => p.PlayerCode == request.PlayerCode)
             .ConfigureAwait(false);
 
         if (player == null)
@@ -70,7 +59,7 @@ public class UpdatePlayerHandler : Handler<UpdatePlayerRequest, MessageResponse>
 
         if (!request.AgentUsername.IsNullOrEmpty())
         {
-            var agent = await _agentService
+            var agent = await agentService
                 .GetAgentAsync(p => p.BrandId == player.BrandId
                     && p.Status == AgentStatus.Enabled
                     && p.Username == request.AgentUsername)
@@ -86,22 +75,24 @@ public class UpdatePlayerHandler : Handler<UpdatePlayerRequest, MessageResponse>
 
         if (!request.ParentUsername.IsNullOrEmpty() && request.Type == updatePlayerType[0])
         {
-            var parentPlayer = await _service
+            var parentPlayer = await service
                 .GetPlayerAsync(p => p.Username == request.ParentUsername && p.BrandId == player.BrandId)
                 .ConfigureAwait(false);
 
-            await _service
+            await service
                 .UpdateParentPlayerAsync(player.PlayerCode, parentPlayer.PlayerCode)
                 .ConfigureAwait(false);
         }
 
+#pragma warning disable CA1862 // 使用 'StringComparison' 方法多載來執行不區分大小寫的字串比較
         if (!string.IsNullOrEmpty(request.Email) && request.Type == updatePlayerType[1] &&
-            await _service.ExistsAsync(x
-                => x.BrandId == player.BrandId && x.PlayerCode != player.PlayerCode &&
-                x.Email!.ToLower() == request.Email.ToLower()))
+            await service.ExistsAsync(x => x.BrandId == player.BrandId
+                && x.PlayerCode != player.PlayerCode
+                && x.Email!.ToLower() == request.Email.ToLower()))
         {
             return CreateInvalidResponse<MessageResponse>(Player.BrandEmailDuplicate);
         }
+#pragma warning restore CA1862 // 使用 'StringComparison' 方法多載來執行不區分大小寫的字串比較
 
         if (player.Phone.IsNotNullOrEmpty() && request.Phone.IsNullOrEmpty() && request.Type == updatePlayerType[1])
         {
@@ -115,7 +106,7 @@ public class UpdatePlayerHandler : Handler<UpdatePlayerRequest, MessageResponse>
             kickPlayer = true;
         }
 
-        await _service.UpdatePlayerAsync(player, request).ConfigureAwait(false);
+        await service.UpdatePlayerAsync(player, request).ConfigureAwait(false);
 
         if (request.Type == updatePlayerType[0] && request.Birthdate != null)
         {

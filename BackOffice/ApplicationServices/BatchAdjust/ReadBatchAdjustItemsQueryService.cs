@@ -13,14 +13,9 @@ using TGS.Services.BackOffice.Domain;
 
 namespace TGS.Services.BackOffice.ApplicationServices.BatchAdjust;
 
-internal class ReadBatchAdjustItemsQueryService : IQueryService<ReadBatchAdjustItemsQuery, BatchAdjustBalanceItem>
+internal class ReadBatchAdjustItemsQueryService(IPlayerServiceClient playerServiceClient) : IQueryService<ReadBatchAdjustItemsQuery, BatchAdjustBalanceItem>
 {
-    private readonly IPlayerServiceClient _playerServiceClient;
-
-    public ReadBatchAdjustItemsQueryService(IPlayerServiceClient playerServiceClient)
-    {
-        _playerServiceClient = playerServiceClient ?? throw new ArgumentNullException(nameof(playerServiceClient));
-    }
+    private readonly IPlayerServiceClient _playerServiceClient = playerServiceClient ?? throw new ArgumentNullException(nameof(playerServiceClient));
 
     public async IAsyncEnumerable<BatchAdjustBalanceItem> QueryAsync(
         ReadBatchAdjustItemsQuery query,

@@ -11,16 +11,12 @@ using ValidBetConditionModel = Tgs.Player.All.Agent.Client.Models.ValidBetCondit
 namespace TGS.Services.BackOffice.Application.Commands.BrandAllAgentHandlers;
 
 public class
-    UpdateBrandAllAgentValidBetConditionHandler : Handler<UpdateBrandAllAgentValidBetConditionRequest,
-        MessageResponse>
+    UpdateBrandAllAgentValidBetConditionHandler(
+    IBrandAllAgentClient client,
+    IHttpContextAccessor accessor) : Handler<UpdateBrandAllAgentValidBetConditionRequest,
+        MessageResponse>(accessor)
 {
-    private readonly IBrandAllAgentClient _client;
-
-    public UpdateBrandAllAgentValidBetConditionHandler(
-        IBrandAllAgentClient client,
-        IHttpContextAccessor accessor)
-        : base(accessor) =>
-        _client = client;
+    private readonly IBrandAllAgentClient _client = client;
 
     public override async Task<MessageResponse> Handle(UpdateBrandAllAgentValidBetConditionRequest request,
         CancellationToken cancellationToken)

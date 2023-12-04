@@ -11,24 +11,16 @@ using TGS.Core.Infrastructures.Extensions;
 
 namespace TGS.Services.BackOffice.ApplicationServices.Players;
 
-internal class SetPlayerStatusCommandService : IGetService<SetPlayerStatusCommand, SetPlayerStatusResult>
+internal class SetPlayerStatusCommandService(
+    IPlayerServiceClient playerServiceClient,
+    IGameProvidersBackofficePluggableClient pluggableClient,
+    ITgsRepository repository,
+    ILogger<SetPlayerStatusCommandService> logger) : IGetService<SetPlayerStatusCommand, SetPlayerStatusResult>
 {
-    private readonly ILogger<SetPlayerStatusCommandService> _logger;
-    private readonly IPlayerServiceClient _playerServiceClient;
-    private readonly IGameProvidersBackofficePluggableClient _pluggableClient;
-    private readonly ITgsRepository _repository;
-
-    public SetPlayerStatusCommandService(
-        IPlayerServiceClient playerServiceClient,
-        IGameProvidersBackofficePluggableClient pluggableClient,
-        ITgsRepository repository,
-        ILogger<SetPlayerStatusCommandService> logger)
-    {
-        _playerServiceClient = playerServiceClient ?? throw new ArgumentNullException(nameof(playerServiceClient));
-        _pluggableClient = pluggableClient ?? throw new ArgumentNullException(nameof(pluggableClient));
-        _repository = repository ?? throw new ArgumentNullException(nameof(repository));
-        _logger = logger ?? throw new ArgumentNullException(nameof(logger));
-    }
+    private readonly ILogger<SetPlayerStatusCommandService> _logger = logger ?? throw new ArgumentNullException(nameof(logger));
+    private readonly IPlayerServiceClient _playerServiceClient = playerServiceClient ?? throw new ArgumentNullException(nameof(playerServiceClient));
+    private readonly IGameProvidersBackofficePluggableClient _pluggableClient = pluggableClient ?? throw new ArgumentNullException(nameof(pluggableClient));
+    private readonly ITgsRepository _repository = repository ?? throw new ArgumentNullException(nameof(repository));
 
     public async ValueTask<SetPlayerStatusResult> GetAsync(SetPlayerStatusCommand query, CancellationToken cancellationToken = default)
     {

@@ -6,16 +6,10 @@ using TGS.Services.BackOffice.ApplicationServices.Agents;
 
 namespace TGS.Services.BackOffice.Cache;
 
-internal class CachedAgentPlayerRegisterDetailQueryService : IQueryService<AgentPlayerRegisterDetailQuery, PlayerRegisterDetail>
+internal class CachedAgentPlayerRegisterDetailQueryService(IQueryService<AgentPlayerRegisterDetailQuery, PlayerRegisterDetail> sourceService, IMemoryCache memoryCache) : IQueryService<AgentPlayerRegisterDetailQuery, PlayerRegisterDetail>
 {
-    private readonly IMemoryCache _memoryCache;
-    private readonly IQueryService<AgentPlayerRegisterDetailQuery, PlayerRegisterDetail> _sourceService;
-
-    public CachedAgentPlayerRegisterDetailQueryService(IQueryService<AgentPlayerRegisterDetailQuery, PlayerRegisterDetail> sourceService, IMemoryCache memoryCache)
-    {
-        _sourceService = sourceService ?? throw new ArgumentNullException(nameof(sourceService));
-        _memoryCache = memoryCache ?? throw new ArgumentNullException(nameof(memoryCache));
-    }
+    private readonly IMemoryCache _memoryCache = memoryCache ?? throw new ArgumentNullException(nameof(memoryCache));
+    private readonly IQueryService<AgentPlayerRegisterDetailQuery, PlayerRegisterDetail> _sourceService = sourceService ?? throw new ArgumentNullException(nameof(sourceService));
 
     public async IAsyncEnumerable<PlayerRegisterDetail> QueryAsync(
         AgentPlayerRegisterDetailQuery query,

@@ -15,23 +15,16 @@ using Valhalla.MessageQueue;
 
 namespace TGS.Services.BackOffice.ApplicationServices.Promotion.Offline;
 
-internal class GetPlayerCodeByBatchCommandService : ICommandService<GetPlayerCodeByBatchCommand>
+internal class GetPlayerCodeByBatchCommandService(
+    IQueryService<PlayerInfosByUserNamesQuery, PlayerInfo> playerInfosQueryService,
+    IBatchTempRepository batchTempRepository,
+    IMessageSender messageSender) : ICommandService<GetPlayerCodeByBatchCommand>
 {
     private static readonly int _SegmentCount = 500;
 
-    private readonly IBatchTempRepository _batchTempRepository;
-    private readonly IMessageSender _messageSender;
-    private readonly IQueryService<PlayerInfosByUserNamesQuery, PlayerInfo> _playerInfosQueryService;
-
-    public GetPlayerCodeByBatchCommandService(
-        IQueryService<PlayerInfosByUserNamesQuery, PlayerInfo> playerInfosQueryService,
-        IBatchTempRepository batchTempRepository,
-        IMessageSender messageSender)
-    {
-        _playerInfosQueryService = playerInfosQueryService ?? throw new ArgumentNullException(nameof(playerInfosQueryService));
-        _batchTempRepository = batchTempRepository ?? throw new ArgumentNullException(nameof(batchTempRepository));
-        _messageSender = messageSender ?? throw new ArgumentNullException(nameof(messageSender));
-    }
+    private readonly IBatchTempRepository _batchTempRepository = batchTempRepository ?? throw new ArgumentNullException(nameof(batchTempRepository));
+    private readonly IMessageSender _messageSender = messageSender ?? throw new ArgumentNullException(nameof(messageSender));
+    private readonly IQueryService<PlayerInfosByUserNamesQuery, PlayerInfo> _playerInfosQueryService = playerInfosQueryService ?? throw new ArgumentNullException(nameof(playerInfosQueryService));
 
     public async ValueTask ExecuteAsync(
         GetPlayerCodeByBatchCommand command,

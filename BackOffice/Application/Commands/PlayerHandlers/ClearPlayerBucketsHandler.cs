@@ -20,8 +20,8 @@ public class ClearPlayerBucketsHandler : Handler<ClearPlayerBucketsRequest, Clea
         IHttpContextAccessor accessor)
         : base(accessor)
     {
-        if (accessor is null)
-            throw new ArgumentNullException(nameof(accessor));
+        ArgumentNullException.ThrowIfNull(accessor);
+
         _playerBucketClient = playerBucketClient ?? throw new ArgumentNullException(nameof(playerBucketClient));
         _playerServiceClient = playerServiceClient ?? throw new ArgumentNullException(nameof(playerServiceClient));
     }

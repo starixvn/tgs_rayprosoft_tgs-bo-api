@@ -17,21 +17,14 @@ using Resources = TGS.Services.BackOffice.Application.Resources;
 
 namespace TGS.Services.BackOffice.ApplicationServices.Players;
 
-internal class SetPlayerAgentCommandService : IGetService<SetPlayerAgentCommand, SetPlayerAgentResult>
+internal class SetPlayerAgentCommandService(
+    IPlayerServiceClient playerServiceClient,
+    IAgentClient agentClient,
+    ITgsRepository repository) : IGetService<SetPlayerAgentCommand, SetPlayerAgentResult>
 {
-    private readonly IAgentClient _agentClient;
-    private readonly IPlayerServiceClient _playerServiceClient;
-    private readonly ITgsRepository _repository;
-
-    public SetPlayerAgentCommandService(
-        IPlayerServiceClient playerServiceClient,
-        IAgentClient agentClient,
-        ITgsRepository repository)
-    {
-        _playerServiceClient = playerServiceClient ?? throw new ArgumentNullException(nameof(playerServiceClient));
-        _agentClient = agentClient ?? throw new ArgumentNullException(nameof(agentClient));
-        _repository = repository ?? throw new ArgumentNullException(nameof(repository));
-    }
+    private readonly IAgentClient _agentClient = agentClient ?? throw new ArgumentNullException(nameof(agentClient));
+    private readonly IPlayerServiceClient _playerServiceClient = playerServiceClient ?? throw new ArgumentNullException(nameof(playerServiceClient));
+    private readonly ITgsRepository _repository = repository ?? throw new ArgumentNullException(nameof(repository));
 
     public async ValueTask<SetPlayerAgentResult> GetAsync(SetPlayerAgentCommand command, CancellationToken cancellationToken = default)
     {

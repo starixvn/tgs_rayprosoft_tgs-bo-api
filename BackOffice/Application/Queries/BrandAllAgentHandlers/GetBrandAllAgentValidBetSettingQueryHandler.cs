@@ -9,14 +9,11 @@ using ValidBetConditionModel = TGS.Services.BackOffice.Application.Models.BrandA
 
 namespace TGS.Services.BackOffice.Application.Queries.BrandAllAgentHandlers;
 
-public class GetBrandAllAgentValidBetSettingQueryHandler : IStreamRequestHandler<GetBrandAllAgentValidBetSettingRequest,
+public class GetBrandAllAgentValidBetSettingQueryHandler(
+    IBrandAllAgentClient client) : IStreamRequestHandler<GetBrandAllAgentValidBetSettingRequest,
     ValidBetConditionModel>
 {
-    private readonly IBrandAllAgentClient _client;
-
-    public GetBrandAllAgentValidBetSettingQueryHandler(
-        IBrandAllAgentClient client) =>
-        _client = client;
+    private readonly IBrandAllAgentClient _client = client;
 
     public IAsyncEnumerable<ValidBetConditionModel> Handle(
         GetBrandAllAgentValidBetSettingRequest request,

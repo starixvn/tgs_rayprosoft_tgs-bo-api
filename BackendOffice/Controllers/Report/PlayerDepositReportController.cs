@@ -63,8 +63,8 @@ public class PlayerDepositReportController : BaseContextController
         return new PagedResponse<PlayerDepositDetailReportModel>
         {
             TotalCount = totalCount,
-            Items = dataQuery
-                .Select(item => new PlayerDepositDetailReportModel
+            Items = [
+                .. dataQuery.Select(item => new PlayerDepositDetailReportModel
                 {
                     Username = item.PlayerName,
                     FirstDepositOn = item.FirstDepositOn,
@@ -74,7 +74,7 @@ public class PlayerDepositReportController : BaseContextController
                     DepositSubtractWithdraw = item.TotalDepositAmount - item.TotalWithdrawAmount,
                     IpAddress = item.RegisterIp
                 })
-                .ToArray()
+            ]
         };
     }
 
@@ -278,8 +278,8 @@ public class PlayerDepositReportController : BaseContextController
         return new PagedResponse<PlayerDepositDetailReportModel>
         {
             TotalCount = totalCount,
-            Items = dataQuery
-                .Select(item => new PlayerDepositDetailReportModel
+            Items = [
+                .. dataQuery.Select(item => new PlayerDepositDetailReportModel
                 {
                     Username = item.PlayerName,
                     FirstDepositOn = item.FirstDepositOn,
@@ -289,7 +289,7 @@ public class PlayerDepositReportController : BaseContextController
                     DepositSubtractWithdraw = item.TotalDepositAmount - item.TotalWithdrawAmount,
                     IpAddress = item.RegisterIp
                 })
-                .ToArray()
+            ]
         };
     }
 
@@ -337,8 +337,8 @@ public class PlayerDepositReportController : BaseContextController
         return new PagedResponse<PlayerDepositDetailReportModel>
         {
             TotalCount = totalCount,
-            Items = dataQuery
-                .Select(item => new PlayerDepositDetailReportModel
+            Items = [
+                .. dataQuery.Select(item => new PlayerDepositDetailReportModel
                 {
                     Username = item.PlayerName,
                     FirstDepositOn = item.FirstDepositOn,
@@ -348,7 +348,7 @@ public class PlayerDepositReportController : BaseContextController
                     DepositSubtractWithdraw = item.TotalDepositAmount - item.TotalWithdrawAmount,
                     IpAddress = item.RegisterIp
                 })
-                .ToArray()
+            ]
         };
     }
 }

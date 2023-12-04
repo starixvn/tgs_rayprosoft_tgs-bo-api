@@ -13,12 +13,8 @@ public interface IBrandLanguageService
         bool tracking = false);
 }
 
-public class BrandLanguageService : BaseRepositoryOperations<ITgsRepository>, IBrandLanguageService
+public class BrandLanguageService(ITgsRepository tgsRepository) : BaseRepositoryOperations<ITgsRepository>(tgsRepository), IBrandLanguageService
 {
-    public BrandLanguageService(ITgsRepository tgsRepository) : base(tgsRepository)
-    {
-    }
-
     IQueryable<BrandLanguage> IBrandLanguageService.GetBrandLanguagesQueries(
         Func<IQueryable<BrandLanguage>, IQueryable<BrandLanguage>> preQuery,
         bool tracking) =>

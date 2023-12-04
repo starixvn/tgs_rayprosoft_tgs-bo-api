@@ -10,20 +10,14 @@ using Tgs.ServiceUtility;
 
 namespace TGS.Services.BackOffice.ApplicationServices.PlayerBuckets;
 
-internal class ClearPlayerBucketsCommandService
-    : ICommandService<ClearPlayerBucketsCommand>
+internal class ClearPlayerBucketsCommandService(
+    IPlayerBucketClient playerBucketClient,
+    IPlayerBucketForTypesClient playerBucketForTypesClient)
+        : ICommandService<ClearPlayerBucketsCommand>
     , ICommandService<ClearPlayerTypeBucketsCommand>
 {
-    private readonly IPlayerBucketClient _playerBucketClient;
-    private readonly IPlayerBucketForTypesClient _playerBucketForTypesClient;
-
-    public ClearPlayerBucketsCommandService(
-        IPlayerBucketClient playerBucketClient,
-        IPlayerBucketForTypesClient playerBucketForTypesClient)
-    {
-        _playerBucketClient = playerBucketClient ?? throw new ArgumentNullException(nameof(playerBucketClient));
-        _playerBucketForTypesClient = playerBucketForTypesClient ?? throw new ArgumentNullException(nameof(playerBucketForTypesClient));
-    }
+    private readonly IPlayerBucketClient _playerBucketClient = playerBucketClient ?? throw new ArgumentNullException(nameof(playerBucketClient));
+    private readonly IPlayerBucketForTypesClient _playerBucketForTypesClient = playerBucketForTypesClient ?? throw new ArgumentNullException(nameof(playerBucketForTypesClient));
 
     public ValueTask ExecuteAsync(ClearPlayerBucketsCommand command, CancellationToken cancellationToken = default)
         => _playerBucketClient.CleanBucketsAsync(

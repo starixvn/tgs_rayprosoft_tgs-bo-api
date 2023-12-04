@@ -9,15 +9,10 @@ using TGS.Services.BackOffice.Infrastructure.DataService;
 namespace TGS.Services.BackOffice.Application.Commands.GameProviderConfigurationHandlers;
 
 public class
-    UpdateGameProviderConfigurationHandler : Handler<UpdateGameProviderConfigurationRequest, MessageResponse>
+    UpdateGameProviderConfigurationHandler(IGameProviderConfigurationService service,
+    IHttpContextAccessor accessor) : Handler<UpdateGameProviderConfigurationRequest, MessageResponse>(accessor)
 {
-    private readonly IGameProviderConfigurationService _service;
-
-    public UpdateGameProviderConfigurationHandler(IGameProviderConfigurationService service,
-        IHttpContextAccessor accessor) : base(accessor)
-    {
-        _service = service;
-    }
+    private readonly IGameProviderConfigurationService _service = service;
 
     public override async Task<MessageResponse> Handle(UpdateGameProviderConfigurationRequest request,
         CancellationToken cancellationToken)

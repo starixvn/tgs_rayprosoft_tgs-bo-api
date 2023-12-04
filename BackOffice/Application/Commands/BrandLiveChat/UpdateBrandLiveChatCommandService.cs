@@ -8,18 +8,12 @@ using CoreModels = TGS.Core.DataServices.Tgs.Models;
 
 namespace TGS.Services.BackOffice.Application.Commands.BrandLiveChat;
 
-internal class UpdateBrandLiveChatCommandService : ICommandService<UpdateBrandLiveChatCommand>
+internal class UpdateBrandLiveChatCommandService(
+    ITgsQueries<CoreModels.BrandLiveChat> tgsQueries,
+    ITgsCommands<CoreModels.BrandLiveChat> commands) : ICommandService<UpdateBrandLiveChatCommand>
 {
-    private readonly ITgsCommands<CoreModels.BrandLiveChat> _commands;
-    private readonly ITgsQueries<CoreModels.BrandLiveChat> _tgsQueries;
-
-    public UpdateBrandLiveChatCommandService(
-        ITgsQueries<CoreModels.BrandLiveChat> tgsQueries,
-        ITgsCommands<CoreModels.BrandLiveChat> commands)
-    {
-        _tgsQueries = tgsQueries ?? throw new ArgumentNullException(nameof(tgsQueries));
-        _commands = commands;
-    }
+    private readonly ITgsCommands<CoreModels.BrandLiveChat> _commands = commands;
+    private readonly ITgsQueries<CoreModels.BrandLiveChat> _tgsQueries = tgsQueries ?? throw new ArgumentNullException(nameof(tgsQueries));
 
     public async ValueTask ExecuteAsync(UpdateBrandLiveChatCommand command, CancellationToken cancellationToken = default)
     {

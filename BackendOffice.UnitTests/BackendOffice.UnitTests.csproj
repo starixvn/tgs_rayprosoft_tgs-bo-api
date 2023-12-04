@@ -1,7 +1,7 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
 
   <PropertyGroup>
-    <TargetFramework>net7.0</TargetFramework>
+    <TargetFramework>net8.0</TargetFramework>
     <IsPackable>false</IsPackable>
     <RootNamespace>TGS.Tests.BackendOffice.UnitTests</RootNamespace>
     <AssemblyName>TGS.Tests.BackendOffice.UnitTests</AssemblyName>
@@ -20,7 +20,7 @@
     <PackageReference Include="ExpectedObjects" Version="3.5.4" />
     <PackageReference Include="FluentAssertions" Version="6.12.0" />
     <PackageReference Include="JunitXml.TestLogger" Version="3.0.134" />
-    <PackageReference Include="Microsoft.EntityFrameworkCore.InMemory" Version="7.0.13" />
+    <PackageReference Include="Microsoft.EntityFrameworkCore.InMemory" Version="8.0.0" />
     <PackageReference Include="MockQueryable.Moq" Version="7.0.0" />
     <PackageReference Include="NSubstitute" Version="5.1.0" />
     <PackageReference Include="NUnit" Version="4.0.1" />

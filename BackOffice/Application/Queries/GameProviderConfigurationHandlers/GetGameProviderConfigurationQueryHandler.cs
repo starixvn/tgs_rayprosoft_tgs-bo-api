@@ -10,16 +10,11 @@ using TGS.Services.BackOffice.Infrastructure.DataService;
 namespace TGS.Services.BackOffice.Application.Queries.GameProviderConfigurationHandlers;
 
 public class
-    GetGameProviderConfigurationQueryHandler : Handler<GetGameProviderConfigurationRequest,
-        GetGameProviderConfigurationResponse>
+    GetGameProviderConfigurationQueryHandler(IGameProviderConfigurationService service,
+    IHttpContextAccessor accessor) : Handler<GetGameProviderConfigurationRequest,
+        GetGameProviderConfigurationResponse>(accessor)
 {
-    private readonly IGameProviderConfigurationService _service;
-
-    public GetGameProviderConfigurationQueryHandler(IGameProviderConfigurationService service,
-        IHttpContextAccessor accessor) : base(accessor)
-    {
-        _service = service;
-    }
+    private readonly IGameProviderConfigurationService _service = service;
 
     public override async Task<GetGameProviderConfigurationResponse> Handle(
         GetGameProviderConfigurationRequest request,

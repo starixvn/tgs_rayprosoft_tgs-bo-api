@@ -14,27 +14,19 @@ using TGS.Services.BackOffice.Infrastructure.DataService;
 
 namespace TGS.Services.BackOffice.ApplicationServices.Agents;
 
-internal class AgentReduceAmountCommandService : IGetService<AgentReduceAmountCommand, AgentAdjustAmountResult>
+internal class AgentReduceAmountCommandService(
+    IAgentClient agentClient,
+    ICashServiceClient cashServiceClient,
+    IPlayerServiceClient playerServiceClient,
+    IAdjustAgentAccountService adjustAgentAccountService,
+    IAdjustTransferService adjustTransferService)
+    : IGetService<AgentReduceAmountCommand, AgentAdjustAmountResult>
 {
-    private readonly IAdjustAgentAccountService _adjustAgentAccountService;
-    private readonly IAdjustTransferService _adjustTransferService;
-    private readonly IAgentClient _agentClient;
-    private readonly ICashServiceClient _cashServiceClient;
-    private readonly IPlayerServiceClient _playerServiceClient;
-
-    public AgentReduceAmountCommandService(
-        IAgentClient agentClient,
-        ICashServiceClient cashServiceClient,
-        IPlayerServiceClient playerServiceClient,
-        IAdjustAgentAccountService adjustAgentAccountService,
-        IAdjustTransferService adjustTransferService)
-    {
-        _agentClient = agentClient ?? throw new ArgumentNullException(nameof(agentClient));
-        _cashServiceClient = cashServiceClient ?? throw new ArgumentNullException(nameof(cashServiceClient));
-        _playerServiceClient = playerServiceClient ?? throw new ArgumentNullException(nameof(playerServiceClient));
-        _adjustAgentAccountService = adjustAgentAccountService ?? throw new ArgumentNullException(nameof(adjustAgentAccountService));
-        _adjustTransferService = adjustTransferService ?? throw new ArgumentNullException(nameof(adjustTransferService));
-    }
+    private readonly IAdjustAgentAccountService _adjustAgentAccountService = adjustAgentAccountService ?? throw new ArgumentNullException(nameof(adjustAgentAccountService));
+    private readonly IAdjustTransferService _adjustTransferService = adjustTransferService ?? throw new ArgumentNullException(nameof(adjustTransferService));
+    private readonly IAgentClient _agentClient = agentClient ?? throw new ArgumentNullException(nameof(agentClient));
+    private readonly ICashServiceClient _cashServiceClient = cashServiceClient ?? throw new ArgumentNullException(nameof(cashServiceClient));
+    private readonly IPlayerServiceClient _playerServiceClient = playerServiceClient ?? throw new ArgumentNullException(nameof(playerServiceClient));
 
     public async ValueTask<AgentAdjustAmountResult> GetAsync(
         AgentReduceAmountCommand command,

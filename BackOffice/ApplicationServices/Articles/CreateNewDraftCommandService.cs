@@ -6,14 +6,9 @@ using Tgs.ServiceUtility;
 
 namespace TGS.Services.BackOffice.ApplicationServices.Articles;
 
-internal class CreateNewDraftCommandService : IGetService<CreateNewDraftCommand, Guid>
+internal class CreateNewDraftCommandService(IArticleManagementClient articleManagementClient) : IGetService<CreateNewDraftCommand, Guid>
 {
-    private readonly IArticleManagementClient _articleManagementClient;
-
-    public CreateNewDraftCommandService(IArticleManagementClient articleManagementClient)
-    {
-        _articleManagementClient = articleManagementClient ?? throw new ArgumentNullException(nameof(articleManagementClient));
-    }
+    private readonly IArticleManagementClient _articleManagementClient = articleManagementClient ?? throw new ArgumentNullException(nameof(articleManagementClient));
 
     public ValueTask<Guid> GetAsync(CreateNewDraftCommand command, CancellationToken cancellationToken = default)
     {

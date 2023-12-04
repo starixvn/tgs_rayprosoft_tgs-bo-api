@@ -9,13 +9,10 @@ using TGS.Services.BackOffice.Domain;
 
 namespace TGS.Services.BackOffice.Application.Queries.Game;
 
-internal class GetGameLocalizationQueryService : IGetService<GetGameLocalizationQuery, GameLocalizationInfo>
+internal class GetGameLocalizationQueryService(
+    ITgsRepository tgsRepository) : IGetService<GetGameLocalizationQuery, GameLocalizationInfo>
 {
-    private readonly ITgsRepository _tgsRepository;
-
-    public GetGameLocalizationQueryService(
-        ITgsRepository tgsRepository)
-        => _tgsRepository = tgsRepository ?? throw new ArgumentNullException(nameof(tgsRepository));
+    private readonly ITgsRepository _tgsRepository = tgsRepository ?? throw new ArgumentNullException(nameof(tgsRepository));
 
     public async ValueTask<GameLocalizationInfo> GetAsync(
         GetGameLocalizationQuery query,

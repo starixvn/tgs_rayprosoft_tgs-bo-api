@@ -13,16 +13,10 @@ using Xunit.Abstractions;
 
 namespace BackendOffice.IntegrationTests;
 
-public class AgentReportTests
+public class AgentReportTests(ITestOutputHelper testOutputHelper, NodeJsFixture nodeJsFixture)
 {
-    private readonly ITestOutputHelper _testOutputHelper;
-    private readonly NodeJsFixture _nodeJsFixture;
-
-    public AgentReportTests(ITestOutputHelper testOutputHelper, NodeJsFixture nodeJsFixture)
-    {
-        _testOutputHelper = testOutputHelper ?? throw new ArgumentNullException(nameof(testOutputHelper));
-        _nodeJsFixture = nodeJsFixture ?? throw new ArgumentNullException(nameof(nodeJsFixture));
-    }
+    private readonly ITestOutputHelper _testOutputHelper = testOutputHelper ?? throw new ArgumentNullException(nameof(testOutputHelper));
+    private readonly NodeJsFixture _nodeJsFixture = nodeJsFixture ?? throw new ArgumentNullException(nameof(nodeJsFixture));
 
     [Fact]
     public async Task 取得代理的玩家輸贏列表資料()
@@ -70,29 +64,27 @@ public class AgentReportTests
         var response = new Tgs.Report.Client.Models.PagedResponse<AgentPlayerWinLossModel>
         {
             Valid = true,
-            Items = new[]
+            Items = [
+                new AgentPlayerWinLossModel
                 {
-                    new AgentPlayerWinLossModel
-                    {
-                        Username = "tester1",
-                        CardGameWinLossAmount= 10,
-                        LiveDealerWinLossAmount=20,
-                        LotteryWinLossAmount=30,
-                        SlotWinLossAmount=40,
-                        SportsWinLossAmount=50,
-                        VirtualSportsWinLossAmount =60
-                    },
-                    new AgentPlayerWinLossModel
-                    {
-                        Username = "tester2",
-                        CardGameWinLossAmount= 70,
-                        LiveDealerWinLossAmount=80,
-                        LotteryWinLossAmount=90,
-                        SlotWinLossAmount=100,
-                        SportsWinLossAmount=110,
-                        VirtualSportsWinLossAmount =120
-                    }
+                    Username = "tester1",
+                    CardGameWinLossAmount = 10,
+                    LiveDealerWinLossAmount = 20,
+                    LotteryWinLossAmount = 30,
+                    SlotWinLossAmount = 40,
+                    SportsWinLossAmount = 50,
+                    VirtualSportsWinLossAmount = 60
                 },
+                new AgentPlayerWinLossModel
+                {
+                    Username = "tester2",
+                    CardGameWinLossAmount = 70,
+                    LiveDealerWinLossAmount = 80,
+                    LotteryWinLossAmount = 90,
+                    SlotWinLossAmount = 100,
+                    SportsWinLossAmount = 110,
+                    VirtualSportsWinLossAmount = 120
+                }],
             TotalCount = 2
         };
 

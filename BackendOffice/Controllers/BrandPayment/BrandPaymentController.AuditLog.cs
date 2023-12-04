@@ -16,7 +16,7 @@ public partial class BrandPaymentController
     [Description("Get a payment's audit log")]
     public async Task<GetBrandPaymentAuditLogResponse> GetAuditLogAsync(Guid paymentId)
     {
-        var auditLogs = await _auditLogQueries.GetQueries().Where(q => q.BrandPaymentId == paymentId).ToArrayAsync();
+        var auditLogs = await auditLogQueries.GetQueries().Where(q => q.BrandPaymentId == paymentId).ToArrayAsync();
 
         return new GetBrandPaymentAuditLogResponse
         {

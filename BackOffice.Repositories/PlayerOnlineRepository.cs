@@ -6,16 +6,11 @@ using TGS.Services.BackOffice.Domain;
 
 namespace TGS.BackOffice.Repositories;
 
-internal class PlayerOnlineRepository : IPlayerOnlineRepository
+internal class PlayerOnlineRepository(
+    IDatabase database) : IPlayerOnlineRepository
 {
     private const string PlayerOnlineKey = "playeronline";
-    private readonly IDatabase _database;
-
-    public PlayerOnlineRepository(
-        IDatabase database)
-    {
-        _database = database ?? throw new ArgumentNullException(nameof(database));
-    }
+    private readonly IDatabase _database = database ?? throw new ArgumentNullException(nameof(database));
 
     public async ValueTask<string[]> GetQueryAsync(Guid brandId)
     {

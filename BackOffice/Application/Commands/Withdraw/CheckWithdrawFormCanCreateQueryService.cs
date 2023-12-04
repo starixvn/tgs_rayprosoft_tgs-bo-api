@@ -7,14 +7,9 @@ using Tgs.ServiceUtility;
 
 namespace TGS.Services.BackOffice.Application.Commands.Withdraw;
 
-internal class CheckWithdrawFormCanCreateQueryService : IGetService<CreateWithdrawFormCommand, bool>
+internal class CheckWithdrawFormCanCreateQueryService(IPaymentServiceClient paymentServiceClient) : IGetService<CreateWithdrawFormCommand, bool>
 {
-    private readonly IPaymentServiceClient _paymentServiceClient;
-
-    public CheckWithdrawFormCanCreateQueryService(IPaymentServiceClient paymentServiceClient)
-    {
-        _paymentServiceClient = paymentServiceClient ?? throw new ArgumentNullException(nameof(paymentServiceClient));
-    }
+    private readonly IPaymentServiceClient _paymentServiceClient = paymentServiceClient ?? throw new ArgumentNullException(nameof(paymentServiceClient));
 
     public async ValueTask<bool> GetAsync(CreateWithdrawFormCommand query, CancellationToken cancellationToken = default)
     {

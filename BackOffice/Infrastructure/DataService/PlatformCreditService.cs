@@ -35,14 +35,11 @@ public interface IPlatformCreditService
             UpdatePlatformCreditRequest request);
 }
 
-public class PlatformCreditService : BaseRepositoryOperations<ITgsRepository>, IPlatformCreditService
+public class PlatformCreditService(
+    ITgsRepository tgsRepository) : BaseRepositoryOperations<ITgsRepository>(
+    tgsRepository), IPlatformCreditService
 {
-    private readonly ITgsRepository _repository;
-
-    public PlatformCreditService(
-        ITgsRepository tgsRepository) : base(
-        tgsRepository)
-        => _repository = tgsRepository;
+    private readonly ITgsRepository _repository = tgsRepository;
 
     Task<PlatformCredit> IPlatformCreditService.GetPlatformCreditAsync(
         Expression<Func<PlatformCredit, bool>> predicate,

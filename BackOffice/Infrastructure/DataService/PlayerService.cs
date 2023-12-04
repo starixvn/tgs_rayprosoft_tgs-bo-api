@@ -57,22 +57,15 @@ public interface IPlayerService
     ValueTask UpdatePlayerIdentityAsync(string playerCode, Guid identityAuthenticationFormId);
 }
 
-public class PlayerService : BaseRepositoryOperations<ITgsRepository>, IPlayerService
+public class PlayerService(
+    ITgsRepository tgsRepository,
+    IPasswordHandler passwordHandler,
+    IRedisCacheManager cacheManager) : BaseRepositoryOperations<ITgsRepository>(
+    tgsRepository), IPlayerService
 {
-    private readonly IRedisCacheManager _cacheManager;
-    private readonly IPasswordHandler _passwordHandler;
-    private readonly ITgsRepository _repository;
-
-    public PlayerService(
-        ITgsRepository tgsRepository,
-        IPasswordHandler passwordHandler,
-        IRedisCacheManager cacheManager) : base(
-        tgsRepository)
-    {
-        _repository = tgsRepository;
-        _passwordHandler = passwordHandler;
-        _cacheManager = cacheManager;
-    }
+    private readonly IRedisCacheManager _cacheManager = cacheManager;
+    private readonly IPasswordHandler _passwordHandler = passwordHandler;
+    private readonly ITgsRepository _repository = tgsRepository;
 
     public async ValueTask<Guid> CreatePlayerAuthenticationFormAsync(Guid brandId, string playerCode, string data)
     {

@@ -12,13 +12,10 @@ using TGS.Services.BackOffice.Application.Models.ReportRound;
 namespace TGS.Services.BackOffice.Application.Queries.ReportRoundQueries;
 
 public class
-    GetClosedRoundsQuery : IGetService<GetClosedRoundsReportRequest,
+    GetClosedRoundsQuery(IReportClient reportClient) : IGetService<GetClosedRoundsReportRequest,
         PagedResponse<ClosedRoundReportModel>>
 {
-    private readonly IReportClient _reportClient;
-
-    public GetClosedRoundsQuery(IReportClient reportClient)
-        => _reportClient = reportClient ?? throw new ArgumentNullException(nameof(reportClient));
+    private readonly IReportClient _reportClient = reportClient ?? throw new ArgumentNullException(nameof(reportClient));
 
     public async ValueTask<PagedResponse<ClosedRoundReportModel>> GetAsync(
         GetClosedRoundsReportRequest request,

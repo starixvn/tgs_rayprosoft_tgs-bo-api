@@ -260,10 +260,11 @@ public class PromotionTests
 
         var promotionId = Guid.NewGuid();
 
+        var vipLevels = new[] { 1, 2, 3 };
         var command = new UpdatePromotionRuleCommand(
             promotionId,
             JsonDocument.Parse("{}"),
-            new[] { 1, 2, 3 },
+            vipLevels,
             "User1");
 
         await sut.ExecuteAsync(command);
@@ -498,6 +499,7 @@ public class PromotionTests
                 PromotionType = "TestPromotion"
             });
 
+        var vipLevels = new[] { 1, 2, 3 };
         _ = fakeGetRuleService.GetAsync(
             Arg.Is(new GetPromotionRuleQuery(basePromotionId)),
             Arg.Any<CancellationToken>())
@@ -507,7 +509,7 @@ public class PromotionTests
                 10m,
                 1m,
                 null,
-                new[] { 1, 2, 3 }));
+                vipLevels));
 
         _ = fakeGetContentService.GetAsync(
             Arg.Is(new GetPromotionContentQuery(basePromotionId)),
@@ -620,6 +622,7 @@ public class PromotionTests
                 PromotionType = "TestPromotion"
             });
 
+        var vipLevels = new[] { 1, 2, 3 };
         _ = fakeGetRuleService.GetAsync(
             Arg.Is(new GetPromotionRuleQuery(basePromotionId)),
             Arg.Any<CancellationToken>())
@@ -629,7 +632,7 @@ public class PromotionTests
                 10m,
                 1m,
                 null,
-                new[] { 1, 2, 3 }));
+                vipLevels));
 
         _ = fakeGetContentService.GetAsync(
             Arg.Is(new GetPromotionContentQuery(basePromotionId)),
@@ -746,6 +749,7 @@ public class PromotionTests
                 PromotionType = "TurnoverRebate"
             });
 
+        var vipLevels = new[] { 1, 2, 3 };
         _ = fakeGetRuleService.GetAsync(
             Arg.Is(new GetPromotionRuleQuery(basePromotionId)),
             Arg.Any<CancellationToken>())
@@ -755,7 +759,7 @@ public class PromotionTests
                 10m,
                 1m,
                 null,
-                new[] { 1, 2, 3 }));
+                vipLevels));
 
         _ = fakeGetContentService.GetAsync(
             Arg.Is(new GetPromotionContentQuery(basePromotionId)),

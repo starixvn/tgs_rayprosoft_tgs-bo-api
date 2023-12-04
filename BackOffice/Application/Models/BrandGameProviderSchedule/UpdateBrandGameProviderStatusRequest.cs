@@ -5,15 +5,9 @@ using TGS.Core.Models.Messages;
 
 namespace TGS.Services.BackOffice.Application.Models.BrandGameProviderSchedule;
 
-public class UpdateBrandGameProviderStatusRequest : BaseRequest, IRequest<MessageResponse>
+public class UpdateBrandGameProviderStatusRequest(Guid id, Status status) : BaseRequest, IRequest<MessageResponse>
 {
-    public Guid Id { get; set; }
+    public Guid Id { get; set; } = id;
 
-    public Status Status { get; set; }
-
-    public UpdateBrandGameProviderStatusRequest(Guid id, Status status)
-    {
-        Id = id;
-        Status = status;
-    }
+    public Status Status { get; set; } = status;
 }

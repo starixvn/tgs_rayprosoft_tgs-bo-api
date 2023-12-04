@@ -16,19 +16,13 @@ using TGS.Services.BackOffice.Application.Models.Withdraw;
 
 namespace TGS.Services.BackOffice.Application.Queries.Withdraw;
 
-internal class ExportWithdrawFormsCommandService : IGetService<ExportWithdrawFormsCommand, MemoryStream>
+internal class ExportWithdrawFormsCommandService(IPaymentServiceClient paymentServiceClient) : IGetService<ExportWithdrawFormsCommand, MemoryStream>
 {
     private static readonly EmbeddedFileProvider _EmbeddedFileProvider =
         new(Assembly.GetExecutingAssembly());
 
-    private readonly IPaymentServiceClient _paymentServiceClient;
-    private readonly IFileInfo _templateFileInfo;
-
-    public ExportWithdrawFormsCommandService(IPaymentServiceClient paymentServiceClient)
-    {
-        _paymentServiceClient = paymentServiceClient ?? throw new ArgumentNullException(nameof(paymentServiceClient));
-        _templateFileInfo = _EmbeddedFileProvider.GetFileInfo("/Assets/withdraw_forms_template.xlsx");
-    }
+    private readonly IPaymentServiceClient _paymentServiceClient = paymentServiceClient ?? throw new ArgumentNullException(nameof(paymentServiceClient));
+    private readonly IFileInfo _templateFileInfo = _EmbeddedFileProvider.GetFileInfo("/Assets/withdraw_forms_template.xlsx");
 
     public async ValueTask<MemoryStream> GetAsync(ExportWithdrawFormsCommand query, CancellationToken cancellationToken)
     {

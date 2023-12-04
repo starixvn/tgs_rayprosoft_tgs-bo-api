@@ -15,6 +15,7 @@ namespace TGS.Apis.BackendOffice.Controllers.Agent;
 public class AgentDomainController : BaseContextController
 {
     [HttpPut("{brandId}/{agentId}")]
+    [System.Diagnostics.CodeAnalysis.SuppressMessage("Usage", "ASP0018:Unused route parameter", Justification = "<暫止>")]
     public ValueTask AddAgentDomainAsync(
         [FromServices] ICommandService<AddAgentDomainCommand> addService,
         Guid agentId,
@@ -26,6 +27,7 @@ public class AgentDomainController : BaseContextController
     }
 
     [HttpGet("{brandId}/{agentId}")]
+    [System.Diagnostics.CodeAnalysis.SuppressMessage("Usage", "ASP0018:Unused route parameter", Justification = "<暫止>")]
     public async Task<ResponseViewModel<string[]>> GetAgentDomainsAsync(
         [FromServices] IQueryService<AgentDomainsQuery, string> queryService,
         Guid agentId)
@@ -42,6 +44,7 @@ public class AgentDomainController : BaseContextController
     }
 
     [HttpDelete("{brandId}/{agentId}")]
+    [System.Diagnostics.CodeAnalysis.SuppressMessage("Usage", "ASP0018:Unused route parameter", Justification = "<暫止>")]
     public ValueTask RemoveAgentDomainAsync(
         [FromServices] ICommandService<RemoveAgentDomainCommand> removeService,
         Guid agentId,

@@ -13,18 +13,12 @@ using TGS.Services.BackOffice.Domain;
 
 namespace TGS.BackOffice.Repositories;
 
-internal class BackOfficeRepository : IBackOfficeRepository
+internal class BackOfficeRepository(
+    ITgsRepository tgsRepository,
+    ISystemClock systemClock) : IBackOfficeRepository
 {
-    private readonly ISystemClock _systemClock;
-    private readonly ITgsRepository _tgsRepository;
-
-    public BackOfficeRepository(
-        ITgsRepository tgsRepository,
-        ISystemClock systemClock)
-    {
-        _tgsRepository = tgsRepository ?? throw new ArgumentNullException(nameof(tgsRepository));
-        _systemClock = systemClock ?? throw new ArgumentNullException(nameof(systemClock));
-    }
+    private readonly ISystemClock _systemClock = systemClock ?? throw new ArgumentNullException(nameof(systemClock));
+    private readonly ITgsRepository _tgsRepository = tgsRepository ?? throw new ArgumentNullException(nameof(tgsRepository));
 
     public async ValueTask ChangeBannerOrderAsync(Guid id, int order, string modifier)
     {

@@ -8,14 +8,9 @@ using CoreModels = TGS.Core.DataServices.Tgs.Models;
 
 namespace TGS.Services.BackOffice.Application.Queries.BrandCommunication;
 
-internal class GetBrandCommunicationQueryService : IQueryService<BrandCommunicationQuery, BrandCommunicationInfo>
+internal class GetBrandCommunicationQueryService(ITgsQueries<CoreModels.BrandCommunication> tgsQueries) : IQueryService<BrandCommunicationQuery, BrandCommunicationInfo>
 {
-    private readonly ITgsQueries<CoreModels.BrandCommunication> _tgsQueries;
-
-    public GetBrandCommunicationQueryService(ITgsQueries<CoreModels.BrandCommunication> tgsQueries)
-    {
-        _tgsQueries = tgsQueries ?? throw new ArgumentNullException(nameof(tgsQueries));
-    }
+    private readonly ITgsQueries<CoreModels.BrandCommunication> _tgsQueries = tgsQueries ?? throw new ArgumentNullException(nameof(tgsQueries));
 
     public IAsyncEnumerable<BrandCommunicationInfo> QueryAsync(
         BrandCommunicationQuery query,

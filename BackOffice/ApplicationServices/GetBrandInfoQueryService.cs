@@ -8,15 +8,10 @@ using Tgs.ServiceUtility;
 
 namespace TGS.Services.BackOffice.ApplicationServices;
 
-internal class GetBrandInfoQueryService : IGetService<GetBrandInfoQuery, BrandInfo?>
+internal class GetBrandInfoQueryService(
+    IBrandServiceClient brandServiceClient) : IGetService<GetBrandInfoQuery, BrandInfo?>
 {
-    private readonly IBrandServiceClient _brandServiceClient;
-
-    public GetBrandInfoQueryService(
-        IBrandServiceClient brandServiceClient)
-    {
-        _brandServiceClient = brandServiceClient ?? throw new ArgumentNullException(nameof(brandServiceClient));
-    }
+    private readonly IBrandServiceClient _brandServiceClient = brandServiceClient ?? throw new ArgumentNullException(nameof(brandServiceClient));
 
     public ValueTask<BrandInfo?> GetAsync(
         GetBrandInfoQuery query, 

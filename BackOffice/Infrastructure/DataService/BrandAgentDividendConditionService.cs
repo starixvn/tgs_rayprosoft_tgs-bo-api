@@ -21,13 +21,10 @@ public interface IBrandAgentDividendConditionService
         BrandAgentDividendCondition[] brandAgentDividendConditions);
 }
 
-public class BrandAgentDividendConditionService : BaseRepositoryOperations<ITgsRepository>,
+public class BrandAgentDividendConditionService(ITgsRepository tgsRepository) : BaseRepositoryOperations<ITgsRepository>(tgsRepository),
     IBrandAgentDividendConditionService
 {
-    private readonly ITgsRepository _repository;
-
-    public BrandAgentDividendConditionService(ITgsRepository tgsRepository) : base(tgsRepository)
-        => _repository = tgsRepository;
+    private readonly ITgsRepository _repository = tgsRepository;
 
     public Task CreateBrandAgentDividendConditionsAsync(BrandAgentDividendCondition[] brandAgentDividendConditions)
         => CreateEntitiesAsync(brandAgentDividendConditions);

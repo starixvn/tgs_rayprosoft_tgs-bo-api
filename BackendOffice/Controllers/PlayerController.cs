@@ -37,17 +37,8 @@ namespace TGS.Apis.BackendOffice.Controllers;
 
 [Route("api/[controller]")]
 [ApiController]
-public partial class PlayerController : BaseContextController
+public partial class PlayerController(IMediator mediator, IPromotionClient client) : BaseContextController
 {
-    private readonly IPromotionClient _client;
-    private readonly IMediator _mediator;
-
-    public PlayerController(IMediator mediator, IPromotionClient client)
-    {
-        _mediator = mediator;
-        _client = client;
-    }
-
     [HttpPost("{playerCode}/fundin/all", Name = "FundInAllPlayerGameProvider")]
     [Description("FundIn All Player GameProvider")]
     public async ValueTask<MessageResponse> FundInAllPlayerGameProviderAsync(
@@ -168,7 +159,7 @@ public partial class PlayerController : BaseContextController
             ShowAll = request.ShowAll
         };
 
-        var response = await _client.GetJoinedPromotionsAsync(promotionRequest);
+        var response = await client.GetJoinedPromotionsAsync(promotionRequest);
 
         return new PagedResponse<JoinedPromotionModel>
         {
@@ -222,13 +213,13 @@ public partial class PlayerController : BaseContextController
             {
                 Valid = true,
                 TotalCount = 0,
-                Items = Array.Empty<PlayersModel>()
+                Items = []
             };
 
         var bankInfoPlayers = Array.Empty<string>();
 
         if (string.IsNullOrWhiteSpace(request.PlayerCode) is false)
-            bankInfoPlayers = bankInfoPlayers.Append(request.PlayerCode).ToArray();
+            bankInfoPlayers = [.. bankInfoPlayers, request.PlayerCode];
 
         if (string.IsNullOrWhiteSpace(request.PlayerCode) is true
             && !string.IsNullOrWhiteSpace(request.BankInfoTagType)
@@ -244,7 +235,7 @@ public partial class PlayerController : BaseContextController
                 {
                     Valid = true,
                     TotalCount = 0,
-                    Items = Array.Empty<PlayersModel>()
+                    Items = []
                 };
         }
 
@@ -311,7 +302,7 @@ public partial class PlayerController : BaseContextController
                     info => info.UserName,
                     HttpContext.RequestAborted)
                 .ConfigureAwait(false)
-            : new Dictionary<string, string>();
+            : [];
 
         return new PagedResponse<PlayersModel>
         {
@@ -424,7 +415,7 @@ public partial class PlayerController : BaseContextController
 
         var user = userQuery.Length != 0
             ? userQuery.ToDictionary(x => x.Id, x => x.Username)
-            : new Dictionary<Guid, string>();
+            : [];
 
         return new PagedResponse<PlayerHistoryViewModel>
         {
@@ -480,7 +471,7 @@ public partial class PlayerController : BaseContextController
         [FromQuery] GetPlayerOperationRequest request)
     {
         request.PlayerCode = playerCode;
-        return _mediator.Send(request);
+        return mediator.Send(request);
     }
 
     [HttpGet("{playerCode}", Name = "GetSinglePlayer")]
@@ -690,7 +681,7 @@ public partial class PlayerController : BaseContextController
             Birthdate = request.Birthdate
         };
 
-        return _mediator.Send(updatePlayerModel);
+        return mediator.Send(updatePlayerModel);
     }
 
     [HttpPut("identityauth/{playerCode}/{identityAuthentication}")]

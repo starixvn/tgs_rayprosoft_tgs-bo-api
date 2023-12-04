@@ -8,14 +8,9 @@ using Tgs.ServiceUtility;
 
 namespace TGS.Services.BackOffice.ApplicationServices.Agents;
 
-internal class AgentHistoriesQueryService : IQueryService<AgentHistoriesQuery, AgentHistoryInfo>, IGetService<AgentHistoriesQuery, int>
+internal class AgentHistoriesQueryService(IAgentClient agentClient) : IQueryService<AgentHistoriesQuery, AgentHistoryInfo>, IGetService<AgentHistoriesQuery, int>
 {
-    private readonly IAgentClient _agentClient;
-
-    public AgentHistoriesQueryService(IAgentClient agentClient)
-    {
-        _agentClient = agentClient ?? throw new System.ArgumentNullException(nameof(agentClient));
-    }
+    private readonly IAgentClient _agentClient = agentClient ?? throw new System.ArgumentNullException(nameof(agentClient));
 
     public ValueTask<int> GetAsync(AgentHistoriesQuery query, CancellationToken cancellationToken = default)
         => _agentClient.CountAgentHistoriesAsync(

@@ -7,14 +7,9 @@ using TGS.Services.BackOffice.Infrastructure.DataService;
 
 namespace TGS.Services.BackOffice.ApplicationServices.Players;
 
-internal class GetPlayerIdentityFormQueryService : IGetService<GetPlayerIdentityFormQuery, PlayerIdentityInfo>
+internal class GetPlayerIdentityFormQueryService(IPlayerService playerService) : IGetService<GetPlayerIdentityFormQuery, PlayerIdentityInfo>
 {
-    private readonly IPlayerService _playerService;
-
-    public GetPlayerIdentityFormQueryService(IPlayerService playerService)
-    {
-        _playerService = playerService ?? throw new ArgumentNullException(nameof(playerService));
-    }
+    private readonly IPlayerService _playerService = playerService ?? throw new ArgumentNullException(nameof(playerService));
 
     public async ValueTask<PlayerIdentityInfo> GetAsync(GetPlayerIdentityFormQuery query, CancellationToken cancellationToken = default)
     {

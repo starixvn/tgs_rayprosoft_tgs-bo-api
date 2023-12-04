@@ -9,26 +9,18 @@ using TGS.Services.BackOffice.Infrastructure.DataService;
 
 namespace TGS.Services.BackOffice.Application.Queries.PlayerHandlers;
 
-internal class FundInAllPlayerGameProviderCommandService : ICommandService<FundInAllPlayerGameProviderCommand>
+internal class FundInAllPlayerGameProviderCommandService(
+    ILogger<FundInAllPlayerGameProviderCommandService> logger,
+    IPlayerService playerService,
+    IGameProvidersBackofficePluggableClient gameProvidersBackofficePluggableClient,
+    IBrandGameProviderService brandGameProviderService) : ICommandService<FundInAllPlayerGameProviderCommand>
 {
-    private readonly IBrandGameProviderService _brandGameProviderService;
-    private readonly IGameProvidersBackofficePluggableClient _gameProvidersBackofficePluggableClient;
-    private readonly ILogger<FundInAllPlayerGameProviderCommandService> _logger;
-    private readonly IPlayerService _playerService;
-
-    public FundInAllPlayerGameProviderCommandService(
-        ILogger<FundInAllPlayerGameProviderCommandService> logger,
-        IPlayerService playerService,
-        IGameProvidersBackofficePluggableClient gameProvidersBackofficePluggableClient,
-        IBrandGameProviderService brandGameProviderService)
-    {
-        _logger = logger ?? throw new ArgumentNullException(nameof(logger));
-        _playerService = playerService ?? throw new ArgumentNullException(nameof(playerService));
-        _gameProvidersBackofficePluggableClient = gameProvidersBackofficePluggableClient ??
-            throw new ArgumentNullException(nameof(gameProvidersBackofficePluggableClient));
-        _brandGameProviderService = brandGameProviderService ??
+    private readonly IBrandGameProviderService _brandGameProviderService = brandGameProviderService ??
             throw new ArgumentNullException(nameof(brandGameProviderService));
-    }
+    private readonly IGameProvidersBackofficePluggableClient _gameProvidersBackofficePluggableClient = gameProvidersBackofficePluggableClient ??
+            throw new ArgumentNullException(nameof(gameProvidersBackofficePluggableClient));
+    private readonly ILogger<FundInAllPlayerGameProviderCommandService> _logger = logger ?? throw new ArgumentNullException(nameof(logger));
+    private readonly IPlayerService _playerService = playerService ?? throw new ArgumentNullException(nameof(playerService));
 
     public async ValueTask ExecuteAsync(FundInAllPlayerGameProviderCommand request, CancellationToken cancellationToken)
     {

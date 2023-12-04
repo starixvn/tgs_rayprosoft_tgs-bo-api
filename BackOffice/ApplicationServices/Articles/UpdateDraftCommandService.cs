@@ -6,14 +6,9 @@ using Tgs.ServiceUtility;
 
 namespace TGS.Services.BackOffice.ApplicationServices.Articles;
 
-internal class UpdateDraftCommandService : ICommandService<UpdateDraftCommand>
+internal class UpdateDraftCommandService(IArticleManagementClient articleManagementClient) : ICommandService<UpdateDraftCommand>
 {
-    private readonly IArticleManagementClient _articleManagementClient;
-
-    public UpdateDraftCommandService(IArticleManagementClient articleManagementClient)
-    {
-        _articleManagementClient = articleManagementClient ?? throw new ArgumentNullException(nameof(articleManagementClient));
-    }
+    private readonly IArticleManagementClient _articleManagementClient = articleManagementClient ?? throw new ArgumentNullException(nameof(articleManagementClient));
 
     public ValueTask ExecuteAsync(UpdateDraftCommand command, CancellationToken cancellationToken = default)
     {

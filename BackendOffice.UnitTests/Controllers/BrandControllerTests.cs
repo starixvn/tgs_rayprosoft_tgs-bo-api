@@ -41,9 +41,9 @@ public class BrandControllerTests : BaseTests
     {
         var fixture = new Fixture();
         fixture.Customize<BrandModel>(u => u
-            .With(s => s.GameProviders, Array.Empty<BrandGameProviderModel>())
-            .With(s => s.Languages, Array.Empty<BrandLanguageModel>())
-            .With(s => s.Currencies, Array.Empty<BrandCurrencyModel>()));
+            .With(s => s.GameProviders, [])
+            .With(s => s.Languages, [])
+            .With(s => s.Currencies, []));
         fixture.Behaviors.Add(new OmitOnRecursionBehavior());
         return fixture;
     }

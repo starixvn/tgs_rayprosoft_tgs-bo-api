@@ -12,24 +12,16 @@ using TGS.Services.BackOffice.Infrastructure.DataService;
 
 namespace TGS.Services.BackOffice.Application.Queries.ReportExportAgentWinLoss;
 
-public class ExportAgentWinLossQuery : IGetService<ExportAgentWinLossRequest, Stream>
+public class ExportAgentWinLossQuery(
+    IReportClient reportClient,
+    IBrandService brandService,
+    IAgentService agentService,
+    IPlayerService playerService) : IGetService<ExportAgentWinLossRequest, Stream>
 {
-    private readonly IAgentService _agentService;
-    private readonly IBrandService _brandService;
-    private readonly IPlayerService _playerService;
-    private readonly IReportClient _reportClient;
-
-    public ExportAgentWinLossQuery(
-        IReportClient reportClient,
-        IBrandService brandService,
-        IAgentService agentService,
-        IPlayerService playerService)
-    {
-        _reportClient = reportClient ?? throw new ArgumentNullException(nameof(reportClient));
-        _brandService = brandService ?? throw new ArgumentNullException(nameof(brandService));
-        _agentService = agentService ?? throw new ArgumentNullException(nameof(agentService));
-        _playerService = playerService ?? throw new ArgumentNullException(nameof(playerService));
-    }
+    private readonly IAgentService _agentService = agentService ?? throw new ArgumentNullException(nameof(agentService));
+    private readonly IBrandService _brandService = brandService ?? throw new ArgumentNullException(nameof(brandService));
+    private readonly IPlayerService _playerService = playerService ?? throw new ArgumentNullException(nameof(playerService));
+    private readonly IReportClient _reportClient = reportClient ?? throw new ArgumentNullException(nameof(reportClient));
 
     public async ValueTask<Stream> GetAsync(ExportAgentWinLossRequest request,
         CancellationToken cancellationToken = default)

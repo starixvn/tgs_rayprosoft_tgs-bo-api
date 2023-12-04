@@ -10,16 +10,10 @@ using Xunit.Abstractions;
 
 namespace BackendOffice.IntegrationTests;
 
-public class BrandMaintenanceTests
+public class BrandMaintenanceTests(ITestOutputHelper testOutputHelper, NodeJsFixture nodeJsFixture)
 {
-    private readonly ITestOutputHelper _testOutputHelper;
-    private readonly NodeJsFixture _nodeJsFixture;
-
-    public BrandMaintenanceTests(ITestOutputHelper testOutputHelper, NodeJsFixture nodeJsFixture)
-    {
-        _testOutputHelper = testOutputHelper ?? throw new ArgumentNullException(nameof(testOutputHelper));
-        _nodeJsFixture = nodeJsFixture ?? throw new ArgumentNullException(nameof(nodeJsFixture));
-    }
+    private readonly ITestOutputHelper _testOutputHelper = testOutputHelper ?? throw new ArgumentNullException(nameof(testOutputHelper));
+    private readonly NodeJsFixture _nodeJsFixture = nodeJsFixture ?? throw new ArgumentNullException(nameof(nodeJsFixture));
 
     [Fact]
     public async Task 變更所有Brand為維護狀態()

@@ -12,25 +12,16 @@ using TGS.Services.BackOffice.Infrastructure.Services;
 
 namespace TGS.Services.BackOffice.Application.Commands.GameHandlers;
 
-public class UploadGamesHandler : Handler<UploadGamesRequest, UploadGamesResponse>
+public class UploadGamesHandler(IUploadService uploadService, IGameProviderService gameProviderService,
+    IHttpContextAccessor accessor) : Handler<UploadGamesRequest, UploadGamesResponse>(accessor)
 {
-    private readonly IGameProviderService _gameProviderService;
-    private readonly IUploadService _uploadService;
-
-    public UploadGamesHandler(IUploadService uploadService, IGameProviderService gameProviderService,
-        IHttpContextAccessor accessor) : base(accessor)
-    {
-        _uploadService = uploadService;
-        _gameProviderService = gameProviderService;
-    }
-
     public override async Task<UploadGamesResponse> Handle(UploadGamesRequest request,
         CancellationToken cancellationToken)
     {
         var gameProvider = request.Id != null
-            ? await _gameProviderService.GetGameProviderAsync(x => x.Id == request.Id)
+            ? await gameProviderService.GetGameProviderAsync(x => x.Id == request.Id)
             : null;
-        var uploadedResult = await _uploadService.GetUploadedExcelAsync<UploadGameModel>(request.File);
+        var uploadedResult = await uploadService.GetUploadedExcelAsync<UploadGameModel>(request.File);
 
         var existedGames = uploadedResult
             .Where(x => gameProvider?.Games.Any(g =>
@@ -48,7 +39,7 @@ public class UploadGamesHandler : Handler<UploadGamesRequest, UploadGamesRespons
             : new UploadGamesResponse
             {
                 Valid = true,
-                Games = uploadedResult.ToArray()
+                Games = [.. uploadedResult]
             };
     }
 }

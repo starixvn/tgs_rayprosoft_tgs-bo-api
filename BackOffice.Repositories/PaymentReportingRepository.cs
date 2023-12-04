@@ -10,16 +10,10 @@ using TGS.Services.BackOffice.Domain;
 
 namespace TGS.BackOffice.Repositories;
 
-internal class PaymentReportingRepository : IPaymentReportingRepository
+internal class PaymentReportingRepository(ITgsRepository tgsRepository, ILogger<PaymentReportingRepository> logger) : IPaymentReportingRepository
 {
-    private readonly ILogger<PaymentReportingRepository> _logger;
-    private readonly ITgsRepository _tgsRepository;
-
-    public PaymentReportingRepository(ITgsRepository tgsRepository, ILogger<PaymentReportingRepository> logger)
-    {
-        _tgsRepository = tgsRepository ?? throw new ArgumentNullException(nameof(tgsRepository));
-        _logger = logger ?? throw new ArgumentNullException(nameof(logger));
-    }
+    private readonly ILogger<PaymentReportingRepository> _logger = logger ?? throw new ArgumentNullException(nameof(logger));
+    private readonly ITgsRepository _tgsRepository = tgsRepository ?? throw new ArgumentNullException(nameof(tgsRepository));
 
     public IAsyncEnumerable<AgentPlayerDepositStatistics> QueryAgentDailyDepositStatisticsAsync(
         Guid brandId,

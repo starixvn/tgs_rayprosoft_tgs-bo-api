@@ -15,19 +15,12 @@ using TGS.Services.BackOffice.Domain;
 
 namespace TGS.Apis.BackendOffice.DataService.Services;
 
-public class BrandPaymentService : IBrandPaymentService
+public class BrandPaymentService(ITgsRepository repository) : IBrandPaymentService
 {
-    private readonly ITgsRepository _repository;
-
-    public BrandPaymentService(ITgsRepository repository)
-    {
-        _repository = repository;
-    }
-
     public async Task ChangeOrderAsync(ChangeOrderRequest request)
     {
         var ids = request.Orders.Select(q => q.Id);
-        var payments = await _repository.BrandPayments.AsQueryable()
+        var payments = await repository.BrandPayments.AsQueryable()
             .Where(q => ids.Contains(q.Id)).ToListAsync();
 
         payments.ForEach(p =>
@@ -40,8 +33,8 @@ public class BrandPaymentService : IBrandPaymentService
             }
         });
 
-        _repository.BrandPayments.UpdateRange(payments);
-        _ = await _repository.SaveChangesAsync();
+        repository.BrandPayments.UpdateRange(payments);
+        _ = await repository.SaveChangesAsync();
     }
 
     public async Task ChangeStatusAsync(BrandPayment payment, SwitchStatus status, string username)
@@ -65,13 +58,13 @@ public class BrandPaymentService : IBrandPaymentService
         payment.UpdatedOn = DateTimeOffset.Now;
         payment.UpdatedByUsername = username;
 
-        _repository.Entry(payment).State = EntityState.Modified;
+        repository.Entry(payment).State = EntityState.Modified;
 
-        _ = await _repository.PaymentAuditLogs
+        _ = await repository.PaymentAuditLogs
             .AddAsync(GeneratePaymentAuditLog(payment, beforePayment))
             .ConfigureAwait(false);
 
-        _ = await _repository.SaveChangesAsync().ConfigureAwait(false);
+        _ = await repository.SaveChangesAsync().ConfigureAwait(false);
     }
 
     public async Task CreatePaymentAsync(CreateBrandPaymentRequest request, PaymentTransferType transferType, string username)
@@ -115,7 +108,7 @@ public class BrandPaymentService : IBrandPaymentService
 
         var playerList = whitelist.Union(blacklist);
         payment.BrandPaymentPlayers = new HashSet<BrandPaymentPlayer>(playerList);
-        var vips = await _repository.VipLevels.AsQueryable()
+        var vips = await repository.VipLevels.AsQueryable()
             .Where(x => request.VipLevelIds.Contains(x.Id))
             .ToArrayAsync();
         var vipLevels = vips.Select(vip => new BrandPaymentVipLevel
@@ -125,19 +118,19 @@ public class BrandPaymentService : IBrandPaymentService
             VipLevel = vip
         }).ToArray();
         payment.VipLevels = new HashSet<BrandPaymentVipLevel>(vipLevels);
-        _ = await _repository.BrandPayments.AddAsync(payment);
-        _ = await _repository.SaveChangesAsync();
+        _ = await repository.BrandPayments.AddAsync(payment);
+        _ = await repository.SaveChangesAsync();
     }
 
     public Task<bool> ExistsAsync(Expression<Func<BrandPayment, bool>> predicate) =>
-        _repository.BrandPayments.AnyAsync(predicate);
+        repository.BrandPayments.AnyAsync(predicate);
 
     public Task<BrandPayment> GetPaymentAsync(Expression<Func<BrandPayment, bool>> predicate,
         Func<IQueryable<BrandPayment>, IQueryable<BrandPayment>> preQuery, bool tracking)
     {
         var payment = tracking
-            ? _repository.BrandPayments
-            : _repository.BrandPayments.AsNoTracking();
+            ? repository.BrandPayments
+            : repository.BrandPayments.AsNoTracking();
         preQuery ??= c => c;
 
         return preQuery(payment).FirstOrDefaultAsync(predicate);
@@ -145,8 +138,8 @@ public class BrandPaymentService : IBrandPaymentService
 
     public IQueryable<BrandPayment> GetPaymentQueries(bool tracking) =>
         tracking
-            ? _repository.BrandPayments
-            : _repository.BrandPayments.AsNoTracking();
+            ? repository.BrandPayments
+            : repository.BrandPayments.AsNoTracking();
 
     public async Task UpdatePaymentAsync(BrandPayment payment, UpdateBrandPaymentRequest request,
                                 string username)
@@ -187,11 +180,11 @@ public class BrandPaymentService : IBrandPaymentService
         payment.HandlingFeeRateTenPercentile = request.HandlingFeeRatePercentile * 10M;
         payment.ReducePlayerAmount = request.ReducePlayerAmount;
 
-        await using var tran = await _repository.BeginTransactionAsync(IsolationLevel.ReadCommitted);
-        _repository.BrandPaymentPlayers.RemoveRange(payment.BrandPaymentPlayers);
-        _repository.BrandPaymentVipLevels.RemoveRange(payment.VipLevels);
+        await using var tran = await repository.BeginTransactionAsync(IsolationLevel.ReadCommitted);
+        repository.BrandPaymentPlayers.RemoveRange(payment.BrandPaymentPlayers);
+        repository.BrandPaymentVipLevels.RemoveRange(payment.VipLevels);
 
-        _ = await _repository.SaveChangesAsync();
+        _ = await repository.SaveChangesAsync();
 
         var whitelist = await GeneratePaymentPlayerListAsync(payment.Id, request.Whitelist, PlayerListType.White);
         var blacklist = await GeneratePaymentPlayerListAsync(payment.Id, request.Blacklist, PlayerListType.Black);
@@ -199,7 +192,7 @@ public class BrandPaymentService : IBrandPaymentService
 
         payment.BrandPaymentPlayers = new HashSet<BrandPaymentPlayer>(playerList);
 
-        var vips = await _repository.VipLevels.AsQueryable()
+        var vips = await repository.VipLevels.AsQueryable()
             .Where(x => request.VipLevelIds.Contains(x.Id)).ToArrayAsync();
         var vipLevels = vips.Select(vip => new BrandPaymentVipLevel
         {
@@ -210,12 +203,12 @@ public class BrandPaymentService : IBrandPaymentService
 
         payment.VipLevels = new HashSet<BrandPaymentVipLevel>(vipLevels);
 
-        _repository.Entry(payment).State = EntityState.Modified;
+        repository.Entry(payment).State = EntityState.Modified;
 
-        _ = await _repository.SaveChangesAsync();
+        _ = await repository.SaveChangesAsync();
 
-        _ = await _repository.PaymentAuditLogs.AddAsync(GeneratePaymentAuditLog(payment, beforePayment));
-        _ = await _repository.SaveChangesAsync();
+        _ = await repository.PaymentAuditLogs.AddAsync(GeneratePaymentAuditLog(payment, beforePayment));
+        _ = await repository.SaveChangesAsync();
 
         await tran.CommitAsync();
     }
@@ -251,9 +244,9 @@ public class BrandPaymentService : IBrandPaymentService
                         PlayerListType playerListType)
     {
         var playerWhitelist = list != null
-            ? await _repository.Players.AsQueryable()
+            ? await repository.Players.AsQueryable()
                 .Where(x => list.Contains(x.Username)).ToArrayAsync()
-            : Array.Empty<Player>();
+            : [];
         return playerWhitelist.Select(player => new BrandPaymentPlayer
         {
             ListType = playerListType,

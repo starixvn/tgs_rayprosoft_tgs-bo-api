@@ -11,16 +11,10 @@ using Tgs.ServiceUtility;
 
 namespace TGS.Services.BackOffice.ApplicationServices.PlayerBuckets;
 
-internal class GetPlayerBucketsQueryService : IQueryService<GetPlayerBucketsQuery, BucketInfo>
+internal class GetPlayerBucketsQueryService(IPlayerBucketForTypesClient playerBucketForTypesClient, IPlayerServiceClient playerServiceClient) : IQueryService<GetPlayerBucketsQuery, BucketInfo>
 {
-    private readonly IPlayerBucketForTypesClient _playerBucketForTypesClient;
-    private readonly IPlayerServiceClient _playerServiceClient;
-
-    public GetPlayerBucketsQueryService(IPlayerBucketForTypesClient playerBucketForTypesClient, IPlayerServiceClient playerServiceClient)
-    {
-        _playerBucketForTypesClient = playerBucketForTypesClient ?? throw new ArgumentNullException(nameof(playerBucketForTypesClient));
-        _playerServiceClient = playerServiceClient ?? throw new ArgumentNullException(nameof(playerServiceClient));
-    }
+    private readonly IPlayerBucketForTypesClient _playerBucketForTypesClient = playerBucketForTypesClient ?? throw new ArgumentNullException(nameof(playerBucketForTypesClient));
+    private readonly IPlayerServiceClient _playerServiceClient = playerServiceClient ?? throw new ArgumentNullException(nameof(playerServiceClient));
 
     public IAsyncEnumerable<BucketInfo> QueryAsync(GetPlayerBucketsQuery query, CancellationToken cancellationToken = default)
         => _playerServiceClient.GetPlayerInfoAsync(query.PlayerCode, cancellationToken)

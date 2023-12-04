@@ -11,13 +11,10 @@ using TGS.Services.BackOffice.Application.Models.ReportVip;
 namespace TGS.Services.BackOffice.Application.Queries.ReportVipQueries;
 
 public class
-    GetVipRebateReportQuery : IGetService<GetVipRebateReportReportRequest,
+    GetVipRebateReportQuery(IReportClient reportClient) : IGetService<GetVipRebateReportReportRequest,
         PagedResponse<VipRebateReportModel>>
 {
-    private readonly IReportClient _reportClient;
-
-    public GetVipRebateReportQuery(IReportClient reportClient)
-        => _reportClient = reportClient ?? throw new ArgumentNullException(nameof(reportClient));
+    private readonly IReportClient _reportClient = reportClient ?? throw new ArgumentNullException(nameof(reportClient));
 
     public async ValueTask<PagedResponse<VipRebateReportModel>> GetAsync(
         GetVipRebateReportReportRequest request,

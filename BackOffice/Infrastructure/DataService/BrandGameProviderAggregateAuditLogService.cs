@@ -13,13 +13,9 @@ public interface IBrandGameProviderAggregateAuditLogService
         CreateBrandGameProviderAggregateAuditLogRequest request);
 }
 
-public class BrandGameProviderAggregateAuditLogService : BaseRepositoryOperations<ITgsRepository>,
+public class BrandGameProviderAggregateAuditLogService(ITgsRepository repository) : BaseRepositoryOperations<ITgsRepository>(repository),
     IBrandGameProviderAggregateAuditLogService
 {
-    public BrandGameProviderAggregateAuditLogService(ITgsRepository repository) : base(repository)
-    {
-    }
-
     async ValueTask<int> IBrandGameProviderAggregateAuditLogService.CreateBrandGameProviderAggregateAuditLogAsync(
         CreateBrandGameProviderAggregateAuditLogRequest request)
     {

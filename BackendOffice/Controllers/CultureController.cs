@@ -10,15 +10,10 @@ namespace TGS.Apis.BackendOffice.Controllers;
 
 [Route("api/[controller]")]
 [ApiController]
-public class CultureController : BaseContextController
+public class CultureController(
+    IStringLocalizer<CultureController> localizer) : BaseContextController
 {
-    private readonly IStringLocalizer _localizer;
-
-    public CultureController(
-        IStringLocalizer<CultureController> localizer)
-    {
-        _localizer = localizer;
-    }
+    private readonly IStringLocalizer _localizer = localizer;
 
     [Route("")]
     [HttpPost]

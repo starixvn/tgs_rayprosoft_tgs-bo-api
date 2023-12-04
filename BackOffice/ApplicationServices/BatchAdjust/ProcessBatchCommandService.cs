@@ -13,24 +13,16 @@ using Valhalla.MessageQueue;
 
 namespace TGS.Services.BackOffice.ApplicationServices.BatchAdjust;
 
-internal class ProcessBatchCommandService : ICommandService<ProcessBatchCommand>
+internal class ProcessBatchCommandService(
+    IBatchTempRepository batchTempRepository,
+    IPlayerAdjustBalanceService playerAdjustBalanceService,
+    IMessageSender messageSender,
+    ILogger<ProcessBatchCommandService> logger) : ICommandService<ProcessBatchCommand>
 {
-    private readonly IBatchTempRepository _batchTempRepository;
-    private readonly ILogger<ProcessBatchCommandService> _logger;
-    private readonly IMessageSender _messageSender;
-    private readonly IPlayerAdjustBalanceService _playerAdjustBalanceService;
-
-    public ProcessBatchCommandService(
-        IBatchTempRepository batchTempRepository,
-        IPlayerAdjustBalanceService playerAdjustBalanceService,
-        IMessageSender messageSender,
-        ILogger<ProcessBatchCommandService> logger)
-    {
-        _batchTempRepository = batchTempRepository ?? throw new ArgumentNullException(nameof(batchTempRepository));
-        _playerAdjustBalanceService = playerAdjustBalanceService ?? throw new ArgumentNullException(nameof(playerAdjustBalanceService));
-        _messageSender = messageSender ?? throw new ArgumentNullException(nameof(messageSender));
-        _logger = logger ?? throw new ArgumentNullException(nameof(logger));
-    }
+    private readonly IBatchTempRepository _batchTempRepository = batchTempRepository ?? throw new ArgumentNullException(nameof(batchTempRepository));
+    private readonly ILogger<ProcessBatchCommandService> _logger = logger ?? throw new ArgumentNullException(nameof(logger));
+    private readonly IMessageSender _messageSender = messageSender ?? throw new ArgumentNullException(nameof(messageSender));
+    private readonly IPlayerAdjustBalanceService _playerAdjustBalanceService = playerAdjustBalanceService ?? throw new ArgumentNullException(nameof(playerAdjustBalanceService));
 
     public async ValueTask ExecuteAsync(ProcessBatchCommand command, CancellationToken cancellationToken = default)
     {

@@ -12,14 +12,9 @@ using TGS.Services.BackOffice.Domain;
 
 namespace TGS.Services.BackOffice.ApplicationServices.Localization;
 
-internal class ImportLocalizationFileCommandService : ICommandService<ImportLocalizationFileCommand>
+internal class ImportLocalizationFileCommandService(IBackOfficeRepository backOfficeRepository) : ICommandService<ImportLocalizationFileCommand>
 {
-    private readonly IBackOfficeRepository _backOfficeRepository;
-
-    public ImportLocalizationFileCommandService(IBackOfficeRepository backOfficeRepository)
-    {
-        _backOfficeRepository = backOfficeRepository ?? throw new ArgumentNullException(nameof(backOfficeRepository));
-    }
+    private readonly IBackOfficeRepository _backOfficeRepository = backOfficeRepository ?? throw new ArgumentNullException(nameof(backOfficeRepository));
 
     public ValueTask ExecuteAsync(ImportLocalizationFileCommand command, CancellationToken cancellationToken = default)
         => _backOfficeRepository.ImportLocalizationStringsAsync(

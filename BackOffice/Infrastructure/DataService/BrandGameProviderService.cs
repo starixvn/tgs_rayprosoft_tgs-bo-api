@@ -26,13 +26,10 @@ public interface IBrandGameProviderService
     Task UpdateBrandGameProvidersAsync(string toMaintenanceIds, string toActiveIds);
 }
 
-public class BrandGameProviderService : BaseRepositoryOperations<ITgsRepository>,
+public class BrandGameProviderService(ITgsRepository tgsRepository) : BaseRepositoryOperations<ITgsRepository>(tgsRepository),
     IBrandGameProviderService
 {
-    private readonly ITgsRepository _repository;
-
-    public BrandGameProviderService(ITgsRepository tgsRepository) : base(tgsRepository)
-        => _repository = tgsRepository;
+    private readonly ITgsRepository _repository = tgsRepository;
 
     Task<BrandGameProvider> IBrandGameProviderService.GetBrandGameProviderAsync(
         Expression<Func<BrandGameProvider, bool>> predicate,

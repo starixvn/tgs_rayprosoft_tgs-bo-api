@@ -6,18 +6,13 @@ using TGS.Services.BackOffice.Domain;
 
 namespace TGS.Services.BackOffice.Application.Services;
 
-internal class CachedAgentPlayerDepositQueryService : IQueryService<AgentPlayerDepositQuery, AgentPlayerDepositStatistics>
+internal class CachedAgentPlayerDepositQueryService(
+    IQueryService<AgentPlayerDepositQuery, AgentPlayerDepositStatistics> sourceService,
+    IMemoryCache memoryCache)
+    : IQueryService<AgentPlayerDepositQuery, AgentPlayerDepositStatistics>
 {
-    private readonly IMemoryCache _memoryCache;
-    private readonly IQueryService<AgentPlayerDepositQuery, AgentPlayerDepositStatistics> _sourceService;
-
-    public CachedAgentPlayerDepositQueryService(
-        IQueryService<AgentPlayerDepositQuery, AgentPlayerDepositStatistics> sourceService,
-        IMemoryCache memoryCache)
-    {
-        _sourceService = sourceService ?? throw new ArgumentNullException(nameof(sourceService));
-        _memoryCache = memoryCache ?? throw new ArgumentNullException(nameof(memoryCache));
-    }
+    private readonly IMemoryCache _memoryCache = memoryCache ?? throw new ArgumentNullException(nameof(memoryCache));
+    private readonly IQueryService<AgentPlayerDepositQuery, AgentPlayerDepositStatistics> _sourceService = sourceService ?? throw new ArgumentNullException(nameof(sourceService));
 
     public async IAsyncEnumerable<AgentPlayerDepositStatistics> QueryAsync(
         AgentPlayerDepositQuery query,

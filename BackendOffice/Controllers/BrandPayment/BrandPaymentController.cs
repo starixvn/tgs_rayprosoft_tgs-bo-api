@@ -26,30 +26,17 @@ namespace TGS.Apis.BackendOffice.Controllers.BrandPayment;
 
 [Route("api/[controller]")]
 [ApiController]
-public partial class BrandPaymentController : BaseContextController
+public partial class BrandPaymentController(
+    ITgsQueries<Player> playerQueries,
+    IUploadService uploadService,
+    IBrandPaymentService brandPaymentService,
+    ITgsQueries<BrandPaymentAuditLog> auditLogQueries) : BaseContextController
 {
-    private readonly ITgsQueries<BrandPaymentAuditLog> _auditLogQueries;
-    private readonly IBrandPaymentService _brandPaymentService;
-    private readonly ITgsQueries<Player> _playerQueries;
-    private readonly IUploadService _uploadService;
-
-    public BrandPaymentController(
-        ITgsQueries<Player> playerQueries,
-        IUploadService uploadService,
-        IBrandPaymentService brandPaymentService,
-        ITgsQueries<BrandPaymentAuditLog> auditLogQueries)
-    {
-        _uploadService = uploadService;
-        _playerQueries = playerQueries;
-        _brandPaymentService = brandPaymentService;
-        _auditLogQueries = auditLogQueries;
-    }
-
     [HttpPut("ChangeOrders")]
     [Description("Change Payment Order")]
     public async Task<MessageResponse> ChangeOrderAsync(ChangeOrderRequest request)
     {
-        await _brandPaymentService.ChangeOrderAsync(request);
+        await brandPaymentService.ChangeOrderAsync(request);
 
         return CreateValidResponse<MessageResponse>();
     }
@@ -317,14 +304,14 @@ public partial class BrandPaymentController : BaseContextController
             }
         }
 
-        var brandPayment = await _brandPaymentService.GetPaymentAsync(q => q.Id == brandPaymentId, tracking: true);
+        var brandPayment = await brandPaymentService.GetPaymentAsync(q => q.Id == brandPaymentId, tracking: true);
 
         if (brandPayment == null)
         {
             return CreateInvalidResponse<CreateUpdateBrandPaymentResponse>(Resources.BrandPayment.NotFound);
         }
 
-        await _brandPaymentService.UpdatePaymentAsync(brandPayment, request, Username);
+        await brandPaymentService.UpdatePaymentAsync(brandPayment, request, Username);
 
         return CreateValidResponse<CreateUpdateBrandPaymentResponse>();
     }
@@ -341,11 +328,11 @@ public partial class BrandPaymentController : BaseContextController
     [Description("Upload player file")]
     public async Task<MessageResponse> UploadPlayersAsync(IFormFile file)
     {
-        var uploadedResult = await _uploadService.GetUploadedExcelAsync<UploadPlayerModel>(file);
+        var uploadedResult = await uploadService.GetUploadedExcelAsync<UploadPlayerModel>(file);
         var users = uploadedResult.Where(p => !string.IsNullOrEmpty(p.Username))
             .Select(p => p.Username);
 
-        var allPlayers = await _playerQueries.GetQueries()
+        var allPlayers = await playerQueries.GetQueries()
             .Where(p => p.Status == PlayerStatus.Enabled && users.Contains(p.Username))
             .Select(p => p.Username)
             .ToArrayAsync();
@@ -393,7 +380,7 @@ public partial class BrandPaymentController : BaseContextController
             }
         }
 
-        await _brandPaymentService.CreatePaymentAsync(request, transferType, Username);
+        await brandPaymentService.CreatePaymentAsync(request, transferType, Username);
         return CreateValidResponse<CreateUpdateBrandPaymentResponse>();
     }
 }

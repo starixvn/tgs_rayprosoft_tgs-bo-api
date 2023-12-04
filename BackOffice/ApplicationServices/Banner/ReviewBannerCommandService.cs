@@ -6,14 +6,9 @@ using TGS.Services.BackOffice.Domain;
 
 namespace TGS.Services.BackOffice.ApplicationServices.Banner;
 
-internal class ReviewBannerCommandService : ICommandService<ReviewBannerCommand>
+internal class ReviewBannerCommandService(IBackOfficeRepository backOfficeRepository) : ICommandService<ReviewBannerCommand>
 {
-    private readonly IBackOfficeRepository _backOfficeRepository;
-
-    public ReviewBannerCommandService(IBackOfficeRepository backOfficeRepository)
-    {
-        _backOfficeRepository = backOfficeRepository ?? throw new ArgumentNullException(nameof(backOfficeRepository));
-    }
+    private readonly IBackOfficeRepository _backOfficeRepository = backOfficeRepository ?? throw new ArgumentNullException(nameof(backOfficeRepository));
 
     public ValueTask ExecuteAsync(ReviewBannerCommand command, CancellationToken cancellationToken = default)
         => _backOfficeRepository.ReviewBannerAsync(

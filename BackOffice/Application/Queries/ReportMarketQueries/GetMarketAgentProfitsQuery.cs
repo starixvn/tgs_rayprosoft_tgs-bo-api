@@ -11,12 +11,9 @@ using TGS.Services.BackOffice.Application.Models.ReportMarket;
 namespace TGS.Services.BackOffice.Application.Queries.ReportMarketQueries;
 
 public class
-    GetMarketAgentProfitsQuery : IGetService<GetMarketAgentProfitsReportRequest, PagedResponse<MarketAgentProfitReportModel>>
+    GetMarketAgentProfitsQuery(IReportClient reportClient) : IGetService<GetMarketAgentProfitsReportRequest, PagedResponse<MarketAgentProfitReportModel>>
 {
-    private readonly IReportClient _reportClient;
-
-    public GetMarketAgentProfitsQuery(IReportClient reportClient)
-        => _reportClient = reportClient ?? throw new ArgumentNullException(nameof(reportClient));
+    private readonly IReportClient _reportClient = reportClient ?? throw new ArgumentNullException(nameof(reportClient));
 
     public async ValueTask<PagedResponse<MarketAgentProfitReportModel>> GetAsync(
         GetMarketAgentProfitsReportRequest request,

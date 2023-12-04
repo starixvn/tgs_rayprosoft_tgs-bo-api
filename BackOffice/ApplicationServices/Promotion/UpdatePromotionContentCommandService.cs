@@ -7,15 +7,10 @@ using Tgs.ServiceUtility;
 
 namespace TGS.Services.BackOffice.ApplicationServices.Promotion;
 
-internal class UpdatePromotionContentCommandService : ICommandService<UpdatePromotionContentCommand>
+internal class UpdatePromotionContentCommandService(
+    IPromotionServiceClient promotionServiceClient) : ICommandService<UpdatePromotionContentCommand>
 {
-    private readonly IPromotionServiceClient _promotionServiceClient;
-
-    public UpdatePromotionContentCommandService(
-        IPromotionServiceClient promotionServiceClient)
-    {
-        _promotionServiceClient = promotionServiceClient ?? throw new ArgumentNullException(nameof(promotionServiceClient));
-    }
+    private readonly IPromotionServiceClient _promotionServiceClient = promotionServiceClient ?? throw new ArgumentNullException(nameof(promotionServiceClient));
 
     public async ValueTask ExecuteAsync(
         UpdatePromotionContentCommand command,

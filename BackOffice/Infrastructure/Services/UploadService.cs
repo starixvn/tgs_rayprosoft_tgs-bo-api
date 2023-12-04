@@ -17,14 +17,9 @@ public interface IUploadService
     Task<List<T>> GetUploadedExcelAsync<T>(IFormFile file) where T : new();
 }
 
-public class UploadService : IUploadService
+public class UploadService(IJsonSerializationProvider jsonSerializationProvider) : IUploadService
 {
-    private readonly IJsonSerializationProvider _jsonSerializationProvider;
-
-    public UploadService(IJsonSerializationProvider jsonSerializationProvider)
-    {
-        _jsonSerializationProvider = jsonSerializationProvider;
-    }
+    private readonly IJsonSerializationProvider _jsonSerializationProvider = jsonSerializationProvider;
 
     async Task<List<T>> IUploadService.GetUploadedExcelAsync<T>(IFormFile file)
     {

@@ -6,14 +6,9 @@ using Tgs.VipLevelService.Clients;
 
 namespace TGS.Services.BackOffice.ApplicationServices.Players;
 
-internal class GetPlayerVipAdjustQueryService : IGetService<GetPlayerVipAdjustQuery, PagingResponse<PlayerVipAdjustInfo>>
+internal class GetPlayerVipAdjustQueryService(IVipLevelServiceClient client) : IGetService<GetPlayerVipAdjustQuery, PagingResponse<PlayerVipAdjustInfo>>
 {
-    private readonly IVipLevelServiceClient _client;
-
-    public GetPlayerVipAdjustQueryService(IVipLevelServiceClient client)
-    {
-        _client = client ?? throw new ArgumentNullException(nameof(client));
-    }
+    private readonly IVipLevelServiceClient _client = client ?? throw new ArgumentNullException(nameof(client));
 
     public async ValueTask<PagingResponse<PlayerVipAdjustInfo>> GetAsync(GetPlayerVipAdjustQuery query, CancellationToken cancellationToken = default)
     {

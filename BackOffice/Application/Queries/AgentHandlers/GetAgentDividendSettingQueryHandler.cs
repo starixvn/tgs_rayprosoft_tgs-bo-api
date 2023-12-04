@@ -7,15 +7,11 @@ using TGS.Services.BackOffice.Infrastructure.DataService;
 namespace TGS.Services.BackOffice.Application.Queries.AgentHandlers;
 
 public class
-    GetAgentDividendSettingQueryHandler : Handler<GetAgentDividendSettingRequest, GetAgentDividendSettingResponse>
+    GetAgentDividendSettingQueryHandler(
+    IAgentService service,
+    IHttpContextAccessor accessor) : Handler<GetAgentDividendSettingRequest, GetAgentDividendSettingResponse>(accessor)
 {
-    private readonly IAgentService _service;
-
-    public GetAgentDividendSettingQueryHandler(
-        IAgentService service,
-        IHttpContextAccessor accessor)
-        : base(accessor)
-        => _service = service;
+    private readonly IAgentService _service = service;
 
     public override async Task<GetAgentDividendSettingResponse> Handle(GetAgentDividendSettingRequest request,
         CancellationToken cancellationToken)

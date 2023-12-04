@@ -10,15 +10,9 @@ using TGS.Services.BackOffice.Infrastructure.DataService;
 namespace TGS.Services.BackOffice.Application.Queries.PlayerHandlers;
 
 public class
-    GetPlayerOperationsQueryHandler : Handler<GetPlayerOperationRequest, PagedResponse<PlayerOperationModel>>
+    GetPlayerOperationsQueryHandler(IPlayerService service, IHttpContextAccessor accessor) : Handler<GetPlayerOperationRequest, PagedResponse<PlayerOperationModel>>(accessor)
 {
-    private readonly IPlayerService _service;
-
-    public GetPlayerOperationsQueryHandler(IPlayerService service, IHttpContextAccessor accessor)
-        : base(accessor)
-    {
-        _service = service;
-    }
+    private readonly IPlayerService _service = service;
 
     public override Task<PagedResponse<PlayerOperationModel>> Handle(GetPlayerOperationRequest request,
         CancellationToken cancellationToken) =>

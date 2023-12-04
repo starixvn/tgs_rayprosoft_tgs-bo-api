@@ -23,7 +23,7 @@ public class BrandPaymentServiceTests
             .UseInMemoryDatabase(Guid.NewGuid().ToString())
             .ConfigureWarnings(x => x.Ignore(InMemoryEventId.TransactionIgnoredWarning));
 
-        ITgsRepository repository = new TgsRepository(dbContextOptionsBuilder.Options);
+        var repository = new TgsRepository(dbContextOptionsBuilder.Options);
 
         var source = new BrandPayment
         {
@@ -64,13 +64,13 @@ public class BrandPaymentServiceTests
             DepositedAmountMin = 55,
             Reason = "this is reason",
             Whitelist = new[] { "4uc3t7zw2k38", "4uc3t7zw2zo1" },
-            VipLevelIds = new[] {
+            VipLevelIds = [
                 Guid.Parse("0EAA7EC5-771E-EB11-8D6A-70B5E82B6B7C"),
                 Guid.Parse("0FAA7EC5-771E-EB11-8D6A-70B5E82B6B7C")
-            }
+            ]
         };
 
-        IBrandPaymentService sut = new BrandPaymentService(repository);
+        var sut = new BrandPaymentService(repository);
 
         var beforeExpected = new BrandPaymentAuditData(
             source.ChannelName,

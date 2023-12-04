@@ -8,15 +8,10 @@ using TGS.Services.BackOffice.Application.Models.SubGameProvider;
 
 namespace TGS.Services.BackOffice.Application.Queries.GameProviders;
 
-internal class GetGameProvidersLocalizationQueryService
-    : IQueryService<GetGameProvidersLocalizationQuery, SubGameProviderData>
+internal class GetGameProvidersLocalizationQueryService(ITgsRepository tgsRepository)
+        : IQueryService<GetGameProvidersLocalizationQuery, SubGameProviderData>
 {
-    private readonly ITgsRepository _tgsRepository;
-
-    public GetGameProvidersLocalizationQueryService(ITgsRepository tgsRepository)
-    {
-        _tgsRepository = tgsRepository ?? throw new ArgumentNullException(nameof(tgsRepository));
-    }
+    private readonly ITgsRepository _tgsRepository = tgsRepository ?? throw new ArgumentNullException(nameof(tgsRepository));
 
     public IAsyncEnumerable<SubGameProviderData> QueryAsync(
         GetGameProvidersLocalizationQuery query,

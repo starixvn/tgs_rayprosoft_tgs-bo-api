@@ -10,25 +10,18 @@ namespace TGS.Apis.BackendOffice.Controllers.Brand;
 
 [Route("api/[controller]")]
 [ApiController]
-public partial class BrandGameProviderController : BaseContextController
+public partial class BrandGameProviderController(IMediator mediator) : BaseContextController
 {
-    private readonly IMediator _mediator;
-
-    public BrandGameProviderController(IMediator mediator)
-    {
-        _mediator = mediator;
-    }
-
     [HttpGet("{brandGameProviderId}/defaultTimes")]
     [Description("Get default times")]
     public Task<GetDefaultTimesResponse> GetBrandGameProviderDefaultTimesAsync(Guid brandGameProviderId) =>
-        _mediator.Send(new GetDefaultTimesRequest(brandGameProviderId));
+        mediator.Send(new GetDefaultTimesRequest(brandGameProviderId));
 
     [HttpGet]
     [Description("Get brand game providers")]
     public Task<PagedResponse<BrandGameProviderModel>> GetBrandGameProvidersAsync(
         [FromQuery] GetBrandGameProvidersRequest request) =>
-        _mediator.Send(request);
+        mediator.Send(request);
 
     [HttpPut("{id}")]
     [Description("Update a brand game provider")]
@@ -36,7 +29,7 @@ public partial class BrandGameProviderController : BaseContextController
         UpdateBrandGameProviderRequest request)
     {
         request.Id = id;
-        return _mediator.Send(request);
+        return mediator.Send(request);
     }
 
     [HttpPut("{brandGameProviderId}/defaultTimes")]
@@ -45,6 +38,6 @@ public partial class BrandGameProviderController : BaseContextController
         UpdateDefaultTimesRequest request)
     {
         request.BrandGameProviderId = brandGameProviderId;
-        return _mediator.Send(request);
+        return mediator.Send(request);
     }
 }

@@ -8,14 +8,9 @@ using Tgs.ServiceUtility;
 
 namespace TGS.Services.BackOffice.ApplicationServices.Agents;
 
-internal class SetAgentStatusCommandService : IGetService<SetAgentStatusCommand, SetAgentStatusResult>
+internal class SetAgentStatusCommandService(IAgentClient agentClient) : IGetService<SetAgentStatusCommand, SetAgentStatusResult>
 {
-    private readonly IAgentClient _agentClient;
-
-    public SetAgentStatusCommandService(IAgentClient agentClient)
-    {
-        _agentClient = agentClient ?? throw new ArgumentNullException(nameof(agentClient));
-    }
+    private readonly IAgentClient _agentClient = agentClient ?? throw new ArgumentNullException(nameof(agentClient));
 
     public async ValueTask<SetAgentStatusResult> GetAsync(SetAgentStatusCommand command, CancellationToken cancellationToken = default)
     {

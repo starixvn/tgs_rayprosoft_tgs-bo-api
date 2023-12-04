@@ -6,14 +6,9 @@ using Tgs.ServiceUtility;
 
 namespace TGS.Services.BackOffice.ApplicationServices.PlayerBuckets;
 
-internal class GetCleanBucketFormListQueryService : IQueryService<GetCleanBucketFormListQuery, CleanBucketForm>
+internal class GetCleanBucketFormListQueryService(IPlayerBucketClient playerBucketClient) : IQueryService<GetCleanBucketFormListQuery, CleanBucketForm>
 {
-    private readonly IPlayerBucketClient _playerBucketClient;
-
-    public GetCleanBucketFormListQueryService(IPlayerBucketClient playerBucketClient)
-    {
-        _playerBucketClient = playerBucketClient ?? throw new ArgumentNullException(nameof(playerBucketClient));
-    }
+    private readonly IPlayerBucketClient _playerBucketClient = playerBucketClient ?? throw new ArgumentNullException(nameof(playerBucketClient));
 
     public IAsyncEnumerable<CleanBucketForm> QueryAsync(
         GetCleanBucketFormListQuery query,

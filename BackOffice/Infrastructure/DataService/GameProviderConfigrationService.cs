@@ -29,13 +29,9 @@ public interface IGameProviderConfigurationService
         UpdateGameProviderConfigurationRequest request);
 }
 
-public class GameProviderConfigurationService : BaseRepositoryOperations<ITgsRepository>,
+public class GameProviderConfigurationService(ITgsRepository tgsRepository) : BaseRepositoryOperations<ITgsRepository>(tgsRepository),
     IGameProviderConfigurationService
 {
-    public GameProviderConfigurationService(ITgsRepository tgsRepository) : base(tgsRepository)
-    {
-    }
-
     async Task IGameProviderConfigurationService.CreateGameProviderConfigurationAsync(
         CreateGameProviderConfigurationRequest request)
     {

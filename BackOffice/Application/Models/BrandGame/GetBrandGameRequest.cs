@@ -3,12 +3,7 @@ using MediatR;
 
 namespace TGS.Services.BackOffice.Application.Models.BrandGame;
 
-public class GetBrandGameRequest : IRequest<GetBrandGameResponse>
+public class GetBrandGameRequest(Guid id) : IRequest<GetBrandGameResponse>
 {
-    public Guid Id { get; set; }
-
-    public GetBrandGameRequest(Guid id)
-    {
-        Id = id;
-    }
+    public Guid Id { get; set; } = id;
 }

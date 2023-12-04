@@ -14,18 +14,12 @@ using TGS.Services.BackOffice.Domain.Enums;
 
 namespace TGS.Services.BackOffice.ApplicationServices.Overview;
 
-internal class GetTopTenGameQueryService : IQueryService<GetTopTenGameQuery, TopTenGameInfo>
+internal class GetTopTenGameQueryService(
+    IBrandServiceClient brandServiceClient,
+    IGameWagersClient gameWagersClient) : IQueryService<GetTopTenGameQuery, TopTenGameInfo>
 {
-    private readonly IBrandServiceClient _brandServiceClient;
-    private readonly IGameWagersClient _gameWagersClient;
-
-    public GetTopTenGameQueryService(
-        IBrandServiceClient brandServiceClient,
-        IGameWagersClient gameWagersClient)
-    {
-        _brandServiceClient = brandServiceClient ?? throw new ArgumentNullException(nameof(brandServiceClient));
-        _gameWagersClient = gameWagersClient ?? throw new ArgumentNullException(nameof(gameWagersClient));
-    }
+    private readonly IBrandServiceClient _brandServiceClient = brandServiceClient ?? throw new ArgumentNullException(nameof(brandServiceClient));
+    private readonly IGameWagersClient _gameWagersClient = gameWagersClient ?? throw new ArgumentNullException(nameof(gameWagersClient));
 
     public async IAsyncEnumerable<TopTenGameInfo> QueryAsync(
         GetTopTenGameQuery query,

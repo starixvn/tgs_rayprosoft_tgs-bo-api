@@ -79,10 +79,11 @@ internal class DepositAccumulateRouletteTests
     {
         var fakeRouletteServiceClient = Substitute.For<IDepositAccumulateRouletteServiceClient>();
 
+        var playerCodes = new[] { "player1" };
         var query = new DepositAccumulateRouletteGameRecordQuery(
             Guid.NewGuid(),
             Array.Empty<Guid>(),
-            new[] { "player1" },
+            playerCodes,
             (Begin: DateTimeOffset.Parse("2022-11-01 00:00:00+08:00"),
              End: DateTimeOffset.Parse("2022-11-20 00:00:00+08:00")));
 

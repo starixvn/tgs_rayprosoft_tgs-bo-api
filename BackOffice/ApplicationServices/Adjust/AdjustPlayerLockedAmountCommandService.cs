@@ -7,16 +7,13 @@ using Tgs.ServiceUtility;
 
 namespace TGS.Services.BackOffice.ApplicationServices.Adjust;
 
-internal class AdjustPlayerLockedAmountCommandService : ICommandService<AdjustPlayerLockedAmountCommand>
+internal class AdjustPlayerLockedAmountCommandService(
+    ICashServiceClient cashServiceClient,
+    IPlayerServiceClient playerServiceClient)
+    : ICommandService<AdjustPlayerLockedAmountCommand>
 {
-    private readonly ICashServiceClient _cashServiceClient;
-    private readonly IPlayerServiceClient _playerServiceClient;
-
-    public AdjustPlayerLockedAmountCommandService(ICashServiceClient cashServiceClient, IPlayerServiceClient playerServiceClient)
-    {
-        _cashServiceClient = cashServiceClient ?? throw new ArgumentNullException(nameof(cashServiceClient));
-        _playerServiceClient = playerServiceClient ?? throw new ArgumentNullException(nameof(playerServiceClient));
-    }
+    private readonly ICashServiceClient _cashServiceClient = cashServiceClient ?? throw new ArgumentNullException(nameof(cashServiceClient));
+    private readonly IPlayerServiceClient _playerServiceClient = playerServiceClient ?? throw new ArgumentNullException(nameof(playerServiceClient));
 
     public async ValueTask ExecuteAsync(AdjustPlayerLockedAmountCommand command, CancellationToken cancellationToken = default)
     {

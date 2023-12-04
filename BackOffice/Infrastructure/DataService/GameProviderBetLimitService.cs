@@ -29,15 +29,10 @@ public interface IGameProviderBetLimitService
             UpdateGameProviderBetLimitRequest request);
 }
 
-public class GameProviderBetLimitService : BaseRepositoryOperations<ITgsRepository>,
+public class GameProviderBetLimitService(ITgsRepository tgsRepository) : BaseRepositoryOperations<ITgsRepository>(tgsRepository),
     IGameProviderBetLimitService
 {
-    private readonly ITgsRepository _repository;
-
-    public GameProviderBetLimitService(ITgsRepository tgsRepository) : base(tgsRepository)
-    {
-        _repository = tgsRepository;
-    }
+    private readonly ITgsRepository _repository = tgsRepository;
 
     Task IGameProviderBetLimitService.CreateGameProviderBetLimitAsync(CreateGameProviderBetLimitRequest request)
     {

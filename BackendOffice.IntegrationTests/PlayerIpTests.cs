@@ -12,16 +12,10 @@ using Xunit.Abstractions;
 
 namespace BackendOffice.IntegrationTests;
 
-public class PlayerIpTests
+public class PlayerIpTests(ITestOutputHelper testOutputHelper, NodeJsFixture nodeJsFixture)
 {
-    private readonly ITestOutputHelper _testOutputHelper;
-    private readonly NodeJsFixture _nodeJsFixture;
-
-    public PlayerIpTests(ITestOutputHelper testOutputHelper, NodeJsFixture nodeJsFixture)
-    {
-        _testOutputHelper = testOutputHelper ?? throw new ArgumentNullException(nameof(testOutputHelper));
-        _nodeJsFixture = nodeJsFixture ?? throw new ArgumentNullException(nameof(nodeJsFixture));
-    }
+    private readonly ITestOutputHelper _testOutputHelper = testOutputHelper ?? throw new ArgumentNullException(nameof(testOutputHelper));
+    private readonly NodeJsFixture _nodeJsFixture = nodeJsFixture ?? throw new ArgumentNullException(nameof(nodeJsFixture));
 
     [Fact]
     public async Task 用戶查詢IP()
@@ -72,14 +66,18 @@ public class PlayerIpTests
         {
             TotalCount = 2,
             Valid = true,
-            Items = new[] {
-                new GetPlayerIpsByUserNameResult{
-                    IpAddress="111.90.145.159",
-                    CreatedOn=DateTimeOffset.Parse("2022-12-27T05:38:00.15534+00:00") },
-                new GetPlayerIpsByUserNameResult{
-                    IpAddress="114.33.41.237",
-                    CreatedOn=DateTimeOffset.Parse("2022-12-28T10:36:38.562382+00:00") }
-            }
+            Items = [
+                new GetPlayerIpsByUserNameResult
+                {
+                    IpAddress = "111.90.145.159",
+                    CreatedOn = DateTimeOffset.Parse("2022-12-27T05:38:00.15534+00:00")
+                },
+                new GetPlayerIpsByUserNameResult
+                {
+                    IpAddress = "114.33.41.237",
+                    CreatedOn = DateTimeOffset.Parse("2022-12-28T10:36:38.562382+00:00")
+                }
+            ]
         };
         _ = fakeService.GetAsync(
             Arg.Any<GetPlayerIpsByUserNameQuery>(),

@@ -9,15 +9,10 @@ using TGS.Services.BackOffice.Infrastructure.DataService;
 
 namespace TGS.Services.BackOffice.ApplicationServices.Overview;
 
-internal class GetTopGameInfoQueryService : IQueryService<GetTopGameInfoQuery, TopGameInfo>
+internal class GetTopGameInfoQueryService(
+    IGameService gameService) : IQueryService<GetTopGameInfoQuery, TopGameInfo>
 {
-    private readonly IGameService _gameService;
-
-    public GetTopGameInfoQueryService(
-        IGameService gameService)
-    {
-        _gameService = gameService ?? throw new ArgumentNullException(nameof(gameService));
-    }
+    private readonly IGameService _gameService = gameService ?? throw new ArgumentNullException(nameof(gameService));
 
     public IAsyncEnumerable<TopGameInfo> QueryAsync(GetTopGameInfoQuery query, CancellationToken cancellationToken = default)
     {

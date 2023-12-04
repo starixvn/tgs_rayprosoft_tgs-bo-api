@@ -9,14 +9,9 @@ using Valhalla.MessageQueue;
 
 namespace TGS.Services.BackOffice.ApplicationServices;
 
-internal class ClearBrandMaintenanceCacheCommandService : ICommandService<ClearBrandMaintenanceCacheCommand>
+internal class ClearBrandMaintenanceCacheCommandService(IMessageSender messageSender) : ICommandService<ClearBrandMaintenanceCacheCommand>
 {
-    private readonly IMessageSender _messageSender;
-
-    public ClearBrandMaintenanceCacheCommandService(IMessageSender messageSender)
-    {
-        _messageSender = messageSender ?? throw new ArgumentNullException(nameof(messageSender));
-    }
+    private readonly IMessageSender _messageSender = messageSender ?? throw new ArgumentNullException(nameof(messageSender));
 
     public async ValueTask ExecuteAsync(ClearBrandMaintenanceCacheCommand command, CancellationToken cancellationToken = default)
     {

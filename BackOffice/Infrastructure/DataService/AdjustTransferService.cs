@@ -13,13 +13,9 @@ public interface IAdjustTransferService
         string transferFromUsername, string transferToUsername, decimal amount);
 }
 
-public class AdjustTransferService : BaseRepositoryOperations<ITgsRepository>, IAdjustTransferService
+public class AdjustTransferService(ITgsRepository tgsRepository) : BaseRepositoryOperations<ITgsRepository>(
+    tgsRepository), IAdjustTransferService
 {
-    public AdjustTransferService(ITgsRepository tgsRepository) : base(
-        tgsRepository)
-    {
-    }
-
     public Task CreateAsync(Guid transactionFromId, Guid transactionToId, AdjustTransferType transferType,
         string transferFromUsername, string transferToUsername, decimal amount)
     {

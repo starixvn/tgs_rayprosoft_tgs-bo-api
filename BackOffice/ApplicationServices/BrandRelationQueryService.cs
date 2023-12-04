@@ -6,15 +6,10 @@ using Tgs.ServiceUtility;
 
 namespace TGS.Services.BackOffice.ApplicationServices;
 
-internal class BrandRelationQueryService : IQueryService<BrandRelationQuery, BrandRelationInfo>
+internal class BrandRelationQueryService(
+    IBrandServiceClient brandServiceClient) : IQueryService<BrandRelationQuery, BrandRelationInfo>
 {
-    private readonly IBrandServiceClient _brandServiceClient;
-
-    public BrandRelationQueryService(
-        IBrandServiceClient brandServiceClient)
-    {
-        _brandServiceClient = brandServiceClient ?? throw new ArgumentNullException(nameof(brandServiceClient));
-    }
+    private readonly IBrandServiceClient _brandServiceClient = brandServiceClient ?? throw new ArgumentNullException(nameof(brandServiceClient));
 
     public IAsyncEnumerable<BrandRelationInfo> QueryAsync(
         BrandRelationQuery query, 

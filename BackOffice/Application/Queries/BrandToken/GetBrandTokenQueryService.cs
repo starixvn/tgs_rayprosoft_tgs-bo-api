@@ -6,14 +6,9 @@ using Tgs.ServiceUtility;
 
 namespace TGS.Services.BackOffice.Application.Queries.BrandToken;
 
-internal class GetBrandTokenQueryService : IGetService<BrandTokenQuery, string>
+internal class GetBrandTokenQueryService(IBrandCertificateClient brandCertificateClient) : IGetService<BrandTokenQuery, string>
 {
-    private readonly IBrandCertificateClient _brandCertificateClient;
-
-    public GetBrandTokenQueryService(IBrandCertificateClient brandCertificateClient)
-    {
-        _brandCertificateClient = brandCertificateClient ?? throw new ArgumentNullException(nameof(brandCertificateClient));
-    }
+    private readonly IBrandCertificateClient _brandCertificateClient = brandCertificateClient ?? throw new ArgumentNullException(nameof(brandCertificateClient));
 
     public async ValueTask<string> GetAsync(BrandTokenQuery query, CancellationToken cancellationToken = default)
         => await _brandCertificateClient

@@ -15,24 +15,16 @@ using Valhalla.MessageQueue;
 
 namespace TGS.Services.BackOffice.Application.Commands.ReportGenerateAggregate;
 
-public class GameProviderAggregateHandler : IGetService<GenerateGameProviderAggregateRequest, MessageResponse>
+public class GameProviderAggregateHandler(
+    IMessageSender messageSender,
+    IGameProviderService gameProviderService,
+    IGameProviderAggregateAuditLogService gameProviderAuditLogService,
+    IRedisCacheManager redisCacheManager) : IGetService<GenerateGameProviderAggregateRequest, MessageResponse>
 {
-    private readonly IGameProviderAggregateAuditLogService _gameProviderAuditLogService;
-    private readonly IGameProviderService _gameProviderService;
-    private readonly IMessageSender _messageSender;
-    private readonly IRedisCacheManager _redisCacheManager;
-
-    public GameProviderAggregateHandler(
-        IMessageSender messageSender,
-        IGameProviderService gameProviderService,
-        IGameProviderAggregateAuditLogService gameProviderAuditLogService,
-        IRedisCacheManager redisCacheManager)
-    {
-        _gameProviderService = gameProviderService;
-        _messageSender = messageSender;
-        _gameProviderAuditLogService = gameProviderAuditLogService;
-        _redisCacheManager = redisCacheManager;
-    }
+    private readonly IGameProviderAggregateAuditLogService _gameProviderAuditLogService = gameProviderAuditLogService;
+    private readonly IGameProviderService _gameProviderService = gameProviderService;
+    private readonly IMessageSender _messageSender = messageSender;
+    private readonly IRedisCacheManager _redisCacheManager = redisCacheManager;
 
     public async ValueTask<MessageResponse> GetAsync(
         GenerateGameProviderAggregateRequest request,
@@ -60,10 +52,7 @@ public class GameProviderAggregateHandler : IGetService<GenerateGameProviderAggr
         }
 
         var gameProviderIds = request.GameProviderId is not null
-            ? new[]
-            {
-                request.GameProviderId.Value
-            }
+            ? [request.GameProviderId.Value]
             : await _gameProviderService.GetGameProviderQueries().Select(x => x.Id).ToArrayAsync(cancellationToken)
                 .ConfigureAwait(false);
 

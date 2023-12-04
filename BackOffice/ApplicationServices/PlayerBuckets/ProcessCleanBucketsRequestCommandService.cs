@@ -12,24 +12,16 @@ using TGS.Services.BackOffice.ApplicationServices.Players;
 
 namespace TGS.Services.BackOffice.ApplicationServices.PlayerBuckets;
 
-internal class ProcessCleanBucketsRequestCommandService : ICommandService<ProcessCleanBucketsRequestCommand>
+internal class ProcessCleanBucketsRequestCommandService(
+    IPlayerBucketClient playerBucketClient,
+    ICashServiceClient cashServiceClient,
+    IQueryService<GetPlayerGameProviderBalanceQuery, GetPlayerGameProviderBalanceResponse> gameProviderQueryService,
+    ILogger<ProcessCleanBucketsRequestCommandService> logger) : ICommandService<ProcessCleanBucketsRequestCommand>
 {
-    private readonly ICashServiceClient _cashServiceClient;
-    private readonly IQueryService<GetPlayerGameProviderBalanceQuery, GetPlayerGameProviderBalanceResponse> _gameProviderQueryService;
-    private readonly ILogger<ProcessCleanBucketsRequestCommandService> _logger;
-    private readonly IPlayerBucketClient _playerBucketClient;
-
-    public ProcessCleanBucketsRequestCommandService(
-        IPlayerBucketClient playerBucketClient,
-        ICashServiceClient cashServiceClient,
-        IQueryService<GetPlayerGameProviderBalanceQuery, GetPlayerGameProviderBalanceResponse> gameProviderQueryService,
-        ILogger<ProcessCleanBucketsRequestCommandService> logger)
-    {
-        _playerBucketClient = playerBucketClient ?? throw new ArgumentNullException(nameof(playerBucketClient));
-        _cashServiceClient = cashServiceClient ?? throw new ArgumentNullException(nameof(cashServiceClient));
-        _gameProviderQueryService = gameProviderQueryService ?? throw new ArgumentNullException(nameof(gameProviderQueryService));
-        _logger = logger ?? throw new ArgumentNullException(nameof(logger));
-    }
+    private readonly ICashServiceClient _cashServiceClient = cashServiceClient ?? throw new ArgumentNullException(nameof(cashServiceClient));
+    private readonly IQueryService<GetPlayerGameProviderBalanceQuery, GetPlayerGameProviderBalanceResponse> _gameProviderQueryService = gameProviderQueryService ?? throw new ArgumentNullException(nameof(gameProviderQueryService));
+    private readonly ILogger<ProcessCleanBucketsRequestCommandService> _logger = logger ?? throw new ArgumentNullException(nameof(logger));
+    private readonly IPlayerBucketClient _playerBucketClient = playerBucketClient ?? throw new ArgumentNullException(nameof(playerBucketClient));
 
     public async ValueTask ExecuteAsync(ProcessCleanBucketsRequestCommand command, CancellationToken cancellationToken = default)
     {

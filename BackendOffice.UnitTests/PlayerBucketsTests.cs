@@ -118,9 +118,10 @@ public class PlayerBucketsTests
             fakePlayerBucketClient,
             fakePlayerBucketForTypesClient);
 
+        var bucketTypes = new[] { "Game1", "Game2" };
         var command = new ClearPlayerTypeBucketsCommand(
             "test1",
-            new[] { "Game1", "Game2" });
+            bucketTypes);
 
         var typeBucketResults = new[]
         {

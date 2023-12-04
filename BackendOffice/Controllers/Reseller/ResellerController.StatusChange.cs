@@ -13,14 +13,14 @@ public partial class ResellerController
     [Description("change a Reseller's status")]
     public async Task<MessageResponse> UpdateResellerStatusAsync(Guid resellerId, Status status)
     {
-        var reseller = await _service.GetResellerAsync(q => q.Id == resellerId);
+        var reseller = await service.GetResellerAsync(q => q.Id == resellerId);
 
         if (reseller == null)
         {
             return CreateInvalidResponse<MessageResponse>(Resources.Reseller.NotFound);
         }
 
-        await _service.ChangeStatusAsync(reseller, status, Username);
+        await service.ChangeStatusAsync(reseller, status, Username);
 
         return CreateValidResponse<MessageResponse>();
     }

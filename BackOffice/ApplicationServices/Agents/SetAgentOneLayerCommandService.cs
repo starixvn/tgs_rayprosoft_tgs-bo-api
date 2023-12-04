@@ -17,18 +17,12 @@ using TGS.Core.Models.Enums;
 
 namespace TGS.Services.BackOffice.ApplicationServices.Agents;
 
-internal class SetAgentOneLayerCommandService : IGetService<SetAgentOneLayerCommand, SetAgentOneLayerResult>
+internal class SetAgentOneLayerCommandService(
+    IAgentClient agentClient,
+    ITgsRepository repository) : IGetService<SetAgentOneLayerCommand, SetAgentOneLayerResult>
 {
-    private readonly IAgentClient _agentClient;
-    private readonly ITgsRepository _repository;
-
-    public SetAgentOneLayerCommandService(
-        IAgentClient agentClient,
-        ITgsRepository repository)
-    {
-        _agentClient = agentClient ?? throw new ArgumentNullException(nameof(agentClient));
-        _repository = repository ?? throw new ArgumentNullException(nameof(repository));
-    }
+    private readonly IAgentClient _agentClient = agentClient ?? throw new ArgumentNullException(nameof(agentClient));
+    private readonly ITgsRepository _repository = repository ?? throw new ArgumentNullException(nameof(repository));
 
     public async ValueTask<SetAgentOneLayerResult> GetAsync(SetAgentOneLayerCommand command, CancellationToken cancellationToken = default)
     {

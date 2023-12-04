@@ -8,14 +8,9 @@ using TGS.Services.BackOffice.Infrastructure.DataService;
 
 namespace TGS.Services.BackOffice.Application.Commands.LanguageHandlers;
 
-public class UpdateLanguageHandler : Handler<UpdateLanguageRequest, MessageResponse>
+public class UpdateLanguageHandler(ILanguageService service, IHttpContextAccessor accessor) : Handler<UpdateLanguageRequest, MessageResponse>(accessor)
 {
-    private readonly ILanguageService _service;
-
-    public UpdateLanguageHandler(ILanguageService service, IHttpContextAccessor accessor) : base(accessor)
-    {
-        _service = service;
-    }
+    private readonly ILanguageService _service = service;
 
     public override async Task<MessageResponse> Handle(UpdateLanguageRequest request,
         CancellationToken cancellationToken)

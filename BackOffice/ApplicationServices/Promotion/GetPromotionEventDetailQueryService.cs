@@ -8,14 +8,9 @@ using Tgs.ServiceUtility;
 
 namespace TGS.Services.BackOffice.ApplicationServices.Promotion;
 
-internal class GetPromotionEventDetailQueryService : IGetService<GetPromotionEventDetailQuery, PromotionEventDetailInfo?>
+internal class GetPromotionEventDetailQueryService(IPromotionHistoryClient promotionHistoryClient) : IGetService<GetPromotionEventDetailQuery, PromotionEventDetailInfo?>
 {
-    private readonly IPromotionHistoryClient _promotionHistoryClient;
-
-    public GetPromotionEventDetailQueryService(IPromotionHistoryClient promotionHistoryClient)
-    {
-        _promotionHistoryClient = promotionHistoryClient ?? throw new ArgumentNullException(nameof(promotionHistoryClient));
-    }
+    private readonly IPromotionHistoryClient _promotionHistoryClient = promotionHistoryClient ?? throw new ArgumentNullException(nameof(promotionHistoryClient));
 
     public ValueTask<PromotionEventDetailInfo?> GetAsync(
         GetPromotionEventDetailQuery query,

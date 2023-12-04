@@ -44,7 +44,7 @@ public record WithdrawFormRequest
     public DateTimeOffset? EndUpdateOn { get; init; }
 
     [FromQuery(Name = "bpid")]
-    public Guid[] BrandPaymentIds { get; init; } = Array.Empty<Guid>();
+    public Guid[] BrandPaymentIds { get; init; } = [];
 
     [FromQuery(Name = "userType")]
     public UserType? UserType { get; init; }

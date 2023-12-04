@@ -5,12 +5,7 @@ using System;
 namespace TGS.Apis.BackendOffice.Attributes;
 
 [AttributeUsage(AttributeTargets.Method)]
-public class TgsActionAttribute : Attribute
+public class TgsActionAttribute(string name) : Attribute
 {
-    public string Name { get; }
-
-    public TgsActionAttribute(string name)
-    {
-        Name = name;
-    }
+    public string Name { get; } = name;
 }

@@ -13,14 +13,9 @@ using Tgs.ServiceUtility;
 
 namespace TGS.Services.BackOffice.ApplicationServices.Agents;
 
-internal class SetAgentInfoCommandService : IGetService<SetAgentInfoCommand, SetAgentInfoResult>
+internal class SetAgentInfoCommandService(IAgentClient agentClient) : IGetService<SetAgentInfoCommand, SetAgentInfoResult>
 {
-    private readonly IAgentClient _agentClient;
-
-    public SetAgentInfoCommandService(IAgentClient agentClient)
-    {
-        _agentClient = agentClient ?? throw new ArgumentNullException(nameof(agentClient));
-    }
+    private readonly IAgentClient _agentClient = agentClient ?? throw new ArgumentNullException(nameof(agentClient));
 
     public async ValueTask<SetAgentInfoResult> GetAsync(SetAgentInfoCommand command, CancellationToken cancellationToken = default)
     {

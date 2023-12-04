@@ -10,16 +10,11 @@ using TGS.Services.BackOffice.Domain;
 
 namespace TGS.Services.BackOffice.ApplicationServices.Players;
 
-internal class GetPlayerIdentityAuthenticationListQueryService :
+internal class GetPlayerIdentityAuthenticationListQueryService(IBackOfficeRepository backOfficeRepository) :
     IQueryService<GetPlayerIdentityAuthenticationFormsQuery, PlayerIdentityAuthenticationInfo>,
     IGetService<GetPlayerIdentityAuthenticationFormsQuery, int>
 {
-    private readonly IBackOfficeRepository _backOfficeRepository;
-
-    public GetPlayerIdentityAuthenticationListQueryService(IBackOfficeRepository backOfficeRepository)
-    {
-        _backOfficeRepository = backOfficeRepository ?? throw new ArgumentNullException(nameof(backOfficeRepository));
-    }
+    private readonly IBackOfficeRepository _backOfficeRepository = backOfficeRepository ?? throw new ArgumentNullException(nameof(backOfficeRepository));
 
     public async ValueTask<int> GetAsync(GetPlayerIdentityAuthenticationFormsQuery query, CancellationToken cancellationToken = default)
     {

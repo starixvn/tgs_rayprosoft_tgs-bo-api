@@ -9,13 +9,10 @@ using Tgs.ServiceUtility;
 namespace TGS.Services.BackOffice.Application.Queries.ReportExportAgent;
 
 public class
-    ExportAgentDividendsTrialCalculationQuery : IGetService<ExportAgentDividendsTrialCalculationRequest,
+    ExportAgentDividendsTrialCalculationQuery(IReportClient reportClient) : IGetService<ExportAgentDividendsTrialCalculationRequest,
         Stream>
 {
-    private readonly IReportClient _reportClient;
-
-    public ExportAgentDividendsTrialCalculationQuery(IReportClient reportClient)
-        => _reportClient = reportClient ?? throw new ArgumentNullException(nameof(reportClient));
+    private readonly IReportClient _reportClient = reportClient ?? throw new ArgumentNullException(nameof(reportClient));
 
     public async ValueTask<Stream> GetAsync(ExportAgentDividendsTrialCalculationRequest request,
         CancellationToken cancellationToken = default)

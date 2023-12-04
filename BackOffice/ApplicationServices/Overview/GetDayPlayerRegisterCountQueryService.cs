@@ -7,14 +7,9 @@ using TGS.Services.BackOffice.Domain;
 
 namespace TGS.Services.BackOffice.ApplicationServices.Overview;
 
-internal class GetDayPlayerRegisterCountQueryService : IGetService<GetDayPlayerRegisterCountQuery, DayPlayerRegisterCountInfo>
+internal class GetDayPlayerRegisterCountQueryService(IPlayerServiceClient playerServiceClient) : IGetService<GetDayPlayerRegisterCountQuery, DayPlayerRegisterCountInfo>
 {
-    private readonly IPlayerServiceClient _playerServiceClient;
-
-    public GetDayPlayerRegisterCountQueryService(IPlayerServiceClient playerServiceClient)
-    {
-        _playerServiceClient = playerServiceClient ?? throw new ArgumentNullException(nameof(playerServiceClient));
-    }
+    private readonly IPlayerServiceClient _playerServiceClient = playerServiceClient ?? throw new ArgumentNullException(nameof(playerServiceClient));
 
     public async ValueTask<DayPlayerRegisterCountInfo> GetAsync(GetDayPlayerRegisterCountQuery query, CancellationToken cancellationToken = default)
     {

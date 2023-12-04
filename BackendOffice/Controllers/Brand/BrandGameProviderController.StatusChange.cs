@@ -13,5 +13,5 @@ public partial class BrandGameProviderController
     [HttpPut("{id}/{status}")]
     [Description("Change a brand game provider status")]
     public Task<MessageResponse> UpdateBrandGameProviderStatusAsync(Guid id, Status status) =>
-        _mediator.Send(new UpdateBrandGameProviderStatusRequest(id, status));
+        mediator.Send(new UpdateBrandGameProviderStatusRequest(id, status));
 }

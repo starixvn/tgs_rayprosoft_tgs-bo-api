@@ -11,13 +11,10 @@ using TGS.Services.BackOffice.Application.Models.ReportAgent;
 namespace TGS.Services.BackOffice.Application.Queries.ReportAgentQueries;
 
 public class
-    GetAgentDividendDetailsQuery : IGetService<GetAgentDividendDetailsReportRequest,
+    GetAgentDividendDetailsQuery(IReportClient reportClient) : IGetService<GetAgentDividendDetailsReportRequest,
         PagedResponse<AgentDividendDetailReportModel>>
 {
-    private readonly IReportClient _reportClient;
-
-    public GetAgentDividendDetailsQuery(IReportClient reportClient)
-        => _reportClient = reportClient ?? throw new ArgumentNullException(nameof(reportClient));
+    private readonly IReportClient _reportClient = reportClient ?? throw new ArgumentNullException(nameof(reportClient));
 
     public async ValueTask<PagedResponse<AgentDividendDetailReportModel>> GetAsync(
         GetAgentDividendDetailsReportRequest request,

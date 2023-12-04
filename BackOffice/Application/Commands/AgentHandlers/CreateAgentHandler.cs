@@ -10,12 +10,9 @@ using TGS.Services.BackOffice.Infrastructure.DataService;
 
 namespace TGS.Services.BackOffice.Application.Commands.AgentHandlers;
 
-public class CreateAgentHandler : Handler<CreateAgentRequest, MessageResponse>
+public class CreateAgentHandler(IAgentService service, IHttpContextAccessor accessor) : Handler<CreateAgentRequest, MessageResponse>(accessor)
 {
-    private readonly IAgentService _service;
-
-    public CreateAgentHandler(IAgentService service, IHttpContextAccessor accessor) : base(accessor)
-        => _service = service;
+    private readonly IAgentService _service = service;
 
     public override async Task<MessageResponse> Handle(
         CreateAgentRequest request,

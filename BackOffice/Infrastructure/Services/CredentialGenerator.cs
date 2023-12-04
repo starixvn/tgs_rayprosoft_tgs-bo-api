@@ -10,14 +10,9 @@ public interface ICredentialGenerator
     string GetSecretKey();
 }
 
-public class CredentialGenerator : ICredentialGenerator
+public class CredentialGenerator(IPasswordHandler password) : ICredentialGenerator
 {
-    private readonly IPasswordHandler _password;
-
-    public CredentialGenerator(IPasswordHandler password)
-    {
-        _password = password;
-    }
+    private readonly IPasswordHandler _password = password;
 
     string ICredentialGenerator.GetApiKey() => GetRandomStringByLength(40);
 

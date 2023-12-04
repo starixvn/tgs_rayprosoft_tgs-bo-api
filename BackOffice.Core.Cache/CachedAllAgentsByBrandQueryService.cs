@@ -6,16 +6,13 @@ using TGS.Services.BackOffice.Domain;
 
 namespace TGS.Services.BackOffice.Cache;
 
-internal class CachedAllAgentsByBrandQueryService : IQueryService<AllAgentsByBrandQuery, AgentInfo>
+internal class CachedAllAgentsByBrandQueryService(
+    IQueryService<AllAgentsByBrandQuery, AgentInfo> sourceService,
+    IMemoryCache memoryCache)
+    : IQueryService<AllAgentsByBrandQuery, AgentInfo>
 {
-    private readonly IMemoryCache _memoryCache;
-    private readonly IQueryService<AllAgentsByBrandQuery, AgentInfo> _sourceService;
-
-    public CachedAllAgentsByBrandQueryService(IQueryService<AllAgentsByBrandQuery, AgentInfo> sourceService, IMemoryCache memoryCache)
-    {
-        _sourceService = sourceService ?? throw new ArgumentNullException(nameof(sourceService));
-        _memoryCache = memoryCache ?? throw new ArgumentNullException(nameof(memoryCache));
-    }
+    private readonly IMemoryCache _memoryCache = memoryCache ?? throw new ArgumentNullException(nameof(memoryCache));
+    private readonly IQueryService<AllAgentsByBrandQuery, AgentInfo> _sourceService = sourceService ?? throw new ArgumentNullException(nameof(sourceService));
 
     public async IAsyncEnumerable<AgentInfo> QueryAsync(
         AllAgentsByBrandQuery query,

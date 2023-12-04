@@ -8,15 +8,10 @@ using Clients = Tgs.BrandCertificate.Clients;
 
 namespace TGS.Services.BackOffice.ApplicationServices;
 
-internal class BrandListQueryService : IQueryService<BrandListQuery, BrandListItem>
+internal class BrandListQueryService(
+    IBrandServiceClient brandServiceClient) : IQueryService<BrandListQuery, BrandListItem>
 {
-    private readonly IBrandServiceClient _brandServiceClient;
-
-    public BrandListQueryService(
-        IBrandServiceClient brandServiceClient)
-    {
-        _brandServiceClient = brandServiceClient ?? throw new ArgumentNullException(nameof(brandServiceClient));
-    }
+    private readonly IBrandServiceClient _brandServiceClient = brandServiceClient ?? throw new ArgumentNullException(nameof(brandServiceClient));
 
     public IAsyncEnumerable<BrandListItem> QueryAsync(
         BrandListQuery query,

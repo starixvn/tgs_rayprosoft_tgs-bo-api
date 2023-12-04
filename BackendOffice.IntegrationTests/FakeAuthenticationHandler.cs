@@ -6,16 +6,11 @@ using Microsoft.Extensions.Options;
 
 namespace BackendOffice.IntegrationTests;
 
-internal class FakeAuthenticationHandler : AuthenticationHandler<FakeAuthenticationSchemaOptions>
+internal class FakeAuthenticationHandler(
+    IOptionsMonitor<FakeAuthenticationSchemaOptions> options,
+    ILoggerFactory logger,
+    UrlEncoder encoder) : AuthenticationHandler<FakeAuthenticationSchemaOptions>(options, logger, encoder)
 {
-    public FakeAuthenticationHandler(
-        IOptionsMonitor<FakeAuthenticationSchemaOptions> options,
-        ILoggerFactory logger,
-        UrlEncoder encoder,
-        ISystemClock clock) : base(options, logger, encoder, clock)
-    {
-    }
-
     protected override Task<AuthenticateResult> HandleAuthenticateAsync()
     {
         var identity = new ClaimsIdentity(

@@ -33,7 +33,7 @@ internal class NodeJsonService : IJsonService
         public override InvocationRequest? Read(ref Utf8JsonReader reader, Type typeToConvert, JsonSerializerOptions options)
             => JsonSerializer.Deserialize<InvocationRequest>(
                 ref reader,
-                new JsonSerializerOptions(JsonSerializerDefaults.Web));
+                _SerializerOptions);
 
         public override void Write(Utf8JsonWriter writer, InvocationRequest value, JsonSerializerOptions options)
         {

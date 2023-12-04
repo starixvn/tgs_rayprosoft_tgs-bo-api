@@ -10,13 +10,10 @@ using TGS.Services.BackOffice.Application.Models.ReportVip;
 namespace TGS.Services.BackOffice.Application.Queries.ReportVipQueries;
 
 public class
-    GetVipReportQuery : IGetService<GetVipReportReportRequest,
+    GetVipReportQuery(IReportClient reportClient) : IGetService<GetVipReportReportRequest,
         GetVipReportReportResponse>
 {
-    private readonly IReportClient _reportClient;
-
-    public GetVipReportQuery(IReportClient reportClient)
-        => _reportClient = reportClient ?? throw new ArgumentNullException(nameof(reportClient));
+    private readonly IReportClient _reportClient = reportClient ?? throw new ArgumentNullException(nameof(reportClient));
 
     public async ValueTask<GetVipReportReportResponse> GetAsync(
         GetVipReportReportRequest request,
@@ -45,8 +42,19 @@ public class
                 Valid = response.Valid,
                 Message = response.Message,
                 TotalCount = response.TotalCount,
-                Items = Array.Empty<VipReportModel>(),
-                Total = new VipReportTotalModel(0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0)
+                Items = [],
+                Total = new VipReportTotalModel(
+                    0,
+                    0,
+                    0,
+                    0,
+                    0,
+                    0,
+                    0,
+                    0,
+                    0,
+                    0,
+                    0)
             };
         }
 

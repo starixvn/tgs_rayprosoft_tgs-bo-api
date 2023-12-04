@@ -10,19 +10,13 @@ using TGS.Services.BackOffice.Domain;
 
 namespace TGS.Services.BackOffice.Application.Queries.ReportMarketingQueries;
 
-internal class GetMarketingReportAggregateInfosByAgentQueryService
-    : IGetService<GetMarketingReportAggregateInfosByAgentQuery, MarketingReportResponse>
+internal class GetMarketingReportAggregateInfosByAgentQueryService(
+    IAgentRepository agentRepository,
+    IMarketingReportClient reportClient)
+        : IGetService<GetMarketingReportAggregateInfosByAgentQuery, MarketingReportResponse>
 {
-    private readonly IAgentRepository _agentRepository;
-    private readonly IMarketingReportClient _reportClient;
-
-    public GetMarketingReportAggregateInfosByAgentQueryService(
-        IAgentRepository agentRepository,
-        IMarketingReportClient reportClient)
-    {
-        _agentRepository = agentRepository ?? throw new ArgumentNullException(nameof(agentRepository));
-        _reportClient = reportClient ?? throw new ArgumentNullException(nameof(reportClient));
-    }
+    private readonly IAgentRepository _agentRepository = agentRepository ?? throw new ArgumentNullException(nameof(agentRepository));
+    private readonly IMarketingReportClient _reportClient = reportClient ?? throw new ArgumentNullException(nameof(reportClient));
 
     public async ValueTask<MarketingReportResponse> GetAsync(
         GetMarketingReportAggregateInfosByAgentQuery query,

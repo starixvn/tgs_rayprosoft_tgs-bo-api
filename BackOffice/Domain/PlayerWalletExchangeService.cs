@@ -6,18 +6,12 @@ using Tgs.PlayerService.Client;
 
 namespace TGS.Services.BackOffice.Domain;
 
-internal class PlayerWalletExchangeService : IPlayerWalletExchangeService
+internal class PlayerWalletExchangeService(
+    IPlayerServiceClient playerServiceClient,
+    ICashServiceClient cashServiceClient) : IPlayerWalletExchangeService
 {
-    private readonly ICashServiceClient _cashServiceClient;
-    private readonly IPlayerServiceClient _playerServiceClient;
-
-    public PlayerWalletExchangeService(
-        IPlayerServiceClient playerServiceClient,
-        ICashServiceClient cashServiceClient)
-    {
-        _playerServiceClient = playerServiceClient ?? throw new ArgumentNullException(nameof(playerServiceClient));
-        _cashServiceClient = cashServiceClient ?? throw new ArgumentNullException(nameof(cashServiceClient));
-    }
+    private readonly ICashServiceClient _cashServiceClient = cashServiceClient ?? throw new ArgumentNullException(nameof(cashServiceClient));
+    private readonly IPlayerServiceClient _playerServiceClient = playerServiceClient ?? throw new ArgumentNullException(nameof(playerServiceClient));
 
     public async ValueTask<TransactionResponse> CommitWithdrawalAsync(
         string playerCode,

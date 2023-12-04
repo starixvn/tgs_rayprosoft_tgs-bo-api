@@ -35,11 +35,13 @@ public class BrandGameProviderAggregateHandlerTests
             UserId = userId
         };
 
-        _ = fakeRedisCacheManager.GetSetAllMembersAsync("aggregate", "brandGP").Returns(Array.Empty<RedisValue>());
-        _ = fakeBrandService.GetBrandQueries().Returns(new Brand[]
-        {
-            new() { Id = brandId }
-        }.AsQueryable());
+        _ = fakeRedisCacheManager.GetSetAllMembersAsync("aggregate", "brandGP")
+            .Returns([]);
+        _ = fakeBrandService.GetBrandQueries()
+            .Returns(new Brand[]
+            {
+                new() { Id = brandId }
+            }.AsQueryable());
 
         var response = await sut.GetAsync(request, default);
 
@@ -72,9 +74,8 @@ public class BrandGameProviderAggregateHandlerTests
             UserId = userId
         };
 
-        _ = fakeRedisCacheManager.GetSetAllMembersAsync("aggregate", "brandGP").Returns(new RedisValue[]
-        { new(brandId.ToString())
-        });
+        _ = fakeRedisCacheManager.GetSetAllMembersAsync("aggregate", "brandGP")
+            .Returns([new(brandId.ToString())]);
 
         _ = fakeBrandService.GetBrandQueries().Returns(new Brand[]
         {

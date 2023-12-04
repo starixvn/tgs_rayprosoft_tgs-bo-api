@@ -12,13 +12,10 @@ using TGS.Services.BackOffice.Application.Models.ReportPlayer;
 namespace TGS.Services.BackOffice.Application.Queries.ReportPlayerQueries;
 
 public class
-    GetPlayersAccountChangesQuery : IGetService<GetPlayersAccountChangesReportRequest,
+    GetPlayersAccountChangesQuery(IReportClient reportClient) : IGetService<GetPlayersAccountChangesReportRequest,
         PagedResponse<PlayersAccountChangeReportModel>>
 {
-    private readonly IReportClient _reportClient;
-
-    public GetPlayersAccountChangesQuery(IReportClient reportClient)
-        => _reportClient = reportClient ?? throw new ArgumentNullException(nameof(reportClient));
+    private readonly IReportClient _reportClient = reportClient ?? throw new ArgumentNullException(nameof(reportClient));
 
     public async ValueTask<PagedResponse<PlayersAccountChangeReportModel>> GetAsync(
         GetPlayersAccountChangesReportRequest request,

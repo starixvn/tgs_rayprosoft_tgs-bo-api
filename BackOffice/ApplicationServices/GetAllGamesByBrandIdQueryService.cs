@@ -6,14 +6,9 @@ using TGS.Services.BackOffice.Domain;
 
 namespace TGS.Services.BackOffice.ApplicationServices;
 
-internal class GetAllGamesByBrandIdQueryService : IQueryService<GetAllGamesByBrandIdQuery, GameData>
+internal class GetAllGamesByBrandIdQueryService(IBackOfficeRepository backOfficeRepository) : IQueryService<GetAllGamesByBrandIdQuery, GameData>
 {
-    private readonly IBackOfficeRepository _backOfficeRepository;
-
-    public GetAllGamesByBrandIdQueryService(IBackOfficeRepository backOfficeRepository)
-    {
-        _backOfficeRepository = backOfficeRepository ?? throw new ArgumentNullException(nameof(backOfficeRepository));
-    }
+    private readonly IBackOfficeRepository _backOfficeRepository = backOfficeRepository ?? throw new ArgumentNullException(nameof(backOfficeRepository));
 
     public IAsyncEnumerable<GameData> QueryAsync(
         GetAllGamesByBrandIdQuery query,

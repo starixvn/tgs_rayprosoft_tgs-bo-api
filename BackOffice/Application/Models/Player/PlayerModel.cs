@@ -14,7 +14,7 @@ public class PlayerModel
 
     public decimal Balance { get; init; }
 
-    public BankModel[] Banks { get; init; } = Array.Empty<BankModel>();
+    public BankModel[] Banks { get; init; } = [];
 
     public string? Birthdate { get; init; }
 

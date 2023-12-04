@@ -14,7 +14,7 @@ public partial class AnnouncementController
     [Description("Change an announcement status")]
     public async Task<MessageResponse> ChangeStatusAsync(Guid id, AnnounceStatus status)
     {
-        var announcement = await _queries.GetSingleAsync(q => q.Id == id);
+        var announcement = await queries.GetSingleAsync(q => q.Id == id);
 
         if (announcement == null)
         {
@@ -25,7 +25,7 @@ public partial class AnnouncementController
         announcement.UpdatedOn = DateTimeOffset.Now;
         announcement.UpdatedByUsername = Username;
 
-        await _commands.UpdateAsync(announcement);
+        await commands.UpdateAsync(announcement);
 
         return CreateValidResponse<MessageResponse>();
     }

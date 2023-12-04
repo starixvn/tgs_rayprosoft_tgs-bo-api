@@ -6,14 +6,9 @@ using TGS.Services.BackOffice.Domain;
 
 namespace TGS.Services.BackOffice.ApplicationServices;
 
-internal class ModifyBrandLogoInfoCommandService : ICommandService<ModifyBrandLogoInfoCommand>
+internal class ModifyBrandLogoInfoCommandService(IBackOfficeRepository backOfficeRepository) : ICommandService<ModifyBrandLogoInfoCommand>
 {
-    private readonly IBackOfficeRepository _backOfficeRepository;
-
-    public ModifyBrandLogoInfoCommandService(IBackOfficeRepository backOfficeRepository)
-    {
-        _backOfficeRepository = backOfficeRepository ?? throw new ArgumentNullException(nameof(backOfficeRepository));
-    }
+    private readonly IBackOfficeRepository _backOfficeRepository = backOfficeRepository ?? throw new ArgumentNullException(nameof(backOfficeRepository));
 
     public ValueTask ExecuteAsync(ModifyBrandLogoInfoCommand command, CancellationToken cancellationToken = default)
         => _backOfficeRepository.UpdateBrandLogoInfoAsync(

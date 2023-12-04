@@ -6,14 +6,9 @@ using Tgs.VipLevelService.Clients;
 
 namespace TGS.Services.BackOffice.ApplicationServices;
 
-internal class AllVipLevelsQueryService : IQueryService<AllVipLevelsQuery, VipLevelInfo>
+internal class AllVipLevelsQueryService(IVipLevelServiceClient vipLevelServiceClient) : IQueryService<AllVipLevelsQuery, VipLevelInfo>
 {
-    private readonly IVipLevelServiceClient _vipLevelServiceClient;
-
-    public AllVipLevelsQueryService(IVipLevelServiceClient vipLevelServiceClient)
-    {
-        _vipLevelServiceClient = vipLevelServiceClient ?? throw new ArgumentNullException(nameof(vipLevelServiceClient));
-    }
+    private readonly IVipLevelServiceClient _vipLevelServiceClient = vipLevelServiceClient ?? throw new ArgumentNullException(nameof(vipLevelServiceClient));
 
     public IAsyncEnumerable<VipLevelInfo> QueryAsync(AllVipLevelsQuery query, CancellationToken cancellationToken = default)
         => _vipLevelServiceClient.GetBrandAllVipLevelsAsync(query.BrandId, cancellationToken);

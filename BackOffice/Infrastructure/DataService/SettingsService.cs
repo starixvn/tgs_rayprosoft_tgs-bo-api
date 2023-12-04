@@ -14,13 +14,9 @@ public interface ISettingsService
         Func<IQueryable<Setting>, IQueryable<Setting>> preQuery = null);
 }
 
-public class SettingsService : BaseRepositoryOperations<ITgsRepository>, ISettingsService
+public class SettingsService(ITgsRepository tgsRepository) : BaseRepositoryOperations<ITgsRepository>(
+    tgsRepository), ISettingsService
 {
-    public SettingsService(ITgsRepository tgsRepository) : base(
-        tgsRepository)
-    {
-    }
-
     Task<Setting> ISettingsService.GetSettingAsync(Expression<Func<Setting, bool>> predicate,
         Func<IQueryable<Setting>, IQueryable<Setting>> preQuery) =>
         GetEntityFirstOrDefaultAsync(predicate, preQuery);

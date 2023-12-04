@@ -26,13 +26,13 @@ namespace TGS.Apis.BackendOffice.Controllers;
 
 [Route("api/[controller]")]
 [ApiController]
-public class StationLetterController : BaseContextController
+public class StationLetterController(
+    ITgsQueries<StationLetter> queries,
+    ITgsQueries<Player> playerQueries,
+    ITgsCommands<StationLetter> commands,
+    IUploadService uploadService,
+    IStationLetterService stationLetterService) : BaseContextController
 {
-    private readonly ITgsCommands<StationLetter> _commands;
-    private readonly ITgsQueries<Player> _playerQueries;
-    private readonly ITgsQueries<StationLetter> _queries;
-    private readonly IStationLetterService _stationLetterService;
-
     private readonly Dictionary<string, StationLetterStatus> _typeDictionary =
         new()
         {
@@ -40,27 +40,11 @@ public class StationLetterController : BaseContextController
             { "reject", StationLetterStatus.Rejected }
         };
 
-    private readonly IUploadService _uploadService;
-
-    public StationLetterController(
-        ITgsQueries<StationLetter> queries,
-        ITgsQueries<Player> playerQueries,
-        ITgsCommands<StationLetter> commands,
-        IUploadService uploadService,
-        IStationLetterService stationLetterService)
-    {
-        _queries = queries;
-        _playerQueries = playerQueries;
-        _commands = commands;
-        _uploadService = uploadService;
-        _stationLetterService = stationLetterService;
-    }
-
     [HttpPut("{id}/status/{status}")]
     [Description("Change an station letter status")]
     public async Task<MessageResponse> ChangeStatusAsync(Guid id, StationLetterStatus status)
     {
-        var announcement = await _queries.GetSingleAsync(q => q.Id == id);
+        var announcement = await queries.GetSingleAsync(q => q.Id == id);
 
         if (announcement == null)
         {
@@ -71,7 +55,7 @@ public class StationLetterController : BaseContextController
         announcement.UpdatedOn = DateTimeOffset.Now;
         announcement.UpdatedByUsername = Username;
 
-        await _commands.UpdateAsync(announcement);
+        await commands.UpdateAsync(announcement);
 
         return CreateValidResponse<MessageResponse>();
     }
@@ -105,7 +89,7 @@ public class StationLetterController : BaseContextController
         };
 
         var players = !request.AssignedAllPlayers
-            ? await _playerQueries.GetQueries()
+            ? await playerQueries.GetQueries()
                 .Where(p => p.Status == PlayerStatus.Enabled && p.BrandId == request.BrandId)
                 .Where(p => request.PlayerUsernames.Contains(p.Username))
                 .Select(x => new StationLetterPlayer
@@ -114,9 +98,9 @@ public class StationLetterController : BaseContextController
                     StationLetterId = stationLetter.Id
                 })
                 .ToArrayAsync()
-            : Array.Empty<StationLetterPlayer>();
+            : [];
 
-        await _stationLetterService.CreateStationLetterAsync(stationLetter, players);
+        await stationLetterService.CreateStationLetterAsync(stationLetter, players);
 
         return CreateValidResponse<MessageResponse>();
     }
@@ -144,7 +128,7 @@ public class StationLetterController : BaseContextController
     {
         var jsonDocumentOptions = default(JsonDocumentOptions);
 
-        return _queries.GetQueries()
+        return queries.GetQueries()
             .Where(request.BrandId, x => x.BrandId == request.BrandId)
             .Where(ResellerId, r => r.Brand.Licensee.ResellerId == ResellerId)
             .Where(LicenseeId, l => l.Brand.LicenseeId == LicenseeId)
@@ -178,7 +162,7 @@ public class StationLetterController : BaseContextController
     {
         var jsonOptions = jsonOptionsAccessor.Value;
 
-        var stationLetter = await _queries.GetSingleAsync(p => p.Id == id);
+        var stationLetter = await queries.GetSingleAsync(p => p.Id == id);
 
         if (stationLetter == null)
         {
@@ -196,7 +180,7 @@ public class StationLetterController : BaseContextController
         stationLetter.UpdatedByUsername = Username;
         stationLetter.UpdatedOn = DateTimeOffset.Now;
 
-        await _commands.UpdateAsync(stationLetter);
+        await commands.UpdateAsync(stationLetter);
 
         return CreateValidResponse<MessageResponse>();
     }
@@ -205,10 +189,10 @@ public class StationLetterController : BaseContextController
     [Description("Upload player file")]
     public async Task<GetPlayerFromFileResponse> UploadAsync(IFormFile file)
     {
-        var uploadedResult = await _uploadService.GetUploadedExcelAsync<UploadPlayerModel>(file);
+        var uploadedResult = await uploadService.GetUploadedExcelAsync<UploadPlayerModel>(file);
         var users = uploadedResult.Where(p => !string.IsNullOrEmpty(p.Username)).Select(p => p.Username);
 
-        var allPlayers = await _playerQueries.GetQueries()
+        var allPlayers = await playerQueries.GetQueries()
             .Where(p => p.Status == PlayerStatus.Enabled && users.Contains(p.Username))
             .ToArrayAsync();
 
@@ -238,7 +222,7 @@ public class StationLetterController : BaseContextController
             return CreateInvalidResponse<MessageResponse>(Resources.StationLetter.InvalidUrl);
         }
 
-        var stationLetter = await _queries.GetSingleAsync(p => p.Id == id);
+        var stationLetter = await queries.GetSingleAsync(p => p.Id == id);
 
         if (stationLetter == null)
         {
@@ -259,7 +243,7 @@ public class StationLetterController : BaseContextController
         stationLetter.UpdatedByUsername = Username;
         stationLetter.UpdatedOn = DateTimeOffset.Now;
 
-        await _commands.UpdateAsync(stationLetter);
+        await commands.UpdateAsync(stationLetter);
 
         return CreateValidResponse<MessageResponse>();
     }

@@ -7,14 +7,9 @@ using TGS.Services.BackOffice.Infrastructure.DataService;
 
 namespace TGS.Services.BackOffice.Application.Commands.BrandHandlers;
 
-public class SyncBrandGamesHandler : Handler<SyncGamesRequest, MessageResponse>
+public class SyncBrandGamesHandler(IBrandService service, IHttpContextAccessor accessor) : Handler<SyncGamesRequest, MessageResponse>(accessor)
 {
-    private readonly IBrandService _service;
-
-    public SyncBrandGamesHandler(IBrandService service, IHttpContextAccessor accessor) : base(accessor)
-    {
-        _service = service;
-    }
+    private readonly IBrandService _service = service;
 
     public override async Task<MessageResponse> Handle(SyncGamesRequest request,
         CancellationToken cancellationToken)

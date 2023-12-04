@@ -122,9 +122,10 @@ public class StationLetterTests
 
         var sut = new SendLetterCommandService(fakeStationLetterClient);
 
+        var playerCodes = new[] { "player1", "player2" };
         var command = new SendLetterCommand(
             "GPI",
-            new[] { "player1", "player2" },
+            playerCodes,
             "title",
             "aabcc",
             "operator");

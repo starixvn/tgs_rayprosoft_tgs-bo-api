@@ -8,15 +8,10 @@ using Valhalla.MessageQueue;
 
 namespace TGS.Apis.BackendOffice.MessageQueue;
 
-internal class ProcessOfflineTempUserBatchHandler : IMessageHandler
+internal class ProcessOfflineTempUserBatchHandler(
+    ICommandService<GetPlayerCodeByBatchCommand> commandService) : IMessageHandler
 {
-    private readonly ICommandService<GetPlayerCodeByBatchCommand> _commandService;
-
-    public ProcessOfflineTempUserBatchHandler(
-        ICommandService<GetPlayerCodeByBatchCommand> commandService)
-    {
-        _commandService = commandService ?? throw new ArgumentNullException(nameof(commandService));
-    }
+    private readonly ICommandService<GetPlayerCodeByBatchCommand> _commandService = commandService ?? throw new ArgumentNullException(nameof(commandService));
 
     public ValueTask HandleAsync(
         ReadOnlyMemory<byte> data,

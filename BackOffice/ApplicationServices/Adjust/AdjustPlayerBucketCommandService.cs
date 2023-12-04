@@ -9,16 +9,10 @@ using Tgs.ServiceUtility;
 
 namespace TGS.Services.BackOffice.ApplicationServices.Adjust;
 
-internal class AdjustPlayerBucketCommandService : ICommandService<AdjustPlayerBucketCommand>
+internal class AdjustPlayerBucketCommandService(IPlayerServiceClient playerServiceClient, IPlayerBucketClient playerBucketClient) : ICommandService<AdjustPlayerBucketCommand>
 {
-    private readonly IPlayerBucketClient _playerBucketClient;
-    private readonly IPlayerServiceClient _playerServiceClient;
-
-    public AdjustPlayerBucketCommandService(IPlayerServiceClient playerServiceClient, IPlayerBucketClient playerBucketClient)
-    {
-        _playerServiceClient = playerServiceClient ?? throw new ArgumentNullException(nameof(playerServiceClient));
-        _playerBucketClient = playerBucketClient ?? throw new ArgumentNullException(nameof(playerBucketClient));
-    }
+    private readonly IPlayerBucketClient _playerBucketClient = playerBucketClient ?? throw new ArgumentNullException(nameof(playerBucketClient));
+    private readonly IPlayerServiceClient _playerServiceClient = playerServiceClient ?? throw new ArgumentNullException(nameof(playerServiceClient));
 
     public async ValueTask ExecuteAsync(AdjustPlayerBucketCommand command, CancellationToken cancellationToken = default)
     {

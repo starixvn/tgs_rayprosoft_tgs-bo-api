@@ -15,43 +15,32 @@ public interface IStationLetterService
         StationLetterPlayer[] stationLetterPlayers);
 }
 
-public class StationLetterService : IStationLetterService
+public class StationLetterService(ITgsRepository repository,
+    IFileServiceClient fileServiceClient,
+    IStationLetterTaskQueue letterTaskQueue) : IStationLetterService
 {
-    private readonly IFileServiceClient _fileServiceClient;
-    private readonly IStationLetterTaskQueue _letterTaskQueue;
-    private readonly ITgsRepository _repository;
-
-    public StationLetterService(ITgsRepository repository,
-        IFileServiceClient fileServiceClient,
-        IStationLetterTaskQueue letterTaskQueue)
-    {
-        _repository = repository;
-        _fileServiceClient = fileServiceClient;
-        _letterTaskQueue = letterTaskQueue;
-    }
-
     async Task IStationLetterService.CreateStationLetterAsync(StationLetter stationLetter,
         StationLetterPlayer[] stationLetterPlayers)
     {
         var imageNames = stationLetter.Content.GetMatchStrings(Consts.UploadFile.ImagePattern);
 
-        await using var tran = await _repository.BeginTransactionAsync(IsolationLevel.ReadCommitted);
+        await using var tran = await repository.BeginTransactionAsync(IsolationLevel.ReadCommitted);
 
         stationLetter.Players = stationLetterPlayers;
-        _ = await _repository.StationLetters.AddAsync(stationLetter);
+        _ = await repository.StationLetters.AddAsync(stationLetter);
 
-        _ = await _repository.SaveChangesAsync();
+        _ = await repository.SaveChangesAsync();
 
         if (imageNames.Length > 0)
         {
-            await _fileServiceClient.UpdateStationLetterFileAsync(Consts.UploadFile.StationLetter,
+            await fileServiceClient.UpdateStationLetterFileAsync(Consts.UploadFile.StationLetter,
                 stationLetter.Id.ToString(),
                 new(imageNames));
         }
 
         if (stationLetter.AssignedAllPlayers)
         {
-            await _letterTaskQueue.QueueStationLetterAsync(new StationLetterQueueModel(stationLetter.BrandId, stationLetter.Id));
+            await letterTaskQueue.QueueStationLetterAsync(new StationLetterQueueModel(stationLetter.BrandId, stationLetter.Id));
         }
 
         await tran.CommitAsync();

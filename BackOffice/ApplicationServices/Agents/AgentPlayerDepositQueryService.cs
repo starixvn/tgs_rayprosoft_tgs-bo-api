@@ -6,14 +6,9 @@ using TGS.Services.BackOffice.Domain;
 
 namespace TGS.Services.BackOffice.ApplicationServices.Agents;
 
-internal class AgentPlayerDepositQueryService : IQueryService<AgentPlayerDepositQuery, AgentPlayerDepositStatistics>
+internal class AgentPlayerDepositQueryService(IPaymentReportingRepository paymentReportingRepository) : IQueryService<AgentPlayerDepositQuery, AgentPlayerDepositStatistics>
 {
-    private readonly IPaymentReportingRepository _paymentReportingRepository;
-
-    public AgentPlayerDepositQueryService(IPaymentReportingRepository paymentReportingRepository)
-    {
-        _paymentReportingRepository = paymentReportingRepository ?? throw new ArgumentNullException(nameof(paymentReportingRepository));
-    }
+    private readonly IPaymentReportingRepository _paymentReportingRepository = paymentReportingRepository ?? throw new ArgumentNullException(nameof(paymentReportingRepository));
 
     public IAsyncEnumerable<AgentPlayerDepositStatistics> QueryAsync(
         AgentPlayerDepositQuery query,

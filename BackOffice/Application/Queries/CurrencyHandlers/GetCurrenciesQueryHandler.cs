@@ -9,15 +9,9 @@ using TGS.Services.BackOffice.Infrastructure.DataService;
 
 namespace TGS.Services.BackOffice.Application.Queries.CurrencyHandlers;
 
-public class GetCurrenciesQueryHandler : Handler<GetCurrenciesRequest, PagedResponse<CurrencyModel>>
+public class GetCurrenciesQueryHandler(ICurrencyService service, IHttpContextAccessor accessor) : Handler<GetCurrenciesRequest, PagedResponse<CurrencyModel>>(accessor)
 {
-    private readonly ICurrencyService _service;
-
-    public GetCurrenciesQueryHandler(ICurrencyService service, IHttpContextAccessor accessor)
-        : base(accessor)
-    {
-        _service = service;
-    }
+    private readonly ICurrencyService _service = service;
 
     public override Task<PagedResponse<CurrencyModel>> Handle(GetCurrenciesRequest request,
         CancellationToken cancellationToken) =>

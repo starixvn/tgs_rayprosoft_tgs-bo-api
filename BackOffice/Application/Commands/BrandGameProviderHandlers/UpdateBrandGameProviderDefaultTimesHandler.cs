@@ -9,15 +9,10 @@ using TGS.Services.BackOffice.Infrastructure.DataService;
 
 namespace TGS.Services.BackOffice.Application.Commands.BrandGameProviderHandlers;
 
-public class UpdateBrandGameProviderDefaultTimesHandler : Handler<UpdateDefaultTimesRequest, MessageResponse>
+public class UpdateBrandGameProviderDefaultTimesHandler(IBrandGameProviderScheduleService service,
+    IHttpContextAccessor accessor) : Handler<UpdateDefaultTimesRequest, MessageResponse>(accessor)
 {
-    private readonly IBrandGameProviderScheduleService _service;
-
-    public UpdateBrandGameProviderDefaultTimesHandler(IBrandGameProviderScheduleService service,
-        IHttpContextAccessor accessor) : base(accessor)
-    {
-        _service = service;
-    }
+    private readonly IBrandGameProviderScheduleService _service = service;
 
     public override async Task<MessageResponse> Handle(UpdateDefaultTimesRequest request,
         CancellationToken cancellationToken)

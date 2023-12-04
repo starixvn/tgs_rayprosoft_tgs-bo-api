@@ -11,18 +11,12 @@ using TGS.Services.BackOffice.Infrastructure.DataService;
 namespace TGS.Services.BackOffice.Application.Commands.BrandGameProviderHandlers;
 
 public class
-    UpdateBrandGameProviderScheduleStatusHandler : Handler<UpdateBrandGameProviderStatusRequest, MessageResponse>
+    UpdateBrandGameProviderScheduleStatusHandler(IBrandGameProviderService service,
+    IRedisCacheManager cacheManager,
+    IHttpContextAccessor accessor) : Handler<UpdateBrandGameProviderStatusRequest, MessageResponse>(accessor)
 {
-    private readonly IRedisCacheManager _cacheManager;
-    private readonly IBrandGameProviderService _service;
-
-    public UpdateBrandGameProviderScheduleStatusHandler(IBrandGameProviderService service,
-        IRedisCacheManager cacheManager,
-        IHttpContextAccessor accessor) : base(accessor)
-    {
-        _service = service;
-        _cacheManager = cacheManager;
-    }
+    private readonly IRedisCacheManager _cacheManager = cacheManager;
+    private readonly IBrandGameProviderService _service = service;
 
     public override async Task<MessageResponse> Handle(UpdateBrandGameProviderStatusRequest request,
         CancellationToken cancellationToken)

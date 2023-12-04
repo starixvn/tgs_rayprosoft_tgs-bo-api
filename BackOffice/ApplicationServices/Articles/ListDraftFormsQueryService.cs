@@ -6,14 +6,9 @@ using Tgs.ServiceUtility;
 
 namespace TGS.Services.BackOffice.ApplicationServices.Articles;
 
-internal class ListDraftFormsQueryService : IGetService<ListDraftFormsQuery, QueryResult<DraftListItem>>
+internal class ListDraftFormsQueryService(IArticleManagementClient articleManagementClient) : IGetService<ListDraftFormsQuery, QueryResult<DraftListItem>>
 {
-    private readonly IArticleManagementClient _articleManagementClient;
-
-    public ListDraftFormsQueryService(IArticleManagementClient articleManagementClient)
-    {
-        _articleManagementClient = articleManagementClient ?? throw new ArgumentNullException(nameof(articleManagementClient));
-    }
+    private readonly IArticleManagementClient _articleManagementClient = articleManagementClient ?? throw new ArgumentNullException(nameof(articleManagementClient));
 
     public ValueTask<QueryResult<DraftListItem>> GetAsync(ListDraftFormsQuery query, CancellationToken cancellationToken = default)
         => _articleManagementClient.ListDraftFormsAsync(query.BrandId, query.Skip, cancellationToken);

@@ -6,15 +6,10 @@ using Tgs.ServiceUtility;
 
 namespace TGS.Services.BackOffice.ApplicationServices.Promotion;
 
-internal class UpdatePromotionRuleCommandService : ICommandService<UpdatePromotionRuleCommand>
+internal class UpdatePromotionRuleCommandService(
+    IPromotionServiceClient promotionServiceClient) : ICommandService<UpdatePromotionRuleCommand>
 {
-    private readonly IPromotionServiceClient _promotionServiceClient;
-
-    public UpdatePromotionRuleCommandService(
-        IPromotionServiceClient promotionServiceClient)
-    {
-        _promotionServiceClient = promotionServiceClient ?? throw new ArgumentNullException(nameof(promotionServiceClient));
-    }
+    private readonly IPromotionServiceClient _promotionServiceClient = promotionServiceClient ?? throw new ArgumentNullException(nameof(promotionServiceClient));
 
     public async ValueTask ExecuteAsync(
         UpdatePromotionRuleCommand command,

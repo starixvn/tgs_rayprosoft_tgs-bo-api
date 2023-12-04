@@ -240,7 +240,7 @@ builder.Services
 
         options.Events.OnRedirectToLogin = context =>
         {
-            context.Response.Headers["Location"] = context.RedirectUri;
+            context.Response.Headers.Location = context.RedirectUri;
             context.Response.StatusCode = 401;
 
             return Task.CompletedTask;
