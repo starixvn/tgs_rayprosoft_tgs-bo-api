@@ -1,5 +1,6 @@
 ﻿using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Diagnostics;
+using NUnit.Framework.Legacy;
 using TGS.Core.DataServices.Tgs;
 using TGS.Services.BackOffice.Application.Queries.Game;
 using TGS.Services.BackOffice.Domain;
@@ -33,13 +34,13 @@ public class GamesLocalizationTests
 
         var gpLangs = new List<CoreModels.GameProviderLanguage>
         {
-            new CoreModels.GameProviderLanguage()
+            new()
             {
                 GameProviderId = gameProviderId,
                 CultureCode = "zh-CN",
                 GameProviderCultureCode = "zh-CN"
             },
-            new CoreModels.GameProviderLanguage()
+            new()
             {
                 GameProviderId = gameProviderId,
                 CultureCode = "en-US",
@@ -56,7 +57,7 @@ public class GamesLocalizationTests
         var query = new GetGameLocalizationQuery(gameProviderCode);
         var info = await sut.GetAsync(query, default);
 
-        Assert.AreEqual(gpLangs.Count, info.Languages.Count());
+        ClassicAssert.AreEqual(gpLangs.Count, info.Languages.Count());
     }
 
     [Test]
@@ -94,8 +95,8 @@ public class GamesLocalizationTests
 
         var games = new List<GameLocalizationModel>
         {
-            new GameLocalizationModel() { Id = 1 },
-            new GameLocalizationModel() { Id = 2 }
+            new() { Id = 1 },
+            new() { Id = 2 }
         };
 
         var query = new UpdateGameLocalizationQuery()
@@ -105,7 +106,7 @@ public class GamesLocalizationTests
 
         var info = await sut.GetAsync(query, default);
 
-        Assert.AreEqual(0, info.DiffGameIds.Length);
+        ClassicAssert.AreEqual(0, info.DiffGameIds.Length);
     }
 
     [Test]
@@ -144,8 +145,8 @@ public class GamesLocalizationTests
 
         var games = new List<GameLocalizationModel>
         {
-            new GameLocalizationModel() { Id = 3 },
-            new GameLocalizationModel() { Id = 4 }
+            new() { Id = 3 },
+            new() { Id = 4 }
         };
 
         var query = new UpdateGameLocalizationQuery()
@@ -157,6 +158,6 @@ public class GamesLocalizationTests
 
         var actual = info.DiffGameIds;
 
-        Assert.AreNotEqual(0, actual);
+        ClassicAssert.AreNotEqual(0, actual);
     }
 }

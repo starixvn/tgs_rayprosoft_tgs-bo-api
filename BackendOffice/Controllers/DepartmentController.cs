@@ -75,7 +75,7 @@ public class DepartmentController : BaseContextController
             return CreateInvalidResponse<MessageResponse>(Resources.Department.NotFound);
         }
 
-        if (department.Users.Any())
+        if (department.Users.Count != 0)
         {
             return CreateInvalidResponse<MessageResponse>(Resources.Department.CannotBeDeleted);
         }

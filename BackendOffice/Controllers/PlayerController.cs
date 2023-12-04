@@ -380,7 +380,7 @@ public partial class PlayerController : BaseContextController
             .ToArrayAsync()
             .ConfigureAwait(false);
 
-        if (!datas.Any())
+        if (datas.Length == 0)
         {
             yield break;
         }
@@ -422,7 +422,7 @@ public partial class PlayerController : BaseContextController
 
         var userQuery = userQueries.GetQueries().Where(u => userIds.Contains(u.Id)).ToArray();
 
-        var user = userQuery.Any()
+        var user = userQuery.Length != 0
             ? userQuery.ToDictionary(x => x.Id, x => x.Username)
             : new Dictionary<Guid, string>();
 
@@ -554,7 +554,7 @@ public partial class PlayerController : BaseContextController
         [FromServices] IGetService<SetPlayerAgentCommand, SetPlayerAgentResult> getService,
         string playerCode,
         [FromBody] UpdatePlayerAgentViewModel request)
-    {        
+    {
         var processInfo = await getService
             .GetAsync(new SetPlayerAgentCommand(playerCode, request.AgentUsername, UserId, Username), HttpContext.RequestAborted)
             .ConfigureAwait(false);
@@ -566,7 +566,7 @@ public partial class PlayerController : BaseContextController
         };
     }
 
-    [HttpPatch("contact/{playerCode}",Name = "SetPlayerContact")]
+    [HttpPatch("contact/{playerCode}", Name = "SetPlayerContact")]
     public async ValueTask<MessageResponse> SetPlayerContactAsync(
         [FromServices] IGetService<SetPlayerContactCommand, SetPlayerContactInfo> setPlayerContactService,
         string playerCode,
@@ -747,7 +747,7 @@ public partial class PlayerController : BaseContextController
 
     private static string TryParseUsername(Dictionary<Guid, string> UserDicts, string Modifier)
     {
-        if (Guid.TryParse(Modifier, out var userId) && UserDicts.Any())
+        if (Guid.TryParse(Modifier, out var userId) && UserDicts.Count != 0)
         {
             _ = UserDicts.TryGetValue(userId, out var userName);
 

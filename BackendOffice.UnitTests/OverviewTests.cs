@@ -1,4 +1,5 @@
 ﻿using NSubstitute;
+using NUnit.Framework.Legacy;
 using Tgs.BrandCertificate.Clients;
 using Tgs.GameWagers.Client;
 using Tgs.GameWagers.Common;
@@ -57,9 +58,8 @@ public class OverviewTests
             .GetGameQueries()
             .Returns(new Game[]
             {
-                new Game
-                {
-                    Id = gameIds[0],    
+                new() {
+                    Id = gameIds[0],
                     Name = "百家乐",
                     SubGameProvider = new SubGameProvider
                     {
@@ -74,9 +74,9 @@ public class OverviewTests
             .QueryAsync(new GetTopGameInfoQuery(gameProviderIds, gameIds))
             .ToArrayAsync();
 
-        Assert.AreEqual("KY", actual[0].SubGameProviderName);
-        Assert.AreEqual(gameIds[0], actual[0].GameId);
-        Assert.AreEqual(gameProviderId, actual[0].GameProviderId);
+        ClassicAssert.AreEqual("KY", actual[0].SubGameProviderName);
+        ClassicAssert.AreEqual(gameIds[0], actual[0].GameId);
+        ClassicAssert.AreEqual(gameProviderId, actual[0].GameProviderId);
     }
 
     [Test]
@@ -99,8 +99,8 @@ public class OverviewTests
 
         var actual = await sut.GetAsync(new GetDayNetDepositQuery(brandId));
 
-        Assert.AreEqual(168888m, actual.Today);
-        Assert.AreEqual(16888m, actual.Yesterday);
+        ClassicAssert.AreEqual(168888m, actual.Today);
+        ClassicAssert.AreEqual(16888m, actual.Yesterday);
     }
 
     [Test]
@@ -123,8 +123,8 @@ public class OverviewTests
 
         var actual = await sut.GetAsync(new GetDaySuccessRateQuery(brandId));
 
-        Assert.AreEqual(100m, actual.Today);
-        Assert.AreEqual(88m, actual.Yesterday);
+        ClassicAssert.AreEqual(100m, actual.Today);
+        ClassicAssert.AreEqual(88m, actual.Yesterday);
     }
 
     [Test]
@@ -152,8 +152,7 @@ public class OverviewTests
             .GetCurrentDayTopTenDepositPlayersAsync(Arg.Is(brandId))
             .Returns(new TopTenDepositWithdrawInfo[]
             {
-                new TopTenDepositWithdrawInfo
-                {
+                new() {
                     PlayerCode = playerCodes[0],
                     DepositTotalAmount = 16888m,
                     WithdrawTotalAmount = 88m
@@ -168,7 +167,7 @@ public class OverviewTests
                 Arg.Is<IEnumerable<string>>(x => x.SequenceEqual(playerCodes)))
             .Returns(new BrandWagerPlayerStatsInfo[]
             {
-                new BrandWagerPlayerStatsInfo(
+                new(
                     Guid.NewGuid(),
                     "ResellerCode",
                     Guid.NewGuid(),
@@ -193,8 +192,7 @@ public class OverviewTests
                 Arg.Is<IEnumerable<string>>(p => p.SequenceEqual(playerCodes)))
             .Returns(new Tgs.PlayerService.Client.PlayerInfo[]
             {
-                new Tgs.PlayerService.Client.PlayerInfo
-                {
+                new() {
                     PlayerCode = playerCodes[0],
                     UserName = "username"
                 }
@@ -205,15 +203,15 @@ public class OverviewTests
             .ToArrayAsync()
             .ConfigureAwait(false);
 
-        Assert.IsNotNull(actual);
-        Assert.AreEqual(1, actual.Length);
-        Assert.AreEqual(playerCodes[0], actual[0].PlayerCode);
-        Assert.AreEqual("username", actual[0].PlayerUserName);
-        Assert.AreEqual(16888m, actual[0].DepositTotalAmount);
-        Assert.AreEqual(88m, actual[0].WithdrawTotalAmount);
-        Assert.AreEqual(100m, actual[0].Bet);
-        Assert.AreEqual(0m, actual[0].Settle);
-        Assert.AreEqual(-100m, actual[0].WinLoss);
+        ClassicAssert.IsNotNull(actual);
+        ClassicAssert.AreEqual(1, actual.Length);
+        ClassicAssert.AreEqual(playerCodes[0], actual[0].PlayerCode);
+        ClassicAssert.AreEqual("username", actual[0].PlayerUserName);
+        ClassicAssert.AreEqual(16888m, actual[0].DepositTotalAmount);
+        ClassicAssert.AreEqual(88m, actual[0].WithdrawTotalAmount);
+        ClassicAssert.AreEqual(100m, actual[0].Bet);
+        ClassicAssert.AreEqual(0m, actual[0].Settle);
+        ClassicAssert.AreEqual(-100m, actual[0].WinLoss);
     }
 
     [Test]
@@ -248,7 +246,7 @@ public class OverviewTests
                 pageSize: Arg.Is(10))
             .Returns(new BrandWagerPlayerStatsInfo[]
             {
-                new BrandWagerPlayerStatsInfo(
+                new(
                     Guid.NewGuid(),
                     "ResellerCode",
                     Guid.NewGuid(),
@@ -272,8 +270,7 @@ public class OverviewTests
                 Arg.Is<IEnumerable<string>>(p => p.SequenceEqual(playerCodes)))
             .Returns(new TopTenDepositWithdrawInfo[]
             {
-                new TopTenDepositWithdrawInfo
-                {
+                new() {
                     PlayerCode = playerCodes[0],
                     DepositTotalAmount = 16888m,
                     WithdrawTotalAmount = 88m
@@ -286,8 +283,7 @@ public class OverviewTests
                 Arg.Is<IEnumerable<string>>(p => p.SequenceEqual(playerCodes)))
             .Returns(new Tgs.PlayerService.Client.PlayerInfo[]
             {
-                new Tgs.PlayerService.Client.PlayerInfo
-                {
+                new() {
                     PlayerCode = playerCodes[0],
                     UserName = "username"
                 }
@@ -298,15 +294,15 @@ public class OverviewTests
             .ToArrayAsync()
             .ConfigureAwait(false);
 
-        Assert.IsNotNull(actual);
-        Assert.AreEqual(1, actual.Length);
-        Assert.AreEqual(playerCodes[0], actual[0].PlayerCode);
-        Assert.AreEqual("username", actual[0].PlayerUserName);
-        Assert.AreEqual(16888m, actual[0].DepositTotalAmount);
-        Assert.AreEqual(88m, actual[0].WithdrawTotalAmount);
-        Assert.AreEqual(100m, actual[0].Bet);
-        Assert.AreEqual(0m, actual[0].Settle);
-        Assert.AreEqual(-100m, actual[0].WinLoss);
+        ClassicAssert.IsNotNull(actual);
+        ClassicAssert.AreEqual(1, actual.Length);
+        ClassicAssert.AreEqual(playerCodes[0], actual[0].PlayerCode);
+        ClassicAssert.AreEqual("username", actual[0].PlayerUserName);
+        ClassicAssert.AreEqual(16888m, actual[0].DepositTotalAmount);
+        ClassicAssert.AreEqual(88m, actual[0].WithdrawTotalAmount);
+        ClassicAssert.AreEqual(100m, actual[0].Bet);
+        ClassicAssert.AreEqual(0m, actual[0].Settle);
+        ClassicAssert.AreEqual(-100m, actual[0].WinLoss);
     }
 
     [Test]
@@ -341,7 +337,7 @@ public class OverviewTests
                 pageSize: Arg.Is(10))
             .Returns(new BrandWagerPlayerStatsInfo[]
             {
-                new BrandWagerPlayerStatsInfo(
+                new(
                     Guid.NewGuid(),
                     "ResellerCode",
                     Guid.NewGuid(),
@@ -365,8 +361,7 @@ public class OverviewTests
                 Arg.Is<IEnumerable<string>>(p => p.SequenceEqual(playerCodes)))
             .Returns(new TopTenDepositWithdrawInfo[]
             {
-                new TopTenDepositWithdrawInfo
-                {
+                new() {
                     PlayerCode = playerCodes[0],
                     DepositTotalAmount = 16888m,
                     WithdrawTotalAmount = 88m
@@ -379,8 +374,7 @@ public class OverviewTests
                 Arg.Is<IEnumerable<string>>(p => p.SequenceEqual(playerCodes)))
             .Returns(new Tgs.PlayerService.Client.PlayerInfo[]
             {
-                new Tgs.PlayerService.Client.PlayerInfo
-                {
+                new() {
                     PlayerCode = playerCodes[0],
                     UserName = "username"
                 }
@@ -391,15 +385,15 @@ public class OverviewTests
             .ToArrayAsync()
             .ConfigureAwait(false);
 
-        Assert.IsNotNull(actual);
-        Assert.AreEqual(1, actual.Length);
-        Assert.AreEqual(playerCodes[0], actual[0].PlayerCode);
-        Assert.AreEqual("username", actual[0].PlayerUserName);
-        Assert.AreEqual(16888m, actual[0].DepositTotalAmount);
-        Assert.AreEqual(88m, actual[0].WithdrawTotalAmount);
-        Assert.AreEqual(100m, actual[0].Bet);
-        Assert.AreEqual(0m, actual[0].Settle);
-        Assert.AreEqual(-100m, actual[0].WinLoss);
+        ClassicAssert.IsNotNull(actual);
+        ClassicAssert.AreEqual(1, actual.Length);
+        ClassicAssert.AreEqual(playerCodes[0], actual[0].PlayerCode);
+        ClassicAssert.AreEqual("username", actual[0].PlayerUserName);
+        ClassicAssert.AreEqual(16888m, actual[0].DepositTotalAmount);
+        ClassicAssert.AreEqual(88m, actual[0].WithdrawTotalAmount);
+        ClassicAssert.AreEqual(100m, actual[0].Bet);
+        ClassicAssert.AreEqual(0m, actual[0].Settle);
+        ClassicAssert.AreEqual(-100m, actual[0].WinLoss);
     }
 
     [Test]
@@ -427,8 +421,7 @@ public class OverviewTests
             .GetCurrentDayTopTenWithdrawPlayersAsync(Arg.Is(brandId))
             .Returns(new TopTenDepositWithdrawInfo[]
             {
-                new TopTenDepositWithdrawInfo
-                {
+                new() {
                     PlayerCode = playerCodes[0],
                     DepositTotalAmount = 16888m,
                     WithdrawTotalAmount = 88m
@@ -443,7 +436,7 @@ public class OverviewTests
                 Arg.Is<IEnumerable<string>>(x => x.SequenceEqual(playerCodes)))
             .Returns(new BrandWagerPlayerStatsInfo[]
             {
-                new BrandWagerPlayerStatsInfo(
+                new(
                     Guid.NewGuid(),
                     "ResellerCode",
                     Guid.NewGuid(),
@@ -468,8 +461,7 @@ public class OverviewTests
                 Arg.Is<IEnumerable<string>>(p => p.SequenceEqual(playerCodes)))
             .Returns(new Tgs.PlayerService.Client.PlayerInfo[]
             {
-                new Tgs.PlayerService.Client.PlayerInfo
-                {
+                new() {
                     PlayerCode = playerCodes[0],
                     UserName = "username"
                 }
@@ -480,15 +472,15 @@ public class OverviewTests
             .ToArrayAsync()
             .ConfigureAwait(false);
 
-        Assert.IsNotNull(actual);
-        Assert.AreEqual(1, actual.Length);
-        Assert.AreEqual(playerCodes[0], actual[0].PlayerCode);
-        Assert.AreEqual("username", actual[0].PlayerUserName);
-        Assert.AreEqual(16888m, actual[0].DepositTotalAmount);
-        Assert.AreEqual(88m, actual[0].WithdrawTotalAmount);
-        Assert.AreEqual(100m, actual[0].Bet);
-        Assert.AreEqual(0m, actual[0].Settle);
-        Assert.AreEqual(-100m, actual[0].WinLoss);
+        ClassicAssert.IsNotNull(actual);
+        ClassicAssert.AreEqual(1, actual.Length);
+        ClassicAssert.AreEqual(playerCodes[0], actual[0].PlayerCode);
+        ClassicAssert.AreEqual("username", actual[0].PlayerUserName);
+        ClassicAssert.AreEqual(16888m, actual[0].DepositTotalAmount);
+        ClassicAssert.AreEqual(88m, actual[0].WithdrawTotalAmount);
+        ClassicAssert.AreEqual(100m, actual[0].Bet);
+        ClassicAssert.AreEqual(0m, actual[0].Settle);
+        ClassicAssert.AreEqual(-100m, actual[0].WinLoss);
     }
 
     [Test]
@@ -523,7 +515,7 @@ public class OverviewTests
                 pageSize: Arg.Is(10))
             .Returns(new BrandWagerPlayerStatsInfo[]
             {
-                new BrandWagerPlayerStatsInfo(
+                new(
                     Guid.NewGuid(),
                     "ResellerCode",
                     Guid.NewGuid(),
@@ -547,8 +539,7 @@ public class OverviewTests
                 Arg.Is<IEnumerable<string>>(p => p.SequenceEqual(playerCodes)))
             .Returns(new TopTenDepositWithdrawInfo[]
             {
-                new TopTenDepositWithdrawInfo
-                {
+                new() {
                     PlayerCode = playerCodes[0],
                     DepositTotalAmount = 16888m,
                     WithdrawTotalAmount = 88m
@@ -561,8 +552,7 @@ public class OverviewTests
                 Arg.Is<IEnumerable<string>>(p => p.SequenceEqual(playerCodes)))
             .Returns(new Tgs.PlayerService.Client.PlayerInfo[]
             {
-                new Tgs.PlayerService.Client.PlayerInfo
-                {
+                new() {
                     PlayerCode = playerCodes[0],
                     UserName = "username"
                 }
@@ -573,15 +563,15 @@ public class OverviewTests
             .ToArrayAsync()
             .ConfigureAwait(false);
 
-        Assert.IsNotNull(actual);
-        Assert.AreEqual(1, actual.Length);
-        Assert.AreEqual(playerCodes[0], actual[0].PlayerCode);
-        Assert.AreEqual("username", actual[0].PlayerUserName);
-        Assert.AreEqual(16888m, actual[0].DepositTotalAmount);
-        Assert.AreEqual(88m, actual[0].WithdrawTotalAmount);
-        Assert.AreEqual(100m, actual[0].Bet);
-        Assert.AreEqual(0m, actual[0].Settle);
-        Assert.AreEqual(-100m, actual[0].WinLoss);
+        ClassicAssert.IsNotNull(actual);
+        ClassicAssert.AreEqual(1, actual.Length);
+        ClassicAssert.AreEqual(playerCodes[0], actual[0].PlayerCode);
+        ClassicAssert.AreEqual("username", actual[0].PlayerUserName);
+        ClassicAssert.AreEqual(16888m, actual[0].DepositTotalAmount);
+        ClassicAssert.AreEqual(88m, actual[0].WithdrawTotalAmount);
+        ClassicAssert.AreEqual(100m, actual[0].Bet);
+        ClassicAssert.AreEqual(0m, actual[0].Settle);
+        ClassicAssert.AreEqual(-100m, actual[0].WinLoss);
     }
 
     [Test]
@@ -616,7 +606,7 @@ public class OverviewTests
                 pageSize: Arg.Is(10))
             .Returns(new BrandWagerPlayerStatsInfo[]
             {
-                new BrandWagerPlayerStatsInfo(
+                new(
                     Guid.NewGuid(),
                     "ResellerCode",
                     Guid.NewGuid(),
@@ -640,8 +630,7 @@ public class OverviewTests
                 Arg.Is<IEnumerable<string>>(p => p.SequenceEqual(playerCodes)))
             .Returns(new TopTenDepositWithdrawInfo[]
             {
-                new TopTenDepositWithdrawInfo
-                {
+                new() {
                     PlayerCode = playerCodes[0],
                     DepositTotalAmount = 16888m,
                     WithdrawTotalAmount = 88m
@@ -654,8 +643,7 @@ public class OverviewTests
                 Arg.Is<IEnumerable<string>>(p => p.SequenceEqual(playerCodes)))
             .Returns(new Tgs.PlayerService.Client.PlayerInfo[]
             {
-                new Tgs.PlayerService.Client.PlayerInfo
-                {
+                new() {
                     PlayerCode = playerCodes[0],
                     UserName = "username"
                 }
@@ -666,15 +654,15 @@ public class OverviewTests
             .ToArrayAsync()
             .ConfigureAwait(false);
 
-        Assert.IsNotNull(actual);
-        Assert.AreEqual(1, actual.Length);
-        Assert.AreEqual(playerCodes[0], actual[0].PlayerCode);
-        Assert.AreEqual("username", actual[0].PlayerUserName);
-        Assert.AreEqual(16888m, actual[0].DepositTotalAmount);
-        Assert.AreEqual(88m, actual[0].WithdrawTotalAmount);
-        Assert.AreEqual(100m, actual[0].Bet);
-        Assert.AreEqual(0m, actual[0].Settle);
-        Assert.AreEqual(-100m, actual[0].WinLoss);
+        ClassicAssert.IsNotNull(actual);
+        ClassicAssert.AreEqual(1, actual.Length);
+        ClassicAssert.AreEqual(playerCodes[0], actual[0].PlayerCode);
+        ClassicAssert.AreEqual("username", actual[0].PlayerUserName);
+        ClassicAssert.AreEqual(16888m, actual[0].DepositTotalAmount);
+        ClassicAssert.AreEqual(88m, actual[0].WithdrawTotalAmount);
+        ClassicAssert.AreEqual(100m, actual[0].Bet);
+        ClassicAssert.AreEqual(0m, actual[0].Settle);
+        ClassicAssert.AreEqual(-100m, actual[0].WinLoss);
     }
 
     [Test]
@@ -709,7 +697,7 @@ public class OverviewTests
                 pageSize: Arg.Is(10))
             .Returns(new BrandWagerGameStatsInfo[]
             {
-                new BrandWagerGameStatsInfo(
+                new(
                     GameProviderId: gameProviderId,
                     GameProviderCode: "KY",
                     GameId: gameId,
@@ -733,11 +721,11 @@ public class OverviewTests
             .QueryAsync(new GetTopTenGameQuery(brandId, sortType, false))
             .ToArrayAsync();
 
-        Assert.AreEqual(1, actual.Length);
-        Assert.AreEqual(gameId, actual[0].GameId);
-        Assert.AreEqual(gameProviderId, actual[0].GameProviderId);
-        Assert.AreEqual(100m, actual[0].Bet);
-        Assert.AreEqual(-100m, actual[0].WinLoss);
+        ClassicAssert.AreEqual(1, actual.Length);
+        ClassicAssert.AreEqual(gameId, actual[0].GameId);
+        ClassicAssert.AreEqual(gameProviderId, actual[0].GameProviderId);
+        ClassicAssert.AreEqual(100m, actual[0].Bet);
+        ClassicAssert.AreEqual(-100m, actual[0].WinLoss);
     }
 
     [Test]
@@ -772,7 +760,7 @@ public class OverviewTests
                 pageSize: Arg.Is(10))
             .Returns(new BrandWagerGameStatsInfo[]
             {
-                new BrandWagerGameStatsInfo(
+                new(
                     GameProviderId: gameProviderId,
                     GameProviderCode: "KY",
                     GameId: gameId,
@@ -796,11 +784,11 @@ public class OverviewTests
             .QueryAsync(new GetTopTenGameQuery(brandId, sortType, true))
             .ToArrayAsync();
 
-        Assert.AreEqual(1, actual.Length);
-        Assert.AreEqual(gameId, actual[0].GameId);
-        Assert.AreEqual(gameProviderId, actual[0].GameProviderId);
-        Assert.AreEqual(100m, actual[0].Bet);
-        Assert.AreEqual(-100m, actual[0].WinLoss);
+        ClassicAssert.AreEqual(1, actual.Length);
+        ClassicAssert.AreEqual(gameId, actual[0].GameId);
+        ClassicAssert.AreEqual(gameProviderId, actual[0].GameProviderId);
+        ClassicAssert.AreEqual(100m, actual[0].Bet);
+        ClassicAssert.AreEqual(-100m, actual[0].WinLoss);
     }
 
     [Test]
@@ -835,7 +823,7 @@ public class OverviewTests
                 pageSize: Arg.Is(10))
             .Returns(new BrandWagerGameStatsInfo[]
             {
-                new BrandWagerGameStatsInfo(
+                new(
                     GameProviderId: gameProviderId,
                     GameProviderCode: "KY",
                     GameId: gameId,
@@ -859,11 +847,11 @@ public class OverviewTests
             .QueryAsync(new GetTopTenGameQuery(brandId, sortType, false))
             .ToArrayAsync();
 
-        Assert.AreEqual(1, actual.Length);
-        Assert.AreEqual(gameId, actual[0].GameId);
-        Assert.AreEqual(gameProviderId, actual[0].GameProviderId);
-        Assert.AreEqual(100m, actual[0].Bet);
-        Assert.AreEqual(-100m, actual[0].WinLoss);
+        ClassicAssert.AreEqual(1, actual.Length);
+        ClassicAssert.AreEqual(gameId, actual[0].GameId);
+        ClassicAssert.AreEqual(gameProviderId, actual[0].GameProviderId);
+        ClassicAssert.AreEqual(100m, actual[0].Bet);
+        ClassicAssert.AreEqual(-100m, actual[0].WinLoss);
     }
 
     [Test]
@@ -886,7 +874,7 @@ public class OverviewTests
 
         var actual = await sut.GetAsync(new GetDayPlayerRegisterCountQuery(brandId));
 
-        Assert.AreEqual(168, actual.Today);
-        Assert.AreEqual(88, actual.Yesterday);
+        ClassicAssert.AreEqual(168, actual.Today);
+        ClassicAssert.AreEqual(88, actual.Yesterday);
     }
 }

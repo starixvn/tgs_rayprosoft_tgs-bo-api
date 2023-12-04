@@ -139,7 +139,7 @@ public partial class GameProviderController : BaseContextController
             .ToArrayAsync()
             .ConfigureAwait(false);
 
-        return diffSubGameProvidersIds.Any()
+        return diffSubGameProvidersIds.Length != 0
             ? new MessageResponse
             {
                 Valid = false,

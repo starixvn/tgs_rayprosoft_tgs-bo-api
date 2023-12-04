@@ -78,11 +78,11 @@ public class PlayerVipAdjustInfosTests
         {
             TotalCount = 2,
             Items = new PlayerVipAdjustInfo[] {
-                new PlayerVipAdjustInfo{
+                new() {
                     OldLevel = 1,
                     NewLevel = 2,
                     CreatedOn = DateTime.Parse("2022-12-27T05:38:00.15534+00:00") },
-                new PlayerVipAdjustInfo{
+                new() {
                     OldLevel = 2,
                     NewLevel = 1,
                     CreatedOn = DateTime.Parse("2022-12-28T10:36:38.562382+00:00") }

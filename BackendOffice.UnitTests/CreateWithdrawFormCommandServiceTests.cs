@@ -1,6 +1,7 @@
 ﻿using ExpectedObjects;
 using NSubstitute;
 using NUnit.Framework;
+using NUnit.Framework.Legacy;
 using Tgs.Payment.Clients;
 using Tgs.PlayerService.Client;
 using TGS.Services.BackOffice.Application.Commands.Withdraw;
@@ -28,7 +29,7 @@ public class CreateWithdrawFormCommandServiceTests
 
         var actual = await sut.GetAsync(command);
 
-        Assert.IsFalse(actual);
+        ClassicAssert.IsFalse(actual);
     }
 
     [Test]
@@ -47,7 +48,7 @@ public class CreateWithdrawFormCommandServiceTests
 
         var actual = await sut.GetAsync(command);
 
-        Assert.IsFalse(actual);
+        ClassicAssert.IsFalse(actual);
     }
 
     [Test]
@@ -88,7 +89,7 @@ public class CreateWithdrawFormCommandServiceTests
 
         var actual = await sut.GetAsync(command);
 
-        Assert.IsTrue(actual);
+        ClassicAssert.IsTrue(actual);
     }
 
     [Test]
@@ -116,7 +117,7 @@ public class CreateWithdrawFormCommandServiceTests
 
         var actual = await sut.GetAsync(command);
 
-        Assert.IsFalse(actual);
+        ClassicAssert.IsFalse(actual);
     }
 
     [Test]

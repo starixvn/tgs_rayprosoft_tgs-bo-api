@@ -405,8 +405,7 @@ public class AgentTests
            {
                Items = new AgentAuditLogInfo[]
                {
-                   new AgentAuditLogInfo
-                   {
+                   new() {
                        CreatedByUsername = "username",
                        CreatedOn = DateTimeOffset.Now.AddDays(-1),
                        Id = Guid.NewGuid(),
@@ -821,8 +820,7 @@ public class AgentTests
             conditions, 3, cancellationToken: Arg.Any<CancellationToken>())
             .Returns(new AgentHistoryInfo[]
             {
-                new AgentHistoryInfo
-                {
+                new() {
                     Action = EventAction.Create,
                     CreatedOn = DateTimeOffset.Now.AddDays(-1),
                     EventId = eventId,

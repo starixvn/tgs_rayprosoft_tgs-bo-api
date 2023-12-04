@@ -9,6 +9,7 @@ using TGS.Services.BackOffice.ApplicationServices.Promotion.Offline;
 using TGS.Services.BackOffice.Domain;
 using TGS.Services.BackOffice.ApplicationServices.Players;
 using Valhalla.MessageQueue;
+using NUnit.Framework.Legacy;
 
 namespace TGS.Tests.BackendOffice.UnitTests;
 
@@ -23,7 +24,7 @@ internal class OfflinePromotionTests
 
         var actual = await sut.GetAsync(command);
 
-        Assert.IsNotNull(actual);
+        ClassicAssert.IsNotNull(actual);
     }
 
     [Test]
@@ -235,6 +236,6 @@ internal class OfflinePromotionTests
 
         var actual = await sut.QueryAsync(query).ToArrayAsync();
 
-        Assert.AreEqual(5, actual.Length);
+        ClassicAssert.AreEqual(5, actual.Length);
     }
 }

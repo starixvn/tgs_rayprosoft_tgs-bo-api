@@ -3,6 +3,7 @@ using System.Reflection;
 using Microsoft.Extensions.FileProviders;
 using Microsoft.Extensions.Logging.Abstractions;
 using NSubstitute;
+using NUnit.Framework.Legacy;
 using Tgs.PlayerService.Client;
 using TGS.Core.Models.Enums;
 using TGS.Services.BackOffice.ApplicationServices.BatchAdjust;
@@ -37,7 +38,7 @@ public class BatchAdjustTests
 
         var actual = await sut.GetAsync(command);
 
-        Assert.IsNotNull(actual);
+        ClassicAssert.IsNotNull(actual);
     }
 
     [Test]
@@ -161,12 +162,12 @@ public class BatchAdjustTests
 
         var actual = await sut.QueryAsync(query).ToArrayAsync();
 
-        Assert.AreEqual(50, actual.Length);
+        ClassicAssert.AreEqual(50, actual.Length);
 
         var lastRow = actual.Last();
 
-        Assert.AreEqual(50, lastRow.AdjustAmount);
-        Assert.AreEqual(50, lastRow.Turnover);
+        ClassicAssert.AreEqual(50, lastRow.AdjustAmount);
+        ClassicAssert.AreEqual(50, lastRow.Turnover);
     }
 
     [Test]

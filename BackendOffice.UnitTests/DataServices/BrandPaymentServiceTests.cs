@@ -2,6 +2,7 @@
 using ExpectedObjects;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Diagnostics;
+using NUnit.Framework.Legacy;
 using TGS.Apis.BackendOffice.Controllers.Messages.BrandPayment;
 using TGS.Apis.BackendOffice.DataService.Services;
 using TGS.Core.DataServices.Tgs;
@@ -101,7 +102,7 @@ public class BrandPaymentServiceTests
 
         var logs = await repository.PaymentAuditLogs.AsQueryable().ToArrayAsync();
 
-        Assert.AreEqual(1, logs.Length);
+        ClassicAssert.AreEqual(1, logs.Length);
 
         var auditLog = logs.First();
         var beforeActual = JsonSerializer.Deserialize<BrandPaymentAuditData>(auditLog.Before);

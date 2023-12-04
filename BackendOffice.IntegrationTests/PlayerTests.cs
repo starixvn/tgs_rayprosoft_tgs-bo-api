@@ -87,8 +87,8 @@ public class PlayerTests
 
         _ = fakeAgentRepository.GetAgentsAsync(Arg.Is(brandId))
             .Returns(new AgentInfo[] {
-                new AgentInfo(Guid.NewGuid(),"agent1",Guid.NewGuid(),AgentStatus.Enabled),
-                new AgentInfo(Guid.NewGuid(),"agent2",Guid.NewGuid(),AgentStatus.Enabled)
+                new(Guid.NewGuid(),"agent1",Guid.NewGuid(),AgentStatus.Enabled),
+                new(Guid.NewGuid(),"agent2",Guid.NewGuid(),AgentStatus.Enabled)
             }.ToAsyncEnumerable());
 
         var vipId1 = Guid.NewGuid();
@@ -97,7 +97,7 @@ public class PlayerTests
                 Arg.Is(brandId),
                 Arg.Any<CancellationToken>())
             .Returns(new VipLevelInfo[] {
-                new VipLevelInfo(
+                new(
                     vipId1,
                     1,
                     brandId,
@@ -117,7 +117,7 @@ public class PlayerTests
                     0M,
                     -1,
                     -1M),
-                new VipLevelInfo(
+                new(
                     Guid.NewGuid(),
                     2,
                     brandId,
@@ -144,7 +144,7 @@ public class PlayerTests
                 Arg.Any<PlayerListQuery>(),
                 Arg.Any<CancellationToken>())
             .Returns(new PlayerListItem[] {
-                new PlayerListItem(
+                new(
                     PlayerCode: "4ucmqplxb029",
                     UserName: "4ucmqplxb029",
                     RealName: null,
@@ -154,7 +154,7 @@ public class PlayerTests
                     VipId: vipId1,
                     Status: Tgs.PlayerService.Client.PlayerStatus.Enabled,
                     ParentPlayerCode: null),
-                new PlayerListItem(
+                new(
                     PlayerCode: "4ucmqplxkuyd",
                     UserName: "4ucmqplxkuyd",
                     RealName: null,
@@ -344,8 +344,8 @@ public class PlayerTests
 
         _ = fakeAgentRepository.GetAgentsAsync(Arg.Is(brandId))
             .Returns(new AgentInfo[] {
-                new AgentInfo(Guid.NewGuid(),"agent1",Guid.NewGuid(),AgentStatus.Enabled),
-                new AgentInfo(Guid.NewGuid(),"agent2",Guid.NewGuid(),AgentStatus.Enabled)
+                new(Guid.NewGuid(),"agent1",Guid.NewGuid(),AgentStatus.Enabled),
+                new(Guid.NewGuid(),"agent2",Guid.NewGuid(),AgentStatus.Enabled)
             }.ToAsyncEnumerable());
 
         var vipId1 = Guid.NewGuid();
@@ -354,7 +354,7 @@ public class PlayerTests
                 Arg.Is(brandId),
                 Arg.Any<CancellationToken>())
             .Returns(new VipLevelInfo[] {
-                new VipLevelInfo(
+                new(
                     vipId1,
                     1,
                     brandId,
@@ -374,7 +374,7 @@ public class PlayerTests
                     0M,
                     -1,
                     -1M),
-                new VipLevelInfo(
+                new(
                     Guid.NewGuid(),
                     2,
                     brandId,
@@ -401,7 +401,7 @@ public class PlayerTests
                 Arg.Any<PlayerListQuery>(),
                 Arg.Any<CancellationToken>())
             .Returns(new PlayerListItem[] {
-                new PlayerListItem(
+                new(
                     PlayerCode: "4ucmqplxb029",
                     UserName: "4ucmqplxb029",
                     RealName: null,
@@ -561,7 +561,7 @@ public class PlayerTests
             Arg.Any<CancellationToken>())
             .Returns(new VipLevelInfo[]
             {
-                new VipLevelInfo(
+                new(
                     vipLevelId,
                     1,
                     brandId,
@@ -787,8 +787,26 @@ public class PlayerTests
 
         var transactionLogs = new Tgs.CashService.Client.PagingResponse<TransactionLog>(
             Items: new List<TransactionLog>{
-                new TransactionLog(transactionId1,DateTime.UtcNow,0,100M, 200M,0M,0M, null,null),
-                new TransactionLog(transacationId2,DateTime.UtcNow,0,100M, 200M,0M,0M, null,null),
+                new(
+                    transactionId1,
+                    DateTime.UtcNow,
+                    0,
+                    100M,
+                    200M,
+                    0M,
+                    0M,
+                    null,
+                    null),
+                new(
+                    transacationId2,
+                    DateTime.UtcNow,
+                    0,
+                    100M,
+                    200M,
+                    0M,
+                    0M,
+                    null,
+                    null),
             },
             Page: page,
             TotalCount: 2
@@ -818,8 +836,8 @@ public class PlayerTests
                 Arg.Any<IEnumerable<Guid>>(),
                 Arg.Any<CancellationToken>())
             .Returns(new PlayerAdjustRecord[] {
-                new PlayerAdjustRecord(transactionId1,true),
-                new PlayerAdjustRecord(transacationId2,false)
+                new(transactionId1,true),
+                new(transacationId2,false)
             }.ToAsyncEnumerable());
 
         using var nodeService = _nodeJsFixture.BuildNodeJsService();
@@ -1052,8 +1070,7 @@ public class PlayerTests
             conditions, 3, cancellationToken: Arg.Any<CancellationToken>())
             .Returns(new PlayerHistoryInfo[]
             {
-                new PlayerHistoryInfo
-                {
+                new() {
                     Action = EventAction.Create,
                     CreatedOn = DateTimeOffset.Now.AddDays(-1),
                     EventId = eventId,

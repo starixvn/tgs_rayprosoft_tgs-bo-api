@@ -1,4 +1,5 @@
 ﻿using NSubstitute;
+using NUnit.Framework.Legacy;
 using Tgs.Service.PlayerBuckets;
 using TGS.Services.BackOffice.ApplicationServices.PlayerBuckets;
 
@@ -43,6 +44,6 @@ public class GetBrandBucketTypesQueryServiceTests
         _ = fakePlayerBucketClient.Received(1)
             .GetBrandBucketTypesAsync(Arg.Is(brandId));
 
-        Assert.AreEqual(bucketTypes, response);
+        ClassicAssert.AreEqual(bucketTypes, response);
     }
 }

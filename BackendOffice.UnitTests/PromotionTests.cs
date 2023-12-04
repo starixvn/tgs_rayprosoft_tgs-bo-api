@@ -1,6 +1,7 @@
 ﻿using System.Text.Json;
 using Microsoft.Extensions.Logging.Abstractions;
 using NSubstitute;
+using NUnit.Framework.Legacy;
 using Tgs.BrandCertificate.Clients;
 using Tgs.Promotion.Clients;
 using Tgs.ServiceUtility;
@@ -535,7 +536,7 @@ public class PromotionTests
 
         var actual = await sut.GetAsync(command);
 
-        Assert.AreEqual(expectedPromotionId, actual);
+        ClassicAssert.AreEqual(expectedPromotionId, actual);
 
         _ = fakeUpdateRuleService.Received(1)
             .ExecuteAsync(
@@ -656,7 +657,7 @@ public class PromotionTests
 
         var actual = await sut.GetAsync(command);
 
-        Assert.AreEqual(expectedPromotionId, actual);
+        ClassicAssert.AreEqual(expectedPromotionId, actual);
 
         _ = fakeGetBrandInfoService.DidNotReceive()
             .GetAsync(
@@ -783,7 +784,7 @@ public class PromotionTests
 
         var actual = await sut.GetAsync(command);
 
-        Assert.AreEqual(expectedPromotionId, actual);
+        ClassicAssert.AreEqual(expectedPromotionId, actual);
 
         _ = fakeGetBrandInfoService.Received(1)
             .GetAsync(
