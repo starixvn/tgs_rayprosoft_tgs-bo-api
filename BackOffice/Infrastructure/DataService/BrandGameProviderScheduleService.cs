@@ -27,15 +27,10 @@ public interface IBrandGameProviderScheduleService
     Task UpdateBrandGameProviderScheduleAsync(BrandGameProviderSchedule schedule);
 }
 
-public class BrandGameProviderScheduleService : BaseRepositoryOperations<ITgsRepository>,
+public class BrandGameProviderScheduleService(ITgsRepository tgsRepository) : BaseRepositoryOperations<ITgsRepository>(tgsRepository),
     IBrandGameProviderScheduleService
 {
-    private readonly ITgsRepository _repository;
-
-    public BrandGameProviderScheduleService(ITgsRepository tgsRepository) : base(tgsRepository)
-    {
-        _repository = tgsRepository;
-    }
+    private readonly ITgsRepository _repository = tgsRepository;
 
     Task<BrandGameProviderSchedule> IBrandGameProviderScheduleService.GetBrandGameProviderScheduleAsync(
         Expression<Func<BrandGameProviderSchedule, bool>> predicate,

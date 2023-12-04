@@ -10,16 +10,10 @@ using TGS.Services.BackOffice.Infrastructure.DataService;
 namespace TGS.Services.BackOffice.Application.Queries.BrandGameProviderHandlers;
 
 public class
-    GetBrandGameProvidersQueryHandler : Handler<GetBrandGameProvidersRequest,
-        PagedResponse<BrandGameProviderModel>>
+    GetBrandGameProvidersQueryHandler(IBrandGameProviderService service, IHttpContextAccessor accessor) : Handler<GetBrandGameProvidersRequest,
+        PagedResponse<BrandGameProviderModel>>(accessor)
 {
-    private readonly IBrandGameProviderService _service;
-
-    public GetBrandGameProvidersQueryHandler(IBrandGameProviderService service, IHttpContextAccessor accessor)
-        : base(accessor)
-    {
-        _service = service;
-    }
+    private readonly IBrandGameProviderService _service = service;
 
     public override Task<PagedResponse<BrandGameProviderModel>> Handle(
         GetBrandGameProvidersRequest request,

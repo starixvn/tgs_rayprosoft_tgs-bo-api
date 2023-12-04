@@ -22,12 +22,11 @@ namespace TGS.Apis.BackendOffice.Controllers;
 
 [Route("api/[controller]")]
 [ApiController]
-public partial class AnnouncementController : BaseContextController
+public partial class AnnouncementController(
+    ITgsQueries<Announcement> queries,
+    ITgsCommands<Announcement> commands,
+    IRedisCacheManager cacheManager) : BaseContextController
 {
-    private readonly IRedisCacheManager _cacheManager;
-    private readonly ITgsCommands<Announcement> _commands;
-    private readonly ITgsQueries<Announcement> _queries;
-
     private readonly Dictionary<string, dynamic> _typeDictionary = new()
     {
         {
@@ -62,25 +61,15 @@ public partial class AnnouncementController : BaseContextController
         }
     };
 
-    public AnnouncementController(
-        ITgsQueries<Announcement> queries,
-        ITgsCommands<Announcement> commands,
-        IRedisCacheManager cacheManager)
-    {
-        _queries = queries;
-        _commands = commands;
-        _cacheManager = cacheManager;
-    }
-
     [HttpPut("ChangeOrders", Name = "ChangeAnnouncementOrder")]
     [Description("Change Announcement Order")]
     public async Task<MessageResponse> ChangeOrderAsync(ChangeOrderRequest request)
     {
         var ids = request.Orders.Select(q => q.Id);
-        var announcements = await _queries.GetQueries().Where(q => ids.Contains(q.Id)).ToListAsync();
+        var announcements = await queries.GetQueries().Where(q => ids.Contains(q.Id)).ToListAsync();
         announcements.ForEach(p => p.DisplayOrder = request.Orders.FirstOrDefault(x => x.Id == p.Id).DisplayOrder);
 
-        await _commands.BatchUpdateAsync(announcements.ToArray());
+        await commands.BatchUpdateAsync([.. announcements]);
 
         return CreateValidResponse<MessageResponse>();
     }
@@ -116,7 +105,7 @@ public partial class AnnouncementController : BaseContextController
             Type = request.Type,
         };
 
-        await _commands.CreateAsync(announcement);
+        await commands.CreateAsync(announcement);
 
         return CreateValidResponse<MessageResponse>();
     }
@@ -131,7 +120,7 @@ public partial class AnnouncementController : BaseContextController
 
         var serializerOptions = default(JsonDocumentOptions);
 
-        return _queries.GetQueries()
+        return queries.GetQueries()
             .Where(request.BrandId, x => x.BrandId == request.BrandId)
             .Where(ResellerId, r => r.Brand.Licensee.ResellerId == ResellerId)
             .Where(LicenseeId, l => l.Brand.LicenseeId == LicenseeId)
@@ -172,7 +161,7 @@ public partial class AnnouncementController : BaseContextController
     {
         var serializerOptions = optionsAccessor.Value.JsonSerializerOptions;
 
-        var announcement = await _queries.GetSingleAsync(p => p.Id == id);
+        var announcement = await queries.GetSingleAsync(p => p.Id == id);
 
         if (announcement == null)
         {
@@ -199,9 +188,9 @@ public partial class AnnouncementController : BaseContextController
         announcement.UpdatedOn = DateTimeOffset.Now;
         announcement.Status = AnnounceStatus.InVerify;
 
-        await _commands.UpdateAsync(announcement);
+        await commands.UpdateAsync(announcement);
 
-        await _cacheManager.ClearCacheAsync(RedisCacheType.Announcements, announcement.BrandId);
+        await cacheManager.ClearCacheAsync(RedisCacheType.Announcements, announcement.BrandId);
 
         return CreateValidResponse<MessageResponse>();
     }
@@ -215,7 +204,7 @@ public partial class AnnouncementController : BaseContextController
             return CreateInvalidResponse<MessageResponse>(Resources.Announcement.InvalidUrl);
         }
 
-        var announcement = await _queries.GetSingleAsync(p => p.Id == id);
+        var announcement = await queries.GetSingleAsync(p => p.Id == id);
 
         if (announcement == null)
         {
@@ -240,7 +229,7 @@ public partial class AnnouncementController : BaseContextController
         announcement.UpdatedByUsername = Username;
         announcement.UpdatedOn = DateTimeOffset.Now;
 
-        await _commands.UpdateAsync(announcement);
+        await commands.UpdateAsync(announcement);
 
         return CreateValidResponse<MessageResponse>();
     }

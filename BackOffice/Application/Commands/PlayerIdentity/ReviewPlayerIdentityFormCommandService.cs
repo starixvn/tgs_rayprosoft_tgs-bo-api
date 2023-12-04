@@ -5,14 +5,9 @@ using TGS.Services.BackOffice.Infrastructure.DataService;
 
 namespace TGS.Services.BackOffice.Application.Commands.PlayerIdentity;
 
-internal class ReviewPlayerIdentityFormCommandService : ICommandService<ReviewPlayerIdentityFormCommand>
+internal class ReviewPlayerIdentityFormCommandService(IPlayerService playerService) : ICommandService<ReviewPlayerIdentityFormCommand>
 {
-    private readonly IPlayerService _playerService;
-
-    public ReviewPlayerIdentityFormCommandService(IPlayerService playerService)
-    {
-        _playerService = playerService ?? throw new System.ArgumentNullException(nameof(playerService));
-    }
+    private readonly IPlayerService _playerService = playerService ?? throw new System.ArgumentNullException(nameof(playerService));
 
     public async ValueTask ExecuteAsync(ReviewPlayerIdentityFormCommand command, CancellationToken cancellationToken = default)
     {

@@ -6,14 +6,9 @@ using Tgs.ServiceUtility;
 
 namespace TGS.Services.BackOffice.ApplicationServices.Promotion.Offline;
 
-internal class CreateOfflineLoginPromotionCommandService : ICommandService<CreateOfflineLoginPromotionCommand>
+internal class CreateOfflineLoginPromotionCommandService(IPromotionServiceClient promotionServiceClient) : ICommandService<CreateOfflineLoginPromotionCommand>
 {
-    private readonly IPromotionServiceClient _promotionServiceClient;
-
-    public CreateOfflineLoginPromotionCommandService(IPromotionServiceClient promotionServiceClient)
-    {
-        _promotionServiceClient = promotionServiceClient ?? throw new ArgumentNullException(nameof(promotionServiceClient));
-    }
+    private readonly IPromotionServiceClient _promotionServiceClient = promotionServiceClient ?? throw new ArgumentNullException(nameof(promotionServiceClient));
 
     public async ValueTask ExecuteAsync(CreateOfflineLoginPromotionCommand command, CancellationToken cancellationToken = default)
     {

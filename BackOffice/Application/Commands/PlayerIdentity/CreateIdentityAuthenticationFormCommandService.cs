@@ -8,18 +8,12 @@ using TGS.Services.BackOffice.Infrastructure.DataService;
 
 namespace TGS.Services.BackOffice.Application.Commands.PlayerIdentity;
 
-internal class CreateIdentityAuthenticationFormCommandService : IGetService<CreateIdentityAuthenticationFormCommand, MessageResponse>
+internal class CreateIdentityAuthenticationFormCommandService(
+    IBrandService brandService,
+    IPlayerService playerService) : IGetService<CreateIdentityAuthenticationFormCommand, MessageResponse>
 {
-    private readonly IBrandService _brandService;
-    private readonly IPlayerService _playerService;
-
-    public CreateIdentityAuthenticationFormCommandService(
-        IBrandService brandService,
-        IPlayerService playerService)
-    {
-        _brandService = brandService ?? throw new ArgumentNullException(nameof(brandService));
-        _playerService = playerService ?? throw new ArgumentNullException(nameof(playerService));
-    }
+    private readonly IBrandService _brandService = brandService ?? throw new ArgumentNullException(nameof(brandService));
+    private readonly IPlayerService _playerService = playerService ?? throw new ArgumentNullException(nameof(playerService));
 
     public async ValueTask<MessageResponse> GetAsync(CreateIdentityAuthenticationFormCommand query, CancellationToken cancellationToken = default)
     {

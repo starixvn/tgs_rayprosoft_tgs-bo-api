@@ -15,25 +15,12 @@ using Valhalla.MessageQueue;
 
 namespace TGS.Services.BackOffice.Application.Commands.ReportGenerateAggregate;
 
-public class BrandGameProviderAggregateHandler : IGetService<GenerateBrandGameProviderAggregateRequest, MessageResponse>
+public class BrandGameProviderAggregateHandler(
+    IMessageSender messageSender,
+    IBrandService brandService,
+    IBrandGameProviderAggregateAuditLogService brandGameProviderAuditLogService,
+    IRedisCacheManager redisCacheManager) : IGetService<GenerateBrandGameProviderAggregateRequest, MessageResponse>
 {
-    private readonly IBrandGameProviderAggregateAuditLogService _brandGameProviderAuditLogService;
-    private readonly IBrandService _brandService;
-    private readonly IMessageSender _messageSender;
-    private readonly IRedisCacheManager _redisCacheManager;
-
-    public BrandGameProviderAggregateHandler(
-        IMessageSender messageSender,
-        IBrandService brandService,
-        IBrandGameProviderAggregateAuditLogService brandGameProviderAuditLogService,
-        IRedisCacheManager redisCacheManager)
-    {
-        _brandService = brandService;
-        _messageSender = messageSender;
-        _brandGameProviderAuditLogService = brandGameProviderAuditLogService;
-        _redisCacheManager = redisCacheManager;
-    }
-
     public async ValueTask<MessageResponse> GetAsync(
         GenerateBrandGameProviderAggregateRequest request,
         CancellationToken cancellationToken)
@@ -47,7 +34,7 @@ public class BrandGameProviderAggregateHandler : IGetService<GenerateBrandGamePr
             };
         }
 
-        var aggregate = await _redisCacheManager.GetSetAllMembersAsync("aggregate", "brandGP")
+        var aggregate = await redisCacheManager.GetSetAllMembersAsync("aggregate", "brandGP")
             .ConfigureAwait(false);
 
         if (aggregate.Length > 0)
@@ -60,20 +47,17 @@ public class BrandGameProviderAggregateHandler : IGetService<GenerateBrandGamePr
         }
 
         var brandIds = request.BrandId is not null
-            ? new[]
-            {
-                request.BrandId.Value
-            }
-            : await _brandService.GetBrandQueries().Select(x => x.Id).ToArrayAsync(cancellationToken)
+            ? [request.BrandId.Value]
+            : await brandService.GetBrandQueries().Select(x => x.Id).ToArrayAsync(cancellationToken)
                 .ConfigureAwait(false);
 
         var auditLogId =
-            await _brandGameProviderAuditLogService.CreateBrandGameProviderAggregateAuditLogAsync(
+            await brandGameProviderAuditLogService.CreateBrandGameProviderAggregateAuditLogAsync(
                     new CreateBrandGameProviderAggregateAuditLogRequest(Guid.Parse(request.UserId),
                         request.BrandId))
                 .ConfigureAwait(false);
 
-        _ = await _redisCacheManager.SetAddAsync("aggregate",
+        _ = await redisCacheManager.SetAddAsync("aggregate",
             "brandGP",
             brandIds.Select(x => (RedisValue)x.ToString()).ToArray(),
             TimeSpan.FromMinutes(10)).ConfigureAwait(false);
@@ -88,7 +72,7 @@ public class BrandGameProviderAggregateHandler : IGetService<GenerateBrandGamePr
                 RedisKey = "aggregate:brandGP"
             };
 
-            await _messageSender.PublishAsync("tgs.report.aggregate.brand.game.provider",
+            await messageSender.PublishAsync("tgs.report.aggregate.brand.game.provider",
                     Encoding.UTF8.GetBytes(JsonSerializer.Serialize(data)),
                     cancellationToken)
                 .ConfigureAwait(false);

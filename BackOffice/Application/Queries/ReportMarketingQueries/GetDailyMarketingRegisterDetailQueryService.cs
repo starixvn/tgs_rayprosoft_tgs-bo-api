@@ -6,14 +6,9 @@ using TGS.Services.BackOffice.Domain;
 
 namespace TGS.Services.BackOffice.Application.Queries.ReportMarketingQueries;
 
-internal class GetDailyMarketingRegisterDetailQueryService : IQueryService<GetDailyMarketingRegisterDetailQuery, PlayerDailyRegisterItem>
+internal class GetDailyMarketingRegisterDetailQueryService(IMarketingReportRepository marketingReportRepository) : IQueryService<GetDailyMarketingRegisterDetailQuery, PlayerDailyRegisterItem>
 {
-    private readonly IMarketingReportRepository _marketingReportRepository;
-
-    public GetDailyMarketingRegisterDetailQueryService(IMarketingReportRepository marketingReportRepository)
-    {
-        _marketingReportRepository = marketingReportRepository ?? throw new ArgumentNullException(nameof(marketingReportRepository));
-    }
+    private readonly IMarketingReportRepository _marketingReportRepository = marketingReportRepository ?? throw new ArgumentNullException(nameof(marketingReportRepository));
 
     public IAsyncEnumerable<PlayerDailyRegisterItem> QueryAsync(
         GetDailyMarketingRegisterDetailQuery query,

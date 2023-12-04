@@ -17,27 +17,18 @@ using TGS.Services.BackOffice.Domain;
 
 namespace TGS.Services.BackOffice.ApplicationServices.Players;
 
-public class GetSinglePlayerQueryService : IGetService<GetSinglePlayerQuery, PlayerModel?>
+public class GetSinglePlayerQueryService(
+    IPlayerServiceClient playerServiceClient,
+    IPaymentServiceClient paymentServiceClient,
+    ICashServiceClient cashServiceClient,
+    IPlayerBucketClient playerBucketClient,
+    IServiceCoordinator serviceCoordinator) : IGetService<GetSinglePlayerQuery, PlayerModel?>
 {
-    private readonly ICashServiceClient _cashServiceClient;
-    private readonly IPaymentServiceClient _paymentServiceClient;
-    private readonly IPlayerBucketClient _playerBucketClient;
-    private readonly IPlayerServiceClient _playerServiceClient;
-    private readonly IServiceCoordinator _serviceCoordinator;
-
-    public GetSinglePlayerQueryService(
-        IPlayerServiceClient playerServiceClient,
-        IPaymentServiceClient paymentServiceClient,
-        ICashServiceClient cashServiceClient,
-        IPlayerBucketClient playerBucketClient,
-        IServiceCoordinator serviceCoordinator)
-    {
-        _playerServiceClient = playerServiceClient ?? throw new ArgumentNullException(nameof(playerServiceClient));
-        _paymentServiceClient = paymentServiceClient ?? throw new ArgumentNullException(nameof(paymentServiceClient));
-        _cashServiceClient = cashServiceClient ?? throw new ArgumentNullException(nameof(cashServiceClient));
-        _playerBucketClient = playerBucketClient ?? throw new ArgumentNullException(nameof(playerBucketClient));
-        _serviceCoordinator = serviceCoordinator ?? throw new ArgumentNullException(nameof(serviceCoordinator));
-    }
+    private readonly ICashServiceClient _cashServiceClient = cashServiceClient ?? throw new ArgumentNullException(nameof(cashServiceClient));
+    private readonly IPaymentServiceClient _paymentServiceClient = paymentServiceClient ?? throw new ArgumentNullException(nameof(paymentServiceClient));
+    private readonly IPlayerBucketClient _playerBucketClient = playerBucketClient ?? throw new ArgumentNullException(nameof(playerBucketClient));
+    private readonly IPlayerServiceClient _playerServiceClient = playerServiceClient ?? throw new ArgumentNullException(nameof(playerServiceClient));
+    private readonly IServiceCoordinator _serviceCoordinator = serviceCoordinator ?? throw new ArgumentNullException(nameof(serviceCoordinator));
 
     public async ValueTask<PlayerModel?> GetAsync(GetSinglePlayerQuery query, CancellationToken cancellationToken = default)
     {

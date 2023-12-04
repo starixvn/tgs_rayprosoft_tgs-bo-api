@@ -10,21 +10,14 @@ using TGS.Services.BackOffice.Domain;
 
 namespace TGS.Services.BackOffice.ApplicationServices;
 
-internal class PlayerTransferBalanceToParentAgentCommandService : ICommandService<PlayerTransferBalanceToParentAgentCommand>
+internal class PlayerTransferBalanceToParentAgentCommandService(
+    IPlayerServiceClient playerServiceClient,
+    IQueryService<AllAgentsByBrandQuery, AgentInfo> queryAgentsService,
+    IPlayerAdjustBalanceService playerAdjustBalanceService) : ICommandService<PlayerTransferBalanceToParentAgentCommand>
 {
-    private readonly IPlayerAdjustBalanceService _playerAdjustBalanceService;
-    private readonly IPlayerServiceClient _playerServiceClient;
-    private readonly IQueryService<AllAgentsByBrandQuery, AgentInfo> _queryAgentsService;
-
-    public PlayerTransferBalanceToParentAgentCommandService(
-        IPlayerServiceClient playerServiceClient,
-        IQueryService<AllAgentsByBrandQuery, AgentInfo> queryAgentsService,
-        IPlayerAdjustBalanceService playerAdjustBalanceService)
-    {
-        _playerServiceClient = playerServiceClient ?? throw new ArgumentNullException(nameof(playerServiceClient));
-        _queryAgentsService = queryAgentsService ?? throw new ArgumentNullException(nameof(queryAgentsService));
-        _playerAdjustBalanceService = playerAdjustBalanceService ?? throw new ArgumentNullException(nameof(playerAdjustBalanceService));
-    }
+    private readonly IPlayerAdjustBalanceService _playerAdjustBalanceService = playerAdjustBalanceService ?? throw new ArgumentNullException(nameof(playerAdjustBalanceService));
+    private readonly IPlayerServiceClient _playerServiceClient = playerServiceClient ?? throw new ArgumentNullException(nameof(playerServiceClient));
+    private readonly IQueryService<AllAgentsByBrandQuery, AgentInfo> _queryAgentsService = queryAgentsService ?? throw new ArgumentNullException(nameof(queryAgentsService));
 
     public async ValueTask ExecuteAsync(PlayerTransferBalanceToParentAgentCommand command, CancellationToken cancellationToken = default)
     {

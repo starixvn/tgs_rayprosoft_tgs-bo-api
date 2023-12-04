@@ -77,10 +77,10 @@ public class DepositAccumulateRouletteController : BaseContextController
                 {
                     Valid = true,
                     TotalCount = 0,
-                    Items = Array.Empty<DepositAccumulateRouletteGameRecordViewModel>()
+                    Items = []
                 };
             else
-                playerCodes = new[] { player.PlayerCode };
+                playerCodes = [player.PlayerCode];
         }
 
         var promotionIds = Array.Empty<Guid>();
@@ -101,7 +101,7 @@ public class DepositAccumulateRouletteController : BaseContextController
                 {
                     Valid = true,
                     TotalCount = 0,
-                    Items = Array.Empty<DepositAccumulateRouletteGameRecordViewModel>()
+                    Items = []
                 };
             }
         }

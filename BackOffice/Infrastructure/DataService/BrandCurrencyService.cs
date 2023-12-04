@@ -13,12 +13,8 @@ public interface IBrandCurrencyService
         bool tracking = false);
 }
 
-public class BrandCurrencyService : BaseRepositoryOperations<ITgsRepository>, IBrandCurrencyService
+public class BrandCurrencyService(ITgsRepository tgsRepository) : BaseRepositoryOperations<ITgsRepository>(tgsRepository), IBrandCurrencyService
 {
-    public BrandCurrencyService(ITgsRepository tgsRepository) : base(tgsRepository)
-    {
-    }
-
     IQueryable<BrandCurrency> IBrandCurrencyService.GetBrandCurrenciesQueries(
         Func<IQueryable<BrandCurrency>, IQueryable<BrandCurrency>> preQuery,
         bool tracking) =>

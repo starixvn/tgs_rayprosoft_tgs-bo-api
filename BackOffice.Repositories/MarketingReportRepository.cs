@@ -9,14 +9,9 @@ using TGS.Services.BackOffice.Domain;
 
 namespace TGS.BackOffice.Repositories;
 
-internal class MarketingReportRepository : IMarketingReportRepository
+internal class MarketingReportRepository(ITgsRepository tgsRepository) : IMarketingReportRepository
 {
-    private readonly ITgsRepository _tgsRepository;
-
-    public MarketingReportRepository(ITgsRepository tgsRepository)
-    {
-        _tgsRepository = tgsRepository ?? throw new ArgumentNullException(nameof(tgsRepository));
-    }
+    private readonly ITgsRepository _tgsRepository = tgsRepository ?? throw new ArgumentNullException(nameof(tgsRepository));
 
     public async IAsyncEnumerable<PlayerDailyGamingItem> QueryRealTimePlayerDailyGamingStatisticsAsync(
         Guid brandId,

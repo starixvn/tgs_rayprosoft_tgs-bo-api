@@ -13,15 +13,10 @@ using Tgs.ServiceUtility;
 
 namespace TGS.Services.BackOffice.ApplicationServices.Agents;
 
-internal class SetAgentContactCommandService : IGetService<SetAgentContactCommand, SetAgentContactResult>
+internal class SetAgentContactCommandService(
+    IAgentClient agentClient) : IGetService<SetAgentContactCommand, SetAgentContactResult>
 {
-    private readonly IAgentClient _agentClient;
-
-    public SetAgentContactCommandService(
-        IAgentClient agentClient)
-    {
-        _agentClient = agentClient ?? throw new ArgumentNullException(nameof(agentClient));
-    }
+    private readonly IAgentClient _agentClient = agentClient ?? throw new ArgumentNullException(nameof(agentClient));
 
     public async ValueTask<SetAgentContactResult> GetAsync(SetAgentContactCommand command, CancellationToken cancellationToken = default)
     {
@@ -55,7 +50,7 @@ internal class SetAgentContactCommandService : IGetService<SetAgentContactComman
             }
         }
 
-        if (!modifyDict.Any())
+        if (modifyDict.Count == 0)
             return new SetAgentContactResult(false, string.Empty);
 
         await _agentClient

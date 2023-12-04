@@ -7,16 +7,10 @@ using TGS.Services.BackOffice.Infrastructure.DataService;
 
 namespace TGS.Services.BackOffice.Application.Queries.BetLimitHandlers;
 
-public class GetBetLimitQueryHandler : Handler<GetBetLimitRequest,
-    GetBetLimitResponse>
+public class GetBetLimitQueryHandler(IBetLimitService service, IHttpContextAccessor accessor) : Handler<GetBetLimitRequest,
+    GetBetLimitResponse>(accessor)
 {
-    private readonly IBetLimitService _service;
-
-    public GetBetLimitQueryHandler(IBetLimitService service, IHttpContextAccessor accessor)
-        : base(accessor)
-    {
-        _service = service;
-    }
+    private readonly IBetLimitService _service = service;
 
     public override async Task<GetBetLimitResponse> Handle(
         GetBetLimitRequest request,

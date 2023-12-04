@@ -9,15 +9,9 @@ using TGS.Services.BackOffice.Infrastructure.DataService;
 
 namespace TGS.Services.BackOffice.Application.Queries.LanguageHandlers;
 
-public class GetLanguagesQueryHandler : Handler<GetLanguagesRequest, PagedResponse<LanguageModel>>
+public class GetLanguagesQueryHandler(ILanguageService service, IHttpContextAccessor accessor) : Handler<GetLanguagesRequest, PagedResponse<LanguageModel>>(accessor)
 {
-    private readonly ILanguageService _service;
-
-    public GetLanguagesQueryHandler(ILanguageService service, IHttpContextAccessor accessor)
-        : base(accessor)
-    {
-        _service = service;
-    }
+    private readonly ILanguageService _service = service;
 
     public override Task<PagedResponse<LanguageModel>> Handle(GetLanguagesRequest request,
         CancellationToken cancellationToken) =>

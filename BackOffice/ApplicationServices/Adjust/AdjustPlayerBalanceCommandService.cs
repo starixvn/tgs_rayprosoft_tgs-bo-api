@@ -9,18 +9,12 @@ using TGS.Services.BackOffice.Domain;
 
 namespace TGS.Services.BackOffice.ApplicationServices.Adjust;
 
-internal class AdjustPlayerBalanceCommandService : ICommandService<AdjustPlayerBalanceCommand>
+internal class AdjustPlayerBalanceCommandService(
+    IPlayerServiceClient playerServiceClient,
+    IPlayerAdjustBalanceService playerAdjustBalanceService) : ICommandService<AdjustPlayerBalanceCommand>
 {
-    private readonly IPlayerAdjustBalanceService _playerAdjustBalanceService;
-    private readonly IPlayerServiceClient _playerServiceClient;
-
-    public AdjustPlayerBalanceCommandService(
-        IPlayerServiceClient playerServiceClient,
-        IPlayerAdjustBalanceService playerAdjustBalanceService)
-    {
-        _playerServiceClient = playerServiceClient ?? throw new ArgumentNullException(nameof(playerServiceClient));
-        _playerAdjustBalanceService = playerAdjustBalanceService ?? throw new ArgumentNullException(nameof(playerAdjustBalanceService));
-    }
+    private readonly IPlayerAdjustBalanceService _playerAdjustBalanceService = playerAdjustBalanceService ?? throw new ArgumentNullException(nameof(playerAdjustBalanceService));
+    private readonly IPlayerServiceClient _playerServiceClient = playerServiceClient ?? throw new ArgumentNullException(nameof(playerServiceClient));
 
     public async ValueTask ExecuteAsync(AdjustPlayerBalanceCommand command, CancellationToken cancellationToken = default)
     {

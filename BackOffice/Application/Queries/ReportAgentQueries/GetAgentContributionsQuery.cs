@@ -13,13 +13,10 @@ using TGS.Services.BackOffice.Application.Models.ReportAgent;
 namespace TGS.Services.BackOffice.Application.Queries.ReportAgentQueries;
 
 public class
-    GetAgentContributionsQuery : IGetService<GetAgentContributionsReportRequest,
+    GetAgentContributionsQuery(IReportClient reportClient) : IGetService<GetAgentContributionsReportRequest,
         GetAgentContributionsReportResponse>
 {
-    private readonly IReportClient _reportClient;
-
-    public GetAgentContributionsQuery(IReportClient reportClient)
-        => _reportClient = reportClient ?? throw new ArgumentNullException(nameof(reportClient));
+    private readonly IReportClient _reportClient = reportClient ?? throw new ArgumentNullException(nameof(reportClient));
 
     public async ValueTask<GetAgentContributionsReportResponse> GetAsync(GetAgentContributionsReportRequest request,
         CancellationToken cancellationToken = default)
@@ -49,7 +46,7 @@ public class
                 Valid = response.Valid,
                 Message = response.Message,
                 TotalCount = response.TotalCount,
-                Items = Array.Empty<AgentContributionReportModel>(),
+                Items = [],
                 Total = new AgentContributionTotalModel(
                     DepositAmountSummary: 0,
                     DepositHandlingFeeSummary: 0,

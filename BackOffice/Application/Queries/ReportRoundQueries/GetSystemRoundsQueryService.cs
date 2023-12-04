@@ -18,27 +18,19 @@ using TGS.Services.BackOffice.Domain;
 
 namespace TGS.Services.BackOffice.Application.Queries.ReportRoundQueries;
 
-internal class GetSystemRoundsQueryService : IGetService<GetSystemRoundsReportRequest,
+internal class GetSystemRoundsQueryService(IOptions<JsonOptions> jsonOptionsAccessor,
+    IQueryService<GetAllGamesByBrandIdQuery, GameData> gameQueryService,
+    IGetService<GetSystemGameRoundListQuery, Tgs.Report.Client.Models.PagedResponse<SystemRoundModel>> queryService,
+    IJsonSerializationProvider jsonSerializationProvider) : IGetService<GetSystemRoundsReportRequest,
         PagedResponse<SystemRoundView>>
 {
-    private readonly IQueryService<GetAllGamesByBrandIdQuery, GameData> _gameQueryService;
-    private readonly IOptions<JsonOptions> _jsonOptionsAccessor;
-    private readonly IJsonSerializationProvider _jsonSerializationProvider;
+    private readonly IQueryService<GetAllGamesByBrandIdQuery, GameData> _gameQueryService = gameQueryService ?? throw new ArgumentNullException(nameof(gameQueryService));
+    private readonly IOptions<JsonOptions> _jsonOptionsAccessor = jsonOptionsAccessor ?? throw new ArgumentNullException(nameof(jsonOptionsAccessor));
+    private readonly IJsonSerializationProvider _jsonSerializationProvider = jsonSerializationProvider ??
+            throw new ArgumentNullException(nameof(jsonSerializationProvider));
 
     private readonly IGetService<GetSystemGameRoundListQuery, Tgs.Report.Client.Models.PagedResponse<SystemRoundModel>>
-        _queryService;
-
-    public GetSystemRoundsQueryService(IOptions<JsonOptions> jsonOptionsAccessor,
-        IQueryService<GetAllGamesByBrandIdQuery, GameData> gameQueryService,
-        IGetService<GetSystemGameRoundListQuery, Tgs.Report.Client.Models.PagedResponse<SystemRoundModel>> queryService,
-        IJsonSerializationProvider jsonSerializationProvider)
-    {
-        _jsonOptionsAccessor = jsonOptionsAccessor ?? throw new ArgumentNullException(nameof(jsonOptionsAccessor));
-        _gameQueryService = gameQueryService ?? throw new ArgumentNullException(nameof(gameQueryService));
         _queryService = queryService ?? throw new ArgumentNullException(nameof(queryService));
-        _jsonSerializationProvider = jsonSerializationProvider ??
-            throw new ArgumentNullException(nameof(jsonSerializationProvider));
-    }
 
     public async ValueTask<PagedResponse<SystemRoundView>> GetAsync(
         GetSystemRoundsReportRequest request,

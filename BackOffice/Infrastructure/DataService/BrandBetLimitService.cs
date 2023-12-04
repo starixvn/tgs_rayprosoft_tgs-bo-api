@@ -13,12 +13,8 @@ public interface IBrandBetLimitService
         bool tracking = false);
 }
 
-public class BrandBetLimitService : BaseRepositoryOperations<ITgsRepository>, IBrandBetLimitService
+public class BrandBetLimitService(ITgsRepository tgsRepository) : BaseRepositoryOperations<ITgsRepository>(tgsRepository), IBrandBetLimitService
 {
-    public BrandBetLimitService(ITgsRepository tgsRepository) : base(tgsRepository)
-    {
-    }
-
     IQueryable<BrandBetLimit> IBrandBetLimitService.GetBrandBetLimitsQueries(
         Func<IQueryable<BrandBetLimit>, IQueryable<BrandBetLimit>> preQuery,
         bool tracking) =>

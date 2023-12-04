@@ -12,13 +12,10 @@ using TGS.Services.BackOffice.Application.Models.ReportMarket;
 namespace TGS.Services.BackOffice.Application.Queries.ReportMarketQueries;
 
 public class
-    GetMarketsQuery : IGetService<GetMarketsReportRequest,
+    GetMarketsQuery(IReportClient reportClient) : IGetService<GetMarketsReportRequest,
         GetMarketsReportResponse>
 {
-    private readonly IReportClient _reportClient;
-
-    public GetMarketsQuery(IReportClient reportClient)
-        => _reportClient = reportClient ?? throw new ArgumentNullException(nameof(reportClient));
+    private readonly IReportClient _reportClient = reportClient ?? throw new ArgumentNullException(nameof(reportClient));
 
     public async ValueTask<GetMarketsReportResponse> GetAsync(
         GetMarketsReportRequest request,
@@ -45,7 +42,7 @@ public class
                 Valid = response.Valid,
                 Message = response.Message,
                 TotalCount = response.TotalCount,
-                Items = Array.Empty<MarketReportModel>(),
+                Items = [],
                 Total = new MarketReportTotalModel(
                     RegisteredCount: 0,
                     FirstFundInCount: 0,

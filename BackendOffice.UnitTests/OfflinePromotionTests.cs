@@ -52,6 +52,7 @@ internal class OfflinePromotionTests
 
         var sut = new CreateOfflineLoginPromotionCommandService(fakePromotionServiceClient);
 
+        var playerCodes = new[] { "test1", "test2" };
         var command = new CreateOfflineLoginPromotionCommand(
             Guid.NewGuid(),
             "OfflineLogin",
@@ -59,7 +60,7 @@ internal class OfflinePromotionTests
             new OfflineLoginSettings(
                 10M,
                 2M,
-                new[] { "test1", "test2" }),
+                playerCodes),
             "Modifier");
 
         var expectedCreateInfo = new CreatePromotionMainInfo
@@ -99,12 +100,13 @@ internal class OfflinePromotionTests
 
         var sut = new CreateOfflineDepositPromotionCommandService(fakePromotionServiceClient);
 
+        var players = new[] { "test1", "test2" };
         var command = new CreateOfflineDepositPromotionCommand(
             Guid.NewGuid(),
             "OfflineDeposit",
             (DateTime.UtcNow.AddDays(1D), DateTime.UtcNow.AddDays(3D)),
             new OfflineDepositSettings(
-                new[] { "test1", "test2" },
+                players,
                 3M,
                 new OfflineDepositHierarchy(new[] {
                     new OfflineDepositPhase(100M, 20M),
@@ -201,10 +203,11 @@ internal class OfflinePromotionTests
 
         var sut = new SaveOfflineTempUserBatchCommandService(fakeBatchTempRepository);
 
+        var userNames = new[] { "user_name_1", "user_name_2" };
         var command = new SaveOfflineTempUserBatchCommand(
             Guid.NewGuid(),
             null,
-            new[] { "user_name_1", "user_name_2" },
+            userNames,
             Guid.NewGuid());
 
         var batchData = new OfflineTempUserBatch(

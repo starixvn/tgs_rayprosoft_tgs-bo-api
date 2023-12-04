@@ -12,12 +12,9 @@ using TGS.Services.BackOffice.Application.Models.ReportAgent;
 namespace TGS.Services.BackOffice.Application.Queries.ReportAgentQueries;
 
 public class
-    GetMainSubAgentDividendsQuery : IGetService<GetMainSubAgentDividendsReportRequest, GetMainSubAgentDividendsReportResponse>
+    GetMainSubAgentDividendsQuery(IReportClient reportClient) : IGetService<GetMainSubAgentDividendsReportRequest, GetMainSubAgentDividendsReportResponse>
 {
-    private readonly IReportClient _reportClient;
-
-    public GetMainSubAgentDividendsQuery(IReportClient reportClient)
-        => _reportClient = reportClient ?? throw new ArgumentNullException(nameof(reportClient));
+    private readonly IReportClient _reportClient = reportClient ?? throw new ArgumentNullException(nameof(reportClient));
 
     public async ValueTask<GetMainSubAgentDividendsReportResponse> GetAsync(GetMainSubAgentDividendsReportRequest request,
         CancellationToken cancellationToken = default)
@@ -46,9 +43,22 @@ public class
                 Valid = mainResponse.Valid,
                 Message = mainResponse.Message,
                 SubTotalCount = mainResponse.TotalCount,
-                MainItems = Array.Empty<AgentDividendReportModel>(),
-                SubItems = Array.Empty<AgentDividendReportModel>(),
-                SubTotal = new AgentDividendReportTotalModel(0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0)
+                MainItems = [],
+                SubItems = [],
+                SubTotal = new AgentDividendReportTotalModel(
+                    0,
+                    0,
+                    0,
+                    0,
+                    0,
+                    0,
+                    0,
+                    0,
+                    0,
+                    0,
+                    0,
+                    0,
+                    0)
             };
         }
 
@@ -76,9 +86,22 @@ public class
                 Valid = subResponse.Valid,
                 Message = subResponse.Message,
                 SubTotalCount = subResponse.TotalCount,
-                MainItems = Array.Empty<AgentDividendReportModel>(),
-                SubItems = Array.Empty<AgentDividendReportModel>(),
-                SubTotal = new AgentDividendReportTotalModel(0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0)
+                MainItems = [],
+                SubItems = [],
+                SubTotal = new AgentDividendReportTotalModel(
+                    0,
+                    0,
+                    0,
+                    0,
+                    0,
+                    0,
+                    0,
+                    0,
+                    0,
+                    0,
+                    0,
+                    0,
+                    0)
             };
         }
 

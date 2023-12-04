@@ -8,15 +8,10 @@ using TGS.Services.BackOffice.Domain;
 
 namespace TGS.Services.BackOffice.ApplicationServices;
 
-internal class GetAllLocalizationStringsQueryService
-    : IGetService<GetAllLocalizationStringsQuery, IDictionary<string, string>>
+internal class GetAllLocalizationStringsQueryService(IBackOfficeRepository backOfficeRepository)
+        : IGetService<GetAllLocalizationStringsQuery, IDictionary<string, string>>
 {
-    private readonly IBackOfficeRepository _backOfficeRepository;
-
-    public GetAllLocalizationStringsQueryService(IBackOfficeRepository backOfficeRepository)
-    {
-        _backOfficeRepository = backOfficeRepository ?? throw new ArgumentNullException(nameof(backOfficeRepository));
-    }
+    private readonly IBackOfficeRepository _backOfficeRepository = backOfficeRepository ?? throw new ArgumentNullException(nameof(backOfficeRepository));
 
     public async ValueTask<IDictionary<string, string>> GetAsync(
         GetAllLocalizationStringsQuery query,

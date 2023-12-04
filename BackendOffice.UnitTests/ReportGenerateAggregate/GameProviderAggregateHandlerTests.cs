@@ -35,7 +35,7 @@ public class GameProviderAggregateHandlerTests
             UserId = userId
         };
 
-        _ = fakeRedisCacheManager.GetSetAllMembersAsync("aggregate", "GP").Returns(Array.Empty<RedisValue>());
+        _ = fakeRedisCacheManager.GetSetAllMembersAsync("aggregate", "GP").Returns([]);
         _ = fakeGameProviderService.GetGameProviderQueries().Returns(new GameProvider[]
         {
             new() { Id = gameProviderId }
@@ -72,9 +72,8 @@ public class GameProviderAggregateHandlerTests
             UserId = userId
         };
 
-        _ = fakeRedisCacheManager.GetSetAllMembersAsync("aggregate", "GP").Returns(new RedisValue[]
-        { new(gameProviderId.ToString())
-        });
+        _ = fakeRedisCacheManager.GetSetAllMembersAsync("aggregate", "GP")
+            .Returns([new(gameProviderId.ToString())]);
 
         _ = fakeGameProviderService.GetGameProviderQueries().Returns(new GameProvider[]
         {

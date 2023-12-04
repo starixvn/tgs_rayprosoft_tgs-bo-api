@@ -11,19 +11,14 @@ namespace TGS.Apis.BackendOffice.Controllers;
 
 [Route("api/[controller]")]
 [ApiController]
-public class LogController : BaseContextController
+public class LogController(
+    ILogQueries logQueries) : BaseContextController
 {
-    private readonly ILogQueries _logQueries;
-
-    public LogController(
-        ILogQueries logQueries)
-        => _logQueries = logQueries;
-
     [HttpGet("admin/{id:Guid}")]
     [ByPassAdminLog]
     public async Task<LogDetailResponse> GetAdminLogAsync(Guid id)
     {
-        var logDetail = await _logQueries.GetAdminLogAsync(id);
+        var logDetail = await logQueries.GetAdminLogAsync(id);
 
         return new LogDetailResponse
         {
@@ -36,7 +31,7 @@ public class LogController : BaseContextController
     [ByPassAdminLog]
     public async Task<PagedResponse<AdminLogModel>> GetAdminLogsAsync([FromQuery] AdminLogRequest request)
     {
-        var (logs, totalCount) = await _logQueries.GetAdminLogsAsync(request);
+        var (logs, totalCount) = await logQueries.GetAdminLogsAsync(request);
 
         return await logs.CreatePagedResponseAsync(totalCount);
     }
@@ -45,7 +40,7 @@ public class LogController : BaseContextController
     [ByPassAdminLog]
     public async Task<LogDetailResponse> GetApiLogAsync(Guid id)
     {
-        var logDetail = await _logQueries.GetApiLogAsync(id);
+        var logDetail = await logQueries.GetApiLogAsync(id);
 
         return new LogDetailResponse
         {
@@ -58,7 +53,7 @@ public class LogController : BaseContextController
     [ByPassAdminLog]
     public async Task<PagedResponse<ApiLogModel>> GetApiLogsAsync([FromQuery] ApiLogRequest request)
     {
-        var (logs, totalCount) = await _logQueries.GetApiLogsAsync(request);
+        var (logs, totalCount) = await logQueries.GetApiLogsAsync(request);
 
         return await logs.CreatePagedResponseAsync(totalCount);
     }
@@ -67,7 +62,7 @@ public class LogController : BaseContextController
     [ByPassAdminLog]
     public async Task<PagedResponse<LogRecordModel>> GetLogRecordsAsync([FromQuery] LogRecordRequest request)
     {
-        var (logs, totalCount) = await _logQueries.GetLogRecordsAsync(request);
+        var (logs, totalCount) = await logQueries.GetLogRecordsAsync(request);
 
         return await logs.CreatePagedResponseAsync(totalCount);
     }

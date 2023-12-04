@@ -7,18 +7,12 @@ using TGS.Services.BackOffice.Domain;
 
 namespace TGS.Services.BackOffice.Application.Commands.Withdraw;
 
-internal class ReviewWithdrawFormCommandService : ICommandService<ReviewWithdrawFormCommand>
+internal class ReviewWithdrawFormCommandService(
+    IPaymentServiceClient paymentServiceClient,
+    IWalletExchangeService walletExchangeService) : ICommandService<ReviewWithdrawFormCommand>
 {
-    private readonly IPaymentServiceClient _paymentServiceClient;
-    private readonly IWalletExchangeService _walletExchangeService;
-
-    public ReviewWithdrawFormCommandService(
-        IPaymentServiceClient paymentServiceClient,
-        IWalletExchangeService walletExchangeService)
-    {
-        _paymentServiceClient = paymentServiceClient ?? throw new ArgumentNullException(nameof(paymentServiceClient));
-        _walletExchangeService = walletExchangeService ?? throw new ArgumentNullException(nameof(walletExchangeService));
-    }
+    private readonly IPaymentServiceClient _paymentServiceClient = paymentServiceClient ?? throw new ArgumentNullException(nameof(paymentServiceClient));
+    private readonly IWalletExchangeService _walletExchangeService = walletExchangeService ?? throw new ArgumentNullException(nameof(walletExchangeService));
 
     public async ValueTask ExecuteAsync(
         ReviewWithdrawFormCommand command, CancellationToken cancellationToken = default)

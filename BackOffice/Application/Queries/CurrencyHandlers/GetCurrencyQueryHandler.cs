@@ -7,16 +7,10 @@ using TGS.Services.BackOffice.Infrastructure.DataService;
 
 namespace TGS.Services.BackOffice.Application.Queries.CurrencyHandlers;
 
-public class GetCurrencyQueryHandler : Handler<GetCurrencyRequest,
-    GetCurrencyResponse>
+public class GetCurrencyQueryHandler(ICurrencyService service, IHttpContextAccessor accessor) : Handler<GetCurrencyRequest,
+    GetCurrencyResponse>(accessor)
 {
-    private readonly ICurrencyService _service;
-
-    public GetCurrencyQueryHandler(ICurrencyService service, IHttpContextAccessor accessor)
-        : base(accessor)
-    {
-        _service = service;
-    }
+    private readonly ICurrencyService _service = service;
 
     public override async Task<GetCurrencyResponse> Handle(
         GetCurrencyRequest request,

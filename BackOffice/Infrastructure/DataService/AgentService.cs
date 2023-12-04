@@ -43,16 +43,10 @@ public interface IAgentService
     Task UpdateAgentAsync(Agent agent, int nLevel, UpdateAgentRequest request);
 }
 
-public class AgentService : BaseRepositoryOperations<ITgsRepository>, IAgentService
+public class AgentService(ITgsRepository repository, IPasswordHandler passwordHandler) : BaseRepositoryOperations<ITgsRepository>(repository), IAgentService
 {
-    private readonly IPasswordHandler _passwordHandler;
-    private readonly ITgsRepository _repository;
-
-    public AgentService(ITgsRepository repository, IPasswordHandler passwordHandler) : base(repository)
-    {
-        _passwordHandler = passwordHandler;
-        _repository = repository;
-    }
+    private readonly IPasswordHandler _passwordHandler = passwordHandler;
+    private readonly ITgsRepository _repository = repository;
 
     async Task IAgentService.CreateAgentAsync(CreateAgentRequest request, Agent parentAgent)
     {
@@ -102,8 +96,8 @@ public class AgentService : BaseRepositoryOperations<ITgsRepository>, IAgentServ
         var (salt, pwd) = _passwordHandler.GenerateCredential(request.Password);
         agent.Password = pwd;
         agent.Salt = salt;
-        agent.WithdrawPassword = Array.Empty<byte>();
-        agent.WithdrawSalt = Array.Empty<byte>();
+        agent.WithdrawPassword = [];
+        agent.WithdrawSalt = [];
 
         agent.Wallets = new[]
         {
@@ -196,7 +190,7 @@ public class AgentService : BaseRepositoryOperations<ITgsRepository>, IAgentServ
 
             _ = await UpdateSubAgentsPathAsync(agent, nLevel, parentAgent).ConfigureAwait(false);
         }
-        
+
         switch (request.UpdateType)
         {
             case MemberUpdateType.Info:

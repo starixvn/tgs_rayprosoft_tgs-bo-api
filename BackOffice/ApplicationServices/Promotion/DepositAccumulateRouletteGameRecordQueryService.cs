@@ -8,16 +8,11 @@ using Tgs.ServiceUtility;
 
 namespace TGS.Services.BackOffice.ApplicationServices.Promotion;
 
-internal class DepositAccumulateRouletteGameRecordQueryService
-    : IQueryService<DepositAccumulateRouletteGameRecordQuery, RouletteRecord>
+internal class DepositAccumulateRouletteGameRecordQueryService(
+    IDepositAccumulateRouletteServiceClient rouletteServiceClient)
+        : IQueryService<DepositAccumulateRouletteGameRecordQuery, RouletteRecord>
 {
-    private readonly IDepositAccumulateRouletteServiceClient _rouletteServiceClient;
-
-    public DepositAccumulateRouletteGameRecordQueryService(
-        IDepositAccumulateRouletteServiceClient rouletteServiceClient)
-    {
-        _rouletteServiceClient = rouletteServiceClient ?? throw new ArgumentNullException(nameof(rouletteServiceClient));
-    }
+    private readonly IDepositAccumulateRouletteServiceClient _rouletteServiceClient = rouletteServiceClient ?? throw new ArgumentNullException(nameof(rouletteServiceClient));
 
     public IAsyncEnumerable<RouletteRecord> QueryAsync(
         DepositAccumulateRouletteGameRecordQuery query,

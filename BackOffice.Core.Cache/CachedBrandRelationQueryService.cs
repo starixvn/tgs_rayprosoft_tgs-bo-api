@@ -6,23 +6,17 @@ using Tgs.ServiceUtility;
 
 namespace TGS.Services.BackOffice.Cache;
 
-internal class CachedBrandRelationQueryService : 
+internal class CachedBrandRelationQueryService(
+    IQueryService<BrandRelationQuery, BrandRelationInfo> sourceService,
+    IMemoryCache memoryCache) :
     IQueryService<BrandRelationQuery, BrandRelationInfo>,
     IClearBrandRelationCacheService
 {
-    private readonly IQueryService<BrandRelationQuery, BrandRelationInfo> _sourceService;
-    private readonly IMemoryCache _memoryCache;
-
-    public CachedBrandRelationQueryService(
-        IQueryService<BrandRelationQuery, BrandRelationInfo> sourceService,
-        IMemoryCache memoryCache)
-    {
-        _sourceService = sourceService ?? throw new ArgumentNullException(nameof(sourceService));
-        _memoryCache = memoryCache ?? throw new ArgumentNullException(nameof(memoryCache));
-    }
+    private readonly IQueryService<BrandRelationQuery, BrandRelationInfo> _sourceService = sourceService ?? throw new ArgumentNullException(nameof(sourceService));
+    private readonly IMemoryCache _memoryCache = memoryCache ?? throw new ArgumentNullException(nameof(memoryCache));
 
     public async IAsyncEnumerable<BrandRelationInfo> QueryAsync(
-        BrandRelationQuery query, 
+        BrandRelationQuery query,
         [EnumeratorCancellation] CancellationToken cancellationToken = default)
     {
         var key = "Tgs:Brand:Relations";

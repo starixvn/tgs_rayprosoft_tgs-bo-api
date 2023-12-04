@@ -20,19 +20,12 @@ namespace TGS.Apis.BackendOffice.Controllers.GameProvider;
 
 [Route("api/[controller]")]
 [ApiController]
-public partial class GameProviderController : BaseContextController
+public partial class GameProviderController(IMediator mediator) : BaseContextController
 {
-    private readonly IMediator _mediator;
-
-    public GameProviderController(IMediator mediator)
-    {
-        _mediator = mediator;
-    }
-
     [HttpPost]
     [Description("Create a game provider")]
     public Task<MessageResponse> CreateGameProviderAsync(CreateGameProviderRequest request) =>
-        _mediator.Send(request);
+        mediator.Send(request);
 
     [HttpGet("localization/export")]
     [Description("Export game providers localization for example")]
@@ -65,7 +58,7 @@ public partial class GameProviderController : BaseContextController
     [HttpGet("{id}")]
     [Description("Get a game provider")]
     public Task<GetGameProviderResponse> GetGameProviderAsync(Guid id) =>
-        _mediator.Send(new GetGameProviderRequest(id));
+        mediator.Send(new GetGameProviderRequest(id));
 
     [HttpGet("brands")]
     [Description("Get game provider Brands")]
@@ -79,20 +72,20 @@ public partial class GameProviderController : BaseContextController
     [HttpGet]
     [Description("Get game providers")]
     public Task<PagedResponse<GameProviderBaseModel>>
-        GetGameProvidersAsync([FromQuery] GetGameProvidersRequest request) => _mediator.Send(request);
+        GetGameProvidersAsync([FromQuery] GetGameProvidersRequest request) => mediator.Send(request);
 
     [HttpPut("{id}")]
     [Description("Update a game provider")]
     public Task<MessageResponse> UpdateGameProviderAsync(Guid id, UpdateGameProviderRequest request)
     {
         request.Id = id;
-        return _mediator.Send(request);
+        return mediator.Send(request);
     }
 
     [HttpPut("{id:guid}/{status}")]
     [Description("change a game provider status")]
     public Task<MessageResponse> UpdateGameProviderStatusAsync(Guid id, Status status) =>
-        _mediator.Send(new UpdateGameProviderStatusRequest(id, status));
+        mediator.Send(new UpdateGameProviderStatusRequest(id, status));
 
     [HttpPost("localization/upload")]
     [Description("Upload game providers localization file")]

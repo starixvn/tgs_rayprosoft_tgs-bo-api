@@ -14,19 +14,13 @@ using TGS.Services.BackOffice.Domain;
 
 namespace TGS.Services.BackOffice.ApplicationServices.Localization;
 
-internal class ExportLocalizationFileCommandService : IGetService<ExportLocalizationFileCommand, Stream>
+internal class ExportLocalizationFileCommandService(IBackOfficeRepository backOfficeRepository) : IGetService<ExportLocalizationFileCommand, Stream>
 {
     private static readonly EmbeddedFileProvider _EmbeddedFileProvider =
         new(Assembly.GetExecutingAssembly());
 
-    private readonly IBackOfficeRepository _backOfficeRepository;
-    private readonly IFileInfo _templateFileInfo;
-
-    public ExportLocalizationFileCommandService(IBackOfficeRepository backOfficeRepository)
-    {
-        _backOfficeRepository = backOfficeRepository ?? throw new ArgumentNullException(nameof(backOfficeRepository));
-        _templateFileInfo = _EmbeddedFileProvider.GetFileInfo("/Assets/localization_template.xlsx");
-    }
+    private readonly IBackOfficeRepository _backOfficeRepository = backOfficeRepository ?? throw new ArgumentNullException(nameof(backOfficeRepository));
+    private readonly IFileInfo _templateFileInfo = _EmbeddedFileProvider.GetFileInfo("/Assets/localization_template.xlsx");
 
     public async ValueTask<Stream> GetAsync(ExportLocalizationFileCommand query, CancellationToken cancellationToken = default)
     {

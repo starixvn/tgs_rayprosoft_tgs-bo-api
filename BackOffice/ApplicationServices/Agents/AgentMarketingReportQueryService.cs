@@ -6,14 +6,9 @@ using Tgs.ServiceUtility;
 
 namespace TGS.Services.BackOffice.ApplicationServices.Agents;
 
-internal class AgentMarketingReportQueryService : IQueryService<AgentMarketingReportQuery, DailyAggregateInfo>
+internal class AgentMarketingReportQueryService(IMarketingReportClient marketingReportClient) : IQueryService<AgentMarketingReportQuery, DailyAggregateInfo>
 {
-    private readonly IMarketingReportClient _marketingReportClient;
-
-    public AgentMarketingReportQueryService(IMarketingReportClient marketingReportClient)
-    {
-        _marketingReportClient = marketingReportClient ?? throw new ArgumentNullException(nameof(marketingReportClient));
-    }
+    private readonly IMarketingReportClient _marketingReportClient = marketingReportClient ?? throw new ArgumentNullException(nameof(marketingReportClient));
 
     public IAsyncEnumerable<DailyAggregateInfo> QueryAsync(AgentMarketingReportQuery query, CancellationToken cancellationToken = default)
     {

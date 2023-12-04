@@ -11,12 +11,9 @@ using SettlementIntervalType = TGS.Core.Models.Enums.SettlementIntervalType;
 
 namespace TGS.Services.BackOffice.Application.Queries.BrandAllAgentHandlers;
 
-public class GetBrandAllAgentQueryHandler : Handler<GetBrandAllAgentRequest, GetBrandAllAgentResponse>
+public class GetBrandAllAgentQueryHandler(IBrandAllAgentClient client, IHttpContextAccessor accessor) : Handler<GetBrandAllAgentRequest, GetBrandAllAgentResponse>(accessor)
 {
-    private readonly IBrandAllAgentClient _client;
-
-    public GetBrandAllAgentQueryHandler(IBrandAllAgentClient client, IHttpContextAccessor accessor) : base(accessor) =>
-        _client = client;
+    private readonly IBrandAllAgentClient _client = client;
 
     public override async Task<GetBrandAllAgentResponse> Handle(GetBrandAllAgentRequest request,
         CancellationToken cancellationToken)

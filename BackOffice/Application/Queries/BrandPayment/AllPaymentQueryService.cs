@@ -6,14 +6,9 @@ using Tgs.ServiceUtility;
 
 namespace TGS.Services.BackOffice.Application.Queries.BrandPayment;
 
-internal class AllPaymentQueryService : IQueryService<AllPaymentQuery, PaymentInfo>
+internal class AllPaymentQueryService(IPaymentServiceClient paymentServiceClient) : IQueryService<AllPaymentQuery, PaymentInfo>
 {
-    private readonly IPaymentServiceClient _paymentServiceClient;
-
-    public AllPaymentQueryService(IPaymentServiceClient paymentServiceClient)
-    {
-        _paymentServiceClient = paymentServiceClient ?? throw new ArgumentNullException(nameof(paymentServiceClient));
-    }
+    private readonly IPaymentServiceClient _paymentServiceClient = paymentServiceClient ?? throw new ArgumentNullException(nameof(paymentServiceClient));
 
     public IAsyncEnumerable<PaymentInfo> QueryAsync(
         AllPaymentQuery query,

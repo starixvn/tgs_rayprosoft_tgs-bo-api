@@ -11,13 +11,10 @@ using TGS.Services.BackOffice.Application.Models.ReportBrandGameProviderRound;
 namespace TGS.Services.BackOffice.Application.Queries.ReportBrandGameProviderQueries;
 
 public class
-    GetBrandGameProviderRoundsQuery : IGetService<GetBrandGameProviderRoundsReportRequest,
+    GetBrandGameProviderRoundsQuery(IReportClient reportClient) : IGetService<GetBrandGameProviderRoundsReportRequest,
         GetBrandGameProviderRoundsReportResponse>
 {
-    private readonly IReportClient _reportClient;
-
-    public GetBrandGameProviderRoundsQuery(IReportClient reportClient)
-        => _reportClient = reportClient ?? throw new ArgumentNullException(nameof(reportClient));
+    private readonly IReportClient _reportClient = reportClient ?? throw new ArgumentNullException(nameof(reportClient));
 
     public async ValueTask<GetBrandGameProviderRoundsReportResponse> GetAsync(
         GetBrandGameProviderRoundsReportRequest request,

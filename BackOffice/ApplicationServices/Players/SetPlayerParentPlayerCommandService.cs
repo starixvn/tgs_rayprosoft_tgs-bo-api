@@ -10,18 +10,12 @@ using TGS.Core.Infrastructures.Extensions;
 
 namespace TGS.Services.BackOffice.ApplicationServices.Players;
 
-internal class SetPlayerParentPlayerCommandService : IGetService<SetPlayerParentPlayerCommand, SetPlayerParentPlayerInfo>
+internal class SetPlayerParentPlayerCommandService(
+    IPlayerServiceClient playerServiceClient,
+    ITgsRepository repository) : IGetService<SetPlayerParentPlayerCommand, SetPlayerParentPlayerInfo>
 {
-    private readonly IPlayerServiceClient _playerServiceClient;
-    private readonly ITgsRepository _repository;
-
-    public SetPlayerParentPlayerCommandService(
-        IPlayerServiceClient playerServiceClient,
-        ITgsRepository repository)
-    {
-        _playerServiceClient = playerServiceClient ?? throw new ArgumentNullException(nameof(playerServiceClient));
-        _repository = repository ?? throw new ArgumentNullException(nameof(repository));
-    }
+    private readonly IPlayerServiceClient _playerServiceClient = playerServiceClient ?? throw new ArgumentNullException(nameof(playerServiceClient));
+    private readonly ITgsRepository _repository = repository ?? throw new ArgumentNullException(nameof(repository));
 
     public async ValueTask<SetPlayerParentPlayerInfo> GetAsync(SetPlayerParentPlayerCommand query, CancellationToken cancellationToken = default)
     {

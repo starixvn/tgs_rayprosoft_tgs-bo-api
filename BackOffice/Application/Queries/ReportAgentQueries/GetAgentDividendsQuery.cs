@@ -12,12 +12,9 @@ using TGS.Services.BackOffice.Application.Models.ReportAgent;
 namespace TGS.Services.BackOffice.Application.Queries.ReportAgentQueries;
 
 public class
-    GetAgentDividendsQuery : IGetService<GetAgentDividendsReportRequest, GetAgentDividendsReportResponse>
+    GetAgentDividendsQuery(IReportClient reportClient) : IGetService<GetAgentDividendsReportRequest, GetAgentDividendsReportResponse>
 {
-    private readonly IReportClient _reportClient;
-
-    public GetAgentDividendsQuery(IReportClient reportClient)
-        => _reportClient = reportClient ?? throw new ArgumentNullException(nameof(reportClient));
+    private readonly IReportClient _reportClient = reportClient ?? throw new ArgumentNullException(nameof(reportClient));
 
     public async ValueTask<GetAgentDividendsReportResponse> GetAsync(GetAgentDividendsReportRequest request,
         CancellationToken cancellationToken = default)
@@ -46,7 +43,7 @@ public class
                 Valid = response.Valid,
                 Message = response.Message,
                 TotalCount = response.TotalCount,
-                Items = Array.Empty<AgentDividendReportModel>(),
+                Items = [],
                 Total = new AgentDividendReportTotalModel(0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0)
             };
         }

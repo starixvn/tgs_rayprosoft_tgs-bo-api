@@ -32,7 +32,8 @@ public class BrandPaymentControllerTests : BaseTests
         var uploadServiceMock = Substitute.For<IUploadService>();
 
         var controller = new BrandPaymentController(playerQueriesMock, uploadServiceMock, paymentServiceMock,
-            auditLogQueriesMock) { ControllerContext = { HttpContext = HttpContextMock } };
+            auditLogQueriesMock)
+        { ControllerContext = { HttpContext = HttpContextMock } };
 
         var request = new CreateBrandPaymentRequest
         {
@@ -54,9 +55,9 @@ public class BrandPaymentControllerTests : BaseTests
             DepositedAmountUnlimited = true,
             DepositedAmountMin = 0M,
             DepositedAmountMax = 0M,
-            Whitelist = Array.Empty<string>(),
-            Blacklist = Array.Empty<string>(),
-            VipLevelIds = Array.Empty<Guid>()
+            Whitelist = [],
+            Blacklist = [],
+            VipLevelIds = []
         };
 
         _ = paymentServiceMock
@@ -85,7 +86,8 @@ public class BrandPaymentControllerTests : BaseTests
         var uploadServiceMock = Substitute.For<IUploadService>();
 
         var controller = new BrandPaymentController(playerQueriesMock, uploadServiceMock, paymentServiceMock,
-            auditLogQueriesMock) { ControllerContext = { HttpContext = HttpContextMock } };
+            auditLogQueriesMock)
+        { ControllerContext = { HttpContext = HttpContextMock } };
 
         var payment = CreatePaymentFixture().Create<BrandPayment>();
 
@@ -109,9 +111,9 @@ public class BrandPaymentControllerTests : BaseTests
             DepositedAmountUnlimited = true,
             DepositedAmountMin = 0M,
             DepositedAmountMax = 0M,
-            Whitelist = Array.Empty<string>(),
-            Blacklist = Array.Empty<string>(),
-            VipLevelIds = Array.Empty<Guid>()
+            Whitelist = [],
+            Blacklist = [],
+            VipLevelIds = []
         };
 
         _ = paymentServiceMock.GetPaymentAsync(Arg.Any<Expression<Func<BrandPayment, bool>>>(),
@@ -176,7 +178,7 @@ public class BrandPaymentControllerTests : BaseTests
             {
                 "Tester"
             },
-            VipLevelIds = Array.Empty<Guid>()
+            VipLevelIds = []
         };
 
         request.Whitelist[0] = request.Blacklist[0];
@@ -202,7 +204,8 @@ public class BrandPaymentControllerTests : BaseTests
         var uploadServiceMock = Substitute.For<IUploadService>();
 
         var controller = new BrandPaymentController(playerQueriesMock, uploadServiceMock, paymentServiceMock,
-            auditLogQueriesMock) { ControllerContext = { HttpContext = HttpContextMock } };
+            auditLogQueriesMock)
+        { ControllerContext = { HttpContext = HttpContextMock } };
 
         var payment = CreatePaymentFixture().Create<BrandPayment>();
 
@@ -226,9 +229,9 @@ public class BrandPaymentControllerTests : BaseTests
             DepositedAmountUnlimited = true,
             DepositedAmountMin = 0M,
             DepositedAmountMax = 0M,
-            Whitelist = Array.Empty<string>(),
-            Blacklist = Array.Empty<string>(),
-            VipLevelIds = Array.Empty<Guid>()
+            Whitelist = [],
+            Blacklist = [],
+            VipLevelIds = []
         };
 
         _ = paymentServiceMock.GetPaymentAsync(

@@ -10,41 +10,34 @@ namespace TGS.Apis.BackendOffice.Controllers.GameProvider;
 
 [Route("api/[controller]")]
 [ApiController]
-public class GameProviderBetLimitController : BaseContextController
+public class GameProviderBetLimitController(IMediator mediator) : BaseContextController
 {
-    private readonly IMediator _mediator;
-
-    public GameProviderBetLimitController(IMediator mediator)
-    {
-        _mediator = mediator;
-    }
-
     [HttpPost]
     [Description("Create a game provider bet limit")]
     public Task<MessageResponse> CreateGameProviderBetLimitAsync(CreateGameProviderBetLimitRequest request) =>
-        _mediator.Send(request);
+        mediator.Send(request);
 
     [HttpGet("{id}")]
     [Description("Get a game provider bet limit")]
     public Task<GetGameProviderBetLimitResponse> GetGameProviderBetLimitAsync(Guid id) =>
-        _mediator.Send(new GetGameProviderBetLimitRequest(id));
+        mediator.Send(new GetGameProviderBetLimitRequest(id));
 
     [HttpGet]
     [Description("Get game provider bet limits")]
     public Task<GetGameProviderBetLimitsResponse>
         GetGameProviderBetLimitsAsync([FromQuery] GetGameProviderBetLimitsRequest request) =>
-        _mediator.Send(request);
+        mediator.Send(request);
 
     [HttpGet("{id}/InUse")]
     [Description("Get in use brand names")]
     public Task<GetInUseBrandsResponse> GetInUseBrandNamesAsync(Guid id) =>
-        _mediator.Send(new GetInUseBrandsRequest(id));
+        mediator.Send(new GetInUseBrandsRequest(id));
 
     [HttpPut("{id}")]
     [Description("Update a game provider bet limit")]
     public Task<MessageResponse> UpdateGameProviderBetLimitAsync(Guid id, UpdateGameProviderBetLimitRequest request)
     {
         request.Id = id;
-        return _mediator.Send(request);
+        return mediator.Send(request);
     }
 }

@@ -55,7 +55,7 @@ public class DeliveryLetterController : ControllerBase
         {
             Valid = true,
             TotalCount = result.Length,
-            Items = result.Chunk(rows).Skip(page - 1).FirstOrDefault() ?? Array.Empty<DeliveryLetterListItemViewModel>()
+            Items = result.Chunk(rows).Skip(page - 1).FirstOrDefault() ?? []
         };
     }
 

@@ -11,25 +11,16 @@ using TGS.Services.BackOffice.Infrastructure.DataService;
 
 namespace TGS.Services.BackOffice.Application.Commands.GameHandlers;
 
-public class CreateGamesHandler : Handler<CreateGamesRequest, MessageResponse>
+public class CreateGamesHandler(
+    IGameProviderService service,
+    IGameService gameService,
+    ISubGameProviderService subGameProviderService,
+    IHttpContextAccessor accessor) : Handler<CreateGamesRequest, MessageResponse>(accessor)
 {
-    private readonly IGameService _gameService;
-    private readonly IGameProviderService _service;
-    private readonly ISubGameProviderService _subGameProviderService;
-
-    public CreateGamesHandler(IGameProviderService service, IGameService gameService,
-        ISubGameProviderService subGameProviderService,
-        IHttpContextAccessor accessor) : base(accessor)
-    {
-        _service = service;
-        _gameService = gameService;
-        _subGameProviderService = subGameProviderService;
-    }
-
     public override async Task<MessageResponse> Handle(CreateGamesRequest request,
         CancellationToken cancellationToken)
     {
-        var gameProvider = await _service.GetGameProviderAsync(x => x.Id == request.GameProviderId);
+        var gameProvider = await service.GetGameProviderAsync(x => x.Id == request.GameProviderId);
 
         var gameCodesExisted = gameProvider.Games.Select(x => x.Code).Intersect(request.Games.Select(x => x.Code))
             .ToArray();
@@ -58,7 +49,7 @@ public class CreateGamesHandler : Handler<CreateGamesRequest, MessageResponse>
                 games.JoinAsStringByComma()));
         }
 
-        var subGameProviders = await _subGameProviderService
+        var subGameProviders = await subGameProviderService
             .GetSubGameProviderQueries(q => q.Where(x => x.GameProviderId == request.GameProviderId))
             .ToArrayAsync(cancellationToken).ConfigureAwait(false);
 
@@ -69,13 +60,11 @@ public class CreateGamesHandler : Handler<CreateGamesRequest, MessageResponse>
                 .Distinct()
                 .ToArray();
 
-        if (invalidSubGameProviderCode.Any())
-        {
+        if (invalidSubGameProviderCode.Length != 0)
             return CreateInvalidResponse<MessageResponse>(string.Format(GameProvider.InvalidSubGameProviderCode,
                 invalidSubGameProviderCode.JoinAsStringByComma()));
-        }
 
-        await _gameService.CreateGamesAsync(gameProvider, request);
+        await gameService.CreateGamesAsync(gameProvider, request);
 
         return CreateValidResponse<MessageResponse>();
     }

@@ -12,13 +12,10 @@ using TGS.Services.BackOffice.Application.Models.ReportRound;
 namespace TGS.Services.BackOffice.Application.Queries.ReportRoundQueries;
 
 public class
-    GetRoundHistoryQuery : IGetService<GetRoundHistoryReportRequest,
+    GetRoundHistoryQuery(IReportClient reportClient) : IGetService<GetRoundHistoryReportRequest,
         JsonDocument?>
 {
-    private readonly IReportClient _reportClient;
-
-    public GetRoundHistoryQuery(IReportClient reportClient)
-        => _reportClient = reportClient ?? throw new ArgumentNullException(nameof(reportClient));
+    private readonly IReportClient _reportClient = reportClient ?? throw new ArgumentNullException(nameof(reportClient));
 
     public async ValueTask<JsonDocument?> GetAsync(
         GetRoundHistoryReportRequest request,

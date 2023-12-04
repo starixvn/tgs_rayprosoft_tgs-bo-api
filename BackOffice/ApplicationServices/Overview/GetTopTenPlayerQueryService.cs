@@ -14,24 +14,17 @@ using TGS.Services.BackOffice.Domain.Enums;
 
 namespace TGS.Services.BackOffice.ApplicationServices.Overview;
 
-internal class GetTopTenPlayerQueryService : IQueryService<GetTopTenPlayerQuery, TopTenPlayerInfo>
+internal class GetTopTenPlayerQueryService(
+    IPaymentServiceClient paymentServiceClient,
+    IBrandServiceClient brandServiceClient,
+    IGameWagersClient gameWagersClient,
+    IPlayerServiceClient playerServiceClient)
+    : IQueryService<GetTopTenPlayerQuery, TopTenPlayerInfo>
 {
-    private readonly IBrandServiceClient _brandServiceClient;
-    private readonly IGameWagersClient _gameWagersClient;
-    private readonly IPaymentServiceClient _paymentServiceClient;
-    private readonly IPlayerServiceClient _playerServiceClient;
-
-    public GetTopTenPlayerQueryService(
-        IPaymentServiceClient paymentServiceClient,
-        IBrandServiceClient brandServiceClient,
-        IGameWagersClient gameWagersClient,
-        IPlayerServiceClient playerServiceClient)
-    {
-        _paymentServiceClient = paymentServiceClient ?? throw new ArgumentNullException(nameof(paymentServiceClient));
-        _brandServiceClient = brandServiceClient ?? throw new ArgumentNullException(nameof(brandServiceClient));
-        _gameWagersClient = gameWagersClient ?? throw new ArgumentNullException(nameof(gameWagersClient));
-        _playerServiceClient = playerServiceClient ?? throw new ArgumentNullException(nameof(playerServiceClient));
-    }
+    private readonly IBrandServiceClient _brandServiceClient = brandServiceClient ?? throw new ArgumentNullException(nameof(brandServiceClient));
+    private readonly IGameWagersClient _gameWagersClient = gameWagersClient ?? throw new ArgumentNullException(nameof(gameWagersClient));
+    private readonly IPaymentServiceClient _paymentServiceClient = paymentServiceClient ?? throw new ArgumentNullException(nameof(paymentServiceClient));
+    private readonly IPlayerServiceClient _playerServiceClient = playerServiceClient ?? throw new ArgumentNullException(nameof(playerServiceClient));
 
     public async IAsyncEnumerable<TopTenPlayerInfo> QueryAsync(GetTopTenPlayerQuery query, [EnumeratorCancellation] CancellationToken cancellationToken = default)
     {
@@ -50,7 +43,7 @@ internal class GetTopTenPlayerQueryService : IQueryService<GetTopTenPlayerQuery,
                     .ToArrayAsync(cancellationToken)
                     .ConfigureAwait(false);
 
-                if (!topTenDeposits.Any())
+                if (topTenDeposits.Length == 0)
                     yield break;
 
                 var playerCodes = topTenDeposits.Select(t => t.PlayerCode).ToArray();
@@ -90,7 +83,7 @@ internal class GetTopTenPlayerQueryService : IQueryService<GetTopTenPlayerQuery,
                     .ToArrayAsync(cancellationToken)
                     .ConfigureAwait(false);
 
-                if (!topTenWithdraws.Any())
+                if (topTenWithdraws.Length == 0)
                     yield break;
 
                 playerCodes = topTenWithdraws.Select(t => t.PlayerCode).ToArray();
@@ -138,7 +131,7 @@ internal class GetTopTenPlayerQueryService : IQueryService<GetTopTenPlayerQuery,
                     .ToArrayAsync(cancellationToken)
                     .ConfigureAwait(false);
 
-                if (!topTenBets.Any())
+                if (topTenBets.Length == 0)
                     yield break;
 
                 playerCodes = topTenBets.Select(x => x.PlayerCode).ToArray();
@@ -186,7 +179,7 @@ internal class GetTopTenPlayerQueryService : IQueryService<GetTopTenPlayerQuery,
                     .ToArrayAsync(cancellationToken)
                     .ConfigureAwait(false);
 
-                if (!topTenSettle.Any())
+                if (topTenSettle.Length == 0)
                     yield break;
 
                 playerCodes = topTenSettle.Select(x => x.PlayerCode).ToArray();
@@ -235,7 +228,7 @@ internal class GetTopTenPlayerQueryService : IQueryService<GetTopTenPlayerQuery,
                     .ToArrayAsync(cancellationToken)
                     .ConfigureAwait(false);
 
-                if (!topTenWinLoss.Any())
+                if (topTenWinLoss.Length == 0)
                     yield break;
 
                 playerCodes = topTenWinLoss.Select(x => x.PlayerCode).ToArray();

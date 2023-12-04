@@ -10,32 +10,21 @@ using TGS.Services.BackOffice.Infrastructure.DataService;
 
 namespace TGS.Services.BackOffice.Application.Queries.BrandHandlers;
 
-public class GetBrandQueryHandler : Handler<GetBrandRequest, GetBrandResponse>
+public class GetBrandQueryHandler(IBrandService service, IBrandGameProviderService brandGameProviderService,
+    IBrandCurrencyService brandCurrencyService,
+    IBrandLanguageService brandLanguageService,
+    IBrandGameService brandGameService,
+    IBrandBetLimitService brandBetLimitService,
+    IBrandGroupService brandGroupService,
+    IHttpContextAccessor accessor) : Handler<GetBrandRequest, GetBrandResponse>(accessor)
 {
-    private readonly IBrandBetLimitService _brandBetLimitService;
-    private readonly IBrandCurrencyService _brandCurrencyService;
-    private readonly IBrandGameProviderService _brandGameProviderService;
-    private readonly IBrandGameService _brandGameService;
-    private readonly IBrandGroupService _brandGroupService;
-    private readonly IBrandLanguageService _brandLanguageService;
-    private readonly IBrandService _service;
-
-    public GetBrandQueryHandler(IBrandService service, IBrandGameProviderService brandGameProviderService,
-        IBrandCurrencyService brandCurrencyService,
-        IBrandLanguageService brandLanguageService,
-        IBrandGameService brandGameService,
-        IBrandBetLimitService brandBetLimitService,
-        IBrandGroupService brandGroupService,
-        IHttpContextAccessor accessor) : base(accessor)
-    {
-        _service = service;
-        _brandGameProviderService = brandGameProviderService;
-        _brandCurrencyService = brandCurrencyService;
-        _brandLanguageService = brandLanguageService;
-        _brandGameService = brandGameService;
-        _brandBetLimitService = brandBetLimitService;
-        _brandGroupService = brandGroupService;
-    }
+    private readonly IBrandBetLimitService _brandBetLimitService = brandBetLimitService;
+    private readonly IBrandCurrencyService _brandCurrencyService = brandCurrencyService;
+    private readonly IBrandGameProviderService _brandGameProviderService = brandGameProviderService;
+    private readonly IBrandGameService _brandGameService = brandGameService;
+    private readonly IBrandGroupService _brandGroupService = brandGroupService;
+    private readonly IBrandLanguageService _brandLanguageService = brandLanguageService;
+    private readonly IBrandService _service = service;
 
     public override async Task<GetBrandResponse> Handle(GetBrandRequest request,
         CancellationToken cancellationToken)

@@ -11,30 +11,20 @@ using BucketType = Tgs.Service.PlayerBuckets.BucketType;
 
 namespace TGS.Services.BackOffice.Domain;
 
-internal class PlayerAdjustBalanceService : IPlayerAdjustBalanceService
+internal class PlayerAdjustBalanceService(
+    IBackOfficeRepository backOfficeRepository,
+    ICashServiceClient cashServiceClient,
+    IPlayerBucketClient playerBucketClient,
+    ISerialNumberGenerator serialNumberGenerator,
+    IAgentWalletRepository agentWalletRepository,
+    IPlayerBucketForTypesClient playerBucketForTypesClient) : IPlayerAdjustBalanceService
 {
-    private readonly IAgentWalletRepository _agentWalletRepository;
-    private readonly IPlayerBucketForTypesClient _playerBucketForTypesClient;
-    private readonly IBackOfficeRepository _backOfficeRepository;
-    private readonly ICashServiceClient _cashServiceClient;
-    private readonly IPlayerBucketClient _playerBucketClient;
-    private readonly ISerialNumberGenerator _serialNumberGenerator;
-
-    public PlayerAdjustBalanceService(
-        IBackOfficeRepository backOfficeRepository,
-        ICashServiceClient cashServiceClient,
-        IPlayerBucketClient playerBucketClient,
-        ISerialNumberGenerator serialNumberGenerator,
-        IAgentWalletRepository agentWalletRepository,
-        IPlayerBucketForTypesClient playerBucketForTypesClient)
-    {
-        _backOfficeRepository = backOfficeRepository ?? throw new ArgumentNullException(nameof(backOfficeRepository));
-        _cashServiceClient = cashServiceClient ?? throw new ArgumentNullException(nameof(cashServiceClient));
-        _playerBucketClient = playerBucketClient ?? throw new ArgumentNullException(nameof(playerBucketClient));
-        _serialNumberGenerator = serialNumberGenerator ?? throw new ArgumentNullException(nameof(serialNumberGenerator));
-        _agentWalletRepository = agentWalletRepository ?? throw new ArgumentNullException(nameof(agentWalletRepository));
-        _playerBucketForTypesClient = playerBucketForTypesClient ?? throw new ArgumentNullException(nameof(playerBucketForTypesClient));
-    }
+    private readonly IAgentWalletRepository _agentWalletRepository = agentWalletRepository ?? throw new ArgumentNullException(nameof(agentWalletRepository));
+    private readonly IPlayerBucketForTypesClient _playerBucketForTypesClient = playerBucketForTypesClient ?? throw new ArgumentNullException(nameof(playerBucketForTypesClient));
+    private readonly IBackOfficeRepository _backOfficeRepository = backOfficeRepository ?? throw new ArgumentNullException(nameof(backOfficeRepository));
+    private readonly ICashServiceClient _cashServiceClient = cashServiceClient ?? throw new ArgumentNullException(nameof(cashServiceClient));
+    private readonly IPlayerBucketClient _playerBucketClient = playerBucketClient ?? throw new ArgumentNullException(nameof(playerBucketClient));
+    private readonly ISerialNumberGenerator _serialNumberGenerator = serialNumberGenerator ?? throw new ArgumentNullException(nameof(serialNumberGenerator));
 
     public async ValueTask ProcessAdjustApplyAsync(
         PlayerBalanceAdjustmentApplyInfo applyInfo,

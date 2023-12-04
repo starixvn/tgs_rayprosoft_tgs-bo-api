@@ -15,14 +15,9 @@ namespace TGS.Apis.BackendOffice.Controllers;
 
 [Route("api/player/wallet")]
 [ApiController]
-public class PlayerWalletAdjustController : BaseContextController
+public class PlayerWalletAdjustController(ILogger<PlayerWalletAdjustController> logger) : BaseContextController
 {
-    private readonly ILogger<PlayerWalletAdjustController> _logger;
-
-    public PlayerWalletAdjustController(ILogger<PlayerWalletAdjustController> logger)
-    {
-        _logger = logger ?? throw new ArgumentNullException(nameof(logger));
-    }
+    private readonly ILogger<PlayerWalletAdjustController> _logger = logger ?? throw new ArgumentNullException(nameof(logger));
 
     [HttpPut("locked/{playerCode}", Name = "AdjustPlayerLockedAmount")]
     public ValueTask AdjustLockedAmountAsync(

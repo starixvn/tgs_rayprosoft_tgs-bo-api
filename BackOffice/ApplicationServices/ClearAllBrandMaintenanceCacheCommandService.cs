@@ -11,18 +11,12 @@ using Valhalla.MessageQueue;
 
 namespace TGS.Services.BackOffice.ApplicationServices;
 
-internal class ClearAllBrandMaintenanceCacheCommandService : ICommandService<ClearAllBrandMaintenanceCacheCommand>
+internal class ClearAllBrandMaintenanceCacheCommandService(
+    IBrandService brandService,
+    IMessageSender messageSender) : ICommandService<ClearAllBrandMaintenanceCacheCommand>
 {
-    private readonly IBrandService _brandService;
-    private readonly IMessageSender _messageSender;
-
-    public ClearAllBrandMaintenanceCacheCommandService(
-        IBrandService brandService,
-        IMessageSender messageSender)
-    {
-        _brandService = brandService ?? throw new ArgumentNullException(nameof(brandService));
-        _messageSender = messageSender ?? throw new ArgumentNullException(nameof(messageSender));
-    }
+    private readonly IBrandService _brandService = brandService ?? throw new ArgumentNullException(nameof(brandService));
+    private readonly IMessageSender _messageSender = messageSender ?? throw new ArgumentNullException(nameof(messageSender));
 
     public async ValueTask ExecuteAsync(ClearAllBrandMaintenanceCacheCommand command, CancellationToken cancellationToken = default)
     {

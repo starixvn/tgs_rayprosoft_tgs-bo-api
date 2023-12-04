@@ -10,15 +10,9 @@ using TGS.Services.BackOffice.Infrastructure.DataService;
 
 namespace TGS.Services.BackOffice.Application.Queries.PlatformCreditHandlers;
 
-public class GetPlatformCreditsQueryHandler : Handler<GetPlatformCreditsRequest, PagedResponse<PlatformCreditModel>>
+public class GetPlatformCreditsQueryHandler(IPlatformCreditService service, IHttpContextAccessor accessor) : Handler<GetPlatformCreditsRequest, PagedResponse<PlatformCreditModel>>(accessor)
 {
-    private readonly IPlatformCreditService _service;
-
-    public GetPlatformCreditsQueryHandler(IPlatformCreditService service, IHttpContextAccessor accessor)
-        : base(accessor)
-    {
-        _service = service;
-    }
+    private readonly IPlatformCreditService _service = service;
 
     public override Task<PagedResponse<PlatformCreditModel>> Handle(GetPlatformCreditsRequest request,
         CancellationToken cancellationToken) =>

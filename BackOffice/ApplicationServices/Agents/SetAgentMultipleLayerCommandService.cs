@@ -16,18 +16,13 @@ using TGS.Core.Models.Enums;
 
 namespace TGS.Services.BackOffice.ApplicationServices.Agents;
 
-internal class SetAgentMultipleLayerCommandService : IGetService<SetAgentMultipleLayerCommand, SetAgentMultipleLayerResult>
+internal class SetAgentMultipleLayerCommandService(
+    IAgentClient agentClient,
+    ITgsRepository repository)
+    : IGetService<SetAgentMultipleLayerCommand, SetAgentMultipleLayerResult>
 {
-    private readonly IAgentClient _agentClient;
-    private readonly ITgsRepository _repository;
-
-    public SetAgentMultipleLayerCommandService(
-        IAgentClient agentClient,
-        ITgsRepository repository)
-    {
-        _agentClient = agentClient ?? throw new ArgumentNullException(nameof(agentClient));
-        _repository = repository ?? throw new ArgumentNullException(nameof(repository));
-    }
+    private readonly IAgentClient _agentClient = agentClient ?? throw new ArgumentNullException(nameof(agentClient));
+    private readonly ITgsRepository _repository = repository ?? throw new ArgumentNullException(nameof(repository));
 
     public async ValueTask<SetAgentMultipleLayerResult> GetAsync(SetAgentMultipleLayerCommand command, CancellationToken cancellationToken = default)
     {

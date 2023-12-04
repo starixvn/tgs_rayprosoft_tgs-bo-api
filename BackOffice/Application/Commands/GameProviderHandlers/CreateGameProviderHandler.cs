@@ -8,14 +8,9 @@ using TGS.Services.BackOffice.Infrastructure.DataService;
 
 namespace TGS.Services.BackOffice.Application.Commands.GameProviderHandlers;
 
-public class CreateGameProviderHandler : Handler<CreateGameProviderRequest, MessageResponse>
+public class CreateGameProviderHandler(IGameProviderService service, IHttpContextAccessor accessor) : Handler<CreateGameProviderRequest, MessageResponse>(accessor)
 {
-    private readonly IGameProviderService _service;
-
-    public CreateGameProviderHandler(IGameProviderService service, IHttpContextAccessor accessor) : base(accessor)
-    {
-        _service = service;
-    }
+    private readonly IGameProviderService _service = service;
 
     public override async Task<MessageResponse> Handle(CreateGameProviderRequest request,
         CancellationToken cancellationToken)

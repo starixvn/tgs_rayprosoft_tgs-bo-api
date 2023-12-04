@@ -8,7 +8,7 @@ using System.Text.Json;
 namespace TGS.Services.BackOffice.Domain;
 public record BackOfficeNotifyEvent
 {
-    private readonly NameValueCollection _tags = new();
+    private readonly NameValueCollection _tags = [];
 
     public JsonDocument Body { get; private set; }
 

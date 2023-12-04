@@ -3,12 +3,7 @@ using MediatR;
 
 namespace TGS.Services.BackOffice.Application.Models.BrandGameProviderSchedule;
 
-public class GetDefaultTimesRequest : IRequest<GetDefaultTimesResponse>
+public class GetDefaultTimesRequest(Guid id) : IRequest<GetDefaultTimesResponse>
 {
-    public Guid BrandGameProviderId { get; set; }
-
-    public GetDefaultTimesRequest(Guid id)
-    {
-        BrandGameProviderId = id;
-    }
+    public Guid BrandGameProviderId { get; set; } = id;
 }

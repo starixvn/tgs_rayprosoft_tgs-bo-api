@@ -29,13 +29,8 @@ public interface IAgentBankService
     Task UpdateAgentBankAsync(AgentBank agentBank, UpdateAgentBankRequest request);
 }
 
-public class AgentBankService : BaseRepositoryOperations<ITgsRepository>, IAgentBankService
+public class AgentBankService(ITgsRepository repository) : BaseRepositoryOperations<ITgsRepository>(repository), IAgentBankService
 {
-    public AgentBankService(ITgsRepository repository)
-        : base(repository)
-    {
-    }
-
     async Task IAgentBankService.CreateAgentBankAsync(CreateAgentBankRequest request)
     {
         var agentBank = new AgentBank

@@ -6,16 +6,10 @@ using TGS.Services.BackOffice.ApplicationServices.Agents;
 
 namespace TGS.Services.BackOffice.Cache;
 
-internal class CachedAgentMarketingReportQueryService : IQueryService<AgentMarketingReportQuery, DailyAggregateInfo>
+internal class CachedAgentMarketingReportQueryService(IQueryService<AgentMarketingReportQuery, DailyAggregateInfo> sourceService, IMemoryCache memoryCache) : IQueryService<AgentMarketingReportQuery, DailyAggregateInfo>
 {
-    private readonly IMemoryCache _memoryCache;
-    private readonly IQueryService<AgentMarketingReportQuery, DailyAggregateInfo> _sourceService;
-
-    public CachedAgentMarketingReportQueryService(IQueryService<AgentMarketingReportQuery, DailyAggregateInfo> sourceService, IMemoryCache memoryCache)
-    {
-        _sourceService = sourceService ?? throw new ArgumentNullException(nameof(sourceService));
-        _memoryCache = memoryCache ?? throw new ArgumentNullException(nameof(memoryCache));
-    }
+    private readonly IMemoryCache _memoryCache = memoryCache ?? throw new ArgumentNullException(nameof(memoryCache));
+    private readonly IQueryService<AgentMarketingReportQuery, DailyAggregateInfo> _sourceService = sourceService ?? throw new ArgumentNullException(nameof(sourceService));
 
     public async IAsyncEnumerable<DailyAggregateInfo> QueryAsync(
         AgentMarketingReportQuery query,

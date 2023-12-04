@@ -10,31 +10,24 @@ namespace TGS.Apis.BackendOffice.Controllers.GameProvider;
 
 [Route("api/[controller]")]
 [ApiController]
-public class GameProviderConfigurationController : BaseContextController
+public class GameProviderConfigurationController(IMediator mediator) : BaseContextController
 {
-    private readonly IMediator _mediator;
-
-    public GameProviderConfigurationController(IMediator mediator)
-    {
-        _mediator = mediator;
-    }
-
     [HttpPost]
     [Description("Create a game provider configuration")]
     public Task<MessageResponse> CreateGameProviderConfigurationAsync(
         CreateGameProviderConfigurationRequest request) =>
-        _mediator.Send(request);
+        mediator.Send(request);
 
     [HttpGet("{id}")]
     [Description("Get a game provider configuration")]
     public Task<GetGameProviderConfigurationResponse> GetGameProviderConfigurationAsync(Guid id) =>
-        _mediator.Send(new GetGameProviderConfigurationRequest(id));
+        mediator.Send(new GetGameProviderConfigurationRequest(id));
 
     [HttpGet]
     [Description("Get game provider configurations")]
     public Task<PagedResponse<GameProviderConfigurationModel>>
         GetGameProviderConfigurationsAsync([FromQuery] GetGameProviderConfigurationsRequest request) =>
-        _mediator.Send(request);
+        mediator.Send(request);
 
     [HttpPut("{id}")]
     [Description("Update a game provider configuration")]
@@ -42,6 +35,6 @@ public class GameProviderConfigurationController : BaseContextController
         UpdateGameProviderConfigurationRequest request)
     {
         request.Id = id;
-        return _mediator.Send(request);
+        return mediator.Send(request);
     }
 }

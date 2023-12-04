@@ -10,18 +10,12 @@ using Valhalla.MessageQueue;
 
 namespace TGS.Apis.BackendOffice.MessageQueue;
 
-public class AutoApproveDepositProcessor : IMessageHandler
+public class AutoApproveDepositProcessor(
+    ICommandService<ReviewDepositFormCommand> reviewCommandService,
+    ILogger<AutoApproveDepositProcessor> logger) : IMessageHandler
 {
-    private readonly ILogger<AutoApproveDepositProcessor> _logger;
-    private readonly ICommandService<ReviewDepositFormCommand> _reviewCommandService;
-
-    public AutoApproveDepositProcessor(
-        ICommandService<ReviewDepositFormCommand> reviewCommandService,
-        ILogger<AutoApproveDepositProcessor> logger)
-    {
-        _reviewCommandService = reviewCommandService ?? throw new ArgumentNullException(nameof(reviewCommandService));
-        _logger = logger ?? throw new ArgumentNullException(nameof(logger));
-    }
+    private readonly ILogger<AutoApproveDepositProcessor> _logger = logger ?? throw new ArgumentNullException(nameof(logger));
+    private readonly ICommandService<ReviewDepositFormCommand> _reviewCommandService = reviewCommandService ?? throw new ArgumentNullException(nameof(reviewCommandService));
 
     public async ValueTask HandleAsync(ReadOnlyMemory<byte> data, CancellationToken cancellationToken)
     {

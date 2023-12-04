@@ -9,15 +9,11 @@ using TGS.Services.BackOffice.Infrastructure.DataService;
 
 namespace TGS.Services.BackOffice.Application.Queries.BrandAgentDividendHandlers;
 
-public class GetBrandAgentDividendConditionsQueryHandler : Handler<GetBrandAgentDividendConditionsRequest,
-    PagedResponse<BrandAgentDividendConditionModel>>
+public class GetBrandAgentDividendConditionsQueryHandler(IBrandAgentDividendConditionService service,
+    IHttpContextAccessor accessor) : Handler<GetBrandAgentDividendConditionsRequest,
+    PagedResponse<BrandAgentDividendConditionModel>>(accessor)
 {
-    private readonly IBrandAgentDividendConditionService _service;
-
-    public GetBrandAgentDividendConditionsQueryHandler(IBrandAgentDividendConditionService service,
-        IHttpContextAccessor accessor)
-        : base(accessor)
-        => _service = service;
+    private readonly IBrandAgentDividendConditionService _service = service;
 
     public override Task<PagedResponse<BrandAgentDividendConditionModel>> Handle(
         GetBrandAgentDividendConditionsRequest request,

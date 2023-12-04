@@ -13,15 +13,10 @@ using TGS.Core.Models.Enums;
 
 namespace TGS.Services.BackOffice.ApplicationServices;
 
-internal class GetUsersQueryService : IQueryService<GetUsersQuery, UserInfo>,
+internal class GetUsersQueryService(ITgsQueries<User> userQueries) : IQueryService<GetUsersQuery, UserInfo>,
     IGetService<GetUsersQuery, int>
 {
-    private readonly ITgsQueries<User> _userQueries;
-
-    public GetUsersQueryService(ITgsQueries<User> userQueries)
-    {
-        _userQueries = userQueries ?? throw new ArgumentNullException(nameof(userQueries));
-    }
+    private readonly ITgsQueries<User> _userQueries = userQueries ?? throw new ArgumentNullException(nameof(userQueries));
 
     public ValueTask<int> GetAsync(GetUsersQuery query, CancellationToken cancellationToken = default)
     {

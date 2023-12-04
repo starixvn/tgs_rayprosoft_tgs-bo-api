@@ -10,13 +10,10 @@ using TGS.Services.BackOffice.Application.Models.ReportPlayer;
 
 namespace TGS.Services.BackOffice.Application.Queries.ReportPlayerQueries;
 
-public class GetPlayerContributionsQuery
-    : IGetService<GetPlayerContributionsReportRequest, GetPlayerContributionsReportResponse>
+public class GetPlayerContributionsQuery(IReportClient reportClient)
+        : IGetService<GetPlayerContributionsReportRequest, GetPlayerContributionsReportResponse>
 {
-    private readonly IReportClient _reportClient;
-
-    public GetPlayerContributionsQuery(IReportClient reportClient)
-        => _reportClient = reportClient ?? throw new ArgumentNullException(nameof(reportClient));
+    private readonly IReportClient _reportClient = reportClient ?? throw new ArgumentNullException(nameof(reportClient));
 
     public async ValueTask<GetPlayerContributionsReportResponse> GetAsync(
         GetPlayerContributionsReportRequest request,
@@ -46,7 +43,7 @@ public class GetPlayerContributionsQuery
                 Valid = response.Valid,
                 Message = response.Message,
                 TotalCount = response.TotalCount,
-                Items = Array.Empty<PlayerContributionReportModel>(),
+                Items = [],
                 Total = new PlayerContributionReportTotalModel(
                     DepositAmountSummary: 0,
                     DepositHandlingFeeSummary: 0,

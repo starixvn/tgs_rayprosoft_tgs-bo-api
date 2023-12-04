@@ -7,14 +7,9 @@ using Tgs.ServiceUtility;
 
 namespace TGS.Services.BackOffice.ApplicationServices.Adjust;
 
-internal class AdjustSummariesQueryService : IQueryService<AdjustSummariesQuery, AdjustSummaryListItem>
+internal class AdjustSummariesQueryService(ICashQueryClient cashQueryClient) : IQueryService<AdjustSummariesQuery, AdjustSummaryListItem>
 {
-    private readonly ICashQueryClient _cashQueryClient;
-
-    public AdjustSummariesQueryService(ICashQueryClient cashQueryClient)
-    {
-        _cashQueryClient = cashQueryClient ?? throw new ArgumentNullException(nameof(cashQueryClient));
-    }
+    private readonly ICashQueryClient _cashQueryClient = cashQueryClient ?? throw new ArgumentNullException(nameof(cashQueryClient));
 
     public IAsyncEnumerable<AdjustSummaryListItem> QueryAsync(
         AdjustSummariesQuery query,

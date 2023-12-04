@@ -7,15 +7,10 @@ using Tgs.ServiceUtility;
 
 namespace TGS.Services.BackOffice.ApplicationServices.Promotion;
 
-internal class GetPromotionMainInfoQueryService : IGetService<GetPromotionMainInfoQuery, PromotionMainInfo?>
+internal class GetPromotionMainInfoQueryService(
+    IPromotionServiceClient promotionServiceClient) : IGetService<GetPromotionMainInfoQuery, PromotionMainInfo?>
 {
-    private readonly IPromotionServiceClient _promotionServiceClient;
-
-    public GetPromotionMainInfoQueryService(
-        IPromotionServiceClient promotionServiceClient)
-    {
-        _promotionServiceClient = promotionServiceClient ?? throw new ArgumentNullException(nameof(promotionServiceClient));
-    }
+    private readonly IPromotionServiceClient _promotionServiceClient = promotionServiceClient ?? throw new ArgumentNullException(nameof(promotionServiceClient));
 
     public ValueTask<PromotionMainInfo?> GetAsync(
         GetPromotionMainInfoQuery query,

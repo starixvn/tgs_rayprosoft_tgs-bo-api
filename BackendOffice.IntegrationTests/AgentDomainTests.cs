@@ -9,16 +9,10 @@ using Xunit.Abstractions;
 
 namespace BackendOffice.IntegrationTests;
 
-public class AgentDomainTests
+public class AgentDomainTests(ITestOutputHelper testOutputHelper, NodeJsFixture nodeJsFixture)
 {
-    private readonly ITestOutputHelper _testOutputHelper;
-    private readonly NodeJsFixture _nodeJsFixture;
-
-    public AgentDomainTests(ITestOutputHelper testOutputHelper, NodeJsFixture nodeJsFixture)
-    {
-        _testOutputHelper = testOutputHelper ?? throw new ArgumentNullException(nameof(testOutputHelper));
-        _nodeJsFixture = nodeJsFixture ?? throw new ArgumentNullException(nameof(nodeJsFixture));
-    }
+    private readonly ITestOutputHelper _testOutputHelper = testOutputHelper ?? throw new ArgumentNullException(nameof(testOutputHelper));
+    private readonly NodeJsFixture _nodeJsFixture = nodeJsFixture ?? throw new ArgumentNullException(nameof(nodeJsFixture));
 
     [Fact]
     public async Task 取得代理域名列表()
@@ -53,11 +47,9 @@ public class AgentDomainTests
         var expected = new ResponseViewModel<string[]>
         {
             Valid = true,
-            Data = new[]
-            {
+            Data = [
                 "test.com",
-                "test1.com"
-            }
+                "test1.com"]
         };
 
         _ = fakeAgentRepository.QueryDomainsFromAgentAsync(Arg.Is(agentId))

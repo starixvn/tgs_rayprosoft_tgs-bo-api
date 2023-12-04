@@ -7,15 +7,11 @@ using Tgs.ServiceUtility;
 
 namespace TGS.Services.BackOffice.ApplicationServices.Agents;
 
-internal class SetAgentPasswordCommandService : IGetService<SetAgentPasswordCommand, SetAgentPasswordResult>
+internal class SetAgentPasswordCommandService(
+    IAgentClient agentClient)
+    : IGetService<SetAgentPasswordCommand, SetAgentPasswordResult>
 {
-    private readonly IAgentClient _agentClient;
-
-    public SetAgentPasswordCommandService(
-        IAgentClient agentClient)
-    {
-        _agentClient = agentClient ?? throw new ArgumentNullException(nameof(agentClient));
-    }
+    private readonly IAgentClient _agentClient = agentClient ?? throw new ArgumentNullException(nameof(agentClient));
 
     public async ValueTask<SetAgentPasswordResult> GetAsync(SetAgentPasswordCommand command, CancellationToken cancellationToken = default)
     {

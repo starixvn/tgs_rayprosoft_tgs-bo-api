@@ -8,14 +8,9 @@ using Tgs.ServiceUtility;
 
 namespace TGS.Services.BackOffice.ApplicationServices.Promotion.Offline;
 
-internal class CreateOfflineDepositPromotionCommandService : ICommandService<CreateOfflineDepositPromotionCommand>
+internal class CreateOfflineDepositPromotionCommandService(IPromotionServiceClient promotionServiceClient) : ICommandService<CreateOfflineDepositPromotionCommand>
 {
-    private readonly IPromotionServiceClient _promotionServiceClient;
-
-    public CreateOfflineDepositPromotionCommandService(IPromotionServiceClient promotionServiceClient)
-    {
-        _promotionServiceClient = promotionServiceClient ?? throw new ArgumentNullException(nameof(promotionServiceClient));
-    }
+    private readonly IPromotionServiceClient _promotionServiceClient = promotionServiceClient ?? throw new ArgumentNullException(nameof(promotionServiceClient));
 
     public async ValueTask ExecuteAsync(CreateOfflineDepositPromotionCommand command, CancellationToken cancellationToken = default)
     {

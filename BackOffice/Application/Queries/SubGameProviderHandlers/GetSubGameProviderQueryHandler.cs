@@ -8,15 +8,9 @@ using TGS.Services.BackOffice.Infrastructure.DataService;
 namespace TGS.Services.BackOffice.Application.Queries.SubGameProviderHandlers;
 
 public class
-    GetSubGameProviderQueryHandler : Handler<GetSubGameProviderRequest, GetSubGameProviderResponse>
+    GetSubGameProviderQueryHandler(ISubGameProviderService service, IHttpContextAccessor accessor) : Handler<GetSubGameProviderRequest, GetSubGameProviderResponse>(accessor)
 {
-    private readonly ISubGameProviderService _service;
-
-    public GetSubGameProviderQueryHandler(ISubGameProviderService service, IHttpContextAccessor accessor)
-        : base(accessor)
-    {
-        _service = service;
-    }
+    private readonly ISubGameProviderService _service = service;
 
     public override async Task<GetSubGameProviderResponse> Handle(GetSubGameProviderRequest request,
         CancellationToken cancellationToken)

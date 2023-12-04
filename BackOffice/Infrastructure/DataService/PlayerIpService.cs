@@ -26,15 +26,10 @@ public interface IPlayerIpService
     IQueryable<PlayerIpByIpModel> GetPlayerIpRecordsByRegisterQueries(Guid brandId, string ipAddress, DateTimeOffset startOn, DateTimeOffset endOn);
 }
 
-public class PlayerIpService : IPlayerIpService
+public class PlayerIpService(
+    ITgsRepository tgsRepository) : IPlayerIpService
 {
-    private readonly ITgsRepository _tgsRepository;
-
-    public PlayerIpService(
-        ITgsRepository tgsRepository)
-    {
-        _tgsRepository = tgsRepository ?? throw new ArgumentNullException(nameof(tgsRepository));
-    }
+    private readonly ITgsRepository _tgsRepository = tgsRepository ?? throw new ArgumentNullException(nameof(tgsRepository));
 
     public IQueryable<PlayerIpByIpModel> GetPlayerIpOperationByIpQueries(Guid brandId, string ipAddress, DateTimeOffset startOn, DateTimeOffset endOn)
         => _tgsRepository.PlayerLoginRecords.AsQueryable()

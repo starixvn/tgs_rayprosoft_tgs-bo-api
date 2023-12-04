@@ -25,21 +25,12 @@ namespace TGS.Apis.BackendOffice.Controllers.GameProvider;
 
 [Route("api/[controller]")]
 [ApiController]
-public class GameController : BaseContextController
+public class GameController(IMediator mediator, IUploadService uploadService) : BaseContextController
 {
-    private readonly IMediator _mediator;
-    private readonly IUploadService _uploadService;
-
-    public GameController(IMediator mediator, IUploadService uploadService)
-    {
-        _mediator = mediator;
-        _uploadService = uploadService;
-    }
-
     [HttpPost]
     [Description("Create games")]
     public Task<MessageResponse> CreateGamesAsync(CreateGamesRequest request) =>
-        _mediator.Send(request);
+        mediator.Send(request);
 
     [AllowAnonymous]
     [HttpGet("export/{gameProviderId}")]
@@ -341,21 +332,21 @@ public class GameController : BaseContextController
     [HttpGet]
     [Description("Get games")]
     public Task<PagedResponse<GameModel>>
-        GetGameProvidersAsync([FromQuery] GetGamesRequest request) => _mediator.Send(request);
+        GetGameProvidersAsync([FromQuery] GetGamesRequest request) => mediator.Send(request);
 
     [HttpPut("{id}")]
     [Description("Update a game")]
     public Task<MessageResponse> UpdateGameAsync(int id, UpdateGameRequest request)
     {
         request.Id = id;
-        return _mediator.Send(request);
+        return mediator.Send(request);
     }
 
     [HttpPost("upload")]
     [Description("Upload games")]
     public async Task<IActionResult> UploadGamesAsync([FromForm] UploadGamesRequest request)
     {
-        var response = await _mediator.Send(request).ConfigureAwait(false);
+        var response = await mediator.Send(request).ConfigureAwait(false);
 
         return response.Valid ? Ok(response) : (IActionResult)StatusCode(400, response);
     }
@@ -367,7 +358,7 @@ public class GameController : BaseContextController
         [FromServices]
         IGetService<UpdateGameLocalizationQuery, UpdateGameLocationInfo> updateGameLocalizationQueryService)
     {
-        var uploadedResult = await _uploadService.GetUploadedExcelAsync<UploadGameLocalizationModel>(file);
+        var uploadedResult = await uploadService.GetUploadedExcelAsync<UploadGameLocalizationModel>(file);
 
         var games = uploadedResult
             .Where(p => !string.IsNullOrEmpty(p.Id))

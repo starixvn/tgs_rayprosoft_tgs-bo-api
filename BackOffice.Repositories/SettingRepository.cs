@@ -9,13 +9,9 @@ using TGS.Services.BackOffice.Domain;
 
 namespace TGS.BackOffice.Repositories;
 
-public class SettingRepository : BaseRepositoryOperations<ITgsRepository>, ISettingRepository
+public class SettingRepository(ITgsRepository tgsRepository) : BaseRepositoryOperations<ITgsRepository>(
+    tgsRepository), ISettingRepository
 {
-    public SettingRepository(ITgsRepository tgsRepository) : base(
-        tgsRepository)
-    {
-    }
-
     Task<Setting> ISettingRepository.GetSettingAsync(Expression<Func<Setting, bool>> predicate,
         Func<IQueryable<Setting>, IQueryable<Setting>> preQuery) =>
         GetEntityFirstOrDefaultAsync(predicate, preQuery);

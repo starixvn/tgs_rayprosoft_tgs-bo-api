@@ -143,8 +143,8 @@ public class GameProviderControllerTests : BaseTests
     {
         var fixture = new Fixture();
         fixture.Customize<GameProviderModel>(u => u
-            .With(s => s.Languages, Array.Empty<GameProviderLanguageModel>())
-            .With(s => s.Currencies, Array.Empty<GameProviderCurrencyModel>()));
+            .With(s => s.Languages, [])
+            .With(s => s.Currencies, []));
         fixture.Behaviors.Add(new OmitOnRecursionBehavior());
         return fixture;
     }

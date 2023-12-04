@@ -11,16 +11,11 @@ using Department = TGS.Core.DataServices.Tgs.Models.Department;
 
 namespace TGS.Services.BackOffice.ApplicationServices;
 
-internal class GetDepartmentsQueryService : IQueryService<GetDepartmentsQuery, DepartmentInfo>,
+internal class GetDepartmentsQueryService(
+    ITgsQueries<Department> queries) : IQueryService<GetDepartmentsQuery, DepartmentInfo>,
     IGetService<GetDepartmentsQuery, int>
 {
-    private readonly ITgsQueries<Department> _queries;
-
-    public GetDepartmentsQueryService(
-        ITgsQueries<Department> queries)
-    {
-        _queries = queries ?? throw new ArgumentNullException(nameof(queries));
-    }
+    private readonly ITgsQueries<Department> _queries = queries ?? throw new ArgumentNullException(nameof(queries));
 
     public ValueTask<int> GetAsync(GetDepartmentsQuery query, CancellationToken cancellationToken = default)
     {

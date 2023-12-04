@@ -14,30 +14,21 @@ using TGS.Services.BackOffice.Domain;
 
 namespace TGS.Services.BackOffice.Application.Queries.ReportMarketingQueries;
 
-internal class GetMarketingReportAggregateInfosQueryService
-    : IGetService<GetMarketingReportAggregateInfosQuery, MarketingReportResponse>
+internal class GetMarketingReportAggregateInfosQueryService(
+    IQueryService<AgentPlayerDepositQuery, AgentPlayerDepositStatistics> agentPlayerDepositQueryService,
+    IQueryService<AllAgentsByBrandQuery, AgentInfo> agentQueryService,
+    IQueryService<PlayerPaymentStatisticsDetailQuery, PlayerDailyPaymentItem> playerPaymentDetailQueryService,
+    IQueryService<GetDailyMarketingRegisterDetailQuery, PlayerDailyRegisterItem> playerRegisterDetailQueryService,
+    IMarketingReportClient reportClient)
+        : IGetService<GetMarketingReportAggregateInfosQuery, MarketingReportResponse>
 {
     private static readonly TimeSpan _Offset = TimeSpan.FromHours(8D);
 
-    private readonly IQueryService<AgentPlayerDepositQuery, AgentPlayerDepositStatistics> _agentPlayerDepositQueryService;
-    private readonly IQueryService<AllAgentsByBrandQuery, AgentInfo> _agentQueryService;
-    private readonly IQueryService<PlayerPaymentStatisticsDetailQuery, PlayerDailyPaymentItem> _playerPaymentDetailQueryService;
-    private readonly IQueryService<GetDailyMarketingRegisterDetailQuery, PlayerDailyRegisterItem> _playerRegisterDetailQueryService;
-    private readonly IMarketingReportClient _reportClient;
-
-    public GetMarketingReportAggregateInfosQueryService(
-        IQueryService<AgentPlayerDepositQuery, AgentPlayerDepositStatistics> agentPlayerDepositQueryService,
-        IQueryService<AllAgentsByBrandQuery, AgentInfo> agentQueryService,
-        IQueryService<PlayerPaymentStatisticsDetailQuery, PlayerDailyPaymentItem> playerPaymentDetailQueryService,
-        IQueryService<GetDailyMarketingRegisterDetailQuery, PlayerDailyRegisterItem> playerRegisterDetailQueryService,
-        IMarketingReportClient reportClient)
-    {
-        _agentPlayerDepositQueryService = agentPlayerDepositQueryService ?? throw new ArgumentNullException(nameof(agentPlayerDepositQueryService));
-        _agentQueryService = agentQueryService ?? throw new ArgumentNullException(nameof(agentQueryService));
-        _playerPaymentDetailQueryService = playerPaymentDetailQueryService ?? throw new ArgumentNullException(nameof(playerPaymentDetailQueryService));
-        _playerRegisterDetailQueryService = playerRegisterDetailQueryService ?? throw new ArgumentNullException(nameof(playerRegisterDetailQueryService));
-        _reportClient = reportClient ?? throw new ArgumentNullException(nameof(reportClient));
-    }
+    private readonly IQueryService<AgentPlayerDepositQuery, AgentPlayerDepositStatistics> _agentPlayerDepositQueryService = agentPlayerDepositQueryService ?? throw new ArgumentNullException(nameof(agentPlayerDepositQueryService));
+    private readonly IQueryService<AllAgentsByBrandQuery, AgentInfo> _agentQueryService = agentQueryService ?? throw new ArgumentNullException(nameof(agentQueryService));
+    private readonly IQueryService<PlayerPaymentStatisticsDetailQuery, PlayerDailyPaymentItem> _playerPaymentDetailQueryService = playerPaymentDetailQueryService ?? throw new ArgumentNullException(nameof(playerPaymentDetailQueryService));
+    private readonly IQueryService<GetDailyMarketingRegisterDetailQuery, PlayerDailyRegisterItem> _playerRegisterDetailQueryService = playerRegisterDetailQueryService ?? throw new ArgumentNullException(nameof(playerRegisterDetailQueryService));
+    private readonly IMarketingReportClient _reportClient = reportClient ?? throw new ArgumentNullException(nameof(reportClient));
 
     public async ValueTask<MarketingReportResponse> GetAsync(
         GetMarketingReportAggregateInfosQuery query,

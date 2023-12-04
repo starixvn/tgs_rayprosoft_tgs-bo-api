@@ -8,18 +8,12 @@ using Tgs.ServiceUtility;
 
 namespace TGS.Services.BackOffice.Application.Queries.PlayerHandlers;
 
-internal class AccountChangesTotalAmountQueryService : IGetService<AccountChangesTotalAmountQuery, decimal?>
+internal class AccountChangesTotalAmountQueryService(
+    IPlayerServiceClient playerServiceClient,
+    ICashServiceClient cashServiceClient) : IGetService<AccountChangesTotalAmountQuery, decimal?>
 {
-    private readonly ICashServiceClient _cashServiceClient;
-    private readonly IPlayerServiceClient _playerServiceClient;
-
-    public AccountChangesTotalAmountQueryService(
-        IPlayerServiceClient playerServiceClient,
-        ICashServiceClient cashServiceClient)
-    {
-        _playerServiceClient = playerServiceClient ?? throw new ArgumentNullException(nameof(playerServiceClient));
-        _cashServiceClient = cashServiceClient ?? throw new ArgumentNullException(nameof(cashServiceClient));
-    }
+    private readonly ICashServiceClient _cashServiceClient = cashServiceClient ?? throw new ArgumentNullException(nameof(cashServiceClient));
+    private readonly IPlayerServiceClient _playerServiceClient = playerServiceClient ?? throw new ArgumentNullException(nameof(playerServiceClient));
 
     public async ValueTask<decimal?> GetAsync(AccountChangesTotalAmountQuery query, CancellationToken cancellationToken = default)
     {
@@ -41,21 +35,21 @@ internal class AccountChangesTotalAmountQueryService : IGetService<AccountChange
                 .ToArray()
             : query.AccountChangeType.Value switch
             {
-                Domain.Enums.TransactionType.Deposit => new int[] {
+                Domain.Enums.TransactionType.Deposit => [
                     (int)Domain.Enums.TransactionType.Deposit,
                     (int)Domain.Enums.TransactionType.Deposited
-                },
-                Domain.Enums.TransactionType.Withdrawal => new int[] {
+                ],
+                Domain.Enums.TransactionType.Withdrawal => [
                     (int)Domain.Enums.TransactionType.Withdrawal,
                     (int)Domain.Enums.TransactionType.WithdrawLock
-                },
-                Domain.Enums.TransactionType.CancelWithdrawal => new int[] {
+                ],
+                Domain.Enums.TransactionType.CancelWithdrawal => [
                     (int)Domain.Enums.TransactionType.CancelWithdrawal,
                     (int)Domain.Enums.TransactionType.WithdrawRollback
-                },
-                _ => new int[] {
+                ],
+                _ => [
                     (int)query.AccountChangeType.Value
-                },
+                ],
             };
 
         return await _cashServiceClient.QueryTransactionTotalAmountAsync(

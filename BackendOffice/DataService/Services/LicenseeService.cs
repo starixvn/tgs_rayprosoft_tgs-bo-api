@@ -30,19 +30,12 @@ public interface ILicenseeService
     Task UpdateLicenseeAsync(Licensee licensee, UpdateLicenseeRequest request, string username);
 }
 
-public class LicenseeService : ILicenseeService
+public class LicenseeService(
+    ITgsRepository tgsRepository,
+    IMaintenanceRedisService maintenanceRedisService
+        ) : ILicenseeService
 {
-    private readonly IMaintenanceRedisService _maintenanceRedisService;
-    private readonly ITgsRepository _repository;
-
-    public LicenseeService(
-        ITgsRepository tgsRepository,
-        IMaintenanceRedisService maintenanceRedisService
-        )
-    {
-        _repository = tgsRepository;
-        _maintenanceRedisService = maintenanceRedisService ?? throw new ArgumentNullException(nameof(maintenanceRedisService));
-    }
+    private readonly IMaintenanceRedisService _maintenanceRedisService = maintenanceRedisService ?? throw new ArgumentNullException(nameof(maintenanceRedisService));
 
     async Task ILicenseeService.ChangeStatusAsync(Licensee licensee, Status status, string username)
     {
@@ -50,24 +43,28 @@ public class LicenseeService : ILicenseeService
         licensee.UpdatedOn = DateTimeOffset.Now;
         licensee.UpdatedByUsername = username;
 
-        _repository.Entry(licensee).State = EntityState.Modified;
+        tgsRepository.Entry(licensee).State = EntityState.Modified;
 
-        _ = await _repository.SaveChangesAsync().ConfigureAwait(false);
+        _ = await tgsRepository.SaveChangesAsync().ConfigureAwait(false);
 
         if (status is Status.Active or Status.Maintenance)
         {
-            var reseller = _repository.Resellers.AsQueryable().Where(x => x.Id == licensee.ResellerId).First();
-            var brands = _repository.Brands.AsQueryable().Where(x => x.LicenseeId == licensee.Id && x.Status == BrandStatus.Active);
+            var reseller = tgsRepository.Resellers.AsQueryable().Where(x => x.Id == licensee.ResellerId).First();
+            var brands = tgsRepository.Brands.AsQueryable().Where(x => x.LicenseeId == licensee.Id && x.Status == BrandStatus.Active);
             var isMaintenance = reseller.Status is Status.Active && status is Status.Active;
             if (isMaintenance)
             {
-                await _maintenanceRedisService.ClearLicenseeMaintenanceAsync(licensee.Id).ConfigureAwait(false);
-                await _maintenanceRedisService.ClearBrandMaintenancesAsync(brands.Select(x => x.Id).ToArray()).ConfigureAwait(false);
+                await _maintenanceRedisService.ClearLicenseeMaintenanceAsync(
+                    licensee.Id).ConfigureAwait(false);
+                await _maintenanceRedisService.ClearBrandMaintenancesAsync(
+                    [.. brands.Select(x => x.Id)]).ConfigureAwait(false);
             }
             else
             {
-                await _maintenanceRedisService.AddLicenseeMaintenanceAsync(licensee.Id).ConfigureAwait(false);
-                await _maintenanceRedisService.AddBrandMaintenancesAsync(brands.Select(x => x.Id).ToArray()).ConfigureAwait(false);
+                await _maintenanceRedisService.AddLicenseeMaintenanceAsync(
+                    licensee.Id).ConfigureAwait(false);
+                await _maintenanceRedisService.AddBrandMaintenancesAsync(
+                    [.. brands.Select(x => x.Id)]).ConfigureAwait(false);
             }
         }
     }
@@ -94,17 +91,17 @@ public class LicenseeService : ILicenseeService
         licensee.GameProviders = GenerateLicenseeGameProviders(licensee, request);
         licensee.BetLimits = GenerateLicenseeBetLimits(licensee, request);
 
-        _ = await _repository.Licensees.AddAsync(licensee).ConfigureAwait(false);
-        _ = await _repository.SaveChangesAsync().ConfigureAwait(false);
+        _ = await tgsRepository.Licensees.AddAsync(licensee).ConfigureAwait(false);
+        _ = await tgsRepository.SaveChangesAsync().ConfigureAwait(false);
     }
 
     Task<bool> ILicenseeService.ExistsAsync(Expression<Func<Licensee, bool>> predicate) =>
-        _repository.Licensees.AnyAsync(predicate);
+        tgsRepository.Licensees.AnyAsync(predicate);
 
     Task<Licensee> ILicenseeService.GetLicenseeAsync(Expression<Func<Licensee, bool>> predicate,
             Func<IQueryable<Licensee>, IQueryable<Licensee>> preQuery, bool tracking)
     {
-        var licensee = tracking ? _repository.Licensees : _repository.Licensees.AsNoTracking();
+        var licensee = tracking ? tgsRepository.Licensees : tgsRepository.Licensees.AsNoTracking();
         preQuery ??= c => c;
 
         return preQuery(licensee).FirstOrDefaultAsync(predicate);
@@ -112,7 +109,7 @@ public class LicenseeService : ILicenseeService
 
     IQueryable<Licensee> ILicenseeService.GetLicensees(GetLicenseesRequest request, bool tracking)
     {
-        var queryable = tracking ? _repository.Licensees : _repository.Licensees.AsNoTracking();
+        var queryable = tracking ? tgsRepository.Licensees : tgsRepository.Licensees.AsNoTracking();
         return queryable.Where(x =>
             EF.Functions.ILike(x.Code, $"%{request.Keyword}%") ||
             EF.Functions.ILike(x.Name, $"%{request.Keyword}%") ||
@@ -122,10 +119,10 @@ public class LicenseeService : ILicenseeService
 
     Task ILicenseeService.UpdateLicenseeAsync(Licensee licensee, UpdateLicenseeRequest request, string username)
     {
-        _repository.LicenseeLanguages.RemoveRange(licensee.Languages);
-        _repository.LicenseeCurrencies.RemoveRange(licensee.Currencies);
-        _repository.LicenseeGameProviders.RemoveRange(licensee.GameProviders);
-        _repository.LicenseeBetLimits.RemoveRange(licensee.BetLimits);
+        tgsRepository.LicenseeLanguages.RemoveRange(licensee.Languages);
+        tgsRepository.LicenseeCurrencies.RemoveRange(licensee.Currencies);
+        tgsRepository.LicenseeGameProviders.RemoveRange(licensee.GameProviders);
+        tgsRepository.LicenseeBetLimits.RemoveRange(licensee.BetLimits);
 
         licensee.Code = request.Code;
         licensee.Name = request.Name;
@@ -138,14 +135,14 @@ public class LicenseeService : ILicenseeService
         licensee.GameProviders = GenerateLicenseeGameProviders(licensee, request);
         licensee.BetLimits = GenerateLicenseeBetLimits(licensee, request);
 
-        _repository.Entry(licensee).State = EntityState.Modified;
+        tgsRepository.Entry(licensee).State = EntityState.Modified;
 
-        return _repository.SaveChangesAsync();
+        return tgsRepository.SaveChangesAsync();
     }
 
     private HashSet<LicenseeBetLimit> GenerateLicenseeBetLimits(Licensee licensee, LicenseeRequest request)
     {
-        var licenseeBetLimits = _repository.BetLimits.AsQueryable()
+        var licenseeBetLimits = tgsRepository.BetLimits.AsQueryable()
             .Where(x => request.BetLimitIds.Contains(x.Id)).Select(x =>
                 new LicenseeBetLimit
                 {
@@ -157,7 +154,7 @@ public class LicenseeService : ILicenseeService
 
     private HashSet<LicenseeCurrency> GenerateLicenseeCurrencies(Licensee licensee, LicenseeRequest request)
     {
-        var licenseeCurrencies = _repository.Currencies.AsQueryable()
+        var licenseeCurrencies = tgsRepository.Currencies.AsQueryable()
             .Where(x => request.CurrencyCodes.Contains(x.Code)).Select(x =>
                 new LicenseeCurrency
                 {
@@ -169,7 +166,7 @@ public class LicenseeService : ILicenseeService
 
     private HashSet<LicenseeGameProvider> GenerateLicenseeGameProviders(Licensee licensee, LicenseeRequest request)
     {
-        var licenseeGameProviders = _repository.GameProviders.AsQueryable()
+        var licenseeGameProviders = tgsRepository.GameProviders.AsQueryable()
             .Where(x => request.GameProviderIds.Contains(x.Id)).Select(x =>
                 new LicenseeGameProvider
                 {
@@ -181,7 +178,7 @@ public class LicenseeService : ILicenseeService
 
     private HashSet<LicenseeLanguage> GenerateLicenseeLanguages(Licensee licensee, LicenseeRequest request)
     {
-        var licenseeLanguages = _repository.Languages.AsQueryable()
+        var licenseeLanguages = tgsRepository.Languages.AsQueryable()
             .Where(x => request.CultureCodes.Contains(x.CultureCode)).Select(x =>
                 new LicenseeLanguage
                 {

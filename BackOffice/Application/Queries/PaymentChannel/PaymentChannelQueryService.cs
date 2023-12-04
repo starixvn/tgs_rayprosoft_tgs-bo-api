@@ -6,14 +6,9 @@ using Tgs.ServiceUtility;
 
 namespace TGS.Services.BackOffice.Application.Queries.PaymentChannel;
 
-internal class PaymentChannelQueryService : IQueryService<PaymentChannelQuery, PaymentChannelInfo>
+internal class PaymentChannelQueryService(IPaymentServiceClient paymentServiceClient) : IQueryService<PaymentChannelQuery, PaymentChannelInfo>
 {
-    private readonly IPaymentServiceClient _paymentServiceClient;
-
-    public PaymentChannelQueryService(IPaymentServiceClient paymentServiceClient)
-    {
-        _paymentServiceClient = paymentServiceClient ?? throw new ArgumentNullException(nameof(paymentServiceClient));
-    }
+    private readonly IPaymentServiceClient _paymentServiceClient = paymentServiceClient ?? throw new ArgumentNullException(nameof(paymentServiceClient));
 
     public IAsyncEnumerable<PaymentChannelInfo> QueryAsync(
         PaymentChannelQuery query,

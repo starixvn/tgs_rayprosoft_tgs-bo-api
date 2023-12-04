@@ -13,9 +13,10 @@ public class GetPlayerAllTypeBucketAmountsQueryServiceTests
 
         var sut = new GetPlayerAllTypeBucketAmountsQueryService(fakePlayerBucketForTypesClient);
 
+        var bucketTypes = new[] { "Game1", "Game2" };
         var query = new GetPlayerAllTypeBucketAmountsQuery(
             "test1",
-            new[] { "Game1", "Game2" });
+            bucketTypes);
 
         _ = await sut.QueryAsync(query).ToArrayAsync();
 

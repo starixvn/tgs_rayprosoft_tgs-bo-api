@@ -9,13 +9,10 @@ using Tgs.ServiceUtility;
 namespace TGS.Services.BackOffice.Application.Queries.ReportPlayerQueries;
 
 internal class
-    GetPlayerAllAgentRebatesDetailQuery : IQueryService<GetPlayerAllAgentRebatesDetailsReportRequest,
+    GetPlayerAllAgentRebatesDetailQuery(IReportPlayerAllAgentClient reportClient) : IQueryService<GetPlayerAllAgentRebatesDetailsReportRequest,
         PlayerAllAgentRebateDetailReportModel>
 {
-    private readonly IReportPlayerAllAgentClient _reportClient;
-
-    public GetPlayerAllAgentRebatesDetailQuery(IReportPlayerAllAgentClient reportClient) =>
-        _reportClient = reportClient;
+    private readonly IReportPlayerAllAgentClient _reportClient = reportClient;
 
     public IAsyncEnumerable<PlayerAllAgentRebateDetailReportModel> QueryAsync(
         GetPlayerAllAgentRebatesDetailsReportRequest request,

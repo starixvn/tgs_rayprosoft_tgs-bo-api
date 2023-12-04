@@ -12,23 +12,16 @@ using TGS.Services.BackOffice.Infrastructure.DataService;
 
 namespace TGS.Services.BackOffice.ApplicationServices.Players;
 
-internal class GetPlayerGameProviderBalanceQueryService : IQueryService<GetPlayerGameProviderBalanceQuery, GetPlayerGameProviderBalanceResponse>
+internal class GetPlayerGameProviderBalanceQueryService(
+    IPlayerService playerService,
+    IGameProvidersBackofficePluggableClient gameProvidersBackofficePluggableClient,
+    IBrandGameProviderService brandGameProviderService) : IQueryService<GetPlayerGameProviderBalanceQuery, GetPlayerGameProviderBalanceResponse>
 {
-    private readonly IBrandGameProviderService _brandGameProviderService;
-    private readonly IGameProvidersBackofficePluggableClient _gameProvidersBackofficePluggableClient;
-    private readonly IPlayerService _playerService;
-
-    public GetPlayerGameProviderBalanceQueryService(
-        IPlayerService playerService,
-        IGameProvidersBackofficePluggableClient gameProvidersBackofficePluggableClient,
-        IBrandGameProviderService brandGameProviderService)
-    {
-        _playerService = playerService ?? throw new ArgumentNullException(nameof(playerService));
-        _gameProvidersBackofficePluggableClient = gameProvidersBackofficePluggableClient ??
-            throw new ArgumentNullException(nameof(gameProvidersBackofficePluggableClient));
-        _brandGameProviderService = brandGameProviderService ??
+    private readonly IBrandGameProviderService _brandGameProviderService = brandGameProviderService ??
             throw new ArgumentNullException(nameof(brandGameProviderService));
-    }
+    private readonly IGameProvidersBackofficePluggableClient _gameProvidersBackofficePluggableClient = gameProvidersBackofficePluggableClient ??
+            throw new ArgumentNullException(nameof(gameProvidersBackofficePluggableClient));
+    private readonly IPlayerService _playerService = playerService ?? throw new ArgumentNullException(nameof(playerService));
 
     public async IAsyncEnumerable<GetPlayerGameProviderBalanceResponse> QueryAsync(
         GetPlayerGameProviderBalanceQuery query,
@@ -101,7 +94,7 @@ internal class GetPlayerGameProviderBalanceQueryService : IQueryService<GetPlaye
 
         await Task.WhenAll(tasks);
 
-        if (!gameProviderBalances.Any())
+        if (gameProviderBalances.Count == 0)
             yield break;
 
         foreach (var gameProviderBalance in gameProviderBalances)

@@ -11,19 +11,13 @@ using TGS.Services.BackOffice.Infrastructure.DataService;
 
 namespace TGS.Services.BackOffice.Application.Commands.BrandGameHandlers;
 
-public class UpdateBrandGameTagHandler : Handler<UpdateBrandGameTagRequest, MessageResponse>
+public class UpdateBrandGameTagHandler(
+    IBrandGameService service,
+    IHttpContextAccessor accessor,
+    IRedisCacheManager cacheManager) : Handler<UpdateBrandGameTagRequest, MessageResponse>(accessor)
 {
-    private readonly IRedisCacheManager _cacheManager;
-    private readonly IBrandGameService _service;
-
-    public UpdateBrandGameTagHandler(
-        IBrandGameService service,
-        IHttpContextAccessor accessor,
-        IRedisCacheManager cacheManager) : base(accessor)
-    {
-        _service = service;
-        _cacheManager = cacheManager;
-    }
+    private readonly IRedisCacheManager _cacheManager = cacheManager;
+    private readonly IBrandGameService _service = service;
 
     public override async Task<MessageResponse> Handle(UpdateBrandGameTagRequest request,
         CancellationToken cancellationToken)

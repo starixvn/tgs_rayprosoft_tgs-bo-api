@@ -9,14 +9,9 @@ using TGS.Services.BackOffice.Domain;
 
 namespace TGS.Services.BackOffice.ApplicationServices.Banner;
 
-internal class GetBannersQueryService : IQueryService<GetBannersQuery, BannerInfo>, IGetService<GetBannersQuery, int>
+internal class GetBannersQueryService(IBackOfficeRepository backOfficeRepository) : IQueryService<GetBannersQuery, BannerInfo>, IGetService<GetBannersQuery, int>
 {
-    private readonly IBackOfficeRepository _backOfficeRepository;
-
-    public GetBannersQueryService(IBackOfficeRepository backOfficeRepository)
-    {
-        _backOfficeRepository = backOfficeRepository ?? throw new ArgumentNullException(nameof(backOfficeRepository));
-    }
+    private readonly IBackOfficeRepository _backOfficeRepository = backOfficeRepository ?? throw new ArgumentNullException(nameof(backOfficeRepository));
 
     public ValueTask<int> GetAsync(GetBannersQuery query, CancellationToken cancellationToken = default)
     {

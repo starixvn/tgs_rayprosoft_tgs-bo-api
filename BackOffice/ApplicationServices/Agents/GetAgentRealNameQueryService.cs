@@ -6,14 +6,9 @@ using TGS.Services.BackOffice.Infrastructure.DataService;
 
 namespace TGS.Services.BackOffice.ApplicationServices.Agents;
 
-internal class GetAgentRealNameQueryService : IGetService<GetAgentRealNameQuery, string>
+internal class GetAgentRealNameQueryService(IAgentService agentService) : IGetService<GetAgentRealNameQuery, string>
 {
-    private readonly IAgentService _agentService;
-
-    public GetAgentRealNameQueryService(IAgentService agentService)
-    {
-        _agentService = agentService ?? throw new ArgumentNullException(nameof(agentService));
-    }
+    private readonly IAgentService _agentService = agentService ?? throw new ArgumentNullException(nameof(agentService));
 
     public async ValueTask<string> GetAsync(GetAgentRealNameQuery query, CancellationToken cancellationToken = default)
     {

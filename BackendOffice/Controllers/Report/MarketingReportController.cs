@@ -68,15 +68,15 @@ public class MarketingReportController : BaseContextController
         return new PagedResponse<MarketingGamingDetailReportModel>
         {
             TotalCount = totalCount,
-            Items = dataQuery
-                .Select(item => new MarketingGamingDetailReportModel
+            Items = [
+                .. dataQuery.Select(item => new MarketingGamingDetailReportModel
                 {
                     Username = item.PlayerName,
                     GameProviderName = item.GpCode,
                     SubGameProviderName = item.SubGpCode,
                     WinLossAmount = item.WinLossAmount
                 })
-                .ToArray()
+            ]
         };
     }
 
@@ -330,15 +330,15 @@ public class MarketingReportController : BaseContextController
         return new PagedResponse<MarketingRegisterDetailReportModel>
         {
             TotalCount = totalCount,
-            Items = dataQuery
-                .Select(item => new MarketingRegisterDetailReportModel
+            Items = [
+                .. dataQuery.Select(item => new MarketingRegisterDetailReportModel
                 {
                     Username = item.PlayerName,
                     LastLoginOn = item.LastLoginOn,
                     LoginCount = item.LoginCount,
                     RegisteredOn = item.RegisteredOn
                 })
-                .ToArray()
+            ]
         };
     }
 }

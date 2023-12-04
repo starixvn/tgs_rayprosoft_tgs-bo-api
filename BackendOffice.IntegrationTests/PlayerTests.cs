@@ -34,16 +34,10 @@ using BoEnums = TGS.Services.BackOffice.Domain.Enums;
 
 namespace BackendOffice.IntegrationTests;
 
-public class PlayerTests
+public class PlayerTests(ITestOutputHelper testOutputHelper, NodeJsFixture nodeJsFixture)
 {
-    private readonly ITestOutputHelper _testOutputHelper;
-    private readonly NodeJsFixture _nodeJsFixture;
-
-    public PlayerTests(ITestOutputHelper testOutputHelper, NodeJsFixture nodeJsFixture)
-    {
-        _testOutputHelper = testOutputHelper ?? throw new ArgumentNullException(nameof(testOutputHelper));
-        _nodeJsFixture = nodeJsFixture ?? throw new ArgumentNullException(nameof(nodeJsFixture));
-    }
+    private readonly ITestOutputHelper _testOutputHelper = testOutputHelper ?? throw new ArgumentNullException(nameof(testOutputHelper));
+    private readonly NodeJsFixture _nodeJsFixture = nodeJsFixture ?? throw new ArgumentNullException(nameof(nodeJsFixture));
 
     [Fact]
     public async Task 只用BrandId查詢玩家列表()
@@ -198,7 +192,7 @@ public class PlayerTests
         {
             TotalCount = 2,
             Valid = true,
-            Items = new[] {
+            Items = [
                 new PlayersModel{
                     VipLevel = 1,
                     PlayerCode = "4ucmqplxb029",
@@ -211,7 +205,7 @@ public class PlayerTests
                     Username = "4ucmqplxkuyd",
                     Status = TGS.Core.Models.Enums.PlayerStatus.Enabled
                 }
-            }
+            ]
         };
 
         // Act
@@ -446,14 +440,15 @@ public class PlayerTests
         {
             TotalCount = 1,
             Valid = true,
-            Items = new[] {
-                new PlayersModel{
+            Items = [
+                new PlayersModel
+                {
                     VipLevel = 1,
                     PlayerCode = "4ucmqplxb029",
                     Username = "4ucmqplxb029",
                     Status = TGS.Core.Models.Enums.PlayerStatus.Enabled
                 }
-            }
+            ]
         };
 
         // Act
@@ -876,8 +871,9 @@ public class PlayerTests
         {
             TotalCount = 2,
             Valid = true,
-            Items = new[] {
-                new PlayerAccountChangeReportModel{
+            Items = [
+                new PlayerAccountChangeReportModel
+                {
                     TransactionId = transactionId1,
                     IncludeInNetProfit = true,
                     Amount = 100M,
@@ -889,7 +885,8 @@ public class PlayerTests
                     TransactionType = TGS.Services.BackOffice.Domain.Enums.TransactionType.Deposit,
                     ExternalTransactionId = ""
                 },
-                new PlayerAccountChangeReportModel{
+                new PlayerAccountChangeReportModel
+                {
                     TransactionId = transacationId2,
                     IncludeInNetProfit = false,
                     Amount = 100M,
@@ -901,7 +898,7 @@ public class PlayerTests
                     TransactionType = TGS.Services.BackOffice.Domain.Enums.TransactionType.Deposit,
                     ExternalTransactionId = ""
                 }
-            }
+            ]
         };
 
         // Act

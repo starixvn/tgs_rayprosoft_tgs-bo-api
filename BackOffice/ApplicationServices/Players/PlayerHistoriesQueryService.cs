@@ -8,14 +8,9 @@ using Tgs.ServiceUtility;
 
 namespace TGS.Services.BackOffice.ApplicationServices.Players;
 
-internal class PlayerHistoriesQueryService : IQueryService<PlayerHistoriesQuery, PlayerHistoryInfo>, IGetService<PlayerHistoriesQuery, int>
+internal class PlayerHistoriesQueryService(IPlayerServiceClient playerServiceClient) : IQueryService<PlayerHistoriesQuery, PlayerHistoryInfo>, IGetService<PlayerHistoriesQuery, int>
 {
-    private readonly IPlayerServiceClient _playerServiceClient;
-
-    public PlayerHistoriesQueryService(IPlayerServiceClient playerServiceClient)
-    {
-        _playerServiceClient = playerServiceClient ?? throw new ArgumentNullException(nameof(playerServiceClient));
-    }
+    private readonly IPlayerServiceClient _playerServiceClient = playerServiceClient ?? throw new ArgumentNullException(nameof(playerServiceClient));
 
     public ValueTask<int> GetAsync(PlayerHistoriesQuery query, CancellationToken cancellationToken = default)
         => _playerServiceClient.CountPlayerHistoriesAsync(

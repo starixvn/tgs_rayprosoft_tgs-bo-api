@@ -28,13 +28,8 @@ public interface ISubGameProviderService
     Task UpdateSubGameProviderAsync(SubGameProvider gameProvider, UpdateSubGameProviderRequest request);
 }
 
-public class SubGameProviderService : BaseRepositoryOperations<ITgsRepository>, ISubGameProviderService
+public class SubGameProviderService(ITgsRepository tgsRepository) : BaseRepositoryOperations<ITgsRepository>(tgsRepository), ISubGameProviderService
 {
-    public SubGameProviderService(ITgsRepository tgsRepository)
-        : base(tgsRepository)
-    {
-    }
-
     async Task ISubGameProviderService.CreateSubGameProviderAsync(CreateSubGameProviderRequest request)
     {
         var gameProvider = new SubGameProvider

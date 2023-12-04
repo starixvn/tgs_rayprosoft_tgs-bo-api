@@ -8,14 +8,9 @@ using CoreModels = TGS.Core.DataServices.Tgs.Models;
 
 namespace TGS.Services.BackOffice.Application.Queries.BrandLiveChat;
 
-internal class GetBrandLiveChatQueryService : IGetService<BrandLiveChatQuery, BrandLiveChatInfo>
+internal class GetBrandLiveChatQueryService(ITgsQueries<CoreModels.BrandLiveChat> tgsQueries) : IGetService<BrandLiveChatQuery, BrandLiveChatInfo>
 {
-    private readonly ITgsQueries<CoreModels.BrandLiveChat> _tgsQueries;
-
-    public GetBrandLiveChatQueryService(ITgsQueries<CoreModels.BrandLiveChat> tgsQueries)
-    {
-        _tgsQueries = tgsQueries ?? throw new ArgumentNullException(nameof(tgsQueries));
-    }
+    private readonly ITgsQueries<CoreModels.BrandLiveChat> _tgsQueries = tgsQueries ?? throw new ArgumentNullException(nameof(tgsQueries));
 
     public async ValueTask<BrandLiveChatInfo> GetAsync(
         BrandLiveChatQuery query,

@@ -9,18 +9,12 @@ using TGS.Core.Infrastructures.Extensions;
 
 namespace TGS.Services.BackOffice.ApplicationServices.Players;
 
-internal class SetPlayerPasswordCommandService : IGetService<SetPlayerPasswordCommand, SetPlayerPasswordInfo>
+internal class SetPlayerPasswordCommandService(
+    IPlayerServiceClient playerServiceClient,
+    ITgsRepository tgsRepository) : IGetService<SetPlayerPasswordCommand, SetPlayerPasswordInfo>
 {
-    private readonly IPlayerServiceClient _playerServiceClient;
-    private readonly ITgsRepository _tgsRepository;
-
-    public SetPlayerPasswordCommandService(
-        IPlayerServiceClient playerServiceClient,
-        ITgsRepository tgsRepository)
-    {
-        _playerServiceClient = playerServiceClient ?? throw new ArgumentNullException(nameof(playerServiceClient));
-        _tgsRepository = tgsRepository ?? throw new ArgumentNullException(nameof(tgsRepository));
-    }
+    private readonly IPlayerServiceClient _playerServiceClient = playerServiceClient ?? throw new ArgumentNullException(nameof(playerServiceClient));
+    private readonly ITgsRepository _tgsRepository = tgsRepository ?? throw new ArgumentNullException(nameof(tgsRepository));
 
     public async ValueTask<SetPlayerPasswordInfo> GetAsync(SetPlayerPasswordCommand command, CancellationToken cancellationToken = default)
     {

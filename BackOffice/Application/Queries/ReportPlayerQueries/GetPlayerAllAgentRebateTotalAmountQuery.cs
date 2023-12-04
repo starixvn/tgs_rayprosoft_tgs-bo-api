@@ -8,13 +8,10 @@ using Tgs.ServiceUtility;
 namespace TGS.Services.BackOffice.Application.Queries.ReportPlayerQueries;
 
 internal class
-    GetPlayerAllAgentRebateTotalAmountQuery : IGetService<GetPlayerAllAgentRebateTotalAmountReportRequest,
+    GetPlayerAllAgentRebateTotalAmountQuery(IReportPlayerAllAgentClient reportClient) : IGetService<GetPlayerAllAgentRebateTotalAmountReportRequest,
         PlayerAllAgentRebateTotalAmountReportModel>
 {
-    private readonly IReportPlayerAllAgentClient _reportClient;
-
-    public GetPlayerAllAgentRebateTotalAmountQuery(IReportPlayerAllAgentClient reportClient) =>
-        _reportClient = reportClient;
+    private readonly IReportPlayerAllAgentClient _reportClient = reportClient;
 
     public async ValueTask<PlayerAllAgentRebateTotalAmountReportModel> GetAsync(
         GetPlayerAllAgentRebateTotalAmountReportRequest request,

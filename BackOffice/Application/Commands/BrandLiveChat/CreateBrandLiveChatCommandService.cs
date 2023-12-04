@@ -7,14 +7,9 @@ using CoreModels = TGS.Core.DataServices.Tgs.Models;
 
 namespace TGS.Services.BackOffice.Application.Commands.BrandLiveChat;
 
-internal class CreateBrandLiveChatCommandService : ICommandService<CreateBrandLiveChatCommand>
+internal class CreateBrandLiveChatCommandService(ITgsCommands<CoreModels.BrandLiveChat> commands) : ICommandService<CreateBrandLiveChatCommand>
 {
-    private readonly ITgsCommands<CoreModels.BrandLiveChat> _commands;
-
-    public CreateBrandLiveChatCommandService(ITgsCommands<CoreModels.BrandLiveChat> commands)
-    {
-        _commands = commands;
-    }
+    private readonly ITgsCommands<CoreModels.BrandLiveChat> _commands = commands;
 
     public async ValueTask ExecuteAsync(CreateBrandLiveChatCommand command, CancellationToken cancellationToken = default)
     {

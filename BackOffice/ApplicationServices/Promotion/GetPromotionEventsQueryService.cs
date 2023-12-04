@@ -6,15 +6,10 @@ using Tgs.ServiceUtility;
 
 namespace TGS.Services.BackOffice.ApplicationServices.Promotion;
 
-internal class GetPromotionEventsQueryService : IQueryService<GetPromotionEventsQuery, PromotionEventMainInfo>
+internal class GetPromotionEventsQueryService(
+    IPromotionHistoryClient promotionHistoryClient) : IQueryService<GetPromotionEventsQuery, PromotionEventMainInfo>
 {
-    private readonly IPromotionHistoryClient _promotionHistoryClient;
-
-    public GetPromotionEventsQueryService(
-        IPromotionHistoryClient promotionHistoryClient)
-    {
-        _promotionHistoryClient = promotionHistoryClient ?? throw new ArgumentNullException(nameof(promotionHistoryClient));
-    }
+    private readonly IPromotionHistoryClient _promotionHistoryClient = promotionHistoryClient ?? throw new ArgumentNullException(nameof(promotionHistoryClient));
 
     public IAsyncEnumerable<PromotionEventMainInfo> QueryAsync(
         GetPromotionEventsQuery query,

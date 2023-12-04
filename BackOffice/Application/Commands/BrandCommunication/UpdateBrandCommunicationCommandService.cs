@@ -7,18 +7,12 @@ using CoreModels = TGS.Core.DataServices.Tgs.Models;
 
 namespace TGS.Services.BackOffice.Application.Commands.BrandCommunication;
 
-internal class UpdateBrandCommunicationCommandService : ICommandService<UpdateBrandCommunicationCommand>
+internal class UpdateBrandCommunicationCommandService(
+    ITgsQueries<CoreModels.BrandCommunication> tgsQueries,
+    ITgsCommands<CoreModels.BrandCommunication> commands) : ICommandService<UpdateBrandCommunicationCommand>
 {
-    private readonly ITgsCommands<CoreModels.BrandCommunication> _commands;
-    private readonly ITgsQueries<CoreModels.BrandCommunication> _tgsQueries;
-
-    public UpdateBrandCommunicationCommandService(
-        ITgsQueries<CoreModels.BrandCommunication> tgsQueries,
-        ITgsCommands<CoreModels.BrandCommunication> commands)
-    {
-        _tgsQueries = tgsQueries ?? throw new ArgumentNullException(nameof(tgsQueries));
-        _commands = commands;
-    }
+    private readonly ITgsCommands<CoreModels.BrandCommunication> _commands = commands;
+    private readonly ITgsQueries<CoreModels.BrandCommunication> _tgsQueries = tgsQueries ?? throw new ArgumentNullException(nameof(tgsQueries));
 
     public async ValueTask ExecuteAsync(
         UpdateBrandCommunicationCommand command,

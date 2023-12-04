@@ -28,19 +28,12 @@ public interface IResellerService
     Task UpdateResellerAsync(Reseller reseller, UpdateResellerRequest request, string username);
 }
 
-public class ResellerService : IResellerService
+public class ResellerService(
+    ITgsRepository repository,
+    IMaintenanceRedisService maintenanceRedisService)
+    : IResellerService
 {
-    private readonly IMaintenanceRedisService _maintenanceRedisService;
-    private readonly ITgsRepository _repository;
-
-    public ResellerService(
-        ITgsRepository repository,
-        IMaintenanceRedisService maintenanceRedisService
-        )
-    {
-        _repository = repository;
-        _maintenanceRedisService = maintenanceRedisService ?? throw new ArgumentNullException(nameof(maintenanceRedisService));
-    }
+    private readonly IMaintenanceRedisService _maintenanceRedisService = maintenanceRedisService ?? throw new ArgumentNullException(nameof(maintenanceRedisService));
 
     async Task IResellerService.ChangeStatusAsync(Reseller reseller, Status status, string username)
     {
@@ -48,33 +41,39 @@ public class ResellerService : IResellerService
         reseller.UpdatedOn = DateTimeOffset.Now;
         reseller.UpdatedByUsername = username;
 
-        _repository.Entry(reseller).State = EntityState.Modified;
+        repository.Entry(reseller).State = EntityState.Modified;
 
-        _ = await _repository.SaveChangesAsync().ConfigureAwait(false);
+        _ = await repository.SaveChangesAsync().ConfigureAwait(false);
 
         if (status is Status.Active or Status.Maintenance)
         {
-            var licensees = _repository.Licensees.AsQueryable().Where(x => x.ResellerId == reseller.Id && x.Status == Status.Active);
-            var brands = (from brand in _repository.Brands.AsQueryable()
+            var licensees = repository.Licensees.AsQueryable().Where(x => x.ResellerId == reseller.Id && x.Status == Status.Active);
+            var brands = (from brand in repository.Brands.AsQueryable()
                           join licensee in licensees
                           on brand.LicenseeId equals licensee.Id
                           where brand.Status == BrandStatus.Active
                           select brand).ToArray();
             if (status is Status.Active)
             {
-                await _maintenanceRedisService.ClearResellerMaintenanceAsync(reseller.Id).ConfigureAwait(false);
+                await _maintenanceRedisService.ClearResellerMaintenanceAsync(
+                    reseller.Id).ConfigureAwait(false);
 
-                await _maintenanceRedisService.ClearLicenseeMaintenancesAsync(licensees.Select(x => x.Id).ToArray()).ConfigureAwait(false);
+                await _maintenanceRedisService.ClearLicenseeMaintenancesAsync(
+                    [.. licensees.Select(x => x.Id)]).ConfigureAwait(false);
 
-                await _maintenanceRedisService.ClearBrandMaintenancesAsync(brands.Select(x => x.Id).ToArray()).ConfigureAwait(false);
+                await _maintenanceRedisService.ClearBrandMaintenancesAsync(
+                    brands.Select(x => x.Id).ToArray()).ConfigureAwait(false);
             }
             else
             {
-                await _maintenanceRedisService.AddResellerMaintenanceAsync(reseller.Id).ConfigureAwait(false);
+                await _maintenanceRedisService.AddResellerMaintenanceAsync(
+                    reseller.Id).ConfigureAwait(false);
 
-                await _maintenanceRedisService.AddLicenseeMaintenancesAsync(licensees.Select(x => x.Id).ToArray()).ConfigureAwait(false);
+                await _maintenanceRedisService.AddLicenseeMaintenancesAsync(
+                    [.. licensees.Select(x => x.Id)]).ConfigureAwait(false);
 
-                await _maintenanceRedisService.AddBrandMaintenancesAsync(brands.Select(x => x.Id).ToArray()).ConfigureAwait(false);
+                await _maintenanceRedisService.AddBrandMaintenancesAsync(
+                    brands.Select(x => x.Id).ToArray()).ConfigureAwait(false);
             }
         }
     }
@@ -102,24 +101,24 @@ public class ResellerService : IResellerService
         reseller.GameProviders = GenerateResellerGameProviders(reseller, request);
         reseller.BetLimits = GenerateResellerBetLimits(reseller, request);
 
-        _ = await _repository.Resellers.AddAsync(reseller).ConfigureAwait(false);
-        _ = await _repository.SaveChangesAsync().ConfigureAwait(false);
+        _ = await repository.Resellers.AddAsync(reseller).ConfigureAwait(false);
+        _ = await repository.SaveChangesAsync().ConfigureAwait(false);
     }
 
     Task<bool> IResellerService.ExistsAsync(Expression<Func<Reseller, bool>> predicate) =>
-        _repository.Resellers.AnyAsync(predicate);
+        repository.Resellers.AnyAsync(predicate);
 
     Task<Reseller> IResellerService.GetResellerAsync(Expression<Func<Reseller, bool>> predicate,
             Func<IQueryable<Reseller>, IQueryable<Reseller>> preQuery)
     {
         preQuery ??= c => c;
 
-        return preQuery(_repository.Resellers).FirstOrDefaultAsync(predicate);
+        return preQuery(repository.Resellers).FirstOrDefaultAsync(predicate);
     }
 
     IQueryable<Reseller> IResellerService.GetResellers(GetResellersRequest request, bool tracking)
     {
-        var queryable = tracking ? _repository.Resellers : _repository.Resellers.AsNoTracking();
+        var queryable = tracking ? repository.Resellers : repository.Resellers.AsNoTracking();
         return queryable.Where(x =>
             EF.Functions.ILike(x.Code, $"%{request.Keyword}%") ||
             EF.Functions.ILike(x.Name, $"%{request.Keyword}%") ||
@@ -130,10 +129,10 @@ public class ResellerService : IResellerService
     Task IResellerService.UpdateResellerAsync(Reseller reseller, UpdateResellerRequest request,
             string username)
     {
-        _repository.ResellerLanguages.RemoveRange(reseller.Languages);
-        _repository.ResellerCurrencies.RemoveRange(reseller.Currencies);
-        _repository.ResellerGameProviders.RemoveRange(reseller.GameProviders);
-        _repository.ResellerBetLimits.RemoveRange(reseller.BetLimits);
+        repository.ResellerLanguages.RemoveRange(reseller.Languages);
+        repository.ResellerCurrencies.RemoveRange(reseller.Currencies);
+        repository.ResellerGameProviders.RemoveRange(reseller.GameProviders);
+        repository.ResellerBetLimits.RemoveRange(reseller.BetLimits);
 
         reseller.Code = request.Code;
         reseller.Name = request.Name;
@@ -146,9 +145,9 @@ public class ResellerService : IResellerService
         reseller.GameProviders = GenerateResellerGameProviders(reseller, request);
         reseller.BetLimits = GenerateResellerBetLimits(reseller, request);
 
-        _repository.Entry(reseller).State = EntityState.Modified;
+        repository.Entry(reseller).State = EntityState.Modified;
 
-        return _repository.SaveChangesAsync();
+        return repository.SaveChangesAsync();
     }
 
     private static HashSet<ResellerBetLimit> GenerateResellerBetLimits(
@@ -165,7 +164,7 @@ public class ResellerService : IResellerService
 
     private HashSet<ResellerCurrency> GenerateResellerCurrencies(Reseller reseller, ResellerRequest request)
     {
-        var resellerCurrencies = _repository.Currencies.AsQueryable()
+        var resellerCurrencies = repository.Currencies.AsQueryable()
             .Where(x => request.CurrencyCodes.Contains(x.Code)).Select(x =>
                 new ResellerCurrency
                 {
@@ -177,7 +176,7 @@ public class ResellerService : IResellerService
 
     private HashSet<ResellerGameProvider> GenerateResellerGameProviders(Reseller reseller, ResellerRequest request)
     {
-        var resellerGameProviders = _repository.GameProviders.AsQueryable()
+        var resellerGameProviders = repository.GameProviders.AsQueryable()
             .Where(x => request.GameProviderIds.Contains(x.Id)).Select(x =>
                 new ResellerGameProvider
                 {
@@ -189,7 +188,7 @@ public class ResellerService : IResellerService
 
     private HashSet<ResellerLanguage> GenerateResellerLanguages(Reseller reseller, ResellerRequest request)
     {
-        var resellerLanguages = _repository.Languages.AsQueryable()
+        var resellerLanguages = repository.Languages.AsQueryable()
             .Where(x => request.CultureCodes.Contains(x.CultureCode)).Select(x =>
                 new ResellerLanguage
                 {

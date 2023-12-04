@@ -6,15 +6,10 @@ using Tgs.ServiceUtility;
 
 namespace TGS.Services.BackOffice.Application.Commands.PlayerBank;
 
-internal class UpdatePlayerBankInfoCommandService : ICommandService<UpdatePlayerBankInfoCommand>
+internal class UpdatePlayerBankInfoCommandService(
+    IPaymentServiceClient paymentServiceClient) : ICommandService<UpdatePlayerBankInfoCommand>
 {
-    private readonly IPaymentServiceClient _paymentServiceClient;
-
-    public UpdatePlayerBankInfoCommandService(
-        IPaymentServiceClient paymentServiceClient)
-    {
-        _paymentServiceClient = paymentServiceClient ?? throw new ArgumentNullException(nameof(paymentServiceClient));
-    }
+    private readonly IPaymentServiceClient _paymentServiceClient = paymentServiceClient ?? throw new ArgumentNullException(nameof(paymentServiceClient));
 
     public async ValueTask ExecuteAsync(
         UpdatePlayerBankInfoCommand command,

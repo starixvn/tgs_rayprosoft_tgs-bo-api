@@ -34,16 +34,10 @@ public interface IGameProviderService
     Task UpdateGameProviderAsync(GameProvider gameProvider, UpdateGameProviderRequest request);
 }
 
-public class GameProviderService : BaseRepositoryOperations<ITgsRepository>, IGameProviderService
+public class GameProviderService(ITgsRepository tgsRepository, IRedisCacheManager cacheManager) : BaseRepositoryOperations<ITgsRepository>(tgsRepository), IGameProviderService
 {
-    private readonly IRedisCacheManager _cacheManager;
-    private readonly ITgsRepository _repository;
-
-    public GameProviderService(ITgsRepository tgsRepository, IRedisCacheManager cacheManager) : base(tgsRepository)
-    {
-        _repository = tgsRepository;
-        _cacheManager = cacheManager;
-    }
+    private readonly IRedisCacheManager _cacheManager = cacheManager;
+    private readonly ITgsRepository _repository = tgsRepository;
 
     async Task IGameProviderService.ChangeStatusAsync(GameProvider gameProvider,
         UpdateGameProviderStatusRequest request)

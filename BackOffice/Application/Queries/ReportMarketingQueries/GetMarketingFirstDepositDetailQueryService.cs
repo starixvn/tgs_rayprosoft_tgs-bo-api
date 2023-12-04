@@ -12,19 +12,13 @@ using TGS.Services.BackOffice.Domain;
 
 namespace TGS.Services.BackOffice.Application.Queries.ReportMarketingQueries;
 
-public class GetMarketingFirstDepositDetailQueryService
-    : IGetService<GetMarketingFirstDepositDetailQuery, PagedResponse<MarketingFirstDepositDetailReportModel>>
+public class GetMarketingFirstDepositDetailQueryService(
+     IQueryService<PlayerPaymentStatisticsDetailQuery, PlayerDailyPaymentItem> queryService,
+     IQueryService<AllAgentsByBrandQuery, AgentInfo> agentQueryService)
+        : IGetService<GetMarketingFirstDepositDetailQuery, PagedResponse<MarketingFirstDepositDetailReportModel>>
 {
-    private readonly IQueryService<AllAgentsByBrandQuery, AgentInfo> _agentQueryService;
-    private readonly IQueryService<PlayerPaymentStatisticsDetailQuery, PlayerDailyPaymentItem> _queryService;
-
-    public GetMarketingFirstDepositDetailQueryService(
-         IQueryService<PlayerPaymentStatisticsDetailQuery, PlayerDailyPaymentItem> queryService,
-         IQueryService<AllAgentsByBrandQuery, AgentInfo> agentQueryService)
-    {
-        _queryService = queryService ?? throw new ArgumentNullException(nameof(queryService));
-        _agentQueryService = agentQueryService ?? throw new ArgumentNullException(nameof(agentQueryService));
-    }
+    private readonly IQueryService<AllAgentsByBrandQuery, AgentInfo> _agentQueryService = agentQueryService ?? throw new ArgumentNullException(nameof(agentQueryService));
+    private readonly IQueryService<PlayerPaymentStatisticsDetailQuery, PlayerDailyPaymentItem> _queryService = queryService ?? throw new ArgumentNullException(nameof(queryService));
 
     public async ValueTask<PagedResponse<MarketingFirstDepositDetailReportModel>> GetAsync(
         GetMarketingFirstDepositDetailQuery query,
@@ -64,8 +58,8 @@ public class GetMarketingFirstDepositDetailQueryService
         return new PagedResponse<MarketingFirstDepositDetailReportModel>
         {
             TotalCount = totalCount,
-            Items = dataQuery
-                .Select(item => new MarketingFirstDepositDetailReportModel
+            Items = [
+                .. dataQuery.Select(item => new MarketingFirstDepositDetailReportModel
                 {
                     Username = item.PlayerName,
                     FirstDepositOn = item.FirstDepositOn,
@@ -75,7 +69,7 @@ public class GetMarketingFirstDepositDetailQueryService
                     DepositSubtractWithdraw = item.TotalDepositAmount - item.TotalWithdrawAmount,
                     IpAddress = item.RegisterIp
                 })
-                .ToArray()
+            ]
         };
     }
 }

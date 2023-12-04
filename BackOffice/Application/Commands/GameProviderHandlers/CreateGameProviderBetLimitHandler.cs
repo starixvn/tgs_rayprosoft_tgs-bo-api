@@ -7,15 +7,9 @@ using TGS.Services.BackOffice.Infrastructure.DataService;
 
 namespace TGS.Services.BackOffice.Application.Commands.GameProviderHandlers;
 
-public class CreateGameProviderBetLimitHandler : Handler<CreateGameProviderBetLimitRequest, MessageResponse>
+public class CreateGameProviderBetLimitHandler(IGameProviderBetLimitService service, IHttpContextAccessor accessor) : Handler<CreateGameProviderBetLimitRequest, MessageResponse>(accessor)
 {
-    private readonly IGameProviderBetLimitService _service;
-
-    public CreateGameProviderBetLimitHandler(IGameProviderBetLimitService service, IHttpContextAccessor accessor)
-        : base(accessor)
-    {
-        _service = service;
-    }
+    private readonly IGameProviderBetLimitService _service = service;
 
     public override async Task<MessageResponse> Handle(CreateGameProviderBetLimitRequest request,
         CancellationToken cancellationToken)

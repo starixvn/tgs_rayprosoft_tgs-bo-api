@@ -10,20 +10,12 @@ using TGS.Services.BackOffice.Infrastructure.DataService;
 namespace TGS.Services.BackOffice.Application.Queries.GameProviderHandlers;
 
 public class
-    GetGameProviderBetLimitsQueryHandler : Handler<GetGameProviderBetLimitsRequest,
-        GetGameProviderBetLimitsResponse>
+    GetGameProviderBetLimitsQueryHandler(IGameProviderBetLimitService service,
+    IBetLimitService betLimitService, IHttpContextAccessor accessor) : Handler<GetGameProviderBetLimitsRequest,
+        GetGameProviderBetLimitsResponse>(accessor)
 {
-    private readonly IBetLimitService _betLimitService;
-    private readonly IGameProviderBetLimitService _service;
-
-    public GetGameProviderBetLimitsQueryHandler(IGameProviderBetLimitService service,
-        IBetLimitService betLimitService, IHttpContextAccessor accessor)
-
-        : base(accessor)
-    {
-        _service = service;
-        _betLimitService = betLimitService;
-    }
+    private readonly IBetLimitService _betLimitService = betLimitService;
+    private readonly IGameProviderBetLimitService _service = service;
 
     public override async Task<GetGameProviderBetLimitsResponse> Handle(GetGameProviderBetLimitsRequest request,
         CancellationToken cancellationToken)

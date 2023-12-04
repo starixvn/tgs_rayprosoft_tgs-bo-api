@@ -30,14 +30,9 @@ public interface IGameService
     Task UpdateGameAsync(Game game);
 }
 
-public class GameService : BaseRepositoryOperations<ITgsRepository>, IGameService
+public class GameService(ITgsRepository tgsRepository, IRedisCacheManager cacheManager) : BaseRepositoryOperations<ITgsRepository>(tgsRepository), IGameService
 {
-    private readonly IRedisCacheManager _cacheManager;
-
-    public GameService(ITgsRepository tgsRepository, IRedisCacheManager cacheManager) : base(tgsRepository)
-    {
-        _cacheManager = cacheManager;
-    }
+    private readonly IRedisCacheManager _cacheManager = cacheManager;
 
     async Task IGameService.CreateGamesAsync(GameProvider gameProvider, CreateGamesRequest request)
     {

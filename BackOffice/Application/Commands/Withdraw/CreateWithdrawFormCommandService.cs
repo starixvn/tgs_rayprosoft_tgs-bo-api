@@ -7,18 +7,12 @@ using Tgs.ServiceUtility;
 
 namespace TGS.Services.BackOffice.Application.Commands.Withdraw;
 
-internal class CreateWithdrawFormCommandService : ICommandService<CreateWithdrawFormCommand>
+internal class CreateWithdrawFormCommandService(
+    IPaymentServiceClient paymentServiceClient,
+    IPlayerServiceClient playerServiceClient) : ICommandService<CreateWithdrawFormCommand>
 {
-    private readonly IPaymentServiceClient _paymentServiceClient;
-    private readonly IPlayerServiceClient _playerServiceClient;
-
-    public CreateWithdrawFormCommandService(
-        IPaymentServiceClient paymentServiceClient,
-        IPlayerServiceClient playerServiceClient)
-    {
-        _paymentServiceClient = paymentServiceClient ?? throw new ArgumentNullException(nameof(paymentServiceClient));
-        _playerServiceClient = playerServiceClient ?? throw new ArgumentNullException(nameof(playerServiceClient));
-    }
+    private readonly IPaymentServiceClient _paymentServiceClient = paymentServiceClient ?? throw new ArgumentNullException(nameof(paymentServiceClient));
+    private readonly IPlayerServiceClient _playerServiceClient = playerServiceClient ?? throw new ArgumentNullException(nameof(playerServiceClient));
 
     public async ValueTask ExecuteAsync(CreateWithdrawFormCommand command, CancellationToken cancellationToken = default)
     {

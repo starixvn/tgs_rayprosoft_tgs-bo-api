@@ -16,16 +16,10 @@ using Xunit.Abstractions;
 
 namespace BackendOffice.IntegrationTests;
 
-public class DepartmentTests
+public class DepartmentTests(ITestOutputHelper testOutputHelper, NodeJsFixture nodeJsFixture)
 {
-    private readonly ITestOutputHelper _testOutputHelper;
-    private readonly NodeJsFixture _nodeJsFixture;
-
-    public DepartmentTests(ITestOutputHelper testOutputHelper, NodeJsFixture nodeJsFixture)
-    {
-        _testOutputHelper = testOutputHelper ?? throw new ArgumentNullException(nameof(testOutputHelper));
-        _nodeJsFixture = nodeJsFixture ?? throw new ArgumentNullException(nameof(nodeJsFixture));
-    }
+    private readonly ITestOutputHelper _testOutputHelper = testOutputHelper ?? throw new ArgumentNullException(nameof(testOutputHelper));
+    private readonly NodeJsFixture _nodeJsFixture = nodeJsFixture ?? throw new ArgumentNullException(nameof(nodeJsFixture));
 
     [Fact]
     public async Task 查詢部門列表()
@@ -78,15 +72,15 @@ public class DepartmentTests
 
         var roleId = Guid.NewGuid();
         var departmentId = Guid.NewGuid();
-        var departmentName = "DepartmentName";        
+        var departmentName = "DepartmentName";
         var now = DateTime.Now;
         var id = Guid.NewGuid();
 
         var query = new GetDepartmentsQuery(
             resellerId,
             licenseeId,
-            brandId,            
-            departmentName,            
+            brandId,
+            departmentName,
             new Tgs.Paging.Paging<DepartmentInfo>
             {
                 Page = 1,
@@ -125,8 +119,8 @@ public class DepartmentTests
             }.AsQueryable());
 
         var request = new GetDepartmentsRequest
-        {            
-            Name = departmentName            
+        {
+            Name = departmentName
         };
 
         var pageableRequest = new PageableRequest
@@ -140,13 +134,13 @@ public class DepartmentTests
 
         var expected = new DepartmentModel[]
         {
-            new() {                
+            new() {
                 Id = departmentId,
-                Name = departmentName,                
+                Name = departmentName,
                 LicenseeId = licenseeId,
-                BrandId = brandId,                
+                BrandId = brandId,
                 ResellerId = resellerId,
-                ResellerName = "ResellerName",   
+                ResellerName = "ResellerName",
                 LicenseeName = "LicenseeName",
                 BrandName = "BrandName"
             }

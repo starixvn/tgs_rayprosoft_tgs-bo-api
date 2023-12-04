@@ -9,15 +9,8 @@ namespace TGS.Apis.BackendOffice.Controllers;
 
 [Route("api/status")]
 [ApiController]
-public class StatusController : BaseContextController
+public class StatusController(IConfiguration configuration) : BaseContextController
 {
-    private readonly IConfiguration _configuration;
-
-    public StatusController(IConfiguration configuration)
-    {
-        _configuration = configuration;
-    }
-
     [Route("")]
     [HttpGet]
     [AllowAnonymous]
@@ -25,7 +18,7 @@ public class StatusController : BaseContextController
     [Description("Get status")]
     public Task<StatusViewModel> GetStatusAsync()
     {
-        var version = _configuration.GetValue<string>("Version");
+        var version = configuration.GetValue<string>("Version");
 
         return Task.FromResult(new StatusViewModel 
         { 

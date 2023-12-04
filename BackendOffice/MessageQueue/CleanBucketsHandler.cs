@@ -8,14 +8,10 @@ using Valhalla.MessageQueue;
 
 namespace TGS.Apis.BackendOffice.MessageQueue;
 
-public class CleanBucketsHandler : IMessageHandler
+public class CleanBucketsHandler(ICommandService<ProcessCleanBucketsRequestCommand> cleanService) : IMessageHandler
 {
-    private readonly ICommandService<ProcessCleanBucketsRequestCommand> _cleanService;
+    private readonly ICommandService<ProcessCleanBucketsRequestCommand> _cleanService = cleanService ?? throw new ArgumentNullException(nameof(cleanService));
 
-    public CleanBucketsHandler(ICommandService<ProcessCleanBucketsRequestCommand> cleanService)
-    {
-        _cleanService = cleanService ?? throw new ArgumentNullException(nameof(cleanService));
-    }
     public ValueTask HandleAsync(ReadOnlyMemory<byte> data, CancellationToken cancellationToken = default)
     {
         var eventData = CleanFormCreatedEvent.Parser.ParseFrom(data.Span);

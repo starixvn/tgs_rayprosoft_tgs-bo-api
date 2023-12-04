@@ -22,12 +22,8 @@ public interface IBetLimitService
     Task UpdateBetLimitAsync(BetLimit betLimit, UpdateBetLimitRequest request);
 }
 
-public class BetLimitService : BaseRepositoryOperations<ITgsRepository>, IBetLimitService
+public class BetLimitService(ITgsRepository tgsRepository) : BaseRepositoryOperations<ITgsRepository>(tgsRepository), IBetLimitService
 {
-    public BetLimitService(ITgsRepository tgsRepository) : base(tgsRepository)
-    {
-    }
-
     async Task IBetLimitService.CreateBetLimitAsync(CreateBetLimitRequest request)
     {
         var betLimit = new BetLimit

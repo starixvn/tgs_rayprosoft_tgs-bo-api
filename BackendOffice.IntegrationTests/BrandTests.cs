@@ -23,16 +23,10 @@ using Enums = TGS.Core.Models.Enums;
 
 namespace BackendOffice.IntegrationTests;
 
-public class BrandTests
+public class BrandTests(ITestOutputHelper testOutputHelper, NodeJsFixture nodeJsFixture)
 {
-    private readonly ITestOutputHelper _testOutputHelper;
-    private readonly NodeJsFixture _nodeJsFixture;
-
-    public BrandTests(ITestOutputHelper testOutputHelper, NodeJsFixture nodeJsFixture)
-    {
-        _testOutputHelper = testOutputHelper ?? throw new ArgumentNullException(nameof(testOutputHelper));
-        _nodeJsFixture = nodeJsFixture ?? throw new ArgumentNullException(nameof(nodeJsFixture));
-    }
+    private readonly ITestOutputHelper _testOutputHelper = testOutputHelper ?? throw new ArgumentNullException(nameof(testOutputHelper));
+    private readonly NodeJsFixture _nodeJsFixture = nodeJsFixture ?? throw new ArgumentNullException(nameof(nodeJsFixture));
 
     [Fact]
     public async Task 以BrandId查詢Brand列表()
@@ -135,24 +129,23 @@ public class BrandTests
         {
             TotalCount = 1,
             Valid = true,
-            Items = new[]
-            {
+            Items = [
                 new BrandListItemViewModel
                 {
-                    Id =  Guid.Parse("4e86719f-243f-46f6-b010-5c758b7285af"),
-                    Code= "GPI",
-                    Name= "Game Integration",
-                    LicenseeId= Guid.Parse("66c5fef5-217b-4929-9a08-72c2479a8f4e"),
-                    LicenseeName= "GPI",
+                    Id = Guid.Parse("4e86719f-243f-46f6-b010-5c758b7285af"),
+                    Code = "GPI",
+                    Name = "Game Integration",
+                    LicenseeId = Guid.Parse("66c5fef5-217b-4929-9a08-72c2479a8f4e"),
+                    LicenseeName = "GPI",
                     ResellerId = Guid.Parse("b5a2c708-ab70-4316-9f4d-5d2ad0e77460"),
                     ResellerName = "TGS",
-                    Status= Enums.BrandStatus.Active,
+                    Status = Enums.BrandStatus.Active,
                     Description = null,
                     OperationalEmail = null,
                     CreatedOn = DateTime.Parse("2023-01-01 10:00:00"),
-                    UpdatedOn =  DateTime.Parse("2023-01-01 10:00:00")
+                    UpdatedOn = DateTime.Parse("2023-01-01 10:00:00")
                 }
-            }
+            ]
         };
 
         // Act
@@ -274,24 +267,23 @@ public class BrandTests
         {
             TotalCount = 1,
             Valid = true,
-            Items = new[]
-            {
+            Items = [
                 new BrandListItemViewModel
                 {
-                    Id =  Guid.Parse("4e86719f-243f-46f6-b010-5c758b7285af"),
-                    Code= "GPI",
-                    Name= "Game Integration",
-                    LicenseeId= Guid.Parse("66c5fef5-217b-4929-9a08-72c2479a8f4e"),
-                    LicenseeName= "GPI",
-                    ResellerId= Guid.Parse("b5a2c708-ab70-4316-9f4d-5d2ad0e77460"),
-                    ResellerName= "TGS",
-                    Status= Enums.BrandStatus.Archived,
+                    Id = Guid.Parse("4e86719f-243f-46f6-b010-5c758b7285af"),
+                    Code = "GPI",
+                    Name = "Game Integration",
+                    LicenseeId = Guid.Parse("66c5fef5-217b-4929-9a08-72c2479a8f4e"),
+                    LicenseeName = "GPI",
+                    ResellerId = Guid.Parse("b5a2c708-ab70-4316-9f4d-5d2ad0e77460"),
+                    ResellerName = "TGS",
+                    Status = Enums.BrandStatus.Archived,
                     Description = null,
                     OperationalEmail = null,
                     CreatedOn = DateTime.Parse("2023-01-01 10:00:00"),
-                    UpdatedOn =  DateTime.Parse("2023-01-01 10:00:00")
+                    UpdatedOn = DateTime.Parse("2023-01-01 10:00:00")
                 }
-            }
+            ]
         };
 
         // Act
@@ -411,24 +403,23 @@ public class BrandTests
         {
             TotalCount = 1,
             Valid = true,
-            Items = new[]
-            {
+            Items = [
                 new BrandListItemViewModel
                 {
-                    Id =  Guid.Parse("4e86719f-243f-46f6-b010-5c758b7285af"),
-                    Code= "GPI",
-                    Name= "Game Integration",
-                    LicenseeId= Guid.Parse("66c5fef5-217b-4929-9a08-72c2479a8f4e"),
-                    LicenseeName= "GPI",
-                    ResellerId= Guid.Parse("b5a2c708-ab70-4316-9f4d-5d2ad0e77460"),
-                    ResellerName= "TGS",
-                    Status= Enums.BrandStatus.Active,
+                    Id = Guid.Parse("4e86719f-243f-46f6-b010-5c758b7285af"),
+                    Code = "GPI",
+                    Name = "Game Integration",
+                    LicenseeId = Guid.Parse("66c5fef5-217b-4929-9a08-72c2479a8f4e"),
+                    LicenseeName = "GPI",
+                    ResellerId = Guid.Parse("b5a2c708-ab70-4316-9f4d-5d2ad0e77460"),
+                    ResellerName = "TGS",
+                    Status = Enums.BrandStatus.Active,
                     Description = null,
                     OperationalEmail = null,
                     CreatedOn = DateTime.Parse("2023-01-01 10:00:00"),
-                    UpdatedOn =  DateTime.Parse("2023-01-01 10:00:00")
+                    UpdatedOn = DateTime.Parse("2023-01-01 10:00:00")
                 }
-            }
+            ]
         };
 
         // Act
@@ -550,24 +541,23 @@ public class BrandTests
         {
             TotalCount = 1,
             Valid = true,
-            Items = new[]
-            {
+            Items = [
                 new BrandListItemViewModel
                 {
-                    Id =  Guid.Parse("4e86719f-243f-46f6-b010-5c758b7285af"),
-                    Code= "GPI",
-                    Name= "Game Integration",
-                    LicenseeId= Guid.Parse("66c5fef5-217b-4929-9a08-72c2479a8f4e"),
-                    LicenseeName= "GPI",
-                    ResellerId= Guid.Parse("b5a2c708-ab70-4316-9f4d-5d2ad0e77460"),
-                    ResellerName= "TGS",
-                    Status= Enums.BrandStatus.Active,
+                    Id = Guid.Parse("4e86719f-243f-46f6-b010-5c758b7285af"),
+                    Code = "GPI",
+                    Name = "Game Integration",
+                    LicenseeId = Guid.Parse("66c5fef5-217b-4929-9a08-72c2479a8f4e"),
+                    LicenseeName = "GPI",
+                    ResellerId = Guid.Parse("b5a2c708-ab70-4316-9f4d-5d2ad0e77460"),
+                    ResellerName = "TGS",
+                    Status = Enums.BrandStatus.Active,
                     Description = null,
                     OperationalEmail = null,
                     CreatedOn = DateTime.Parse("2023-01-01 10:00:00"),
-                    UpdatedOn =  DateTime.Parse("2023-01-01 10:00:00")
+                    UpdatedOn = DateTime.Parse("2023-01-01 10:00:00")
                 }
-            }
+            ]
         };
 
         // Act
@@ -706,39 +696,38 @@ public class BrandTests
         {
             TotalCount = 2,
             Valid = true,
-            Items = new[]
-            {
+            Items = [
                 new BrandListItemViewModel
                 {
-                    Id =  Guid.Parse("4e86719f-243f-46f6-b010-5c758b7285af"),
-                    Code= "GPI",
-                    Name= "Game Integration",
-                    LicenseeId= Guid.Parse("66c5fef5-217b-4929-9a08-72c2479a8f4e"),
-                    LicenseeName= "GPI",
-                    ResellerId= Guid.Parse("b5a2c708-ab70-4316-9f4d-5d2ad0e77460"),
+                    Id = Guid.Parse("4e86719f-243f-46f6-b010-5c758b7285af"),
+                    Code = "GPI",
+                    Name = "Game Integration",
+                    LicenseeId = Guid.Parse("66c5fef5-217b-4929-9a08-72c2479a8f4e"),
+                    LicenseeName = "GPI",
+                    ResellerId = Guid.Parse("b5a2c708-ab70-4316-9f4d-5d2ad0e77460"),
                     ResellerName = "TGS",
-                    Status= Enums.BrandStatus.Active,
+                    Status = Enums.BrandStatus.Active,
                     Description = null,
                     OperationalEmail = null,
                     CreatedOn = DateTime.Parse("2023-01-01 10:00:00"),
-                    UpdatedOn =  DateTime.Parse("2023-01-01 10:00:00")
+                    UpdatedOn = DateTime.Parse("2023-01-01 10:00:00")
                 },
                 new BrandListItemViewModel
                 {
                     Id = Guid.Parse("9f1ecf19-38cd-474f-b0d2-93638dc07d21"),
-                    Code= "GPI_HKD",
-                    Name= "Game Integration HKD",
-                    LicenseeId= Guid.Parse("66c5fef5-217b-4929-9a08-72c2479a8f4e"),
-                    LicenseeName= "GPI",
-                    ResellerId= Guid.Parse("b5a2c708-ab70-4316-9f4d-5d2ad0e77460"),
-                    ResellerName= "TGS",
-                    Status= Enums.BrandStatus.Active,
+                    Code = "GPI_HKD",
+                    Name = "Game Integration HKD",
+                    LicenseeId = Guid.Parse("66c5fef5-217b-4929-9a08-72c2479a8f4e"),
+                    LicenseeName = "GPI",
+                    ResellerId = Guid.Parse("b5a2c708-ab70-4316-9f4d-5d2ad0e77460"),
+                    ResellerName = "TGS",
+                    Status = Enums.BrandStatus.Active,
                     Description = null,
                     OperationalEmail = null,
-                    CreatedOn= DateTime.Parse("2023-01-10 10:00:00"),
-                    UpdatedOn= DateTime.Parse("2023-01-10 10:00:00")
+                    CreatedOn = DateTime.Parse("2023-01-10 10:00:00"),
+                    UpdatedOn = DateTime.Parse("2023-01-10 10:00:00")
                 }
-            }
+            ]
         };
 
         // Act
@@ -878,7 +867,7 @@ public class BrandTests
             AutoClearWageringRequirementBalance = 0m,
             DepositHandlingFeeRateTenPercentile = 100m,
             WithdrawHandlingFeeRateTenPercentile = 100m,
-            Domains = Array.Empty<string>(),
+            Domains = [],
             BetLimits = betLimits
         };
 
@@ -1018,7 +1007,7 @@ public class BrandTests
             AutoClearWageringRequirementBalance = 0m,
             DepositHandlingFeeRateTenPercentile = 100m,
             WithdrawHandlingFeeRateTenPercentile = 100m,
-            Domains = Array.Empty<string>(),
+            Domains = [],
             BetLimits = betLimits
         };
 
@@ -1159,7 +1148,7 @@ public class BrandTests
             AutoClearWageringRequirementBalance = 0m,
             DepositHandlingFeeRateTenPercentile = 100m,
             WithdrawHandlingFeeRateTenPercentile = 100m,
-            Domains = Array.Empty<string>(),
+            Domains = [],
             BetLimits = betLimits
         };
 
@@ -1326,39 +1315,38 @@ public class BrandTests
         {
             TotalCount = 2,
             Valid = true,
-            Items = new[]
-            {
+            Items = [
                 new BrandListItemViewModel
                 {
-                    Id =  Guid.Parse("4e86719f-243f-46f6-b010-5c758b7285af"),
-                    Code= "GPI",
-                    Name= "Game Integration",
-                    LicenseeId= Guid.Parse("66c5fef5-217b-4929-9a08-72c2479a8f4e"),
-                    LicenseeName= "GPI",
-                    ResellerId= Guid.Parse("b5a2c708-ab70-4316-9f4d-5d2ad0e77460"),
+                    Id = Guid.Parse("4e86719f-243f-46f6-b010-5c758b7285af"),
+                    Code = "GPI",
+                    Name = "Game Integration",
+                    LicenseeId = Guid.Parse("66c5fef5-217b-4929-9a08-72c2479a8f4e"),
+                    LicenseeName = "GPI",
+                    ResellerId = Guid.Parse("b5a2c708-ab70-4316-9f4d-5d2ad0e77460"),
                     ResellerName = "TGS",
-                    Status= Enums.BrandStatus.Active,
+                    Status = Enums.BrandStatus.Active,
                     Description = null,
                     OperationalEmail = null,
                     CreatedOn = DateTime.Parse("2023-01-01 10:00:00"),
-                    UpdatedOn =  DateTime.Parse("2023-01-01 10:00:00")
+                    UpdatedOn = DateTime.Parse("2023-01-01 10:00:00")
                 },
                 new BrandListItemViewModel
                 {
                     Id = Guid.Parse("9f1ecf19-38cd-474f-b0d2-93638dc07d21"),
-                    Code= "GPI_HKD",
-                    Name= "Game Integration HKD",
-                    LicenseeId= Guid.Parse("66c5fef5-217b-4929-9a08-72c2479a8f4e"),
-                    LicenseeName= "GPI",
-                    ResellerId= Guid.Parse("b5a2c708-ab70-4316-9f4d-5d2ad0e77460"),
-                    ResellerName= "TGS",
-                    Status= Enums.BrandStatus.Maintenance,
+                    Code = "GPI_HKD",
+                    Name = "Game Integration HKD",
+                    LicenseeId = Guid.Parse("66c5fef5-217b-4929-9a08-72c2479a8f4e"),
+                    LicenseeName = "GPI",
+                    ResellerId = Guid.Parse("b5a2c708-ab70-4316-9f4d-5d2ad0e77460"),
+                    ResellerName = "TGS",
+                    Status = Enums.BrandStatus.Maintenance,
                     Description = null,
                     OperationalEmail = null,
-                    CreatedOn= DateTime.Parse("2023-01-10 10:00:00"),
-                    UpdatedOn= DateTime.Parse("2023-01-10 10:00:00")
+                    CreatedOn = DateTime.Parse("2023-01-10 10:00:00"),
+                    UpdatedOn = DateTime.Parse("2023-01-10 10:00:00")
                 }
-            }
+            ]
         };
 
         // Act

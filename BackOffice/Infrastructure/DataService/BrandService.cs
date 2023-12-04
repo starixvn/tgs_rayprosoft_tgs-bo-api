@@ -22,25 +22,16 @@ using IsolationLevel = System.Data.IsolationLevel;
 
 namespace TGS.Services.BackOffice.Infrastructure.DataService;
 
-public class BrandService : BaseRepositoryOperations<ITgsRepository>, IBrandService
+public class BrandService(
+    ITgsRepository tgsRepository,
+    ICredentialGenerator credentialGenerator,
+    IRedisCacheManager cacheManager,
+    ISerialNumberGenerator serialNumberGenerator) : BaseRepositoryOperations<ITgsRepository>(tgsRepository), IBrandService
 {
-    private readonly IRedisCacheManager _cacheManager;
-    private readonly ICredentialGenerator _credentialGenerator;
-    private readonly ITgsRepository _repository;
-    private readonly ISerialNumberGenerator _serialNumberGenerator;
-
-    public BrandService(
-        ITgsRepository tgsRepository,
-        ICredentialGenerator credentialGenerator,
-        IRedisCacheManager cacheManager,
-        ISerialNumberGenerator serialNumberGenerator)
-        : base(tgsRepository)
-    {
-        _repository = tgsRepository ?? throw new ArgumentNullException(nameof(tgsRepository));
-        _credentialGenerator = credentialGenerator ?? throw new ArgumentNullException(nameof(credentialGenerator));
-        _cacheManager = cacheManager ?? throw new ArgumentNullException(nameof(cacheManager));
-        _serialNumberGenerator = serialNumberGenerator ?? throw new ArgumentNullException(nameof(serialNumberGenerator));
-    }
+    private readonly IRedisCacheManager _cacheManager = cacheManager ?? throw new ArgumentNullException(nameof(cacheManager));
+    private readonly ICredentialGenerator _credentialGenerator = credentialGenerator ?? throw new ArgumentNullException(nameof(credentialGenerator));
+    private readonly ITgsRepository _repository = tgsRepository ?? throw new ArgumentNullException(nameof(tgsRepository));
+    private readonly ISerialNumberGenerator _serialNumberGenerator = serialNumberGenerator ?? throw new ArgumentNullException(nameof(serialNumberGenerator));
 
     public async ValueTask<Guid> CreateBrandAsync(CreateBrandInfo createInfo, CancellationToken cancellationToken = default)
     {

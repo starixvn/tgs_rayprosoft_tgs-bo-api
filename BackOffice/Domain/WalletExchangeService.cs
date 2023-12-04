@@ -7,23 +7,15 @@ using TGS.Services.WalletService;
 
 namespace TGS.Services.BackOffice.Domain;
 
-internal class WalletExchangeService : IWalletExchangeService
+internal class WalletExchangeService(
+    IPlayerWalletExchangeService playerWalletExchangeService,
+    IAgentService agentService,
+    IAgentWalletRepository agentWalletRepository) : IWalletExchangeService
 {
-    private readonly IAgentService _agentService;
-    private readonly IAgentWalletRepository _agentWalletRepository;
-    private readonly IPlayerWalletExchangeService _playerWalletExchangeService;
-
-    public WalletExchangeService(
-        IPlayerWalletExchangeService playerWalletExchangeService,
-        IAgentService agentService,
-        IAgentWalletRepository agentWalletRepository)
-    {
-        _playerWalletExchangeService = playerWalletExchangeService ?? throw new ArgumentNullException(nameof(playerWalletExchangeService));
-        _agentService = agentService ?? throw new ArgumentNullException(nameof(agentService));
-
-        _agentWalletRepository =
+    private readonly IAgentService _agentService = agentService ?? throw new ArgumentNullException(nameof(agentService));
+    private readonly IAgentWalletRepository _agentWalletRepository =
             agentWalletRepository ?? throw new ArgumentNullException(nameof(agentWalletRepository));
-    }
+    private readonly IPlayerWalletExchangeService _playerWalletExchangeService = playerWalletExchangeService ?? throw new ArgumentNullException(nameof(playerWalletExchangeService));
 
     public async ValueTask CancelWithdrawAsync(
         Guid brandId,

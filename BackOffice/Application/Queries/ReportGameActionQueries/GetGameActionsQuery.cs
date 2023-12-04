@@ -12,13 +12,10 @@ using TGS.Services.BackOffice.Application.Models.ReportGameAction;
 namespace TGS.Services.BackOffice.Application.Queries.ReportGameActionQueries;
 
 public class
-    GetGameActionsQuery : IGetService<GetGameActionsReportRequest,
+    GetGameActionsQuery(IReportClient reportClient) : IGetService<GetGameActionsReportRequest,
         PagedResponse<GameActionReportModel>>
 {
-    private readonly IReportClient _reportClient;
-
-    public GetGameActionsQuery(IReportClient reportClient)
-        => _reportClient = reportClient ?? throw new ArgumentNullException(nameof(reportClient));
+    private readonly IReportClient _reportClient = reportClient ?? throw new ArgumentNullException(nameof(reportClient));
 
     public async ValueTask<PagedResponse<GameActionReportModel>> GetAsync(GetGameActionsReportRequest request,
         CancellationToken cancellationToken = default)

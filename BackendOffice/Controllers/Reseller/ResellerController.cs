@@ -13,32 +13,25 @@ namespace TGS.Apis.BackendOffice.Controllers.Reseller;
 
 [Route("api/[controller]")]
 [ApiController]
-public partial class ResellerController : BaseContextController
+public partial class ResellerController(IResellerService service) : BaseContextController
 {
-    private readonly IResellerService _service;
-
-    public ResellerController(IResellerService service)
-    {
-        _service = service;
-    }
-
     [HttpPost]
     [Description("Create a Reseller")]
     public async Task<MessageResponse> CreateResellerAsync(CreateResellerRequest request)
     {
-        if (await _service.ExistsAsync(x => x.Name == request.Name))
+        if (await service.ExistsAsync(x => x.Name == request.Name))
         {
             return CreateInvalidResponse<MessageResponse>(Resources.Reseller.NameExists);
         }
 
 #pragma warning disable CA1862 // 使用 'StringComparison' 方法多載來執行不區分大小寫的字串比較
-        if (await _service.ExistsAsync(x => x.Code.ToLower() == request.Code.ToLower()))
+        if (await service.ExistsAsync(x => x.Code.ToLower() == request.Code.ToLower()))
         {
             return CreateInvalidResponse<MessageResponse>(Resources.Reseller.CodeExists);
         }
 #pragma warning restore CA1862 // 使用 'StringComparison' 方法多載來執行不區分大小寫的字串比較
 
-        await _service.CreateResellerAsync(request, Username);
+        await service.CreateResellerAsync(request, Username);
 
         return CreateValidResponse<MessageResponse>();
     }
@@ -47,7 +40,7 @@ public partial class ResellerController : BaseContextController
     [Description("Get a Reseller")]
     public async Task<GetResellerResponse> GetResellerAsync(Guid id)
     {
-        var reseller = await _service.GetResellerAsync(x => x.Id == id,
+        var reseller = await service.GetResellerAsync(x => x.Id == id,
             x => x.Include(i => i.Currencies)
                 .Include(i => i.Languages)
                 .Include(i => i.GameProviders)
@@ -105,7 +98,7 @@ public partial class ResellerController : BaseContextController
     [Description("Get resellers: 總公司列表")]
     public Task<PagedResponse<ResellerModel>> GetResellersAsync([FromQuery] GetResellersRequest request)
     {
-        return _service.GetResellers(request)
+        return service.GetResellers(request)
             .Where(ResellerId, x => x.Id == ResellerId)
             .Select(x => new ResellerModel
             {
@@ -125,24 +118,24 @@ public partial class ResellerController : BaseContextController
     [Description("Update a Reseller")]
     public async Task<MessageResponse> UpdateResellerAsync(Guid id, UpdateResellerRequest request)
     {
-        var reseller = await _service.GetResellerAsync(q => q.Id == id);
+        var reseller = await service.GetResellerAsync(q => q.Id == id);
 
         if (reseller == null)
         {
             return CreateInvalidResponse<MessageResponse>(Resources.Reseller.NotFound);
         }
 
-        if (await _service.ExistsAsync(x => x.Id != id && x.Name == request.Name))
+        if (await service.ExistsAsync(x => x.Id != id && x.Name == request.Name))
         {
             return CreateInvalidResponse<MessageResponse>(Resources.Reseller.NameExists);
         }
 
-        if (await _service.ExistsAsync(x => x.Id != id && x.Code == request.Code))
+        if (await service.ExistsAsync(x => x.Id != id && x.Code == request.Code))
         {
             return CreateInvalidResponse<MessageResponse>(Resources.Reseller.CodeExists);
         }
 
-        await _service.UpdateResellerAsync(reseller, request, Username);
+        await service.UpdateResellerAsync(reseller, request, Username);
 
         return CreateValidResponse<MessageResponse>();
     }

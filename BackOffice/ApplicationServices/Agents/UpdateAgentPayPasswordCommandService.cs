@@ -8,14 +8,9 @@ using Tgs.ServiceUtility;
 
 namespace TGS.Services.BackOffice.ApplicationServices.Agents;
 
-internal class UpdateAgentPayPasswordCommandService : ICommandService<UpdateAgentPayPasswordCommand>
+internal class UpdateAgentPayPasswordCommandService(IAgentClient agentClient) : ICommandService<UpdateAgentPayPasswordCommand>
 {
-    private readonly IAgentClient _agentClient;
-
-    public UpdateAgentPayPasswordCommandService(IAgentClient agentClient)
-    {
-        _agentClient = agentClient ?? throw new ArgumentNullException(nameof(agentClient));
-    }
+    private readonly IAgentClient _agentClient = agentClient ?? throw new ArgumentNullException(nameof(agentClient));
 
     public async ValueTask ExecuteAsync(UpdateAgentPayPasswordCommand command, CancellationToken cancellationToken = default)
     {

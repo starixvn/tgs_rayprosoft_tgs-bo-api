@@ -10,21 +10,14 @@ using TGS.Services.BackOffice.Infrastructure.DataService;
 
 namespace TGS.Services.BackOffice.Application.Queries.PlayerOnlineHandlers;
 
-public class GetPlayerOnlineOperationQueryHandler : IGetService<GetPlayerOnlineRequest, PlayerOnlineModel>
+public class GetPlayerOnlineOperationQueryHandler(
+    IPlayerOnlineRepository playerOnlineRepository,
+    IPlayerService playerService,
+    IPlayerIpService playerIpService) : IGetService<GetPlayerOnlineRequest, PlayerOnlineModel>
 {
-    private readonly IPlayerIpService _playerIpService;
-    private readonly IPlayerOnlineRepository _playerOnlineRepository;
-    private readonly IPlayerService _playerService;
-
-    public GetPlayerOnlineOperationQueryHandler(
-        IPlayerOnlineRepository playerOnlineRepository,
-        IPlayerService playerService,
-        IPlayerIpService playerIpService)
-    {
-        _playerOnlineRepository = playerOnlineRepository ?? throw new ArgumentNullException(nameof(playerOnlineRepository));
-        _playerService = playerService ?? throw new ArgumentNullException(nameof(playerService));
-        _playerIpService = playerIpService ?? throw new ArgumentNullException(nameof(playerIpService));
-    }
+    private readonly IPlayerIpService _playerIpService = playerIpService ?? throw new ArgumentNullException(nameof(playerIpService));
+    private readonly IPlayerOnlineRepository _playerOnlineRepository = playerOnlineRepository ?? throw new ArgumentNullException(nameof(playerOnlineRepository));
+    private readonly IPlayerService _playerService = playerService ?? throw new ArgumentNullException(nameof(playerService));
 
     public async ValueTask<PlayerOnlineModel> GetAsync(GetPlayerOnlineRequest query, CancellationToken cancellationToken = default)
     {

@@ -9,15 +9,10 @@ using PromotionStatus = Tgs.Promotion.Clients.PromotionStatus;
 
 namespace TGS.Services.BackOffice.ApplicationServices.Promotion;
 
-internal class PromotionListQueryService : IQueryService<PromotionListQuery, PromotionView>
+internal class PromotionListQueryService(
+    IPromotionServiceClient promotionServiceClient) : IQueryService<PromotionListQuery, PromotionView>
 {
-    private readonly IPromotionServiceClient _promotionServiceClient;
-
-    public PromotionListQueryService(
-        IPromotionServiceClient promotionServiceClient)
-    {
-        _promotionServiceClient = promotionServiceClient ?? throw new ArgumentNullException(nameof(promotionServiceClient));
-    }
+    private readonly IPromotionServiceClient _promotionServiceClient = promotionServiceClient ?? throw new ArgumentNullException(nameof(promotionServiceClient));
 
     public IAsyncEnumerable<PromotionView> QueryAsync(
         PromotionListQuery query,

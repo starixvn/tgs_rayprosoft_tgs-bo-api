@@ -5,15 +5,10 @@ using Tgs.ServiceUtility;
 
 namespace TGS.Services.BackOffice.ApplicationServices;
 
-internal class ClearBrandRelationCacheCommandService : ICommandService<ClearBrandRelationCacheCommand> 
+internal class ClearBrandRelationCacheCommandService(
+    IClearBrandRelationCacheService clearService) : ICommandService<ClearBrandRelationCacheCommand> 
 {
-    private readonly IClearBrandRelationCacheService _clearService;
-
-    public ClearBrandRelationCacheCommandService(
-        IClearBrandRelationCacheService clearService)
-    {
-        _clearService = clearService ?? throw new ArgumentNullException(nameof(clearService));
-    }
+    private readonly IClearBrandRelationCacheService _clearService = clearService ?? throw new ArgumentNullException(nameof(clearService));
 
     public ValueTask ExecuteAsync(
         ClearBrandRelationCacheCommand command,

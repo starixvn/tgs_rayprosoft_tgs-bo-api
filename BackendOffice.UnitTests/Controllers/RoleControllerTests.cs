@@ -1267,7 +1267,7 @@ public class RoleControllerTests : BaseTests
         _ = response.Message.Should().Be(Apis.BackendOffice.Resources.Role.NameExists);
     }
 
-        [Test]
+    [Test]
     public async Task Can_Create_User_Of_Different_Layer_With_Name_Exists()
     {
         var brandQueriesMock = Substitute.For<ITgsQueries<Brand>>();
@@ -1846,7 +1846,7 @@ public class RoleControllerTests : BaseTests
             r.DisplayName == role.DisplayName &&
             r.Description == role.Description));
     }
-    
+
     [Test]
     public async Task Can_Update_Role_With_Upper_Level_Name_Exists()
     {
@@ -2039,8 +2039,7 @@ public class RoleControllerTests : BaseTests
         var fixture = new Fixture();
 
         fixture.Customize<MenuSetting>(u => u
-            .With(s => s.SubMenus,
-                Array.Empty<MenuSetting>()));
+            .With(s => s.SubMenus, []));
 
         fixture.Customize<MenuSetting>(u => u
             .With(s => s.SubMenus, fixture.CreateMany<MenuSetting>(5).ToArray()));
@@ -2087,8 +2086,7 @@ public class RoleControllerTests : BaseTests
         var fixture = new Fixture();
 
         fixture.Customize<CreateRoleRequest>(u => u
-            .With(s => s.Menus,
-                Array.Empty<MenuSetting>()));
+            .With(s => s.Menus, []));
 
         return fixture;
     }
@@ -2098,8 +2096,7 @@ public class RoleControllerTests : BaseTests
         var fixture = new Fixture();
 
         fixture.Customize<UpdateRoleRequest>(u => u
-            .With(s => s.Menus,
-                Array.Empty<MenuSetting>()));
+            .With(s => s.Menus, []));
 
         return fixture;
     }

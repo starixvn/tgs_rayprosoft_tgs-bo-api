@@ -10,14 +10,9 @@ using TGS.Core.Models;
 
 namespace TGS.Apis.BackendOffice.Filters;
 
-public class AccessLogFilter : IAsyncActionFilter
+public class AccessLogFilter(ILogger<AccessLogFilter> logger) : IAsyncActionFilter
 {
-    private readonly ILogger<AccessLogFilter> _logger;
-
-    public AccessLogFilter(ILogger<AccessLogFilter> logger)
-    {
-        _logger = logger ?? throw new System.ArgumentNullException(nameof(logger));
-    }
+    private readonly ILogger<AccessLogFilter> _logger = logger ?? throw new System.ArgumentNullException(nameof(logger));
 
     public async Task OnActionExecutionAsync(ActionExecutingContext context, ActionExecutionDelegate next)
     {

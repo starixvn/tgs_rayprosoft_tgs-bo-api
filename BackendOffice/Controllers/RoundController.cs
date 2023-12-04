@@ -16,18 +16,9 @@ namespace TGS.Apis.BackendOffice.Controllers;
 
 [Route("api/[controller]")]
 [ApiController]
-public class RoundController : BaseContextController
+public class RoundController(IReportClient client,
+    IGameProvidersBackofficePluggableClient gameProvidersBackofficePluggableClient) : BaseContextController
 {
-    private readonly IReportClient _client;
-    private readonly IGameProvidersBackofficePluggableClient _gameProvidersBackofficePluggableClient;
-
-    public RoundController(IReportClient client,
-        IGameProvidersBackofficePluggableClient gameProvidersBackofficePluggableClient)
-    {
-        _client = client;
-        _gameProvidersBackofficePluggableClient = gameProvidersBackofficePluggableClient;
-    }
-
     [HttpPut("{roundId}/AdjustClosedRound", Name = "AdjustClosedRound")]
     [Description("Adjust a Closed round")]
     public async Task<MessageResponse> AdjustClosedRoundAsync(Guid roundId, AdjustClosedRoundRequest request)
@@ -47,7 +38,7 @@ public class RoundController : BaseContextController
             AdjustAmount = request.AdjustAmount
         };
 
-        await _gameProvidersBackofficePluggableClient.AdjustClosedRoundAsync(roundId, model).ConfigureAwait(false);
+        await gameProvidersBackofficePluggableClient.AdjustClosedRoundAsync(roundId, model).ConfigureAwait(false);
 
         return CreateValidResponse<MessageResponse>();
     }
@@ -71,7 +62,7 @@ public class RoundController : BaseContextController
             AdjustAmount = request.AdjustAmount
         };
 
-        await _gameProvidersBackofficePluggableClient.GameRoundClosedAsync(roundId, model).ConfigureAwait(false);
+        await gameProvidersBackofficePluggableClient.GameRoundClosedAsync(roundId, model).ConfigureAwait(false);
 
         return CreateValidResponse<MessageResponse>();
     }
@@ -94,7 +85,7 @@ public class RoundController : BaseContextController
             ShowAll = request.ShowAll
         };
 
-        var response = await _client.GetOpenRoundsAsync(reportRequest);
+        var response = await client.GetOpenRoundsAsync(reportRequest);
 
         return new()
         {

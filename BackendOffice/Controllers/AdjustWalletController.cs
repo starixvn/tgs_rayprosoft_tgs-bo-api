@@ -189,7 +189,7 @@ public class AdjustWalletController : ControllerBase
                 {
                     Valid = true,
                     TotalCount = 0,
-                    Items = Array.Empty<AdjustRecordListItemViewModel>()
+                    Items = []
                 };
 
             query = query with
@@ -274,7 +274,7 @@ public class AdjustWalletController : ControllerBase
                 {
                     Valid = true,
                     TotalCount = 0,
-                    Items = Array.Empty<AdjustRecordListItemViewModel>()
+                    Items = []
                 };
 
             query = query with

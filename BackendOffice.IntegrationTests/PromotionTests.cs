@@ -25,16 +25,10 @@ using PromotionStatus = Tgs.Promotion.Clients.PromotionStatus;
 
 namespace BackendOffice.IntegrationTests;
 
-public class PromotionTests
+public class PromotionTests(ITestOutputHelper testOutputHelper, NodeJsFixture nodeJsFixture)
 {
-    private readonly ITestOutputHelper _testOutputHelper;
-    private readonly NodeJsFixture _nodeJsFixture;
-
-    public PromotionTests(ITestOutputHelper testOutputHelper, NodeJsFixture nodeJsFixture)
-    {
-        _testOutputHelper = testOutputHelper ?? throw new ArgumentNullException(nameof(testOutputHelper));
-        _nodeJsFixture = nodeJsFixture ?? throw new ArgumentNullException(nameof(nodeJsFixture));
-    }
+    private readonly ITestOutputHelper _testOutputHelper = testOutputHelper ?? throw new ArgumentNullException(nameof(testOutputHelper));
+    private readonly NodeJsFixture _nodeJsFixture = nodeJsFixture ?? throw new ArgumentNullException(nameof(nodeJsFixture));
 
     [Fact]
     public async Task 取得活動MainInfo()
@@ -231,6 +225,7 @@ public class PromotionTests
 
         var promotionId = Guid.NewGuid();
 
+        var vipLevels = new[] { 1, 2, 3 };
         var rule = new PromotionRuleInfo(
             JsonDocument.Parse("""
                 {
@@ -241,7 +236,7 @@ public class PromotionTests
             10m,
             1m,
             null,
-            new[] { 1, 2, 3 });
+            vipLevels);
 
         _ = fakePromotionServiceClient.GetPromotionRuleAsync<PromotionRuleInfo>(
             Arg.Is(promotionId),
@@ -322,6 +317,7 @@ public class PromotionTests
         var orderby = SortOrder.Ascending;
         var showAll = false;
 
+        var vipLevels = new[] { 0, 1, 2 };
         _ = fakePromotionServiceClient.ListPromotionsAsync(
             Arg.Is(brandId),
             Arg.Any<During?>(),
@@ -329,7 +325,7 @@ public class PromotionTests
             Arg.Any<IEnumerable<string>>(),
             Arg.Any<PromotionStatus?>(),
             Arg.Any<CancellationToken>())
-            .Returns(new[]
+            .Returns((new[]
             {
                 new PromotionView
                 {
@@ -342,9 +338,9 @@ public class PromotionTests
                     UsedAmount = 10_000m,
                     PromotionLimitAmount = null,
                     Status = PromotionStatus.Enabled,
-                    VipLevels = new[] { 0, 1, 2 }
+                    VipLevels = vipLevels
                 }
-            }.ToAsyncEnumerable());
+            }).ToAsyncEnumerable());
 
         using var nodeService = _nodeJsFixture.BuildNodeJsService();
 
@@ -382,8 +378,7 @@ public class PromotionTests
         {
             TotalCount = 1,
             Valid = true,
-            Items = new[]
-            {
+            Items = [
                 new PromotionListItemViewModel
                 {
                     Id = Guid.Parse("0186da45-97f8-0000-0001-07e720dd98d5"),
@@ -398,7 +393,7 @@ public class PromotionTests
                     Status = SwitchStatus.Enabled,
                     VipLevels = new[] { 0, 1, 2 }
                 }
-            }
+            ]
         };
 
         // Act
@@ -455,6 +450,7 @@ public class PromotionTests
         var orderby = SortOrder.Ascending;
         var showAll = false;
 
+        var vipLevels = new[] { 0, 1, 2 };
         _ = fakePromotionServiceClient.ListPromotionsAsync(
             Arg.Is(brandId),
             Arg.Is(new During(
@@ -464,7 +460,7 @@ public class PromotionTests
             Arg.Any<IEnumerable<string>>(),
             Arg.Any<PromotionStatus?>(),
             Arg.Any<CancellationToken>())
-            .Returns(new[]
+            .Returns((new[]
             {
                 new PromotionView
                 {
@@ -477,9 +473,9 @@ public class PromotionTests
                     UsedAmount = 10_000m,
                     PromotionLimitAmount = null,
                     Status = PromotionStatus.Disabled,
-                    VipLevels = new[] { 0, 1, 2 }
+                    VipLevels = vipLevels
                 }
-            }.ToAsyncEnumerable());
+            }).ToAsyncEnumerable());
 
         using var nodeService = _nodeJsFixture.BuildNodeJsService();
 
@@ -519,8 +515,7 @@ public class PromotionTests
         {
             TotalCount = 1,
             Valid = true,
-            Items = new[]
-            {
+            Items = [
                 new PromotionListItemViewModel
                 {
                     Id = Guid.Parse("0186da45-97f8-0000-0001-07e720dd98d5"),
@@ -535,7 +530,7 @@ public class PromotionTests
                     Status = SwitchStatus.Disabled,
                     VipLevels = new[] { 0, 1, 2 }
                 }
-            }
+            ]
         };
 
         // Act
@@ -592,6 +587,7 @@ public class PromotionTests
         var orderby = SortOrder.Ascending;
         var showAll = false;
 
+        var vipLevels = new[] { 0, 1, 2 };
         _ = fakePromotionServiceClient.ListPromotionsAsync(
             Arg.Is(brandId),
             Arg.Is(new During(
@@ -601,7 +597,7 @@ public class PromotionTests
             Arg.Any<IEnumerable<string>>(),
             Arg.Any<PromotionStatus?>(),
             Arg.Any<CancellationToken>())
-            .Returns(new[]
+            .Returns((new[]
             {
                 new PromotionView
                 {
@@ -614,9 +610,9 @@ public class PromotionTests
                     UsedAmount = 10_000m,
                     PromotionLimitAmount = null,
                     Status = PromotionStatus.Disabled,
-                    VipLevels = new[] { 0, 1, 2 }
+                    VipLevels = vipLevels
                 }
-            }.ToAsyncEnumerable());
+            }).ToAsyncEnumerable());
 
         using var nodeService = _nodeJsFixture.BuildNodeJsService();
 
@@ -656,8 +652,7 @@ public class PromotionTests
         {
             TotalCount = 1,
             Valid = true,
-            Items = new[]
-            {
+            Items = [
                 new PromotionListItemViewModel
                 {
                     Id = Guid.Parse("0186da45-97f8-0000-0001-07e720dd98d5"),
@@ -672,7 +667,7 @@ public class PromotionTests
                     Status = SwitchStatus.Disabled,
                     VipLevels = new[] { 0, 1, 2 }
                 }
-            }
+            ]
         };
 
         // Act
@@ -729,6 +724,7 @@ public class PromotionTests
         var orderby = SortOrder.Ascending;
         var showAll = false;
 
+        var vipLevels = new[] { 0, 1, 2 };
         _ = fakePromotionServiceClient.ListPromotionsAsync(
             Arg.Is(brandId),
             Arg.Any<During?>(),
@@ -736,7 +732,7 @@ public class PromotionTests
             Arg.Any<IEnumerable<string>>(),
             Arg.Any<PromotionStatus?>(),
             Arg.Any<CancellationToken>())
-            .Returns(new[]
+            .Returns((new[]
             {
                 new PromotionView
                 {
@@ -749,9 +745,9 @@ public class PromotionTests
                     UsedAmount = 10_000m,
                     PromotionLimitAmount = null,
                     Status = PromotionStatus.Enabled,
-                    VipLevels = new[] { 0, 1, 2 }
+                    VipLevels = vipLevels
                 }
-            }.ToAsyncEnumerable());
+            }).ToAsyncEnumerable());
 
         using var nodeService = _nodeJsFixture.BuildNodeJsService();
 
@@ -790,8 +786,7 @@ public class PromotionTests
         {
             TotalCount = 1,
             Valid = true,
-            Items = new[]
-            {
+            Items = [
                 new PromotionListItemViewModel
                 {
                     Id = Guid.Parse("0186da45-97f8-0000-0001-07e720dd98d5"),
@@ -806,7 +801,7 @@ public class PromotionTests
                     Status = SwitchStatus.Enabled,
                     VipLevels = new[] { 0, 1, 2 }
                 }
-            }
+            ]
         };
 
         // Act
@@ -863,14 +858,16 @@ public class PromotionTests
         var orderby = SortOrder.Ascending;
         var showAll = false;
 
+        var promotionTypes = new[] { "TestType" };
+        var vipLevels = new[] { 0, 1, 2 };
         _ = fakePromotionServiceClient.ListPromotionsAsync(
             Arg.Is(brandId),
             Arg.Any<During?>(),
             Arg.Any<string?>(),
-            Arg.Is<IEnumerable<string>>(types => new[] { "TestType" }.SequenceEqual(types)),
+            Arg.Is<IEnumerable<string>>(types => promotionTypes.SequenceEqual(types)),
             Arg.Any<PromotionStatus?>(),
             Arg.Any<CancellationToken>())
-            .Returns(new[]
+            .Returns((new[]
             {
                 new PromotionView
                 {
@@ -883,9 +880,9 @@ public class PromotionTests
                     UsedAmount = 10_000m,
                     PromotionLimitAmount = null,
                     Status = PromotionStatus.Disabled,
-                    VipLevels = new[] { 0, 1, 2 }
+                    VipLevels = vipLevels
                 }
-            }.ToAsyncEnumerable());
+            }).ToAsyncEnumerable());
 
         using var nodeService = _nodeJsFixture.BuildNodeJsService();
 
@@ -924,8 +921,7 @@ public class PromotionTests
         {
             TotalCount = 1,
             Valid = true,
-            Items = new[]
-            {
+            Items = [
                 new PromotionListItemViewModel
                 {
                     Id = Guid.Parse("0186da45-97f8-0000-0001-07e720dd98d5"),
@@ -940,7 +936,7 @@ public class PromotionTests
                     Status = SwitchStatus.Disabled,
                     VipLevels = new[] { 0, 1, 2 }
                 }
-            }
+            ]
         };
 
         // Act
@@ -997,6 +993,7 @@ public class PromotionTests
         var orderby = SortOrder.Ascending;
         var showAll = false;
 
+        var vipLevels = new[] { 0, 1, 2 };
         _ = fakePromotionServiceClient.ListPromotionsAsync(
             Arg.Is(brandId),
             Arg.Any<During?>(),
@@ -1004,7 +1001,7 @@ public class PromotionTests
             Arg.Any<IEnumerable<string>>(),
             Arg.Is(PromotionStatus.Disabled),
             Arg.Any<CancellationToken>())
-            .Returns(new[]
+            .Returns((new[]
             {
                 new PromotionView
                 {
@@ -1017,9 +1014,9 @@ public class PromotionTests
                     UsedAmount = 10_000m,
                     PromotionLimitAmount = null,
                     Status = PromotionStatus.Disabled,
-                    VipLevels = new[] { 0, 1, 2 }
+                    VipLevels = vipLevels
                 }
-            }.ToAsyncEnumerable());
+            }).ToAsyncEnumerable());
 
         using var nodeService = _nodeJsFixture.BuildNodeJsService();
 
@@ -1058,8 +1055,7 @@ public class PromotionTests
         {
             TotalCount = 1,
             Valid = true,
-            Items = new[]
-            {
+            Items = [
                 new PromotionListItemViewModel
                 {
                     Id = Guid.Parse("0186da45-97f8-0000-0001-07e720dd98d5"),
@@ -1074,7 +1070,7 @@ public class PromotionTests
                     Status = SwitchStatus.Disabled,
                     VipLevels = new[] { 0, 1, 2 }
                 }
-            }
+            ]
         };
 
         // Act
@@ -1135,7 +1131,7 @@ public class PromotionTests
             Unlimited = true,
             Rule = JsonDocument.Parse("{}"),
             SubSubject = "TestPromotion",
-            VipLevels = new[] { 1, 2 },
+            VipLevels = [1, 2],
             Status = SwitchStatus.Enabled
         };
 
@@ -1373,6 +1369,7 @@ public class PromotionTests
                 PromotionType = "TestPromotion"
             });
 
+        var vipLevels = new[] { 1, 2, 3 };
         _ = fakeGetRuleService.GetAsync(
             Arg.Is(new GetPromotionRuleQuery(basePromotionId)),
             Arg.Any<CancellationToken>())
@@ -1382,7 +1379,7 @@ public class PromotionTests
                 10m,
                 1m,
                 null,
-                new[] { 1, 2, 3 }));
+                vipLevels));
 
         _ = fakeGetContentService.GetAsync(
             Arg.Is(new GetPromotionContentQuery(basePromotionId)),
@@ -1506,7 +1503,7 @@ public class PromotionTests
             Unlimited = true,
             Rule = JsonDocument.Parse("{}"),
             SubSubject = "TestPromotion",
-            VipLevels = new[] { 1, 2 },
+            VipLevels = [1, 2],
             Status = SwitchStatus.Enabled
         };
 

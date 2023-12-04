@@ -13,14 +13,14 @@ public partial class BrandPaymentController
     [Description("change a Payment's status")]
     public async Task<MessageResponse> UpdateBrandPaymentStatusAsync(Guid paymentId, SwitchStatus status)
     {
-        var payment = await _brandPaymentService.GetPaymentAsync(q => q.Id == paymentId);
+        var payment = await brandPaymentService.GetPaymentAsync(q => q.Id == paymentId);
 
         if (payment == null)
         {
             return CreateInvalidResponse<MessageResponse>(Resources.BrandPayment.PaymentNotFound);
         }
 
-        await _brandPaymentService.ChangeStatusAsync(payment, status, Username);
+        await brandPaymentService.ChangeStatusAsync(payment, status, Username);
 
         return CreateValidResponse<MessageResponse>();
     }

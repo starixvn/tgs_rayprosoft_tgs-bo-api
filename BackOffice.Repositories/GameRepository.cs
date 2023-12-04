@@ -9,15 +9,10 @@ using TGS.Services.BackOffice.Domain;
 
 namespace TGS.BackOffice.Repositories;
 
-internal class GameRepository : IGameRepository
+internal class GameRepository(
+    ITgsRepository tgsRepository) : IGameRepository
 {
-    private readonly ITgsRepository _tgsRepository;
-
-    public GameRepository(
-        ITgsRepository tgsRepository)
-    {
-        _tgsRepository = tgsRepository ?? throw new ArgumentNullException(nameof(tgsRepository));
-    }
+    private readonly ITgsRepository _tgsRepository = tgsRepository ?? throw new ArgumentNullException(nameof(tgsRepository));
 
     public async IAsyncEnumerable<GameInfo> QueryAllGamesAsync(
         Guid gameProviderId,

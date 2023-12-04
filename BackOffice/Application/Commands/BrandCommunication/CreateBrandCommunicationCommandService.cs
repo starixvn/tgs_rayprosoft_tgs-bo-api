@@ -7,15 +7,10 @@ using CoreModels = TGS.Core.DataServices.Tgs.Models;
 
 namespace TGS.Services.BackOffice.Application.Commands.BrandCommunication;
 
-internal class CreateBrandCommunicationCommandService : ICommandService<CreateBrandCommunicationCommand>
+internal class CreateBrandCommunicationCommandService(
+    ITgsCommands<CoreModels.BrandCommunication> commands) : ICommandService<CreateBrandCommunicationCommand>
 {
-    private readonly ITgsCommands<CoreModels.BrandCommunication> _commands;
-
-    public CreateBrandCommunicationCommandService(
-        ITgsCommands<CoreModels.BrandCommunication> commands)
-    {
-        _commands = commands;
-    }
+    private readonly ITgsCommands<CoreModels.BrandCommunication> _commands = commands;
 
     public async ValueTask ExecuteAsync(
         CreateBrandCommunicationCommand command,

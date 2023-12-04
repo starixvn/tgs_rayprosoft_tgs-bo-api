@@ -7,14 +7,9 @@ using Tgs.ServiceUtility;
 
 namespace TGS.Services.BackOffice.ApplicationServices.Agents;
 
-internal class GetAgentOperationQueryService : IGetService<GetAgentOperationQuery, PagingResponse<AgentAuditLogInfo>>
+internal class GetAgentOperationQueryService(IAgentClient agentClient) : IGetService<GetAgentOperationQuery, PagingResponse<AgentAuditLogInfo>>
 {
-    private readonly IAgentClient _agentClient;
-
-    public GetAgentOperationQueryService(IAgentClient agentClient)
-    {
-        _agentClient = agentClient ?? throw new ArgumentNullException(nameof(agentClient));
-    }
+    private readonly IAgentClient _agentClient = agentClient ?? throw new ArgumentNullException(nameof(agentClient));
 
     public async ValueTask<PagingResponse<AgentAuditLogInfo>> GetAsync(GetAgentOperationQuery query, CancellationToken cancellationToken = default)
     {

@@ -6,14 +6,9 @@ using Tgs.ServiceUtility;
 
 namespace TGS.Services.BackOffice.ApplicationServices.Players;
 
-internal class GetPlayerRealNameQueryService : IGetService<GetPlayerRealNameQuery, string>
+internal class GetPlayerRealNameQueryService(IPlayerServiceClient playerServiceClient) : IGetService<GetPlayerRealNameQuery, string>
 {
-    private readonly IPlayerServiceClient _playerServiceClient;
-
-    public GetPlayerRealNameQueryService(IPlayerServiceClient playerServiceClient)
-    {
-        _playerServiceClient = playerServiceClient ?? throw new ArgumentNullException(nameof(playerServiceClient));
-    }
+    private readonly IPlayerServiceClient _playerServiceClient = playerServiceClient ?? throw new ArgumentNullException(nameof(playerServiceClient));
 
     public async ValueTask<string> GetAsync(GetPlayerRealNameQuery query, CancellationToken cancellationToken = default)
     {

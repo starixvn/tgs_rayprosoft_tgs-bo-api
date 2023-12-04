@@ -7,15 +7,9 @@ using TGS.Services.BackOffice.Infrastructure.DataService;
 
 namespace TGS.Services.BackOffice.Application.Commands.GameProviderHandlers;
 
-public class UpdateGameProviderStatusHandler : Handler<UpdateGameProviderStatusRequest, MessageResponse>
+public class UpdateGameProviderStatusHandler(IGameProviderService service, IHttpContextAccessor accessor) : Handler<UpdateGameProviderStatusRequest, MessageResponse>(accessor)
 {
-    private readonly IGameProviderService _service;
-
-    public UpdateGameProviderStatusHandler(IGameProviderService service, IHttpContextAccessor accessor)
-        : base(accessor)
-    {
-        _service = service;
-    }
+    private readonly IGameProviderService _service = service;
 
     public override async Task<MessageResponse> Handle(UpdateGameProviderStatusRequest request,
         CancellationToken cancellationToken)

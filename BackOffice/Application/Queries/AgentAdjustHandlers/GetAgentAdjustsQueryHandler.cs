@@ -10,14 +10,9 @@ using TGS.Services.BackOffice.Infrastructure.DataService;
 
 namespace TGS.Services.BackOffice.Application.Queries.AgentAdjustHandlers;
 
-public class GetAgentAdjustsQueryHandler : Handler<GetAdjustAgentsRequest, PagedResponse<AdjustAgentModel>>
+public class GetAgentAdjustsQueryHandler(IAgentService service, IHttpContextAccessor accessor) : Handler<GetAdjustAgentsRequest, PagedResponse<AdjustAgentModel>>(accessor)
 {
-    private readonly IAgentService _service;
-
-    public GetAgentAdjustsQueryHandler(IAgentService service, IHttpContextAccessor accessor) : base(accessor)
-    {
-        _service = service;
-    }
+    private readonly IAgentService _service = service;
 
     public override Task<PagedResponse<AdjustAgentModel>> Handle(GetAdjustAgentsRequest request,
         CancellationToken cancellationToken) =>

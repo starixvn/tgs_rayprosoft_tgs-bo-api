@@ -11,15 +11,10 @@ using TGS.Services.BackOffice.Application.Models.SubGameProvider;
 namespace TGS.Services.BackOffice.Application.Commands.SubGameProviderHandlers;
 
 internal class
-    UpdateSubGameProvidersLocalizationService : IGetService<UpdateSubGameProvidersLocalizationRequest,
+    UpdateSubGameProvidersLocalizationService(ITgsRepository tgsRepository) : IGetService<UpdateSubGameProvidersLocalizationRequest,
         UpdateSubGameProvidersLocationInfo>
 {
-    private readonly ITgsRepository _tgsRepository;
-
-    public UpdateSubGameProvidersLocalizationService(ITgsRepository tgsRepository)
-    {
-        _tgsRepository = tgsRepository ?? throw new ArgumentNullException(nameof(tgsRepository));
-    }
+    private readonly ITgsRepository _tgsRepository = tgsRepository ?? throw new ArgumentNullException(nameof(tgsRepository));
 
     public async ValueTask<UpdateSubGameProvidersLocationInfo>
         GetAsync(UpdateSubGameProvidersLocalizationRequest request,
@@ -50,7 +45,10 @@ internal class
 
             _ = await _tgsRepository.SaveChangesAsync(cancellationToken);
 
-            return new UpdateSubGameProvidersLocationInfo { DiffGameProviderCodes = Array.Empty<string>() };
+            return new UpdateSubGameProvidersLocationInfo
+            {
+                DiffGameProviderCodes = []
+            };
         }
 
         return new UpdateSubGameProvidersLocationInfo { DiffGameProviderCodes = diffGameProviders };

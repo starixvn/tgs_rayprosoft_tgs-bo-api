@@ -7,14 +7,9 @@ using TGS.Services.BackOffice.Domain;
 
 namespace TGS.Services.BackOffice.ApplicationServices.Overview;
 
-internal class GetDayNetDepositQueryService : IGetService<GetDayNetDepositQuery, DayNetDepositInfo>
+internal class GetDayNetDepositQueryService(IPaymentServiceClient paymentServiceClient) : IGetService<GetDayNetDepositQuery, DayNetDepositInfo>
 {
-    private readonly IPaymentServiceClient _paymentServiceClient;
-
-    public GetDayNetDepositQueryService(IPaymentServiceClient paymentServiceClient)
-    {
-        _paymentServiceClient = paymentServiceClient ?? throw new ArgumentNullException(nameof(paymentServiceClient));
-    }
+    private readonly IPaymentServiceClient _paymentServiceClient = paymentServiceClient ?? throw new ArgumentNullException(nameof(paymentServiceClient));
 
     public async ValueTask<DayNetDepositInfo> GetAsync(GetDayNetDepositQuery query, CancellationToken cancellationToken = default)
     {

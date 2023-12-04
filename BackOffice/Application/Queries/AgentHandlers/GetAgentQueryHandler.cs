@@ -10,29 +10,20 @@ using TGS.Services.BackOffice.Infrastructure.DataService;
 
 namespace TGS.Services.BackOffice.Application.Queries.AgentHandlers;
 
-public class GetAgentQueryHandler : Handler<GetAgentRequest, GetAgentResponse>
+public class GetAgentQueryHandler(
+    IAgentService service,
+    IAgentDividendService agentDividendService,
+    ITgsRepository tgsRepository,
+    IHttpContextAccessor accessor) : Handler<GetAgentRequest, GetAgentResponse>(accessor)
 {
-    private readonly IAgentDividendService _agentDividendService;
-    private readonly IAgentService _service;
-    private readonly ITgsRepository _tgsRepository;
-
-    public GetAgentQueryHandler(
-        IAgentService service,
-        IAgentDividendService agentDividendService,
-        ITgsRepository tgsRepository,
-        IHttpContextAccessor accessor) : base(accessor)
-    {
-        _service = service;
-        _agentDividendService = agentDividendService;
-        _tgsRepository = tgsRepository ?? throw new System.ArgumentNullException(nameof(tgsRepository));
-    }
+    private readonly ITgsRepository _tgsRepository = tgsRepository ?? throw new System.ArgumentNullException(nameof(tgsRepository));
 
     public override async Task<GetAgentResponse> Handle(GetAgentRequest request,
         CancellationToken cancellationToken)
     {
-        var agent = await _service.GetAgentAsync(x => x.Id == request.Id).ConfigureAwait(false);
+        var agent = await service.GetAgentAsync(x => x.Id == request.Id).ConfigureAwait(false);
 
-        var dividend = await _agentDividendService.GetAgentDividends()
+        var dividend = await agentDividendService.GetAgentDividends()
             .Where(x => x.AgentId == request.Id && x.SentOn == null)
             .SumAsync(x => x.BeforeDividendAmount ?? x.AgentDividendAmount, cancellationToken).ConfigureAwait(false);
 
@@ -80,13 +71,15 @@ public class GetAgentQueryHandler : Handler<GetAgentRequest, GetAgentResponse>
                     }).ToArray(),
                     AccumulatedProfitSharing = dividend,
                     PlayerNumber = playerNumber,
-                    AgentDividendConditions = agent.AgentDividendConditions.Select(x => new AgentDividendConditionModel
-                    {
-                        Rank = x.Rank,
-                        NetProfit = x.NetProfit,
-                        ActiveNumber = x.ActiveNumber,
-                        DividendPercentage = x.DividendPercentage
-                    }).OrderBy(x => x.Rank).ToArray(),
+                    AgentDividendConditions = [
+                        .. agent.AgentDividendConditions.Select(x => new AgentDividendConditionModel
+                        {
+                            Rank = x.Rank,
+                            NetProfit = x.NetProfit,
+                            ActiveNumber = x.ActiveNumber,
+                            DividendPercentage = x.DividendPercentage
+                        }).OrderBy(x => x.Rank),
+                    ],
                     Path = agent.Path
                 }
             };

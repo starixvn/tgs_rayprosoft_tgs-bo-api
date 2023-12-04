@@ -7,18 +7,12 @@ using TGS.Services.BackOffice.ApplicationServices.Players;
 
 namespace TGS.Services.BackOffice.Application.Queries.Withdraw;
 
-internal class GetWithdrawFormRealNameQueryService : IGetService<GetWithdrawFormRealNameQuery, string>
+internal class GetWithdrawFormRealNameQueryService(
+    IGetService<GetAgentRealNameQuery, string> getAgentRealNameService,
+    IGetService<GetPlayerRealNameQuery, string> getPlayerRealNameService) : IGetService<GetWithdrawFormRealNameQuery, string>
 {
-    private readonly IGetService<GetAgentRealNameQuery, string> _getAgentRealNameService;
-    private readonly IGetService<GetPlayerRealNameQuery, string> _getPlayerRealNameService;
-
-    public GetWithdrawFormRealNameQueryService(
-        IGetService<GetAgentRealNameQuery, string> getAgentRealNameService,
-        IGetService<GetPlayerRealNameQuery, string> getPlayerRealNameService)
-    {
-        _getAgentRealNameService = getAgentRealNameService ?? throw new ArgumentNullException(nameof(getAgentRealNameService));
-        _getPlayerRealNameService = getPlayerRealNameService ?? throw new ArgumentNullException(nameof(getPlayerRealNameService));
-    }
+    private readonly IGetService<GetAgentRealNameQuery, string> _getAgentRealNameService = getAgentRealNameService ?? throw new ArgumentNullException(nameof(getAgentRealNameService));
+    private readonly IGetService<GetPlayerRealNameQuery, string> _getPlayerRealNameService = getPlayerRealNameService ?? throw new ArgumentNullException(nameof(getPlayerRealNameService));
 
     public async ValueTask<string> GetAsync(GetWithdrawFormRealNameQuery query, CancellationToken cancellationToken = default)
     {

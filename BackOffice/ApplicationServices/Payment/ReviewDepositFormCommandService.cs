@@ -23,7 +23,7 @@ namespace TGS.Services.BackOffice.ApplicationServices.Payment;
 
 internal class ReviewDepositFormCommandService : ICommandService<ReviewDepositFormCommand>
 {
-    private static readonly string[] _AllowDistributePromotionTypes = new[] { "FirstDeposit", "DailySecondDeposit", "DailyFirstDeposit", "DepositReward" };
+    private static readonly string[] _AllowDistributePromotionTypes = ["FirstDeposit", "DailySecondDeposit", "DailyFirstDeposit", "DepositReward"];
     private readonly IBrandServiceClient _brandServiceClient;
     private readonly ICashServiceClient _cashServiceClient;
     private readonly ILogger<ReviewDepositFormCommandService> _logger;
@@ -49,8 +49,7 @@ internal class ReviewDepositFormCommandService : ICommandService<ReviewDepositFo
         IMessageSender messageSender,
         ILogger<ReviewDepositFormCommandService> logger)
     {
-        if (redisConnectionFactory is null)
-            throw new ArgumentNullException(nameof(redisConnectionFactory));
+        ArgumentNullException.ThrowIfNull(redisConnectionFactory);
 
         _paymentServiceClient = paymentServiceClient ?? throw new ArgumentNullException(nameof(paymentServiceClient));
         _playerServiceClient = playerServiceClient ?? throw new ArgumentNullException(nameof(playerServiceClient));

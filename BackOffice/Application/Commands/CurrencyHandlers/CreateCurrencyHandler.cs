@@ -8,14 +8,9 @@ using TGS.Services.BackOffice.Infrastructure.DataService;
 
 namespace TGS.Services.BackOffice.Application.Commands.CurrencyHandlers;
 
-public class CreateCurrencyHandler : Handler<CreateCurrencyRequest, MessageResponse>
+public class CreateCurrencyHandler(ICurrencyService service, IHttpContextAccessor accessor) : Handler<CreateCurrencyRequest, MessageResponse>(accessor)
 {
-    private readonly ICurrencyService _service;
-
-    public CreateCurrencyHandler(ICurrencyService service, IHttpContextAccessor accessor) : base(accessor)
-    {
-        _service = service;
-    }
+    private readonly ICurrencyService _service = service;
 
     public override async Task<MessageResponse> Handle(CreateCurrencyRequest request,
         CancellationToken cancellationToken)

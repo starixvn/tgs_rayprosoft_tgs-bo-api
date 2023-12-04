@@ -4,15 +4,8 @@ using Microsoft.Extensions.Hosting;
 
 namespace TGS.Apis.BackendOffice.Workers;
 
-public class StationLetterBackground : BackgroundService
+public class StationLetterBackground(IStationLetterTaskQueue taskQueue) : BackgroundService
 {
-    private readonly IStationLetterTaskQueue _taskQueue;
-
-    public StationLetterBackground(IStationLetterTaskQueue taskQueue)
-    {
-        _taskQueue = taskQueue;
-    }
-
     protected override Task ExecuteAsync(CancellationToken stoppingToken)
-        => _taskQueue.ProcessLoopAsync(stoppingToken);
+        => taskQueue.ProcessLoopAsync(stoppingToken);
 }

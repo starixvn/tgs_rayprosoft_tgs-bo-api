@@ -10,14 +10,9 @@ using TGS.Services.BackOffice.Infrastructure.DataService;
 
 namespace TGS.Services.BackOffice.ApplicationServices.Players;
 
-internal class GetPlayerIpsByUserNameGetService : IGetService<GetPlayerIpsByUserNameQuery, PagedResponse<GetPlayerIpsByUserNameResult>>
+internal class GetPlayerIpsByUserNameGetService(IPlayerIpService service) : IGetService<GetPlayerIpsByUserNameQuery, PagedResponse<GetPlayerIpsByUserNameResult>>
 {
-    private readonly IPlayerIpService _service;
-
-    public GetPlayerIpsByUserNameGetService(IPlayerIpService service)
-    {
-        _service = service ?? throw new ArgumentNullException(nameof(service));
-    }
+    private readonly IPlayerIpService _service = service ?? throw new ArgumentNullException(nameof(service));
 
     public async ValueTask<PagedResponse<GetPlayerIpsByUserNameResult>> GetAsync(GetPlayerIpsByUserNameQuery query, CancellationToken cancellationToken = default)
     {

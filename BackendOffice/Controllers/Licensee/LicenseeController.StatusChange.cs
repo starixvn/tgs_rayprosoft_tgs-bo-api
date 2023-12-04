@@ -13,14 +13,14 @@ public partial class LicenseeController
     [Description("change a Licensee's status")]
     public async Task<MessageResponse> UpdateLicenseeStatusAsync(Guid licenseeId, Status status)
     {
-        var licensee = await _service.GetLicenseeAsync(q => q.Id == licenseeId);
+        var licensee = await service.GetLicenseeAsync(q => q.Id == licenseeId);
 
         if (licensee == null)
         {
             return CreateInvalidResponse<MessageResponse>(Resources.Licensee.NotFound);
         }
 
-        await _service.ChangeStatusAsync(licensee, status, Username);
+        await service.ChangeStatusAsync(licensee, status, Username);
 
         return CreateValidResponse<MessageResponse>();
     }

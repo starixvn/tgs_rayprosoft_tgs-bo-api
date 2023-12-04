@@ -9,14 +9,9 @@ using Valhalla.MessageQueue;
 
 namespace TGS.Apis.BackendOffice.MessageQueue;
 
-public class BatchAdjustBalanceHandler : IMessageHandler
+public class BatchAdjustBalanceHandler(ICommandService<ProcessBatchCommand> commandService) : IMessageHandler
 {
-    private readonly ICommandService<ProcessBatchCommand> _commandService;
-
-    public BatchAdjustBalanceHandler(ICommandService<ProcessBatchCommand> commandService)
-    {
-        _commandService = commandService ?? throw new ArgumentNullException(nameof(commandService));
-    }
+    private readonly ICommandService<ProcessBatchCommand> _commandService = commandService ?? throw new ArgumentNullException(nameof(commandService));
 
     public ValueTask HandleAsync(ReadOnlyMemory<byte> data, CancellationToken cancellationToken = default)
     {

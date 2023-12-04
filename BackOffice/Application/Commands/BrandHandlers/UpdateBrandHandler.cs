@@ -8,14 +8,9 @@ using TGS.Services.BackOffice.Infrastructure.DataService;
 
 namespace TGS.Services.BackOffice.Application.Commands.BrandHandlers;
 
-public class UpdateBrandHandler : Handler<UpdateBrandRequest, MessageResponse>
+public class UpdateBrandHandler(IBrandService service, IHttpContextAccessor accessor) : Handler<UpdateBrandRequest, MessageResponse>(accessor)
 {
-    private readonly IBrandService _service;
-
-    public UpdateBrandHandler(IBrandService service, IHttpContextAccessor accessor) : base(accessor)
-    {
-        _service = service;
-    }
+    private readonly IBrandService _service = service;
 
     public override async Task<MessageResponse> Handle(UpdateBrandRequest request,
         CancellationToken cancellationToken)

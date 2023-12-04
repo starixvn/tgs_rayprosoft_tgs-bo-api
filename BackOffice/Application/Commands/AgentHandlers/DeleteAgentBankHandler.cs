@@ -8,14 +8,9 @@ using TGS.Services.BackOffice.Infrastructure.DataService;
 
 namespace TGS.Services.BackOffice.Application.Commands.AgentHandlers;
 
-public class DeleteAgentBankHandler : Handler<DeleteAgentBankRequest, MessageResponse>
+public class DeleteAgentBankHandler(IAgentBankService service, IHttpContextAccessor accessor) : Handler<DeleteAgentBankRequest, MessageResponse>(accessor)
 {
-    private readonly IAgentBankService _service;
-
-    public DeleteAgentBankHandler(IAgentBankService service, IHttpContextAccessor accessor) : base(accessor)
-    {
-        _service = service;
-    }
+    private readonly IAgentBankService _service = service;
 
     public override async Task<MessageResponse> Handle(DeleteAgentBankRequest request,
         CancellationToken cancellationToken)

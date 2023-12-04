@@ -10,19 +10,13 @@ using TGS.Core.Infrastructures.Json;
 
 namespace TGS.Services.BackOffice.Application.Queries.GameProviders;
 
-internal class UpdateGameProvidersLocalizationQueryService
-    : IQueryService<UpdateGameProvidersLocalizationCommand, string>
+internal class UpdateGameProvidersLocalizationQueryService(
+    ITgsRepository tgsRepository,
+    IJsonSerializationProvider jsonSerializationProvider)
+        : IQueryService<UpdateGameProvidersLocalizationCommand, string>
 {
-    private readonly IJsonSerializationProvider _jsonSerializationProvider;
-    private readonly ITgsRepository _tgsRepository;
-
-    public UpdateGameProvidersLocalizationQueryService(
-        ITgsRepository tgsRepository,
-        IJsonSerializationProvider jsonSerializationProvider)
-    {
-        _tgsRepository = tgsRepository ?? throw new ArgumentNullException(nameof(tgsRepository));
-        _jsonSerializationProvider = jsonSerializationProvider ?? throw new ArgumentNullException(nameof(jsonSerializationProvider));
-    }
+    private readonly IJsonSerializationProvider _jsonSerializationProvider = jsonSerializationProvider ?? throw new ArgumentNullException(nameof(jsonSerializationProvider));
+    private readonly ITgsRepository _tgsRepository = tgsRepository ?? throw new ArgumentNullException(nameof(tgsRepository));
 
     public async IAsyncEnumerable<string> QueryAsync(
         UpdateGameProvidersLocalizationCommand query,

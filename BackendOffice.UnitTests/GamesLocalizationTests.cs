@@ -18,7 +18,7 @@ public class GamesLocalizationTests
         _ = dbContextOptionsBuilder
             .UseInMemoryDatabase(Guid.NewGuid().ToString())
             .ConfigureWarnings(x => x.Ignore(InMemoryEventId.TransactionIgnoredWarning));
-        ITgsRepository repository = new TgsRepository(dbContextOptionsBuilder.Options);
+        var repository = new TgsRepository(dbContextOptionsBuilder.Options);
 
         var gameProviderId = Guid.NewGuid();
         var gameProviderCode = "KY";
@@ -67,7 +67,7 @@ public class GamesLocalizationTests
         _ = dbContextOptionsBuilder
             .UseInMemoryDatabase(Guid.NewGuid().ToString())
             .ConfigureWarnings(x => x.Ignore(InMemoryEventId.TransactionIgnoredWarning));
-        ITgsRepository repository = new TgsRepository(dbContextOptionsBuilder.Options);
+        var repository = new TgsRepository(dbContextOptionsBuilder.Options);
 
         _ = repository.Games.Add(new CoreModels.Game()
         {
@@ -116,7 +116,7 @@ public class GamesLocalizationTests
         _ = dbContextOptionsBuilder
             .UseInMemoryDatabase(Guid.NewGuid().ToString())
             .ConfigureWarnings(x => x.Ignore(InMemoryEventId.TransactionIgnoredWarning));
-        ITgsRepository repository = new TgsRepository(dbContextOptionsBuilder.Options);
+        var repository = new TgsRepository(dbContextOptionsBuilder.Options);
 
         _ = repository.Games.Add(new CoreModels.Game()
         {

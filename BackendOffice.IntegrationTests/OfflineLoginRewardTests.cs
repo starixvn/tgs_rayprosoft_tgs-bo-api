@@ -14,18 +14,12 @@ using Xunit.Abstractions;
 
 namespace BackendOffice.IntegrationTests;
 
-public class OfflineLoginRewardTests
+public class OfflineLoginRewardTests(
+    ITestOutputHelper testOutputHelper,
+    NodeJsFixture nodeJsFixture)
 {
-    private readonly ITestOutputHelper _testOutputHelper;
-    private readonly NodeJsFixture _nodeJsFixture;
-
-    public OfflineLoginRewardTests(
-        ITestOutputHelper testOutputHelper,
-        NodeJsFixture nodeJsFixture)
-    {
-        _testOutputHelper = testOutputHelper ?? throw new ArgumentNullException(nameof(testOutputHelper));
-        _nodeJsFixture = nodeJsFixture ?? throw new ArgumentNullException(nameof(nodeJsFixture));
-    }
+    private readonly ITestOutputHelper _testOutputHelper = testOutputHelper ?? throw new ArgumentNullException(nameof(testOutputHelper));
+    private readonly NodeJsFixture _nodeJsFixture = nodeJsFixture ?? throw new ArgumentNullException(nameof(nodeJsFixture));
 
     [Fact]
     public async Task 建立登入送線下活動()

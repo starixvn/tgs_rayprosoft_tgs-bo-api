@@ -7,15 +7,10 @@ using TGS.Services.BackOffice.Infrastructure.DataService;
 
 namespace TGS.Services.BackOffice.ApplicationServices;
 
-internal class CreateBrandCommandService : IGetService<CreateBrandCommand, Guid>
+internal class CreateBrandCommandService(
+    IBrandService brandService) : IGetService<CreateBrandCommand, Guid>
 {
-    private readonly IBrandService _brandService;
-
-    public CreateBrandCommandService(
-        IBrandService brandService)
-    {
-        _brandService = brandService ?? throw new ArgumentNullException(nameof(brandService));
-    }
+    private readonly IBrandService _brandService = brandService ?? throw new ArgumentNullException(nameof(brandService));
 
     public ValueTask<Guid> GetAsync(
         CreateBrandCommand command,

@@ -6,14 +6,9 @@ using Tgs.ServiceUtility;
 
 namespace TGS.Services.BackOffice.Application.Commands.PaymentMethodChannel;
 
-internal class DeletePaymentMethodChannelCommandService : ICommandService<DeletePaymentMethodChannelCommand>
+internal class DeletePaymentMethodChannelCommandService(IPaymentServiceClient paymentServiceClient) : ICommandService<DeletePaymentMethodChannelCommand>
 {
-    private readonly IPaymentServiceClient _paymentServiceClient;
-
-    public DeletePaymentMethodChannelCommandService(IPaymentServiceClient paymentServiceClient)
-    {
-        _paymentServiceClient = paymentServiceClient ?? throw new ArgumentNullException(nameof(paymentServiceClient));
-    }
+    private readonly IPaymentServiceClient _paymentServiceClient = paymentServiceClient ?? throw new ArgumentNullException(nameof(paymentServiceClient));
 
     public ValueTask ExecuteAsync(DeletePaymentMethodChannelCommand command, CancellationToken cancellationToken = default)
         => _paymentServiceClient.DeletePaymentMethodChannelAsync(command.Id, cancellationToken);

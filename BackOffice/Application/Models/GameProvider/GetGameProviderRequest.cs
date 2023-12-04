@@ -3,14 +3,9 @@ using MediatR;
 
 namespace TGS.Services.BackOffice.Application.Models.GameProvider;
 
-public class GetGameProviderRequest : IRequest<GetGameProviderResponse>
+public class GetGameProviderRequest(Guid id) : IRequest<GetGameProviderResponse>
 {
-    public Guid Id { get; set; }
+    public Guid Id { get; set; } = id;
 
     public bool IncludeAllGames { get; set; } = false;
-
-    public GetGameProviderRequest(Guid id)
-    {
-        Id = id;
-    }
 }

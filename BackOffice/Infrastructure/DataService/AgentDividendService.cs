@@ -18,13 +18,8 @@ public interface IAgentDividendService
         bool tracking = false);
 }
 
-public class AgentDividendService : BaseRepositoryOperations<ITgsRepository>, IAgentDividendService
+public class AgentDividendService(ITgsRepository repository) : BaseRepositoryOperations<ITgsRepository>(repository), IAgentDividendService
 {
-    public AgentDividendService(ITgsRepository repository)
-        : base(repository)
-    {
-    }
-
     Task<AgentDividend> IAgentDividendService.GetAgentDividendAsync(Expression<Func<AgentDividend, bool>> predicate,
         Func<IQueryable<AgentDividend>, IQueryable<AgentDividend>> preQuery) =>
         GetEntityFirstOrDefaultAsync(predicate, preQuery);

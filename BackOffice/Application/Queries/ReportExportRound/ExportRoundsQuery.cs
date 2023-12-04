@@ -9,13 +9,10 @@ using Tgs.ServiceUtility;
 namespace TGS.Services.BackOffice.Application.Queries.ReportExportRound;
 
 public class
-    ExportRoundsQuery : IGetService<ExportRoundsRequest,
+    ExportRoundsQuery(IReportClient reportClient) : IGetService<ExportRoundsRequest,
         Stream>
 {
-    private readonly IReportClient _reportClient;
-
-    public ExportRoundsQuery(IReportClient reportClient)
-        => _reportClient = reportClient ?? throw new ArgumentNullException(nameof(reportClient));
+    private readonly IReportClient _reportClient = reportClient ?? throw new ArgumentNullException(nameof(reportClient));
 
     public async ValueTask<Stream> GetAsync(ExportRoundsRequest request,
         CancellationToken cancellationToken = default)

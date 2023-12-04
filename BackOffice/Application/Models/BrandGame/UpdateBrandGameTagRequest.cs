@@ -5,18 +5,11 @@ using TGS.Core.Models.Messages;
 
 namespace TGS.Services.BackOffice.Application.Models.BrandGame;
 
-public class UpdateBrandGameTagRequest : IRequest<MessageResponse>
+public class UpdateBrandGameTagRequest(Guid id, GameTag tag, bool enabled) : IRequest<MessageResponse>
 {
-    public bool Enabled { get; set; }
+    public bool Enabled { get; set; } = enabled;
 
-    public GameTag GameTag { get; set; }
+    public GameTag GameTag { get; set; } = tag;
 
-    public Guid Id { get; set; }
-
-    public UpdateBrandGameTagRequest(Guid id, GameTag tag, bool enabled)
-    {
-        Id = id;
-        GameTag = tag;
-        Enabled = enabled;
-    }
+    public Guid Id { get; set; } = id;
 }

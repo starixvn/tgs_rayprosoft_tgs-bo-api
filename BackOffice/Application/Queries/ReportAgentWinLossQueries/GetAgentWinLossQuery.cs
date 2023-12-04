@@ -15,24 +15,16 @@ using Tgs.ServiceUtility;
 namespace TGS.Services.BackOffice.Application.Queries.ReportAgentWinLossQueries;
 
 public class
-    GetAgentWinLossQuery : IGetService<GetAgentWinLossReportRequest, GetAgentWinLossReportResponse>
+    GetAgentWinLossQuery(
+    IReportClient reportClient,
+    IBrandService brandService,
+    IAgentService agentService,
+    IPlayerService playerService) : IGetService<GetAgentWinLossReportRequest, GetAgentWinLossReportResponse>
 {
-    private readonly IAgentService _agentService;
-    private readonly IBrandService _brandService;
-    private readonly IPlayerService _playerService;
-    private readonly IReportClient _reportClient;
-
-    public GetAgentWinLossQuery(
-        IReportClient reportClient,
-        IBrandService brandService,
-        IAgentService agentService,
-        IPlayerService playerService)
-    {
-        _reportClient = reportClient ?? throw new ArgumentNullException(nameof(reportClient));
-        _brandService = brandService ?? throw new ArgumentNullException(nameof(brandService));
-        _agentService = agentService ?? throw new ArgumentNullException(nameof(agentService));
-        _playerService = playerService ?? throw new ArgumentNullException(nameof(playerService));
-    }
+    private readonly IAgentService _agentService = agentService ?? throw new ArgumentNullException(nameof(agentService));
+    private readonly IBrandService _brandService = brandService ?? throw new ArgumentNullException(nameof(brandService));
+    private readonly IPlayerService _playerService = playerService ?? throw new ArgumentNullException(nameof(playerService));
+    private readonly IReportClient _reportClient = reportClient ?? throw new ArgumentNullException(nameof(reportClient));
 
     public async ValueTask<GetAgentWinLossReportResponse> GetAsync(GetAgentWinLossReportRequest request,
         CancellationToken cancellationToken = default)
@@ -66,7 +58,7 @@ public class
                     return new()
                     {
                         Valid = true,
-                        Items = Array.Empty<AgentWinLossReportModel>(),
+                        Items = [],
                         Total = new()
                     };
                 }
@@ -93,7 +85,7 @@ public class
                     return new()
                     {
                         Valid = true,
-                        Items = Array.Empty<AgentWinLossReportModel>(),
+                        Items = [],
                         Total = new()
                     };
                 }
@@ -123,7 +115,7 @@ public class
                     return new()
                     {
                         Valid = true,
-                        Items = Array.Empty<AgentWinLossReportModel>(),
+                        Items = [],
                         Total = new()
                     };
                 }
@@ -150,7 +142,7 @@ public class
                 Valid = response?.Valid ?? false,
                 Message = response?.Message,
                 TotalCount = response?.TotalCount ?? 0,
-                Items = Array.Empty<AgentWinLossReportModel>(),
+                Items = [],
                 Total = new()
             };
         }

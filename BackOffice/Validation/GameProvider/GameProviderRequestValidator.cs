@@ -21,7 +21,7 @@ public class GameProviderRequestValidator : AbstractValidator<GameProviderReques
             .WithMessage(Application.Resources.GameProvider.StatusRequired);
 
         _ = RuleFor(x => x.Currencies)
-            .Must(x => x != null && x.Any())
+            .Must(x => x != null && x.Length != 0)
             .WithMessage(Application.Resources.GameProvider.CurrencyRequired);
 
         _ = RuleForEach(x => x.Currencies)

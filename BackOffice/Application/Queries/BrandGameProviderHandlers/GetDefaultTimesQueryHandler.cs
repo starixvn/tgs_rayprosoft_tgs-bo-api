@@ -10,16 +10,10 @@ using TGS.Services.BackOffice.Infrastructure.DataService;
 namespace TGS.Services.BackOffice.Application.Queries.BrandGameProviderHandlers;
 
 public class
-    GetDefaultTimesQueryHandler : Handler<GetDefaultTimesRequest,
-        GetDefaultTimesResponse>
+    GetDefaultTimesQueryHandler(IBrandGameProviderScheduleService service, IHttpContextAccessor accessor) : Handler<GetDefaultTimesRequest,
+        GetDefaultTimesResponse>(accessor)
 {
-    private readonly IBrandGameProviderScheduleService _service;
-
-    public GetDefaultTimesQueryHandler(IBrandGameProviderScheduleService service, IHttpContextAccessor accessor)
-        : base(accessor)
-    {
-        _service = service;
-    }
+    private readonly IBrandGameProviderScheduleService _service = service;
 
     public override async Task<GetDefaultTimesResponse> Handle(
         GetDefaultTimesRequest request,

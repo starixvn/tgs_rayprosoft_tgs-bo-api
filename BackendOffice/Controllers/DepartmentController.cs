@@ -19,24 +19,15 @@ namespace TGS.Apis.BackendOffice.Controllers;
 
 [Route("api/[controller]")]
 [ApiController]
-public class DepartmentController : BaseContextController
+public class DepartmentController(
+    ITgsQueries<Department> queries,
+    ITgsCommands<Department> commands) : BaseContextController
 {
-    private readonly ITgsCommands<Department> _commands;
-    private readonly ITgsQueries<Department> _queries;
-
-    public DepartmentController(
-        ITgsQueries<Department> queries,
-        ITgsCommands<Department> commands)
-    {
-        _queries = queries;
-        _commands = commands;
-    }
-
     [HttpPost]
     [Description("Create a department")]
     public async Task<MessageResponse> CreateAsync([FromBody] DepartmentRequest request)
     {
-        var departmentNameExisted = await _queries.GetQueries()
+        var departmentNameExisted = await queries.GetQueries()
             .Where(request.ResellerId, x => x.ResellerId == request.ResellerId)
             .Where(request.LicenseeId, x => x.LicenseeId == request.LicenseeId)
             .Where(request.BrandId, x => x.BrandId == request.BrandId)
@@ -61,7 +52,7 @@ public class DepartmentController : BaseContextController
             UpdatedOn = DateTimeOffset.Now
         };
 
-        await _commands.CreateAsync(department);
+        await commands.CreateAsync(department);
         return CreateValidResponse<MessageResponse>();
     }
 
@@ -69,7 +60,7 @@ public class DepartmentController : BaseContextController
     [Description("Delete a department")]
     public async Task<MessageResponse> DeleteAsync(Guid id)
     {
-        var department = await _queries.GetSingleAsync(p => p.Id == id, d => d.Include(x => x.Users));
+        var department = await queries.GetSingleAsync(p => p.Id == id, d => d.Include(x => x.Users));
         if (department == null)
         {
             return CreateInvalidResponse<MessageResponse>(Resources.Department.NotFound);
@@ -80,7 +71,7 @@ public class DepartmentController : BaseContextController
             return CreateInvalidResponse<MessageResponse>(Resources.Department.CannotBeDeleted);
         }
 
-        await _commands.DeleteAsync(department);
+        await commands.DeleteAsync(department);
         return CreateValidResponse<MessageResponse>();
     }
 
@@ -143,13 +134,13 @@ public class DepartmentController : BaseContextController
     [Description("Update a department")]
     public async Task<MessageResponse> UpdateAsync(Guid id, [FromBody] DepartmentRequest request)
     {
-        var department = await _queries.GetSingleAsync(p => p.Id == id);
+        var department = await queries.GetSingleAsync(p => p.Id == id);
         if (department == null)
         {
             return CreateInvalidResponse<MessageResponse>(Resources.Department.NotFound);
         }
 
-        var departmentNameExisted = await _queries.GetQueries()
+        var departmentNameExisted = await queries.GetQueries()
             .Where(x => x.Id != department.Id)
             .Where(department.ResellerId, x => x.ResellerId == department.ResellerId)
             .Where(department.LicenseeId, x => x.LicenseeId == department.LicenseeId)
@@ -165,7 +156,7 @@ public class DepartmentController : BaseContextController
         department.UpdatedByUsername = Username;
         department.UpdatedOn = DateTimeOffset.Now;
 
-        await _commands.UpdateAsync(department);
+        await commands.UpdateAsync(department);
         return CreateValidResponse<MessageResponse>();
     }
 }

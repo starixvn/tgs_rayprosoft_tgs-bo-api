@@ -10,20 +10,16 @@ namespace TGS.Apis.BackendOffice.Controllers.Brand;
 
 [Route("api/[controller]")]
 [ApiController]
-public class BrandAgentDividendConditionController : BaseContextController
+public class BrandAgentDividendConditionController(IMediator mediator) : BaseContextController
 {
-    private readonly IMediator _mediator;
-
-    public BrandAgentDividendConditionController(IMediator mediator) => _mediator = mediator;
-
     [HttpGet("{id}")]
     [Description("Get brand agent dividend conditions")]
     public Task<PagedResponse<BrandAgentDividendConditionModel>> GetBrandAsync(Guid id)
-        => _mediator.Send(new GetBrandAgentDividendConditionsRequest(id));
+        => mediator.Send(new GetBrandAgentDividendConditionsRequest(id));
 
     [HttpPut]
     [Description("Update the brand agent dividend conditions")]
     public Task<MessageResponse> UpdateBrandAgentDividendConditionsAsync(
         UpdateBrandAgentDividendConditionRequest request)
-        => _mediator.Send(request);
+        => mediator.Send(request);
 }

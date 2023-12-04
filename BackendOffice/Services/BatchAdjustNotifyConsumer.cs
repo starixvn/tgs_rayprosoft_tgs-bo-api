@@ -13,21 +13,14 @@ using TGS.Services.BackOffice.Domain;
 
 namespace TGS.Apis.BackendOffice.Services;
 
-public class BatchAdjustNotifyConsumer : BackgroundService
+public class BatchAdjustNotifyConsumer(
+    INotifyEventSource eventSource,
+    IHubContext<NotifyHub> hubContext,
+    ILogger<BatchAdjustNotifyConsumer> logger) : BackgroundService
 {
-    private readonly INotifyEventSource _eventSource;
-    private readonly IHubContext<NotifyHub> _hubContext;
-    private readonly ILogger<BatchAdjustNotifyConsumer> _logger;
-
-    public BatchAdjustNotifyConsumer(
-        INotifyEventSource eventSource,
-        IHubContext<NotifyHub> hubContext,
-        ILogger<BatchAdjustNotifyConsumer> logger)
-    {
-        _eventSource = eventSource ?? throw new ArgumentNullException(nameof(eventSource));
-        _hubContext = hubContext ?? throw new ArgumentNullException(nameof(hubContext));
-        _logger = logger ?? throw new ArgumentNullException(nameof(logger));
-    }
+    private readonly INotifyEventSource _eventSource = eventSource ?? throw new ArgumentNullException(nameof(eventSource));
+    private readonly IHubContext<NotifyHub> _hubContext = hubContext ?? throw new ArgumentNullException(nameof(hubContext));
+    private readonly ILogger<BatchAdjustNotifyConsumer> _logger = logger ?? throw new ArgumentNullException(nameof(logger));
 
     protected override Task ExecuteAsync(CancellationToken stoppingToken)
         => _eventSource.EventSource

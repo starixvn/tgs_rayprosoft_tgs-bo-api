@@ -8,18 +8,12 @@ using TGS.Core.Models.Enums;
 
 namespace TGS.Services.BackOffice.ApplicationServices;
 
-internal class UpdateAllBrandMaintenanceStatusCommandService : ICommandService<UpdateAllBrandMaintenanceStatusCommand>
+internal class UpdateAllBrandMaintenanceStatusCommandService(
+    IQueryService<BrandListQuery, BrandListItem> brandListQueryService,
+    ICommandService<UpdateBrandStatusCommand> updateStatusCommandService) : ICommandService<UpdateAllBrandMaintenanceStatusCommand>
 {
-    private readonly IQueryService<BrandListQuery, BrandListItem> _brandListQueryService;
-    private readonly ICommandService<UpdateBrandStatusCommand> _updateStatusCommandService;
-
-    public UpdateAllBrandMaintenanceStatusCommandService(
-        IQueryService<BrandListQuery, BrandListItem> brandListQueryService,
-        ICommandService<UpdateBrandStatusCommand> updateStatusCommandService)
-    {
-        _brandListQueryService = brandListQueryService ?? throw new ArgumentNullException(nameof(brandListQueryService));
-        _updateStatusCommandService = updateStatusCommandService ?? throw new ArgumentNullException(nameof(updateStatusCommandService));
-    }
+    private readonly IQueryService<BrandListQuery, BrandListItem> _brandListQueryService = brandListQueryService ?? throw new ArgumentNullException(nameof(brandListQueryService));
+    private readonly ICommandService<UpdateBrandStatusCommand> _updateStatusCommandService = updateStatusCommandService ?? throw new ArgumentNullException(nameof(updateStatusCommandService));
 
     public async ValueTask ExecuteAsync(
         UpdateAllBrandMaintenanceStatusCommand command, 

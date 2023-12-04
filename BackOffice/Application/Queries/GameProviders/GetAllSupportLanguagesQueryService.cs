@@ -7,14 +7,9 @@ using TGS.Core.DataServices.Tgs;
 
 namespace TGS.Services.BackOffice.Application.Queries.GameProviders;
 
-internal class GetAllSupportLanguagesQueryService : IQueryService<GetAllSupportLanguagesQuery, string>
+internal class GetAllSupportLanguagesQueryService(ITgsRepository tgsRepository) : IQueryService<GetAllSupportLanguagesQuery, string>
 {
-    private readonly ITgsRepository _tgsRepository;
-
-    public GetAllSupportLanguagesQueryService(ITgsRepository tgsRepository)
-    {
-        _tgsRepository = tgsRepository ?? throw new ArgumentNullException(nameof(tgsRepository));
-    }
+    private readonly ITgsRepository _tgsRepository = tgsRepository ?? throw new ArgumentNullException(nameof(tgsRepository));
 
     public IAsyncEnumerable<string> QueryAsync(
         GetAllSupportLanguagesQuery query,

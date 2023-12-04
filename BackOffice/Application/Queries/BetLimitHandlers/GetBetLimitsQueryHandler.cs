@@ -9,16 +9,10 @@ using TGS.Services.BackOffice.Infrastructure.DataService;
 
 namespace TGS.Services.BackOffice.Application.Queries.BetLimitHandlers;
 
-public class GetBetLimitsQueryHandler : Handler<GetBetLimitsRequest,
-    PagedResponse<BetLimitModel>>
+public class GetBetLimitsQueryHandler(IBetLimitService service, IHttpContextAccessor accessor) : Handler<GetBetLimitsRequest,
+    PagedResponse<BetLimitModel>>(accessor)
 {
-    private readonly IBetLimitService _service;
-
-    public GetBetLimitsQueryHandler(IBetLimitService service, IHttpContextAccessor accessor)
-        : base(accessor)
-    {
-        _service = service;
-    }
+    private readonly IBetLimitService _service = service;
 
     public override Task<PagedResponse<BetLimitModel>> Handle(
         GetBetLimitsRequest request,

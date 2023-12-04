@@ -25,12 +25,8 @@ public interface ICurrencyService
     Task UpdateCurrencyAsync(Currency currency, UpdateCurrencyRequest request);
 }
 
-public class CurrencyService : BaseRepositoryOperations<ITgsRepository>, ICurrencyService
+public class CurrencyService(ITgsRepository tgsRepository) : BaseRepositoryOperations<ITgsRepository>(tgsRepository), ICurrencyService
 {
-    public CurrencyService(ITgsRepository tgsRepository) : base(tgsRepository)
-    {
-    }
-
     async Task ICurrencyService.CreateCurrencyAsync(CreateCurrencyRequest request)
     {
         var currency = new Currency

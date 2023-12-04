@@ -6,14 +6,9 @@ using Tgs.ServiceUtility;
 
 namespace TGS.Services.BackOffice.ApplicationServices.Payment;
 
-internal class CountUntreatedWithdrawFormsQueryService : IGetService<CountUntreatedWithdrawFormsQuery, int>
+internal class CountUntreatedWithdrawFormsQueryService(IPaymentServiceClient paymentServiceClient) : IGetService<CountUntreatedWithdrawFormsQuery, int>
 {
-    private readonly IPaymentServiceClient _paymentServiceClient;
-
-    public CountUntreatedWithdrawFormsQueryService(IPaymentServiceClient paymentServiceClient)
-    {
-        _paymentServiceClient = paymentServiceClient ?? throw new ArgumentNullException(nameof(paymentServiceClient));
-    }
+    private readonly IPaymentServiceClient _paymentServiceClient = paymentServiceClient ?? throw new ArgumentNullException(nameof(paymentServiceClient));
 
     public ValueTask<int> GetAsync(
         CountUntreatedWithdrawFormsQuery query,

@@ -12,21 +12,14 @@ using TGS.Services.BackOffice.Infrastructure.DataService;
 
 namespace TGS.Services.BackOffice.ApplicationServices.Agents;
 
-internal class AgentIncreaseAmountCommandService : IGetService<AgentIncreaseAmountCommand, AgentAdjustAmountResult>
+internal class AgentIncreaseAmountCommandService(
+    IAgentClient agentClient,
+    ICashServiceClient cashServiceClient,
+    IAdjustAgentAccountService adjustAgentAccountService) : IGetService<AgentIncreaseAmountCommand, AgentAdjustAmountResult>
 {
-    private readonly IAgentClient _agentClient;
-    private readonly ICashServiceClient _cashServiceClient;
-    private readonly IAdjustAgentAccountService _adjustAgentAccountService;
-
-    public AgentIncreaseAmountCommandService(
-        IAgentClient agentClient,
-        ICashServiceClient cashServiceClient,
-        IAdjustAgentAccountService adjustAgentAccountService)
-    {
-        _agentClient = agentClient ?? throw new ArgumentNullException(nameof(agentClient));
-        _cashServiceClient = cashServiceClient ?? throw new ArgumentNullException(nameof(cashServiceClient));
-        _adjustAgentAccountService = adjustAgentAccountService ?? throw new ArgumentNullException(nameof(adjustAgentAccountService));
-    }
+    private readonly IAgentClient _agentClient = agentClient ?? throw new ArgumentNullException(nameof(agentClient));
+    private readonly ICashServiceClient _cashServiceClient = cashServiceClient ?? throw new ArgumentNullException(nameof(cashServiceClient));
+    private readonly IAdjustAgentAccountService _adjustAgentAccountService = adjustAgentAccountService ?? throw new ArgumentNullException(nameof(adjustAgentAccountService));
 
     public async ValueTask<AgentAdjustAmountResult> GetAsync(
         AgentIncreaseAmountCommand command,

@@ -41,7 +41,8 @@ public class StationLetterControllerTests : BaseTests
 
         var controller =
             new StationLetterController(queriesMock, playerQueriesMock, commandsMock, uploadServiceMock,
-                stationLetterServiceMock) { ControllerContext = { HttpContext = HttpContextMock } };
+                stationLetterServiceMock)
+            { ControllerContext = { HttpContext = HttpContextMock } };
 
         var players = CreatePlayerFixture()
             .CreateMany<Player>(200)
@@ -57,12 +58,14 @@ public class StationLetterControllerTests : BaseTests
             Subject = "subject",
             From = DateTimeOffset.Now,
             To = DateTimeOffset.Now.AddDays(1),
-            PlayerUsernames = Array.Empty<string>()
+            PlayerUsernames = []
         };
 
-        request.PlayerUsernames = players
-            .Where(p => p.Status == PlayerStatus.Enabled && p.BrandId == request.BrandId)
-            .Select(p => p.Username).ToArray();
+        request.PlayerUsernames = [
+            .. players
+                .Where(p => p.Status == PlayerStatus.Enabled && p.BrandId == request.BrandId)
+                .Select(p => p.Username)
+        ];
 
         _ = playerQueriesMock.GetQueries().Returns(players);
 
@@ -101,7 +104,8 @@ public class StationLetterControllerTests : BaseTests
 
         var controller =
             new StationLetterController(queriesMock, playerQueriesMock, commandsMock, uploadServiceMock,
-                stationLetterServiceMock) { ControllerContext = { HttpContext = HttpContextMock } };
+                stationLetterServiceMock)
+            { ControllerContext = { HttpContext = HttpContextMock } };
 
         var request = new GetStationLettersRequest
         {
@@ -162,7 +166,8 @@ public class StationLetterControllerTests : BaseTests
 
         var controller =
             new StationLetterController(queriesMock, playerQueriesMock, commandsMock, uploadServiceMock,
-                stationLetterServiceMock) { ControllerContext = { HttpContext = HttpContextMock } };
+                stationLetterServiceMock)
+            { ControllerContext = { HttpContext = HttpContextMock } };
 
         var stationLetterId = Guid.NewGuid();
 
@@ -175,7 +180,7 @@ public class StationLetterControllerTests : BaseTests
             Subject = "subject",
             From = DateTimeOffset.Now,
             To = DateTimeOffset.Now.AddDays(1),
-            PlayerUsernames = Array.Empty<string>()
+            PlayerUsernames = []
         };
         var stationLetter = CreateStationLetterFixture().Create<StationLetter>();
 
@@ -217,7 +222,8 @@ public class StationLetterControllerTests : BaseTests
 
         var controller =
             new StationLetterController(queriesMock, playerQueriesMock, commandsMock, uploadServiceMock,
-                stationLetterServiceMock) { ControllerContext = { HttpContext = HttpContextMock } };
+                stationLetterServiceMock)
+            { ControllerContext = { HttpContext = HttpContextMock } };
 
         var stationLetterId = Guid.NewGuid();
 
@@ -230,7 +236,7 @@ public class StationLetterControllerTests : BaseTests
             Subject = "subject",
             From = DateTimeOffset.Now,
             To = DateTimeOffset.Now.AddDays(1),
-            PlayerUsernames = Array.Empty<string>()
+            PlayerUsernames = []
         };
 
         _ = queriesMock
@@ -272,7 +278,8 @@ public class StationLetterControllerTests : BaseTests
 
         var controller =
             new StationLetterController(queriesMock, playerQueriesMock, commandsMock, uploadServiceMock,
-                stationLetterServiceMock) { ControllerContext = { HttpContext = HttpContextMock } };
+                stationLetterServiceMock)
+            { ControllerContext = { HttpContext = HttpContextMock } };
 
         var players = CreatePlayerFixture()
             .CreateMany<Player>(100)
@@ -316,7 +323,8 @@ public class StationLetterControllerTests : BaseTests
 
         var controller =
             new StationLetterController(queriesMock, playerQueriesMock, commandsMock, uploadServiceMock,
-                stationLetterServiceMock) { ControllerContext = { HttpContext = HttpContextMock } };
+                stationLetterServiceMock)
+            { ControllerContext = { HttpContext = HttpContextMock } };
 
         var request = new Fixture().Create<VerifyRequest>();
 
@@ -356,7 +364,8 @@ public class StationLetterControllerTests : BaseTests
 
         var controller =
             new StationLetterController(queriesMock, playerQueriesMock, commandsMock, uploadServiceMock,
-                stationLetterServiceMock) { ControllerContext = { HttpContext = HttpContextMock } };
+                stationLetterServiceMock)
+            { ControllerContext = { HttpContext = HttpContextMock } };
 
         var request = new Fixture().Create<VerifyRequest>();
 
@@ -391,7 +400,8 @@ public class StationLetterControllerTests : BaseTests
 
         var controller =
             new StationLetterController(queriesMock, playerQueriesMock, commandsMock, uploadServiceMock,
-                stationLetterServiceMock) { ControllerContext = { HttpContext = HttpContextMock } };
+                stationLetterServiceMock)
+            { ControllerContext = { HttpContext = HttpContextMock } };
 
         var request = new Fixture().Create<VerifyRequest>();
 
@@ -427,7 +437,8 @@ public class StationLetterControllerTests : BaseTests
 
         var controller =
             new StationLetterController(queriesMock, playerQueriesMock, commandsMock, uploadServiceMock,
-                stationLetterServiceMock) { ControllerContext = { HttpContext = HttpContextMock } };
+                stationLetterServiceMock)
+            { ControllerContext = { HttpContext = HttpContextMock } };
 
         var request = new Fixture().Create<VerifyRequest>();
 

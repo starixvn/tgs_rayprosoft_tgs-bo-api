@@ -25,12 +25,8 @@ public interface ILanguageService
     Task UpdateLanguageAsync(Language language, UpdateLanguageRequest request);
 }
 
-public class LanguageService : BaseRepositoryOperations<ITgsRepository>, ILanguageService
+public class LanguageService(ITgsRepository tgsRepository) : BaseRepositoryOperations<ITgsRepository>(tgsRepository), ILanguageService
 {
-    public LanguageService(ITgsRepository tgsRepository) : base(tgsRepository)
-    {
-    }
-
     async Task ILanguageService.CreateLanguageAsync(CreateLanguageRequest request)
     {
         var language = new Language

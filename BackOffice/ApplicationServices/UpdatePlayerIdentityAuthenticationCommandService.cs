@@ -10,14 +10,9 @@ using Tgs.ServiceUtility;
 
 namespace TGS.Services.BackOffice.ApplicationServices;
 
-internal class UpdatePlayerIdentityAuthenticationCommandService : ICommandService<UpdatePlayerIdentityAuthenticationCommand>
+internal class UpdatePlayerIdentityAuthenticationCommandService(IPlayerServiceClient playerServiceClient) : ICommandService<UpdatePlayerIdentityAuthenticationCommand>
 {
-    private readonly IPlayerServiceClient _playerServiceClient;
-
-    public UpdatePlayerIdentityAuthenticationCommandService(IPlayerServiceClient playerServiceClient)
-    {
-        _playerServiceClient = playerServiceClient ?? throw new ArgumentNullException(nameof(playerServiceClient));
-    }
+    private readonly IPlayerServiceClient _playerServiceClient = playerServiceClient ?? throw new ArgumentNullException(nameof(playerServiceClient));
 
     public async ValueTask ExecuteAsync(UpdatePlayerIdentityAuthenticationCommand command, CancellationToken cancellationToken = default)
     {

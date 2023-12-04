@@ -12,19 +12,13 @@ using Tgs.ServiceUtility;
 namespace TGS.Services.BackOffice.Application.Queries.ReportAgentWinLossQueries;
 
 public class
-    GetAgentTotalDetailQuery : IGetService<GetAgentTotalDetailReportRequest,
+    GetAgentTotalDetailQuery(
+    IReportClient reportClient,
+    IBrandService brandService) : IGetService<GetAgentTotalDetailReportRequest,
         IEnumerable<AgentTotalDetailReportModel>>
 {
-    private readonly IBrandService _brandService;
-    private readonly IReportClient _reportClient;
-
-    public GetAgentTotalDetailQuery(
-        IReportClient reportClient,
-        IBrandService brandService)
-    {
-        _reportClient = reportClient ?? throw new ArgumentNullException(nameof(reportClient));
-        _brandService = brandService ?? throw new ArgumentNullException(nameof(brandService));
-    }
+    private readonly IBrandService _brandService = brandService ?? throw new ArgumentNullException(nameof(brandService));
+    private readonly IReportClient _reportClient = reportClient ?? throw new ArgumentNullException(nameof(reportClient));
 
     public async ValueTask<IEnumerable<AgentTotalDetailReportModel>> GetAsync(
         GetAgentTotalDetailReportRequest request,

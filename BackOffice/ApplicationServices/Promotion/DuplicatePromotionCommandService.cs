@@ -12,7 +12,16 @@ using TGS.Services.BackOffice.Domain;
 
 namespace TGS.Services.BackOffice.ApplicationServices.Promotion;
 
-internal class DuplicatePromotionCommandService : IGetService<DuplicatePromotionCommand, Guid>
+internal class DuplicatePromotionCommandService(ISystemClock systemClock,
+    IGetService<GetBrandInfoQuery, BrandInfo?> getBrandInfoService,
+    IGetService<GetPromotionMainInfoQuery, PromotionMainInfo> getMainInfoService,
+    IGetService<GetPromotionRuleQuery, PromotionRuleInfo> getRuleService,
+    IGetService<GetPromotionContentQuery, PromotionContent> getContentService,
+    IGetService<CreatePromotionMainInfoCommand, Guid> createMainInfoService,
+    ICommandService<UpdatePromotionRuleCommand> updateRuleService,
+    ICommandService<UpdatePromotionContentCommand> updateContentService,
+    ICommandService<UpdatePromotionStatusCommand> updateStatusService,
+    ILogger<DuplicatePromotionCommandService> logger) : IGetService<DuplicatePromotionCommand, Guid>
 {
     private static readonly HashSet<string> _OfflinePromotionTypes = new(2)
     {
@@ -29,39 +38,16 @@ internal class DuplicatePromotionCommandService : IGetService<DuplicatePromotion
         "TurnoverRebateWeekly"
     };
 
-    private readonly IGetService<CreatePromotionMainInfoCommand, Guid> _createMainInfoService;
-    private readonly IGetService<GetBrandInfoQuery, BrandInfo?> _getBrandInfoService;
-    private readonly IGetService<GetPromotionContentQuery, PromotionContent> _getContentService;
-    private readonly IGetService<GetPromotionMainInfoQuery, PromotionMainInfo> _getMainInfoService;
-    private readonly IGetService<GetPromotionRuleQuery, PromotionRuleInfo> _getRuleService;
-    private readonly ILogger<DuplicatePromotionCommandService> _logger;
-    private readonly ISystemClock _systemClock;
-    private readonly ICommandService<UpdatePromotionContentCommand> _updateContentService;
-    private readonly ICommandService<UpdatePromotionStatusCommand> _updateStatusService;
-    private readonly ICommandService<UpdatePromotionRuleCommand> _updateRuleService;
-
-    public DuplicatePromotionCommandService(ISystemClock systemClock,
-        IGetService<GetBrandInfoQuery, BrandInfo?> getBrandInfoService,
-        IGetService<GetPromotionMainInfoQuery, PromotionMainInfo> getMainInfoService,
-        IGetService<GetPromotionRuleQuery, PromotionRuleInfo> getRuleService,
-        IGetService<GetPromotionContentQuery, PromotionContent> getContentService,
-        IGetService<CreatePromotionMainInfoCommand, Guid> createMainInfoService,
-        ICommandService<UpdatePromotionRuleCommand> updateRuleService,
-        ICommandService<UpdatePromotionContentCommand> updateContentService,
-        ICommandService<UpdatePromotionStatusCommand> updateStatusService,
-        ILogger<DuplicatePromotionCommandService> logger)
-    {
-        _systemClock = systemClock ?? throw new ArgumentNullException(nameof(systemClock));
-        _getBrandInfoService = getBrandInfoService ?? throw new ArgumentNullException(nameof(getBrandInfoService));
-        _getMainInfoService = getMainInfoService ?? throw new ArgumentNullException(nameof(getMainInfoService));
-        _getRuleService = getRuleService ?? throw new ArgumentNullException(nameof(getRuleService));
-        _getContentService = getContentService ?? throw new ArgumentNullException(nameof(getContentService));
-        _createMainInfoService = createMainInfoService ?? throw new ArgumentNullException(nameof(createMainInfoService));
-        _updateRuleService = updateRuleService ?? throw new ArgumentNullException(nameof(updateRuleService));
-        _updateContentService = updateContentService ?? throw new ArgumentNullException(nameof(updateContentService));
-        _updateStatusService = updateStatusService ?? throw new ArgumentNullException(nameof(updateStatusService));
-        _logger = logger ?? throw new ArgumentNullException(nameof(logger));
-    }
+    private readonly IGetService<CreatePromotionMainInfoCommand, Guid> _createMainInfoService = createMainInfoService ?? throw new ArgumentNullException(nameof(createMainInfoService));
+    private readonly IGetService<GetBrandInfoQuery, BrandInfo?> _getBrandInfoService = getBrandInfoService ?? throw new ArgumentNullException(nameof(getBrandInfoService));
+    private readonly IGetService<GetPromotionContentQuery, PromotionContent> _getContentService = getContentService ?? throw new ArgumentNullException(nameof(getContentService));
+    private readonly IGetService<GetPromotionMainInfoQuery, PromotionMainInfo> _getMainInfoService = getMainInfoService ?? throw new ArgumentNullException(nameof(getMainInfoService));
+    private readonly IGetService<GetPromotionRuleQuery, PromotionRuleInfo> _getRuleService = getRuleService ?? throw new ArgumentNullException(nameof(getRuleService));
+    private readonly ILogger<DuplicatePromotionCommandService> _logger = logger ?? throw new ArgumentNullException(nameof(logger));
+    private readonly ISystemClock _systemClock = systemClock ?? throw new ArgumentNullException(nameof(systemClock));
+    private readonly ICommandService<UpdatePromotionContentCommand> _updateContentService = updateContentService ?? throw new ArgumentNullException(nameof(updateContentService));
+    private readonly ICommandService<UpdatePromotionStatusCommand> _updateStatusService = updateStatusService ?? throw new ArgumentNullException(nameof(updateStatusService));
+    private readonly ICommandService<UpdatePromotionRuleCommand> _updateRuleService = updateRuleService ?? throw new ArgumentNullException(nameof(updateRuleService));
 
     public async ValueTask<Guid> GetAsync(
         DuplicatePromotionCommand command,

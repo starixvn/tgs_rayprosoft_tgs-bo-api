@@ -7,14 +7,9 @@ using TGS.Services.BackOffice.Domain;
 
 namespace TGS.Services.BackOffice.ApplicationServices.BatchAdjust;
 
-internal class SaveBatchCommandService : IGetService<SaveBatchCommand, Guid>
+internal class SaveBatchCommandService(IBatchTempRepository batchTempRepository) : IGetService<SaveBatchCommand, Guid>
 {
-    private readonly IBatchTempRepository _batchTempRepository;
-
-    public SaveBatchCommandService(IBatchTempRepository batchTempRepository)
-    {
-        _batchTempRepository = batchTempRepository ?? throw new ArgumentNullException(nameof(batchTempRepository));
-    }
+    private readonly IBatchTempRepository _batchTempRepository = batchTempRepository ?? throw new ArgumentNullException(nameof(batchTempRepository));
 
     public ValueTask<Guid> GetAsync(SaveBatchCommand query, CancellationToken cancellationToken = default)
         => _batchTempRepository.SaveAdjustBalanceBatchAsync(

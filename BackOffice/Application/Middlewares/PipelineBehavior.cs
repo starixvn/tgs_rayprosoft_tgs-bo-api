@@ -8,14 +8,9 @@ using TGS.Services.BackOffice.Application.Models;
 
 namespace TGS.Services.BackOffice.Application.Middlewares;
 
-public class PipelineBehavior<TIn, TOut> : IPipelineBehavior<TIn, TOut> where TIn : IRequest<TOut>
+public class PipelineBehavior<TIn, TOut>(IHttpContextAccessor accessor) : IPipelineBehavior<TIn, TOut> where TIn : IRequest<TOut>
 {
-    private readonly HttpContext _httpContext;
-
-    public PipelineBehavior(IHttpContextAccessor accessor)
-    {
-        _httpContext = accessor.HttpContext;
-    }
+    private readonly HttpContext _httpContext = accessor.HttpContext;
 
     public async Task<TOut> Handle(
         TIn request,

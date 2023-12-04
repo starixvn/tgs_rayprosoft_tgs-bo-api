@@ -19,39 +19,20 @@ namespace TGS.Apis.BackendOffice.Controllers;
 
 [Route("api/[controller]")]
 [ApiController]
-public class RoleController : BaseContextController
+public class RoleController(
+    ITgsQueries<Role> roleQueries,
+    ITgsQueries<Setting> settingQueries,
+    ITgsCommands<Role> roleCommands,
+    ITgsQueries<Core.DataServices.Tgs.Models.Reseller> resellerQueries,
+    ITgsQueries<Core.DataServices.Tgs.Models.Licensee> licenseeQueries,
+    ITgsQueries<Core.DataServices.Tgs.Models.Brand> brandQueries,
+    IJsonSerializationProvider jsonSerializationProvider) : BaseContextController
 {
-    private readonly ITgsQueries<Core.DataServices.Tgs.Models.Brand> _brandQueries;
-    private readonly IJsonSerializationProvider _jsonSerializationProvider;
-    private readonly ITgsQueries<Core.DataServices.Tgs.Models.Licensee> _licenseeQueries;
-    private readonly ITgsQueries<Core.DataServices.Tgs.Models.Reseller> _resellerQueries;
-    private readonly ITgsCommands<Role> _roleCommands;
-    private readonly ITgsQueries<Role> _roleQueries;
-    private readonly ITgsQueries<Setting> _settingQueries;
-
-    public RoleController(
-        ITgsQueries<Role> roleQueries,
-        ITgsQueries<Setting> settingQueries,
-        ITgsCommands<Role> roleCommands,
-        ITgsQueries<Core.DataServices.Tgs.Models.Reseller> resellerQueries,
-        ITgsQueries<Core.DataServices.Tgs.Models.Licensee> licenseeQueries,
-        ITgsQueries<Core.DataServices.Tgs.Models.Brand> brandQueries,
-        IJsonSerializationProvider jsonSerializationProvider)
-    {
-        _roleQueries = roleQueries;
-        _roleCommands = roleCommands;
-        _settingQueries = settingQueries;
-        _resellerQueries = resellerQueries;
-        _licenseeQueries = licenseeQueries;
-        _brandQueries = brandQueries;
-        _jsonSerializationProvider = jsonSerializationProvider;
-    }
-
     [HttpPost("{roleId}/copy")]
     [Description("Copy role")]
     public async Task<MessageResponse> CopyAsync(Guid roleId, [FromBody] CopyRoleRequest request)
     {
-        var role = await _roleQueries.GetSingleAsync(p => p.Id == roleId);
+        var role = await roleQueries.GetSingleAsync(p => p.Id == roleId);
 
         if (role == null)
         {
@@ -63,7 +44,7 @@ public class RoleController : BaseContextController
             return CreateInvalidResponse<GetRoleResponse>(Resources.Role.CannotCopyRootRole);
         }
 
-        var roleNameExisted = await _roleQueries.GetQueries()
+        var roleNameExisted = await roleQueries.GetQueries()
             .Where(role.ResellerId, x => x.ResellerId == role.ResellerId)
             .Where(role.LicenseeId, x => x.LicenseeId == role.LicenseeId)
             .Where(role.BrandId, x => x.BrandId == role.BrandId)
@@ -84,7 +65,7 @@ public class RoleController : BaseContextController
             role.MenuSetting,
             role.IsRoot);
 
-        await _roleCommands.CreateAsync(newRole);
+        await roleCommands.CreateAsync(newRole);
 
         return CreateValidResponse<MessageResponse>();
     }
@@ -93,7 +74,7 @@ public class RoleController : BaseContextController
     [Description("Create a role")]
     public async Task<MessageResponse> CreateAsync([FromBody] CreateRoleRequest request)
     {
-        var roleNameExisted = await _roleQueries.GetQueries()
+        var roleNameExisted = await roleQueries.GetQueries()
             .Where(x => x.ResellerId == request.ResellerId)
             .Where(x => x.LicenseeId == request.LicenseeId)
             .Where(x => x.BrandId == request.BrandId)
@@ -107,23 +88,23 @@ public class RoleController : BaseContextController
         switch (request.IsRoot)
         {
             case true when request.RoleType == RoleType.Brand &&
-                await _roleQueries.GetCountAsync(x => x.IsRoot && x.BrandId == request.BrandId) > 0:
+                await roleQueries.GetCountAsync(x => x.IsRoot && x.BrandId == request.BrandId) > 0:
                 return CreateInvalidResponse<GetRoleResponse>(Resources.Role.BrandRootExisted);
 
             case true when request.RoleType == RoleType.Licensee &&
-                await _roleQueries.GetCountAsync(x
+                await roleQueries.GetCountAsync(x
                     => x.IsRoot && x.LicenseeId == request.LicenseeId && x.BrandId == null) >
                 0:
                 return CreateInvalidResponse<GetRoleResponse>(Resources.Role.LicenseeRootExisted);
 
             case true when request.RoleType == RoleType.Reseller &&
-                await _roleQueries.GetCountAsync(x
+                await roleQueries.GetCountAsync(x
                     => x.IsRoot && x.ResellerId == request.ResellerId && x.LicenseeId == null &&
                     x.BrandId == null) >
                 0:
                 return CreateInvalidResponse<GetRoleResponse>(Resources.Role.ResellerRootExisted);
 
-            case true when request.RoleType == RoleType.Admin && await _roleQueries.GetCountAsync(x =>
+            case true when request.RoleType == RoleType.Admin && await roleQueries.GetCountAsync(x =>
                 x.IsRoot && x.ResellerId == null && x.LicenseeId == null && x.BrandId == null) > 0:
                 return CreateInvalidResponse<GetRoleResponse>(Resources.Role.RootExixted);
         }
@@ -135,10 +116,10 @@ public class RoleController : BaseContextController
             request.RoleType,
             request.LicenseeId,
             request.BrandId,
-            _jsonSerializationProvider.SerializeToString(request.Menus),
+            jsonSerializationProvider.SerializeToString(request.Menus),
             request.IsRoot);
 
-        await _roleCommands.CreateAsync(role);
+        await roleCommands.CreateAsync(role);
 
         return CreateValidResponse<MessageResponse>();
     }
@@ -147,7 +128,7 @@ public class RoleController : BaseContextController
     [Description("Delete a role")]
     public async Task<MessageResponse> DeleteAsync(Guid roleId)
     {
-        var role = await _roleQueries.GetSingleAsync(p => p.Id == roleId, s => s.Include(x => x.Users));
+        var role = await roleQueries.GetSingleAsync(p => p.Id == roleId, s => s.Include(x => x.Users));
 
         if (role == null)
         {
@@ -169,7 +150,7 @@ public class RoleController : BaseContextController
             return CreateInvalidResponse<MessageResponse>(Resources.Role.CannotDeleteRootRole);
         }
 
-        await _roleCommands.DeleteAsync(role);
+        await roleCommands.DeleteAsync(role);
 
         return CreateValidResponse<MessageResponse>();
     }
@@ -177,7 +158,7 @@ public class RoleController : BaseContextController
     [HttpGet]
     [Description("Get roles")]
     public Task<PagedResponse<RoleModel>> GetListAsync([FromQuery] GetRolesRequest request) =>
-        _roleQueries.GetQueries()
+        roleQueries.GetQueries()
             .Where(request.IsRoot, x => x.IsRoot == request.IsRoot)
             .Where(request.ResellerId, x => x.ResellerId == request.ResellerId)
             .Where(request.LicenseeId, x => x.LicenseeId == request.LicenseeId)
@@ -186,7 +167,7 @@ public class RoleController : BaseContextController
             .Where(LicenseeId, x => x.LicenseeId == LicenseeId)
             .Where(BrandId, x => x.BrandId == BrandId)
             .Where(request.Name, x => EF.Functions.ILike(x.Name, $"%{request.Name}%"))
-            .GroupJoin(_resellerQueries.GetQueries(),
+            .GroupJoin(resellerQueries.GetQueries(),
                 r => r.ResellerId,
                 r => r.Id,
                 (role, resellers) => new
@@ -200,7 +181,7 @@ public class RoleController : BaseContextController
                     x.role,
                     reseller
                 })
-            .GroupJoin(_licenseeQueries.GetQueries(),
+            .GroupJoin(licenseeQueries.GetQueries(),
                 combine => combine.role.LicenseeId,
                 l => l.Id,
                 (combine, licensees) => new
@@ -216,7 +197,7 @@ public class RoleController : BaseContextController
                     x.reseller,
                     licensee
                 })
-            .GroupJoin(_brandQueries.GetQueries(),
+            .GroupJoin(brandQueries.GetQueries(),
                 combine => combine.role.BrandId,
                 b => b.Id,
                 (combine, brands) => new
@@ -260,8 +241,8 @@ public class RoleController : BaseContextController
     public async Task<GetMenuResponse> GetMenuAsync(GetMenuRequest request)
     {
         var setting = request.RoleType != RoleType.Admin
-            ? (await _roleQueries.GetSingleAsync(x => x.Id == request.RoleId))?.MenuSetting
-            : (await _settingQueries.GetSingleAsync(p => p.Key == "Menus"))?.Value;
+            ? (await roleQueries.GetSingleAsync(x => x.Id == request.RoleId))?.MenuSetting
+            : (await settingQueries.GetSingleAsync(p => p.Key == "Menus"))?.Value;
 
         if (setting == null)
         {
@@ -281,7 +262,7 @@ public class RoleController : BaseContextController
     [Description("Get a role")]
     public async Task<GetRoleResponse> GetSingleAsync(Guid roleId)
     {
-        var role = await _roleQueries.GetSingleAsync(p => p.Id == roleId,
+        var role = await roleQueries.GetSingleAsync(p => p.Id == roleId,
             x => x
                 .Where(ResellerId != null, r => r.ResellerId == ResellerId)
                 .Where(LicenseeId != null, l => l.LicenseeId == LicenseeId)
@@ -294,21 +275,21 @@ public class RoleController : BaseContextController
 
         var menuSetting = role.IsRoot switch
         {
-            true when role.BrandId != null => (await _roleQueries.GetSingleAsync(x =>
+            true when role.BrandId != null => (await roleQueries.GetSingleAsync(x =>
                 x.IsRoot && x.LicenseeId == role.LicenseeId && x.BrandId == null)).MenuSetting,
-            true when role.LicenseeId != null => (await _roleQueries.GetSingleAsync(x =>
+            true when role.LicenseeId != null => (await roleQueries.GetSingleAsync(x =>
                     x.IsRoot && x.ResellerId == role.ResellerId && x.LicenseeId == null && x.BrandId == null))
                 .MenuSetting,
             true when role.ResellerId != null =>
-                (await _settingQueries.GetSingleAsync(p => p.Key == "Menus")).Value,
-            false when role.BrandId != null => (await _roleQueries.GetSingleAsync(x =>
+                (await settingQueries.GetSingleAsync(p => p.Key == "Menus")).Value,
+            false when role.BrandId != null => (await roleQueries.GetSingleAsync(x =>
                 x.IsRoot && x.BrandId == role.BrandId)).MenuSetting,
-            false when role.LicenseeId != null => (await _roleQueries.GetSingleAsync(x =>
+            false when role.LicenseeId != null => (await roleQueries.GetSingleAsync(x =>
                 x.IsRoot && x.LicenseeId == role.LicenseeId && x.BrandId == null)).MenuSetting,
-            false when role.ResellerId != null => (await _roleQueries.GetSingleAsync(x =>
+            false when role.ResellerId != null => (await roleQueries.GetSingleAsync(x =>
                     x.IsRoot && x.ResellerId == role.ResellerId && x.LicenseeId == null && x.BrandId == null))
                 .MenuSetting,
-            _ => (await _settingQueries.GetSingleAsync(p => p.Key == "Menus")).Value
+            _ => (await settingQueries.GetSingleAsync(p => p.Key == "Menus")).Value
         };
 
         var roleModel = new RoleModel
@@ -339,14 +320,14 @@ public class RoleController : BaseContextController
         Guid roleId,
         [FromBody] UpdateRoleRequest request)
     {
-        var role = await _roleQueries.GetSingleAsync(p => p.Id == roleId);
+        var role = await roleQueries.GetSingleAsync(p => p.Id == roleId);
 
         if (role == null)
         {
             return CreateInvalidResponse<GetRoleResponse>(Resources.Role.NotFound);
         }
 
-        var roleNameExisted = await _roleQueries.GetQueries()
+        var roleNameExisted = await roleQueries.GetQueries()
             .Where(x => x.ResellerId == role.ResellerId)
             .Where(x => x.LicenseeId == role.LicenseeId)
             .Where(x => x.BrandId == role.BrandId)
@@ -358,18 +339,18 @@ public class RoleController : BaseContextController
         }
 
         role.Name = request.Name;
-        role.MenuSetting = _jsonSerializationProvider.SerializeToString(request.Menus);
+        role.MenuSetting = jsonSerializationProvider.SerializeToString(request.Menus);
         role.UpdatedByUsername = Username;
         role.UpdatedOn = DateTimeOffset.Now;
 
         if (!role.IsRoot || role.RoleType == RoleType.Admin)
         {
-            await _roleCommands.UpdateAsync(role);
+            await roleCommands.UpdateAsync(role);
 
             return CreateValidResponse<MessageResponse>();
         }
 
-        var roles = await _roleQueries.GetQueries()
+        var roles = await roleQueries.GetQueries()
             .Where(role.RoleType == RoleType.Brand, x => x.BrandId == role.BrandId)
             .Where(role.RoleType == RoleType.Licensee, x => x.LicenseeId == role.LicenseeId)
             .Where(role.RoleType == RoleType.Reseller, x => x.ResellerId == role.ResellerId).ToArrayAsync();
@@ -411,7 +392,7 @@ public class RoleController : BaseContextController
         var brandRoles = roles.Where(x => x.RoleType == RoleType.Brand).ToArray();
         UpdateRoles(brandRootRole, brandRoles);
 
-        await _roleCommands.BatchUpdateAsync(roles);
+        await roleCommands.BatchUpdateAsync(roles);
 
         return CreateValidResponse<MessageResponse>();
     }
@@ -469,14 +450,14 @@ public class RoleController : BaseContextController
     }
 
     private MenuSetting[] GetMenuSettingByString(string setting) =>
-            _jsonSerializationProvider.DeserializeFromString<MenuSetting[]>(setting);
+            jsonSerializationProvider.DeserializeFromString<MenuSetting[]>(setting);
 
     private void UpdateRoles(Role templateRole, IEnumerable<Role> roles)
     {
         foreach (var roleItem in roles)
         {
             var menus = GetMenuSetting(templateRole.MenuSetting, roleItem.MenuSetting);
-            roleItem.MenuSetting = _jsonSerializationProvider.SerializeToString(menus);
+            roleItem.MenuSetting = jsonSerializationProvider.SerializeToString(menus);
             roleItem.UpdatedByUsername = Username;
             roleItem.UpdatedOn = DateTimeOffset.Now;
         }

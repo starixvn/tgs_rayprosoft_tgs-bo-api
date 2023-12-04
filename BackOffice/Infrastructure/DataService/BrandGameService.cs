@@ -25,12 +25,8 @@ public interface IBrandGameService
     Task UpdateBrandGamesAsync(IEnumerable<BrandGame> brandGames);
 }
 
-public class BrandGameService : BaseRepositoryOperations<ITgsRepository>, IBrandGameService
+public class BrandGameService(ITgsRepository tgsRepository) : BaseRepositoryOperations<ITgsRepository>(tgsRepository), IBrandGameService
 {
-    public BrandGameService(ITgsRepository tgsRepository) : base(tgsRepository)
-    {
-    }
-
     Task<BrandGame> IBrandGameService.GetBrandGameAsync(Expression<Func<BrandGame, bool>> predicate,
         Func<IQueryable<BrandGame>, IQueryable<BrandGame>> preQuery) =>
         GetEntityFirstOrDefaultAsync(predicate, preQuery);
