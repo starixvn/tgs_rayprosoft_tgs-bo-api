@@ -4,6 +4,7 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging.Abstractions;
 using NSubstitute;
 using NUnit.Framework.Internal;
+using NUnit.Framework.Legacy;
 using Tgs.Agent.Client;
 using Tgs.Agent.Client.Models.Enums;
 using Tgs.CashService.Client;
@@ -65,7 +66,7 @@ internal class PlayerTests
 
         var actual = await sut.QueryAsync(query).ToArrayAsync();
 
-        Assert.NotNull(actual);
+        ClassicAssert.NotNull(actual);
         CollectionAssert.AreEquivalent(expected, actual);
     }
 
@@ -89,7 +90,7 @@ internal class PlayerTests
 
         var actual = await sut.QueryAsync(query).ToArrayAsync();
 
-        Assert.AreEqual(0, actual.Length);
+        ClassicAssert.AreEqual(0, actual.Length);
 
         _ = fakePlayerServiceClient
             .DidNotReceive()
@@ -452,7 +453,7 @@ internal class PlayerTests
 
         var actual = await sut.GetAsync(new PlayerHistoryQuery(eventId));
 
-        Assert.AreEqual(EventAction.Create, actual.Action);
+        ClassicAssert.AreEqual(EventAction.Create, actual.Action);
     }
 
     [Test]
@@ -549,7 +550,7 @@ internal class PlayerTests
             .Received(1)
             .SaveChangesAsync();
 
-        Assert.True(actual.Valid);
+        ClassicAssert.True(actual.Valid);
     }
 
     [Test]
@@ -577,7 +578,7 @@ internal class PlayerTests
 
         var actual = await sut.GetAsync(new SetPlayerAgentCommand(playerCode, agentUsername, modifyUserId, modifyUsername));
 
-        Assert.False(actual.Valid);
+        ClassicAssert.False(actual.Valid);
     }
 
     [Test]
@@ -630,7 +631,7 @@ internal class PlayerTests
 
         var actual = await sut.GetAsync(new SetPlayerAgentCommand(playerCode, agentUsername, modifyUserId, modifyUsername));
 
-        Assert.False(actual.Valid);
+        ClassicAssert.False(actual.Valid);
     }
 
     [Test]
@@ -693,8 +694,8 @@ internal class PlayerTests
         _ = fakeTgsRepository.Received(1)
             .SaveChangesAsync();
 
-        Assert.NotNull(actual);
-        Assert.True(actual.Valid);
+        ClassicAssert.NotNull(actual);
+        ClassicAssert.True(actual.Valid);
     }
 
     [Test]
@@ -713,8 +714,8 @@ internal class PlayerTests
         var command = new SetPlayerPasswordCommand(playerCode, password, modifyUserId, modifyUsername);
         var actual = await sut.GetAsync(command);
 
-        Assert.NotNull(actual);
-        Assert.False(actual.Valid);
+        ClassicAssert.NotNull(actual);
+        ClassicAssert.False(actual.Valid);
     }
 
     [Test, Order(1)]
@@ -747,7 +748,7 @@ internal class PlayerTests
 
         var actual = await sut.GetAsync(command);
 
-        Assert.False(actual.Valid);
+        ClassicAssert.False(actual.Valid);
     }
 
     [Test, Order(0)]
@@ -771,7 +772,7 @@ internal class PlayerTests
 
         var actual = await sut.GetAsync(command);
 
-        Assert.False(actual.Valid);
+        ClassicAssert.False(actual.Valid);
     }
 
     [Test, Order(2)]
@@ -803,7 +804,7 @@ internal class PlayerTests
 
         var actual = await sut.GetAsync(command);
 
-        Assert.False(actual.Valid);
+        ClassicAssert.False(actual.Valid);
     }
 
     [Test, Order(3)]
@@ -862,7 +863,7 @@ internal class PlayerTests
             .Received(1)
             .SaveChangesAsync();
 
-        Assert.True(actual.Valid);
+        ClassicAssert.True(actual.Valid);
     }
 
     [Test, Order(5)]
@@ -919,7 +920,7 @@ internal class PlayerTests
         _ = fakeTgsRepository.Received(1)
             .SaveChangesAsync();
 
-        Assert.True(actual.Valid);
+        ClassicAssert.True(actual.Valid);
     }
 
     [Test, Order(4)]
@@ -964,7 +965,7 @@ internal class PlayerTests
 
         var actual = await sut.GetAsync(command);
 
-        Assert.False(actual.Valid);
+        ClassicAssert.False(actual.Valid);
     }
 
     [Test]
@@ -984,7 +985,7 @@ internal class PlayerTests
 
         var actual = await sut.GetAsync(new SetPlayerStatusCommand(playerCode, status, modifyUserId, modifyUsername));
 
-        Assert.False(actual.Valid);
+        ClassicAssert.False(actual.Valid);
     }
 
     [Test]
@@ -1017,7 +1018,7 @@ internal class PlayerTests
         _ = fakePluggableClient.Received(1)
             .KickPlayerAsync(playerCode);
 
-        Assert.True(actual.Valid);
+        ClassicAssert.True(actual.Valid);
     }
 
     [Test]
@@ -1069,6 +1070,6 @@ internal class PlayerTests
             .Received(1)
             .SaveChangesAsync();
 
-        Assert.True(actual.Valid);
+        ClassicAssert.True(actual.Valid);
     }
 }

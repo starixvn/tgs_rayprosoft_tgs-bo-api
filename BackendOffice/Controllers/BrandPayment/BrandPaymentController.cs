@@ -306,7 +306,7 @@ public partial class BrandPaymentController : BaseContextController
         if (request.Whitelist != null && request.Blacklist != null)
         {
             var duplicatePlayers = request.Whitelist.Intersect(request.Blacklist).ToArray();
-            if (duplicatePlayers.Any())
+            if (duplicatePlayers.Length != 0)
             {
                 return new()
                 {
@@ -352,7 +352,7 @@ public partial class BrandPaymentController : BaseContextController
 
         var diffUsers = users.Except(allPlayers).ToArray();
 
-        return diffUsers.Any()
+        return diffUsers.Length != 0
             ? new() { Valid = false, Message = Resources.BrandPayment.PlayersNotFound, NotExistsPlayers = diffUsers }
             : new UploadFileResponse { Valid = true, Players = allPlayers };
     }
@@ -382,7 +382,7 @@ public partial class BrandPaymentController : BaseContextController
         if (request.Whitelist != null && request.Blacklist != null)
         {
             var duplicatePlayers = request.Whitelist.Intersect(request.Blacklist).ToArray();
-            if (duplicatePlayers.Any())
+            if (duplicatePlayers.Length != 0)
             {
                 return new()
                 {

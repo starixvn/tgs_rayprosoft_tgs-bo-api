@@ -31,10 +31,12 @@ public partial class ResellerController : BaseContextController
             return CreateInvalidResponse<MessageResponse>(Resources.Reseller.NameExists);
         }
 
+#pragma warning disable CA1862 // 使用 'StringComparison' 方法多載來執行不區分大小寫的字串比較
         if (await _service.ExistsAsync(x => x.Code.ToLower() == request.Code.ToLower()))
         {
             return CreateInvalidResponse<MessageResponse>(Resources.Reseller.CodeExists);
         }
+#pragma warning restore CA1862 // 使用 'StringComparison' 方法多載來執行不區分大小寫的字串比較
 
         await _service.CreateResellerAsync(request, Username);
 

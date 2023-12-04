@@ -1,6 +1,7 @@
 ﻿using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Diagnostics;
 using NSubstitute;
+using NUnit.Framework.Legacy;
 using TGS.BackOffice.Repositories;
 using TGS.Core.DataServices.Tgs;
 using TGS.Core.DataServices.Tgs.Models;
@@ -78,7 +79,7 @@ public class BackOfficeRepositoryTests
 
         var actual = await sut.QueryExpiredBannersAsync(brandId).CountAsync();
 
-        Assert.AreEqual(1, actual);
+        ClassicAssert.AreEqual(1, actual);
     }
 
     [Test]
@@ -130,7 +131,7 @@ public class BackOfficeRepositoryTests
 
         var actual = await sut.QueryRejectedBannersAsync(brandId).CountAsync();
 
-        Assert.AreEqual(1, actual);
+        ClassicAssert.AreEqual(1, actual);
     }
 
     [Test]
@@ -168,7 +169,7 @@ public class BackOfficeRepositoryTests
 
         var actual = await sut.QueryReviewingBannersAsync(brandId).CountAsync();
 
-        Assert.AreEqual(1, actual);
+        ClassicAssert.AreEqual(1, actual);
     }
 
     [Test]
@@ -238,6 +239,6 @@ public class BackOfficeRepositoryTests
 
         var actual = await sut.QueryValidBannersAsync(brandId).CountAsync();
 
-        Assert.AreEqual(2, actual);
+        ClassicAssert.AreEqual(2, actual);
     }
 }

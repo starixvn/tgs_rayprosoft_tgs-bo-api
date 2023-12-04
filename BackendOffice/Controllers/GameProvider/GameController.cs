@@ -399,7 +399,7 @@ public class GameController : BaseContextController
 
         var diffGames = info.DiffGameIds;
 
-        return diffGames.Any()
+        return diffGames.Length != 0
             ? new MessageResponse
             {
                 Valid = false,

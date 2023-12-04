@@ -1,4 +1,5 @@
 ﻿using NSubstitute;
+using NUnit.Framework.Legacy;
 using Tgs.DepositAccumulateRoulette.Clients;
 using Tgs.Promotion.Clients;
 using TGS.Services.BackOffice.ApplicationServices.Promotion;
@@ -69,8 +70,8 @@ internal class DepositAccumulateRouletteTests
         var actual = await sut.GetAsync(
             new DepositAccumulateRouletteRecordDetailQuery(brandId, rouletteRecord.RouletteId));
 
-        Assert.IsNotNull(actual);
-        Assert.AreEqual(expected, actual);
+        ClassicAssert.IsNotNull(actual);
+        ClassicAssert.AreEqual(expected, actual);
     }
 
     [Test]

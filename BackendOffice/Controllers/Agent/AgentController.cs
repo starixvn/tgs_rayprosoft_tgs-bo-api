@@ -343,7 +343,7 @@ public partial class AgentController : BaseContextController
 
         var userQuery = userQueries.GetQueries().Where(u => userIds.Contains(u.Id)).ToArray();
 
-        var user = userQuery.Any()
+        var user = userQuery.Length != 0
             ? userQuery.ToDictionary(x => x.Id, x => x.Username)
             : new Dictionary<Guid, string>();
 
@@ -390,7 +390,7 @@ public partial class AgentController : BaseContextController
 
     private static string TryParseUsername(Dictionary<Guid, string> UserDicts, string Modifier)
     {
-        if (Guid.TryParse(Modifier, out var userId) && UserDicts.Any())
+        if (Guid.TryParse(Modifier, out var userId) && UserDicts.Count != 0)
         {
             _ = UserDicts.TryGetValue(userId, out var userName);
 

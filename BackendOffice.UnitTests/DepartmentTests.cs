@@ -1,4 +1,5 @@
 ﻿using NSubstitute;
+using NUnit.Framework.Legacy;
 using Tgs.Paging;
 using TGS.Core.DataServices.Base.Interfaces;
 using TGS.Core.DataServices.Tgs.Models;
@@ -66,7 +67,7 @@ public class DepartmentTests
 
         var actual = await sut.GetAsync(query);
 
-        Assert.AreEqual(1, actual);
+        ClassicAssert.AreEqual(1, actual);
     }
 
     [Test]
@@ -126,6 +127,6 @@ public class DepartmentTests
 
         var actual = await sut.QueryAsync(query).ToArrayAsync();
 
-        Assert.AreEqual(1, actual.Length);
+        ClassicAssert.AreEqual(1, actual.Length);
     }
 }

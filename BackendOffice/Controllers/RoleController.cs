@@ -154,7 +154,7 @@ public class RoleController : BaseContextController
             return CreateInvalidResponse<MessageResponse>(Resources.Role.NotFound);
         }
 
-        if (role.Users.Any())
+        if (role.Users.Count != 0)
         {
             return CreateInvalidResponse<MessageResponse>(Resources.Role.CannotDeleteRole);
         }

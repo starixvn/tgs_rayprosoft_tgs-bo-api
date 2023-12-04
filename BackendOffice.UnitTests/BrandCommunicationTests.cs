@@ -1,5 +1,6 @@
 ﻿using System.Linq.Expressions;
 using NSubstitute;
+using NUnit.Framework.Legacy;
 using TGS.Core.DataServices.Base.Interfaces;
 using TGS.Core.Models.Enums;
 using TGS.Services.BackOffice.Application.Commands.BrandCommunication;
@@ -65,7 +66,7 @@ public class BrandCommunicationTests
         var text = "AAAA";
         var actual = Enum.TryParse(typeof(CommunicationType), text, out _);
 
-        Assert.IsFalse(actual);
+        ClassicAssert.IsFalse(actual);
     }
 
     [Test]

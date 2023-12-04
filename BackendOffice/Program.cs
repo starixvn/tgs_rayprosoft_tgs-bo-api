@@ -319,6 +319,7 @@ builder.Services.AddSwaggerGen(c =>
     c.UseDateOnlyTimeOnlyStringConverters();
 });
 
+var excludeExtensions = new[] { "html", "ico", "png", "jpg" };
 builder.Services
     .AddOpenTelemetry()
     .ConfigureResource(_ => ResourceBuilder.CreateDefault()
@@ -348,7 +349,7 @@ builder.Services
                 || !httpContext.Request.Path.StartsWithSegments("/swagger")
                 && !httpContext.Request.Path.StartsWithSegments("/health")
                 && !httpContext.Request.Path.StartsWithSegments("/profiler/")
-                && !new[] { "html", "ico", "png", "jpg" }.Any(
+                && !excludeExtensions.Any(
                     ext => httpContext.Request.Path.Value.EndsWith($".{ext}"));
         };
     });

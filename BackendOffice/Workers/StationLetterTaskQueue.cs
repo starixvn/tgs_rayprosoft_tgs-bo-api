@@ -68,10 +68,7 @@ public class StationLetterTaskQueue : IStationLetterTaskQueue
 
     public async ValueTask QueueStationLetterAsync(StationLetterQueueModel model)
     {
-        if (model == null)
-        {
-            throw new ArgumentNullException(nameof(model));
-        }
+        ArgumentNullException.ThrowIfNull(model);
 
         await _queue.Writer.WriteAsync(model);
     }

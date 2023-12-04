@@ -1,5 +1,6 @@
 ﻿using System.Collections.Immutable;
 using NSubstitute;
+using NUnit.Framework.Legacy;
 using Tgs.Agent.Client;
 using Tgs.Agent.Client.Models;
 using Tgs.Agent.Client.Models.Enums;
@@ -68,6 +69,6 @@ public class AgentContactTests
             .Received(1)
             .AddAgentAuditLogAsync(Arg.Is(auditRequest));
 
-        Assert.True(actual.Valid);
+        ClassicAssert.True(actual.Valid);
     }
 }

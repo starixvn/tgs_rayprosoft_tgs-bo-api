@@ -113,7 +113,7 @@ public class DepositTests
             nodeModule,
             args: new object[] {
                 brandId,
-                new object(),
+                new(),
                 new PageableRequest()
             });
 

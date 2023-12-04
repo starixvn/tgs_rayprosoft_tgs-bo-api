@@ -1,5 +1,6 @@
 ﻿using System.Linq.Expressions;
 using NSubstitute;
+using NUnit.Framework.Legacy;
 using Tgs.Paging;
 using TGS.Core.DataServices.Tgs.Models;
 using TGS.Core.Models.Enums;
@@ -161,7 +162,7 @@ public class PlayerIdentityTests
 
         var actual = await sut.GetAsync(query);
 
-        Assert.AreEqual(2, actual);
+        ClassicAssert.AreEqual(2, actual);
     }
 
     [Test]
@@ -203,7 +204,7 @@ public class PlayerIdentityTests
             .Received(1)
             .UpdatePlayerIdentityAsync(Arg.Any<string>(), Arg.Any<Guid>());
 
-        Assert.IsTrue(actual.Valid);
+        ClassicAssert.IsTrue(actual.Valid);
     }
 
     [Test]
@@ -231,7 +232,7 @@ public class PlayerIdentityTests
 
         var actual = await sut.GetAsync(command);
 
-        Assert.IsFalse(actual.Valid);
+        ClassicAssert.IsFalse(actual.Valid);
     }
 
     [Test]

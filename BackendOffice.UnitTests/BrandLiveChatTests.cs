@@ -1,6 +1,7 @@
 ﻿using System.Linq.Expressions;
 using System.Text.Json;
 using NSubstitute;
+using NUnit.Framework.Legacy;
 using TGS.Core.DataServices.Base.Interfaces;
 using TGS.Services.BackOffice.Application.Commands.BrandLiveChat;
 using TGS.Services.BackOffice.Application.Queries.BrandLiveChat;
@@ -66,7 +67,7 @@ public class BrandLiveChatTests
 
         var info = await sut.GetAsync(query);
 
-        Assert.IsTrue(info.ChatSetting != null);
+        ClassicAssert.IsTrue(info.ChatSetting != null);
     }
 
     [Test]

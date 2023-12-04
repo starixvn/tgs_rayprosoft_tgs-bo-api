@@ -15,6 +15,7 @@ using TGS.Services.BackOffice.Infrastructure.DataService;
 using TGS.Services.WalletService;
 using Tgs.ServiceUtility;
 using UserType = Tgs.Payment.Clients.UserType;
+using NUnit.Framework.Legacy;
 
 namespace TGS.Tests.BackendOffice.UnitTests;
 
@@ -94,7 +95,7 @@ public class WithdrawFormTests
 
         var actual = await sut.GetAsync(new(agentId));
 
-        Assert.AreEqual("agentRealName", actual);
+        ClassicAssert.AreEqual("agentRealName", actual);
     }
 
     [Test]
@@ -113,7 +114,7 @@ public class WithdrawFormTests
 
         var actual = await sut.GetAsync(new(playerCode));
 
-        Assert.AreEqual("playerRealName", actual);
+        ClassicAssert.AreEqual("playerRealName", actual);
     }
 
     [Test]
@@ -131,7 +132,7 @@ public class WithdrawFormTests
 
         var actual = await sut.GetAsync(new(UserType.Agent, agentId));
 
-        Assert.AreEqual("DeveloperExperence", actual);
+        ClassicAssert.AreEqual("DeveloperExperence", actual);
     }
 
     [Test]
@@ -149,7 +150,7 @@ public class WithdrawFormTests
 
         var actual = await sut.GetAsync(new(UserType.Player, playerCode));
 
-        Assert.AreEqual("DeveloperExperence", actual);
+        ClassicAssert.AreEqual("DeveloperExperence", actual);
     }
 
     [Test]

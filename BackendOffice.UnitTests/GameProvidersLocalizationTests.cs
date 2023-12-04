@@ -1,6 +1,7 @@
 ﻿using System.Text.Json;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Diagnostics;
+using NUnit.Framework.Legacy;
 using TGS.Core.DataServices.Tgs;
 using TGS.Core.Infrastructures.Json;
 using TGS.Services.BackOffice.Application.Models.SubGameProvider;
@@ -35,7 +36,7 @@ public class GameProvidersLocalizationTests
 
         var actual = await sut.QueryAsync(new GetGameProvidersLocalizationQuery()).CountAsync();
 
-        Assert.AreEqual(1, actual);
+        ClassicAssert.AreEqual(1, actual);
     }
 
     [Test]
@@ -72,7 +73,7 @@ public class GameProvidersLocalizationTests
 
         var actual = await sut.QueryAsync(new GetAllSupportLanguagesQuery()).CountAsync();
 
-        Assert.AreEqual(2, actual);
+        ClassicAssert.AreEqual(2, actual);
     }
 
     [Test]
@@ -107,7 +108,7 @@ public class GameProvidersLocalizationTests
 
         var command = new UpdateGameProvidersLocalizationCommand(
             new List<SubGameProvidersLocalizationModel>() {
-                new SubGameProvidersLocalizationModel() {
+                new() {
                     Code = "SubGp",
                     Localization = localization
                 }},
@@ -117,7 +118,7 @@ public class GameProvidersLocalizationTests
 
         var actual = repository.SubGameProviders.FirstOrDefault(x => x.Code == "SubGp");
 
-        Assert.IsNotNull(actual!.Localization);
+        ClassicAssert.IsNotNull(actual!.Localization);
     }
 
     [Test]
@@ -142,7 +143,7 @@ public class GameProvidersLocalizationTests
 
         var command = new UpdateGameProvidersLocalizationCommand(
             new List<SubGameProvidersLocalizationModel>() {
-                new SubGameProvidersLocalizationModel() {
+                new() {
                     Code = "SubGp",
                     Localization = localization
                 }},
@@ -150,6 +151,6 @@ public class GameProvidersLocalizationTests
 
         var actual = await sut.QueryAsync(command, default).CountAsync();
 
-        Assert.IsTrue(actual == 1);
+        ClassicAssert.IsTrue(actual == 1);
     }
 }

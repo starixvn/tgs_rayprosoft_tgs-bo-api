@@ -1,5 +1,6 @@
 ﻿using System.Text.Json;
 using NSubstitute;
+using NUnit.Framework.Legacy;
 using Tgs.Agent.Client;
 using Tgs.Agent.Client.Models;
 using Tgs.Agent.Client.Models.Enums;
@@ -77,6 +78,6 @@ internal class AgentHistoriesTests
 
         var actual = await sut.GetAsync(new AgentHistoryQuery(eventId));
 
-        Assert.AreEqual(EventAction.Create, actual.Action);
+        ClassicAssert.AreEqual(EventAction.Create, actual.Action);
     }
 }

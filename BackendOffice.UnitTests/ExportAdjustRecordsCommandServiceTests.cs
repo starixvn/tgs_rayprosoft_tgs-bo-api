@@ -1,4 +1,5 @@
 ﻿using NSubstitute;
+using NUnit.Framework.Legacy;
 using Tgs.Agent.Client;
 using Tgs.Agent.Client.Models;
 using Tgs.BrandCertificate.Clients;
@@ -98,7 +99,7 @@ public class ExportAdjustRecordsCommandServiceTests
 
         await sut.ExecuteAsync(command);
 
-        Assert.Greater(fs.Length, 0L);
+        ClassicAssert.Greater(fs.Length, 0L);
     }
 
     [Test]
@@ -235,7 +236,7 @@ public class ExportAdjustRecordsCommandServiceTests
 
         await sut.ExecuteAsync(command);
 
-        Assert.Greater(fs.Length, 0L);
+        ClassicAssert.Greater(fs.Length, 0L);
     }
 
     [Test]
@@ -308,6 +309,6 @@ public class ExportAdjustRecordsCommandServiceTests
 
         await sut.ExecuteAsync(command);
 
-        Assert.Greater(fs.Length, 0L);
+        ClassicAssert.Greater(fs.Length, 0L);
     }
 }

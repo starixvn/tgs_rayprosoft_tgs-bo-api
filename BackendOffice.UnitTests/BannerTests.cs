@@ -1,4 +1,5 @@
 ﻿using NSubstitute;
+using NUnit.Framework.Legacy;
 using Tgs.Paging;
 using TGS.Services.BackOffice.ApplicationServices.Banner;
 using TGS.Services.BackOffice.Domain;
@@ -101,7 +102,7 @@ public class BannerTests
 
         var actual = await sut.GetAsync(query);
 
-        Assert.AreEqual(2, actual);
+        ClassicAssert.AreEqual(2, actual);
     }
 
     [Test]

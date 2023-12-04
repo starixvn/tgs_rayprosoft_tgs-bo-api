@@ -83,8 +83,7 @@ public class OverviewTests
                 Arg.Any<CancellationToken>())
             .Returns(new TopTenDepositWithdrawInfo[]
             {
-                new TopTenDepositWithdrawInfo
-                {
+                new() {
                     PlayerCode = playerCodes[0],
                     DepositTotalAmount = 16888m,
                     WithdrawTotalAmount = 88m
@@ -100,7 +99,7 @@ public class OverviewTests
                 Arg.Any<CancellationToken>())
             .Returns(new BrandWagerPlayerStatsInfo[]
             {
-                new BrandWagerPlayerStatsInfo(
+                new(
                     ResellerId: Guid.NewGuid(),
                     ResellerCode: "ResellerCode",
                     LicenseeId: Guid.NewGuid(),
@@ -126,8 +125,7 @@ public class OverviewTests
                 Arg.Any<CancellationToken>())
             .Returns(new Tgs.PlayerService.Client.PlayerInfo[]
             {
-                new Tgs.PlayerService.Client.PlayerInfo
-                {
+                new() {
                     PlayerCode = playerCodes[0],
                     UserName = "username"
                 }
@@ -135,8 +133,7 @@ public class OverviewTests
 
         var expected = new TopTenPlayerViewModel[]
         {
-            new TopTenPlayerViewModel
-            {
+            new() {
                 PlayerCode = playerCodes[0],
                 PlayerUsername = "username",
                 Deposit = 16888m,
@@ -235,7 +232,7 @@ public class OverviewTests
                 cancellationToken: Arg.Any<CancellationToken>())
             .Returns(new BrandWagerPlayerStatsInfo[]
             {
-                new BrandWagerPlayerStatsInfo(
+                new(
                     ResellerId: Guid.NewGuid(),
                     "ResellerCode",
                     LicenseeId: Guid.NewGuid(),
@@ -260,8 +257,7 @@ public class OverviewTests
                 Arg.Any<CancellationToken>())
             .Returns(new TopTenDepositWithdrawInfo[]
             {
-                new TopTenDepositWithdrawInfo
-                {
+                new() {
                     PlayerCode = playerCodes[0],
                     DepositTotalAmount = 16888m,
                     WithdrawTotalAmount = 88m
@@ -275,8 +271,7 @@ public class OverviewTests
                 Arg.Any<CancellationToken>())
             .Returns(new Tgs.PlayerService.Client.PlayerInfo[]
             {
-                new Tgs.PlayerService.Client.PlayerInfo
-                {
+                new() {
                     PlayerCode = playerCodes[0],
                     UserName = "username"
                 }
@@ -284,8 +279,7 @@ public class OverviewTests
 
         var expected = new TopTenPlayerViewModel[]
         {
-            new TopTenPlayerViewModel
-            {
+            new() {
                 PlayerCode = playerCodes[0],
                 PlayerUsername = "username",
                 Deposit = 16888m,
@@ -384,7 +378,7 @@ public class OverviewTests
                 cancellationToken: Arg.Any<CancellationToken>())
             .Returns(new BrandWagerPlayerStatsInfo[]
             {
-                new BrandWagerPlayerStatsInfo(
+                new(
                     Guid.NewGuid(),
                     "ResellerCode",
                     Guid.NewGuid(),
@@ -409,8 +403,7 @@ public class OverviewTests
                 Arg.Any<CancellationToken>())
             .Returns(new TopTenDepositWithdrawInfo[]
             {
-                new TopTenDepositWithdrawInfo
-                {
+                new() {
                     PlayerCode = playerCodes[0],
                     DepositTotalAmount = 16888m,
                     WithdrawTotalAmount = 88m
@@ -424,8 +417,7 @@ public class OverviewTests
                 Arg.Any<CancellationToken>())
             .Returns(new Tgs.PlayerService.Client.PlayerInfo[]
             {
-                new Tgs.PlayerService.Client.PlayerInfo
-                {
+                new() {
                     PlayerCode = playerCodes[0],
                     UserName = "username"
                 }
@@ -433,8 +425,7 @@ public class OverviewTests
 
         var expected = new TopTenPlayerViewModel[]
         {
-            new TopTenPlayerViewModel
-            {
+            new() {
                 PlayerCode = playerCodes[0],
                 PlayerUsername = "username",
                 Deposit = 16888m,
@@ -527,8 +518,7 @@ public class OverviewTests
                 Arg.Any<CancellationToken>())
             .Returns(new TopTenDepositWithdrawInfo[]
             {
-                new TopTenDepositWithdrawInfo
-                {
+                new() {
                     PlayerCode = playerCodes[0],
                     DepositTotalAmount = 16888m,
                     WithdrawTotalAmount = 88m
@@ -544,7 +534,7 @@ public class OverviewTests
                 Arg.Any<CancellationToken>())
             .Returns(new BrandWagerPlayerStatsInfo[]
             {
-                new BrandWagerPlayerStatsInfo(
+                new(
                     Guid.NewGuid(),
                     "ResellerCode",
                     Guid.NewGuid(),
@@ -570,8 +560,7 @@ public class OverviewTests
                 Arg.Any<CancellationToken>())
             .Returns(new Tgs.PlayerService.Client.PlayerInfo[]
             {
-                new Tgs.PlayerService.Client.PlayerInfo
-                {
+                new() {
                     PlayerCode = playerCodes[0],
                     UserName = "username"
                 }
@@ -579,8 +568,7 @@ public class OverviewTests
 
         var expected = new TopTenPlayerViewModel[]
         {
-            new TopTenPlayerViewModel
-            {
+            new() {
                 PlayerCode = playerCodes[0],
                 PlayerUsername = "username",
                 Deposit = 16888m,
@@ -679,7 +667,7 @@ public class OverviewTests
                 cancellationToken: Arg.Any<CancellationToken>())
             .Returns(new BrandWagerPlayerStatsInfo[]
             {
-                new BrandWagerPlayerStatsInfo(
+                new(
                     Guid.NewGuid(),
                     "ResellerCode",
                     Guid.NewGuid(),
@@ -704,8 +692,7 @@ public class OverviewTests
                 Arg.Any<CancellationToken>())
             .Returns(new TopTenDepositWithdrawInfo[]
             {
-                new TopTenDepositWithdrawInfo
-                {
+                new() {
                     PlayerCode = playerCodes[0],
                     DepositTotalAmount = 16888m,
                     WithdrawTotalAmount = 88m
@@ -719,8 +706,7 @@ public class OverviewTests
                 Arg.Any<CancellationToken>())
             .Returns(new Tgs.PlayerService.Client.PlayerInfo[]
             {
-                new Tgs.PlayerService.Client.PlayerInfo
-                {
+                new() {
                     PlayerCode = playerCodes[0],
                     UserName = "username"
                 }
@@ -728,8 +714,7 @@ public class OverviewTests
 
         var expected = new TopTenPlayerViewModel[]
         {
-            new TopTenPlayerViewModel
-            {
+            new() {
                 PlayerCode = playerCodes[0],
                 PlayerUsername = "username",
                 Deposit = 16888m,
@@ -828,7 +813,7 @@ public class OverviewTests
                 cancellationToken: Arg.Any<CancellationToken>())
             .Returns(new BrandWagerPlayerStatsInfo[]
             {
-                new BrandWagerPlayerStatsInfo(
+                new(
                     Guid.NewGuid(),
                     "ResellerCode",
                     Guid.NewGuid(),
@@ -853,8 +838,7 @@ public class OverviewTests
                 Arg.Any<CancellationToken>())
             .Returns(new TopTenDepositWithdrawInfo[]
             {
-                new TopTenDepositWithdrawInfo
-                {
+                new() {
                     PlayerCode = playerCodes[0],
                     DepositTotalAmount = 16888m,
                     WithdrawTotalAmount = 88m
@@ -868,8 +852,7 @@ public class OverviewTests
                 Arg.Any<CancellationToken>())
             .Returns(new Tgs.PlayerService.Client.PlayerInfo[]
             {
-                new Tgs.PlayerService.Client.PlayerInfo
-                {
+                new() {
                     PlayerCode = playerCodes[0],
                     UserName = "username"
                 }
@@ -877,8 +860,7 @@ public class OverviewTests
 
         var expected = new TopTenPlayerViewModel[]
         {
-            new TopTenPlayerViewModel
-            {
+            new() {
                 PlayerCode = playerCodes[0],
                 PlayerUsername = "username",
                 Deposit = 16888m,
@@ -975,7 +957,7 @@ public class OverviewTests
                 cancellationToken: Arg.Any<CancellationToken>())
             .Returns(new BrandWagerGameStatsInfo[]
             {
-                new BrandWagerGameStatsInfo(
+                new(
                     GameProviderId: Guid.Parse("a0f49ce0-2c1d-4f50-9fc5-58b610a30bf5"),
                     GameProviderCode: "KY",
                     GameId: 1000010,
@@ -998,8 +980,7 @@ public class OverviewTests
         _ = fakeGameService.GetGameQueries()
             .Returns(new Game[]
             {
-                new Game
-                {
+                new() {
                     Id = 1000010,
                     GameProviderId = Guid.Parse("a0f49ce0-2c1d-4f50-9fc5-58b610a30bf5"),
                     Name = gameName,
@@ -1012,8 +993,7 @@ public class OverviewTests
 
         var expected = new TopTenGameViewModel[]
         {
-            new TopTenGameViewModel
-            {
+            new() {
                 GameName = gameName,
                 GameProviderName = gameProviderName,
                 Bet = 100m,
@@ -1107,7 +1087,7 @@ public class OverviewTests
                 cancellationToken: Arg.Any<CancellationToken>())
             .Returns(new BrandWagerGameStatsInfo[]
             {
-                new BrandWagerGameStatsInfo(
+                new(
                     GameProviderId: Guid.Parse("a0f49ce0-2c1d-4f50-9fc5-58b610a30bf5"),
                     GameProviderCode: "KY",
                     GameId: 1000010,
@@ -1130,8 +1110,7 @@ public class OverviewTests
         _ = fakeGameService.GetGameQueries()
             .Returns(new Game[]
             {
-                new Game
-                {
+                new() {
                     Id = 1000010,
                     GameProviderId = Guid.Parse("a0f49ce0-2c1d-4f50-9fc5-58b610a30bf5"),
                     Name = gameName,
@@ -1144,8 +1123,7 @@ public class OverviewTests
 
         var expected = new TopTenGameViewModel[]
         {
-            new TopTenGameViewModel
-            {
+            new() {
                 GameName = gameName,
                 GameProviderName = gameProviderName,
                 Bet = 100m,
@@ -1239,7 +1217,7 @@ public class OverviewTests
                 cancellationToken: Arg.Any<CancellationToken>())
             .Returns(new BrandWagerGameStatsInfo[]
             {
-                new BrandWagerGameStatsInfo(
+                new(
                     GameProviderId: Guid.Parse("a0f49ce0-2c1d-4f50-9fc5-58b610a30bf5"),
                     GameProviderCode: "KY",
                     GameId: 1000010,
@@ -1262,8 +1240,7 @@ public class OverviewTests
         _ = fakeGameService.GetGameQueries()
             .Returns(new Game[]
             {
-                new Game
-                {
+                new() {
                     Id = 1000010,
                     GameProviderId = Guid.Parse("a0f49ce0-2c1d-4f50-9fc5-58b610a30bf5"),
                     Name = gameName,
@@ -1276,8 +1253,7 @@ public class OverviewTests
 
         var expected = new TopTenGameViewModel[]
         {
-            new TopTenGameViewModel
-            {
+            new() {
                 GameName = gameName,
                 GameProviderName = gameProviderName,
                 Bet = 100m,

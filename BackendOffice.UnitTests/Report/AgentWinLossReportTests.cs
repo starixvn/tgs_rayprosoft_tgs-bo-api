@@ -9,6 +9,7 @@ using Tgs.Report.Client.Models.AgentWinLoss;
 using TGS.Services.BackOffice.Application.Models.ReportAgentWinLoss;
 using TGS.Services.BackOffice.Application.Queries.ReportAgentWinLossQueries;
 using TGS.Services.BackOffice.Infrastructure.DataService;
+using NUnit.Framework.Legacy;
 
 namespace TGS.Tests.BackendOffice.UnitTests.Report;
 
@@ -46,7 +47,7 @@ public class AgentWinLossReportTests
 
         var response = await sut.GetAsync(request);
 
-        Assert.IsTrue(response.Valid);
+        ClassicAssert.IsTrue(response.Valid);
 
         _ = fakeReportClient.Received(1)
             .GetMasterAgentWinLossAsync(Arg.Any<GetMasterAgentWinLossRequest>());
@@ -92,7 +93,7 @@ public class AgentWinLossReportTests
 
         var response = await sut.GetAsync(request);
 
-        Assert.IsTrue(response.Valid);
+        ClassicAssert.IsTrue(response.Valid);
 
         _ = fakeReportClient.Received(1)
             .GetAgentWinLossAsync(Arg.Any<GetAgentWinLossRequest>());
@@ -139,7 +140,7 @@ public class AgentWinLossReportTests
 
         var response = await sut.GetAsync(request);
 
-        Assert.IsTrue(response.Valid);
+        ClassicAssert.IsTrue(response.Valid);
 
         _ = fakeReportClient.Received(1)
             .GetDownLineAgentWinLossAsync(Arg.Any<GetDownLineAgentWinLossRequest>());
@@ -191,7 +192,7 @@ public class AgentWinLossReportTests
 
         var response = await sut.GetAsync(request);
 
-        Assert.IsTrue(response.Valid);
+        ClassicAssert.IsTrue(response.Valid);
 
         _ = fakeReportClient.Received(1)
             .GetAgentPlayerWinLossAsync(Arg.Any<GetPlayerWinLossRequest>());

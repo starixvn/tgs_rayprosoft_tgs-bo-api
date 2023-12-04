@@ -1,4 +1,5 @@
 ﻿using NSubstitute;
+using NUnit.Framework.Legacy;
 using StackExchange.Redis;
 using TGS.Core.DataServices.Tgs.Models;
 using TGS.Core.Infrastructures.Redis;
@@ -37,12 +38,12 @@ public class BrandGameProviderAggregateHandlerTests
         _ = fakeRedisCacheManager.GetSetAllMembersAsync("aggregate", "brandGP").Returns(Array.Empty<RedisValue>());
         _ = fakeBrandService.GetBrandQueries().Returns(new Brand[]
         {
-            new Brand { Id = brandId }
+            new() { Id = brandId }
         }.AsQueryable());
 
         var response = await sut.GetAsync(request, default);
 
-        Assert.IsTrue(response.Valid);
+        ClassicAssert.IsTrue(response.Valid);
 
         _ = fakeMessageSender.Received(1)
             .PublishAsync(Arg.Any<string>(), Arg.Any<ReadOnlyMemory<byte>>());
@@ -72,17 +73,17 @@ public class BrandGameProviderAggregateHandlerTests
         };
 
         _ = fakeRedisCacheManager.GetSetAllMembersAsync("aggregate", "brandGP").Returns(new RedisValue[]
-        { new RedisValue(brandId.ToString())
+        { new(brandId.ToString())
         });
 
         _ = fakeBrandService.GetBrandQueries().Returns(new Brand[]
         {
-            new Brand { Id = brandId }
+            new() { Id = brandId }
         }.AsQueryable());
 
         var response = await sut.GetAsync(request, default);
 
-        Assert.IsFalse(response.Valid);
+        ClassicAssert.IsFalse(response.Valid);
 
         _ = fakeMessageSender.Received(0)
             .PublishAsync(Arg.Any<string>(), Arg.Any<ReadOnlyMemory<byte>>());
@@ -113,7 +114,7 @@ public class BrandGameProviderAggregateHandlerTests
 
         var response = await sut.GetAsync(request, default);
 
-        Assert.IsFalse(response.Valid);
+        ClassicAssert.IsFalse(response.Valid);
 
         _ = fakeMessageSender.Received(0)
             .PublishAsync(Arg.Any<string>(), Arg.Any<ReadOnlyMemory<byte>>());

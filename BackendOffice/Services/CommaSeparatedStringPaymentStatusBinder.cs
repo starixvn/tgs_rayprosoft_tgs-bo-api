@@ -10,10 +10,7 @@ public class CommaSeparatedStringPaymentStatusBinder : IModelBinder
 {
     public Task BindModelAsync(ModelBindingContext bindingContext)
     {
-        if (bindingContext is null)
-        {
-            throw new ArgumentNullException(nameof(bindingContext));
-        }
+        ArgumentNullException.ThrowIfNull(bindingContext);
 
         var modelName = bindingContext.ModelName;
 

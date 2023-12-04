@@ -56,8 +56,7 @@ public class PromotionDispatchControllerTests : BaseTests
         {
             Players = new DispatchPlayerView[]
             {
-                new DispatchPlayerView
-                {
+                new() {
                     PlayerCode = "playerCode",
                     PromotionBonusId = Guid.NewGuid()
                 }
