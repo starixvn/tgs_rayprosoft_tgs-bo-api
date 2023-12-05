@@ -458,13 +458,6 @@ public partial class PlayerController(IMediator mediator, IPromotionClient clien
         };
     }
 
-    [HttpGet("{playerCode}/mainwallet", Name = "GetPlayerMainWalletBalance")]
-    [Description("Get Player Main wallet")]
-    public ValueTask<decimal> GetPlayerMainWalletBalanceAsync(
-        [FromServices] IGetService<GetPlayerMainWalletBalance, decimal> service,
-        string playerCode)
-        => service.GetAsync(new(playerCode));
-
     [HttpGet("{playerCode}/operations", Name = "GetPlayerOperations")]
     [Description("Get player operation")]
     public Task<PagedResponse<PlayerOperationModel>> GetPlayerOperationsAsync(string playerCode,

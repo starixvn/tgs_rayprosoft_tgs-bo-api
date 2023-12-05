@@ -9,7 +9,8 @@ namespace TGS.Services.BackOffice.ApplicationServices.Players;
 
 internal class GetPlayerBalanceQueryService(
     IPlayerServiceClient playerServiceClient,
-    ICashServiceClient cashServiceClient) : IGetService<GetPlayerBalanceQuery, decimal>
+    ICashServiceClient cashServiceClient)
+    : IGetService<GetPlayerBalanceQuery, decimal>
 {
     private readonly ICashServiceClient _cashServiceClient = cashServiceClient ?? throw new ArgumentNullException(nameof(cashServiceClient));
     private readonly IPlayerServiceClient _playerServiceClient = playerServiceClient ?? throw new ArgumentNullException(nameof(playerServiceClient));
