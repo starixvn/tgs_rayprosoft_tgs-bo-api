@@ -270,32 +270,6 @@ export default class BackOfficeService {
             .then(res => res.headers["content-type"]);
     }
 
-    public getAccountChanges(
-        request: GetPlayerAccountChangesReportRequest): Promise<PagedResponse<PlayerAccountChangeReportModel>> {
-        return this.http
-            .get(
-                `/api/player/accountChanges`,
-                {
-                    params: {
-                        ...request
-                    }
-                })
-            .then(res => res.data);
-    }
-
-    public getAccountChangesTotalAmount(request: GetPlayerAccountChangesReportTotalAmountRequest)
-        : Promise<PlayerAccountChangesTotalModel> {
-        return this.http
-            .get(
-                `/api/player/accountChanges/totalAmount`,
-                {
-                    params: {
-                        ...request
-                    }
-                })
-            .then(res => res.data);
-    }
-
     public getAgentHistories(agentId: string, request: AgentHistoriesQueryViewModel, page: number, rows: number): Promise<PagedResponse<AgentHistoryViewModel>> {
         const queryString = {
             from: request.from,

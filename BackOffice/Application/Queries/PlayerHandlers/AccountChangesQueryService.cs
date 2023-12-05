@@ -10,14 +10,12 @@ namespace TGS.Services.BackOffice.Application.Queries.PlayerHandlers;
 
 internal class AccountChangesQueryService(
     IPlayerServiceClient playerServiceClient,
-    ICashServiceClient cashServiceClient) : IGetService<AccountChangesQuery, PagingResponse<TransactionLog>>
+    ICashServiceClient cashServiceClient)
+    : IGetService<AccountChangesQuery, PagingResponse<TransactionLog>>
 {
-    private readonly ICashServiceClient _cashServiceClient = cashServiceClient ?? throw new ArgumentNullException(nameof(cashServiceClient));
-    private readonly IPlayerServiceClient _playerServiceClient = playerServiceClient ?? throw new ArgumentNullException(nameof(playerServiceClient));
-
     public async ValueTask<PagingResponse<TransactionLog>> GetAsync(AccountChangesQuery query, CancellationToken cancellationToken = default)
     {
-        var playerProps = await _playerServiceClient
+        var playerProps = await playerServiceClient
             .GetPlayerPropertiesAsync(query.PlayerCode, cancellationToken)
             .ConfigureAwait(false);
 
@@ -26,8 +24,7 @@ internal class AccountChangesQueryService(
         var queryTransactionTypes = Array.Empty<int>();
 
         queryTransactionTypes = query.AccountChangeType is null
-            ? Enum
-                .GetValues(typeof(Domain.Enums.TransactionType))
+            ? Enum.GetValues(typeof(Domain.Enums.TransactionType))
                 .Cast<Domain.Enums.TransactionType>()
                 .Where(x => x is not Domain.Enums.TransactionType.WithdrawCommit
                     and not Domain.Enums.TransactionType.TransferCommit)
@@ -52,7 +49,7 @@ internal class AccountChangesQueryService(
                 ],
             };
 
-        return await _cashServiceClient.QueryTransactionLogsAsync(
+        return await cashServiceClient.QueryTransactionLogsAsync(
             playerWalletId,
             query.From,
             query.To,

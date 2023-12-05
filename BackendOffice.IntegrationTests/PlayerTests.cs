@@ -11,7 +11,6 @@ using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 using NSubstitute;
 using Tgs.Agent.Client;
-using Tgs.CashQueryService.Client;
 using Tgs.CashService.Client;
 using Tgs.GameProviders.Pluggable.Client;
 using Tgs.Payment.Clients;
@@ -25,12 +24,10 @@ using TGS.Core.DataServices.Tgs;
 using TGS.Core.Models.Enums;
 using TGS.Core.Models.Messages;
 using TGS.Services.BackOffice.Application.Models.Player;
-using TGS.Services.BackOffice.Application.Models.ReportPlayer;
 using TGS.Services.BackOffice.ApplicationServices;
 using TGS.Services.BackOffice.Domain;
 using Xunit.Abstractions;
 using static TGS.Services.BackOffice.Application.Models.Player.PlayerModel;
-using BoEnums = TGS.Services.BackOffice.Domain.Enums;
 
 namespace BackendOffice.IntegrationTests;
 
@@ -193,13 +190,15 @@ public class PlayerTests(ITestOutputHelper testOutputHelper, NodeJsFixture nodeJ
             TotalCount = 2,
             Valid = true,
             Items = [
-                new PlayersModel{
+                new PlayersModel
+                {
                     VipLevel = 1,
                     PlayerCode = "4ucmqplxb029",
                     Username = "4ucmqplxb029",
                     Status = TGS.Core.Models.Enums.PlayerStatus.Enabled
                 },
-                new PlayersModel{
+                new PlayersModel
+                {
                     VipLevel = 1,
                     PlayerCode = "4ucmqplxkuyd",
                     Username = "4ucmqplxkuyd",
@@ -724,302 +723,6 @@ public class PlayerTests(ITestOutputHelper testOutputHelper, NodeJsFixture nodeJ
             .Select(prop => new KeyValuePair<string, string>(
                 prop.Name,
                 prop.Value.GetString()!))));
-    }
-
-    [Fact]
-    public async Task 查詢玩家帳變紀錄()
-    {
-        // Arrange
-        var channelName = Guid.NewGuid().ToString();
-        var userId = Guid.NewGuid();
-
-        var fakePlayerServiceClient = Substitute.For<IPlayerServiceClient>();
-        var fakeCashServiceClient = Substitute.For<ICashServiceClient>();
-        var fakeCashQueryClient = Substitute.For<ICashQueryClient>();
-
-        using var web = TestBackendOfficeApplication.Builder
-            .UseTestChannelServer(channelName)
-            .ConfigureLogging(logging => logging.AddXUnit(_testOutputHelper))
-            .ConfigureServices(services => services
-                .AddAuthentication("Fake")
-                .AddScheme<FakeAuthenticationSchemaOptions, FakeAuthenticationHandler>(
-                    "Fake",
-                    options =>
-                    {
-                        options.UserId = userId;
-                        options.UserName = "system";
-                    })
-                .Services
-                .AddSingleton(fakePlayerServiceClient)
-                .AddSingleton(fakeCashServiceClient)
-                .AddSingleton(fakeCashQueryClient))
-            .Build();
-
-        await web.StartAsync();
-
-        var playerCode = "playerCode";
-        var defaultWalletId = Guid.Parse("b97b0c64-8e66-47f8-0998-08d9b932b074");
-        var from = DateTime.UtcNow.AddDays(-1);
-        var to = DateTime.UtcNow;
-
-        var brandId = Guid.Parse("4e86719f-243f-46f6-b010-5c758b7285af");
-        var page = 1;
-        var rows = 20;
-        var sortby = "recordedOn";
-        var orderby = SortOrder.Ascending;
-        var showAll = false;
-
-        _ = fakePlayerServiceClient.GetPlayerPropertiesAsync(
-            Arg.Is(playerCode),
-            Arg.Any<CancellationToken>())
-            .Returns(new Dictionary<string, string>
-            {
-                { "DefaultWalletId", defaultWalletId.ToString() }
-            }.ToImmutableDictionary());
-
-        var transactionId1 = Guid.Parse("ce8a455e-7f01-0000-0001-0000f79e2257");
-        var transacationId2 = Guid.Parse("cf29d2e7-7f01-0000-0001-0000f79e2257");
-
-        var transactionLogs = new Tgs.CashService.Client.PagingResponse<TransactionLog>(
-            Items: new List<TransactionLog>{
-                new(
-                    transactionId1,
-                    DateTime.UtcNow,
-                    0,
-                    100M,
-                    200M,
-                    0M,
-                    0M,
-                    null,
-                    null),
-                new(
-                    transacationId2,
-                    DateTime.UtcNow,
-                    0,
-                    100M,
-                    200M,
-                    0M,
-                    0M,
-                    null,
-                    null),
-            },
-            Page: page,
-            TotalCount: 2
-        );
-
-        var queryTransTypes = Enum
-            .GetValues(typeof(BoEnums.TransactionType))
-            .Cast<BoEnums.TransactionType>()
-            .Where(x => x is not BoEnums.TransactionType.WithdrawCommit
-                and not BoEnums.TransactionType.TransferCommit)
-            .Select(x => (int)x)
-            .ToArray();
-
-        _ = fakeCashServiceClient
-            .QueryTransactionLogsAsync(
-                Arg.Is(defaultWalletId),
-                Arg.Is(from),
-                Arg.Is(to),
-                Arg.Is<IEnumerable<int>>(x => x.SequenceEqual(queryTransTypes)),
-                Arg.Any<PagingConditions>(),
-                Arg.Any<CancellationToken>())
-            .Returns(transactionLogs);
-
-        var transactionIds = transactionLogs.Items.Select(x => x.Id);
-
-        _ = fakeCashQueryClient.QueryPlayerAdjustIncludeInNetProfitRecordsAsync(
-                Arg.Any<IEnumerable<Guid>>(),
-                Arg.Any<CancellationToken>())
-            .Returns(new PlayerAdjustRecord[] {
-                new(transactionId1,true),
-                new(transacationId2,false)
-            }.ToAsyncEnumerable());
-
-        using var nodeService = _nodeJsFixture.BuildNodeJsService();
-
-        var isWindows = RuntimeInformation.IsOSPlatform(OSPlatform.Windows) ? "true" : "false";
-
-        var nodeModule = $$"""
-            const axiosConfigFactory = require('./models/axios-configuration.js').default;
-            const BackOfficeService = require('./services/bo-service.js').default;
-
-            module.exports = async (request) =>
-            {
-                let instance = axiosConfigFactory("{{channelName}}", {{isWindows}});
-
-                let svc = new BackOfficeService(instance);
-
-                return await svc.getAccountChanges(request);
-            };
-        """;
-
-        var request = new GetPlayerAccountChangesReportRequest
-        {
-            AccountChangeType = null,
-            From = from,
-            To = to,
-            PlayerCode = playerCode,
-            BrandId = brandId,
-            OrderBy = orderby,
-            Page = page,
-            Rows = rows,
-            SortBy = sortby,
-            ShowAll = showAll
-        };
-
-        var expected = new PagedResponse<PlayerAccountChangeReportModel>()
-        {
-            TotalCount = 2,
-            Valid = true,
-            Items = [
-                new PlayerAccountChangeReportModel
-                {
-                    TransactionId = transactionId1,
-                    IncludeInNetProfit = true,
-                    Amount = 100M,
-                    Balance = 200M,
-                    GameActionId = null,
-                    GameActionType = null,
-                    RecordedOn = DateTime.UtcNow,
-                    Remark = "",
-                    TransactionType = TGS.Services.BackOffice.Domain.Enums.TransactionType.Deposit,
-                    ExternalTransactionId = ""
-                },
-                new PlayerAccountChangeReportModel
-                {
-                    TransactionId = transacationId2,
-                    IncludeInNetProfit = false,
-                    Amount = 100M,
-                    Balance = 200M,
-                    GameActionId = null,
-                    GameActionType = null,
-                    RecordedOn = DateTime.UtcNow,
-                    Remark = "",
-                    TransactionType = TGS.Services.BackOffice.Domain.Enums.TransactionType.Deposit,
-                    ExternalTransactionId = ""
-                }
-            ]
-        };
-
-        // Act
-        var actual = await nodeService.InvokeFromStringAsync<string>(
-            nodeModule,
-            args: new object[] { request });
-
-        // Assert
-        Assert.NotNull(actual);
-
-        var jsonOptions = web.Services.GetRequiredService<IOptions<JsonOptions>>().Value;
-        var result = JsonSerializer.Deserialize<PagedResponse<PlayerAccountChangeReportModel>>(
-            actual!,
-            jsonOptions.JsonSerializerOptions);
-
-        Assert.True(result?.Valid);
-        Assert.Equal(2, result?.TotalCount);
-    }
-
-    [Fact]
-    public async Task 查詢玩家帳變紀錄總金額()
-    {
-        // Arrange
-        var channelName = Guid.NewGuid().ToString();
-        var userId = Guid.NewGuid();
-
-        var fakePlayerServiceClient = Substitute.For<IPlayerServiceClient>();
-        var fakeCashServiceClient = Substitute.For<ICashServiceClient>();
-
-        using var web = TestBackendOfficeApplication.Builder
-            .UseTestChannelServer(channelName)
-            .ConfigureLogging(logging => logging.AddXUnit(_testOutputHelper))
-            .ConfigureServices(services => services
-                .AddAuthentication("Fake")
-                .AddScheme<FakeAuthenticationSchemaOptions, FakeAuthenticationHandler>(
-                    "Fake",
-                    options =>
-                    {
-                        options.UserId = userId;
-                        options.UserName = "system";
-                    })
-                .Services
-                .AddSingleton(fakePlayerServiceClient)
-                .AddSingleton(fakeCashServiceClient))
-            .Build();
-
-        await web.StartAsync();
-
-        var playerCode = "playerCode";
-        var defaultWalletId = Guid.Parse("b97b0c64-8e66-47f8-0998-08d9b932b074");
-        var from = DateTime.UtcNow.AddDays(-1);
-        var to = DateTime.UtcNow;
-
-        var brandId = Guid.Parse("4e86719f-243f-46f6-b010-5c758b7285af");
-
-        _ = fakePlayerServiceClient.GetPlayerPropertiesAsync(
-            Arg.Is(playerCode),
-            Arg.Any<CancellationToken>())
-            .Returns(new Dictionary<string, string>
-            {
-                { "DefaultWalletId", defaultWalletId.ToString() }
-            }.ToImmutableDictionary());
-
-        var queryTransTypes = Enum
-            .GetValues(typeof(BoEnums.TransactionType))
-            .Cast<BoEnums.TransactionType>()
-            .Where(x => x is not BoEnums.TransactionType.WithdrawCommit
-                and not BoEnums.TransactionType.TransferCommit)
-            .Select(x => (int)x)
-            .ToArray();
-
-        _ = fakeCashServiceClient
-            .QueryTransactionTotalAmountAsync(
-                Arg.Is(defaultWalletId),
-                Arg.Is(from),
-                Arg.Is(to),
-                Arg.Is<IEnumerable<int>>(x => x.SequenceEqual(queryTransTypes)),
-                Arg.Any<CancellationToken>())
-            .Returns(168000000M);
-
-        using var nodeService = _nodeJsFixture.BuildNodeJsService();
-
-        var isWindows = RuntimeInformation.IsOSPlatform(OSPlatform.Windows) ? "true" : "false";
-
-        var nodeModule = $$"""
-            const axiosConfigFactory = require('./models/axios-configuration.js').default;
-            const BackOfficeService = require('./services/bo-service.js').default;
-
-            module.exports = async (request) =>
-            {
-                let instance = axiosConfigFactory("{{channelName}}", {{isWindows}});
-
-                let svc = new BackOfficeService(instance);
-
-                return await svc.getAccountChangesTotalAmount(request);
-            };
-        """;
-
-        var request = new GetPlayerAccountChangesReportTotalAmountRequest
-        {
-            AccountChangeType = null,
-            From = from,
-            To = to,
-            PlayerCode = playerCode,
-            BrandId = brandId,
-        };
-
-        // Act
-        var actual = await nodeService.InvokeFromStringAsync<string>(
-            nodeModule,
-            args: new object[] { request });
-
-        // Assert
-        Assert.NotNull(actual);
-
-        var jsonOptions = web.Services.GetRequiredService<IOptions<JsonOptions>>().Value;
-        var result = JsonSerializer.Deserialize<PlayerAccountChangesTotalModel>(
-            actual!,
-            jsonOptions.JsonSerializerOptions);
-
-        Assert.Equal(168000000M, result!.Amount);
     }
 
     [Fact]
