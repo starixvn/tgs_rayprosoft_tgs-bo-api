@@ -5,11 +5,12 @@ using Tgs.CashService.Client;
 using Tgs.PlayerService.Client;
 using Tgs.ServiceUtility;
 
-namespace TGS.Services.BackOffice.ApplicationServices.Players;
+namespace TGS.Services.BackOffice.ApplicationServices.Wallets;
 
 internal class GetPlayerBalanceQueryService(
     IPlayerServiceClient playerServiceClient,
-    ICashServiceClient cashServiceClient) : IGetService<GetPlayerBalanceQuery, decimal>
+    ICashServiceClient cashServiceClient)
+    : IGetService<GetPlayerBalanceQuery, decimal>
 {
     private readonly ICashServiceClient _cashServiceClient = cashServiceClient ?? throw new ArgumentNullException(nameof(cashServiceClient));
     private readonly IPlayerServiceClient _playerServiceClient = playerServiceClient ?? throw new ArgumentNullException(nameof(playerServiceClient));

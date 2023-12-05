@@ -6,7 +6,7 @@ using Tgs.CashService.Client;
 using Tgs.PlayerService.Client;
 using Tgs.ServiceUtility;
 
-namespace TGS.Services.BackOffice.Application.Queries.PlayerHandlers;
+namespace TGS.Services.BackOffice.ApplicationServices.Wallets;
 
 internal class AccountChangesTotalAmountQueryService(
     IPlayerServiceClient playerServiceClient,

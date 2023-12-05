@@ -1,6 +1,6 @@
 ﻿using System;
 
-namespace TGS.Services.BackOffice.Application.Queries.PlayerHandlers;
+namespace TGS.Services.BackOffice.ApplicationServices.Wallets;
 
 public record AccountChangesTotalAmountQuery(
     string PlayerCode,

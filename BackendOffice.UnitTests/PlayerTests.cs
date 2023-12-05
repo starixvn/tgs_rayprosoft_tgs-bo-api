@@ -12,9 +12,9 @@ using Tgs.GameProviders.Pluggable.Client;
 using Tgs.PlayerService.Client;
 using TGS.Core.DataServices.Tgs;
 using TGS.Core.DataServices.Tgs.Models;
-using TGS.Services.BackOffice.Application.Queries.PlayerHandlers;
 using TGS.Services.BackOffice.ApplicationServices;
 using TGS.Services.BackOffice.ApplicationServices.Players;
+using TGS.Services.BackOffice.ApplicationServices.Wallets;
 using BoEnums = TGS.Services.BackOffice.Domain.Enums;
 using EventAction = Tgs.PlayerService.Client.EventAction;
 

@@ -4,16 +4,9 @@ import { AxiosInstance } from "axios";
 import FormData from 'form-data';
 import fs from 'fs';
 import path from 'path';
-import { promises } from 'dns';
 
 export default class BackOfficeService {
-    // #region Constructors (1)
-
     constructor(private http: AxiosInstance) { }
-
-    // #endregion Constructors (1)
-
-    // #region Public Methods (108)
 
     public addAgentDomain(brandId: string, agentId: string, domain: string): Promise<void> {
         return this.http
@@ -275,32 +268,6 @@ export default class BackOfficeService {
                     params: queryString
                 })
             .then(res => res.headers["content-type"]);
-    }
-
-    public getAccountChanges(
-        request: GetPlayerAccountChangesReportRequest): Promise<PagedResponse<PlayerAccountChangeReportModel>> {
-        return this.http
-            .get(
-                `/api/player/accountChanges`,
-                {
-                    params: {
-                        ...request
-                    }
-                })
-            .then(res => res.data);
-    }
-
-    public getAccountChangesTotalAmount(request: GetPlayerAccountChangesReportTotalAmountRequest)
-        : Promise<PlayerAccountChangesTotalModel> {
-        return this.http
-            .get(
-                `/api/player/accountChanges/totalAmount`,
-                {
-                    params: {
-                        ...request
-                    }
-                })
-            .then(res => res.data);
     }
 
     public getAgentHistories(agentId: string, request: AgentHistoriesQueryViewModel, page: number, rows: number): Promise<PagedResponse<AgentHistoryViewModel>> {
@@ -1145,6 +1112,4 @@ export default class BackOfficeService {
                 })
             .then(res => res.data);
     }
-
-    // #endregion Public Methods (108)
 }

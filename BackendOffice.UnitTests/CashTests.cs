@@ -2,7 +2,7 @@
 using NSubstitute;
 using Tgs.CashService.Client;
 using Tgs.PlayerService.Client;
-using TGS.Services.BackOffice.ApplicationServices.Players;
+using TGS.Services.BackOffice.ApplicationServices.Wallets;
 
 namespace TGS.Tests.BackendOffice.UnitTests;
 
