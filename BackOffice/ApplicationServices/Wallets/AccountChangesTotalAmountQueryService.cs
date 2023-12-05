@@ -6,16 +6,18 @@ using Tgs.CashService.Client;
 using Tgs.PlayerService.Client;
 using Tgs.ServiceUtility;
 
-namespace TGS.Services.BackOffice.Application.Queries.PlayerHandlers;
+namespace TGS.Services.BackOffice.ApplicationServices.Wallets;
 
-internal class AccountChangesQueryService(
+internal class AccountChangesTotalAmountQueryService(
     IPlayerServiceClient playerServiceClient,
-    ICashServiceClient cashServiceClient)
-    : IGetService<AccountChangesQuery, PagingResponse<TransactionLog>>
+    ICashServiceClient cashServiceClient) : IGetService<AccountChangesTotalAmountQuery, decimal?>
 {
-    public async ValueTask<PagingResponse<TransactionLog>> GetAsync(AccountChangesQuery query, CancellationToken cancellationToken = default)
+    private readonly ICashServiceClient _cashServiceClient = cashServiceClient ?? throw new ArgumentNullException(nameof(cashServiceClient));
+    private readonly IPlayerServiceClient _playerServiceClient = playerServiceClient ?? throw new ArgumentNullException(nameof(playerServiceClient));
+
+    public async ValueTask<decimal?> GetAsync(AccountChangesTotalAmountQuery query, CancellationToken cancellationToken = default)
     {
-        var playerProps = await playerServiceClient
+        var playerProps = await _playerServiceClient
             .GetPlayerPropertiesAsync(query.PlayerCode, cancellationToken)
             .ConfigureAwait(false);
 
@@ -24,7 +26,8 @@ internal class AccountChangesQueryService(
         var queryTransactionTypes = Array.Empty<int>();
 
         queryTransactionTypes = query.AccountChangeType is null
-            ? Enum.GetValues(typeof(Domain.Enums.TransactionType))
+            ? Enum
+                .GetValues(typeof(Domain.Enums.TransactionType))
                 .Cast<Domain.Enums.TransactionType>()
                 .Where(x => x is not Domain.Enums.TransactionType.WithdrawCommit
                     and not Domain.Enums.TransactionType.TransferCommit)
@@ -49,12 +52,11 @@ internal class AccountChangesQueryService(
                 ],
             };
 
-        return await cashServiceClient.QueryTransactionLogsAsync(
+        return await _cashServiceClient.QueryTransactionTotalAmountAsync(
             playerWalletId,
             query.From,
             query.To,
             queryTransactionTypes,
-            query.Paging,
             cancellationToken);
     }
 }

@@ -30,6 +30,7 @@ using TGS.Services.BackOffice.Application.Queries.PlayerHandlers;
 using TGS.Services.BackOffice.ApplicationServices;
 using TGS.Services.BackOffice.ApplicationServices.Agents;
 using TGS.Services.BackOffice.ApplicationServices.Players;
+using TGS.Services.BackOffice.ApplicationServices.Wallets;
 using TGS.Services.BackOffice.Domain;
 using BoEnums = TGS.Services.BackOffice.Domain.Enums;
 

@@ -13,8 +13,8 @@ using TGS.Apis.BackendOffice.ViewModels;
 using TGS.Core.Models.Enums;
 using TGS.Core.Models.Messages;
 using TGS.Services.BackOffice.Application.Models.ReportPlayer;
-using TGS.Services.BackOffice.Application.Queries.PlayerHandlers;
-using TGS.Services.BackOffice.ApplicationServices.Players;
+using TGS.Services.BackOffice.ApplicationServices.Wallets;
+using TGS.Services.BackOffice.Infrastructure.DataService;
 using BoEnums = TGS.Services.BackOffice.Domain.Enums;
 
 namespace TGS.Apis.BackendOffice.Controllers;
@@ -170,6 +170,50 @@ public class WalletController : BaseContextController
             HttpContext.RequestAborted).ConfigureAwait(false);
 
         return totalAmount ?? 0M;
+    }
+
+    [HttpGet("account-changes/player/waiting/{playerCode}", Name = "GetPlayerWaitingPersistentAccountChanges")]
+    public async Task<PagedResponse<PlayerAccountChangeViewModel>> GetPlayerWaitingPersistentAccountChangesAsync(
+        [FromServices] IGetService<WaitPersistentAccountChangesQuery, PagingResponse<TransactionLog>> queryService,
+        [FromServices] ICashQueryClient cashQueryClient,
+        string playerCode,
+        [FromQuery] PagingViewModel paging)
+    {
+        var query = new WaitPersistentAccountChangesQuery(
+            playerCode,
+            new PagingConditions(paging.Page, paging.Rows));
+
+        var result = await queryService
+            .GetAsync(query, HttpContext.RequestAborted)
+            .ConfigureAwait(false);
+
+        var transactionIds = result.Items.Select(tl => tl.Id);
+
+        var adjustPlayerRecords = await cashQueryClient
+            .QueryPlayerAdjustIncludeInNetProfitRecordsAsync(transactionIds, HttpContext.RequestAborted)
+            .ToArrayAsync(HttpContext.RequestAborted);
+
+        return new()
+        {
+            Valid = true,
+            Message = string.Empty,
+            TotalCount = result.TotalCount,
+            Items = result.Items?.Select(x => new PlayerAccountChangeViewModel
+            {
+                TransactionId = x.Id,
+                Amount = x.Amount,
+                LockAmount = x.LockAmount,
+                Balance = x.Balance,
+                LockedBalance = x.LockedBalance,
+                TransactionType = (BoEnums.TransactionType)x.TransactionType,
+                RecordedOn = x.RecordedOn,
+                IncludeInNetProfit = adjustPlayerRecords
+                    .FirstOrDefault(apr => apr.TransactionId == x.Id)?.IncludeInNetProfit
+                    ?? false,
+                Remark = GetRemark((BoEnums.TransactionType?)x.TransactionType, x.Description),
+                ExternalTransactionId = x.ExternalId
+            }).ToArray()
+        };
     }
 
     private static string? GetRemark(BoEnums.TransactionType? transactionType, string? description)

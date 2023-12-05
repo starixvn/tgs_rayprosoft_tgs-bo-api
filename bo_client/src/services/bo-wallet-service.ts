@@ -70,4 +70,22 @@ export default class BoWalletService {
             )
             .then(res => res.data);
     }
+
+    public getWaitPersistentAccountChanges(
+        playerCode: string,
+        page: number,
+        rows: number
+    ): Promise<PagedResponse<PlayerAccountChange>> {
+        return this.http
+            .get(
+                `/api/wallet/account-changes/player/waiting/${playerCode}`,
+                {
+                    params: {
+                        page,
+                        rows
+                    }
+                }
+            )
+            .then(res => res.data);
+    }
 }

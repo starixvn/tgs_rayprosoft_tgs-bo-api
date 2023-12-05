@@ -5,7 +5,7 @@ using Tgs.CashService.Client;
 using Tgs.PlayerService.Client;
 using Tgs.ServiceUtility;
 
-namespace TGS.Services.BackOffice.ApplicationServices.Players;
+namespace TGS.Services.BackOffice.ApplicationServices.Wallets;
 
 internal class GetPlayerBalanceQueryService(
     IPlayerServiceClient playerServiceClient,
