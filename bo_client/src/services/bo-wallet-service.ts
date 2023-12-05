@@ -5,7 +5,7 @@ export default class BoWalletService {
 
     public getPlayerMainWalletBalance(playerCode: string): Promise<number> {
         return this.http
-            .get(`/api/player/${playerCode}/mainwallet`)
+            .get(`/api/wallet/player/${playerCode} `)
             .then(res => res.data);
     }
 }
