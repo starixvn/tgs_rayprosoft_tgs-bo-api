@@ -55,7 +55,7 @@ public class CreateAgentHandler(IAgentService service, IAgentClient client, IBra
             BrandId = BrandId ?? request.BrandId,
             ParentAgentId = parentAgent?.ParentAgentId,
             Username = request.Username,
-            RealName = request.RealName,
+            RealName = request.RealName ?? "",
             CurrencyCode = currency.CurrencyCode,
             Type = (AgentType)request.Type,
             LevelType = (AgentLevelType)request.LevelType,
