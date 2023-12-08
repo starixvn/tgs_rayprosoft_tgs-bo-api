@@ -68,7 +68,8 @@ public class CreateAgentHandler(IAgentService service, IAgentClient client, IBra
             SlotRebatePercentage = request.SlotRebatePercentage,
             SportsRebatePercentage = request.SportsRebatePercentage,
             VirtualSportsRebatePercentage = request.VirtualSportsRebatePercentage,
-            Remarks = request.Remarks
+            Remarks = request.Remarks,
+            EditorUsername = Username
         }, cancellationToken);
 
         return CreateValidResponse<MessageResponse>();
