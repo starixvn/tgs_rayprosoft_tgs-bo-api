@@ -18,6 +18,7 @@ using TGS.Services.BackOffice.Application.Models.Agent;
 using TGS.Services.BackOffice.Application.Models.AgentAdjust;
 using TGS.Services.BackOffice.Application.Models.ReportAgent;
 using TGS.Services.BackOffice.ApplicationServices.Agents;
+using CreateAgentRequest = TGS.Services.BackOffice.Application.Models.Agent.CreateAgentRequest;
 
 namespace TGS.Apis.BackendOffice.Controllers.Agent;
 
