@@ -3,9 +3,11 @@ using System.Threading;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Http;
 using Microsoft.EntityFrameworkCore;
+using Tgs.Agent.Client.Models;
+using Tgs.Agent.Client;
+using Tgs.CashService.Client;
 using TGS.Core.DataServices.Tgs;
 using TGS.Services.BackOffice.Application.Models.Agent;
-using TGS.Services.BackOffice.Application.Resources;
 using TGS.Services.BackOffice.Infrastructure.DataService;
 
 namespace TGS.Services.BackOffice.Application.Queries.AgentHandlers;
@@ -13,11 +15,11 @@ namespace TGS.Services.BackOffice.Application.Queries.AgentHandlers;
 public class GetAgentQueryHandler(
     IAgentService service,
     IAgentDividendService agentDividendService,
-    ITgsRepository tgsRepository,
+    ITgsRepository tgsRepository, 
+    ICashServiceClient cashServiceClient, 
+    IAgentClient agentClient,
     IHttpContextAccessor accessor) : Handler<GetAgentRequest, GetAgentResponse>(accessor)
 {
-    private readonly ITgsRepository _tgsRepository = tgsRepository ?? throw new System.ArgumentNullException(nameof(tgsRepository));
-
     public override async Task<GetAgentResponse> Handle(GetAgentRequest request,
         CancellationToken cancellationToken)
     {
@@ -27,16 +29,19 @@ public class GetAgentQueryHandler(
             .Where(x => x.AgentId == request.Id && x.SentOn == null)
             .SumAsync(x => x.BeforeDividendAmount ?? x.AgentDividendAmount, cancellationToken).ConfigureAwait(false);
 
-        var playerNumber = (await _tgsRepository.Players.AsQueryable()
+        var playerNumber = (await tgsRepository.Players
             .Where(x => x.AgentId == request.Id)
             .ToArrayAsync(cancellationToken)
             .ConfigureAwait(false)).Length;
-        return agent == null
-            ? CreateInvalidResponse<GetAgentResponse>(Agent.NotFound)
-            : new()
-            {
+
+        var info = await agentClient.GetAgentInfoAsync(new GetAgentInfoRequest(agent.Id), cancellationToken).ConfigureAwait(false);
+
+        var balance = await cashServiceClient.GetBalanceAsync(info!.WalletId!.Value, cancellationToken);
+
+        return new GetAgentResponse
+        {
                 Valid = true,
-                Agent = new()
+                Agent = new AgentModel
                 {
                     Id = agent.Id,
                     BrandId = agent.BrandId,
@@ -48,7 +53,7 @@ public class GetAgentQueryHandler(
                     InvitationCode = agent.InvitationCode,
                     ParentUsername = agent.ParentAgent?.Username,
                     RegisteredOn = agent.RegisteredOn,
-                    Balance = agent.Wallets.FirstOrDefault()?.Balance ?? 0,
+                    Balance = balance,
                     CommissionPercentage = agent.CommissionPercentage,
                     DividendPercentage = agent.DividendPercentage,
                     LiveDealerRebatePercentage = agent.LiveDealerRebatePercentage,
