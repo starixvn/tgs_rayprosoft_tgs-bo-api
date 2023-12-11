@@ -11,6 +11,8 @@ using Tgs.Report.Client;
 using Tgs.Report.Client.Models.Agent;
 using Tgs.ServiceUtility;
 using TGS.Apis.BackendOffice.ViewModels;
+using Tgs.CashQueryService.Client;
+using Tgs.CashService.Client;
 using TGS.Core.DataServices.Base.Interfaces;
 using TGS.Core.Models.Enums;
 using TGS.Core.Models.Messages;
@@ -24,7 +26,7 @@ namespace TGS.Apis.BackendOffice.Controllers.Agent;
 
 [Route("api/[controller]")]
 [ApiController]
-public partial class AgentController(IMediator mediator, IReportClient client) : BaseContextController
+public partial class AgentController(IMediator mediator) : BaseContextController
 {
     [HttpPut("{id:guid}/clear-negative-commission")]
     [Description("Clear negative commission")]
@@ -100,32 +102,29 @@ public partial class AgentController(IMediator mediator, IReportClient client) :
     [HttpGet("accountChanges")]
     [Description("Get agent account changes")]
     public async ValueTask<PagedResponse<AgentAccountChangeReportModel>> GetAgentAccountChangesAsync(
+        [FromServices] ICashServiceClient cashServiceClient,
+        [FromServices] IAgentClient agentClient,
         [FromQuery] GetAgentAccountChangesReportRequest request)
     {
-        var reportRequest = new GetAgentAccountChangesRequest
-        {
-            BrandId = request.BrandId,
-            AgentId = request.AgentId,
-            TransactionType = (short?)request.TransactionType,
-            From = request.From,
-            To = request.To,
-            Page = request.Page,
-            Rows = request.Rows,
-            OrderBy = (short)request.OrderBy,
-            SortBy = request.SortBy,
-            ShowAll = request.ShowAll
-        };
+        var transactionTypes = request.TransactionType == null
+            ? Array.Empty<int>()
+            : [(int)request.TransactionType];
 
-        var response = await client.GetAgentAccountChangesAsync(reportRequest);
+        var agent = await agentClient.GetAgentInfoAsync(new GetAgentInfoRequest(request.AgentId));
 
-        return new()
+        var response = await cashServiceClient.QueryTransactionLogsAsync(agent!.WalletId!.Value,
+            request.From.UtcDateTime,
+            request.To.UtcDateTime,
+            transactionTypes,
+            new PagingConditions(request.Page, request.Rows));
+
+        return new PagedResponse<AgentAccountChangeReportModel>
         {
-            Valid = response.Valid,
-            Message = response.Message,
+            Valid = true,
             TotalCount = response.TotalCount,
             Items = response.Items?.Select(x => new AgentAccountChangeReportModel
             {
-                TransactionId = x.TransactionId,
+                TransactionId = x.Id,
                 Amount = x.Amount,
                 Balance = x.Balance,
                 TransactionType = (TransactionType)x.TransactionType,
@@ -147,7 +146,7 @@ public partial class AgentController(IMediator mediator, IReportClient client) :
     [Description("Get agent operations")]
     public async Task<PagedResponse<AgentOperationModel>> GetAgentOperationsAsync(
         Guid id,
-        [FromServices] IGetService<GetAgentOperationQuery, PagingResponse<AgentAuditLogInfo>> getService,
+        [FromServices] IGetService<GetAgentOperationQuery, Tgs.Agent.Client.Models.PagingResponse<AgentAuditLogInfo>> getService,
         [FromQuery] GetAgentOperationsRequest request,
         [FromQuery] PageableRequest pageableRequest)
     {
