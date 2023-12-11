@@ -53,7 +53,7 @@ public class CreateAgentHandler(IAgentService service, IAgentClient client, IBra
         _ = await client.CreateAgentAsync(new Tgs.Agent.Client.Models.CreateAgentRequest
         {
             BrandId = BrandId ?? request.BrandId,
-            ParentAgentId = parentAgent?.ParentAgentId,
+            ParentAgentId = parentAgent?.Id,
             Username = request.Username,
             RealName = request.RealName ?? "",
             CurrencyCode = currency.CurrencyCode,
