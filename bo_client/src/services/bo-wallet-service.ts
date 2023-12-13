@@ -9,7 +9,7 @@ export default class BoWalletService {
             .then(res => res.data);
     }
 
-    public getAccountChangesOld(
+    public getPlayerAccountChangesOld(
         request: GetPlayerAccountChangesReportRequest): Promise<PagedResponse<PlayerAccountChangeReportModel>> {
         return this.http
             .get(
@@ -22,12 +22,12 @@ export default class BoWalletService {
             .then(res => res.data);
     }
 
-    public getAccountChanges(
+    public getPlayerAccountChanges(
         playerCode: string,
-        request: PlayerAccountChangesQueryRequest,
+        request: AccountChangesQueryRequest,
         page: number,
         rows: number
-    ): Promise<PagedResponse<PlayerAccountChange>> {
+    ): Promise<PagedResponse<AccountChange>> {
         return this.http
             .get(
                 `/api/wallet/account-changes/player/${playerCode}`,
@@ -42,7 +42,41 @@ export default class BoWalletService {
             .then(res => res.data);
     }
 
-    public getAccountChangesTotalAmountOld(request: GetPlayerAccountChangesReportRequest)
+    public getAgentAccountChangesOld(
+        request: GetAgentAccountChangesReportRequest
+    ): Promise<PagedResponse<AgentAccountChangeReportModel>> {
+        return this.http
+            .get(
+                `/api/agent/accountChanges`,
+                {
+                    params: {
+                        ...request
+                    }
+                })
+            .then(res => res.data);
+    }
+
+    public getAgentAccountChanges(
+        agentId: string,
+        request: AccountChangesQueryRequest,
+        page: number,
+        rows: number
+    ): Promise<PagedResponse<AccountChange>> {
+        return this.http
+            .get(
+                `/api/wallet/account-changes/agent/${agentId}`,
+                {
+                    params: {
+                        ...request,
+                        page,
+                        rows
+                    }
+                }
+            )
+            .then(res => res.data);
+    }
+
+    public getPlayerAccountChangesTotalAmountOld(request: GetPlayerAccountChangesReportRequest)
         : Promise<PlayerAccountChangesTotalModel> {
         return this.http
             .get(
@@ -55,9 +89,9 @@ export default class BoWalletService {
             .then(res => res.data);
     }
 
-    public getAccountChangesTotalAmount(
+    public getPlayerAccountChangesTotalAmount(
         playerCode: string,
-        request: PlayerAccountChangesQueryRequest
+        request: AccountChangesQueryRequest
     ): Promise<number> {
         return this.http
             .get(
@@ -71,11 +105,11 @@ export default class BoWalletService {
             .then(res => res.data);
     }
 
-    public getWaitPersistentAccountChanges(
+    public getPlayerWaitPersistentAccountChanges(
         playerCode: string,
         page: number,
         rows: number
-    ): Promise<PagedResponse<PlayerAccountChange>> {
+    ): Promise<PagedResponse<AccountChange>> {
         return this.http
             .get(
                 `/api/wallet/account-changes/player/waiting/${playerCode}`,

@@ -12,7 +12,12 @@ using TGS.Services.BackOffice.Infrastructure.DataService;
 
 namespace TGS.Services.BackOffice.Application.Queries.AgentHandlers;
 
-public class GetAgentsQueryHandler(IAgentService service, ICashServiceClient cashServiceClient, IAgentClient agentClient, IHttpContextAccessor accessor) : Handler<GetAgentsRequest, PagedResponse<AgentModel>>(accessor)
+public class GetAgentsQueryHandler(
+    IAgentService service,
+    ICashServiceClient cashServiceClient,
+    IAgentClient agentClient,
+    IHttpContextAccessor accessor)
+    : Handler<GetAgentsRequest, PagedResponse<AgentModel>>(accessor)
 {
     public override async Task<PagedResponse<AgentModel>> Handle(GetAgentsRequest request,
         CancellationToken cancellationToken)

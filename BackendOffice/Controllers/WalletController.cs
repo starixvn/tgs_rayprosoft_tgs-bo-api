@@ -6,15 +6,18 @@ using System.Linq;
 using System.Text.Json;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Mvc;
+using Tgs.Agent.Client;
+using Tgs.Agent.Client.Models;
 using Tgs.CashQueryService.Client;
 using Tgs.CashService.Client;
+using Tgs.PlayerService.Client;
 using Tgs.ServiceUtility;
 using TGS.Apis.BackendOffice.ViewModels;
 using TGS.Core.Models.Enums;
 using TGS.Core.Models.Messages;
+using TGS.Services.BackOffice.Application.Models.ReportAgent;
 using TGS.Services.BackOffice.Application.Models.ReportPlayer;
 using TGS.Services.BackOffice.ApplicationServices.Wallets;
-using TGS.Services.BackOffice.Infrastructure.DataService;
 using BoEnums = TGS.Services.BackOffice.Domain.Enums;
 
 namespace TGS.Apis.BackendOffice.Controllers;
@@ -33,13 +36,20 @@ public class WalletController : BaseContextController
 
     [HttpGet("~/api/player/accountChanges", Name = "GetPlayerAccountChangesOld")]
     [Description("Get player account changes")]
-    public async Task<PagedResponse<PlayerAccountChangeReportModel>> GetAccountChangesAsync(
-        [FromQuery] GetPlayerAccountChangesReportRequest request,
-        [FromServices] IGetService<AccountChangesQuery, PagingResponse<TransactionLog>> getService,
-        [FromServices] ICashQueryClient cashQueryClient)
+    public async Task<PagedResponse<PlayerAccountChangeReportModel>> GetPlayerAccountChangesAsync(
+        [FromServices] IPlayerServiceClient playerServiceClient,
+        [FromServices] ICashQueryClient cashQueryClient,
+        [FromServices] IGetService<AccountChangesQuery, Tgs.CashService.Client.PagingResponse<TransactionLog>> getService,
+        [FromQuery] GetPlayerAccountChangesReportRequest request)
     {
+        var playerProps = await playerServiceClient
+            .GetPlayerPropertiesAsync(request.PlayerCode, HttpContext.RequestAborted)
+            .ConfigureAwait(false);
+
+        var playerWalletId = Guid.Parse(playerProps["DefaultWalletId"]!);
+
         var query = new AccountChangesQuery(
-            request.PlayerCode,
+            playerWalletId,
             request.From.DateTime,
             request.To.DateTime,
             request.AccountChangeType,
@@ -91,15 +101,22 @@ public class WalletController : BaseContextController
     }
 
     [HttpGet("account-changes/player/{playerCode}", Name = "GetPlayerAccountChanges")]
-    public async Task<PagedResponse<PlayerAccountChangeViewModel>> GetAccountChangesAsync(
-        [FromServices] IGetService<AccountChangesQuery, PagingResponse<TransactionLog>> getService,
+    public async Task<PagedResponse<AccountChangeViewModel>> GetPlayerAccountChangesAsync(
+        [FromServices] IGetService<AccountChangesQuery, Tgs.CashService.Client.PagingResponse<TransactionLog>> getService,
         [FromServices] ICashQueryClient cashQueryClient,
+        [FromServices] IPlayerServiceClient playerServiceClient,
         string playerCode,
         [FromQuery] AccountChangesQueryViewModel conditionsViewModel,
         [FromQuery] PagingViewModel paging)
     {
+        var playerProps = await playerServiceClient
+            .GetPlayerPropertiesAsync(playerCode, HttpContext.RequestAborted)
+            .ConfigureAwait(false);
+
+        var playerWalletId = Guid.Parse(playerProps["DefaultWalletId"]!);
+
         var query = new AccountChangesQuery(
-            playerCode,
+            playerWalletId,
             conditionsViewModel.From,
             conditionsViewModel.To,
             conditionsViewModel.AccountChangeType,
@@ -120,7 +137,7 @@ public class WalletController : BaseContextController
             Valid = true,
             Message = string.Empty,
             TotalCount = result.TotalCount,
-            Items = result.Items?.Select(x => new PlayerAccountChangeViewModel
+            Items = result.Items?.Select(x => new AccountChangeViewModel
             {
                 TransactionId = x.Id,
                 Amount = x.Amount,
@@ -132,6 +149,103 @@ public class WalletController : BaseContextController
                 IncludeInNetProfit = adjustPlayerRecords
                     .FirstOrDefault(apr => apr.TransactionId == x.Id)?.IncludeInNetProfit
                     ?? false,
+                Remark = GetRemark((BoEnums.TransactionType?)x.TransactionType, x.Description),
+                ExternalTransactionId = x.ExternalId
+            }).ToArray()
+        };
+    }
+
+    [HttpGet("~/api/agent/accountChanges", Name = "GetAgentAccountChangesOld")]
+    [Description("Get agent account changes")]
+    public async ValueTask<PagedResponse<AgentAccountChangeReportModel>> GetAgentAccountChangesAsync(
+        [FromServices] IAgentClient agentClient,
+        [FromServices] IGetService<AccountChangesQuery, Tgs.CashService.Client.PagingResponse<TransactionLog>> getService,
+        [FromQuery] GetAgentAccountChangesReportRequest request)
+    {
+        var agent = await agentClient.GetAgentInfoAsync(
+            new GetAgentInfoRequest(request.AgentId),
+            HttpContext.RequestAborted).ConfigureAwait(false);
+
+        if (agent is null || agent.WalletId is null)
+            return new PagedResponse<AgentAccountChangeReportModel>
+            {
+                Valid = true,
+                Items = [],
+                TotalCount = 0
+            };
+
+        var query = new AccountChangesQuery(
+            agent.WalletId.Value,
+            request.From.DateTime,
+            request.To.DateTime,
+            request.TransactionType,
+            new PagingConditions(request.Page, request.Rows));
+
+        var result = await getService
+            .GetAsync(query, HttpContext.RequestAborted)
+            .ConfigureAwait(false);
+
+        return new PagedResponse<AgentAccountChangeReportModel>
+        {
+            Valid = true,
+            TotalCount = result.TotalCount,
+            Items = result.Items.Select(x => new AgentAccountChangeReportModel
+            {
+                TransactionId = x.Id,
+                Amount = x.Amount,
+                Balance = x.Balance,
+                TransactionType = (BoEnums.TransactionType)x.TransactionType,
+                RecordedOn = x.RecordedOn,
+            }).ToArray()
+        };
+    }
+
+    [HttpGet("account-changes/agent/{agentId:Guid}", Name = "GetAgentAccountChanges")]
+    public async Task<PagedResponse<AccountChangeViewModel>> GetAgentAccountChangesAsync(
+        [FromServices] IGetService<AccountChangesQuery, Tgs.CashService.Client.PagingResponse<TransactionLog>> getService,
+        [FromServices] IAgentClient agentClient,
+        Guid agentId,
+        [FromQuery] AccountChangesQueryViewModel conditionsViewModel,
+        [FromQuery] PagingViewModel paging)
+    {
+        var agent = await agentClient.GetAgentInfoAsync(
+            new GetAgentInfoRequest(agentId),
+            HttpContext.RequestAborted).ConfigureAwait(false);
+
+        if (agent is null || agent.WalletId is null)
+            return new PagedResponse<AccountChangeViewModel>
+            {
+                Valid = true,
+                Items = [],
+                TotalCount = 0
+            };
+
+        var query = new AccountChangesQuery(
+            agent.WalletId.Value,
+            conditionsViewModel.From,
+            conditionsViewModel.To,
+            conditionsViewModel.AccountChangeType,
+            new PagingConditions(paging.Page, paging.Rows));
+
+        var result = await getService
+            .GetAsync(query, HttpContext.RequestAborted)
+            .ConfigureAwait(false);
+
+        return new()
+        {
+            Valid = true,
+            Message = string.Empty,
+            TotalCount = result.TotalCount,
+            Items = result.Items?.Select(x => new AccountChangeViewModel
+            {
+                TransactionId = x.Id,
+                Amount = x.Amount,
+                LockAmount = x.LockAmount,
+                Balance = x.Balance,
+                LockedBalance = x.LockedBalance,
+                TransactionType = (BoEnums.TransactionType)x.TransactionType,
+                RecordedOn = x.RecordedOn,
+                IncludeInNetProfit = false,
                 Remark = GetRemark((BoEnums.TransactionType?)x.TransactionType, x.Description),
                 ExternalTransactionId = x.ExternalId
             }).ToArray()
@@ -173,8 +287,8 @@ public class WalletController : BaseContextController
     }
 
     [HttpGet("account-changes/player/waiting/{playerCode}", Name = "GetPlayerWaitingPersistentAccountChanges")]
-    public async Task<PagedResponse<PlayerAccountChangeViewModel>> GetPlayerWaitingPersistentAccountChangesAsync(
-        [FromServices] IGetService<WaitPersistentAccountChangesQuery, PagingResponse<TransactionLog>> queryService,
+    public async Task<PagedResponse<AccountChangeViewModel>> GetPlayerWaitingPersistentAccountChangesAsync(
+        [FromServices] IGetService<WaitPersistentAccountChangesQuery, Tgs.CashService.Client.PagingResponse<TransactionLog>> queryService,
         [FromServices] ICashQueryClient cashQueryClient,
         string playerCode,
         [FromQuery] PagingViewModel paging)
@@ -198,7 +312,7 @@ public class WalletController : BaseContextController
             Valid = true,
             Message = string.Empty,
             TotalCount = result.TotalCount,
-            Items = result.Items?.Select(x => new PlayerAccountChangeViewModel
+            Items = result.Items?.Select(x => new AccountChangeViewModel
             {
                 TransactionId = x.Id,
                 Amount = x.Amount,

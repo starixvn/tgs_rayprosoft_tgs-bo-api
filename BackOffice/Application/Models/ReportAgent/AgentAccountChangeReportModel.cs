@@ -1,5 +1,5 @@
 ﻿using System;
-using TGS.Core.Models.Enums;
+using TGS.Services.BackOffice.Domain.Enums;
 
 namespace TGS.Services.BackOffice.Application.Models.ReportAgent;
 

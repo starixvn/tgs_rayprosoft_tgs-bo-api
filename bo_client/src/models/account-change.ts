@@ -1,4 +1,4 @@
-interface PlayerAccountChange {
+interface AccountChange {
     transactionId: string;
     amount: number;
     lockAmount: number;

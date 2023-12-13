@@ -15,7 +15,12 @@ using CreateAgentRequest = TGS.Services.BackOffice.Application.Models.Agent.Crea
 
 namespace TGS.Services.BackOffice.Application.Commands.AgentHandlers;
 
-public class CreateAgentHandler(IAgentService service, IAgentClient client, IBrandServiceClient brandServiceClient, IHttpContextAccessor accessor) : Handler<CreateAgentRequest, MessageResponse>(accessor)
+public class CreateAgentHandler(
+    IAgentService service,
+    IAgentClient client,
+    IBrandServiceClient brandServiceClient,
+    IHttpContextAccessor accessor)
+    : Handler<CreateAgentRequest, MessageResponse>(accessor)
 {
     public override async Task<MessageResponse> Handle(
         CreateAgentRequest request,
