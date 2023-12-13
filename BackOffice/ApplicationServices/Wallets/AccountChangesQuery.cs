@@ -4,7 +4,7 @@ using Tgs.CashService.Client;
 namespace TGS.Services.BackOffice.ApplicationServices.Wallets;
 
 public record AccountChangesQuery(
-    string PlayerCode,
+    Guid WalletId,
     DateTime From,
     DateTime To,
     Domain.Enums.TransactionType? AccountChangeType,

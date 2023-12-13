@@ -29,7 +29,7 @@ public class CreateAnAgentTests
         var fakeHttpContextMock = Substitute.For<IHttpContextAccessor>();
         var httpContextMock = Substitute.For<HttpContext>();
 
-        httpContextMock.User.Returns(GetUserClaimsPrincipal());
+        _ = httpContextMock.User.Returns(GetUserClaimsPrincipal());
 
         fakeHttpContextMock.HttpContext = httpContextMock;
 
@@ -44,16 +44,18 @@ public class CreateAnAgentTests
             .Returns(CreateAgentInfoModelFixture().Create<AgentInfoModel>());
 
         _ = fakeBrandServiceClient.GetAllBrandCurrenciesAsync(Arg.Any<CancellationToken>())
-            .Returns(new[]{ new BrandCurrencyInfo(brandId, "CNY") }.ToAsyncEnumerable());
+            .Returns(new[] { new BrandCurrencyInfo(brandId, "CNY") }.ToAsyncEnumerable());
 
-        fakeAgentService.GetAgentAsync(Arg.Any<Expression<Func<Agent, bool>>>())
+        _ = fakeAgentService.GetAgentAsync(Arg.Any<Expression<Func<Agent, bool>>>())
             .Returns(new Agent
             {
                 Id = parentAgentId,
-                DividendPercentage = 50, Brand = new Brand { AgentDividendType = AgentDividendType.OneLayer }
+                DividendPercentage = 50,
+                Brand = new Brand { AgentDividendType = AgentDividendType.OneLayer }
             });
 
-        var sut = new CreateAgentHandler(fakeAgentService,
+        var sut = new CreateAgentHandler(
+            fakeAgentService,
             fakeAgentClient,
             fakeBrandServiceClient,
             fakeHttpContextMock);
@@ -70,9 +72,9 @@ public class CreateAnAgentTests
 
         _ = sut.Handle(request, default);
 
-        fakeAgentClient.ReceivedWithAnyArgs(1).CreateAgentAsync(null);
+        _ = fakeAgentClient.ReceivedWithAnyArgs(1).CreateAgentAsync(null!);
 
-        fakeAgentClient.Received(1)
+        _ = fakeAgentClient.Received(1)
             .CreateAgentAsync(
                 Arg.Is<Tgs.Agent.Client.Models.CreateAgentRequest>(x => x.ParentAgentId == parentAgentId));
     }

@@ -99,40 +99,6 @@ public partial class AgentController(IMediator mediator) : BaseContextController
             : CreateInvalidResponse<MessageResponse>(result.Message);
     }
 
-    [HttpGet("accountChanges")]
-    [Description("Get agent account changes")]
-    public async ValueTask<PagedResponse<AgentAccountChangeReportModel>> GetAgentAccountChangesAsync(
-        [FromServices] ICashServiceClient cashServiceClient,
-        [FromServices] IAgentClient agentClient,
-        [FromQuery] GetAgentAccountChangesReportRequest request)
-    {
-        var transactionTypes = request.TransactionType == null
-            ? Array.Empty<int>()
-            : [(int)request.TransactionType];
-
-        var agent = await agentClient.GetAgentInfoAsync(new GetAgentInfoRequest(request.AgentId));
-
-        var response = await cashServiceClient.QueryTransactionLogsAsync(agent!.WalletId!.Value,
-            request.From.UtcDateTime,
-            request.To.UtcDateTime,
-            transactionTypes,
-            new PagingConditions(request.Page, request.Rows));
-
-        return new PagedResponse<AgentAccountChangeReportModel>
-        {
-            Valid = true,
-            TotalCount = response.TotalCount,
-            Items = response.Items?.Select(x => new AgentAccountChangeReportModel
-            {
-                TransactionId = x.Id,
-                Amount = x.Amount,
-                Balance = x.Balance,
-                TransactionType = (TransactionType)x.TransactionType,
-                RecordedOn = x.RecordedOn
-            }).ToArray()
-        };
-    }
-
     [HttpGet("{id:guid}")]
     [Description("Get an agent")]
     public Task<GetAgentResponse> GetAgentAsync(Guid id) => mediator.Send(new GetAgentRequest(id));

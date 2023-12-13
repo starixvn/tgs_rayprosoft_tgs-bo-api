@@ -26,11 +26,11 @@ internal class AccountChangesTotalAmountQueryService(
         var queryTransactionTypes = Array.Empty<int>();
 
         queryTransactionTypes = query.AccountChangeType is null
-            ? Enum
-                .GetValues(typeof(Domain.Enums.TransactionType))
+            ? Enum.GetValues(typeof(Domain.Enums.TransactionType))
                 .Cast<Domain.Enums.TransactionType>()
                 .Where(x => x is not Domain.Enums.TransactionType.WithdrawCommit
-                    and not Domain.Enums.TransactionType.TransferCommit)
+                    and not Domain.Enums.TransactionType.TransferCommit
+                    and not Domain.Enums.TransactionType.Receive)
                 .Select(x => (int)x)
                 .ToArray()
             : query.AccountChangeType.Value switch

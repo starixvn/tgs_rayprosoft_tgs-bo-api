@@ -27,7 +27,8 @@ public class GetAgentsTests
         _ = fakeAgentClient.GetAgentInfoAsync(Arg.Any<GetAgentInfoRequest>())
             .Returns(CreateAgentInfoModelFixture().Create<AgentInfoModel>());
 
-        var sut = new GetAgentsQueryHandler(fakeAgentService,
+        var sut = new GetAgentsQueryHandler(
+            fakeAgentService,
             fakeCashServiceClient,
             fakeAgentClient,
             fakeHttpContextMock);
@@ -36,8 +37,8 @@ public class GetAgentsTests
 
         _ = sut.Handle(request, default);
 
-        fakeAgentClient.ReceivedWithAnyArgs(1).GetAgentInfoAsync(null);
-        fakeCashServiceClient.ReceivedWithAnyArgs(1).GetBalanceAsync(default);
+        _ = fakeAgentClient.ReceivedWithAnyArgs(1).GetAgentInfoAsync(null!);
+        _ = fakeCashServiceClient.ReceivedWithAnyArgs(1).GetBalanceAsync(default);
     }
 
     private static Fixture CreateAgentInfoModelFixture()
