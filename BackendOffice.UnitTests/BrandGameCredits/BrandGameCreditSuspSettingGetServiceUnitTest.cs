@@ -69,7 +69,7 @@ public class BrandGameCreditSuspSettingGetServiceUnitTest
                EmailSubject = "[Licensee][Brand] 加值通知 Warning: Balance low"
            },
            CreatedOn: DateTimeOffset.Now,
-           UpdatedOn: DateTimeOffset.Now); ;
+           UpdatedOn: DateTimeOffset.Now);
         _ = fakeBrandGameCreditsClient
             .GameCreditSuspSettingGetAsync(
             brandCode: Arg.Is(brandInfo.Code),

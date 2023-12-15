@@ -10,11 +10,11 @@ using Tgs.ServiceUtility;
 
 namespace TGS.Services.BackOffice.ApplicationServices.BrandGameCredits;
 
-internal class BrandGameCreditQueryService(
+internal class BrandGameCreditHistoryQueryService(
     IBrandServiceClient brandServiceClient,
-    IBrandGameCreditsClient client) : IQueryService<BrandGameCreditQuery, BrandGameCreditResult>
+    IBrandGameCreditsClient client) : IQueryService<BrandGameCreditHistoryQuery, BrandGameCreditResult>
 {
-    public async IAsyncEnumerable<BrandGameCreditResult> QueryAsync(BrandGameCreditQuery query, [EnumeratorCancellation] CancellationToken cancellationToken = default)
+    public async IAsyncEnumerable<BrandGameCreditResult> QueryAsync(BrandGameCreditHistoryQuery query, [EnumeratorCancellation] CancellationToken cancellationToken = default)
     {
         var brandInfo = await brandServiceClient.GetBrandInfoAsync(
             brandId: query.BrandId,
