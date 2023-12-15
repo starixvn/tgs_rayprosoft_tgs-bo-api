@@ -9,7 +9,7 @@ using TGS.Services.BackOffice.ApplicationServices.BrandGameCredits;
 
 namespace TGS.Tests.BackendOffice.UnitTests.BrandGameCredits;
 
-public class BrandGameCreditQueryServiceUnitTest
+public class BrandGameCreditHistoryQueryServiceUnitTest
 {
     [Test]
     public async Task Normal_Process()
@@ -17,7 +17,7 @@ public class BrandGameCreditQueryServiceUnitTest
         var fakeBrandServiceClient = Substitute.For<IBrandServiceClient>();
         var fakeBrandGameCreditsClient = Substitute.For<IBrandGameCreditsClient>();
 
-        var query = new BrandGameCreditQuery(
+        var query = new BrandGameCreditHistoryQuery(
             BrandId: Guid.Parse("4e86719f-243f-46f6-b010-5c758b7285af"));
 
         var brandInfo = new BrandInfo
@@ -64,7 +64,7 @@ public class BrandGameCreditQueryServiceUnitTest
             cancellationToken: Arg.Any<CancellationToken>())
             .Returns(new BrandGameCredit[] { brandGameCredit }.ToAsyncEnumerable());
 
-        var service = new BrandGameCreditQueryService(
+        var service = new BrandGameCreditHistoryQueryService(
             fakeBrandServiceClient,
             fakeBrandGameCreditsClient);
 

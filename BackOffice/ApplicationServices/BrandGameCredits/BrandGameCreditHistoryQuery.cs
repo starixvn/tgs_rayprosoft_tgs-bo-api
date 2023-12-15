@@ -2,5 +2,5 @@
 
 namespace TGS.Services.BackOffice.ApplicationServices.BrandGameCredits;
 
-public record BrandGameCreditQuery(
+public record BrandGameCreditHistoryQuery(
      Guid BrandId);

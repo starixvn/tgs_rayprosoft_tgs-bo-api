@@ -17,7 +17,7 @@ namespace TGS.Apis.BackendOffice.Controllers.BrandGameCredits;
 [ApiController]
 public class BrandGameCreditController : BaseContextController
 {
-    [HttpGet("{brandId:guid}", Name = "BrandGameCredit_Get")]
+    [HttpGet("{brandId:guid}/current", Name = "BrandGameCredit_GetCurrent")]
     public async ValueTask<BrandGameCreditViewModel?> GetAsync(
         [FromServices] IGetService<BrandGameCreditGetCurrentQuery, BrandGameCreditResult> service,
         Guid brandId)
@@ -51,13 +51,13 @@ public class BrandGameCreditController : BaseContextController
             result.UpdatedOn);
     }
 
-    [HttpGet("{brandId:guid}/query", Name = "BrandGameCredit_Query")]
+    [HttpGet("{brandId:guid}/histories", Name = "BrandGameCredit_Query")]
     public async IAsyncEnumerable<BrandGameCreditViewModel> QueryAsync(
-        [FromServices] IQueryService<BrandGameCreditQuery, BrandGameCreditResult> service,
+        [FromServices] IQueryService<BrandGameCreditHistoryQuery, BrandGameCreditResult> service,
         Guid brandId)
     {
         var results = await service.QueryAsync(
-            query: new BrandGameCreditQuery(brandId),
+            query: new BrandGameCreditHistoryQuery(brandId),
             cancellationToken: HttpContext.RequestAborted)
             .ToArrayAsync(
             cancellationToken: HttpContext.RequestAborted)
