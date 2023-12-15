@@ -298,6 +298,12 @@ builder.Services.AddPlayerAllAgentClient((options, sp) =>
     options.Url = config.GetValue<Uri>("BackOffice:PlayerAllAgentBaseUrl");
 });
 
+builder.Services.AddBrandGameCreditsClient((options, sp) =>
+{
+    var config = sp.GetRequiredService<IConfiguration>();
+    options.BaseUrl = config.GetValue<Uri>("BackOffice:BrandGameCreditsBaseUrl");
+});
+
 builder.Services.AddSwaggerGen(c =>
 {
     c.SwaggerDoc("v1",
