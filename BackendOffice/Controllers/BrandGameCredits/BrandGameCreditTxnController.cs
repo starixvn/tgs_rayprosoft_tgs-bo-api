@@ -1,7 +1,6 @@
 ﻿using System;
 using System.Linq;
 using System.Threading.Tasks;
-using DocumentFormat.OpenXml.Office2010.CustomUI;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Tgs.ServiceUtility;
@@ -95,7 +94,7 @@ public class BrandGameCreditTxnController : BaseContextController
 
         return service.ExecuteAsync(
             command: command,
-            cancellationToken: HttpContext.RequestAborted);  
+            cancellationToken: HttpContext.RequestAborted);
     }
 
     [HttpPost("{brandId:guid}/debit")]

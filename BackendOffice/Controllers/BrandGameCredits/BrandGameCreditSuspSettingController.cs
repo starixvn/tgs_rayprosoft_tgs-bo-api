@@ -1,10 +1,12 @@
-﻿using System.Threading.Tasks;
-using System;
+﻿using System;
+
+using System.Threading.Tasks;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
+using Tgs.ServiceUtility;
+
 using TGS.Apis.BackendOffice.ViewModels;
 using TGS.Services.BackOffice.ApplicationServices.BrandGameCredits;
-using Tgs.ServiceUtility;
 
 namespace TGS.Apis.BackendOffice.Controllers.BrandGameCredits;
 

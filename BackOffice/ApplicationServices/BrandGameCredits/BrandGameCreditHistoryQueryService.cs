@@ -21,7 +21,7 @@ internal class BrandGameCreditHistoryQueryService(
             cancellationToken: cancellationToken)
             ?? throw new NullReferenceException($"This brand does not exist.{query.BrandId}");
 
-        var gameCredits = await client.GameCreditQueryAsync(
+        var gameCredits = await client.GameCreditHistoriesAsync(
             brandCode: brandInfo.Code,
             cancellationToken: cancellationToken)
             .ToArrayAsync(cancellationToken: cancellationToken)
