@@ -19,8 +19,6 @@ namespace TGS.Apis.BackendOffice.Controllers.BrandGameCredits;
 [ApiController]
 public class BrandGameCreditProfitController : ControllerBase
 {
-    [AllowAnonymous]
-    [IgnoreAntiforgeryToken]
     [HttpGet("{brandId:guid}/query", Name = "BrandGameCreditProfit_Query")]
     public async IAsyncEnumerable<BrandGameCreditProfitViewModel> QueryAsync(
         [FromServices] IQueryService<BrandGameCreditProfitQuery, BrandGameCreditProfitResult> service,
