@@ -6,7 +6,6 @@ using System.Linq;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
-using Tgs.BrandGameCredits.Common.Models;
 using Tgs.ServiceUtility;
 using TGS.Apis.BackendOffice.ViewModels;
 using TGS.Services.BackOffice.ApplicationServices.BrandGameCredits;
@@ -51,7 +50,7 @@ public class BrandGameCreditController : BaseContextController
             result.UpdatedOn);
     }
 
-    [HttpGet("{brandId:guid}/histories", Name = "BrandGameCredit_Query")]
+    [HttpGet("{brandId:guid}/histories", Name = "BrandGameCredit_History")]
     public async IAsyncEnumerable<BrandGameCreditViewModel> QueryAsync(
         [FromServices] IQueryService<BrandGameCreditHistoryQuery, BrandGameCreditResult> service,
         Guid brandId)

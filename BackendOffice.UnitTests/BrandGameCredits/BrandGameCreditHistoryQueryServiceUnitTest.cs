@@ -59,7 +59,7 @@ public class BrandGameCreditHistoryQueryServiceUnitTest
             CreatedOn: DateTimeOffset.Parse("2023-12-06T09:19:50.010516+00:00"),
             UpdatedOn: DateTimeOffset.Parse("2023-12-07T10:38:10.350982+00:00"));
         _ = fakeBrandGameCreditsClient
-            .GameCreditQueryAsync(
+            .GameCreditHistoriesAsync(
             brandCode: Arg.Is(brandInfo.Code),
             cancellationToken: Arg.Any<CancellationToken>())
             .Returns(new BrandGameCredit[] { brandGameCredit }.ToAsyncEnumerable());
