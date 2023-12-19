@@ -304,6 +304,12 @@ builder.Services.AddBrandGameCreditsClient((options, sp) =>
     options.BaseUrl = config.GetValue<Uri>("BackOffice:BrandGameCreditsBaseUrl");
 });
 
+builder.Services.AddNotificationContactsClient((options, sp) =>
+{
+    var config = sp.GetRequiredService<IConfiguration>();
+    options.BaseUrl = config.GetValue<Uri>("BackOffice:NotificationContactsBaseUrl");
+});
+
 builder.Services.AddSwaggerGen(c =>
 {
     c.SwaggerDoc("v1",
@@ -334,7 +340,18 @@ builder.Services
         .AddSource("Tgs.*")
         .AddSource("TGS.*")
         .AddSource("Valhalla.*")
-        .AddAspNetCoreInstrumentation()
+        .AddAspNetCoreInstrumentation(options =>
+        {
+            options.Filter = httpContext =>
+            {
+                return !httpContext.Request.Path.HasValue
+                    || !httpContext.Request.Path.StartsWithSegments("/swagger")
+                    && !httpContext.Request.Path.StartsWithSegments("/health")
+                    && !httpContext.Request.Path.StartsWithSegments("/profiler/")
+                    && !excludeExtensions.Any(
+                        ext => httpContext.Request.Path.Value.EndsWith($".{ext}"));
+            };
+        })
         .AddHttpClientInstrumentation()
         .AddEntityFrameworkCoreInstrumentation(options =>
         {
@@ -345,20 +362,7 @@ builder.Services
     .WithMetrics(meterProviderBuilder => meterProviderBuilder
         .AddAspNetCoreInstrumentation()
         .AddRuntimeInstrumentation()
-        .AddOtlpExporter())
-    .Services
-    .Configure<AspNetCoreInstrumentationOptions>(options =>
-    {
-        options.Filter = httpContext =>
-        {
-            return !httpContext.Request.Path.HasValue
-                || !httpContext.Request.Path.StartsWithSegments("/swagger")
-                && !httpContext.Request.Path.StartsWithSegments("/health")
-                && !httpContext.Request.Path.StartsWithSegments("/profiler/")
-                && !excludeExtensions.Any(
-                    ext => httpContext.Request.Path.Value.EndsWith($".{ext}"));
-        };
-    });
+        .AddOtlpExporter());
 
 builder.Services
     .AddProfileViewer();
