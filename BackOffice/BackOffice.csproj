@@ -42,11 +42,11 @@
     <PackageReference Include="ClosedXML.Report" Version="0.2.8" />
     <PackageReference Include="ExcelDataReader" Version="3.6.0" />
     <PackageReference Include="Google.Protobuf" Version="3.25.1" />
-    <PackageReference Include="Grpc.Tools" Version="2.59.0">
+    <PackageReference Include="Grpc.Tools" Version="2.60.0">
       <PrivateAssets>all</PrivateAssets>
       <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
     </PackageReference>
-    <PackageReference Include="LargeXlsx" Version="1.8.0" />
+    <PackageReference Include="LargeXlsx" Version="1.9.0" />
     <PackageReference Include="MediatR" Version="12.2.0" />
     <PackageReference Include="Microsoft.VisualStudio.Threading.Analyzers" Version="17.8.14">
       <PrivateAssets>all</PrivateAssets>
@@ -58,7 +58,7 @@
     <PackageReference Include="Scrutor" Version="4.2.2" />
     <PackageReference Include="System.Interactive.Async" Version="6.0.1" />
     <PackageReference Include="System.Linq.Async" Version="6.0.1" />
-    <PackageReference Include="Tgs.Agent.Client" Version="0.0.21" />
+    <PackageReference Include="Tgs.Agent.Client" Version="0.0.23" />
     <PackageReference Include="Tgs.ArticleManagementClient" Version="0.0.4" />
     <PackageReference Include="Tgs.BrandCertificateClient" Version="0.0.29" />
     <PackageReference Include="Tgs.BrandGameCredits.Client" Version="0.0.8" />
@@ -72,6 +72,7 @@
     <PackageReference Include="Tgs.DomainSetting.Client" Version="0.0.7" />
     <PackageReference Include="Tgs.GameWagers.Client" Version="0.0.8" />
     <PackageReference Include="Tgs.MarketingReport.Client" Version="0.0.9" />
+    <PackageReference Include="Tgs.Notification.Contacts.Client" Version="0.0.1" />
     <PackageReference Include="Tgs.Paging.AsyncEnumerable" Version="1.2.1" />
     <PackageReference Include="Tgs.Payment.Client" Version="0.5.0" />
     <PackageReference Include="Tgs.Payment.ManualDeposit" Version="0.1.14" />
@@ -80,7 +81,7 @@
     <PackageReference Include="Tgs.PlayerBucket.Client" Version="1.0.0" />
     <PackageReference Include="Tgs.PlayerBucketType.Client" Version="0.0.10" />
     <PackageReference Include="Tgs.PlayerService.Client" Version="0.1.0" />
-    <PackageReference Include="Tgs.Promotion.Client" Version="1.0.45" />
+    <PackageReference Include="Tgs.Promotion.Client" Version="1.0.47" />
     <PackageReference Include="Tgs.Report.Client" Version="0.0.66" />
     <PackageReference Include="Tgs.SerialNumberGenerator" Version="1.0.1" />
     <PackageReference Include="TGS.ServiceUtility" Version="0.2.0" />

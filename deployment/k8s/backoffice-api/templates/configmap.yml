@@ -36,7 +36,8 @@ data:
         "GameWagersServiceBaseUrl": "http://game-gamewagers",
         "ArticleManagementBaseUrl": "http://tgs-article-management",
         "PlayerAllAgentBaseUrl": "http://player-all-agent-service",
-        "BrandGameCreditsBaseUrl": "http://brand-gamecredits/"
+        "BrandGameCreditsBaseUrl": "http://brand-gamecredits/",
+        "NotificationContactsBaseUrl": "http://notification-contacts/"
       },
       "TGSGameProvidersKickPlayerApi": {
         "BaseUrl": "http://game-kickplayer-server"
