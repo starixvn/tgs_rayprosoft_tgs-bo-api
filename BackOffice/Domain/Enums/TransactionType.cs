@@ -60,6 +60,7 @@ public enum TransactionType
     /// The dividend all agent rebate
     /// </summary>
     DividendAllAgentRebate = 4100,
+    AgentDividend = 4200,
 
     /// <summary>
     /// 調帳 5000~5999
