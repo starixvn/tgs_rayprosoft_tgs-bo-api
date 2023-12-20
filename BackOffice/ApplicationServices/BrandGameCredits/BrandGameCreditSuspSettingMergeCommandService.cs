@@ -30,8 +30,8 @@ internal class BrandGameCreditSuspSettingMergeCommandService(
             moderateRisk: command.ModerateRisk,
             moderateNotification: new BrandGameCreditSuspSettingNotificationMsg
             {
-                EmailSubject = command.ManualNotification.EmailSubject,
-                EmailContent = command.ManualNotification.EmailContent
+                EmailSubject = command.ModerateNotification.EmailSubject,
+                EmailContent = command.ModerateNotification.EmailContent
             },
             highRisk: command.HighRisk,
             highNotification: new BrandGameCreditSuspSettingNotificationMsg
