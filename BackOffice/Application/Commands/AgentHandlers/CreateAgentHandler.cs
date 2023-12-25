@@ -61,6 +61,8 @@ public class CreateAgentHandler(
             ParentAgentId = parentAgent?.Id,
             Username = request.Username,
             RealName = request.RealName ?? "",
+            Phone = "",
+            Email = "",           
             CurrencyCode = currency.CurrencyCode,
             Type = (AgentType)request.Type,
             LevelType = (AgentLevelType)request.LevelType,
