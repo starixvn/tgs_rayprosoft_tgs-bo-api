@@ -66,7 +66,8 @@ public class AgentReduceAmountQueryServiceTests
                 0M,
                 brandId,
                 Guid.NewGuid(),
-                agentWalletId));
+                agentWalletId, 
+                false));
 
         var transactionId = Guid.NewGuid();
         _ = fakeCashServiceClient.AdjustCompanyV2Async(
@@ -145,7 +146,8 @@ public class AgentReduceAmountQueryServiceTests
                 0M,
                 brandId,
                 Guid.NewGuid(),
-                null));
+                null,
+                false));
 
         _ = fakeAgentClient.GetAgentInfoByUsernameAsync(
             Arg.Is(new GetAgentInfoByUsernameRequest(brandId, command.TargetName)))
@@ -168,7 +170,8 @@ public class AgentReduceAmountQueryServiceTests
                 0M,
                 brandId,
                 Guid.NewGuid(),
-                null));
+                null, 
+                false));
 
         var actual = await sut.GetAsync(command);
 
@@ -225,7 +228,8 @@ public class AgentReduceAmountQueryServiceTests
                 0M,
                 brandId,
                 Guid.NewGuid(),
-                null));
+                null, 
+                false));
 
         var actual = await sut.GetAsync(command);
 
@@ -285,7 +289,8 @@ public class AgentReduceAmountQueryServiceTests
                 0M,
                 brandId,
                 Guid.NewGuid(),
-                agentWalletId));
+                agentWalletId, 
+                false));
 
         _ = fakeAgentClient.GetAgentInfoByUsernameAsync(
             Arg.Is(new GetAgentInfoByUsernameRequest(brandId, command.TargetName)))
@@ -308,7 +313,8 @@ public class AgentReduceAmountQueryServiceTests
                 0M,
                 brandId,
                 Guid.NewGuid(),
-                targetWalletId));
+                targetWalletId,
+                false));
 
         var lockTransactionId = Guid.NewGuid();
         _ = fakeCashServiceClient.LockTransferAsync(
@@ -428,7 +434,8 @@ public class AgentReduceAmountQueryServiceTests
                 0M,
                 brandId,
                 Guid.NewGuid(),
-                null));
+                null, 
+                false));
 
         var actual = await sut.GetAsync(command);
 
@@ -486,7 +493,8 @@ public class AgentReduceAmountQueryServiceTests
                 0M,
                 brandId,
                 Guid.NewGuid(),
-                agentWalletId));
+                agentWalletId, 
+                false));
 
         var playerDefaultWalletId = Guid.Parse("af5effa8-6352-4483-36cc-08dab0b34fcf");
         var player = new Tgs.PlayerService.Client.PlayerInfo
@@ -624,7 +632,8 @@ public class AgentReduceAmountQueryServiceTests
                 0M,
                 brandId,
                 Guid.NewGuid(),
-                agentWalletId));
+                agentWalletId,
+                false));
 
         var playerDefaultWalletId = Guid.Parse("af5effa8-6352-4483-36cc-08dab0b34fcf");
         var player = new Tgs.PlayerService.Client.PlayerInfo

@@ -42,7 +42,8 @@ public class AgentInfoTests
                 0m,
                 Guid.NewGuid(),
                 Guid.NewGuid(),
-                null));
+                null, 
+                false));
 
         var queryDict = new Dictionary<string, string?>()
         {

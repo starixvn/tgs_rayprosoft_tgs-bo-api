@@ -335,7 +335,8 @@ public class WalletTests(ITestOutputHelper testOutputHelper, NodeJsFixture nodeJ
                 0M,
                 brandId,
                 Guid.NewGuid(),
-                walletId));
+                walletId,
+                false));
 
         var transactionId1 = Guid.Parse("ce8a455e-7f01-0000-0001-0000f79e2257");
         var transacationId2 = Guid.Parse("cf29d2e7-7f01-0000-0001-0000f79e2257");
@@ -726,7 +727,8 @@ public class WalletTests(ITestOutputHelper testOutputHelper, NodeJsFixture nodeJ
                 0M,
                 brandId,
                 Guid.NewGuid(),
-                walletId));
+                walletId,
+                false));
 
         var transactionId1 = Guid.Parse("ce8a455e-7f01-0000-0001-0000f79e2257");
         var transacationId2 = Guid.Parse("cf29d2e7-7f01-0000-0001-0000f79e2257");
