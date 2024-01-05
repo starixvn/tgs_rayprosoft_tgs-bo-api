@@ -542,7 +542,8 @@ public class PlayerTests(ITestOutputHelper testOutputHelper, NodeJsFixture nodeJ
             {
                 new KeyValuePair<string, string>("RealName", ""),
                 new KeyValuePair<string, string>("DefaultWalletId", "36a6cdef-094f-eb11-8d88-70b5e82b6b8d"),
-                new KeyValuePair<string, string>("Birthdate", "2000-04-28")
+                new KeyValuePair<string, string>("Birthdate", "2000-04-28"),
+                new KeyValuePair<string, string>("Zalo", "testZalo")
             }.ToImmutableDictionary());
 
         _ = fakePaymentSerivceClient.GetPlayerBankInfosAsync(
@@ -610,6 +611,7 @@ public class PlayerTests(ITestOutputHelper testOutputHelper, NodeJsFixture nodeJ
                 VipLevel = 1,
                 WageringRequirement = 0,
                 IdentityAuthentication = true,
+                Zalo = "testZalo",
             },
         };
 
@@ -1347,6 +1349,81 @@ public class PlayerTests(ITestOutputHelper testOutputHelper, NodeJsFixture nodeJ
         var request = new SetPlayerContactRequest
         {
             { PlayerPropertyName.Phone.ToString(),"1223334444" }
+        };
+
+        using var nodeService = _nodeJsFixture.BuildNodeJsService();
+
+        var isWindows = RuntimeInformation.IsOSPlatform(OSPlatform.Windows) ? "true" : "false";
+
+        var nodeModule = $$"""
+            const axiosConfigFactory = require('./models/axios-configuration.js').default;
+            const BackOfficeService = require('./services/bo-service.js').default;
+
+            module.exports = async (playerCode, request) =>
+            {
+                let instance = axiosConfigFactory("{{channelName}}", {{isWindows}});
+
+                let svc = new BackOfficeService(instance);
+
+                return await svc.setPlayerContact(playerCode, request);
+            };
+            """;
+
+        // Act
+        var actual = await nodeService.InvokeFromStringAsync<MessageResponse>(
+            nodeModule,
+            args: new object[] { playerCode, request });
+
+        // Assert
+        Assert.NotNull(actual);
+        Assert.True(actual.Valid);
+    }
+
+    [Fact]
+    public async Task 修改玩家聯絡資訊_Zalo()
+    {
+        // Arrange
+        var channelName = Guid.NewGuid().ToString();
+        var userId = Guid.NewGuid();
+
+        var fakePlayerServiceClient = Substitute.For<IPlayerServiceClient>();
+        var fakeTgsRepository = Substitute.For<ITgsRepository>();
+
+        var playerCode = "playereCode";
+
+        _ = fakePlayerServiceClient
+            .GetPlayerInfoAsync(Arg.Is(playerCode), Arg.Any<CancellationToken>())
+            .Returns(new Tgs.PlayerService.Client.PlayerInfo
+            {
+                PlayerCode = playerCode,
+            });
+
+        _ = fakePlayerServiceClient
+            .GetPlayerPropertiesAsync(Arg.Is(playerCode), Arg.Any<CancellationToken>())
+            .Returns(new Dictionary<string, string> { { "Zalo", "testZalo" } }.ToImmutableDictionary());
+
+        using var web = TestBackendOfficeApplication.Builder
+            .UseTestChannelServer(channelName)
+            .ConfigureLogging(logging => logging.AddXUnit(_testOutputHelper))
+            .ConfigureServices(services => services
+                .AddAuthentication("Fake")
+                .AddScheme<FakeAuthenticationSchemaOptions, FakeAuthenticationHandler>(
+                    "Fake",
+                    options =>
+                    {
+                        options.UserId = userId;
+                        options.UserName = "system";
+                    })
+                .Services
+                .AddSingleton(fakePlayerServiceClient)
+                .AddSingleton(fakeTgsRepository))
+            .Build();
+
+        await web.StartAsync();
+
+        var request = new SetPlayerContactRequest
+        {
+            { PlayerPropertyName.Zalo.ToString(),"testZalo" }
         };
 
         using var nodeService = _nodeJsFixture.BuildNodeJsService();
