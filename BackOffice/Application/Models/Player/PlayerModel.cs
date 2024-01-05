@@ -1,6 +1,7 @@
 ﻿#nullable enable
 
 using System;
+using System.Collections.Generic;
 using System.Text.Json;
 using Tgs.PlayerService.Client;
 
@@ -68,7 +69,7 @@ public class PlayerModel
 
     public string? WhatsApp { get; init; }
 
-    public string? Zalo { get; init; }
+    public required IReadOnlyDictionary<string, string> Properties { get; init; }
 
     public bool IdentityAuthentication { get; set; }
 

@@ -50,6 +50,7 @@ public class PlayerControllerTests : BaseTests
         var query = new GetSinglePlayerQuery("test1");
 
         var agentId = Guid.NewGuid();
+        var defaultWalletId = Guid.NewGuid();
 
         var expected = new
         {
@@ -61,7 +62,16 @@ public class PlayerControllerTests : BaseTests
             Birthdate = "2022/11/09",
             Email = "test@test.com",
             IdentityAuthentication = false,
-            Zalo = "zalo",
+            Properties = new Dictionary<string, string>
+            {
+                { "DefaultWalletId", defaultWalletId.ToString() },
+                { "AgentId" , agentId.ToString() },
+                { "AreaCode" , "333" },
+                { "Phone" , "456789" },
+                { "Birthdate" , "2022/11/09" },
+                { "Email" , "test@test.com" },
+                { "Zalo", "testZalo" }
+            }
         };
 
         _ = fakePlayerServiceClient.GetPlayerInfoAsync(
@@ -78,13 +88,13 @@ public class PlayerControllerTests : BaseTests
         _ = fakePlayerServiceClient.GetPlayerPropertiesAsync(Arg.Is(query.PlayerCode))
             .Returns(new Dictionary<string, string>
             {
-                ["DefaultWalletId"] = Guid.NewGuid().ToString(),
+                ["DefaultWalletId"] = defaultWalletId.ToString(),
                 ["AgentId"] = agentId.ToString(),
                 ["AreaCode"] = expected.AreaCode,
                 ["Phone"] = expected.Phone,
                 ["Birthdate"] = expected.Birthdate,
                 ["Email"] = expected.Email,
-                ["Zalo"] = expected.Zalo,
+                ["Zalo"] = "testZalo",
             }.ToImmutableDictionary());
 
         _ = fakePlayerBucketClient.ReadBucketsAsync(Arg.Is(query.PlayerCode))
