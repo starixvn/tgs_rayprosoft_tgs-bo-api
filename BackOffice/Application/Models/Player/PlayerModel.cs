@@ -68,7 +68,10 @@ public class PlayerModel
 
     public string? WhatsApp { get; init; }
 
+    public string? Zalo { get; init; }
+
     public bool IdentityAuthentication { get; set; }
+
     public class BankModel
     {
         public string BankType { get; init; } = default!;

@@ -60,7 +60,8 @@ public class PlayerControllerTests : BaseTests
             Balance = 500M,
             Birthdate = "2022/11/09",
             Email = "test@test.com",
-            IdentityAuthentication = false
+            IdentityAuthentication = false,
+            Zalo = "zalo",
         };
 
         _ = fakePlayerServiceClient.GetPlayerInfoAsync(
@@ -82,7 +83,8 @@ public class PlayerControllerTests : BaseTests
                 ["AreaCode"] = expected.AreaCode,
                 ["Phone"] = expected.Phone,
                 ["Birthdate"] = expected.Birthdate,
-                ["Email"] = expected.Email
+                ["Email"] = expected.Email,
+                ["Zalo"] = expected.Zalo,
             }.ToImmutableDictionary());
 
         _ = fakePlayerBucketClient.ReadBucketsAsync(Arg.Is(query.PlayerCode))
