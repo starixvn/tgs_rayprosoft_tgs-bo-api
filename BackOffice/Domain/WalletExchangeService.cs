@@ -17,30 +17,6 @@ internal class WalletExchangeService(
             agentWalletRepository ?? throw new ArgumentNullException(nameof(agentWalletRepository));
     private readonly IPlayerWalletExchangeService _playerWalletExchangeService = playerWalletExchangeService ?? throw new ArgumentNullException(nameof(playerWalletExchangeService));
 
-    public async ValueTask CancelWithdrawAsync(
-        Guid brandId,
-        UserType userType,
-        string userId,
-        decimal amount,
-        string reviewUserId,
-        CancellationToken cancellationToken = default)
-    {
-        switch (userType)
-        {
-            case UserType.Agent:
-                await ExchangeAgentWalletAsync(
-                    brandId,
-                    Guid.Parse(userId),
-                    TransactionTypes.CancelWithdrawal,
-                    amount,
-                    cancellationToken).ConfigureAwait(false);
-                return;
-
-            default:
-                throw new InvalidOperationException();
-        }
-    }
-
     public async ValueTask CommitWithdrawAsync(
         Guid brandId,
         UserType userType,

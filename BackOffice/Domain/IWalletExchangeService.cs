@@ -7,14 +7,6 @@ namespace TGS.Services.BackOffice.Domain;
 
 internal interface IWalletExchangeService
 {
-    ValueTask CancelWithdrawAsync(
-        Guid brandId,
-        UserType userType,
-        string userId,
-        decimal amount,
-        string reviewUserId,
-        CancellationToken cancellationToken = default);
-
     ValueTask CommitWithdrawAsync(
         Guid brandId,
         UserType userType,
