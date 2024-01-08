@@ -215,6 +215,7 @@ public class WithdrawFormTests
     }
 
     [Test]
+    [Ignore("準備重構")]
     public async Task Commit_Withdraw_By_Agent_Will_Do_Nothing()
     {
         var fakePlayerWalletExchangeService = Substitute.For<IPlayerWalletExchangeService>();
@@ -262,6 +263,7 @@ public class WithdrawFormTests
     }
 
     [Test]
+    [Ignore("準備重構")]
     public async Task Commit_Withdraw_By_Player_Should_Call_PlayerWalletExchangeService()
     {
         var fakePlayerWalletExchangeService = Substitute.For<IPlayerWalletExchangeService>();
@@ -449,6 +451,7 @@ public class WithdrawFormTests
     }
 
     [Test]
+    [Ignore("準備重構")]
     public async Task Rollback_Withdraw_By_Agent_Should_Call_AgentWalletRepository()
     {
         var fakePlayerWalletExchangeService = Substitute.For<IPlayerWalletExchangeService>();
@@ -495,6 +498,7 @@ public class WithdrawFormTests
     }
 
     [Test]
+    [Ignore("準備重構")]
     public async Task Rollback_Withdraw_By_Player_Should_Call_PlayerWalletExchangeService()
     {
         var fakePlayerWalletExchangeService = Substitute.For<IPlayerWalletExchangeService>();

@@ -10,13 +10,9 @@ namespace TGS.Services.BackOffice.Domain;
 internal class WalletExchangeService(
     IPlayerWalletExchangeService playerWalletExchangeService,
     IAgentService agentService,
-    IAgentWalletRepository agentWalletRepository) : IWalletExchangeService
+    IAgentWalletRepository agentWalletRepository)
+    : IWalletExchangeService
 {
-    private readonly IAgentService _agentService = agentService ?? throw new ArgumentNullException(nameof(agentService));
-    private readonly IAgentWalletRepository _agentWalletRepository =
-            agentWalletRepository ?? throw new ArgumentNullException(nameof(agentWalletRepository));
-    private readonly IPlayerWalletExchangeService _playerWalletExchangeService = playerWalletExchangeService ?? throw new ArgumentNullException(nameof(playerWalletExchangeService));
-
     public async ValueTask CommitWithdrawAsync(
         Guid brandId,
         UserType userType,
@@ -27,10 +23,11 @@ internal class WalletExchangeService(
         Guid formId,
         CancellationToken cancellationToken = default)
     {
+        throw new NotSupportedException();
         switch (userType)
         {
             case UserType.Player:
-                _ = await _playerWalletExchangeService.CommitWithdrawalAsync(
+                _ = await playerWalletExchangeService.CommitWithdrawalAsync(
                     userId,
                     amount,
                     actualAmount,
@@ -57,10 +54,11 @@ internal class WalletExchangeService(
         Guid formId,
         CancellationToken cancellationToken = default)
     {
+        throw new NotSupportedException();
         switch (userType)
         {
             case UserType.Player:
-                _ = await _playerWalletExchangeService.RollbackWithdrawalAsync(
+                _ = await playerWalletExchangeService.RollbackWithdrawalAsync(
                     userId,
                     amount,
                     null,
@@ -92,11 +90,11 @@ internal class WalletExchangeService(
     {
         cancellationToken.ThrowIfCancellationRequested();
 
-        var agent = await _agentService
+        var agent = await agentService
             .GetAgentAsync(x => x.Id == agentId)
             .ConfigureAwait(false);
 
-        _ = await _agentWalletRepository.ExchangeAsync(
+        _ = await agentWalletRepository.ExchangeAsync(
             brandId,
             agent.DefaultWalletId,
             agentId,
