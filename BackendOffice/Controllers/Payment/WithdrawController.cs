@@ -271,37 +271,21 @@ public class WithdrawController : BaseContextController
     [HttpPost("{formId}")]
     public async Task<MessageResponse> ReviewWithdrawFormAsync(
         [FromServices] ICommandService<ReviewWithdrawFormCommand> reviewCommandService,
-        [FromServices] ICommandService<PaidWithdrawFormCommand> paidCommandService,
         Guid formId,
         [FromBody] WithdrawReviewRequest reviewResponse)
     {
-        if (reviewResponse.ReviewResponse == ReviewResponseState.Paid)
-        {
-            var command = new PaidWithdrawFormCommand(
-                reviewResponse.BrandId,
-                formId,
-                UserId,
-                Username);
+        var command = new ReviewWithdrawFormCommand(
+            reviewResponse.BrandId,
+            formId,
+            reviewResponse.BrandPaymentId,
+            reviewResponse.ReviewResponse.ToReviewState(),
+            reviewResponse.Remark,
+            UserId,
+            Username);
 
-            await paidCommandService
-                .ExecuteAsync(command)
-                .ConfigureAwait(false);
-        }
-        else
-        {
-            var command = new ReviewWithdrawFormCommand(
-                reviewResponse.BrandId,
-                formId,
-                reviewResponse.BrandPaymentId,
-                reviewResponse.ReviewResponse.ToReviewState(),
-                reviewResponse.Remark,
-                UserId,
-                Username);
-
-            await reviewCommandService
-                .ExecuteAsync(command)
-                .ConfigureAwait(false);
-        }
+        await reviewCommandService
+            .ExecuteAsync(command)
+            .ConfigureAwait(false);
 
         return CreateValidResponse<MessageResponse>();
     }
