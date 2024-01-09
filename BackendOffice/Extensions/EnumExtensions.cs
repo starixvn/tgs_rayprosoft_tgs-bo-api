@@ -52,6 +52,7 @@ public static class EnumExtensions
         => reviewResponse switch
         {
             ReviewResponseState.Approve => ReviewState.Approve,
+            ReviewResponseState.Paid => ReviewState.Paid,
             _ => ReviewState.Reject
         };
 

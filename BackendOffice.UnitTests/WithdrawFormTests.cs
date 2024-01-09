@@ -21,8 +21,7 @@ namespace TGS.Tests.BackendOffice.UnitTests;
 public class WithdrawFormTests
 {
     [Test]
-    [Ignore("暫時停用")]
-    public async Task Can_Approve_Withdraw_Form()
+    public async Task ReviewWithdrawFormCommandService_審核提款單()
     {
         var fakePaymentServiceClient = Substitute.For<IPaymentServiceClient>();
 
@@ -151,57 +150,6 @@ public class WithdrawFormTests
     }
 
     [Test]
-    [Ignore("暫時停用")]
-    public async Task Can_Reject_Withdraw_Form_Without_BrandPaymentId()
-    {
-        var fakePaymentServiceClient = Substitute.For<IPaymentServiceClient>();
-
-        var sut = new ReviewWithdrawFormCommandService(
-            fakePaymentServiceClient);
-
-        var formId = Guid.NewGuid();
-        var brandId = Guid.NewGuid();
-
-        var command = new ReviewWithdrawFormCommand(
-            brandId,
-            formId,
-            null,
-            ReviewState.Reject,
-            null,
-            "93a723b2-9ebb-4607-ee8d-08d978fba75f",
-            "reviewUserName");
-
-        _ = fakePaymentServiceClient
-            .GetWithdrawFormAsync(Arg.Is(brandId), Arg.Is(formId))
-            .Returns(new WithdrawFormInfo
-            {
-                Id = formId,
-                BrandId = brandId,
-                Status = PaymentFlowState.Approved,
-                Amount = 1000M
-            });
-
-        var fakeFsm = new StateMachine<PaymentFlowState, PaymentTrigger>(PaymentFlowState.Approved);
-        _ = fakeFsm.Configure(PaymentFlowState.Approved)
-            .Permit(PaymentTrigger.Reject, PaymentFlowState.Reject);
-
-        _ = fakePaymentServiceClient
-            .CreateWithdrawStateMachine(Arg.Is(PaymentFlowState.Approved))
-            .Returns(fakeFsm);
-
-        await sut.ExecuteAsync(command);
-
-        _ = fakePaymentServiceClient.Received(1)
-            .ReviewWithdrawFormAsync(
-                Arg.Is(formId),
-                Arg.Is(default(Guid?)),
-                Arg.Is(ReviewState.Reject),
-                Arg.Any<string>(),
-                Arg.Any<string>(),
-                Arg.Any<string>());
-    }
-
-    [Test]
     public async Task Manager_Can_Get_The_WithdrawForm_Detail()
     {
         var moqPaymentServiceClient = Substitute.For<IPaymentServiceClient>();
@@ -218,125 +166,6 @@ public class WithdrawFormTests
         _ = moqPaymentServiceClient.Received(1).GetWithdrawFormAsync(
             Arg.Is<Guid>(x => x == brandId),
             Arg.Is<Guid>(x => x == formId),
-            Arg.Any<CancellationToken>());
-    }
-
-    [Test]
-    [Ignore("暫時停用")]
-    public async Task Manager_Can_Paid_Manual_WithdrawForm()
-    {
-        var fakePaymentServiceClient = Substitute.For<IPaymentServiceClient>();
-
-        var sut = new PaidWithdrawFormCommandService(fakePaymentServiceClient);
-
-        var formId = Guid.NewGuid();
-        var brandPaymentId = Guid.NewGuid();
-        var brandId = Guid.NewGuid();
-        var command = new PaidWithdrawFormCommand(
-            brandId,
-            formId,
-            "93a723b2-9ebb-4607-ee8d-08d978fba75f",
-            "reviewUserName");
-
-        _ = fakePaymentServiceClient.CreateWithdrawStateMachine(Arg.Any<PaymentFlowState>())
-            .ReturnsForAnyArgs(callInfo =>
-            {
-                var initialState = callInfo.Arg<PaymentFlowState>();
-
-                var fsm = new StateMachine<PaymentFlowState, PaymentTrigger>(initialState);
-
-                _ = fsm.Configure(PaymentFlowState.Init)
-                    .Permit(PaymentTrigger.WithdrawCreate, PaymentFlowState.WaitApprove)
-                    .Permit(PaymentTrigger.Reject, PaymentFlowState.Reject);
-
-                _ = fsm.Configure(PaymentFlowState.WaitApprove)
-                    .Permit(PaymentTrigger.Approve, PaymentFlowState.Approved)
-                    .Permit(PaymentTrigger.Reject, PaymentFlowState.Reject);
-
-                _ = fsm.Configure(PaymentFlowState.Approved)
-                    .Permit(PaymentTrigger.PaymentWithdrawCompleted, PaymentFlowState.Paid)
-                    .Permit(PaymentTrigger.Reject, PaymentFlowState.Reject);
-
-                return fsm;
-            });
-
-        _ = fakePaymentServiceClient.GetWithdrawFormAsync(
-                Arg.Is(brandId),
-                Arg.Is(formId))
-            .Returns(new WithdrawFormInfo
-            {
-                Id = formId,
-                BrandId = brandId,
-                Status = PaymentFlowState.Approved,
-                Amount = 1000M
-            });
-
-        await sut.ExecuteAsync(command);
-
-        _ = fakePaymentServiceClient.Received(1)
-            .SubmitWithdrawFormStatusAsync(
-                Arg.Is(formId),
-                Arg.Is(PaymentFlowState.Paid),
-                Arg.Any<string>(),
-                Arg.Any<decimal?>(),
-                Arg.Any<string>(),
-                Arg.Any<string>(),
-                Arg.Any<string>());
-    }
-
-    [Test]
-    [Ignore("暫時停用")]
-    public async Task Manager_Can_Review_WithdrawForm()
-    {
-        var moqPaymentServiceClient = Substitute.For<IPaymentServiceClient>();
-
-        var sut = new ReviewWithdrawFormCommandService(
-            moqPaymentServiceClient);
-
-        var formId = Guid.NewGuid();
-        var brandPaymentId = Guid.NewGuid();
-        var brandId = Guid.NewGuid();
-
-        var command = new ReviewWithdrawFormCommand(
-            brandId,
-            formId,
-            brandPaymentId,
-            ReviewState.Approve,
-            null,
-            "93a723b2-9ebb-4607-ee8d-08d978fba75f",
-            "reviewUserName");
-
-        _ = moqPaymentServiceClient.GetWithdrawFormAsync(
-                Arg.Is<Guid>(x => x == brandId),
-                Arg.Is<Guid>(x => x == formId),
-                Arg.Any<CancellationToken>())
-            .Returns(ValueTask.FromResult<WithdrawFormInfo?>(
-                new()
-                {
-                    Id = formId,
-                    BrandId = brandId,
-                    Status = PaymentFlowState.WaitApprove
-                }));
-
-        var fakeFsm = new StateMachine<PaymentFlowState, PaymentTrigger>(PaymentFlowState.WaitApprove);
-
-        _ = fakeFsm.Configure(PaymentFlowState.WaitApprove)
-            .Permit(PaymentTrigger.Approve, PaymentFlowState.Approved);
-
-        _ = moqPaymentServiceClient
-            .CreateWithdrawStateMachine(
-                Arg.Is<PaymentFlowState>(x => x == PaymentFlowState.WaitApprove))
-            .Returns(fakeFsm);
-
-        await sut.ExecuteAsync(command);
-
-        _ = moqPaymentServiceClient.Received(1).ReviewWithdrawFormAsync(
-            Arg.Is<Guid>(x => x == formId),
-            Arg.Is<Guid>(x => x == brandPaymentId),
-            Arg.Is<ReviewState>(x => x == ReviewState.Approve),
-            Arg.Any<string>(),
-            Arg.Any<string>(),
-            Arg.Any<string>(),
             Arg.Any<CancellationToken>());
     }
 

@@ -8,6 +8,7 @@ using NSubstitute.ExceptionExtensions;
 using Tgs.Payment.Clients;
 using Tgs.PlayerService.Client;
 using Tgs.ServiceUtility;
+using TGS.Apis.BackendOffice.Controllers.Messages;
 using TGS.Apis.BackendOffice.Controllers.Messages.Withdraw;
 using TGS.Core.Models.Messages;
 using TGS.Services.BackOffice.Application.Commands.Withdraw;
@@ -18,9 +19,6 @@ namespace BackendOffice.IntegrationTests;
 
 public class WithdrawTests(ITestOutputHelper testOutputHelper, NodeJsFixture nodeJsFixture)
 {
-    private readonly ITestOutputHelper _testOutputHelper = testOutputHelper ?? throw new ArgumentNullException(nameof(testOutputHelper));
-    private readonly NodeJsFixture _nodeJsFixture = nodeJsFixture ?? throw new ArgumentNullException(nameof(nodeJsFixture));
-
     [Fact]
     public async Task 建立玩家提款單()
     {
@@ -34,7 +32,7 @@ public class WithdrawTests(ITestOutputHelper testOutputHelper, NodeJsFixture nod
 
         using var web = TestBackendOfficeApplication.Builder
             .UseTestChannelServer(channelName)
-            .ConfigureLogging(logging => logging.AddXUnit(_testOutputHelper))
+            .ConfigureLogging(logging => logging.AddXUnit(testOutputHelper))
             .ConfigureServices(services => services
                 .AddAuthentication("Fake")
                 .AddScheme<FakeAuthenticationSchemaOptions, FakeAuthenticationHandler>(
@@ -114,13 +112,13 @@ public class WithdrawTests(ITestOutputHelper testOutputHelper, NodeJsFixture nod
             Note = request.Note
         };
 
-        using var nodeService = _nodeJsFixture.BuildNodeJsService();
+        using var nodeService = nodeJsFixture.BuildNodeJsService();
 
         var isWindows = RuntimeInformation.IsOSPlatform(OSPlatform.Windows) ? "true" : "false";
 
         var nodeModule = $$"""
             const axiosConfigFactory = require('./models/axios-configuration.js').default;
-            const BackOfficeService = require('./services/bo-service.js').default;
+            const BackOfficeService = require('./services/bo-payment-service.js').default;
 
             module.exports = async (request) =>
             {
@@ -164,7 +162,7 @@ public class WithdrawTests(ITestOutputHelper testOutputHelper, NodeJsFixture nod
 
         using var web = TestBackendOfficeApplication.Builder
             .UseTestChannelServer(channelName)
-            .ConfigureLogging(logging => logging.AddXUnit(_testOutputHelper))
+            .ConfigureLogging(logging => logging.AddXUnit(testOutputHelper))
             .ConfigureServices(services => services
                 .AddAuthentication("Fake")
                 .AddScheme<FakeAuthenticationSchemaOptions, FakeAuthenticationHandler>(
@@ -249,13 +247,13 @@ public class WithdrawTests(ITestOutputHelper testOutputHelper, NodeJsFixture nod
             Arg.Any<CancellationToken>())
             .Throws(new WithdrawLimitExceedException(null, 10000M));
 
-        using var nodeService = _nodeJsFixture.BuildNodeJsService();
+        using var nodeService = nodeJsFixture.BuildNodeJsService();
 
         var isWindows = RuntimeInformation.IsOSPlatform(OSPlatform.Windows) ? "true" : "false";
 
         var nodeModule = $$"""
             const axiosConfigFactory = require('./models/axios-configuration.js').default;
-            const BackOfficeService = require('./services/bo-service.js').default;
+            const BackOfficeService = require('./services/bo-payment-service.js').default;
 
             module.exports = async (request) =>
             {
@@ -295,7 +293,7 @@ public class WithdrawTests(ITestOutputHelper testOutputHelper, NodeJsFixture nod
 
         using var web = TestBackendOfficeApplication.Builder
             .UseTestChannelServer(channelName)
-            .ConfigureLogging(logging => logging.AddXUnit(_testOutputHelper))
+            .ConfigureLogging(logging => logging.AddXUnit(testOutputHelper))
             .ConfigureServices(services => services
                 .AddAuthentication("Fake")
                 .AddScheme<FakeAuthenticationSchemaOptions, FakeAuthenticationHandler>(
@@ -336,13 +334,13 @@ public class WithdrawTests(ITestOutputHelper testOutputHelper, NodeJsFixture nod
                 }
             });
 
-        using var nodeService = _nodeJsFixture.BuildNodeJsService();
+        using var nodeService = nodeJsFixture.BuildNodeJsService();
 
         var isWindows = RuntimeInformation.IsOSPlatform(OSPlatform.Windows) ? "true" : "false";
 
         var nodeModule = $$"""
             const axiosConfigFactory = require('./models/axios-configuration.js').default;
-            const BackOfficeService = require('./services/bo-service.js').default;
+            const BackOfficeService = require('./services/bo-payment-service.js').default;
 
             module.exports = async (brandId, request, paging) =>
             {
@@ -365,5 +363,239 @@ public class WithdrawTests(ITestOutputHelper testOutputHelper, NodeJsFixture nod
 
         // Assert
         Assert.Equal("application/vnd.openxmlformats-officedocument.spreadsheetml.sheet", actual);
+    }
+
+    [Fact]
+    public async Task 審核提款單()
+    {
+        // Arrange
+        var channelName = Guid.NewGuid().ToString();
+        var userId = Guid.NewGuid();
+
+        var fakePaymentServiceClient = Substitute.For<IPaymentServiceClient>();
+        var fakePlayerServiceClient = Substitute.For<IPlayerServiceClient>();
+        var fakeCheckIdentityService = Substitute.For<IGetService<CheckPlayerIdentityCommand, bool>>();
+
+        using var web = TestBackendOfficeApplication.Builder
+            .UseTestChannelServer(channelName)
+            .ConfigureLogging(logging => logging.AddXUnit(testOutputHelper))
+            .ConfigureServices(services => services
+                .AddAuthentication("Fake")
+                .AddScheme<FakeAuthenticationSchemaOptions, FakeAuthenticationHandler>(
+                    "Fake",
+                    options =>
+                    {
+                        options.UserId = userId;
+                        options.UserName = "system";
+                    })
+                .Services
+                .AddSingleton(fakeCheckIdentityService)
+                .AddSingleton(fakePlayerServiceClient)
+                .AddSingleton(fakePaymentServiceClient))
+            .Build();
+
+        await web.StartAsync();
+
+        var brandId = Guid.NewGuid();
+        var formId = Guid.NewGuid();
+        var request = new WithdrawReviewRequest
+        {
+            BrandId = brandId,
+            BrandPaymentId = Guid.NewGuid(),
+            ReviewResponse = ReviewResponseState.Approve
+        };
+
+        using var nodeService = nodeJsFixture.BuildNodeJsService();
+
+        var isWindows = RuntimeInformation.IsOSPlatform(OSPlatform.Windows) ? "true" : "false";
+
+        var nodeModule = $$"""
+            const axiosConfigFactory = require('./models/axios-configuration.js').default;
+            const BackOfficeService = require('./services/bo-payment-service.js').default;
+
+            module.exports = async (formId, request) =>
+            {
+                let instance = axiosConfigFactory("{{channelName}}", {{isWindows}});
+
+                let svc = new BackOfficeService(instance);
+
+                return await svc.reviewWithdrawForm(formId, request);
+            };
+            """;
+
+        // Act
+        var actual = await nodeService.InvokeFromStringAsync<MessageResponse>(
+            nodeModule,
+            args: new object[] {
+                formId,
+                request
+            });
+
+        // Assert
+        _ = fakePaymentServiceClient.Received(1)
+            .ReviewWithdrawFormAsync(
+                Arg.Is(formId),
+                Arg.Is(request.BrandPaymentId),
+                Arg.Is(ReviewState.Approve),
+                Arg.Is(userId.ToString()),
+                Arg.Any<string>(),
+                Arg.Any<string>(),
+                Arg.Any<CancellationToken>());
+    }
+
+    [Fact]
+    public async Task 拒絕提款單()
+    {
+        // Arrange
+        var channelName = Guid.NewGuid().ToString();
+        var userId = Guid.NewGuid();
+
+        var fakePaymentServiceClient = Substitute.For<IPaymentServiceClient>();
+        var fakePlayerServiceClient = Substitute.For<IPlayerServiceClient>();
+        var fakeCheckIdentityService = Substitute.For<IGetService<CheckPlayerIdentityCommand, bool>>();
+
+        using var web = TestBackendOfficeApplication.Builder
+            .UseTestChannelServer(channelName)
+            .ConfigureLogging(logging => logging.AddXUnit(testOutputHelper))
+            .ConfigureServices(services => services
+                .AddAuthentication("Fake")
+                .AddScheme<FakeAuthenticationSchemaOptions, FakeAuthenticationHandler>(
+                    "Fake",
+                    options =>
+                    {
+                        options.UserId = userId;
+                        options.UserName = "system";
+                    })
+                .Services
+                .AddSingleton(fakeCheckIdentityService)
+                .AddSingleton(fakePlayerServiceClient)
+                .AddSingleton(fakePaymentServiceClient))
+            .Build();
+
+        await web.StartAsync();
+
+        var brandId = Guid.NewGuid();
+        var formId = Guid.NewGuid();
+        var request = new WithdrawReviewRequest
+        {
+            BrandId = brandId,
+            BrandPaymentId = Guid.NewGuid(),
+            ReviewResponse = ReviewResponseState.Reject
+        };
+
+        using var nodeService = nodeJsFixture.BuildNodeJsService();
+
+        var isWindows = RuntimeInformation.IsOSPlatform(OSPlatform.Windows) ? "true" : "false";
+
+        var nodeModule = $$"""
+            const axiosConfigFactory = require('./models/axios-configuration.js').default;
+            const BackOfficeService = require('./services/bo-payment-service.js').default;
+
+            module.exports = async (formId, request) =>
+            {
+                let instance = axiosConfigFactory("{{channelName}}", {{isWindows}});
+
+                let svc = new BackOfficeService(instance);
+
+                return await svc.reviewWithdrawForm(formId, request);
+            };
+            """;
+
+        // Act
+        var actual = await nodeService.InvokeFromStringAsync<MessageResponse>(
+            nodeModule,
+            args: new object[] {
+                formId,
+                request
+            });
+
+        // Assert
+        _ = fakePaymentServiceClient.Received(1)
+            .ReviewWithdrawFormAsync(
+                Arg.Is(formId),
+                Arg.Is(request.BrandPaymentId),
+                Arg.Is(ReviewState.Reject),
+                Arg.Is(userId.ToString()),
+                Arg.Any<string>(),
+                Arg.Any<string>(),
+                Arg.Any<CancellationToken>());
+    }
+
+    [Fact]
+    public async Task 設定提款單已支付()
+    {
+        // Arrange
+        var channelName = Guid.NewGuid().ToString();
+        var userId = Guid.NewGuid();
+
+        var fakePaymentServiceClient = Substitute.For<IPaymentServiceClient>();
+        var fakePlayerServiceClient = Substitute.For<IPlayerServiceClient>();
+        var fakeCheckIdentityService = Substitute.For<IGetService<CheckPlayerIdentityCommand, bool>>();
+
+        using var web = TestBackendOfficeApplication.Builder
+            .UseTestChannelServer(channelName)
+            .ConfigureLogging(logging => logging.AddXUnit(testOutputHelper))
+            .ConfigureServices(services => services
+                .AddAuthentication("Fake")
+                .AddScheme<FakeAuthenticationSchemaOptions, FakeAuthenticationHandler>(
+                    "Fake",
+                    options =>
+                    {
+                        options.UserId = userId;
+                        options.UserName = "system";
+                    })
+                .Services
+                .AddSingleton(fakeCheckIdentityService)
+                .AddSingleton(fakePlayerServiceClient)
+                .AddSingleton(fakePaymentServiceClient))
+            .Build();
+
+        await web.StartAsync();
+
+        var brandId = Guid.NewGuid();
+        var formId = Guid.NewGuid();
+        var request = new WithdrawReviewRequest
+        {
+            BrandId = brandId,
+            BrandPaymentId = Guid.NewGuid(),
+            ReviewResponse = ReviewResponseState.Paid
+        };
+
+        using var nodeService = nodeJsFixture.BuildNodeJsService();
+
+        var isWindows = RuntimeInformation.IsOSPlatform(OSPlatform.Windows) ? "true" : "false";
+
+        var nodeModule = $$"""
+            const axiosConfigFactory = require('./models/axios-configuration.js').default;
+            const BackOfficeService = require('./services/bo-payment-service.js').default;
+
+            module.exports = async (formId, request) =>
+            {
+                let instance = axiosConfigFactory("{{channelName}}", {{isWindows}});
+
+                let svc = new BackOfficeService(instance);
+
+                return await svc.reviewWithdrawForm(formId, request);
+            };
+            """;
+
+        // Act
+        var actual = await nodeService.InvokeFromStringAsync<MessageResponse>(
+            nodeModule,
+            args: new object[] {
+                formId,
+                request
+            });
+
+        // Assert
+        _ = fakePaymentServiceClient.Received(1)
+            .ReviewWithdrawFormAsync(
+                Arg.Is(formId),
+                Arg.Is(request.BrandPaymentId),
+                Arg.Is(ReviewState.Paid),
+                Arg.Is(userId.ToString()),
+                Arg.Any<string>(),
+                Arg.Any<string>(),
+                Arg.Any<CancellationToken>());
     }
 }
