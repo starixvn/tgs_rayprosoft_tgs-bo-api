@@ -35,13 +35,11 @@ public static class ServiceCollectionExtensions
         _ = services.AddTransient<ICredentialGenerator, CredentialGenerator>();
         _ = services.AddTransient<ISettingsService, SettingsService>();
         _ = services.AddTransient<IGameService, GameService>();
-        _ = services.AddTransient<IWalletExchangeService, WalletExchangeService>();
         _ = services.AddTransient<IPlatformCreditService, PlatformCreditService>();
         _ = services.AddTransient<ISubGameProviderService, SubGameProviderService>();
         _ = services.AddTransient<IMaintenanceRedisService, MaintenanceRedisService>();
         _ = services.AddTransient<IAgentDividendService, AgentDividendService>();
         _ = services.AddTransient<IPlayerIpService, PlayerIpService>();
-        _ = services.AddTransient<IPlayerWalletExchangeService, PlayerWalletExchangeService>();
         _ = services.AddTransient<IBrandAgentDividendConditionService, BrandAgentDividendConditionService>();
         _ = services.AddTransient<IBrandAllAgentService, BrandAllAgentService>();
         _ = services.AddTransient<IBrandAllAgentGameTypeService, BrandAllAgentGameTypeService>();
