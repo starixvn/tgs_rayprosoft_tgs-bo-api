@@ -112,6 +112,7 @@ public class GetSinglePlayerQueryService(
             FacebookMessenger = playerProperties.GetValueOrDefault("FacebookMessenger"),
             Telegram = playerProperties.GetValueOrDefault("Telegram"),
             WhatsApp = playerProperties.GetValueOrDefault("WhatsApp"),
+            Properties = playerProperties.ToDictionary(),
             Banks = bankInfos.Select(p => new PlayerModel.BankModel
             {
                 Id = p.Id,

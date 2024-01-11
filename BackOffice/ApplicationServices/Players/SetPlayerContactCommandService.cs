@@ -52,6 +52,7 @@ internal class SetPlayerContactCommandService(
                 nameof(PlayerPropertyName.Line),
                 nameof(PlayerPropertyName.WhatsApp),
                 nameof(PlayerPropertyName.PhoneAuthentication),
+                nameof(PlayerPropertyName.Zalo)
             },
             StringComparer.OrdinalIgnoreCase);
 
