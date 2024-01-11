@@ -7,9 +7,6 @@ using System.Threading;
 using System.Threading.Tasks;
 using MediatR;
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.EntityFrameworkCore;
-using Tgs.CashQueryService.Client;
-using Tgs.CashService.Client;
 using Tgs.Paging;
 using Tgs.Payment.Clients;
 using Tgs.PlayerService.Client;
@@ -22,17 +19,14 @@ using TGS.Apis.BackendOffice.Models;
 using TGS.Apis.BackendOffice.Resources;
 using TGS.Apis.BackendOffice.ViewModels;
 using TGS.Core.DataServices.Base.Interfaces;
-using TGS.Core.Models.Enums;
 using TGS.Core.Models.Messages;
 using TGS.Services.BackOffice.Application.Models.Player;
-using TGS.Services.BackOffice.Application.Models.ReportPlayer;
 using TGS.Services.BackOffice.Application.Queries.PlayerHandlers;
 using TGS.Services.BackOffice.ApplicationServices;
 using TGS.Services.BackOffice.ApplicationServices.Agents;
 using TGS.Services.BackOffice.ApplicationServices.Players;
 using TGS.Services.BackOffice.ApplicationServices.Wallets;
 using TGS.Services.BackOffice.Domain;
-using BoEnums = TGS.Services.BackOffice.Domain.Enums;
 
 namespace TGS.Apis.BackendOffice.Controllers;
 
@@ -616,6 +610,11 @@ public partial class PlayerController(IMediator mediator, IPromotionClient clien
             .ExecuteAsync(command)
             .ConfigureAwait(false);
     }
+
+    [HttpPost("upgrade/{playerCode}/agent")]
+    [Description("Upgrade player to agent")]
+    public Task UpgradePlayerToAgentAsync(string playerCode)
+        => mediator.Send(new UpdatePlayerToAgentRequest(playerCode));
 
     private static string TryParseUsername(Dictionary<Guid, string> UserDicts, string Modifier)
     {

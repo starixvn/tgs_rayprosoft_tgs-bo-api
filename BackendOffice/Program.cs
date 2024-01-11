@@ -310,6 +310,12 @@ builder.Services.AddNotificationContactsClient((options, sp) =>
     options.BaseUrl = config.GetValue<Uri>("BackOffice:NotificationContactsBaseUrl");
 });
 
+builder.Services.AddAgentDividendClient((options, sp) =>
+{
+    var config = sp.GetRequiredService<IConfiguration>();
+    options.BaseUrl = config.GetValue<Uri>("BackOffice:AddAgentDividendBaseUrl");
+});
+
 builder.Services.AddSwaggerGen(c =>
 {
     c.SwaggerDoc("v1",
