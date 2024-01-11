@@ -13,6 +13,7 @@ using Tgs.ServiceUtility;
 using TGS.Core.DataServices.Tgs.Models;
 using TGS.Services.BackOffice.Application.Models.Brand;
 using TGS.Services.BackOffice.Application.Models.GameProvider;
+using BrandGameCreditProfit = Tgs.BrandGameCredits.Common.Models.BrandGameCreditProfit;
 
 namespace TGS.Services.BackOffice.ApplicationServices.BrandGameCredits;
 

@@ -28,7 +28,7 @@ public class BrandContractControllerTests : BaseTests
 
         _ = response.Valid.Should().BeTrue();
 
-        _ = fakeBrandContractClient.ReceivedWithAnyArgs(1).CreateBrandContractAsync(null, default);
+        _ = fakeBrandContractClient.ReceivedWithAnyArgs(1).CreateBrandContractAsync(null!, default);
     }
 
     [Test]

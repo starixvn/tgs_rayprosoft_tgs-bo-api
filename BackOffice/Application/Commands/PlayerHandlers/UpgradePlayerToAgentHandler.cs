@@ -17,16 +17,13 @@ namespace TGS.Services.BackOffice.Application.Commands.PlayerHandlers;
 public class UpgradePlayerToAgentHandler(
     IPlayerService service,
     IAgentClient agentClient,
-    IBrandServiceClient brandServiceClient,
     IHttpContextAccessor accessor)
     : Handler<UpdatePlayerToAgentRequest, MessageResponse>(accessor)
 {
-
     public override async Task<MessageResponse> Handle(
         UpdatePlayerToAgentRequest request,
         CancellationToken cancellationToken)
     {
-
         var player = await service.GetPlayerAsync(x => x.PlayerCode == request.PlayerCode);
 
         var agentLevel = player.AgentId == null ? AgentLevelType.Chief : AgentLevelType.Agent;

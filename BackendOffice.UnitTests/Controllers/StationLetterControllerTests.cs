@@ -470,11 +470,6 @@ public class StationLetterControllerTests : BaseTests
                 Array.Empty<PlayerLoginRecord>())
             .With(s => s.Letters,
                 Array.Empty<StationLetterPlayer>())
-            .With(s => s.Wallets,
-                new[]
-                {
-                    new Core.DataServices.Tgs.Models.Wallet { Balance = 0 }
-                })
             .With(s => s.BrandPaymentPlayers,
                 Array.Empty<BrandPaymentPlayer>())
             .With(s => s.SportsBetLimits,

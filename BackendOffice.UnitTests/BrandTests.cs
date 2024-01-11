@@ -1,4 +1,5 @@
 ﻿using NSubstitute;
+using Tgs.Agent.Dividend.Client;
 using Tgs.BrandCertificate.Clients;
 using Tgs.ServiceUtility;
 using TGS.Core.Infrastructures.Redis;
@@ -199,8 +200,9 @@ internal class BrandTests
     public async Task 建立Brand()
     {
         var fakeBrandService = Substitute.For<IBrandService>();
-
-        var sut = new CreateBrandCommandService(fakeBrandService);
+        var fakeBrandContractClient = Substitute.For<IBrandContractClient>();
+        
+        var sut = new CreateBrandCommandService(fakeBrandService, fakeBrandContractClient);
 
         var languages = new[] {
             new BrandLanguageModel
@@ -252,6 +254,9 @@ internal class BrandTests
                     x.Code == command.Code
                     && x.LicenseeId == command.LicenseeId),
                 Arg.Any<CancellationToken>());
+
+        _ = fakeBrandContractClient.ReceivedWithAnyArgs(1)
+            .CreateBrandContractAsync(null!, default);
     }
 
     [Test]
