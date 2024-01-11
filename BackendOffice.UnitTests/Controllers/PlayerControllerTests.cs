@@ -240,6 +240,40 @@ public class PlayerControllerTests : BaseTests
         _ = mediatorMock.Received(1).Send(Arg.Any<UpdatePlayerRequest>(), Arg.Any<CancellationToken>());
     }
 
+    [Test]
+    public async Task Can_Upgrade_Player_To_Agent()
+    {
+        var mediatorMock = Substitute.For<IMediator>();
+
+        var promotionClientMock = Substitute.For<IPromotionClient>();
+
+        var controller = new PlayerController(mediatorMock, promotionClientMock)
+        {
+            ControllerContext = { HttpContext = HttpContextMock }
+        };
+
+        var playerCode = Generator.RandomString(12);
+
+        _ = mediatorMock
+            .Send(Arg.Any<UpdatePlayerRequest>(), Arg.Any<CancellationToken>())
+            .Returns(new MessageResponse
+            {
+                Valid = false,
+                Message = Player.UpdateTypeNotFound
+            });
+
+        var request = CreateUpdatePlayerRequestFixture()
+            .Create<Apis.BackendOffice.Controllers.Messages.Player.UpdatePlayerRequest>();
+
+        var response = await controller.UpdateAsync(playerCode, "info2", request);
+
+        _ = response.Valid.Should().BeFalse();
+        _ = response.Message.Should().Be(Player.UpdateTypeNotFound);
+
+        _ = mediatorMock.Received(1).Send(Arg.Any<UpdatePlayerRequest>(), Arg.Any<CancellationToken>());
+    }
+
+
     private static Fixture CreateUpdatePlayerRequestFixture()
     {
         var fixture = new Fixture();
