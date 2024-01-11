@@ -2,6 +2,8 @@
 using System.Threading;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Http;
+using Tgs.Agent.Dividend.Client;
+using Tgs.Agent.Dividend.Client.Models;
 using TGS.Core.Models.Enums;
 using TGS.Core.Models.Messages;
 using TGS.Services.BackOffice.Application.Models.BrandAgentDividend;
@@ -10,16 +12,13 @@ using TGS.Services.BackOffice.Infrastructure.DataService;
 
 namespace TGS.Services.BackOffice.Application.Commands.BrandAgentDividendHandlers;
 
-public class UpdateBrandAgentDividendHandler(IBrandAgentDividendConditionService service, IBrandService brandService,
+public class UpdateBrandAgentDividendHandler(IBrandContractClient brandContractClient, IBrandService brandService,
     IHttpContextAccessor accessor) : Handler<UpdateBrandAgentDividendConditionRequest, MessageResponse>(accessor)
 {
-    private readonly IBrandService _brandService = brandService;
-    private readonly IBrandAgentDividendConditionService _service = service;
-
     public override async Task<MessageResponse> Handle(UpdateBrandAgentDividendConditionRequest request,
         CancellationToken cancellationToken)
     {
-        if (!await _brandService.ExistsAsync(x
+        if (!await brandService.ExistsAsync(x
             => x.Id == request.BrandId && x.AgentDividendType == AgentDividendType.MultipleLayer))
         {
             return CreateInvalidResponse<MessageResponse>(BrandAgentDividendCondition.AgentDividendTypeInvalid);
@@ -39,16 +38,14 @@ public class UpdateBrandAgentDividendHandler(IBrandAgentDividendConditionService
         }
 
         var brandAgentDividendConditions = request.BrandAgentDividendConditions.Select(x
-            => new Core.DataServices.Tgs.Models.BrandAgentDividendCondition
-            {
-                BrandId = request.BrandId,
-                Rank = x.Rank,
-                ActiveNumber = x.ActiveNumber,
-                NetProfit = x.NetProfit,
-                DividendPercentage = x.DividendPercentage
-            }).ToArray();
+                => new BrandContractConditionForMultipleLayerModel(x.Rank,
+                    x.ActiveNumber,
+                    x.DividendPercentage,
+                    x.NetProfit,
+                    0M))
+            .ToArray();
 
-        await _service.UpdateBrandAgentDividendConditionsAsync(request.BrandId, brandAgentDividendConditions);
+        await brandContractClient.UpdateBrandContractConditionsForMultipleLayerAsync(request.BrandId, brandAgentDividendConditions, cancellationToken);
 
         return CreateValidResponse<MessageResponse>();
     }
