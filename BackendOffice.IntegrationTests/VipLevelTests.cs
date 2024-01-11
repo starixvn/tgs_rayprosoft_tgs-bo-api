@@ -420,9 +420,7 @@ public class VipLevelTests(ITestOutputHelper testOutputHelper, NodeJsFixture nod
             QuarterlyBenefit = 11M,
             SlotRebate = 12M,
             SportsRebate = 13M,
-            VirtualSportsRebate = 14M,
-            WithdrawTotalAmountPerDay = 15M,
-            WithdrawTransactionsPerDay = 16
+            VirtualSportsRebate = 14M
         };
 
         _ = fakeVipLevelServiceClient.GetBrandAllVipLevelsAsync(
