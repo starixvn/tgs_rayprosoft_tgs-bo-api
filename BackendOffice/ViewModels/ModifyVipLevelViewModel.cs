@@ -36,7 +36,7 @@ public class ModifyVipLevelViewModel
 
     public decimal VirtualSportsRebate { get; init; }
 
-    public decimal WithdrawTotalAmountPerDay { get; init; }
+    public decimal WithdrawTotalAmountPerDay { get; init; } = -1;
 
-    public int WithdrawTransactionsPerDay { get; init; }
+    public int WithdrawTransactionsPerDay { get; init; } = -1;
 }
