@@ -10,6 +10,8 @@ using Microsoft.AspNetCore.Http;
 using Microsoft.Extensions.Logging;
 using Tgs.GameProviders.Pluggable.Client;
 using Tgs.PlayerService.Client;
+using Tgs.VipLevelService.Clients;
+using Tgs.VipLevelService.Common;
 using TGS.Core.Infrastructures.Extensions;
 using TGS.Core.Models.Enums;
 using TGS.Core.Models.Messages;
@@ -26,7 +28,8 @@ public class UpdatePlayerHandler(
     IAgentService agentService,
     IHttpContextAccessor accessor,
     IGameProvidersBackofficePluggableClient gameProvidersBackofficePluggableClient,
-    IPlayerServiceClient playerServiceClient)
+    IPlayerServiceClient playerServiceClient,
+    IVipLevelServiceClient vipLevelServiceClient)
     : Handler<UpdatePlayerRequest, MessageResponse>(accessor)
 {
     private readonly IGameProvidersBackofficePluggableClient _gameProvidersBackofficePluggableClient = gameProvidersBackofficePluggableClient ?? throw new ArgumentNullException(nameof(gameProvidersBackofficePluggableClient));
@@ -107,6 +110,33 @@ public class UpdatePlayerHandler(
         }
 
         await service.UpdatePlayerAsync(player, request).ConfigureAwait(false);
+
+        if (request.Type.IgnoreCaseContains("info") && player.VipId.HasValue)
+        {
+            var playerVipLevelInfoViewModel = await vipLevelServiceClient.PlayerVipLevelGetAsync(
+                playerCode: player.PlayerCode,
+                cancellationToken: cancellationToken)
+                .ConfigureAwait(false);
+            if (playerVipLevelInfoViewModel.VipLevelId != player.VipId.Value)
+            {
+                var vipLevelInfo = await vipLevelServiceClient.GetBrandAllVipLevelsAsync(
+                    brandId: player.BrandId,
+                    cancellationToken: cancellationToken)
+                    .AsAsyncEnumerable()
+                    .Where(predicate: vl => vl.Id == player.VipId.Value)
+                    .SingleAsync(cancellationToken: cancellationToken)
+                    .ConfigureAwait(false);
+
+                await vipLevelServiceClient.PlayerVipLevelManualAsync(
+                     playerCode: player.PlayerCode,
+                     vipLevel: vipLevelInfo.Level,
+                     autoState: PlayerVipLevelAutoState.Enable,
+                     createdUserId: Guid.Parse(UserId),
+                     createdUsername: Username,
+                     remark: player.Remark ?? string.Empty)
+                     .ConfigureAwait(false);
+            }
+        }
 
         if (request.Type == updatePlayerType[0] && request.Birthdate != null)
         {

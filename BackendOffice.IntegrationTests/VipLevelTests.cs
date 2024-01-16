@@ -76,7 +76,7 @@ public class VipLevelTests(ITestOutputHelper testOutputHelper, NodeJsFixture nod
             Arg.Any<CancellationToken>())
             .Returns(new[]
             {
-                new Tgs.VipLevelService.Clients.VipLevelInfo(
+                new Tgs.VipLevelService.Common.ViewModels.VipLevelInfoViewModel(
                     vipLevelId,
                     2,
                     updateVipLevelModel.BrandId,
@@ -98,7 +98,7 @@ public class VipLevelTests(ITestOutputHelper testOutputHelper, NodeJsFixture nod
                     26)
             }.ToAsyncEnumerable());
 
-        var expected = new VipLevelUpdateInfo(
+        var expected = new Tgs.VipLevelService.Common.ViewModels.VipLevelUpdateViewModel(
             updateVipLevelModel.Level,
             updateVipLevelModel.LevelUpAccumulateBetAmount,
             updateVipLevelModel.LevelUpAccumulateDeposit,
@@ -185,7 +185,7 @@ public class VipLevelTests(ITestOutputHelper testOutputHelper, NodeJsFixture nod
 
         var expected = new[]
         {
-            new Tgs.VipLevelService.Clients.VipLevelInfo(
+            new Tgs.VipLevelService.Common.ViewModels.VipLevelInfoViewModel(
                 Guid.NewGuid(),
                 1,
                 brandId,
@@ -205,7 +205,7 @@ public class VipLevelTests(ITestOutputHelper testOutputHelper, NodeJsFixture nod
                 14M,
                 15,
                 16),
-            new Tgs.VipLevelService.Clients.VipLevelInfo(
+            new Tgs.VipLevelService.Common.ViewModels.VipLevelInfoViewModel(
                 Guid.NewGuid(),
                 2,
                 brandId,
@@ -317,9 +317,9 @@ public class VipLevelTests(ITestOutputHelper testOutputHelper, NodeJsFixture nod
         _ = fakeVipLevelServiceClient.GetBrandAllVipLevelsAsync(
             Arg.Is(createVipLevelViewModel.BrandId),
             Arg.Any<CancellationToken>())
-            .Returns(AsyncEnumerable.Empty<Tgs.VipLevelService.Clients.VipLevelInfo>());
+            .Returns(AsyncEnumerable.Empty<Tgs.VipLevelService.Common.ViewModels.VipLevelInfoViewModel>());
 
-        var expected = new VipLevelCreateInfo(
+        var expected = new Tgs.VipLevelService.Common.ViewModels.VipLevelCreateViewModel(
             createVipLevelViewModel.LevelUpAccumulateBetAmount,
             createVipLevelViewModel.LevelUpAccumulateDeposit,
             createVipLevelViewModel.LevelKeepAccumulateBetAmount,
@@ -428,7 +428,7 @@ public class VipLevelTests(ITestOutputHelper testOutputHelper, NodeJsFixture nod
             Arg.Any<CancellationToken>())
             .Returns(new[]
             {
-                new Tgs.VipLevelService.Clients.VipLevelInfo(
+                new Tgs.VipLevelService.Common.ViewModels.VipLevelInfoViewModel(
                     vipLevelId,
                     2,
                     updateVipLevelModel.BrandId,
@@ -450,7 +450,7 @@ public class VipLevelTests(ITestOutputHelper testOutputHelper, NodeJsFixture nod
                     26)
             }.ToAsyncEnumerable());
 
-        var expected = new VipLevelUpdateInfo(
+        var expected = new Tgs.VipLevelService.Common.ViewModels.VipLevelUpdateViewModel(
             updateVipLevelModel.Level,
             updateVipLevelModel.LevelUpAccumulateBetAmount,
             updateVipLevelModel.LevelUpAccumulateDeposit,

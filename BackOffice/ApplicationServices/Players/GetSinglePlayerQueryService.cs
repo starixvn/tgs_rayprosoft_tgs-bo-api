@@ -10,7 +10,7 @@ using Tgs.Payment.Clients;
 using Tgs.PlayerService.Client;
 using Tgs.Service.PlayerBuckets;
 using Tgs.ServiceUtility;
-using Tgs.VipLevelService.Clients;
+using Tgs.VipLevelService.Common.ViewModels;
 using TGS.Services.BackOffice.Application.Models.Player;
 using TGS.Services.BackOffice.ApplicationServices.Agents;
 using TGS.Services.BackOffice.Domain;
@@ -61,7 +61,7 @@ public class GetSinglePlayerQueryService(
         var playerVipLevel = player.VipLevelId is null
             ? default(int?)
             : await _serviceCoordinator
-                .QueryAsync<AllVipLevelsQuery, VipLevelInfo>(new(player.BrandId), cancellationToken)
+                .QueryAsync<AllVipLevelsQuery, VipLevelInfoViewModel>(new(player.BrandId), cancellationToken)
                 .Where(vip => vip.Id == player.VipLevelId)
                 .Select(vip => vip.Level)
                 .FirstOrDefaultAsync(cancellationToken: cancellationToken)
