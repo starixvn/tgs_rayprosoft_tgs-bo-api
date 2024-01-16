@@ -8,6 +8,7 @@ using NSubstitute;
 using Tgs.ServiceUtility;
 using Tgs.VipLevelService.Clients;
 using Tgs.VipLevelService.Common.ViewModels;
+using TGS.Apis.BackendOffice.ViewModels;
 using TGS.Core.Models.Messages;
 using TGS.Services.BackOffice.ApplicationServices.Players;
 using Xunit.Abstractions;
@@ -124,7 +125,7 @@ public class PlayerVipAdjustInfosTests(ITestOutputHelper testOutputHelper, NodeJ
         """;
 
         // Act
-        var actual = await nodeService.InvokeFromStringAsync<PagedResponse<PlayerVipAdjustInfo>>(
+        var actual = await nodeService.InvokeFromStringAsync<PagedResponse<PlayerVipAdjustViewModel>>(
             nodeModule,
             args: new object[] { playerCode, brandId, from, to, page, rows, sortby, orderby, showAll });
 
