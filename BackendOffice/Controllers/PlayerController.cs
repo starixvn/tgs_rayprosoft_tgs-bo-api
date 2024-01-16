@@ -13,6 +13,7 @@ using Tgs.PlayerService.Client;
 using Tgs.Promotion.Clients;
 using Tgs.ServiceUtility;
 using Tgs.VipLevelService.Clients;
+using Tgs.VipLevelService.Common.ViewModels;
 using TGS.Apis.BackendOffice.Attributes;
 using TGS.Apis.BackendOffice.Controllers.Messages.Promotion;
 using TGS.Apis.BackendOffice.Models;
@@ -99,7 +100,7 @@ public partial class PlayerController(IMediator mediator, IPromotionClient clien
         [FromServices] IPlayerServiceClient playerServiceClient,
         [FromServices] IPaymentServiceClient paymentServiceClient,
         [FromServices] IQueryService<AllAgentsByBrandQuery, AgentInfo> queryAgentsService,
-        [FromServices] IQueryService<AllVipLevelsQuery, VipLevelInfo> queryVipService,
+        [FromServices] IQueryService<AllVipLevelsQuery, VipLevelInfoViewModel> queryVipService,
         [FromQuery] GetPlayersRequest request)
     {
         var agentQuery = queryAgentsService
@@ -413,9 +414,9 @@ public partial class PlayerController(IMediator mediator, IPromotionClient clien
 
     [HttpGet("vipAdjustInfos/{playerCode}", Name = "GetVipAdjustInfos")]
     [Description("Get player vip adjust infos")]
-    public async Task<PagedResponse<PlayerVipAdjustInfo>> GetVipAdjustInfosAsync(
+    public async Task<PagedResponse<PlayerVipAdjustViewModel>> GetVipAdjustInfosAsync(
         string playerCode,
-        [FromServices] IGetService<GetPlayerVipAdjustQuery, Tgs.VipLevelService.Clients.PagingResponse<PlayerVipAdjustInfo>> service,
+        [FromServices] IGetService<GetPlayerVipAdjustQuery, PagingResponseViewModel<PlayerVipLevelLogInfoViewModel>> service,
         [FromQuery] Messages.Player.GetVipAdjustInfosRequest request,
         [FromQuery] PageableRequest paging)
     {
@@ -429,12 +430,21 @@ public partial class PlayerController(IMediator mediator, IPromotionClient clien
         var result = await service.GetAsync(query)
             .ConfigureAwait(false);
 
-        return new PagedResponse<PlayerVipAdjustInfo>
+        return new PagedResponse<PlayerVipAdjustViewModel>
         {
             Valid = true,
             Message = string.Empty,
             TotalCount = result.TotalCount,
-            Items = result.Items.ToArray(),
+            Items = result.Items.Select(logs => new PlayerVipAdjustViewModel(
+                Type: logs.Type,
+                OldLevel: logs.BeforeLevel,
+                OldAutoState: logs.BeforeAutoState,
+                NewLevel: logs.AfterLevel,
+                NewAutoState: logs.AfterAutoState,
+                CreatedOn: logs.CreatedOn.DateTime,
+                CreatedUsername: logs.CreatedUsername,
+                Remark: logs.Remark)
+            ).ToArray()
         };
     }
 

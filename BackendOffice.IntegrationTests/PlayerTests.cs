@@ -18,6 +18,7 @@ using Tgs.PlayerService.Client;
 using Tgs.Service.PlayerBuckets;
 using Tgs.ServiceUtility;
 using Tgs.VipLevelService.Clients;
+using Tgs.VipLevelService.Common.ViewModels;
 using TGS.Apis.BackendOffice.ViewModels;
 using TGS.Core.DataServices.Base.Interfaces;
 using TGS.Core.DataServices.Tgs;
@@ -87,7 +88,7 @@ public class PlayerTests(ITestOutputHelper testOutputHelper, NodeJsFixture nodeJ
         _ = fakeVipLevelServiceClient.GetBrandAllVipLevelsAsync(
                 Arg.Is(brandId),
                 Arg.Any<CancellationToken>())
-            .Returns(new VipLevelInfo[] {
+            .Returns(new VipLevelInfoViewModel[] {
                 new(
                     vipId1,
                     1,
@@ -346,7 +347,7 @@ public class PlayerTests(ITestOutputHelper testOutputHelper, NodeJsFixture nodeJ
         _ = fakeVipLevelServiceClient.GetBrandAllVipLevelsAsync(
                 Arg.Is(brandId),
                 Arg.Any<CancellationToken>())
-            .Returns(new VipLevelInfo[] {
+            .Returns(new VipLevelInfoViewModel[] {
                 new(
                     vipId1,
                     1,
@@ -477,7 +478,7 @@ public class PlayerTests(ITestOutputHelper testOutputHelper, NodeJsFixture nodeJ
         var fakePlayerServiceClient = Substitute.For<IPlayerServiceClient>();
         var fakePaymentSerivceClient = Substitute.For<IPaymentServiceClient>();
         var fakePlayerBucketClient = Substitute.For<IPlayerBucketClient>();
-        var fakeVipLevelsQueryService = Substitute.For<IQueryService<AllVipLevelsQuery, VipLevelInfo>>();
+        var fakeVipLevelsQueryService = Substitute.For<IQueryService<AllVipLevelsQuery, VipLevelInfoViewModel>>();
         var fakeCashServiceClient = Substitute.For<ICashServiceClient>();
 
         using var web = TestBackendOfficeApplication.Builder
@@ -554,7 +555,7 @@ public class PlayerTests(ITestOutputHelper testOutputHelper, NodeJsFixture nodeJ
         _ = fakeVipLevelsQueryService.QueryAsync(
             Arg.Is(new AllVipLevelsQuery(brandId)),
             Arg.Any<CancellationToken>())
-            .Returns(new VipLevelInfo[]
+            .Returns(new VipLevelInfoViewModel[]
             {
                 new(
                     vipLevelId,

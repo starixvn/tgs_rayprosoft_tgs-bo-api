@@ -1,4 +1,5 @@
-﻿using NSubstitute;
+﻿using System.Threading;
+using NSubstitute;
 using Tgs.VipLevelService.Clients;
 using TGS.Services.BackOffice.ApplicationServices.Players;
 
@@ -10,19 +11,28 @@ public class PlayerVipAdjustInfosTests
     public async Task GetPlayerVipAdjustQueryService()
     {
         var fakeClient = Substitute.For<IVipLevelServiceClient>();
-        var sut = new GetPlayerVipAdjustQueryService(fakeClient);
-        _ = await sut.GetAsync(new GetPlayerVipAdjustQuery(
-            "playerCode",
-            Guid.NewGuid(),
-            DateTimeOffset.Now.AddDays(-10),
-            DateTimeOffset.Now,
-            new Core.Models.Messages.PageableRequest
+
+        var query = new GetPlayerVipAdjustQuery(
+            PlayerCode: "playerCode",
+            BrandId: Guid.NewGuid(),
+            From: DateTimeOffset.Now.AddDays(-10),
+            To: DateTimeOffset.Now,
+            Paging: new Core.Models.Messages.PageableRequest
             {
                 Page = 1,
                 Rows = 20,
-            }));
+            });
+
+        var sut = new GetPlayerVipAdjustQueryService(fakeClient);
+        _ = await sut.GetAsync(query);
 
         _ = fakeClient.Received(1)
-            .QueryPlayerVipAdjustInfosAsync(Arg.Any<PlayerVipAdjustQueryConditions>(), Arg.Any<Paging>());
+            .PlayerVipLevelLogQueryAsync(
+            playerCode: Arg.Is(query.PlayerCode),
+            startOn: Arg.Is(query.From),
+            endOn: Arg.Is(query.To),
+            page: Arg.Is(query.Paging.Page),
+            rowCount: Arg.Is(query.Paging.Rows),
+            cancellationToken: Arg.Any<CancellationToken>());
     }
 }
