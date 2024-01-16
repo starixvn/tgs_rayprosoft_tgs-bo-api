@@ -111,7 +111,7 @@ public class UpdatePlayerHandler(
 
         await service.UpdatePlayerAsync(player, request).ConfigureAwait(false);
 
-        if (request.Type.IgnoreCaseContains("info") && player.VipId.HasValue)
+        if (request.Type == "info")
         {
             var playerVipLevelInfoViewModel = await vipLevelServiceClient.PlayerVipLevelGetAsync(
                 playerCode: player.PlayerCode,
