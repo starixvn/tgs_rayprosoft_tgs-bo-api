@@ -39,6 +39,7 @@ internal class SetPlayerInfoCommandService(
                 nameof(PlayerPropertyName.Birthdate),
                 nameof(PlayerPropertyName.Remark),
                 nameof(PlayerPropertyName.VipId),
+                nameof(PlayerPropertyName.IdNumber),
             },
             StringComparer.OrdinalIgnoreCase);
 
