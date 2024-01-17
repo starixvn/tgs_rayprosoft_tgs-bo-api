@@ -58,6 +58,10 @@ internal class SetPlayerInfoCommandService(
             .SetPlayerPropertiesAsync(command.PlayerCode, modifyDict.ToImmutableDictionary(), command.ModifyUserId, cancellationToken)
             .ConfigureAwait(false);
 
+        logger.LogInformation("LogOn:{logOn} Mesaage:This player modified information.({modifyDict})",
+            DateTime.Now.ToString("o"),
+            modifyDict.ToImmutableDictionary());
+
         if (modifyDict.TryGetValue(PlayerPropertyName.VipId, out var vipIdString))
         {
             logger.LogInformation("LogOn:{logOn} Mesaage:This player modifies VipLevel.({vipIdString})",
@@ -71,7 +75,7 @@ internal class SetPlayerInfoCommandService(
                     cancellationToken: cancellationToken)
                     .ConfigureAwait(false);
 
-                logger.LogInformation("LogOn:{logOn} Mesaage:Player Vip Level Info.({playerVipLevelInfo})",
+                logger.LogInformation("LogOn:{logOn} Mesaage:This player’s VIP information.({playerVipLevelInfo})",
                     DateTime.Now.ToString("o"),
                     playerVipLevelInfo);
 
