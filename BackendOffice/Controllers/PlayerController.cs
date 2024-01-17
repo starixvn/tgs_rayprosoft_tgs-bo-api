@@ -497,7 +497,7 @@ public partial class PlayerController(IMediator mediator, IPromotionClient clien
     }
 
     [HttpPatch("info/{playerCode}", Name = "SetPlayerInfo")]
-    [Description("Update player info (realname or birthdate or remark or vip level)")]
+    [Description("Update player info (realname or birthdate or remark or vip level or idNumber)")]
     public async ValueTask<MessageResponse> SetPlayerInfoAsync(
         [FromServices] IGetService<SetPlayerInfoCommand, SetPlayerInfoResult> getService,
         string playerCode,
