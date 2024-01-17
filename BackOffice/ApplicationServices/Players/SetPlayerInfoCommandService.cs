@@ -6,11 +6,10 @@ using System.Collections.Immutable;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
-using DocumentFormat.OpenXml.Office2010.Excel;
+using Microsoft.Extensions.Logging;
 using Tgs.PlayerService.Client;
 using Tgs.ServiceUtility;
 using Tgs.VipLevelService.Clients;
-using Tgs.VipLevelService.Common;
 using TGS.Core.DataServices.Tgs;
 using TGS.Core.DataServices.Tgs.Models;
 using TGS.Core.Infrastructures.Extensions;
@@ -18,6 +17,7 @@ using TGS.Core.Infrastructures.Extensions;
 namespace TGS.Services.BackOffice.ApplicationServices.Players;
 
 internal class SetPlayerInfoCommandService(
+    ILogger<SetPlayerInfoCommandService> logger,
     IPlayerServiceClient playerServiceClient,
     IVipLevelServiceClient vipLevelServiceClient,
     ITgsRepository repository) : IGetService<SetPlayerInfoCommand, SetPlayerInfoResult>
@@ -60,20 +60,34 @@ internal class SetPlayerInfoCommandService(
 
         if (modifyDict.TryGetValue(PlayerPropertyName.VipId, out var vipIdString))
         {
+            logger.LogInformation("LogOn:{logOn} Mesaage:This player modifies VipLevel.({vipIdString})",
+                DateTime.Now.ToString("o"),
+                vipIdString);
+
             if (!string.IsNullOrEmpty(vipIdString) && Guid.TryParse(vipIdString, out var vipId))
             {
                 var playerVipLevelInfo = await vipLevelServiceClient.PlayerVipLevelGetAsync(
                     playerCode: command.PlayerCode,
                     cancellationToken: cancellationToken)
                     .ConfigureAwait(false);
+
+                logger.LogInformation("LogOn:{logOn} Mesaage:Player Vip Level Info.({playerVipLevelInfo})",
+                    DateTime.Now.ToString("o"),
+                    playerVipLevelInfo);
+
                 var vipLevelInfo = await vipLevelServiceClient.VipLevelGetAsync(
                     vipId,
                     cancellationToken: cancellationToken)
                     .ConfigureAwait(false)
                     ?? throw new NullReferenceException($"The VIP level for this brand does not exist.({vipId})");
 
+                logger.LogInformation("LogOn:{logOn} Mesaage:Vip Level Info.({vipLevelInfo})",
+                    DateTime.Now.ToString("o"),
+                    vipLevelInfo);
+
                 if (playerVipLevelInfo.VipLevel != vipLevelInfo.Level)
                 {
+                    logger.LogInformation("LogOn:{logOn} Mesaage:This adjusts VipLevl.", DateTime.Now.ToString("o"));
                     await vipLevelServiceClient.PlayerVipLevelManualAsync(
                         playerCode: playerVipLevelInfo.PlayerCode,
                         vipLevel: vipLevelInfo.Level,
