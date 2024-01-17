@@ -6,10 +6,9 @@ using System.Collections.Immutable;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
-using Microsoft.Extensions.Logging;
 using Tgs.PlayerService.Client;
 using Tgs.ServiceUtility;
-using Tgs.VipLevelService.Clients;
+using Tgs.VipLevelService.Common;
 using TGS.Core.DataServices.Tgs;
 using TGS.Core.DataServices.Tgs.Models;
 using TGS.Core.Infrastructures.Extensions;
@@ -17,9 +16,8 @@ using TGS.Core.Infrastructures.Extensions;
 namespace TGS.Services.BackOffice.ApplicationServices.Players;
 
 internal class SetPlayerInfoCommandService(
-    ILogger<SetPlayerInfoCommandService> logger,
     IPlayerServiceClient playerServiceClient,
-    IVipLevelServiceClient vipLevelServiceClient,
+    ICommandService<SetPlayerVipLevelCommand> setPlayerVipLevelService,
     ITgsRepository repository) : IGetService<SetPlayerInfoCommand, SetPlayerInfoResult>
 {
     public async ValueTask<SetPlayerInfoResult> GetAsync(SetPlayerInfoCommand command, CancellationToken cancellationToken = default)
@@ -54,56 +52,27 @@ internal class SetPlayerInfoCommandService(
             }
         }
 
+        if (modifyDict.TryGetValue(PlayerPropertyName.VipId, out var vipIdString))
+        {
+            if (!string.IsNullOrEmpty(vipIdString) && Guid.TryParse(vipIdString, out var vipId))
+            {
+                var setPlayerVipLevelCommand = new SetPlayerVipLevelCommand(
+                    PlayerCode: command.PlayerCode,
+                    ModifyUserId: Guid.Parse(command.ModifyUserId),
+                    ModifyUsername: command.ModifyUsername,
+                    VipId: vipId,
+                    AutoState: PlayerVipLevelAutoState.Enable,
+                    Remark: string.Empty);
+                await setPlayerVipLevelService.ExecuteAsync(
+                    command: setPlayerVipLevelCommand,
+                    cancellationToken: cancellationToken)
+                    .ConfigureAwait(false);
+            }
+        }
+
         await playerServiceClient
             .SetPlayerPropertiesAsync(command.PlayerCode, modifyDict.ToImmutableDictionary(), command.ModifyUserId, cancellationToken)
             .ConfigureAwait(false);
-
-        logger.LogInformation("LogOn:{logOn} Mesaage:This player modified information.({modifyDict})",
-            DateTime.Now.ToString("o"),
-            modifyDict.ToImmutableDictionary());
-
-        if (modifyDict.TryGetValue(PlayerPropertyName.VipId, out var vipIdString))
-        {
-            logger.LogInformation("LogOn:{logOn} Mesaage:This player modifies VipLevel.({vipIdString})",
-                DateTime.Now.ToString("o"),
-                vipIdString);
-
-            if (!string.IsNullOrEmpty(vipIdString) && Guid.TryParse(vipIdString, out var vipId))
-            {
-                var playerVipLevelInfo = await vipLevelServiceClient.PlayerVipLevelGetAsync(
-                    playerCode: command.PlayerCode,
-                    cancellationToken: cancellationToken)
-                    .ConfigureAwait(false);
-
-                logger.LogInformation("LogOn:{logOn} Mesaage:This player’s VIP information.({playerVipLevelInfo})",
-                    DateTime.Now.ToString("o"),
-                    playerVipLevelInfo);
-
-                var vipLevelInfo = await vipLevelServiceClient.VipLevelGetAsync(
-                    vipId,
-                    cancellationToken: cancellationToken)
-                    .ConfigureAwait(false)
-                    ?? throw new NullReferenceException($"The VIP level for this brand does not exist.({vipId})");
-
-                logger.LogInformation("LogOn:{logOn} Mesaage:Vip Level Info.({vipLevelInfo})",
-                    DateTime.Now.ToString("o"),
-                    vipLevelInfo);
-
-                if (playerVipLevelInfo.VipLevel != vipLevelInfo.Level)
-                {
-                    logger.LogInformation("LogOn:{logOn} Mesaage:This adjusts VipLevl.", DateTime.Now.ToString("o"));
-                    await vipLevelServiceClient.PlayerVipLevelManualAsync(
-                        playerCode: playerVipLevelInfo.PlayerCode,
-                        vipLevel: vipLevelInfo.Level,
-                        autoState: playerVipLevelInfo.AutoState,
-                        modifierUserId: Guid.Parse(command.ModifyUserId),
-                        modifierUsername: command.ModifyUsername,
-                        remark: string.Empty,
-                        cancellationToken: cancellationToken)
-                        .ConfigureAwait(false);
-                }
-            }
-        }
 
         var auditLog = new PlayerAuditLog
         {
