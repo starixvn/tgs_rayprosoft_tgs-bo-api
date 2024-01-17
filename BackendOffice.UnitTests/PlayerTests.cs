@@ -755,35 +755,37 @@ internal class PlayerTests
             });
 
         _ = fakeVipLevelServiceClient.PlayerVipLevelGetAsync(
-            Arg.Is(playerCode))
+            playerCode: Arg.Is(playerCode),
+            cancellationToken: Arg.Any<CancellationToken>())
             .Returns(new PlayerVipLevelInfoViewModel(
                 PlayerCode: playerCode,
-                Guid.NewGuid(),
-                1,
-                PlayerVipLevelAutoState.Enable));
+                VipLevelId: Guid.Parse("3a6b6f1d-3094-4b66-3c7a-08d9262ce1a5"),
+                VipLevel: 1,
+                AutoState: PlayerVipLevelAutoState.Enable));
 
         _ = fakeVipLevelServiceClient.VipLevelGetAsync(
-            Arg.Is(Guid.Parse(modifyVipId)))
+            id: Arg.Is(Guid.Parse(modifyVipId)),
+            cancellationToken: Arg.Any<CancellationToken>())
             .Returns(new VipLevelInfoViewModel(
-                Guid.Parse(modifyVipId),
-                2,
-                Guid.NewGuid(),
-               100,
-               100,
-               0,
-               0,
-               true,
-               100,
-               100,
-               100,
-               0,
-               0,
-               0,
-               0,
-               0,
-               0,
-               -1,
-               -1));
+                Id: Guid.Parse(modifyVipId),
+                Level: 2,
+                BrandId: Guid.NewGuid(),
+                LevelUpAccumulateBetAmount: 100,
+                LevelUpAccumulateDeposit: 100,
+                LevelKeepAccumulateBetAmount: 0,
+                LevelKeepAccumulateDeposit: 0,
+                LevelKeepCondition: true,
+                BirthBenefit: 100,
+                PromotionBenefit: 100,
+                QuarterlyBenefit: 100,
+                LiveDealerRebate: 0,
+                SlotRebate: 0,
+                LotteryRebate: 0,
+                CardGameRebate: 0,
+                SportsRebate: 0,
+                VirtualSportsRebate: 0,
+                WithdrawTransactionsPerDay: -1,
+                WithdrawTotalAmountPerDay: -1));
 
         var queryDict = new Dictionary<string, string?>
         {
