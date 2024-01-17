@@ -17,6 +17,7 @@ using TGS.Core.DataServices.Tgs;
 using TGS.Core.DataServices.Tgs.Models;
 using TGS.Services.BackOffice.ApplicationServices;
 using TGS.Services.BackOffice.ApplicationServices.Players;
+using TGS.Services.BackOffice.ApplicationServices.Promotion;
 using EventAction = Tgs.PlayerService.Client.EventAction;
 
 namespace TGS.Tests.BackendOffice.UnitTests;
@@ -735,11 +736,12 @@ internal class PlayerTests
     [Test]
     public async Task 變更玩家信息_Vip等級()
     {
+        var fakeLogger = NullLogger<SetPlayerInfoCommandService>.Instance;
         var fakePlayerServiceClient = Substitute.For<IPlayerServiceClient>();
         var fakeVipLevelServiceClient = Substitute.For<IVipLevelServiceClient>();
         var fakeRepository = Substitute.For<ITgsRepository>();
 
-        var sut = new SetPlayerInfoCommandService(fakePlayerServiceClient, fakeVipLevelServiceClient, fakeRepository);
+        var sut = new SetPlayerInfoCommandService(fakeLogger, fakePlayerServiceClient, fakeVipLevelServiceClient, fakeRepository);
 
         var playerCode = "playerCode";
         var modifyUserId = "6a379883-d8d2-4ffb-3d05-08d9262ce1a5";
