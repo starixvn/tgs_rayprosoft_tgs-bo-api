@@ -18,6 +18,7 @@ using Tgs.PlayerService.Client;
 using Tgs.Service.PlayerBuckets;
 using Tgs.ServiceUtility;
 using Tgs.VipLevelService.Clients;
+using Tgs.VipLevelService.Common;
 using Tgs.VipLevelService.Common.ViewModels;
 using TGS.Apis.BackendOffice.ViewModels;
 using TGS.Core.DataServices.Base.Interfaces;
@@ -1096,6 +1097,7 @@ public class PlayerTests(ITestOutputHelper testOutputHelper, NodeJsFixture nodeJ
         var userId = Guid.NewGuid();
 
         var fakePlayerServiceClient = Substitute.For<IPlayerServiceClient>();
+        var fakeVipLevelServiceClient = Substitute.For<IVipLevelServiceClient>();
         var fakeTgsRepository = Substitute.For<ITgsRepository>();
 
         var playerCode = "playerCode";
@@ -1108,6 +1110,37 @@ public class PlayerTests(ITestOutputHelper testOutputHelper, NodeJsFixture nodeJ
                 PlayerCode = playerCode,
                 VipLevelId = Guid.Parse("3a6b6f1d-3094-4b66-3c7a-08d9262ce1a5")
             });
+
+        _ = fakeVipLevelServiceClient.PlayerVipLevelGetAsync(
+            Arg.Is(playerCode))
+            .Returns(new PlayerVipLevelInfoViewModel(
+                PlayerCode: playerCode,
+                Guid.NewGuid(),
+                1,
+                PlayerVipLevelAutoState.Enable));
+
+        _ = fakeVipLevelServiceClient.VipLevelGetAsync(
+            Arg.Is(Guid.Parse(modifyVipId)))
+            .Returns(new VipLevelInfoViewModel(
+                Guid.Parse(modifyVipId),
+                2,
+                Guid.NewGuid(),
+               100,
+               100,
+               0,
+               0,
+               true,
+               100,
+               100,
+               100,
+               0,
+               0,
+               0,
+               0,
+               0,
+               0,
+               -1,
+               -1));
 
         using var web = TestBackendOfficeApplication.Builder
             .UseTestChannelServer(channelName)
@@ -1123,6 +1156,7 @@ public class PlayerTests(ITestOutputHelper testOutputHelper, NodeJsFixture nodeJ
                     })
                 .Services
                 .AddSingleton(fakePlayerServiceClient)
+                .AddSingleton(fakeVipLevelServiceClient)
                 .AddSingleton(fakeTgsRepository))
             .Build();
 
