@@ -7,8 +7,12 @@ using NUnit.Framework.Internal;
 using NUnit.Framework.Legacy;
 using Tgs.Agent.Client;
 using Tgs.Agent.Client.Models.Enums;
+using Tgs.BrandCertificate.Clients;
 using Tgs.GameProviders.Pluggable.Client;
 using Tgs.PlayerService.Client;
+using Tgs.VipLevelService.Clients;
+using Tgs.VipLevelService.Common;
+using Tgs.VipLevelService.Common.ViewModels;
 using TGS.Core.DataServices.Tgs;
 using TGS.Core.DataServices.Tgs.Models;
 using TGS.Services.BackOffice.ApplicationServices;
@@ -732,9 +736,10 @@ internal class PlayerTests
     public async Task 變更玩家信息_Vip等級()
     {
         var fakePlayerServiceClient = Substitute.For<IPlayerServiceClient>();
+        var fakeVipLevelServiceClient = Substitute.For<IVipLevelServiceClient>();
         var fakeRepository = Substitute.For<ITgsRepository>();
 
-        var sut = new SetPlayerInfoCommandService(fakePlayerServiceClient, fakeRepository);
+        var sut = new SetPlayerInfoCommandService(fakePlayerServiceClient, fakeVipLevelServiceClient, fakeRepository);
 
         var playerCode = "playerCode";
         var modifyUserId = "6a379883-d8d2-4ffb-3d05-08d9262ce1a5";
@@ -748,6 +753,37 @@ internal class PlayerTests
                 PlayerCode = playerCode,
                 VipLevelId = Guid.Parse("3a6b6f1d-3094-4b66-3c7a-08d9262ce1a5")
             });
+
+        _ = fakeVipLevelServiceClient.PlayerVipLevelGetAsync(
+            Arg.Is(playerCode))
+            .Returns(new PlayerVipLevelInfoViewModel(
+                PlayerCode: playerCode,
+                Guid.NewGuid(),
+                1,
+                PlayerVipLevelAutoState.Enable));
+
+        _ = fakeVipLevelServiceClient.VipLevelGetAsync(
+            Arg.Is(Guid.Parse(modifyVipId)))
+            .Returns(new VipLevelInfoViewModel(
+                Guid.Parse(modifyVipId),
+                2,
+                Guid.NewGuid(),
+               100,
+               100,
+               0,
+               0,
+               true,
+               100,
+               100,
+               100,
+               0,
+               0,
+               0,
+               0,
+               0,
+               0,
+               -1,
+               -1));
 
         var queryDict = new Dictionary<string, string?>
         {
@@ -767,6 +803,16 @@ internal class PlayerTests
                 Arg.Is(playerCode),
                 Arg.Is<ImmutableDictionary<PlayerPropertyName, string?>>(x => x.SequenceEqual(modifyDict.ToImmutableDictionary())),
                 Arg.Is(modifyUserId));
+
+        _ = fakeVipLevelServiceClient
+            .Received(1)
+            .PlayerVipLevelManualAsync(
+                playerCode: Arg.Is(playerCode),
+                        vipLevel: Arg.Is(2),
+                        autoState: Arg.Is(PlayerVipLevelAutoState.Enable),
+                        modifierUserId: Guid.Parse(modifyUserId),
+                        modifierUsername: modifyUsername,
+                        remark: Arg.Any<string>());
 
         _ = fakeRepository
             .Received(1)

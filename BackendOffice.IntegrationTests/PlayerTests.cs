@@ -85,9 +85,9 @@ public class PlayerTests(ITestOutputHelper testOutputHelper, NodeJsFixture nodeJ
 
         var vipId1 = Guid.NewGuid();
 
-        _ = fakeVipLevelServiceClient.GetBrandAllVipLevelsAsync(
-                Arg.Is(brandId),
-                Arg.Any<CancellationToken>())
+        _ = fakeVipLevelServiceClient.VipLevelQueryAsync(
+            Arg.Is(brandId),
+            Arg.Any<CancellationToken>())
             .Returns(new VipLevelInfoViewModel[] {
                 new(
                     vipId1,
@@ -344,9 +344,9 @@ public class PlayerTests(ITestOutputHelper testOutputHelper, NodeJsFixture nodeJ
 
         var vipId1 = Guid.NewGuid();
 
-        _ = fakeVipLevelServiceClient.GetBrandAllVipLevelsAsync(
-                Arg.Is(brandId),
-                Arg.Any<CancellationToken>())
+        _ = fakeVipLevelServiceClient.VipLevelQueryAsync(
+            Arg.Is(brandId),
+            Arg.Any<CancellationToken>())
             .Returns(new VipLevelInfoViewModel[] {
                 new(
                     vipId1,
