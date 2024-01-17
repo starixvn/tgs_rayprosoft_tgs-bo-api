@@ -28,8 +28,7 @@ public class UpdatePlayerHandler(
     IAgentService agentService,
     IHttpContextAccessor accessor,
     IGameProvidersBackofficePluggableClient gameProvidersBackofficePluggableClient,
-    IPlayerServiceClient playerServiceClient,
-    IVipLevelServiceClient vipLevelServiceClient)
+    IPlayerServiceClient playerServiceClient)
     : Handler<UpdatePlayerRequest, MessageResponse>(accessor)
 {
     private readonly IGameProvidersBackofficePluggableClient _gameProvidersBackofficePluggableClient = gameProvidersBackofficePluggableClient ?? throw new ArgumentNullException(nameof(gameProvidersBackofficePluggableClient));
@@ -110,33 +109,6 @@ public class UpdatePlayerHandler(
         }
 
         await service.UpdatePlayerAsync(player, request).ConfigureAwait(false);
-
-        if (request.Type == "info")
-        {
-            var playerVipLevelInfoViewModel = await vipLevelServiceClient.PlayerVipLevelGetAsync(
-                playerCode: player.PlayerCode,
-                cancellationToken: cancellationToken)
-                .ConfigureAwait(false);
-            if (playerVipLevelInfoViewModel.VipLevelId != player.VipId.Value)
-            {
-                var vipLevelInfo = await vipLevelServiceClient.GetBrandAllVipLevelsAsync(
-                    brandId: player.BrandId,
-                    cancellationToken: cancellationToken)
-                    .AsAsyncEnumerable()
-                    .Where(predicate: vl => vl.Id == player.VipId.Value)
-                    .SingleAsync(cancellationToken: cancellationToken)
-                    .ConfigureAwait(false);
-
-                await vipLevelServiceClient.PlayerVipLevelManualAsync(
-                     playerCode: player.PlayerCode,
-                     vipLevel: vipLevelInfo.Level,
-                     autoState: PlayerVipLevelAutoState.Enable,
-                     createdUserId: Guid.Parse(UserId),
-                     createdUsername: Username,
-                     remark: player.Remark ?? string.Empty)
-                     .ConfigureAwait(false);
-            }
-        }
 
         if (request.Type == updatePlayerType[0] && request.Birthdate != null)
         {

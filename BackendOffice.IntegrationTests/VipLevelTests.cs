@@ -71,7 +71,7 @@ public class VipLevelTests(ITestOutputHelper testOutputHelper, NodeJsFixture nod
             WithdrawTransactionsPerDay = 16
         };
 
-        _ = fakeVipLevelServiceClient.GetBrandAllVipLevelsAsync(
+        _ = fakeVipLevelServiceClient.VipLevelQueryAsync(
             Arg.Is(updateVipLevelModel.BrandId),
             Arg.Any<CancellationToken>())
             .Returns(new[]
@@ -144,11 +144,11 @@ public class VipLevelTests(ITestOutputHelper testOutputHelper, NodeJsFixture nod
         Assert.NotNull(actual);
         Assert.True(actual!.Valid);
         _ = fakeVipLevelServiceClient.Received(1)
-            .UpdateVipLevelAsync(
-                Arg.Is(vipLevelId),
-                Arg.Is(expected),
-                Arg.Is("system"),
-                Arg.Any<CancellationToken>());
+            .VipLevelUpdateAsync(
+            Arg.Is(vipLevelId),
+            Arg.Is(expected),
+            Arg.Is("system"),
+            Arg.Any<CancellationToken>());
     }
 
     [Fact]
@@ -227,7 +227,7 @@ public class VipLevelTests(ITestOutputHelper testOutputHelper, NodeJsFixture nod
                 26)
         };
 
-        _ = fakeVipLevelServiceClient.GetBrandAllVipLevelsAsync(
+        _ = fakeVipLevelServiceClient.VipLevelQueryAsync(
             Arg.Is(brandId),
             Arg.Any<CancellationToken>())
             .Returns(expected.ToAsyncEnumerable());
@@ -314,7 +314,7 @@ public class VipLevelTests(ITestOutputHelper testOutputHelper, NodeJsFixture nod
             WithdrawTransactionsPerDay = 16
         };
 
-        _ = fakeVipLevelServiceClient.GetBrandAllVipLevelsAsync(
+        _ = fakeVipLevelServiceClient.VipLevelQueryAsync(
             Arg.Is(createVipLevelViewModel.BrandId),
             Arg.Any<CancellationToken>())
             .Returns(AsyncEnumerable.Empty<Tgs.VipLevelService.Common.ViewModels.VipLevelInfoViewModel>());
@@ -364,11 +364,11 @@ public class VipLevelTests(ITestOutputHelper testOutputHelper, NodeJsFixture nod
         Assert.NotNull(actual);
         Assert.True(actual!.Valid);
         _ = fakeVipLevelServiceClient.Received(1)
-            .CreateVipLevelAsync(
-                Arg.Is(createVipLevelViewModel.BrandId),
-                Arg.Is(expected),
-                Arg.Is("system"),
-                Arg.Any<CancellationToken>());
+            .VipLevelCreateAsync(
+            Arg.Is(createVipLevelViewModel.BrandId),
+            Arg.Is(expected),
+            Arg.Is("system"),
+            Arg.Any<CancellationToken>());
     }
 
     [Fact]
@@ -423,7 +423,7 @@ public class VipLevelTests(ITestOutputHelper testOutputHelper, NodeJsFixture nod
             VirtualSportsRebate = 14M
         };
 
-        _ = fakeVipLevelServiceClient.GetBrandAllVipLevelsAsync(
+        _ = fakeVipLevelServiceClient.VipLevelQueryAsync(
             Arg.Is(updateVipLevelModel.BrandId),
             Arg.Any<CancellationToken>())
             .Returns(new[]
@@ -496,10 +496,10 @@ public class VipLevelTests(ITestOutputHelper testOutputHelper, NodeJsFixture nod
         Assert.NotNull(actual);
         Assert.True(actual!.Valid);
         _ = fakeVipLevelServiceClient.Received(1)
-            .UpdateVipLevelAsync(
-                Arg.Is(vipLevelId),
-                Arg.Is(expected),
-                Arg.Is("system"),
-                Arg.Any<CancellationToken>());
+            .VipLevelUpdateAsync(
+            Arg.Is(vipLevelId),
+            Arg.Is(expected),
+            Arg.Is("system"),
+            Arg.Any<CancellationToken>());
     }
 }

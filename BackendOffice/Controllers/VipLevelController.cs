@@ -58,11 +58,12 @@ public class VipLevelController : BaseContextController
             request.WithdrawTransactionsPerDay,
             request.WithdrawTotalAmountPerDay);
 
-        _ = await vipLevelServiceClient.CreateVipLevelAsync(
-            request.BrandId,
-            createInfo,
-            Username,
-            HttpContext.RequestAborted).ConfigureAwait(false);
+        _ = await vipLevelServiceClient.VipLevelCreateAsync(
+            brandId: request.BrandId,
+            source: createInfo,
+            modifier: Username,
+            cancellationToken: HttpContext.RequestAborted)
+            .ConfigureAwait(false);
 
         return new MessageResponse
         {
@@ -184,11 +185,12 @@ public class VipLevelController : BaseContextController
             WithdrawTotalAmountPerDay = request.WithdrawTotalAmountPerDay
         };
 
-        await vipLevelServiceClient.UpdateVipLevelAsync(
-            id,
-            updateInfo,
-            Username,
-            HttpContext.RequestAborted).ConfigureAwait(false);
+        await vipLevelServiceClient.VipLevelUpdateAsync(
+            vipId: id,
+            source: updateInfo,
+            modifier: Username,
+            cancellationToken: HttpContext.RequestAborted)
+            .ConfigureAwait(false);
 
         return new MessageResponse
         {

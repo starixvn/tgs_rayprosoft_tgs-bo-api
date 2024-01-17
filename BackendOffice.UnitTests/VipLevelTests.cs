@@ -18,6 +18,6 @@ public class VipLevelTests
         _ = await sut.QueryAsync(query).ToArrayAsync();
 
         _ = fakeVipLevelServiceClient.Received(1)
-            .GetBrandAllVipLevelsAsync(Arg.Is(query.BrandId));
+            .VipLevelQueryAsync(Arg.Is(query.BrandId));
     }
 }

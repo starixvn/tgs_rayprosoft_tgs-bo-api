@@ -12,5 +12,5 @@ internal class AllVipLevelsQueryService(IVipLevelServiceClient vipLevelServiceCl
     private readonly IVipLevelServiceClient _vipLevelServiceClient = vipLevelServiceClient ?? throw new ArgumentNullException(nameof(vipLevelServiceClient));
 
     public IAsyncEnumerable<VipLevelInfoViewModel> QueryAsync(AllVipLevelsQuery query, CancellationToken cancellationToken = default)
-        => _vipLevelServiceClient.GetBrandAllVipLevelsAsync(query.BrandId, cancellationToken);
+        => _vipLevelServiceClient.VipLevelQueryAsync(query.BrandId, cancellationToken);
 }
