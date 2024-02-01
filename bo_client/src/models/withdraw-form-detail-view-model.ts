@@ -1,0 +1,30 @@
+interface WithdrawFormDetailViewModel{
+    actualAmount?: number;
+    amount: number;
+    applyInfo?: object;
+    bankInfo: object;
+    brandId: string;
+    brandPaymentId?: string;
+    channelName: string;
+    createdOn: Date;
+    handlingFee: number;
+    id: string;
+    note?: string;
+    orderNo: string;
+    paidOn?: Date;
+    paidUserId?: string;
+    paidUserName?: string;
+    paymentMethodId?: string;
+    paymentReturn?: object;
+    realName?: string;
+    remark?: string;
+    playerRemark?: string;
+    reviewedOn?: Date;
+    reviewedUserName?: string;
+    status: FlowState;
+    thirdPartyOrderNo?: string;
+    updateOn: Date;
+    userId?: string;
+    userName?: string;
+    userType: string;
+}

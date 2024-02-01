@@ -1,4 +1,5 @@
-﻿using System.Runtime.InteropServices;
+﻿using System.Collections.Immutable;
+using System.Runtime.InteropServices;
 using ExpectedObjects;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
@@ -440,6 +441,7 @@ public class WithdrawTests(ITestOutputHelper testOutputHelper, NodeJsFixture nod
                 Arg.Is(userId.ToString()),
                 Arg.Any<string>(),
                 Arg.Any<string>(),
+                Arg.Any<string>(),
                 Arg.Any<CancellationToken>());
     }
 
@@ -480,7 +482,8 @@ public class WithdrawTests(ITestOutputHelper testOutputHelper, NodeJsFixture nod
         {
             BrandId = brandId,
             BrandPaymentId = Guid.NewGuid(),
-            ReviewResponse = ReviewResponseState.Reject
+            ReviewResponse = ReviewResponseState.Reject,
+            PlayerRemark = "playerRemark"
         };
 
         using var nodeService = nodeJsFixture.BuildNodeJsService();
@@ -518,6 +521,7 @@ public class WithdrawTests(ITestOutputHelper testOutputHelper, NodeJsFixture nod
                 Arg.Is(userId.ToString()),
                 Arg.Any<string>(),
                 Arg.Any<string>(),
+                Arg.Is("playerRemark"),
                 Arg.Any<CancellationToken>());
     }
 
@@ -558,7 +562,8 @@ public class WithdrawTests(ITestOutputHelper testOutputHelper, NodeJsFixture nod
         {
             BrandId = brandId,
             BrandPaymentId = Guid.NewGuid(),
-            ReviewResponse = ReviewResponseState.Paid
+            ReviewResponse = ReviewResponseState.Paid,
+            PlayerRemark = "playerRemark"
         };
 
         using var nodeService = nodeJsFixture.BuildNodeJsService();
@@ -596,6 +601,86 @@ public class WithdrawTests(ITestOutputHelper testOutputHelper, NodeJsFixture nod
                 Arg.Is(userId.ToString()),
                 Arg.Any<string>(),
                 Arg.Any<string>(),
+                Arg.Is("playerRemark"),
                 Arg.Any<CancellationToken>());
+    }
+
+    [Fact]
+    public async Task 查詢提款單細項()
+    {
+        // Arrange
+        var channelName = Guid.NewGuid().ToString();
+        var userId = Guid.NewGuid();
+
+        var fakePaymentServiceClient = Substitute.For<IPaymentServiceClient>();
+        var fakePlayerServiceClient = Substitute.For<IPlayerServiceClient>();        
+
+        using var web = TestBackendOfficeApplication.Builder
+            .UseTestChannelServer(channelName)
+            .ConfigureLogging(logging => logging.AddXUnit(testOutputHelper))
+            .ConfigureServices(services => services
+                .AddAuthentication("Fake")
+                .AddScheme<FakeAuthenticationSchemaOptions, FakeAuthenticationHandler>(
+                    "Fake",
+                    options =>
+                    {
+                        options.UserId = userId;
+                        options.UserName = "system";
+                    })
+                .Services
+                .AddSingleton(fakePlayerServiceClient)
+                .AddSingleton(fakePaymentServiceClient))
+            .Build();
+
+        var brandId = Guid.NewGuid();
+        var formId = Guid.NewGuid();
+        _ = fakePaymentServiceClient
+            .GetWithdrawFormAsync(Arg.Is(brandId), Arg.Is(formId), Arg.Any<CancellationToken>())
+            .Returns(new WithdrawFormInfo
+            { 
+                BrandId = brandId,
+                Id = formId,
+                Amount = 168M,
+                UserType = Tgs.Payment.Clients.UserType.Player,
+                UserId = "playerCode",
+                PlayerRemark = "playerRemark",
+            });
+
+        _ = fakePlayerServiceClient
+            .GetPlayerPropertiesAsync(Arg.Is("playerCode"))
+            .Returns(new Dictionary<string, string> { { "RealName", "playerName" } }.ToImmutableDictionary());
+
+        await web.StartAsync();
+
+
+        using var nodeService = nodeJsFixture.BuildNodeJsService();
+
+        var isWindows = RuntimeInformation.IsOSPlatform(OSPlatform.Windows) ? "true" : "false";
+
+        var nodeModule = $$"""
+            const axiosConfigFactory = require('./models/axios-configuration.js').default;
+            const BackOfficeService = require('./services/bo-payment-service.js').default;
+
+            module.exports = async (brandId, formId) =>
+            {
+                let instance = axiosConfigFactory("{{channelName}}", {{isWindows}});
+
+                let svc = new BackOfficeService(instance);
+
+                return await svc.getWithdrawFormDetail(brandId, formId);
+            };
+            """;
+
+        // Act
+        var actual = await nodeService.InvokeFromStringAsync<GenericResponse<WithdrawFormDetailViewModel>>(
+            nodeModule,
+            args: new object[] {
+                brandId,
+                formId,                
+            });
+
+        // Assert
+        Assert.NotNull(actual);
+        Assert.Equal("playerRemark", actual.Data.PlayerRemark);
     }
 }

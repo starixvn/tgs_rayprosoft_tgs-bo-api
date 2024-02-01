@@ -48,4 +48,13 @@ export default class BoPaymentService {
             .post(`/api/withdraw/${formId}`, reviewResponse)
             .then(res => res.data);
     }
+
+    public getWithdrawFormDetail(
+        brandId: string,
+        formId: string
+    ): Promise<GenericResponse<WithdrawFormDetailViewModel>>{
+        return this.http
+            .get(`/api/withdraw/${brandId}/${formId}`)
+            .then(res => res.data);
+    }
 }
