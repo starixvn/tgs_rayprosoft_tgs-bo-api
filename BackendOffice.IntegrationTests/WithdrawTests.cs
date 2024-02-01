@@ -613,7 +613,7 @@ public class WithdrawTests(ITestOutputHelper testOutputHelper, NodeJsFixture nod
         var userId = Guid.NewGuid();
 
         var fakePaymentServiceClient = Substitute.For<IPaymentServiceClient>();
-        var fakePlayerServiceClient = Substitute.For<IPlayerServiceClient>();        
+        var fakePlayerServiceClient = Substitute.For<IPlayerServiceClient>();
 
         using var web = TestBackendOfficeApplication.Builder
             .UseTestChannelServer(channelName)
@@ -637,7 +637,7 @@ public class WithdrawTests(ITestOutputHelper testOutputHelper, NodeJsFixture nod
         _ = fakePaymentServiceClient
             .GetWithdrawFormAsync(Arg.Is(brandId), Arg.Is(formId), Arg.Any<CancellationToken>())
             .Returns(new WithdrawFormInfo
-            { 
+            {
                 BrandId = brandId,
                 Id = formId,
                 Amount = 168M,
@@ -647,11 +647,10 @@ public class WithdrawTests(ITestOutputHelper testOutputHelper, NodeJsFixture nod
             });
 
         _ = fakePlayerServiceClient
-            .GetPlayerPropertiesAsync(Arg.Is("playerCode"))
+            .GetPlayerPropertiesAsync(Arg.Is("playerCode"), Arg.Any<CancellationToken>())
             .Returns(new Dictionary<string, string> { { "RealName", "playerName" } }.ToImmutableDictionary());
 
         await web.StartAsync();
-
 
         using var nodeService = nodeJsFixture.BuildNodeJsService();
 
@@ -676,7 +675,7 @@ public class WithdrawTests(ITestOutputHelper testOutputHelper, NodeJsFixture nod
             nodeModule,
             args: new object[] {
                 brandId,
-                formId,                
+                formId,
             });
 
         // Assert
