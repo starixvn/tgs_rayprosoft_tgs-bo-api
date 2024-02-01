@@ -9,5 +9,6 @@ public record ReviewWithdrawFormCommand(
     Guid? BrandPaymentId,
     ReviewState Status,
     string Remark,
+    string PlayerRemark,
     string ReviewUserId,
     string ReviewUserName);

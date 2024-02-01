@@ -19,5 +19,6 @@ internal class ReviewWithdrawFormCommandService(
             command.ReviewUserId,
             command.ReviewUserName,
             command.Remark,
+            command.PlayerRemark,
             cancellationToken);
 }
