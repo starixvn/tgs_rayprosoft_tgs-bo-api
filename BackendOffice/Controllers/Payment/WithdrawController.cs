@@ -162,6 +162,7 @@ public class WithdrawController : BaseContextController
                 Amount = formDetail.Amount,
                 ActualAmount = formDetail.ActualAmount,
                 Remark = formDetail.Remark,
+                PlayerRemark = formDetail.PlayerRemark,
                 Status = formDetail.Status.ToFlowState(),
                 BankInfo = string.IsNullOrWhiteSpace(formDetail.BankInfo)
                     ? null
@@ -280,6 +281,7 @@ public class WithdrawController : BaseContextController
             reviewResponse.BrandPaymentId,
             reviewResponse.ReviewResponse.ToReviewState(),
             reviewResponse.Remark,
+            reviewResponse.PlayerRemark,
             UserId,
             Username);
 
