@@ -12,12 +12,19 @@ using Valhalla.MessageQueue;
 
 namespace TGS.Apis.BackendOffice.MessageQueue;
 
-internal class BackgroundNotifyHandler(MessageQueueNotifyEventSource eventSource, ILogger<BackgroundNotifyHandler> logger) : IMessageHandler
+internal class BackgroundNotifyHandler(
+    MessageQueueNotifyEventSource eventSource,
+    ILogger<BackgroundNotifyHandler> logger)
+    : IMessageHandler<ReadOnlyMemory<byte>>
 {
     private readonly MessageQueueNotifyEventSource _eventSource = eventSource ?? throw new ArgumentNullException(nameof(eventSource));
     private readonly ILogger<BackgroundNotifyHandler> _logger = logger ?? throw new ArgumentNullException(nameof(logger));
 
-    public ValueTask HandleAsync(ReadOnlyMemory<byte> data, CancellationToken cancellationToken = default)
+    public ValueTask HandleAsync(
+        string subject,
+        ReadOnlyMemory<byte> data,
+        IEnumerable<MessageHeaderValue> headerValues,
+        CancellationToken cancellationToken = default)
     {
         var eventData = NotifyEvent.Parser.ParseFrom(data.Span);
 

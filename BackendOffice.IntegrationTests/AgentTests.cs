@@ -419,7 +419,7 @@ public class AgentTests(ITestOutputHelper testOutputHelper, NodeJsFixture nodeJs
             Page = 1,
             ShowAll = false,
             SortBy = "createdOn",
-            OrderBy = System.Data.SqlClient.SortOrder.Descending,
+            OrderBy = SortOrder.Descending,
         };
         var request = new GetAgentOperationsRequest
         {

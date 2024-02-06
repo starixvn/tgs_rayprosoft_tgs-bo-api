@@ -12,7 +12,6 @@ using Microsoft.AspNetCore.Http.Features;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
 using Microsoft.IO;
-using Tgs.Logging;
 using TGS.Apis.BackendOffice.Attributes;
 using TGS.Core.Infrastructures.Extensions;
 using TGS.Core.Infrastructures.Json;
@@ -30,17 +29,14 @@ public class ExceptionMiddleware : IMiddleware
     private readonly RecyclableMemoryStreamManager _recyclableMemoryStreamManager;
     private readonly IRequestAnalyzer _requestAnalyzer;
     private readonly ILogger<ExceptionMiddleware> _systemLogger;
-    private readonly ITgsLog _tgsLog;
 
     public ExceptionMiddleware(
         IRequestAnalyzer requestAnalyzer,
-        ITgsLog logger,
         IJsonSerializationProvider json,
         IWebHostEnvironment env,
         ILogger<ExceptionMiddleware> systemLogger)
     {
         _requestAnalyzer = requestAnalyzer;
-        _tgsLog = logger;
         _json = json;
         _env = env;
         _recyclableMemoryStreamManager = new();
@@ -50,49 +46,55 @@ public class ExceptionMiddleware : IMiddleware
 
     async Task IMiddleware.InvokeAsync(HttpContext httpContext, RequestDelegate next)
     {
-        var adminLogEvent = new AdminLogEvent();
+        var defaultBypassRouting = new[]
+        {
+            "/health",
+            "/metrics",
+            "/favicon.ico",
+            "/swagger"
+        };
+
+        var attribute = httpContext.Features.Get<IEndpointFeature>()?.Endpoint?.Metadata
+            .GetMetadata<ByPassAdminLogAttribute>();
 
         try
         {
             var reqMessage = await GetRequestBodyAsync(httpContext);
 
-            adminLogEvent.IpAddress = _requestAnalyzer.GetIp(httpContext)?.NoLongerThan(256);
-            adminLogEvent.Path = httpContext.Request.Path.Value;
-            adminLogEvent.Method = httpContext.Request.Method.NoLongerThan(8);
-            adminLogEvent.Host = httpContext.Request.Host.Value;
-            adminLogEvent.ServerName = Environment.MachineName.NoLongerThan(128);
-            adminLogEvent.RequestHeaders = httpContext.Request.Headers.ToDetailString();
-            adminLogEvent.RequestContent = reqMessage;
-            adminLogEvent.ResponseHeaders = httpContext.Response.Headers.ToDetailString();
-
-            adminLogEvent.RecordedOn = DateTimeOffset.Now;
-            adminLogEvent.StackTrace = string.Empty;
-            adminLogEvent.Exception = string.Empty;
-
             var (resMessage, ms) = await GetResponseMessageAsync(httpContext, next);
 
             var descriptionAttribute = httpContext.GetEndpoint()?.Metadata.GetMetadata<DescriptionAttribute>();
 
-            if (descriptionAttribute != null)
+            if (!defaultBypassRouting.Any(httpContext.Request.Path.Value.Contains)
+                && attribute == null)
             {
-                adminLogEvent.Description = descriptionAttribute.Description;
+                var adminLogEvent = new
+                {
+                    IpAddress = _requestAnalyzer.GetIp(httpContext)?.NoLongerThan(256),
+                    Path = httpContext.Request.Path.Value,
+                    Method = httpContext.Request.Method.NoLongerThan(8),
+                    Host = httpContext.Request.Host.Value,
+                    ServerName = Environment.MachineName.NoLongerThan(128),
+                    RequestHeaders = httpContext.Request.Headers.ToDetailString(),
+                    RequestContent = reqMessage,
+                    ResponseHeaders = httpContext.Response.Headers.ToDetailString(),
+                    RecordedOn = DateTimeOffset.Now,
+                    StackTrace = string.Empty,
+                    Exception = string.Empty,
+                    descriptionAttribute?.Description,
+                    ResponseContent = resMessage?.Length > ResMessageSizeLimit
+                    ? CutOffResponseContent(resMessage)
+                    : resMessage,
+                    ResponseCode = (short)httpContext.Response.StatusCode,
+                    ExecutionTimeMs = ms
+                };
+
+                _systemLogger.LogInformation("{logEvent}", adminLogEvent);
             }
-
-            adminLogEvent.ResponseContent = resMessage?.Length > ResMessageSizeLimit
-                ? CutOffResponseContent(resMessage)
-                : resMessage;
-
-            adminLogEvent.ResponseCode = (short)httpContext.Response.StatusCode;
-            adminLogEvent.ExecutionTimeMs = ms;
         }
         catch (Exception ex)
         {
             _systemLogger.LogError(ex, "Error!");
-
-            adminLogEvent.Exception = ex.Message.NoLongerThan(4000);
-            adminLogEvent.StackTrace = ex.StackTrace;
-            adminLogEvent.InnerException = ex.InnerException?.Message;
-            adminLogEvent.ResponseCode = (int)HttpStatusCode.InternalServerError;
 
             httpContext.Response.StatusCode = (int)HttpStatusCode.InternalServerError;
             httpContext.Response.ContentType = "application/json";
@@ -110,23 +112,6 @@ public class ExceptionMiddleware : IMiddleware
 
             var result = _json.SerializeToString(message);
             await httpContext.Response.Body.WriteAsync(Encoding.UTF8.GetBytes(result));
-        }
-
-        var defaultBypassRouting = new[]
-        {
-            "/health",
-            "/metrics",
-            "/favicon.ico",
-            "/swagger"
-        };
-
-        var attribute = httpContext.Features.Get<IEndpointFeature>()?.Endpoint?.Metadata
-            .GetMetadata<ByPassAdminLogAttribute>();
-
-        if (adminLogEvent.Path is not null && !defaultBypassRouting.Any(x => adminLogEvent.Path.Contains(x)) &&
-            attribute == null)
-        {
-            _tgsLog.LogAdmin(adminLogEvent);
         }
     }
 

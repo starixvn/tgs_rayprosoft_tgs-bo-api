@@ -29,10 +29,21 @@ public class SetPlayerVipLevelCommandServiceTests
             playerCode: Arg.Is(command.PlayerCode),
             cancellationToken: Arg.Any<CancellationToken>())
             .Returns(new PlayerVipLevelInfoViewModel(
-                PlayerCode: command.PlayerCode,
-                VipLevelId: Guid.Parse("3a6b6f1d-3094-4b66-3c7a-08d9262ce1a5"),
-                VipLevel: 1,
-                AutoState: PlayerVipLevelAutoState.Enable));
+                Guid.NewGuid(),
+                "r1",
+                Guid.NewGuid(),
+                "l1",
+                Guid.NewGuid(),
+                "b1",
+                command.PlayerCode,
+                "test1",
+                Guid.Parse("3a6b6f1d-3094-4b66-3c7a-08d9262ce1a5"),
+                1,
+                PlayerVipLevelAutoState.Enable,
+                Guid.NewGuid(),
+                1000M,
+                Guid.NewGuid(),
+                1000M));
 
         _ = fakeVipLevelServiceClient.VipLevelGetAsync(
             id: Arg.Is(command.VipId),

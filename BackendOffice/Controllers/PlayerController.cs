@@ -624,7 +624,7 @@ public partial class PlayerController(IMediator mediator, IPromotionClient clien
     [HttpPost("upgrade/{playerCode}/agent")]
     [Description("Upgrade player to agent")]
     public Task UpgradePlayerToAgentAsync(string playerCode)
-        => mediator.Send(new UpdatePlayerToAgentRequest(playerCode));
+        => mediator.Send(new UpdatePlayerToAgentRequest(playerCode, Username));
 
     private static string TryParseUsername(Dictionary<Guid, string> UserDicts, string Modifier)
     {

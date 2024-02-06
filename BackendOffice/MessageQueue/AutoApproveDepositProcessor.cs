@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.Threading;
 using System.Threading.Tasks;
 using Microsoft.Extensions.Logging;
@@ -12,12 +13,17 @@ namespace TGS.Apis.BackendOffice.MessageQueue;
 
 public class AutoApproveDepositProcessor(
     ICommandService<ReviewDepositFormCommand> reviewCommandService,
-    ILogger<AutoApproveDepositProcessor> logger) : IMessageHandler
+    ILogger<AutoApproveDepositProcessor> logger)
+    : IMessageHandler<ReadOnlyMemory<byte>>
 {
     private readonly ILogger<AutoApproveDepositProcessor> _logger = logger ?? throw new ArgumentNullException(nameof(logger));
     private readonly ICommandService<ReviewDepositFormCommand> _reviewCommandService = reviewCommandService ?? throw new ArgumentNullException(nameof(reviewCommandService));
 
-    public async ValueTask HandleAsync(ReadOnlyMemory<byte> data, CancellationToken cancellationToken)
+    public async ValueTask HandleAsync(
+        string subject,
+        ReadOnlyMemory<byte> data,
+        IEnumerable<MessageHeaderValue> headerValues,
+        CancellationToken cancellationToken = default)
     {
         _logger.LogInformation("Receive AutoApproveDeposit request.");
 

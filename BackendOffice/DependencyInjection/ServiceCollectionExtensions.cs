@@ -10,8 +10,6 @@ using TGS.Apis.BackendOffice.Middlewares;
 using TGS.Apis.BackendOffice.Services;
 using TGS.Core.DataServices.Base.Interfaces;
 using TGS.Core.DataServices.Tgs.Extensions;
-using TGS.Core.Infrastructures.ApiClient;
-using TGS.Core.Infrastructures.Transactions;
 using TGS.Core.Infrastructures.WebApiServices;
 using TGS.Services.BackOffice.Extensions;
 
@@ -43,9 +41,6 @@ public static class ServiceCollectionExtensions
             .AddSystemJsonSerializer()
             .AddSecurity()
             .AddWebApiServices()
-            .AddTgsLog()
-            .AddApiClient()
-            .AddTransactions()
             .AddBackOfficeApplicationServices()
             .AddReportClient((options, sp) =>
             {

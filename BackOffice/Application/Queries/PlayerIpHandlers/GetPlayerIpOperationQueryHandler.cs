@@ -10,7 +10,10 @@ using TGS.Services.BackOffice.Infrastructure.DataService;
 
 namespace TGS.Services.BackOffice.Application.Queries.PlayerIpHandlers;
 
-public class GetPlayerIpOperationQueryHandler(IPlayerIpService service, IHttpContextAccessor accessor) : Handler<GetPlayerIpsRequest, PagedResponse<PlayerIpModel>>(accessor)
+public class GetPlayerIpOperationQueryHandler(
+    IPlayerIpService service,
+    IHttpContextAccessor accessor)
+    : Handler<GetPlayerIpsRequest, PagedResponse<PlayerIpModel>>(accessor)
 {
     private readonly IPlayerIpService _service = service ?? throw new System.ArgumentNullException(nameof(service));
 

@@ -2,8 +2,6 @@
 using System.Threading;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Http;
-using Tgs.Agent.Dividend.Client;
-using Tgs.Agent.Dividend.Client.Models;
 using TGS.Core.Models.Enums;
 using TGS.Core.Models.Messages;
 using TGS.Services.BackOffice.Application.Models.BrandAgentDividend;
@@ -12,7 +10,7 @@ using TGS.Services.BackOffice.Infrastructure.DataService;
 
 namespace TGS.Services.BackOffice.Application.Commands.BrandAgentDividendHandlers;
 
-public class UpdateBrandAgentDividendHandler(IBrandContractClient brandContractClient, IBrandService brandService,
+public class UpdateBrandAgentDividendHandler(IBrandAgentDividendConditionService service, IBrandService brandService,
     IHttpContextAccessor accessor) : Handler<UpdateBrandAgentDividendConditionRequest, MessageResponse>(accessor)
 {
     public override async Task<MessageResponse> Handle(UpdateBrandAgentDividendConditionRequest request,
@@ -38,14 +36,16 @@ public class UpdateBrandAgentDividendHandler(IBrandContractClient brandContractC
         }
 
         var brandAgentDividendConditions = request.BrandAgentDividendConditions.Select(x
-                => new BrandContractConditionForMultipleLayerModel(x.Rank,
-                    x.ActiveNumber,
-                    x.DividendPercentage,
-                    x.NetProfit,
-                    0M))
-            .ToArray();
+            => new Core.DataServices.Tgs.Models.BrandAgentDividendCondition
+            {
+                BrandId = request.BrandId,
+                Rank = x.Rank,
+                ActiveNumber = x.ActiveNumber,
+                NetProfit = x.NetProfit,
+                DividendPercentage = x.DividendPercentage
+            }).ToArray();
 
-        await brandContractClient.UpdateBrandContractConditionsForMultipleLayerAsync(request.BrandId, brandAgentDividendConditions, cancellationToken);
+        await service.UpdateBrandAgentDividendConditionsAsync(request.BrandId, brandAgentDividendConditions);
 
         return CreateValidResponse<MessageResponse>();
     }

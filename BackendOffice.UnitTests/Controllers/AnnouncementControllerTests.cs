@@ -17,6 +17,7 @@ using TGS.Core.DataServices.Tgs.Models;
 using TGS.Core.Infrastructures.Json;
 using TGS.Core.Infrastructures.Redis;
 using TGS.Core.Models.Enums;
+using TGS.Core.Models.Messages;
 
 namespace TGS.Tests.BackendOffice.UnitTests.Controllers;
 

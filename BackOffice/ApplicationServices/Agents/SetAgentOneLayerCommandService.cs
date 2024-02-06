@@ -6,7 +6,6 @@ using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 using Microsoft.EntityFrameworkCore;
-using NATS.Client.Service;
 using Tgs.Agent.Client;
 using Tgs.Agent.Client.Models;
 using Tgs.ServiceUtility;

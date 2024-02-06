@@ -15,7 +15,6 @@ public static class ServiceExtensions
             .AddEnvironmentVariables()
             .Build();
 
-        _ = services.AddTgsLog();
         _ = services.AddScoped<IJsonSerializationProvider, JsonSerializationProvider>();
         _ = services.AddSingleton<IConfiguration>(configuration);
         return services;

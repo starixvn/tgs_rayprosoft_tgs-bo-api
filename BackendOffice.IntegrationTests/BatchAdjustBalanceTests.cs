@@ -310,7 +310,7 @@ public class BatchAdjustBalanceTests(ITestOutputHelper testOutputHelper, NodeJsF
         _ = fakeMessageSender.Received(1)
             .PublishAsync(
                 Arg.Is("tgs.bo.background.adjust_batch"),
-                Arg.Any<ReadOnlyMemory<byte>>(),
+                Arg.Any<byte[]>(),
                 Arg.Any<CancellationToken>());
     }
 

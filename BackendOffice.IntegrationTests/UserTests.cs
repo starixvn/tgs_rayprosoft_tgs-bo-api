@@ -136,7 +136,7 @@ public class UserTests(ITestOutputHelper testOutputHelper, NodeJsFixture nodeJsF
             Rows = 20,
             Page = 1,
             SortBy = "Username",
-            OrderBy = System.Data.SqlClient.SortOrder.Ascending,
+            OrderBy = SortOrder.Ascending,
             ShowAll = false
         };
 

@@ -1019,7 +1019,7 @@ public class PlayerBucketTests(ITestOutputHelper testOutputHelper, NodeJsFixture
         };
 
         // Act
-        await sut.HandleAsync(request.ToByteArray());
+        await sut.HandleAsync("test", request.ToByteArray(), null);
 
         // Assert
         _ = fakePlayerBucketClient.Received(1)
