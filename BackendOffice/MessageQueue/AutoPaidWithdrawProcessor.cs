@@ -31,6 +31,7 @@ public class AutoPaidWithdrawProcessor(
             ReviewState.Paid,
             null,
             null,
+            null,
             null);
 
         await reviewService

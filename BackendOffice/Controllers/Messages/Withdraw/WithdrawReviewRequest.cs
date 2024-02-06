@@ -12,5 +12,7 @@ public record WithdrawReviewRequest
 
     public string? Remark { get; init; }
 
+    public string? PlayerRemark { get; init; }
+
     public required ReviewResponseState ReviewResponse { get; init; }
 }

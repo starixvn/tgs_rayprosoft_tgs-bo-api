@@ -10,6 +10,8 @@ using Microsoft.AspNetCore.Http;
 using Microsoft.Extensions.Logging;
 using Tgs.GameProviders.Pluggable.Client;
 using Tgs.PlayerService.Client;
+using Tgs.VipLevelService.Clients;
+using Tgs.VipLevelService.Common;
 using TGS.Core.Infrastructures.Extensions;
 using TGS.Core.Models.Enums;
 using TGS.Core.Models.Messages;

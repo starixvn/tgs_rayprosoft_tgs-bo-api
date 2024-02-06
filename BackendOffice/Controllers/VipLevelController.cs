@@ -19,7 +19,7 @@ public class VipLevelController : BaseContextController
     [HttpPost]
     [Description("Create a vip level")]
     public async Task<MessageResponse> CreateAsync(
-        [FromServices] IQueryService<AllVipLevelsQuery, VipLevelInfo> queryService,
+        [FromServices] IQueryService<AllVipLevelsQuery, Tgs.VipLevelService.Common.ViewModels.VipLevelInfoViewModel> queryService,
         [FromServices] IVipLevelServiceClient vipLevelServiceClient,
         [FromBody] ModifyVipLevelViewModel request)
     {
@@ -40,7 +40,7 @@ public class VipLevelController : BaseContextController
                 lastVip.LevelUpAccumulateBetAmount,
                 lastVip.LevelUpAccumulateDeposit));
 
-        var createInfo = new VipLevelCreateInfo(
+        var createInfo = new Tgs.VipLevelService.Common.ViewModels.VipLevelCreateViewModel(
             request.LevelUpAccumulateBetAmount,
             request.LevelUpAccumulateDeposit,
             request.LevelKeepAccumulateBetAmount,
@@ -58,11 +58,12 @@ public class VipLevelController : BaseContextController
             request.WithdrawTransactionsPerDay,
             request.WithdrawTotalAmountPerDay);
 
-        _ = await vipLevelServiceClient.CreateVipLevelAsync(
-            request.BrandId,
-            createInfo,
-            Username,
-            HttpContext.RequestAborted).ConfigureAwait(false);
+        _ = await vipLevelServiceClient.VipLevelCreateAsync(
+            brandId: request.BrandId,
+            source: createInfo,
+            modifier: Username,
+            cancellationToken: HttpContext.RequestAborted)
+            .ConfigureAwait(false);
 
         return new MessageResponse
         {
@@ -73,7 +74,7 @@ public class VipLevelController : BaseContextController
     [HttpGet]
     [Description("Get vip levels")]
     public async Task<PagedResponse<VipLevelViewModel>> GetListAsync(
-        [FromServices] IQueryService<AllVipLevelsQuery, VipLevelInfo> queryService,
+        [FromServices] IQueryService<AllVipLevelsQuery, Tgs.VipLevelService.Common.ViewModels.VipLevelInfoViewModel> queryService,
         [FromQuery] GetVipLevelsRequest request)
     {
         var query = new AllVipLevelsQuery(request.BrandId.Value);
@@ -83,7 +84,7 @@ public class VipLevelController : BaseContextController
             .CountAsync(HttpContext.RequestAborted)
             .ConfigureAwait(false);
 
-        var paging = new Paging<VipLevelInfo>()
+        var paging = new Paging<Tgs.VipLevelService.Common.ViewModels.VipLevelInfoViewModel>()
             .MapProperty("level", info => info.Level);
 
         paging.Page = request.Page;
@@ -130,7 +131,7 @@ public class VipLevelController : BaseContextController
     [HttpPut("{id}")]
     [Description("Update a vip level")]
     public async Task<MessageResponse> UpdateAsync(
-        [FromServices] IQueryService<AllVipLevelsQuery, VipLevelInfo> queryService,
+        [FromServices] IQueryService<AllVipLevelsQuery, Tgs.VipLevelService.Common.ViewModels.VipLevelInfoViewModel> queryService,
         [FromServices] IVipLevelServiceClient vipLevelServiceClient,
         Guid id,
         [FromBody] ModifyVipLevelViewModel request)
@@ -163,7 +164,7 @@ public class VipLevelController : BaseContextController
                 allVip[itemIndex + 1].LevelUpAccumulateBetAmount,
                 allVip[itemIndex + 1].LevelUpAccumulateDeposit));
 
-        var updateInfo = VipLevelUpdateInfo.Default with
+        var updateInfo = Tgs.VipLevelService.Common.ViewModels.VipLevelUpdateViewModel.Default with
         {
             Level = request.Level,
             LevelKeepAccumulateBetAmount = request.LevelKeepAccumulateBetAmount,
@@ -184,11 +185,12 @@ public class VipLevelController : BaseContextController
             WithdrawTotalAmountPerDay = request.WithdrawTotalAmountPerDay
         };
 
-        await vipLevelServiceClient.UpdateVipLevelAsync(
-            id,
-            updateInfo,
-            Username,
-            HttpContext.RequestAborted).ConfigureAwait(false);
+        await vipLevelServiceClient.VipLevelUpdateAsync(
+            vipId: id,
+            source: updateInfo,
+            modifier: Username,
+            cancellationToken: HttpContext.RequestAborted)
+            .ConfigureAwait(false);
 
         return new MessageResponse
         {

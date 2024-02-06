@@ -71,12 +71,12 @@ public class VipLevelTests(ITestOutputHelper testOutputHelper, NodeJsFixture nod
             WithdrawTransactionsPerDay = 16
         };
 
-        _ = fakeVipLevelServiceClient.GetBrandAllVipLevelsAsync(
+        _ = fakeVipLevelServiceClient.VipLevelQueryAsync(
             Arg.Is(updateVipLevelModel.BrandId),
             Arg.Any<CancellationToken>())
             .Returns(new[]
             {
-                new Tgs.VipLevelService.Clients.VipLevelInfo(
+                new Tgs.VipLevelService.Common.ViewModels.VipLevelInfoViewModel(
                     vipLevelId,
                     2,
                     updateVipLevelModel.BrandId,
@@ -98,7 +98,7 @@ public class VipLevelTests(ITestOutputHelper testOutputHelper, NodeJsFixture nod
                     26)
             }.ToAsyncEnumerable());
 
-        var expected = new VipLevelUpdateInfo(
+        var expected = new Tgs.VipLevelService.Common.ViewModels.VipLevelUpdateViewModel(
             updateVipLevelModel.Level,
             updateVipLevelModel.LevelUpAccumulateBetAmount,
             updateVipLevelModel.LevelUpAccumulateDeposit,
@@ -144,11 +144,11 @@ public class VipLevelTests(ITestOutputHelper testOutputHelper, NodeJsFixture nod
         Assert.NotNull(actual);
         Assert.True(actual!.Valid);
         _ = fakeVipLevelServiceClient.Received(1)
-            .UpdateVipLevelAsync(
-                Arg.Is(vipLevelId),
-                Arg.Is(expected),
-                Arg.Is("system"),
-                Arg.Any<CancellationToken>());
+            .VipLevelUpdateAsync(
+            Arg.Is(vipLevelId),
+            Arg.Is(expected),
+            Arg.Is("system"),
+            Arg.Any<CancellationToken>());
     }
 
     [Fact]
@@ -185,7 +185,7 @@ public class VipLevelTests(ITestOutputHelper testOutputHelper, NodeJsFixture nod
 
         var expected = new[]
         {
-            new Tgs.VipLevelService.Clients.VipLevelInfo(
+            new Tgs.VipLevelService.Common.ViewModels.VipLevelInfoViewModel(
                 Guid.NewGuid(),
                 1,
                 brandId,
@@ -205,7 +205,7 @@ public class VipLevelTests(ITestOutputHelper testOutputHelper, NodeJsFixture nod
                 14M,
                 15,
                 16),
-            new Tgs.VipLevelService.Clients.VipLevelInfo(
+            new Tgs.VipLevelService.Common.ViewModels.VipLevelInfoViewModel(
                 Guid.NewGuid(),
                 2,
                 brandId,
@@ -227,7 +227,7 @@ public class VipLevelTests(ITestOutputHelper testOutputHelper, NodeJsFixture nod
                 26)
         };
 
-        _ = fakeVipLevelServiceClient.GetBrandAllVipLevelsAsync(
+        _ = fakeVipLevelServiceClient.VipLevelQueryAsync(
             Arg.Is(brandId),
             Arg.Any<CancellationToken>())
             .Returns(expected.ToAsyncEnumerable());
@@ -314,12 +314,12 @@ public class VipLevelTests(ITestOutputHelper testOutputHelper, NodeJsFixture nod
             WithdrawTransactionsPerDay = 16
         };
 
-        _ = fakeVipLevelServiceClient.GetBrandAllVipLevelsAsync(
+        _ = fakeVipLevelServiceClient.VipLevelQueryAsync(
             Arg.Is(createVipLevelViewModel.BrandId),
             Arg.Any<CancellationToken>())
-            .Returns(AsyncEnumerable.Empty<Tgs.VipLevelService.Clients.VipLevelInfo>());
+            .Returns(AsyncEnumerable.Empty<Tgs.VipLevelService.Common.ViewModels.VipLevelInfoViewModel>());
 
-        var expected = new VipLevelCreateInfo(
+        var expected = new Tgs.VipLevelService.Common.ViewModels.VipLevelCreateViewModel(
             createVipLevelViewModel.LevelUpAccumulateBetAmount,
             createVipLevelViewModel.LevelUpAccumulateDeposit,
             createVipLevelViewModel.LevelKeepAccumulateBetAmount,
@@ -364,10 +364,142 @@ public class VipLevelTests(ITestOutputHelper testOutputHelper, NodeJsFixture nod
         Assert.NotNull(actual);
         Assert.True(actual!.Valid);
         _ = fakeVipLevelServiceClient.Received(1)
-            .CreateVipLevelAsync(
-                Arg.Is(createVipLevelViewModel.BrandId),
-                Arg.Is(expected),
-                Arg.Is("system"),
-                Arg.Any<CancellationToken>());
+            .VipLevelCreateAsync(
+            Arg.Is(createVipLevelViewModel.BrandId),
+            Arg.Is(expected),
+            Arg.Is("system"),
+            Arg.Any<CancellationToken>());
+    }
+
+    [Fact]
+    public async Task 單日次數跟單日總額前台沒有給時候請預設負1()
+    {
+        // Arrange
+        var channelName = Guid.NewGuid().ToString();
+        var userId = Guid.NewGuid();
+
+        var fakeBrandServiceClient = Substitute.For<IBrandServiceClient>();
+
+        var fakeVipLevelServiceClient = Substitute.For<IVipLevelServiceClient>();
+
+        using var web = TestBackendOfficeApplication.Builder
+            .UseTestChannelServer(channelName)
+            .ConfigureLogging(logging => logging.AddXUnit(_testOutputHelper))
+            .ConfigureServices(services => services
+                .AddAuthentication("Fake")
+                .AddScheme<FakeAuthenticationSchemaOptions, FakeAuthenticationHandler>(
+                    "Fake",
+                    options =>
+                    {
+                        options.UserId = userId;
+                        options.UserName = "system";
+                    })
+                .Services
+                .AddSingleton(fakeBrandServiceClient)
+                .AddSingleton(fakeVipLevelServiceClient))
+            .Build();
+
+        await web.StartAsync();
+
+        var vipLevelId = Guid.NewGuid();
+
+        var updateVipLevelModel = new ModifyVipLevelViewModel
+        {
+            BrandId = Guid.NewGuid(),
+            BirthBenefit = 1M,
+            CardGameRebate = 2M,
+            Level = 3,
+            LevelKeepAccumulateBetAmount = 4M,
+            LevelKeepAccumulateDeposit = 5M,
+            LevelKeepCondition = true,
+            LevelUpAccumulateBetAmount = 6M,
+            LevelUpAccumulateDeposit = 7M,
+            LiveDealerRebate = 8M,
+            LotteryRebate = 9M,
+            PromotionBenefit = 10M,
+            QuarterlyBenefit = 11M,
+            SlotRebate = 12M,
+            SportsRebate = 13M,
+            VirtualSportsRebate = 14M
+        };
+
+        _ = fakeVipLevelServiceClient.VipLevelQueryAsync(
+            Arg.Is(updateVipLevelModel.BrandId),
+            Arg.Any<CancellationToken>())
+            .Returns(new[]
+            {
+                new Tgs.VipLevelService.Common.ViewModels.VipLevelInfoViewModel(
+                    vipLevelId,
+                    2,
+                    updateVipLevelModel.BrandId,
+                    11M,
+                    12M,
+                    13M,
+                    14M,
+                    true,
+                    16M,
+                    17M,
+                    18M,
+                    19M,
+                    20M,
+                    21M,
+                    22M,
+                    23M,
+                    24M,
+                    25,
+                    26)
+            }.ToAsyncEnumerable());
+
+        var expected = new Tgs.VipLevelService.Common.ViewModels.VipLevelUpdateViewModel(
+            updateVipLevelModel.Level,
+            updateVipLevelModel.LevelUpAccumulateBetAmount,
+            updateVipLevelModel.LevelUpAccumulateDeposit,
+            updateVipLevelModel.LevelKeepAccumulateBetAmount,
+            updateVipLevelModel.LevelKeepAccumulateDeposit,
+            updateVipLevelModel.LevelKeepCondition,
+            updateVipLevelModel.BirthBenefit,
+            updateVipLevelModel.PromotionBenefit,
+            updateVipLevelModel.QuarterlyBenefit,
+            updateVipLevelModel.LiveDealerRebate,
+            updateVipLevelModel.SlotRebate,
+            updateVipLevelModel.LotteryRebate,
+            updateVipLevelModel.CardGameRebate,
+            updateVipLevelModel.SportsRebate,
+            updateVipLevelModel.VirtualSportsRebate,
+            -1,
+            -1);
+
+        using var nodeService = _nodeJsFixture.BuildNodeJsService();
+
+        var isWindows = RuntimeInformation.IsOSPlatform(OSPlatform.Windows) ? "true" : "false";
+
+        var nodeModule = $$"""
+            const axiosConfigFactory = require('./models/axios-configuration.js').default;
+            const BackOfficeService = require('./services/bo-service.js').default;
+
+            module.exports = async (brandId, id, request) =>
+            {
+                let instance = axiosConfigFactory("{{channelName}}", {{isWindows}});
+
+                let svc = new BackOfficeService(instance);
+
+                return await svc.updateVipLevel(brandId, id, request);
+            };
+        """;
+
+        // Act
+        var actual = await nodeService.InvokeFromStringAsync<MessageResponse>(
+            nodeModule,
+            args: new object[] { updateVipLevelModel.BrandId, vipLevelId, updateVipLevelModel });
+
+        // Assert
+        Assert.NotNull(actual);
+        Assert.True(actual!.Valid);
+        _ = fakeVipLevelServiceClient.Received(1)
+            .VipLevelUpdateAsync(
+            Arg.Is(vipLevelId),
+            Arg.Is(expected),
+            Arg.Is("system"),
+            Arg.Any<CancellationToken>());
     }
 }

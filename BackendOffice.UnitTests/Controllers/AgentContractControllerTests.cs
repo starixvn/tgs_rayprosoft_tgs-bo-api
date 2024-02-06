@@ -1,12 +1,9 @@
 ﻿using AutoFixture;
-using FluentAssertions;
 using NSubstitute;
 using Tgs.Agent.Dividend.Client;
 using Tgs.Agent.Dividend.Client.Models;
 using TGS.Apis.BackendOffice.Controllers.Agent;
-using TGS.Apis.BackendOffice.Controllers.Brand;
 using TGS.Apis.BackendOffice.Controllers.Messages.AgentContract;
-using TGS.Apis.BackendOffice.Controllers.Messages.BrandContract;
 
 namespace TGS.Tests.BackendOffice.UnitTests.Controllers;
 

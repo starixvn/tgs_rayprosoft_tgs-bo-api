@@ -18,6 +18,8 @@ using Tgs.PlayerService.Client;
 using Tgs.Service.PlayerBuckets;
 using Tgs.ServiceUtility;
 using Tgs.VipLevelService.Clients;
+using Tgs.VipLevelService.Common;
+using Tgs.VipLevelService.Common.ViewModels;
 using TGS.Apis.BackendOffice.ViewModels;
 using TGS.Core.DataServices.Base.Interfaces;
 using TGS.Core.DataServices.Tgs;
@@ -25,6 +27,7 @@ using TGS.Core.Models.Enums;
 using TGS.Core.Models.Messages;
 using TGS.Services.BackOffice.Application.Models.Player;
 using TGS.Services.BackOffice.ApplicationServices;
+using TGS.Services.BackOffice.ApplicationServices.Players;
 using TGS.Services.BackOffice.Domain;
 using Xunit.Abstractions;
 using static TGS.Services.BackOffice.Application.Models.Player.PlayerModel;
@@ -84,10 +87,10 @@ public class PlayerTests(ITestOutputHelper testOutputHelper, NodeJsFixture nodeJ
 
         var vipId1 = Guid.NewGuid();
 
-        _ = fakeVipLevelServiceClient.GetBrandAllVipLevelsAsync(
-                Arg.Is(brandId),
-                Arg.Any<CancellationToken>())
-            .Returns(new VipLevelInfo[] {
+        _ = fakeVipLevelServiceClient.VipLevelQueryAsync(
+            Arg.Is(brandId),
+            Arg.Any<CancellationToken>())
+            .Returns(new VipLevelInfoViewModel[] {
                 new(
                     vipId1,
                     1,
@@ -343,10 +346,10 @@ public class PlayerTests(ITestOutputHelper testOutputHelper, NodeJsFixture nodeJ
 
         var vipId1 = Guid.NewGuid();
 
-        _ = fakeVipLevelServiceClient.GetBrandAllVipLevelsAsync(
-                Arg.Is(brandId),
-                Arg.Any<CancellationToken>())
-            .Returns(new VipLevelInfo[] {
+        _ = fakeVipLevelServiceClient.VipLevelQueryAsync(
+            Arg.Is(brandId),
+            Arg.Any<CancellationToken>())
+            .Returns(new VipLevelInfoViewModel[] {
                 new(
                     vipId1,
                     1,
@@ -477,7 +480,7 @@ public class PlayerTests(ITestOutputHelper testOutputHelper, NodeJsFixture nodeJ
         var fakePlayerServiceClient = Substitute.For<IPlayerServiceClient>();
         var fakePaymentSerivceClient = Substitute.For<IPaymentServiceClient>();
         var fakePlayerBucketClient = Substitute.For<IPlayerBucketClient>();
-        var fakeVipLevelsQueryService = Substitute.For<IQueryService<AllVipLevelsQuery, VipLevelInfo>>();
+        var fakeVipLevelsQueryService = Substitute.For<IQueryService<AllVipLevelsQuery, VipLevelInfoViewModel>>();
         var fakeCashServiceClient = Substitute.For<ICashServiceClient>();
 
         using var web = TestBackendOfficeApplication.Builder
@@ -554,7 +557,7 @@ public class PlayerTests(ITestOutputHelper testOutputHelper, NodeJsFixture nodeJ
         _ = fakeVipLevelsQueryService.QueryAsync(
             Arg.Is(new AllVipLevelsQuery(brandId)),
             Arg.Any<CancellationToken>())
-            .Returns(new VipLevelInfo[]
+            .Returns(new VipLevelInfoViewModel[]
             {
                 new(
                     vipLevelId,
@@ -1095,6 +1098,7 @@ public class PlayerTests(ITestOutputHelper testOutputHelper, NodeJsFixture nodeJ
         var userId = Guid.NewGuid();
 
         var fakePlayerServiceClient = Substitute.For<IPlayerServiceClient>();
+        var fakeSetPlayerVipLevelService = Substitute.For<ICommandService<SetPlayerVipLevelCommand>>();
         var fakeTgsRepository = Substitute.For<ITgsRepository>();
 
         var playerCode = "playerCode";
@@ -1122,6 +1126,7 @@ public class PlayerTests(ITestOutputHelper testOutputHelper, NodeJsFixture nodeJ
                     })
                 .Services
                 .AddSingleton(fakePlayerServiceClient)
+                .AddSingleton(fakeSetPlayerVipLevelService)
                 .AddSingleton(fakeTgsRepository))
             .Build();
 

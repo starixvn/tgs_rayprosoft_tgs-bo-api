@@ -3,35 +3,20 @@ using System.Threading;
 using System.Threading.Tasks;
 using Tgs.ServiceUtility;
 using Tgs.VipLevelService.Clients;
+using Tgs.VipLevelService.Common.ViewModels;
 
 namespace TGS.Services.BackOffice.ApplicationServices.Players;
 
-internal class GetPlayerVipAdjustQueryService(IVipLevelServiceClient client) : IGetService<GetPlayerVipAdjustQuery, PagingResponse<PlayerVipAdjustInfo>>
+internal class GetPlayerVipAdjustQueryService(IVipLevelServiceClient client) : IGetService<GetPlayerVipAdjustQuery, PagingResponseViewModel<PlayerVipLevelLogInfoViewModel>>
 {
     private readonly IVipLevelServiceClient _client = client ?? throw new ArgumentNullException(nameof(client));
 
-    public async ValueTask<PagingResponse<PlayerVipAdjustInfo>> GetAsync(GetPlayerVipAdjustQuery query, CancellationToken cancellationToken = default)
-    {
-        var vipAdjustRequest = new PlayerVipAdjustQueryConditions
-        {
-            PlayerCode = query.PlayerCode,
-            BrandId = query.BrandId,
-            CreateOnRange = (query.From, query.To)
-        };
-
-        var vipPaging = new Paging
-        {
-            Page = query.Paging.Page,
-            Rows = query.Paging.Rows,
-            IsDesc = query.Paging.IsDesc,
-            ShowAll = query.Paging.ShowAll,
-            SortBy = query.Paging.SortBy,
-        };
-
-        var response = await _client
-            .QueryPlayerVipAdjustInfosAsync(vipAdjustRequest, vipPaging, cancellationToken)
-            .ConfigureAwait(false);
-
-        return response;
-    }
+    public ValueTask<PagingResponseViewModel<PlayerVipLevelLogInfoViewModel>> GetAsync(GetPlayerVipAdjustQuery query, CancellationToken cancellationToken = default)
+        => _client.PlayerVipLevelLogQueryAsync(
+            playerCode: query.PlayerCode,
+            startOn: query.From,
+            endOn: query.To,
+            page: query.Paging.Page,
+            rowCount: query.Paging.Rows,
+            cancellationToken: cancellationToken);
 }

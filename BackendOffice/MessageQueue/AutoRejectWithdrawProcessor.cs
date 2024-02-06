@@ -33,6 +33,7 @@ public class AutoRejectWithdrawProcessor(
             ReviewState.Reject,
             null,
             null,
+            null,
             null);
 
         await _reviewCommandService

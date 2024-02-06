@@ -8,6 +8,7 @@ using System.Threading;
 using System.Threading.Tasks;
 using Tgs.PlayerService.Client;
 using Tgs.ServiceUtility;
+using Tgs.VipLevelService.Common;
 using TGS.Core.DataServices.Tgs;
 using TGS.Core.DataServices.Tgs.Models;
 using TGS.Core.Infrastructures.Extensions;
@@ -16,17 +17,15 @@ namespace TGS.Services.BackOffice.ApplicationServices.Players;
 
 internal class SetPlayerInfoCommandService(
     IPlayerServiceClient playerServiceClient,
+    ICommandService<SetPlayerVipLevelCommand> setPlayerVipLevelService,
     ITgsRepository repository) : IGetService<SetPlayerInfoCommand, SetPlayerInfoResult>
 {
-    private readonly IPlayerServiceClient _playerServiceClient = playerServiceClient ?? throw new ArgumentNullException(nameof(playerServiceClient));
-    private readonly ITgsRepository _repository = repository ?? throw new ArgumentNullException(nameof(repository));
-
     public async ValueTask<SetPlayerInfoResult> GetAsync(SetPlayerInfoCommand command, CancellationToken cancellationToken = default)
     {
         if (!command.ModifyInfo.Any())
             return new SetPlayerInfoResult(false, string.Empty);
 
-        var player = await _playerServiceClient
+        var player = await playerServiceClient
             .GetPlayerInfoAsync(command.PlayerCode, cancellationToken)
             .ConfigureAwait(false);
 
@@ -40,6 +39,7 @@ internal class SetPlayerInfoCommandService(
                 nameof(PlayerPropertyName.Birthdate),
                 nameof(PlayerPropertyName.Remark),
                 nameof(PlayerPropertyName.VipId),
+                nameof(PlayerPropertyName.IdNumber),
             },
             StringComparer.OrdinalIgnoreCase);
 
@@ -53,7 +53,25 @@ internal class SetPlayerInfoCommandService(
             }
         }
 
-        await _playerServiceClient
+        if (modifyDict.TryGetValue(PlayerPropertyName.VipId, out var vipIdString))
+        {
+            if (!string.IsNullOrEmpty(vipIdString) && Guid.TryParse(vipIdString, out var vipId))
+            {
+                var setPlayerVipLevelCommand = new SetPlayerVipLevelCommand(
+                    PlayerCode: command.PlayerCode,
+                    ModifyUserId: Guid.Parse(command.ModifyUserId),
+                    ModifyUsername: command.ModifyUsername,
+                    VipId: vipId,
+                    AutoState: PlayerVipLevelAutoState.Enable,
+                    Remark: string.Empty);
+                await setPlayerVipLevelService.ExecuteAsync(
+                    command: setPlayerVipLevelCommand,
+                    cancellationToken: cancellationToken)
+                    .ConfigureAwait(false);
+            }
+        }
+
+        await playerServiceClient
             .SetPlayerPropertiesAsync(command.PlayerCode, modifyDict.ToImmutableDictionary(), command.ModifyUserId, cancellationToken)
             .ConfigureAwait(false);
 
@@ -67,11 +85,11 @@ internal class SetPlayerInfoCommandService(
             Username = command.PlayerCode
         };
 
-        _ = await _repository.PlayerAuditLogs
+        _ = await repository.PlayerAuditLogs
             .AddAsync(auditLog, cancellationToken)
             .ConfigureAwait(false);
 
-        _ = await _repository
+        _ = await repository
             .SaveChangesAsync(cancellationToken)
             .ConfigureAwait(false);
 

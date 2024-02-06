@@ -38,6 +38,7 @@ public class WithdrawFormTests
             brandPaymentId,
             ReviewState.Approve,
             null,
+            "playerRemark",
             "93a723b2-9ebb-4607-ee8d-08d978fba75f",
             "reviewUserName");
 
@@ -68,7 +69,8 @@ public class WithdrawFormTests
                 Arg.Is(ReviewState.Approve),
                 Arg.Any<string>(),
                 Arg.Any<string>(),
-                Arg.Any<string>());
+                Arg.Any<string>(),
+                Arg.Is("playerRemark"));
     }
 
     [Test]

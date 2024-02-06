@@ -7,12 +7,18 @@ using NUnit.Framework.Internal;
 using NUnit.Framework.Legacy;
 using Tgs.Agent.Client;
 using Tgs.Agent.Client.Models.Enums;
+using Tgs.BrandCertificate.Clients;
 using Tgs.GameProviders.Pluggable.Client;
 using Tgs.PlayerService.Client;
+using Tgs.ServiceUtility;
+using Tgs.VipLevelService.Clients;
+using Tgs.VipLevelService.Common;
+using Tgs.VipLevelService.Common.ViewModels;
 using TGS.Core.DataServices.Tgs;
 using TGS.Core.DataServices.Tgs.Models;
 using TGS.Services.BackOffice.ApplicationServices;
 using TGS.Services.BackOffice.ApplicationServices.Players;
+using TGS.Services.BackOffice.ApplicationServices.Promotion;
 using EventAction = Tgs.PlayerService.Client.EventAction;
 
 namespace TGS.Tests.BackendOffice.UnitTests;
@@ -732,9 +738,10 @@ internal class PlayerTests
     public async Task 變更玩家信息_Vip等級()
     {
         var fakePlayerServiceClient = Substitute.For<IPlayerServiceClient>();
+        var fakeSetPlayerVipLevelService = Substitute.For<ICommandService<SetPlayerVipLevelCommand>>();
         var fakeRepository = Substitute.For<ITgsRepository>();
 
-        var sut = new SetPlayerInfoCommandService(fakePlayerServiceClient, fakeRepository);
+        var sut = new SetPlayerInfoCommandService(fakePlayerServiceClient, fakeSetPlayerVipLevelService, fakeRepository);
 
         var playerCode = "playerCode";
         var modifyUserId = "6a379883-d8d2-4ffb-3d05-08d9262ce1a5";
@@ -767,6 +774,17 @@ internal class PlayerTests
                 Arg.Is(playerCode),
                 Arg.Is<ImmutableDictionary<PlayerPropertyName, string?>>(x => x.SequenceEqual(modifyDict.ToImmutableDictionary())),
                 Arg.Is(modifyUserId));
+
+        _ = fakeSetPlayerVipLevelService
+            .Received(1)
+            .ExecuteAsync(
+            command: Arg.Is(new SetPlayerVipLevelCommand(
+                PlayerCode: playerCode,
+                ModifyUserId: Guid.Parse(modifyUserId),
+                ModifyUsername: modifyUsername,
+                VipId: Guid.Parse(modifyVipId),
+                AutoState: PlayerVipLevelAutoState.Enable,
+                Remark: string.Empty)));
 
         _ = fakeRepository
             .Received(1)
