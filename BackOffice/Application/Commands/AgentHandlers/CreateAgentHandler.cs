@@ -76,7 +76,8 @@ public class CreateAgentHandler(
             SportsRebatePercentage = request.SportsRebatePercentage,
             VirtualSportsRebatePercentage = request.VirtualSportsRebatePercentage,
             Remarks = request.Remarks,
-            EditorUsername = Username
+            EditorUsername = Username,
+            NegativeAgentDividendCarryForward = request.NegativeAgentDividendCarryForward
         }, cancellationToken);
 
         return CreateValidResponse<MessageResponse>();

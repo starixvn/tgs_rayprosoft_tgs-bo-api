@@ -252,6 +252,8 @@ public class AgentService(ITgsRepository repository, IPasswordHandler passwordHa
                         DividendPercentage = operation == AgentOperation.Agent ? 0 : x.DividendPercentage
                     }).ToHashSet();
 
+                agent.NegativeAgentDividendCarryForward = request.NegativeAgentDividendCarryForward;
+
                 break;
 
             case MemberUpdateType.Contact:
