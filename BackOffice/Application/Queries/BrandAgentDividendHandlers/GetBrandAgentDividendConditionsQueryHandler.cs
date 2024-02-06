@@ -2,31 +2,26 @@
 using System.Threading;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Http;
-using Tgs.Agent.Dividend.Client;
 using TGS.Core.DataServices.Base.Extensions;
 using TGS.Core.Models.Messages;
 using TGS.Services.BackOffice.Application.Models.BrandAgentDividend;
+using TGS.Services.BackOffice.Infrastructure.DataService;
 
 namespace TGS.Services.BackOffice.Application.Queries.BrandAgentDividendHandlers;
 
-public class GetBrandAgentDividendConditionsQueryHandler(
-    IBrandContractClient brandContractClient,
+public class GetBrandAgentDividendConditionsQueryHandler(IBrandAgentDividendConditionService service,
     IHttpContextAccessor accessor) : Handler<GetBrandAgentDividendConditionsRequest,
     PagedResponse<BrandAgentDividendConditionModel>>(accessor)
 {
-    public override async Task<PagedResponse<BrandAgentDividendConditionModel>> Handle(
+    public override Task<PagedResponse<BrandAgentDividendConditionModel>> Handle(
         GetBrandAgentDividendConditionsRequest request,
-        CancellationToken cancellationToken)
-    {
-        var brandContracts = await brandContractClient.GetBrandContractAsync(request.BrandId, cancellationToken).FirstAsync(cancellationToken);
-
-        return await brandContracts.Conditions.Select(x
+        CancellationToken cancellationToken) =>
+        service.GetBrandAgentDividendConditionQueries().Where(x => x.BrandId == request.BrandId).Select(x
             => new BrandAgentDividendConditionModel
             {
                 Rank = x.Rank,
                 NetProfit = x.NetProfit,
                 ActiveNumber = x.ActiveNumber,
                 DividendPercentage = x.DividendPercentage
-            }).CreatePagedResponseAsync(brandContracts.Conditions.Count());
-    }
+            }).CreatePagedResponseAsync(new PageableRequest { ShowAll = true });
 }
