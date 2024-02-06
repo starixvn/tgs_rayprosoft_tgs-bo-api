@@ -1,12 +1,14 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.ComponentModel;
+using System.IO;
 using System.Linq;
 using System.Net.Http;
 using System.Text.Json;
 using System.Threading.Tasks;
 using ClosedXML.Excel;
 using ClosedXML.Extensions;
+using DocumentFormat.OpenXml.Spreadsheet;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
@@ -107,7 +109,7 @@ public class StationLetterController(
 
     [HttpPost("export")]
     [Description("Export player file for example")]
-    public async Task<HttpResponseMessage> ExportAsync()
+    public async Task<IActionResult> ExportAsync()
     {
         var wb = await Task.Run(() =>
         {
@@ -119,7 +121,15 @@ public class StationLetterController(
             return workbook;
         });
 
-        return wb.Deliver("Player.xlsx");
+        await using var ms = new MemoryStream();
+
+        wb.SaveAs(ms);
+        ms.Position = 0;
+
+        return File(
+            ms,
+            "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
+            "Player.xlsx");
     }
 
     [HttpGet]

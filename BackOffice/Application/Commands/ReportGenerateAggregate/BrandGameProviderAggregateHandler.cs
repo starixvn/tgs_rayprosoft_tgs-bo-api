@@ -72,7 +72,7 @@ public class BrandGameProviderAggregateHandler(
                 RedisKey = "aggregate:brandGP"
             };
 
-            await messageSender.PublishAsync("tgs.report.aggregate.brand.game.provider",
+            await messageSender.PublishAsync<ReadOnlyMemory<byte>>("tgs.report.aggregate.brand.game.provider",
                     Encoding.UTF8.GetBytes(JsonSerializer.Serialize(data)),
                     cancellationToken)
                 .ConfigureAwait(false);

@@ -273,7 +273,6 @@ public class PlayerControllerTests : BaseTests
         _ = mediatorMock.Received(1).Send(Arg.Any<UpdatePlayerRequest>(), Arg.Any<CancellationToken>());
     }
 
-
     private static Fixture CreateUpdatePlayerRequestFixture()
     {
         var fixture = new Fixture();

@@ -9,13 +9,15 @@ using TGS.Services.BackOffice.Infrastructure.DataService;
 
 namespace TGS.Services.BackOffice.Application.Queries.GameHandlers;
 
-public class GetGamesQueryHandler(IGameService service, IHttpContextAccessor accessor) : Handler<GetGamesRequest, PagedResponse<GameModel>>(accessor)
+public class GetGamesQueryHandler(IGameService service, IHttpContextAccessor accessor)
+    : Handler<GetGamesRequest, PagedResponse<GameModel>>(accessor)
 {
     private readonly IGameService _service = service;
 
-    public override Task<PagedResponse<GameModel>> Handle(GetGamesRequest request,
-        CancellationToken cancellationToken) =>
-        _service.GetGameQueries(q => q
+    public override Task<PagedResponse<GameModel>> Handle(
+        GetGamesRequest request,
+        CancellationToken cancellationToken)
+        => _service.GetGameQueries(q => q
                 .Where(g => g.GameProviderId == request.GameProviderId))
             .Where(request.Code, g => g.Code == request.Code)
             .Select(x => new GameModel
@@ -40,5 +42,6 @@ public class GetGamesQueryHandler(IGameService service, IHttpContextAccessor acc
                 UpdatedByUsername = x.UpdatedByUsername,
                 CreatedOn = x.CreatedOn,
                 UpdatedOn = x.UpdatedOn
-            }).CreatePagedResponseAsync(request);
+            })
+            .CreatePagedResponseAsync(request);
 }

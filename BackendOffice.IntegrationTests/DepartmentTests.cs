@@ -128,7 +128,7 @@ public class DepartmentTests(ITestOutputHelper testOutputHelper, NodeJsFixture n
             Rows = 20,
             Page = 1,
             SortBy = "Name",
-            OrderBy = System.Data.SqlClient.SortOrder.Ascending,
+            OrderBy = SortOrder.Ascending,
             ShowAll = false
         };
 

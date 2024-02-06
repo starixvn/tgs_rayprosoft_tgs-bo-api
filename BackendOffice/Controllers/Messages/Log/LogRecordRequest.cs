@@ -1,6 +1,6 @@
 ﻿using System;
-using Tgs.Logging;
 using TGS.Core.Models.Messages;
+using TGS.Services.BackOffice.Domain.Enums;
 
 namespace TGS.Apis.BackendOffice.Controllers.Messages.Log;
 

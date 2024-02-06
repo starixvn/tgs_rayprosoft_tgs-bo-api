@@ -5,6 +5,7 @@ using NSubstitute;
 using TGS.Apis.BackendOffice.Controllers.Report;
 using TGS.Services.BackOffice.Application.Models.ReportMarket;
 using Tgs.ServiceUtility;
+using TGS.Core.Models.Messages;
 
 namespace TGS.Tests.BackendOffice.UnitTests.Controllers;
 

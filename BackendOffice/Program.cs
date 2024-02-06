@@ -47,6 +47,7 @@ using TGS.Core.Models;
 using TGS.Payment.ManualDeposit;
 using Tgs.Player.All.Agent.Client.DependencyInjection;
 using TGS.Services.BackOffice.Domain;
+using NATS.Client.Core;
 
 AppContext.SetSwitch("Npgsql.EnableLegacyTimestampBehavior", true);
 SqlMapper.AddTypeMap(typeof(DateOnly), DbType.Date);
@@ -107,15 +108,15 @@ builder.Services
     .AddBackOfficeCache()
     .AddSingleton<MessageQueueNotifyEventSource>()
     .AddSingleton<INotifyEventSource>(sp => sp.GetRequiredService<MessageQueueNotifyEventSource>())
-    .AddPhoenixToolkitsMessageQueue()
-    .AddNatsMessageQueue(config => config
-        .ConfigQueueOptions((options, sp) =>
+    .AddKeyedSingleton(
+        "Nats",
+        (sp, _) => new NatsConnection(NatsOpts.Default with
         {
-            var configuration = sp.GetRequiredService<IConfiguration>();
-
-            options.Url = configuration.GetValue<string>("NatsSetting:Urls");
-            options.MaxReconnect = -1;
-        })
+            Url = builder.Configuration.GetValue<string>("NatsSetting:Urls")
+        }))
+    .AddMessageQueue()
+    .AddNatsMessageQueue(config => config
+        .ConfigureResolveConnection(sp => sp.GetRequiredKeyedService<NatsConnection>("Nats"))
         .AddReplyHandler<AutoApproveDepositProcessor>(
             "tgs.payment.approve",
             "tgs.payment.approve")
@@ -333,8 +334,6 @@ builder.Services.AddSwaggerGen(c =>
 
     if (File.Exists(path))
         c.IncludeXmlComments(path);
-
-    c.UseDateOnlyTimeOnlyStringConverters();
 });
 
 var excludeExtensions = new[] { "html", "ico", "png", "jpg" };

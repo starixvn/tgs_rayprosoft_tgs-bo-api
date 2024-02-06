@@ -555,9 +555,10 @@ public class DepositFormTests
 
         var promotionResponse = new DepositMessageDataResponse(123, 1000M);
 
-        _ = fakeMessageSender.RequestAsync(
+        _ = fakeMessageSender.RequestAsync<ReadOnlyMemory<byte>, ReadOnlyMemory<byte>>(
                 Arg.Is("tgs.promotion.firstdeposit.distribute"),
-                Arg.Any<ReadOnlyMemory<byte>>())
+                Arg.Any<ReadOnlyMemory<byte>>(),
+                Arg.Any<IEnumerable<MessageHeaderValue>>())
             .Returns(Encoding.UTF8.GetBytes(JsonSerializer.Serialize(promotionResponse)));
 
         var expectedOrder = new CleanBucketOrder(
@@ -760,7 +761,7 @@ public class DepositFormTests
 
         var promotionResponse = new DepositMessageDataResponse(123, 1000M);
 
-        _ = fakeMessageSender.RequestAsync(
+        _ = fakeMessageSender.RequestAsync<ReadOnlyMemory<byte>, ReadOnlyMemory<byte>>(
                 Arg.Is("tgs.promotion.firstdeposit.distribute"),
                 Arg.Any<ReadOnlyMemory<byte>>())
             .Returns(Encoding.UTF8.GetBytes(JsonSerializer.Serialize(promotionResponse)));
