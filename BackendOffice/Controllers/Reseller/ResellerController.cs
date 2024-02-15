@@ -6,8 +6,7 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using TGS.Apis.BackendOffice.Controllers.Messages.Reseller;
 using TGS.Apis.BackendOffice.DataService.Services;
-using TGS.Core.DataServices.Base.Extensions;
-using TGS.Core.Models.Messages;
+using TGS.Services.BackOffice.Domain;
 
 namespace TGS.Apis.BackendOffice.Controllers.Reseller;
 
@@ -111,7 +110,8 @@ public partial class ResellerController(IResellerService service) : BaseContextC
                 OperationalEmail = x.OperationalEmail,
                 CreatedOn = x.CreatedOn,
                 UpdatedOn = x.UpdatedOn
-            }).CreatePagedResponseAsync(request);
+            })
+            .CreatePagedResponseAsync(request);
     }
 
     [HttpPut("{id}")]

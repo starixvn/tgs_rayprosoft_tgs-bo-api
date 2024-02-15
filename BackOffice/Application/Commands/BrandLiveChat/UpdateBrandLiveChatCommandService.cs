@@ -1,9 +1,9 @@
 ﻿using System;
+using System.Text.Json;
 using System.Threading;
 using System.Threading.Tasks;
 using Tgs.ServiceUtility;
 using TGS.Core.DataServices.Base.Interfaces;
-using TGS.Core.Infrastructures.Extensions;
 using CoreModels = TGS.Core.DataServices.Tgs.Models;
 
 namespace TGS.Services.BackOffice.Application.Commands.BrandLiveChat;
@@ -20,7 +20,7 @@ internal class UpdateBrandLiveChatCommandService(
         var brandLiveChat = await _tgsQueries.GetSingleAsync(x => x.BrandId == command.BrandId);
 
         brandLiveChat.ChatName = command.Name;
-        brandLiveChat.ChatSetting = command.Setting.ToJson();
+        brandLiveChat.ChatSetting = JsonSerializer.Serialize(command.Setting);
 
         await _commands.UpdateAsync(brandLiveChat);
     }

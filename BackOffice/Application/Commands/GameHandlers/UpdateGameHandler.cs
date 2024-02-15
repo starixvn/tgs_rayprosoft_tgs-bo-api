@@ -2,15 +2,17 @@
 using System.Threading;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Http;
-using TGS.Core.Models.Messages;
 using TGS.Services.BackOffice.Application.Models.Game;
 using TGS.Services.BackOffice.Application.Resources;
+using TGS.Services.BackOffice.Domain;
 using TGS.Services.BackOffice.Infrastructure.DataService;
 
 namespace TGS.Services.BackOffice.Application.Commands.GameHandlers;
 
-public class UpdateGameHandler(IGameService gameService,
-    IHttpContextAccessor accessor) : Handler<UpdateGameRequest, MessageResponse>(accessor)
+public class UpdateGameHandler(
+    IGameService gameService,
+    IHttpContextAccessor accessor) 
+    : Handler<UpdateGameRequest, MessageResponse>(accessor)
 {
     private readonly IGameService _gameService = gameService;
 

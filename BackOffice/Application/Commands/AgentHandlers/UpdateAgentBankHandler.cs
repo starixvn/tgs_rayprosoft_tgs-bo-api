@@ -1,14 +1,17 @@
 ﻿using System.Threading;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Http;
-using TGS.Core.Models.Messages;
 using TGS.Services.BackOffice.Application.Models.Agent;
 using TGS.Services.BackOffice.Application.Resources;
+using TGS.Services.BackOffice.Domain;
 using TGS.Services.BackOffice.Infrastructure.DataService;
 
 namespace TGS.Services.BackOffice.Application.Commands.AgentHandlers;
 
-public class UpdateAgentBankHandler(IAgentBankService service, IHttpContextAccessor accessor) : Handler<UpdateAgentBankRequest, MessageResponse>(accessor)
+public class UpdateAgentBankHandler(
+    IAgentBankService service,
+    IHttpContextAccessor accessor)
+    : Handler<UpdateAgentBankRequest, MessageResponse>(accessor)
 {
     private readonly IAgentBankService _service = service;
 

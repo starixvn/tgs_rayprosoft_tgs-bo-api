@@ -3,12 +3,9 @@ using System.Collections.Generic;
 using System.ComponentModel;
 using System.IO;
 using System.Linq;
-using System.Net.Http;
 using System.Text.Json;
 using System.Threading.Tasks;
 using ClosedXML.Excel;
-using ClosedXML.Extensions;
-using DocumentFormat.OpenXml.Spreadsheet;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
@@ -16,13 +13,11 @@ using Microsoft.Extensions.Options;
 using TGS.Apis.BackendOffice.Controllers.Messages.StationLetter;
 using TGS.Apis.BackendOffice.DataService.Services;
 using TGS.Apis.BackendOffice.Services;
-using TGS.Core.DataServices.Base.Extensions;
 using TGS.Core.DataServices.Base.Interfaces;
 using TGS.Core.DataServices.Tgs.Models;
-using TGS.Core.Infrastructures.Extensions;
 using TGS.Core.Infrastructures.Json;
 using TGS.Core.Models.Enums;
-using TGS.Core.Models.Messages;
+using TGS.Services.BackOffice.Domain;
 
 namespace TGS.Apis.BackendOffice.Controllers;
 
@@ -73,7 +68,7 @@ public class StationLetterController(
 
         var stationLetter = new StationLetter
         {
-            Id = GuidExtensions.NewSequentialGuid(),
+            Id = Guid.NewGuid(),
             BrandId = request.BrandId,
             Subject = request.Subject,
             Content = request.Content,

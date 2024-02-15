@@ -49,7 +49,7 @@ internal class SetPlayerParentPlayerCommandService(
 
         var auditLog = new PlayerAuditLog
         {
-            Id = GuidExtensions.NewSequentialGuid(),
+            Id = Guid.NewGuid(),
             ModuleName = "Player",
             CreatedByUsername = query.ModifyUsername,
             CreatedOn = DateTimeOffset.Now,

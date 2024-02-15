@@ -179,7 +179,7 @@ public class AnnouncementControllerTests : BaseTests
             Page = 1,
             Rows = 10,
             SortBy = "UpdatedOn",
-            OrderBy = SortOrder.Descending,
+            OrderBy = Core.Models.Messages.SortOrder.Descending,
             ShowAll = showAll,
             Status = status
         };

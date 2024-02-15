@@ -4,7 +4,6 @@ using System.Threading;
 using System.Threading.Tasks;
 using Tgs.MarketingReport.Client;
 using Tgs.ServiceUtility;
-using TGS.Core.DataServices.Base.Extensions;
 using TGS.Services.BackOffice.Application.Models.ReportMarketing;
 using TGS.Services.BackOffice.Domain;
 
@@ -13,7 +12,7 @@ namespace TGS.Services.BackOffice.Application.Queries.ReportMarketingQueries;
 internal class GetMarketingReportAggregateInfosByAgentQueryService(
     IAgentRepository agentRepository,
     IMarketingReportClient reportClient)
-        : IGetService<GetMarketingReportAggregateInfosByAgentQuery, MarketingReportResponse>
+    : IGetService<GetMarketingReportAggregateInfosByAgentQuery, MarketingReportResponse>
 {
     private readonly IAgentRepository _agentRepository = agentRepository ?? throw new ArgumentNullException(nameof(agentRepository));
     private readonly IMarketingReportClient _reportClient = reportClient ?? throw new ArgumentNullException(nameof(reportClient));

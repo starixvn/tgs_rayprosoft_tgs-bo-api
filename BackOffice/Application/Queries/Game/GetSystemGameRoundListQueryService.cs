@@ -1,5 +1,4 @@
-﻿using System;
-using System.Threading;
+﻿using System.Threading;
 using System.Threading.Tasks;
 using Tgs.Report.Client;
 using Tgs.Report.Client.Models;
@@ -8,10 +7,9 @@ using Tgs.ServiceUtility;
 
 namespace TGS.Services.BackOffice.Application.Queries.Game;
 
-internal class GetSystemGameRoundListQueryService(IReportClient reportClient) : IGetService<GetSystemGameRoundListQuery, PagedResponse<SystemRoundModel>>
+internal class GetSystemGameRoundListQueryService(IReportClient reportClient)
+    : IGetService<GetSystemGameRoundListQuery, PagedResponse<SystemRoundModel>>
 {
-    private readonly IReportClient _reportClient = reportClient ?? throw new ArgumentNullException(nameof(reportClient));
-
     public async ValueTask<PagedResponse<SystemRoundModel>> GetAsync(
         GetSystemGameRoundListQuery query,
         CancellationToken cancellationToken = default)
@@ -43,7 +41,7 @@ internal class GetSystemGameRoundListQueryService(IReportClient reportClient) : 
             ShowAll = query.Paging.ShowAll
         };
 
-        return await _reportClient
+        return await reportClient
             .GetSystemRoundsAsync(reportRequest)
             .ConfigureAwait(false);
     }

@@ -68,9 +68,6 @@ public static class ServiceCollectionExtensions
                 options.BrandCertificateBaseUrl = config.GetValue<Uri>("BrandCertificate:Url");
             });
 
-        _ = services.AddWallet()
-            .AddTgsAgentWalletRepositories();
-
         _ = services
             .AddPaymentClient();
 

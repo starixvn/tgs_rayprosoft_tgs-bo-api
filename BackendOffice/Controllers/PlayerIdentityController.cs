@@ -12,7 +12,6 @@ using Tgs.ServiceUtility;
 using TGS.Apis.BackendOffice.Controllers.Messages.Player;
 using TGS.Apis.BackendOffice.Extensions;
 using TGS.Core.Infrastructures.Utility;
-using TGS.Core.Models.Messages;
 using TGS.Services.BackOffice.Application.Commands.PlayerIdentity;
 using TGS.Services.BackOffice.Application.Models.Player;
 using TGS.Services.BackOffice.Application.Models.ReportPlayer;

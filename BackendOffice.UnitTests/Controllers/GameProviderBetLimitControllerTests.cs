@@ -3,8 +3,8 @@ using FluentAssertions;
 using MediatR;
 using NSubstitute;
 using TGS.Apis.BackendOffice.Controllers.GameProvider;
-using TGS.Core.Models.Messages;
 using TGS.Services.BackOffice.Application.Models.GameProviderBetLimit;
+using TGS.Services.BackOffice.Domain;
 
 namespace TGS.Tests.BackendOffice.UnitTests.Controllers;
 

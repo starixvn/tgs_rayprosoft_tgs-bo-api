@@ -114,8 +114,7 @@ public class RoundReportController : BaseContextController
     [HttpGet]
     [Description("Get rounds")]
     public async ValueTask<PagedResponse<RoundView>> GetRoundsAsync(
-        [FromServices] IGetService<GetRoundsReportRequest, PagedResponse<RoundView>>
-            roundsService,
+        [FromServices] IGetService<GetRoundsReportRequest, PagedResponse<RoundView>> roundsService,
         [FromQuery] GetRoundsReportRequest request)
         => await roundsService
             .GetAsync(request)

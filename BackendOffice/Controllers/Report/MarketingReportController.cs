@@ -6,7 +6,6 @@ using Microsoft.AspNetCore.Mvc;
 using Tgs.MarketingReport.Client;
 using Tgs.Paging;
 using Tgs.ServiceUtility;
-using TGS.Core.Models.Messages;
 using TGS.Services.BackOffice.Application.Models.ReportMarketing;
 using TGS.Services.BackOffice.ApplicationServices.Agents;
 using TGS.Services.BackOffice.ApplicationServices.Payment;

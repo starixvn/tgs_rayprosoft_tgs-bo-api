@@ -5,9 +5,9 @@ using System.Threading.Tasks;
 using Microsoft.AspNetCore.Mvc;
 using Tgs.ServiceUtility;
 using TGS.Apis.BackendOffice.Controllers.Messages.BrandLiveChat;
-using TGS.Core.Models.Messages;
 using TGS.Services.BackOffice.Application.Commands.BrandLiveChat;
 using TGS.Services.BackOffice.Application.Queries.BrandLiveChat;
+using TGS.Services.BackOffice.Domain;
 
 namespace TGS.Apis.BackendOffice.Controllers.Brand;
 

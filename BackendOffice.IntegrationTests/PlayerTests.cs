@@ -1,5 +1,4 @@
 ﻿using System.Collections.Immutable;
-using System.Data.SqlClient;
 using System.Runtime.InteropServices;
 using System.Text.Json;
 using ExpectedObjects;
@@ -18,13 +17,11 @@ using Tgs.PlayerService.Client;
 using Tgs.Service.PlayerBuckets;
 using Tgs.ServiceUtility;
 using Tgs.VipLevelService.Clients;
-using Tgs.VipLevelService.Common;
 using Tgs.VipLevelService.Common.ViewModels;
 using TGS.Apis.BackendOffice.ViewModels;
 using TGS.Core.DataServices.Base.Interfaces;
 using TGS.Core.DataServices.Tgs;
 using TGS.Core.Models.Enums;
-using TGS.Core.Models.Messages;
 using TGS.Services.BackOffice.Application.Models.Player;
 using TGS.Services.BackOffice.ApplicationServices;
 using TGS.Services.BackOffice.ApplicationServices.Players;
@@ -76,7 +73,7 @@ public class PlayerTests(ITestOutputHelper testOutputHelper, NodeJsFixture nodeJ
         var page = 1;
         var rows = 20;
         var sortby = "registeredTime";
-        var orderby = SortOrder.Ascending;
+        var orderby = TGS.Core.Models.Messages.SortOrder.Ascending;
         var showAll = false;
 
         _ = fakeAgentRepository.GetAgentsAsync(Arg.Is(brandId))
@@ -335,7 +332,7 @@ public class PlayerTests(ITestOutputHelper testOutputHelper, NodeJsFixture nodeJ
         var page = 1;
         var rows = 20;
         var sortby = "registeredTime";
-        var orderby = SortOrder.Ascending;
+        var orderby = TGS.Core.Models.Messages.SortOrder.Ascending;
         var showAll = false;
 
         _ = fakeAgentRepository.GetAgentsAsync(Arg.Is(brandId))

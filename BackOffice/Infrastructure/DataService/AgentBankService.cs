@@ -69,7 +69,7 @@ public class AgentBankService(ITgsRepository repository) : BaseRepositoryOperati
 
         var auditLog = new AgentAuditLog
         {
-            Id = GuidExtensions.NewSequentialGuid(),
+            Id = Guid.NewGuid(),
             AgentId = agentBank.AgentId,
             CreatedByUsername = request.EditorUsername,
             CreatedOn = DateTimeOffset.Now,

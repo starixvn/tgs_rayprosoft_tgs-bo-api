@@ -69,10 +69,11 @@ internal class ReviewDepositFormCommandService : ICommandService<ReviewDepositFo
         CancellationToken cancellationToken = default)
     {
         var form = await _paymentServiceClient
-            .GetDepositFormAsync(command.BrandId, command.FormId, cancellationToken)
+            .GetDepositFormAsync(command.FormId, cancellationToken)
             .ConfigureAwait(false);
 
         if (form is null
+            || form.BrandId != command.BrandId
             || form.Status == PaymentFlowState.Approved
             || form.Status == PaymentFlowState.Reject)
             return;

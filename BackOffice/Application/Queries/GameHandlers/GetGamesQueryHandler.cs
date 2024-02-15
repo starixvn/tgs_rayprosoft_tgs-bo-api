@@ -2,22 +2,22 @@
 using System.Threading;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Http;
-using TGS.Core.DataServices.Base.Extensions;
-using TGS.Core.Models.Messages;
 using TGS.Services.BackOffice.Application.Models.Game;
+using TGS.Services.BackOffice.Domain;
 using TGS.Services.BackOffice.Infrastructure.DataService;
 
 namespace TGS.Services.BackOffice.Application.Queries.GameHandlers;
 
-public class GetGamesQueryHandler(IGameService service, IHttpContextAccessor accessor)
+public class GetGamesQueryHandler(
+    IGameService service,
+    IHttpContextAccessor accessor)
     : Handler<GetGamesRequest, PagedResponse<GameModel>>(accessor)
 {
-    private readonly IGameService _service = service;
 
     public override Task<PagedResponse<GameModel>> Handle(
         GetGamesRequest request,
         CancellationToken cancellationToken)
-        => _service.GetGameQueries(q => q
+        => service.GetGameQueries(q => q
                 .Where(g => g.GameProviderId == request.GameProviderId))
             .Where(request.Code, g => g.Code == request.Code)
             .Select(x => new GameModel

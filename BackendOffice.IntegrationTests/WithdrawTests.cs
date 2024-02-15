@@ -11,9 +11,9 @@ using Tgs.PlayerService.Client;
 using Tgs.ServiceUtility;
 using TGS.Apis.BackendOffice.Controllers.Messages;
 using TGS.Apis.BackendOffice.Controllers.Messages.Withdraw;
-using TGS.Core.Models.Messages;
 using TGS.Services.BackOffice.Application.Commands.Withdraw;
 using TGS.Services.BackOffice.Application.Queries.Withdraw;
+using TGS.Services.BackOffice.Domain;
 using Xunit.Abstractions;
 
 namespace BackendOffice.IntegrationTests;

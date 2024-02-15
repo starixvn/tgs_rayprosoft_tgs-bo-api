@@ -5,11 +5,10 @@ using System.Threading.Tasks;
 using Microsoft.AspNetCore.Mvc;
 using TGS.Apis.BackendOffice.Controllers.Messages.Settings;
 using TGS.Apis.BackendOffice.Resources;
-using TGS.Core.DataServices.Base.Extensions;
 using TGS.Core.DataServices.Base.Interfaces;
 using TGS.Core.Infrastructures.Redis;
 using TGS.Core.Models.Enums;
-using TGS.Core.Models.Messages;
+using TGS.Services.BackOffice.Domain;
 using Setting = TGS.Core.DataServices.Tgs.Models.Setting;
 
 namespace TGS.Apis.BackendOffice.Controllers;
@@ -64,8 +63,8 @@ public class SettingController(
     [Route("")]
     [HttpGet]
     [Description("Get setting list")]
-    public Task<PagedResponse<SettingModel>> GetListAsync([FromQuery] GetSettingsRequest request) =>
-        queries.GetQueries()
+    public Task<PagedResponse<SettingModel>> GetListAsync([FromQuery] GetSettingsRequest request)
+        => queries.GetQueries()
             .Where(request.Key, p => p.Key.Contains(request.Key))
             .Select(setting => new SettingModel
             {
@@ -76,7 +75,8 @@ public class SettingController(
                 UpdatedByUsername = setting.UpdatedByUsername,
                 CreatedOn = setting.CreatedOn,
                 UpdatedOn = setting.UpdatedOn
-            }).CreatePagedResponseAsync(request);
+            })
+            .CreatePagedResponseAsync(request);
 
     [Route("{key}")]
     [HttpGet]

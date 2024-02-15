@@ -17,7 +17,6 @@ using TGS.Core.DataServices.Tgs.Models;
 using TGS.Core.Infrastructures.Json;
 using TGS.Core.Models;
 using TGS.Core.Models.Enums;
-using TGS.Core.Models.Services;
 
 namespace TGS.Apis.BackendOffice.Controllers;
 
@@ -78,7 +77,7 @@ public class AuthenticateController(
                 Username = user.Username,
                 UserId = user.Id,
                 TimeZone = user.TimeZone,
-                Menus = jsonSerializationProvider.DeserializeFromString<MenuSetting[]>(user.Role
+                Menus = jsonSerializationProvider.DeserializeFromString<Core.Models.Services.MenuSetting[]>(user.Role
                     .MenuSetting)
             }
         };

@@ -63,7 +63,7 @@ public class LicenseeControllerTests : BaseTests
             Page = 1,
             Rows = 10,
             SortBy = "updatedOn",
-            OrderBy = SortOrder.Descending,
+            OrderBy = Core.Models.Messages.SortOrder.Descending,
             ShowAll = showAll
         };
 

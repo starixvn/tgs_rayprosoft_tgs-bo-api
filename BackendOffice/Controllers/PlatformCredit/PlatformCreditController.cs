@@ -3,8 +3,8 @@ using System.ComponentModel;
 using System.Threading.Tasks;
 using MediatR;
 using Microsoft.AspNetCore.Mvc;
-using TGS.Core.Models.Messages;
 using TGS.Services.BackOffice.Application.Models.PlatformCredit;
+using TGS.Services.BackOffice.Domain;
 
 namespace TGS.Apis.BackendOffice.Controllers.PlatformCredit;
 

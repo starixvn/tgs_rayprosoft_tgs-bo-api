@@ -2,24 +2,23 @@
 using System.Threading;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Http;
-using TGS.Core.DataServices.Base.Extensions;
-using TGS.Core.Models.Messages;
 using TGS.Services.BackOffice.Application.Models.BrandGameProviderSchedule;
+using TGS.Services.BackOffice.Domain;
 using TGS.Services.BackOffice.Infrastructure.DataService;
 
 namespace TGS.Services.BackOffice.Application.Queries.BrandGameProviderHandlers;
 
-public class
-    GetBrandGameProvidersQueryHandler(IBrandGameProviderService service, IHttpContextAccessor accessor) : Handler<GetBrandGameProvidersRequest,
-        PagedResponse<BrandGameProviderModel>>(accessor)
+public class GetBrandGameProvidersQueryHandler(
+    IBrandGameProviderService service,
+    IHttpContextAccessor accessor)
+    : Handler<GetBrandGameProvidersRequest
+    , PagedResponse<BrandGameProviderModel>>(accessor)
 {
-    private readonly IBrandGameProviderService _service = service;
-
     public override Task<PagedResponse<BrandGameProviderModel>> Handle(
         GetBrandGameProvidersRequest request,
         CancellationToken cancellationToken)
     {
-        var brandGameProviders = _service.GetBrandGameProviderQueries(q => q.Where(request.BrandId, x => x.BrandId == request.BrandId)
+        var brandGameProviders = service.GetBrandGameProviderQueries(q => q.Where(request.BrandId, x => x.BrandId == request.BrandId)
             .Where(ResellerId != null, r => r.Brand.Licensee.ResellerId == ResellerId)
             .Where(LicenseeId != null, l => l.Brand.LicenseeId == LicenseeId)
             .Where(BrandId != null, b => b.BrandId == BrandId)

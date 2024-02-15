@@ -6,10 +6,15 @@ using Tgs.ServiceUtility;
 
 namespace TGS.Services.BackOffice.Application.Queries.Deposit;
 
-internal class GetDepositFormDetailQueryService(IPaymentServiceClient paymentServiceClient) : IGetService<GetDepositFormDetailQuery, DepositFormInfo>
+internal class GetDepositFormDetailQueryService(IPaymentServiceClient paymentServiceClient)
+    : IGetService<GetDepositFormDetailQuery, DepositFormInfo>
 {
-    private readonly IPaymentServiceClient _paymentServiceClient = paymentServiceClient ?? throw new ArgumentNullException(nameof(paymentServiceClient));
+    public async ValueTask<DepositFormInfo> GetAsync(GetDepositFormDetailQuery query, CancellationToken cancellationToken = default)
+    {
+        var form = await paymentServiceClient.GetDepositFormAsync(
+            query.FormId,
+            cancellationToken).ConfigureAwait(false);
 
-    public ValueTask<DepositFormInfo> GetAsync(GetDepositFormDetailQuery query, CancellationToken cancellationToken = default)
-        => _paymentServiceClient.GetDepositFormAsync(query.BrandId, query.FormId, cancellationToken);
+        return form.BrandId != query.BrandId ? throw new Exception("Brand Id not match") : form;
+    }
 }

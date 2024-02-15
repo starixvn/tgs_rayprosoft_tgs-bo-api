@@ -1,7 +1,7 @@
-﻿using System;
-using TGS.Core.Models.Messages;
+﻿#nullable enable
 
-#nullable enable
+using System;
+using TGS.Services.BackOffice.Domain;
 
 namespace TGS.Services.BackOffice.Application.Models.ReportLicenseeMarket;
 

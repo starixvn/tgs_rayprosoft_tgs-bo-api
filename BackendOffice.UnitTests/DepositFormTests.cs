@@ -35,12 +35,17 @@ public class DepositFormTests
 
         var query = new GetDepositFormDetailQuery(formId, brandId);
 
+        _ = fakePaymentServiceClient.GetDepositFormAsync(Arg.Is(formId))
+            .Returns(new DepositFormInfo
+            {
+                Id = formId,
+                BrandId = brandId
+            });
+
         _ = await sut.GetAsync(query);
 
         _ = fakePaymentServiceClient.Received(1)
-            .GetDepositFormAsync(
-                Arg.Is(brandId),
-                Arg.Is(formId));
+            .GetDepositFormAsync(Arg.Any<Guid>());
     }
 
     [Test]
@@ -89,7 +94,7 @@ public class DepositFormTests
         var brandId = Guid.NewGuid();
         var formId = Guid.NewGuid();
 
-        _ = fakePaymentServiceClient.GetDepositFormAsync(brandId, formId)
+        _ = fakePaymentServiceClient.GetDepositFormAsync(Arg.Is(formId))
             .Returns(new DepositFormInfo { Status = PaymentFlowState.Approved });
 
         var command = new ReviewDepositFormCommand(
@@ -164,9 +169,7 @@ public class DepositFormTests
                 Arg.Any<When>())
             .Returns(true);
 
-        _ = fakePaymentServiceClient.GetDepositFormAsync(
-                Arg.Is(brandId),
-                Arg.Is(formId))
+        _ = fakePaymentServiceClient.GetDepositFormAsync(Arg.Is(formId))
             .Returns(new DepositFormInfo
             {
                 Id = Guid.NewGuid(),
@@ -294,12 +297,13 @@ public class DepositFormTests
         var playerCode = "test1";
         var walletId = Guid.NewGuid();
 
-        _ = fakePaymentServiceClient.GetDepositFormAsync(brandId, formId)
+        _ = fakePaymentServiceClient.GetDepositFormAsync(Arg.Is(formId))
             .Returns(new DepositFormInfo
             {
                 Amount = 1000M,
                 BrandPaymentId = brandPaymentId,
                 PlayerCode = playerCode,
+                BrandId = brandId,
                 Status = PaymentFlowState.WaitApprove
             });
 
@@ -387,13 +391,14 @@ public class DepositFormTests
         var playerCode = "test1";
         var walletId = Guid.NewGuid();
 
-        _ = fakePaymentServiceClient.GetDepositFormAsync(brandId, formId)
+        _ = fakePaymentServiceClient.GetDepositFormAsync(Arg.Is(formId))
             .Returns(new DepositFormInfo
             {
                 Id = formId,
                 Amount = 1000M,
                 BrandPaymentId = brandPaymentId,
                 PlayerCode = playerCode,
+                BrandId = brandId,
                 Status = PaymentFlowState.WaitApprove
             });
 
@@ -491,7 +496,7 @@ public class DepositFormTests
         var walletId = Guid.NewGuid();
         var promotionId = Guid.NewGuid();
 
-        _ = fakePaymentServiceClient.GetDepositFormAsync(brandId, formId)
+        _ = fakePaymentServiceClient.GetDepositFormAsync(Arg.Is(formId))
             .Returns(new DepositFormInfo
             {
                 Id = formId,
@@ -630,7 +635,7 @@ public class DepositFormTests
         var brandPaymentId = Guid.NewGuid();
         var playerCode = "test1";
 
-        _ = fakePaymentServiceClient.GetDepositFormAsync(brandId, formId)
+        _ = fakePaymentServiceClient.GetDepositFormAsync(Arg.Is(formId))
             .Returns(new DepositFormInfo
             {
                 Amount = 1000M,
@@ -714,13 +719,14 @@ public class DepositFormTests
         var walletId = Guid.NewGuid();
         var promotionId = Guid.NewGuid();
 
-        _ = fakePaymentServiceClient.GetDepositFormAsync(brandId, formId)
+        _ = fakePaymentServiceClient.GetDepositFormAsync(Arg.Is(formId))
             .Returns(new DepositFormInfo
             {
                 Id = formId,
                 Amount = 1000M,
                 BrandPaymentId = brandPaymentId,
                 PlayerCode = playerCode,
+                BrandId = brandId,
                 PromotionId = promotionId,
                 Status = PaymentFlowState.WaitApprove
             });
@@ -838,12 +844,13 @@ public class DepositFormTests
         var playerCode = "test1";
         var walletId = Guid.NewGuid();
 
-        _ = fakePaymentServiceClient.GetDepositFormAsync(brandId, formId)
+        _ = fakePaymentServiceClient.GetDepositFormAsync(Arg.Is(formId))
             .Returns(new DepositFormInfo
             {
                 Amount = 1000M,
                 BrandPaymentId = brandPaymentId,
                 PlayerCode = playerCode,
+                BrandId = brandId,
                 Status = PaymentFlowState.WaitApprove
             });
 

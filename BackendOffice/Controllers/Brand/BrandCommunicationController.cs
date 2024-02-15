@@ -7,9 +7,9 @@ using Microsoft.AspNetCore.Mvc;
 using Tgs.ServiceUtility;
 using TGS.Apis.BackendOffice.Controllers.Messages.BrandCommunication;
 using TGS.Core.Models.Enums;
-using TGS.Core.Models.Messages;
 using TGS.Services.BackOffice.Application.Commands.BrandCommunication;
 using TGS.Services.BackOffice.Application.Queries.BrandCommunication;
+using TGS.Services.BackOffice.Domain;
 
 namespace TGS.Apis.BackendOffice.Controllers.Brand;
 

@@ -3,7 +3,7 @@ using Microsoft.AspNetCore.Http;
 using NSubstitute;
 using TGS.Core.Models;
 using TGS.Core.Models.Enums;
-using TGS.Core.Models.Messages;
+using TGS.Services.BackOffice.Domain;
 using TGS.Tests.TestsCommon;
 
 namespace TGS.Tests.BackendOffice.UnitTests.Controllers;

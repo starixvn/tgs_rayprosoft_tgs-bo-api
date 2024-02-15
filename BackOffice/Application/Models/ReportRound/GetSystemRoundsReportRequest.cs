@@ -1,8 +1,8 @@
-﻿using System;
-using TGS.Core.Models.Enums;
-using TGS.Core.Models.Messages;
+﻿#nullable enable
 
-#nullable enable
+using System;
+using TGS.Core.Models.Enums;
+using TGS.Services.BackOffice.Domain;
 
 namespace TGS.Services.BackOffice.Application.Models.ReportRound;
 

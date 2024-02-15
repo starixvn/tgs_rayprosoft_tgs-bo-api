@@ -2,27 +2,27 @@
 using System.Threading;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Http;
-using TGS.Core.DataServices.Base.Extensions;
-using TGS.Core.Models.Messages;
 using TGS.Services.BackOffice.Application.Models.SubGameProvider;
+using TGS.Services.BackOffice.Domain;
 using TGS.Services.BackOffice.Infrastructure.DataService;
 
 namespace TGS.Services.BackOffice.Application.Queries.SubGameProviderHandlers;
 
-public class
-    GetSubGameProvidersQueryHandler(ISubGameProviderService service, IHttpContextAccessor accessor) : Handler<GetSubGameProvidersRequest, PagedResponse<SubGameProviderModel>>(accessor)
+public class GetSubGameProvidersQueryHandler(
+    ISubGameProviderService service,
+    IHttpContextAccessor accessor)
+    : Handler<GetSubGameProvidersRequest, PagedResponse<SubGameProviderModel>>(accessor)
 {
-    private readonly ISubGameProviderService _service = service;
-
-    public override Task<PagedResponse<SubGameProviderModel>> Handle(GetSubGameProvidersRequest request,
-        CancellationToken cancellationToken) =>
-        _service.GetSubGameProviderQueries(q => q
-                .Where(ResellerId,
-                    r => r.GameProvider.Resellers.Select(x => x.ResellerId).Contains(ResellerId.Value))
-                .Where(LicenseeId,
-                    l => l.GameProvider.Licensees.Select(x => x.LicenseeId).Contains(LicenseeId.Value))
-                .Where(BrandId, b => b.GameProvider.Brands.Select(x => x.BrandId).Contains(BrandId.Value))
-                .Where(g => g.GameProviderId == request.GameProviderId))
+    public override Task<PagedResponse<SubGameProviderModel>> Handle(
+        GetSubGameProvidersRequest request,
+        CancellationToken cancellationToken)
+        => service.GetSubGameProviderQueries(q => q
+            .Where(ResellerId,
+                r => r.GameProvider.Resellers.Select(x => x.ResellerId).Contains(ResellerId.Value))
+            .Where(LicenseeId,
+                l => l.GameProvider.Licensees.Select(x => x.LicenseeId).Contains(LicenseeId.Value))
+            .Where(BrandId, b => b.GameProvider.Brands.Select(x => x.BrandId).Contains(BrandId.Value))
+            .Where(g => g.GameProviderId == request.GameProviderId))
             .Select(x => new SubGameProviderModel
             {
                 Name = x.Name,
@@ -34,5 +34,6 @@ public class
                 UpdatedByUsername = x.UpdatedByUsername,
                 CreatedOn = x.CreatedOn,
                 UpdatedOn = x.UpdatedOn
-            }).CreatePagedResponseAsync(request);
+            })
+            .CreatePagedResponseAsync(request);
 }

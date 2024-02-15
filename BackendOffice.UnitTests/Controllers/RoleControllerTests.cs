@@ -12,7 +12,6 @@ using TGS.Core.DataServices.Base.Interfaces;
 using TGS.Core.DataServices.Tgs.Models;
 using TGS.Core.Infrastructures.Json;
 using TGS.Core.Models.Enums;
-using TGS.Core.Models.Messages;
 using TGS.Core.Models.Services;
 
 namespace TGS.Tests.BackendOffice.UnitTests.Controllers;
@@ -315,7 +314,7 @@ public class RoleControllerTests : BaseTests
             Page = 1,
             Rows = 10,
             SortBy = "Name",
-            OrderBy = SortOrder.Descending,
+            OrderBy = TGS.Core.Models.Messages.SortOrder.Descending,
             ShowAll = showAll
         };
 
