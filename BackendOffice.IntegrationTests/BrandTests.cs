@@ -1,5 +1,4 @@
-﻿using System.Data.SqlClient;
-using System.Globalization;
+﻿using System.Globalization;
 using System.Runtime.InteropServices;
 using System.Text.Json;
 using ExpectedObjects;
@@ -13,7 +12,6 @@ using Tgs.Agent.Dividend.Client;
 using Tgs.BrandCertificate;
 using Tgs.BrandCertificate.Clients;
 using TGS.Apis.BackendOffice.ViewModels;
-using TGS.Core.Models.Messages;
 using TGS.Services.BackOffice.Application.Models.Brand;
 using TGS.Services.BackOffice.Application.Resources;
 using TGS.Services.BackOffice.Domain;
@@ -61,7 +59,7 @@ public class BrandTests(ITestOutputHelper testOutputHelper, NodeJsFixture nodeJs
         var page = 1;
         var rows = 20;
         var sortby = "code";
-        var orderby = SortOrder.Ascending;
+        var orderby = TGS.Core.Models.Messages.SortOrder.Ascending;
         var showAll = false;
 
         _ = fakeBrandServiceClient.QueryBrandListAsync(
@@ -199,7 +197,7 @@ public class BrandTests(ITestOutputHelper testOutputHelper, NodeJsFixture nodeJs
         var page = 1;
         var rows = 20;
         var sortby = "code";
-        var orderby = SortOrder.Ascending;
+        var orderby = TGS.Core.Models.Messages.SortOrder.Ascending;
         var showAll = false;
 
         _ = fakeBrandServiceClient.QueryBrandListAsync(
@@ -335,7 +333,7 @@ public class BrandTests(ITestOutputHelper testOutputHelper, NodeJsFixture nodeJs
         var page = 1;
         var rows = 20;
         var sortby = "code";
-        var orderby = SortOrder.Ascending;
+        var orderby = TGS.Core.Models.Messages.SortOrder.Ascending;
         var showAll = false;
 
         _ = fakeBrandServiceClient.QueryBrandListAsync(
@@ -473,7 +471,7 @@ public class BrandTests(ITestOutputHelper testOutputHelper, NodeJsFixture nodeJs
         var page = 1;
         var rows = 20;
         var sortby = "code";
-        var orderby = SortOrder.Ascending;
+        var orderby = TGS.Core.Models.Messages.SortOrder.Ascending;
         var showAll = false;
 
         _ = fakeBrandServiceClient.QueryBrandListAsync(
@@ -611,7 +609,7 @@ public class BrandTests(ITestOutputHelper testOutputHelper, NodeJsFixture nodeJs
         var page = 1;
         var rows = 20;
         var sortby = "code";
-        var orderby = SortOrder.Ascending;
+        var orderby = TGS.Core.Models.Messages.SortOrder.Ascending;
         var showAll = false;
 
         _ = fakeBrandServiceClient.QueryBrandListAsync(
@@ -1205,7 +1203,7 @@ public class BrandTests(ITestOutputHelper testOutputHelper, NodeJsFixture nodeJs
         var page = 1;
         var rows = 20;
         var sortby = "code";
-        var orderby = SortOrder.Ascending;
+        var orderby = TGS.Core.Models.Messages.SortOrder.Ascending;
         var showAll = false;
 
         _ = fakeBrandServiceClient.QueryBrandListAsync(

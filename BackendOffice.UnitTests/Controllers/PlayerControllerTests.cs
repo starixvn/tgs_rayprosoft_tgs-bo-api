@@ -1,25 +1,23 @@
 ﻿using System.Collections.Immutable;
-using System.Data.SqlClient;
 using AutoFixture;
 using ExpectedObjects;
 using FluentAssertions;
 using MediatR;
 using MockQueryable.Moq;
 using NSubstitute;
-using TGS.Apis.BackendOffice.Controllers;
 using Tgs.CashService.Client;
-using TGS.Core.Models.Enums;
-using TGS.Core.Models.Messages;
 using Tgs.Payment.Clients;
 using Tgs.PlayerService.Client;
 using Tgs.Promotion.Clients;
 using Tgs.Service.PlayerBuckets;
+using Tgs.ServiceUtility;
+using TGS.Apis.BackendOffice.Controllers;
+using TGS.Core.Models.Enums;
 using TGS.Services.BackOffice.Application.Models.Player;
 using TGS.Services.BackOffice.Application.Resources;
 using TGS.Services.BackOffice.ApplicationServices.Agents;
 using TGS.Services.BackOffice.ApplicationServices.Players;
 using TGS.Services.BackOffice.Domain;
-using Tgs.ServiceUtility;
 using PlayerInfo = Tgs.PlayerService.Client.PlayerInfo;
 
 namespace TGS.Tests.BackendOffice.UnitTests.Controllers;
@@ -138,7 +136,7 @@ public class PlayerControllerTests : BaseTests
             Page = 1,
             Rows = 10,
             SortBy = "CreatedOn",
-            OrderBy = SortOrder.Descending,
+            OrderBy = TGS.Core.Models.Messages.SortOrder.Descending,
             ShowAll = showAll
         };
 

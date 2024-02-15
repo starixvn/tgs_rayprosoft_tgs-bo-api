@@ -3,10 +3,9 @@ using System.Threading.Tasks;
 using Microsoft.AspNetCore.Http;
 using TGS.Core.Infrastructures.Redis;
 using TGS.Core.Models.Enums;
-using TGS.Core.Models.Extensions;
-using TGS.Core.Models.Messages;
 using TGS.Services.BackOffice.Application.Models.BrandGame;
 using TGS.Services.BackOffice.Application.Resources;
+using TGS.Services.BackOffice.Domain;
 using TGS.Services.BackOffice.Infrastructure.DataService;
 
 namespace TGS.Services.BackOffice.Application.Commands.BrandGameHandlers;
@@ -30,8 +29,8 @@ public class UpdateBrandGameTagHandler(
         }
 
         brandGame.Tag = request.Enabled
-            ? brandGame.Tag.AddTag(request.GameTag)
-            : brandGame.Tag.RemoveTag(request.GameTag);
+            ? brandGame.Tag | request.GameTag
+            : brandGame.Tag & ~request.GameTag;
 
         await _service.UpdateBrandGameAsync(brandGame);
         await _cacheManager.ClearCacheAsync(RedisCacheType.BrandGames, brandGame.BrandId, true);

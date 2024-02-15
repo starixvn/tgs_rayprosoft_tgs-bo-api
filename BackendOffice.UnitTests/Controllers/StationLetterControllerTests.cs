@@ -114,7 +114,7 @@ public class StationLetterControllerTests : BaseTests
             Page = 1,
             Rows = 10,
             SortBy = "CreatedOn",
-            OrderBy = SortOrder.Descending,
+            OrderBy = Core.Models.Messages.SortOrder.Descending,
             ShowAll = showAll
         };
 

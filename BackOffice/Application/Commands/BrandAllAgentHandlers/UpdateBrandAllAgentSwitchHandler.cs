@@ -1,16 +1,17 @@
 ﻿using System.Threading;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Http;
-using TGS.Core.Models.Messages;
 using Tgs.Player.All.Agent.Client;
 using Tgs.Player.All.Agent.Client.Models;
 using TGS.Services.BackOffice.Application.Models.BrandAllAgent;
+using TGS.Services.BackOffice.Domain;
 
 namespace TGS.Services.BackOffice.Application.Commands.BrandAllAgentHandlers;
 
 public class UpdateBrandAllAgentSwitchHandler(
     IBrandAllAgentClient client,
-    IHttpContextAccessor accessor) : Handler<UpdateBrandAllAgentSwitchRequest, MessageResponse>(accessor)
+    IHttpContextAccessor accessor) 
+    : Handler<UpdateBrandAllAgentSwitchRequest, MessageResponse>(accessor)
 {
     private readonly IBrandAllAgentClient _client = client;
 

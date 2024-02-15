@@ -7,8 +7,10 @@ using TGS.Services.BackOffice.Infrastructure.DataService;
 
 namespace TGS.Services.BackOffice.Application.Queries.LanguageHandlers;
 
-public class GetLanguageQueryHandler(ILanguageService service, IHttpContextAccessor accessor) : Handler<GetLanguageRequest,
-    GetLanguageResponse>(accessor)
+public class GetLanguageQueryHandler(
+    ILanguageService service,
+    IHttpContextAccessor accessor)
+    : Handler<GetLanguageRequest, GetLanguageResponse>(accessor)
 {
     private readonly ILanguageService _service = service;
 

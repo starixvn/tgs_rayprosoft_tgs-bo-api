@@ -7,13 +7,11 @@ using Microsoft.EntityFrameworkCore;
 using Tgs.Paging;
 using Tgs.ServiceUtility;
 using TGS.Apis.BackendOffice.Controllers.Messages.Department;
-using TGS.Apis.BackendOffice.Controllers.Messages.Users;
-using TGS.Core.DataServices.Base.Extensions;
 using TGS.Core.DataServices.Base.Interfaces;
 using TGS.Core.DataServices.Tgs.Models;
 using TGS.Core.Infrastructures.Extensions;
-using TGS.Core.Models.Messages;
 using TGS.Services.BackOffice.ApplicationServices;
+using TGS.Services.BackOffice.Domain;
 
 namespace TGS.Apis.BackendOffice.Controllers;
 
@@ -40,7 +38,7 @@ public class DepartmentController(
 
         var department = new Department
         {
-            Id = GuidExtensions.NewSequentialGuid(),
+            Id = Guid.NewGuid(),
             ResellerId = request.ResellerId,
             LicenseeId = request.LicenseeId,
             BrandId = request.BrandId,

@@ -9,8 +9,8 @@ using Microsoft.AspNetCore.Mvc;
 using Tgs.ArticleManagement.Clients;
 using Tgs.ServiceUtility;
 using TGS.Apis.BackendOffice.ViewModels;
-using TGS.Core.Models.Messages;
 using TGS.Services.BackOffice.ApplicationServices.Articles;
+using TGS.Services.BackOffice.Domain;
 
 namespace TGS.Apis.BackendOffice.Controllers;
 

@@ -3,10 +3,9 @@ using System.Threading;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Http;
 using Microsoft.EntityFrameworkCore;
-using TGS.Core.DataServices.Base.Extensions;
-using TGS.Core.Models.Messages;
 using TGS.Services.BackOffice.Application.Models.AgentAdjust;
 using TGS.Services.BackOffice.Infrastructure.DataService;
+using TGS.Services.BackOffice.Domain;
 
 namespace TGS.Services.BackOffice.Application.Queries.AgentAdjustHandlers;
 
@@ -31,5 +30,6 @@ public class GetAgentAdjustsQueryHandler(IAgentService service, IHttpContextAcce
                 Type = x.Type,
                 LevelType = x.LevelType,
                 Balance = x.Wallets.FirstOrDefault().Balance
-            }).CreatePagedResponseAsync(request);
+            })
+            .CreatePagedResponseAsync(request);
 }

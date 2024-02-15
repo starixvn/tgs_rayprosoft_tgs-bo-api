@@ -4,9 +4,8 @@ using Microsoft.AspNetCore.Mvc;
 using Tgs.Agent.Dividend.Client;
 using Tgs.Agent.Dividend.Client.Models;
 using TGS.Apis.BackendOffice.Controllers.Messages.BrandContract;
-using TGS.Core.DataServices.Base.Extensions;
 using TGS.Core.Models.Enums;
-using TGS.Core.Models.Messages;
+using TGS.Services.BackOffice.Domain;
 
 namespace TGS.Apis.BackendOffice.Controllers.Brand;
 

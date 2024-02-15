@@ -37,7 +37,7 @@ internal class AgentRepository(ITgsRepository tgsRepository) : IAgentRepository
             .Select(agent => new AgentInfo(
                 agent.Id,
                 agent.Username,
-                agent.DefaultWalletId,
+                agent.WalletId!.Value,
                 agent.Status))
             .FirstOrDefaultAsync(cancellationToken)
             .ConfigureAwait(false);
@@ -48,7 +48,7 @@ internal class AgentRepository(ITgsRepository tgsRepository) : IAgentRepository
             .Select(agent => new AgentInfo(
                 agent.Id,
                 agent.Username,
-                agent.DefaultWalletId,
+                agent.WalletId!.Value,
                 agent.Status))
             .ToAsyncEnumerable();
 

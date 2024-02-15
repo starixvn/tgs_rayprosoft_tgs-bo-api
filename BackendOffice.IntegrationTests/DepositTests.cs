@@ -5,8 +5,8 @@ using Microsoft.Extensions.Logging;
 using NSubstitute;
 using Tgs.Payment.Clients;
 using Tgs.ServiceUtility;
-using TGS.Core.Models.Messages;
 using TGS.Services.BackOffice.Application.Queries.Deposit;
+using TGS.Services.BackOffice.Domain;
 using Xunit.Abstractions;
 
 namespace BackendOffice.IntegrationTests;

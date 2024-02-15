@@ -7,13 +7,12 @@ using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 using NSubstitute;
-using Tgs.ServiceUtility;
 using TGS.Apis.BackendOffice.Controllers.Messages.Users;
 using TGS.Core.DataServices.Base.Interfaces;
 using TGS.Core.DataServices.Tgs.Models;
 using TGS.Core.Models.Enums;
-using TGS.Core.Models.Messages;
 using TGS.Services.BackOffice.ApplicationServices;
+using TGS.Services.BackOffice.Domain;
 using Xunit.Abstractions;
 
 namespace BackendOffice.IntegrationTests;
@@ -136,7 +135,7 @@ public class UserTests(ITestOutputHelper testOutputHelper, NodeJsFixture nodeJsF
             Rows = 20,
             Page = 1,
             SortBy = "Username",
-            OrderBy = SortOrder.Ascending,
+            OrderBy = TGS.Core.Models.Messages.SortOrder.Ascending,
             ShowAll = false
         };
 

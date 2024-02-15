@@ -1,5 +1,5 @@
-﻿using TGS.Core.Models.Messages;
-using TGS.Core.Models.Services;
+﻿using TGS.Core.Models.Services;
+using TGS.Services.BackOffice.Domain;
 
 namespace TGS.Apis.BackendOffice.Controllers.Messages.Roles;
 

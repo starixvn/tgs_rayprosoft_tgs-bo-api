@@ -9,7 +9,6 @@ using Tgs.CashService.Client;
 using Tgs.PlayerBucket.Client;
 using Tgs.PlayerService.Client;
 using TGS.Core.Models.Enums;
-using TGS.Core.Models.Messages;
 using TGS.Services.BackOffice.Application.Models.Player;
 using TGS.Services.BackOffice.Domain;
 using Xunit.Abstractions;

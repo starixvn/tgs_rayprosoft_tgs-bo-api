@@ -1,13 +1,12 @@
-﻿using System.Data.SqlClient;
-using System.Runtime.InteropServices;
+﻿using System.Runtime.InteropServices;
 using ExpectedObjects;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
 using NSubstitute;
 using Tgs.ServiceUtility;
-using TGS.Core.Models.Messages;
 using TGS.Services.BackOffice.ApplicationServices.Players;
+using TGS.Services.BackOffice.Domain;
 using Xunit.Abstractions;
 
 namespace BackendOffice.IntegrationTests;
@@ -49,7 +48,7 @@ public class PlayerIpTests(ITestOutputHelper testOutputHelper, NodeJsFixture nod
         var page = 1;
         var rows = 20;
         var sortby = "createdOn";
-        var orderby = SortOrder.Descending;
+        var orderby = TGS.Core.Models.Messages.SortOrder.Descending;
         var showAll = false;
 
         var query = new GetPlayerIpsByUserNameQuery

@@ -12,7 +12,6 @@ using Tgs.Promotion.Clients.Models.Promotion;
 using Tgs.ServiceUtility;
 using TGS.Apis.BackendOffice.Controllers.Messages;
 using TGS.Apis.BackendOffice.Controllers.Messages.DepositAccumulateRoulette;
-using TGS.Core.Models.Messages;
 using TGS.Services.BackOffice.ApplicationServices.Promotion;
 using TGS.Services.BackOffice.Domain;
 

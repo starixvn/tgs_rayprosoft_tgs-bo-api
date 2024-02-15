@@ -1,13 +1,16 @@
 ﻿using System.Threading;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Http;
-using TGS.Core.Models.Messages;
 using TGS.Services.BackOffice.Application.Models.Brand;
+using TGS.Services.BackOffice.Domain;
 using TGS.Services.BackOffice.Infrastructure.DataService;
 
 namespace TGS.Services.BackOffice.Application.Commands.BrandHandlers;
 
-public class SyncBrandGamesHandler(IBrandService service, IHttpContextAccessor accessor) : Handler<SyncGamesRequest, MessageResponse>(accessor)
+public class SyncBrandGamesHandler(
+    IBrandService service,
+    IHttpContextAccessor accessor) 
+    : Handler<SyncGamesRequest, MessageResponse>(accessor)
 {
     private readonly IBrandService _service = service;
 

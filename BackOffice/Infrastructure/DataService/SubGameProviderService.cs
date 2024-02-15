@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Linq;
 using System.Linq.Expressions;
+using System.Text.Json;
 using System.Threading.Tasks;
 using TGS.Core.DataServices.Base;
 using TGS.Core.DataServices.Tgs;
@@ -38,7 +39,9 @@ public class SubGameProviderService(ITgsRepository tgsRepository) : BaseReposito
             Code = request.Code,
             Name = request.Name,
             Description = request.Description,
-            Localization = request.Localization?.ToJson(),
+            Localization = request.Localization is null
+                ? null
+                : JsonSerializer.Serialize(request.Localization),
             CreatedByUsername = request.EditorUsername,
             UpdatedByUsername = request.EditorUsername,
             CreatedOn = DateTimeOffset.Now,
@@ -66,7 +69,9 @@ public class SubGameProviderService(ITgsRepository tgsRepository) : BaseReposito
     {
         gameProvider.Name = request.Name;
         gameProvider.Description = request.Description;
-        gameProvider.Localization = request.Localization?.ToJson();
+        gameProvider.Localization = request.Localization is null
+            ? null
+            : JsonSerializer.Serialize(request.Localization);
         gameProvider.UpdatedByUsername = request.EditorUsername;
         gameProvider.UpdatedOn = DateTimeOffset.Now;
 

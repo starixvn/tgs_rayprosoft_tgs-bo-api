@@ -6,7 +6,6 @@ using Tgs.PlayerBucket.Client;
 using Tgs.SerialNumberGenerator;
 using Tgs.Service.PlayerBuckets;
 using TGS.Core.Models.Enums;
-using TGS.Services.WalletService;
 using BucketType = Tgs.Service.PlayerBuckets.BucketType;
 
 namespace TGS.Services.BackOffice.Domain;
@@ -16,10 +15,8 @@ internal class PlayerAdjustBalanceService(
     ICashServiceClient cashServiceClient,
     IPlayerBucketClient playerBucketClient,
     ISerialNumberGenerator serialNumberGenerator,
-    IAgentWalletRepository agentWalletRepository,
     IPlayerBucketForTypesClient playerBucketForTypesClient) : IPlayerAdjustBalanceService
 {
-    private readonly IAgentWalletRepository _agentWalletRepository = agentWalletRepository ?? throw new ArgumentNullException(nameof(agentWalletRepository));
     private readonly IPlayerBucketForTypesClient _playerBucketForTypesClient = playerBucketForTypesClient ?? throw new ArgumentNullException(nameof(playerBucketForTypesClient));
     private readonly IBackOfficeRepository _backOfficeRepository = backOfficeRepository ?? throw new ArgumentNullException(nameof(backOfficeRepository));
     private readonly ICashServiceClient _cashServiceClient = cashServiceClient ?? throw new ArgumentNullException(nameof(cashServiceClient));
@@ -105,9 +102,8 @@ internal class PlayerAdjustBalanceService(
                 applyInfo.Remark,
                 cancellationToken).ConfigureAwait(false);
 
-        var createId = await _serialNumberGenerator
-            .GenerateAsync(cancellationToken)
-            .ConfigureAwait(false);
+        var createId = await _serialNumberGenerator.GenerateAsync(
+            cancellationToken).ConfigureAwait(false);
 
         var lockResult = await _cashServiceClient.LockTransferAsync(
             applyInfo.WalletId,
@@ -130,6 +126,14 @@ internal class PlayerAdjustBalanceService(
             throw new Exception("transfer fail");
         }
 
+        _ = await _cashServiceClient.LockReceiveAsync(
+            applyInfo.TargetAgentWalletId,
+            applyInfo.Amount,
+            null,
+            createId,
+            modifyUserId,
+            cancellationToken).ConfigureAwait(false);
+
         var createInfo = new TransferBalanceCreateInfo(
             applyInfo.BrandId,
             applyInfo.Amount,
@@ -145,17 +149,18 @@ internal class PlayerAdjustBalanceService(
             modifyUserId,
             cancellationToken).ConfigureAwait(false);
 
-        _ = await _agentWalletRepository.ExchangeAsync(
-            applyInfo.BrandId,
-            applyInfo.TargetAgentWalletId,
-            applyInfo.TargetAgent,
-            TransactionTypes.CompanyAdjust,
-            applyInfo.Amount).ConfigureAwait(false);
-
         _ = await _cashServiceClient.CommitTransferAsync(
             applyInfo.WalletId,
             applyInfo.Amount,
             applyInfo.Remark,
+            createId,
+            modifyUserId,
+            cancellationToken).ConfigureAwait(false);
+
+        _ = await _cashServiceClient.CommitReceiveAsync(
+            applyInfo.TargetAgentWalletId,
+            applyInfo.Amount,
+            null,
             createId,
             modifyUserId,
             cancellationToken).ConfigureAwait(false);

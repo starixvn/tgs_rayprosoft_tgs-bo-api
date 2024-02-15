@@ -64,7 +64,6 @@
     <ProjectReference Include="..\BackOffice.Repositories\BackOffice.Repositories.csproj" />
     <ProjectReference Include="..\BackOffice\BackOffice.csproj" />
     <ProjectReference Include="..\PlayerBucket.Repositories\PlayerBucket.Repositories.csproj" />
-    <ProjectReference Include="..\Wallet.Repositories\Wallet.Repositories.csproj" />
   </ItemGroup>
 
   <ItemGroup>

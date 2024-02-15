@@ -3,9 +3,9 @@ using System.ComponentModel;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Mvc;
 using Tgs.ServiceUtility;
-using TGS.Core.Models.Messages;
 using TGS.Services.BackOffice.Application.Commands.PlayerBank;
 using TGS.Services.BackOffice.Application.Models.PlayerBank;
+using TGS.Services.BackOffice.Domain;
 
 namespace TGS.Apis.BackendOffice.Controllers;
 

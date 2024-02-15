@@ -1,14 +1,17 @@
 ﻿using System.Threading;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Http;
-using TGS.Core.Models.Messages;
 using TGS.Services.BackOffice.Application.Models.Brand;
 using TGS.Services.BackOffice.Application.Resources;
+using TGS.Services.BackOffice.Domain;
 using TGS.Services.BackOffice.Infrastructure.DataService;
 
 namespace TGS.Services.BackOffice.Application.Commands.BrandHandlers;
 
-public class UpdateBrandHandler(IBrandService service, IHttpContextAccessor accessor) : Handler<UpdateBrandRequest, MessageResponse>(accessor)
+public class UpdateBrandHandler(
+    IBrandService service,
+    IHttpContextAccessor accessor)
+    : Handler<UpdateBrandRequest, MessageResponse>(accessor)
 {
     private readonly IBrandService _service = service;
 

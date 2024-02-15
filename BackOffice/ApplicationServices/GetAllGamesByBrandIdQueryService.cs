@@ -6,7 +6,8 @@ using TGS.Services.BackOffice.Domain;
 
 namespace TGS.Services.BackOffice.ApplicationServices;
 
-internal class GetAllGamesByBrandIdQueryService(IBackOfficeRepository backOfficeRepository) : IQueryService<GetAllGamesByBrandIdQuery, GameData>
+internal class GetAllGamesByBrandIdQueryService(IBackOfficeRepository backOfficeRepository)
+    : IQueryService<GetAllGamesByBrandIdQuery, GameData>
 {
     private readonly IBackOfficeRepository _backOfficeRepository = backOfficeRepository ?? throw new ArgumentNullException(nameof(backOfficeRepository));
 

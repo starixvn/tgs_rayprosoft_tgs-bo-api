@@ -3,9 +3,9 @@ using System.Threading.Tasks;
 using MediatR;
 using Microsoft.AspNetCore.Mvc;
 using Tgs.ServiceUtility;
-using TGS.Core.Models.Messages;
 using TGS.Services.BackOffice.Application.Models.PlayerIp;
 using TGS.Services.BackOffice.ApplicationServices.Players;
+using TGS.Services.BackOffice.Domain;
 
 namespace TGS.Apis.BackendOffice.Controllers;
 
@@ -15,10 +15,10 @@ public class PlayerIpController(IMediator mediator) : BaseContextController
 {
     [HttpGet("Ip")]
     [Description("Get player ipaddress By IP ")]
-    public Task<PagedResponse<PlayerIpByIpModel>> GetPlayerIpsByIpListAsync([FromQuery] GetPlayerIpsByIpRequest request) =>
-        mediator.Send(request);
+    public Task<PagedResponse<PlayerIpByIpModel>> GetPlayerIpsByIpListAsync([FromQuery] GetPlayerIpsByIpRequest request)
+        => mediator.Send(request);
 
-    [HttpGet("UserName")]
+    [HttpGet("username")]
     [Description("Get player ipaddress By UserName")]
     public ValueTask<PagedResponse<GetPlayerIpsByUserNameResult>> GetPlayerIpsByUserNameListAsync(
         [FromServices] IGetService<GetPlayerIpsByUserNameQuery, PagedResponse<GetPlayerIpsByUserNameResult>> service,

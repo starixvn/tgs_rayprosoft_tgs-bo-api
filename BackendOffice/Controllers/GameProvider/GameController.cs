@@ -15,7 +15,6 @@ using Microsoft.AspNetCore.Mvc;
 using Tgs.ServiceUtility;
 using TGS.Apis.BackendOffice.Controllers.Messages.Game;
 using TGS.Apis.BackendOffice.Services;
-using TGS.Core.Models.Messages;
 using TGS.Services.BackOffice.Application.Models.Game;
 using TGS.Services.BackOffice.Application.Queries.Game;
 using TGS.Services.BackOffice.ApplicationServices;

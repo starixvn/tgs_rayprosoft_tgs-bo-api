@@ -8,7 +8,6 @@ using Microsoft.AspNetCore.Mvc;
 using Tgs.BrandCertificate.Clients;
 using Tgs.ServiceUtility;
 using TGS.Apis.BackendOffice.ViewModels;
-using TGS.Core.Models.Messages;
 using TGS.Services.BackOffice.ApplicationServices.Promotion.Offline;
 using TGS.Services.BackOffice.Domain;
 

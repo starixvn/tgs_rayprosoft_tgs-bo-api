@@ -3,14 +3,16 @@ using System.Threading;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Http;
 using Microsoft.EntityFrameworkCore;
-using TGS.Core.Models.Messages;
 using TGS.Services.BackOffice.Application.Models.BrandGameProviderSchedule;
+using TGS.Services.BackOffice.Domain;
 using TGS.Services.BackOffice.Infrastructure.DataService;
 
 namespace TGS.Services.BackOffice.Application.Commands.BrandGameProviderHandlers;
 
-public class UpdateBrandGameProviderDefaultTimesHandler(IBrandGameProviderScheduleService service,
-    IHttpContextAccessor accessor) : Handler<UpdateDefaultTimesRequest, MessageResponse>(accessor)
+public class UpdateBrandGameProviderDefaultTimesHandler(
+    IBrandGameProviderScheduleService service,
+    IHttpContextAccessor accessor) 
+    : Handler<UpdateDefaultTimesRequest, MessageResponse>(accessor)
 {
     private readonly IBrandGameProviderScheduleService _service = service;
 

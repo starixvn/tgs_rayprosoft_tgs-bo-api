@@ -3,15 +3,18 @@ using System.Threading;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Http;
 using TGS.Core.Models.Enums;
-using TGS.Core.Models.Messages;
 using TGS.Services.BackOffice.Application.Models.BrandAgentDividend;
 using TGS.Services.BackOffice.Application.Resources;
+using TGS.Services.BackOffice.Domain;
 using TGS.Services.BackOffice.Infrastructure.DataService;
 
 namespace TGS.Services.BackOffice.Application.Commands.BrandAgentDividendHandlers;
 
-public class UpdateBrandAgentDividendHandler(IBrandAgentDividendConditionService service, IBrandService brandService,
-    IHttpContextAccessor accessor) : Handler<UpdateBrandAgentDividendConditionRequest, MessageResponse>(accessor)
+public class UpdateBrandAgentDividendHandler(
+    IBrandAgentDividendConditionService service,
+    IBrandService brandService,
+    IHttpContextAccessor accessor) 
+    : Handler<UpdateBrandAgentDividendConditionRequest, MessageResponse>(accessor)
 {
     public override async Task<MessageResponse> Handle(UpdateBrandAgentDividendConditionRequest request,
         CancellationToken cancellationToken)

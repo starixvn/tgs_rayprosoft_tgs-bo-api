@@ -1,9 +1,9 @@
-﻿using System;
+﻿#nullable enable
+
+using System;
 using MediatR;
 using TGS.Core.Models.Enums;
-using TGS.Core.Models.Messages;
-
-#nullable enable
+using TGS.Services.BackOffice.Domain;
 
 namespace TGS.Services.BackOffice.Application.Models.Player;
 

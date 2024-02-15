@@ -7,19 +7,13 @@ using MediatR;
 using Microsoft.AspNetCore.Mvc;
 using Tgs.Agent.Client;
 using Tgs.Agent.Client.Models;
-using Tgs.Report.Client;
-using Tgs.Report.Client.Models.Agent;
 using Tgs.ServiceUtility;
 using TGS.Apis.BackendOffice.ViewModels;
-using Tgs.CashQueryService.Client;
-using Tgs.CashService.Client;
 using TGS.Core.DataServices.Base.Interfaces;
 using TGS.Core.Models.Enums;
-using TGS.Core.Models.Messages;
 using TGS.Services.BackOffice.Application.Models.Agent;
-using TGS.Services.BackOffice.Application.Models.AgentAdjust;
-using TGS.Services.BackOffice.Application.Models.ReportAgent;
 using TGS.Services.BackOffice.ApplicationServices.Agents;
+using TGS.Services.BackOffice.Domain;
 using CreateAgentRequest = TGS.Services.BackOffice.Application.Models.Agent.CreateAgentRequest;
 
 namespace TGS.Apis.BackendOffice.Controllers.Agent;
@@ -112,7 +106,7 @@ public partial class AgentController(IMediator mediator) : BaseContextController
     [Description("Get agent operations")]
     public async Task<PagedResponse<AgentOperationModel>> GetAgentOperationsAsync(
         Guid id,
-        [FromServices] IGetService<GetAgentOperationQuery, Tgs.Agent.Client.Models.PagingResponse<AgentAuditLogInfo>> getService,
+        [FromServices] IGetService<GetAgentOperationQuery, PagingResponse<AgentAuditLogInfo>> getService,
         [FromQuery] GetAgentOperationsRequest request,
         [FromQuery] PageableRequest pageableRequest)
     {

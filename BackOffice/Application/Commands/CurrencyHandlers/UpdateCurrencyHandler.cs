@@ -1,14 +1,17 @@
 ﻿using System.Threading;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Http;
-using TGS.Core.Models.Messages;
 using TGS.Services.BackOffice.Application.Models.Currency;
 using TGS.Services.BackOffice.Application.Resources;
+using TGS.Services.BackOffice.Domain;
 using TGS.Services.BackOffice.Infrastructure.DataService;
 
 namespace TGS.Services.BackOffice.Application.Commands.CurrencyHandlers;
 
-public class UpdateCurrencyHandler(ICurrencyService service, IHttpContextAccessor accessor) : Handler<UpdateCurrencyRequest, MessageResponse>(accessor)
+public class UpdateCurrencyHandler(
+    ICurrencyService service,
+    IHttpContextAccessor accessor) 
+    : Handler<UpdateCurrencyRequest, MessageResponse>(accessor)
 {
     private readonly ICurrencyService _service = service;
 

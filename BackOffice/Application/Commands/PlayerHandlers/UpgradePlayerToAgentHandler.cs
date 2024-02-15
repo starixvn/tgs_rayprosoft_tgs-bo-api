@@ -1,5 +1,6 @@
 ﻿#nullable enable
 
+using System;
 using System.Collections.Generic;
 using System.Collections.Immutable;
 using System.Threading;
@@ -7,13 +8,12 @@ using System.Threading.Tasks;
 using Microsoft.AspNetCore.Http;
 using Tgs.Agent.Client;
 using Tgs.Agent.Client.Models;
-using TGS.Core.Models.Messages;
 using Tgs.PlayerService.Client;
 using TGS.Services.BackOffice.Application.Models.Player;
+using TGS.Services.BackOffice.Domain;
 using TGS.Services.BackOffice.Infrastructure.DataService;
 using AgentLevelType = Tgs.Agent.Client.Models.Enums.AgentLevelType;
 using AgentType = Tgs.Agent.Client.Models.Enums.AgentType;
-using System;
 
 namespace TGS.Services.BackOffice.Application.Commands.PlayerHandlers;
 

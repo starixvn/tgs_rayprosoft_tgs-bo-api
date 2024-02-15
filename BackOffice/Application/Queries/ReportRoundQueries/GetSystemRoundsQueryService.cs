@@ -10,7 +10,6 @@ using Tgs.Report.Client.Models.Round;
 using Tgs.ServiceUtility;
 using TGS.Core.Infrastructures.Json;
 using TGS.Core.Models.Enums;
-using TGS.Core.Models.Messages;
 using TGS.Services.BackOffice.Application.Models.ReportRound;
 using TGS.Services.BackOffice.Application.Queries.Game;
 using TGS.Services.BackOffice.ApplicationServices;
@@ -21,22 +20,14 @@ namespace TGS.Services.BackOffice.Application.Queries.ReportRoundQueries;
 internal class GetSystemRoundsQueryService(IOptions<JsonOptions> jsonOptionsAccessor,
     IQueryService<GetAllGamesByBrandIdQuery, GameData> gameQueryService,
     IGetService<GetSystemGameRoundListQuery, Tgs.Report.Client.Models.PagedResponse<SystemRoundModel>> queryService,
-    IJsonSerializationProvider jsonSerializationProvider) : IGetService<GetSystemRoundsReportRequest,
-        PagedResponse<SystemRoundView>>
+    IJsonSerializationProvider jsonSerializationProvider)
+    : IGetService<GetSystemRoundsReportRequest, PagedResponse<SystemRoundView>>
 {
-    private readonly IQueryService<GetAllGamesByBrandIdQuery, GameData> _gameQueryService = gameQueryService ?? throw new ArgumentNullException(nameof(gameQueryService));
-    private readonly IOptions<JsonOptions> _jsonOptionsAccessor = jsonOptionsAccessor ?? throw new ArgumentNullException(nameof(jsonOptionsAccessor));
-    private readonly IJsonSerializationProvider _jsonSerializationProvider = jsonSerializationProvider ??
-            throw new ArgumentNullException(nameof(jsonSerializationProvider));
-
-    private readonly IGetService<GetSystemGameRoundListQuery, Tgs.Report.Client.Models.PagedResponse<SystemRoundModel>>
-        _queryService = queryService ?? throw new ArgumentNullException(nameof(queryService));
-
     public async ValueTask<PagedResponse<SystemRoundView>> GetAsync(
         GetSystemRoundsReportRequest request,
         CancellationToken cancellationToken = default)
     {
-        var serializerOptions = _jsonOptionsAccessor.Value.JsonSerializerOptions;
+        var serializerOptions = jsonOptionsAccessor.Value.JsonSerializerOptions;
         var currentCulture = CultureInfo.CurrentUICulture.Name;
 
         var query = new GetSystemGameRoundListQuery(
@@ -67,7 +58,7 @@ internal class GetSystemRoundsQueryService(IOptions<JsonOptions> jsonOptionsAcce
                 ShowAll = request.ShowAll
             });
 
-        var records = await _queryService
+        var records = await queryService
             .GetAsync(query, cancellationToken)
             .ConfigureAwait(false);
 
@@ -77,7 +68,7 @@ internal class GetSystemRoundsQueryService(IOptions<JsonOptions> jsonOptionsAcce
                 .Select(game => new
                 {
                     game.GameId,
-                    Localization = _jsonSerializationProvider
+                    Localization = jsonSerializationProvider
                         .DeserializeFromString<IDictionary<string, GameLocalizationData>>(
                             game.Localization ?? "{}",
                             serializerOptions)
@@ -87,12 +78,12 @@ internal class GetSystemRoundsQueryService(IOptions<JsonOptions> jsonOptionsAcce
 
         if (request.BrandId.HasValue)
         {
-            allGames = await _gameQueryService
+            allGames = await gameQueryService
                   .QueryAsync(new GetAllGamesByBrandIdQuery(request.BrandId.Value), cancellationToken)
                   .Select(game => new
                   {
                       game.GameId,
-                      Localization = _jsonSerializationProvider
+                      Localization = jsonSerializationProvider
                           .DeserializeFromString<IDictionary<string, GameLocalizationData>>(
                               game.Localization ?? "{}",
                               serializerOptions)

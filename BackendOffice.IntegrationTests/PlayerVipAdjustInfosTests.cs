@@ -1,6 +1,4 @@
-﻿using System.Data.SqlClient;
-using System.Runtime.InteropServices;
-using ExpectedObjects;
+﻿using System.Runtime.InteropServices;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
@@ -9,8 +7,8 @@ using Tgs.ServiceUtility;
 using Tgs.VipLevelService.Clients;
 using Tgs.VipLevelService.Common.ViewModels;
 using TGS.Apis.BackendOffice.ViewModels;
-using TGS.Core.Models.Messages;
 using TGS.Services.BackOffice.ApplicationServices.Players;
+using TGS.Services.BackOffice.Domain;
 using Xunit.Abstractions;
 
 namespace BackendOffice.IntegrationTests;
@@ -50,14 +48,14 @@ public class PlayerVipAdjustInfosTests(ITestOutputHelper testOutputHelper, NodeJ
         var page = 1;
         var rows = 20;
         var sortby = "CreatedOn";
-        var orderby = SortOrder.Descending;
+        var orderby = TGS.Core.Models.Messages.SortOrder.Descending;
         var showAll = false;
         var pageRequest = new PageableRequest
         {
             Rows = rows,
             Page = page,
             SortBy = sortby,
-            OrderBy = SortOrder.Descending,
+            OrderBy = TGS.Core.Models.Messages.SortOrder.Descending,
             ShowAll = showAll,
         };
 
@@ -131,6 +129,5 @@ public class PlayerVipAdjustInfosTests(ITestOutputHelper testOutputHelper, NodeJ
 
         //Assert
         Assert.Equal(2, actual!.TotalCount);
-        //response.Items.ToExpectedObject().ShouldMatch(actual!.Items);
     }
 }

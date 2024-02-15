@@ -1,23 +1,18 @@
-﻿using System;
-using System.Linq;
+﻿using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 using Tgs.Report.Client;
 using Tgs.Report.Client.Models.Agent;
 using Tgs.ServiceUtility;
-using TGS.Core.DataServices.Base.Extensions;
 using TGS.Core.Models.Enums;
-using TGS.Core.Models.Messages;
 using TGS.Services.BackOffice.Application.Models.ReportAgent;
+using TGS.Services.BackOffice.Domain;
 
 namespace TGS.Services.BackOffice.Application.Queries.ReportAgentQueries;
 
-public class
-    GetAgentContributionsQuery(IReportClient reportClient) : IGetService<GetAgentContributionsReportRequest,
-        GetAgentContributionsReportResponse>
+public class GetAgentContributionsQuery(IReportClient reportClient)
+    : IGetService<GetAgentContributionsReportRequest, GetAgentContributionsReportResponse>
 {
-    private readonly IReportClient _reportClient = reportClient ?? throw new ArgumentNullException(nameof(reportClient));
-
     public async ValueTask<GetAgentContributionsReportResponse> GetAsync(GetAgentContributionsReportRequest request,
         CancellationToken cancellationToken = default)
     {
@@ -37,7 +32,7 @@ public class
             ShowAll = true
         };
 
-        var response = await _reportClient.GetAgentContributionsAsync(reportRequest).ConfigureAwait(false);
+        var response = await reportClient.GetAgentContributionsAsync(reportRequest).ConfigureAwait(false);
 
         if (!response.Valid)
         {

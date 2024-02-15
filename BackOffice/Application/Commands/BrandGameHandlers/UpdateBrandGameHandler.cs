@@ -3,9 +3,9 @@ using System.Threading.Tasks;
 using Microsoft.AspNetCore.Http;
 using TGS.Core.Infrastructures.Redis;
 using TGS.Core.Models.Enums;
-using TGS.Core.Models.Messages;
 using TGS.Services.BackOffice.Application.Models.BrandGame;
 using TGS.Services.BackOffice.Application.Resources;
+using TGS.Services.BackOffice.Domain;
 using TGS.Services.BackOffice.Infrastructure.DataService;
 
 namespace TGS.Services.BackOffice.Application.Commands.BrandGameHandlers;
@@ -13,7 +13,8 @@ namespace TGS.Services.BackOffice.Application.Commands.BrandGameHandlers;
 public class UpdateBrandGameHandler(
     IBrandGameService service,
     IHttpContextAccessor accessor,
-    IRedisCacheManager cacheManager) : Handler<UpdateBrandGameRequest, MessageResponse>(accessor)
+    IRedisCacheManager cacheManager) 
+    : Handler<UpdateBrandGameRequest, MessageResponse>(accessor)
 {
     private readonly IRedisCacheManager _cacheManager = cacheManager;
     private readonly IBrandGameService _service = service;

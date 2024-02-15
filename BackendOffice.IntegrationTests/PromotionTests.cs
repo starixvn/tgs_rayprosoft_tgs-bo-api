@@ -15,7 +15,6 @@ using Tgs.ServiceUtility;
 using TGS.Apis.BackendOffice.Controllers.Messages.Promotion;
 using TGS.Apis.BackendOffice.ViewModels;
 using TGS.Core.Models.Enums;
-using TGS.Core.Models.Messages;
 using TGS.Services.BackOffice;
 using TGS.Services.BackOffice.ApplicationServices;
 using TGS.Services.BackOffice.ApplicationServices.Promotion;
@@ -314,7 +313,7 @@ public class PromotionTests(ITestOutputHelper testOutputHelper, NodeJsFixture no
         var page = 1;
         var rows = 20;
         var sortby = "name";
-        var orderby = SortOrder.Ascending;
+        var orderby = TGS.Core.Models.Messages.SortOrder.Ascending;
         var showAll = false;
 
         var vipLevels = new[] { 0, 1, 2 };
@@ -447,7 +446,7 @@ public class PromotionTests(ITestOutputHelper testOutputHelper, NodeJsFixture no
         var page = 1;
         var rows = 20;
         var sortby = "name";
-        var orderby = SortOrder.Ascending;
+        var orderby = TGS.Core.Models.Messages.SortOrder.Ascending;
         var showAll = false;
 
         var vipLevels = new[] { 0, 1, 2 };
@@ -584,7 +583,7 @@ public class PromotionTests(ITestOutputHelper testOutputHelper, NodeJsFixture no
         var page = 1;
         var rows = 20;
         var sortby = "name";
-        var orderby = SortOrder.Ascending;
+        var orderby = TGS.Core.Models.Messages.SortOrder.Ascending;
         var showAll = false;
 
         var vipLevels = new[] { 0, 1, 2 };
@@ -721,7 +720,7 @@ public class PromotionTests(ITestOutputHelper testOutputHelper, NodeJsFixture no
         var page = 1;
         var rows = 20;
         var sortby = "name";
-        var orderby = SortOrder.Ascending;
+        var orderby = TGS.Core.Models.Messages.SortOrder.Ascending;
         var showAll = false;
 
         var vipLevels = new[] { 0, 1, 2 };
@@ -855,7 +854,7 @@ public class PromotionTests(ITestOutputHelper testOutputHelper, NodeJsFixture no
         var page = 1;
         var rows = 20;
         var sortby = "name";
-        var orderby = SortOrder.Ascending;
+        var orderby = TGS.Core.Models.Messages.SortOrder.Ascending;
         var showAll = false;
 
         var promotionTypes = new[] { "TestType" };
@@ -990,7 +989,7 @@ public class PromotionTests(ITestOutputHelper testOutputHelper, NodeJsFixture no
         var page = 1;
         var rows = 20;
         var sortby = "name";
-        var orderby = SortOrder.Ascending;
+        var orderby = TGS.Core.Models.Messages.SortOrder.Ascending;
         var showAll = false;
 
         var vipLevels = new[] { 0, 1, 2 };

@@ -11,10 +11,10 @@ using Microsoft.Extensions.Options;
 using Tgs.ServiceUtility;
 using TGS.Core.Infrastructures.Json;
 using TGS.Core.Models.Enums;
-using TGS.Core.Models.Messages;
 using TGS.Services.BackOffice.Application.Models.GameProvider;
 using TGS.Services.BackOffice.Application.Models.SubGameProvider;
 using TGS.Services.BackOffice.Application.Queries.GameProviders;
+using TGS.Services.BackOffice.Domain;
 
 namespace TGS.Apis.BackendOffice.Controllers.GameProvider;
 
