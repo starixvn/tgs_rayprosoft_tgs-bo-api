@@ -71,7 +71,7 @@ public class BrandMaintenanceTests(ITestOutputHelper testOutputHelper, NodeJsFix
 
         var nodeModule = $$"""
             const axiosConfigFactory = require('./models/axios-configuration.js').default;
-            const BackOfficeService = require('./services/bo-service.js').default;
+            const BackOfficeService = require('./services/bo-brand-service.js').default;
 
             module.exports = async () =>
             {

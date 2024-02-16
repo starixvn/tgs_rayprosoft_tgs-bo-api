@@ -197,7 +197,6 @@ builder.Services
     .AddRouting(options => options.LowercaseUrls = true);
 
 builder.Services
-    .AddDateOnlyTimeOnlyStringConverters()
     .AddFluentValidationAutoValidation(config => config.DisableDataAnnotationsValidation = true)
     .AddFluentValidationClientsideAdapters()
     .AddControllers(options =>

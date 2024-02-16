@@ -301,4 +301,27 @@ public partial class BrandController(IMediator mediator) : BaseContextController
         request.Id = id;
         return mediator.Send(request);
     }
+
+    [HttpGet("platform-account-fund/{brandId:Guid}", Name = "GetBrandPlatformAccountFundFlag")]
+    public async ValueTask<bool> GetBrandPlatformAccountFundFlagAsync(
+        [FromServices] IBrandServiceClient brandServiceClient,
+        Guid brandId)
+    {
+        var flag = await brandServiceClient.GetBrandPlatformAccountFundAsync(
+            brandId,
+            HttpContext.RequestAborted).ConfigureAwait(false);
+
+        return flag ?? false;
+    }
+
+    [HttpPatch("platform-account-fund/{brandId:Guid}", Name = "SetBrandPlatformAccountFundFlag")]
+    public ValueTask SetBrandPlatformAccountFundFlagAsync(
+        [FromServices] IBrandServiceClient brandServiceClient,
+        Guid brandId,
+        [FromBody] bool enabled)
+        => brandServiceClient.SetBrandPlatformAccountFundAsync(
+            brandId,
+            enabled,
+            UserId,
+            HttpContext.RequestAborted);
 }

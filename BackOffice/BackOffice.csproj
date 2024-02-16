@@ -39,16 +39,16 @@
   </ItemGroup>
 
   <ItemGroup>
-    <PackageReference Include="ClosedXML.Report" Version="0.2.8" />
+    <PackageReference Include="ClosedXML.Report" Version="0.2.9" />
     <PackageReference Include="ExcelDataReader" Version="3.6.0" />
-    <PackageReference Include="Google.Protobuf" Version="3.25.2" />
+    <PackageReference Include="Google.Protobuf" Version="3.25.3" />
     <PackageReference Include="Grpc.Tools" Version="2.61.0">
       <PrivateAssets>all</PrivateAssets>
       <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
     </PackageReference>
     <PackageReference Include="LargeXlsx" Version="1.9.1" />
     <PackageReference Include="MediatR" Version="12.2.0" />
-    <PackageReference Include="Microsoft.VisualStudio.Threading.Analyzers" Version="17.8.14">
+    <PackageReference Include="Microsoft.VisualStudio.Threading.Analyzers" Version="17.9.28">
       <PrivateAssets>all</PrivateAssets>
       <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
     </PackageReference>
@@ -61,11 +61,11 @@
     <PackageReference Include="Tgs.Agent.Client" Version="0.0.27" />
     <PackageReference Include="Tgs.Agent.Dividend.Client" Version="1.0.9" />
     <PackageReference Include="Tgs.ArticleManagementClient" Version="0.0.4" />
-    <PackageReference Include="Tgs.BrandCertificateClient" Version="0.0.29" />
+    <PackageReference Include="Tgs.BrandCertificateClient" Version="0.1.1" />
     <PackageReference Include="Tgs.BrandGameCredits.Client" Version="0.0.9" />
     <PackageReference Include="Tgs.CashQuery.Client" Version="0.0.9" />
     <PackageReference Include="Tgs.CashService.Client" Version="0.2.9" />
-    <PackageReference Include="Tgs.Core" Version="1.1.1" />
+    <PackageReference Include="Tgs.Core" Version="1.1.2" />
     <PackageReference Include="TGS.Core.Infrastructures.Json" Version="0.0.1" />
     <PackageReference Include="Tgs.Core.Infrastructures.Security" Version="0.0.2" />
     <PackageReference Include="Tgs.DepositAccumulateRoulette.Client" Version="0.1.0" />
@@ -81,13 +81,13 @@
     <PackageReference Include="Tgs.Player.All.Agent.Client" Version="0.0.2" />
     <PackageReference Include="Tgs.PlayerBucket.Client" Version="1.1.0" />
     <PackageReference Include="Tgs.PlayerBucketType.Client" Version="0.1.0" />
-    <PackageReference Include="Tgs.PlayerService.Client" Version="0.2.3" />
+    <PackageReference Include="Tgs.PlayerService.Client" Version="0.2.4" />
     <PackageReference Include="Tgs.Promotion.Client" Version="1.0.47" />
     <PackageReference Include="Tgs.Report.Client" Version="0.0.68" />
     <PackageReference Include="Tgs.SerialNumberGenerator" Version="1.0.1" />
     <PackageReference Include="TGS.ServiceUtility" Version="0.2.0" />
     <PackageReference Include="Tgs.StationLetter.Client" Version="0.0.7" />
-    <PackageReference Include="Tgs.VipLevelService.Client" Version="0.0.17" />
+    <PackageReference Include="Tgs.VipLevelService.Client" Version="0.0.20" />
   </ItemGroup>
 
   <ItemGroup>
