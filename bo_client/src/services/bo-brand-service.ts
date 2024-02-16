@@ -1,4 +1,4 @@
-import { AxiosInstance } from "axios";
+import { AxiosHeaders, AxiosInstance } from "axios";
 
 export default class BoBrandService {
     constructor(private http: AxiosInstance) { }
@@ -50,12 +50,25 @@ export default class BoBrandService {
         request: UpsertBrandAutoWithdrawRequest
     ): Promise<MessageResponse> {
         return this.http
-            .patch(`api/brandpayment/autowithdraw/${brandId}`,
+            .patch(`/api/brandpayment/autowithdraw/${brandId}`,
                 {
-                    params: {
-                        ...request
-                    }
+                    ...request
                 })
+            .then(res => res.data);
+    }
+
+    public getBrandPlatformAccountFundFlag(brandId: string): Promise<boolean> {
+        return this.http
+            .get(`/api/brand/platform-account-fund/${brandId}`)
+            .then(res => res.data);
+    }
+
+    public setBrandPlatformAccountFundFlag(brandId: string, enabled: boolean): Promise<void> {
+        let headers = new AxiosHeaders();
+        headers.setContentType("application/json");
+
+        return this.http
+            .patch(`/api/brand/platform-account-fund/${brandId}`, enabled, { headers })
             .then(res => res.data);
     }
 }
