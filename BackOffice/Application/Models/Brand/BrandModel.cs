@@ -72,4 +72,8 @@ public class BrandModel
     public DateTimeOffset UpdatedOn { get; set; }
 
     public decimal WithdrawHandlingFeeRateTenPercentile { get; set; }
+
+    public bool AutoSendAgentBonus { get; init; }
+
+    public bool EnablePlayerAgent { get; init; }
 }
