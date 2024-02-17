@@ -8,15 +8,15 @@ using System.Threading;
 using System.Threading.Tasks;
 using Tgs.PlayerService.Client;
 using Tgs.ServiceUtility;
-using Tgs.VipLevelService.Common;
+using Tgs.VipLevelService.Clients;
 using TGS.Core.DataServices.Tgs;
 using TGS.Core.DataServices.Tgs.Models;
-using TGS.Core.Infrastructures.Extensions;
 
 namespace TGS.Services.BackOffice.ApplicationServices.Players;
 
 internal class SetPlayerInfoCommandService(
     IPlayerServiceClient playerServiceClient,
+    IVipLevelServiceClient vipLevelServiceClient,
     ICommandService<SetPlayerVipLevelCommand> setPlayerVipLevelService,
     ITgsRepository repository) : IGetService<SetPlayerInfoCommand, SetPlayerInfoResult>
 {
@@ -40,6 +40,7 @@ internal class SetPlayerInfoCommandService(
                 nameof(PlayerPropertyName.Remark),
                 nameof(PlayerPropertyName.VipId),
                 nameof(PlayerPropertyName.IdNumber),
+                nameof(PlayerPropertyName.VipLevelAutoState),
             },
             StringComparer.OrdinalIgnoreCase);
 
@@ -53,16 +54,37 @@ internal class SetPlayerInfoCommandService(
             }
         }
 
-        if (modifyDict.TryGetValue(PlayerPropertyName.VipId, out var vipIdString))
+        var vipLevelAutoStateString = string.Empty;
+
+        if (modifyDict.TryGetValue(PlayerPropertyName.VipId, out var vipIdString)
+            || modifyDict.TryGetValue(PlayerPropertyName.VipLevelAutoState, out vipLevelAutoStateString))
         {
-            if (!string.IsNullOrEmpty(vipIdString) && Guid.TryParse(vipIdString, out var vipId))
+            var playerVipLevelInfo = await vipLevelServiceClient.PlayerVipLevelGetAsync(
+                playerCode: player.PlayerCode,
+                cancellationToken: cancellationToken)
+                .ConfigureAwait(false);
+
+            var vipId = playerVipLevelInfo.VipLevelId;
+            var autoState = playerVipLevelInfo.AutoState;
+
+            if (!string.IsNullOrWhiteSpace(vipIdString) && Guid.TryParse(vipIdString, out _))
+            {
+                vipId = Guid.Parse(vipIdString);
+            }
+
+            if (!string.IsNullOrWhiteSpace(vipLevelAutoStateString) && bool.TryParse(vipLevelAutoStateString, out var autoStateBool))
+            {
+                autoState = autoStateBool ? Tgs.VipLevelService.Common.PlayerVipLevelAutoState.Enable : Tgs.VipLevelService.Common.PlayerVipLevelAutoState.Disable;
+            }
+
+            if (vipId != playerVipLevelInfo.VipLevelId || autoState != playerVipLevelInfo.AutoState)
             {
                 var setPlayerVipLevelCommand = new SetPlayerVipLevelCommand(
                     PlayerCode: command.PlayerCode,
                     ModifyUserId: Guid.Parse(command.ModifyUserId),
                     ModifyUsername: command.ModifyUsername,
                     VipId: vipId,
-                    AutoState: PlayerVipLevelAutoState.Enable,
+                    AutoState: autoState,
                     Remark: string.Empty);
                 await setPlayerVipLevelService.ExecuteAsync(
                     command: setPlayerVipLevelCommand,

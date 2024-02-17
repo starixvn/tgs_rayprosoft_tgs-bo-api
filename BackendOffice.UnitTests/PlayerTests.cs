@@ -12,8 +12,6 @@ using Tgs.GameProviders.Pluggable.Client;
 using Tgs.PlayerService.Client;
 using Tgs.ServiceUtility;
 using Tgs.VipLevelService.Clients;
-using Tgs.VipLevelService.Common;
-using Tgs.VipLevelService.Common.ViewModels;
 using TGS.Core.DataServices.Tgs;
 using TGS.Core.DataServices.Tgs.Models;
 using TGS.Services.BackOffice.ApplicationServices;
@@ -738,10 +736,11 @@ internal class PlayerTests
     public async Task 變更玩家信息_Vip等級()
     {
         var fakePlayerServiceClient = Substitute.For<IPlayerServiceClient>();
+        var fakeVipLevelServiceClient = Substitute.For<IVipLevelServiceClient>();
         var fakeSetPlayerVipLevelService = Substitute.For<ICommandService<SetPlayerVipLevelCommand>>();
         var fakeRepository = Substitute.For<ITgsRepository>();
 
-        var sut = new SetPlayerInfoCommandService(fakePlayerServiceClient, fakeSetPlayerVipLevelService, fakeRepository);
+        var sut = new SetPlayerInfoCommandService(fakePlayerServiceClient, fakeVipLevelServiceClient, fakeSetPlayerVipLevelService, fakeRepository);
 
         var playerCode = "playerCode";
         var modifyUserId = "6a379883-d8d2-4ffb-3d05-08d9262ce1a5";
@@ -755,6 +754,32 @@ internal class PlayerTests
                 PlayerCode = playerCode,
                 VipLevelId = Guid.Parse("3a6b6f1d-3094-4b66-3c7a-08d9262ce1a5")
             });
+
+        _ = fakeVipLevelServiceClient
+            .PlayerVipLevelGetAsync(Arg.Is(playerCode))
+            .Returns(new Tgs.VipLevelService.Common.ViewModels.PlayerVipLevelInfoViewModel
+            (
+                ResellerId: Guid.NewGuid(),
+                ResellerCode: "Demo",
+                LicenseeId: Guid.NewGuid(),
+                LicenseeCode: "TGS",
+                BrandId: Guid.NewGuid(),
+                BrandCode: "GPI",
+                PlayerCode: playerCode,
+                Username: playerCode,
+                VipLevelId: Guid.Parse("3a6b6f1d-3094-4b66-3c7a-08d9262ce1a5"),
+                VipLevel: 1,
+                AutoState: Tgs.VipLevelService.Common.PlayerVipLevelAutoState.Enable,
+                AccumDepositId: Guid.NewGuid(),
+                AccumDeposit: 0,
+                AccumTurnoverId: Guid.NewGuid(),
+                AccumTurnover: 0,
+                LevelUpAccumulateBetAmount: 1000m,
+                LevelUpAccumulateDeposit: 1000m,
+                FullLevel: false,
+                NextVipLevelId: Guid.Parse("a5e5afe0-e87b-483d-98db-71629ba93290"),
+                NextVipLevel: 2
+            ));
 
         var queryDict = new Dictionary<string, string?>
         {
@@ -783,7 +808,192 @@ internal class PlayerTests
                 ModifyUserId: Guid.Parse(modifyUserId),
                 ModifyUsername: modifyUsername,
                 VipId: Guid.Parse(modifyVipId),
-                AutoState: PlayerVipLevelAutoState.Enable,
+                AutoState: Tgs.VipLevelService.Common.PlayerVipLevelAutoState.Enable,
+                Remark: string.Empty)));
+
+        _ = fakeRepository
+            .Received(1)
+            .PlayerAuditLogs
+            .AddAsync(Arg.Any<PlayerAuditLog>());
+
+        _ = fakeRepository
+            .Received(1)
+            .SaveChangesAsync();
+
+        ClassicAssert.True(actual.Valid);
+    }
+
+    [Test]
+    public async Task 變更玩家信息_Vip自動狀態()
+    {
+        var fakePlayerServiceClient = Substitute.For<IPlayerServiceClient>();
+        var fakeVipLevelServiceClient = Substitute.For<IVipLevelServiceClient>();
+        var fakeSetPlayerVipLevelService = Substitute.For<ICommandService<SetPlayerVipLevelCommand>>();
+        var fakeRepository = Substitute.For<ITgsRepository>();
+
+        var sut = new SetPlayerInfoCommandService(fakePlayerServiceClient, fakeVipLevelServiceClient, fakeSetPlayerVipLevelService, fakeRepository);
+
+        var playerCode = "playerCode";
+        var modifyUserId = "6a379883-d8d2-4ffb-3d05-08d9262ce1a5";
+        var modifyUsername = "username";
+        var modifyVipLevelAutoState = "False";
+
+        _ = fakePlayerServiceClient
+            .GetPlayerInfoAsync(Arg.Is(playerCode))
+            .Returns(new PlayerInfo
+            {
+                PlayerCode = playerCode,
+                VipLevelId = Guid.Parse("3a6b6f1d-3094-4b66-3c7a-08d9262ce1a5")
+            });
+
+        _ = fakeVipLevelServiceClient
+            .PlayerVipLevelGetAsync(Arg.Is(playerCode))
+            .Returns(new Tgs.VipLevelService.Common.ViewModels.PlayerVipLevelInfoViewModel
+            (
+                ResellerId: Guid.NewGuid(),
+                ResellerCode: "Demo",
+                LicenseeId: Guid.NewGuid(),
+                LicenseeCode: "TGS",
+                BrandId: Guid.NewGuid(),
+                BrandCode: "GPI",
+                PlayerCode: playerCode,
+                Username: playerCode,
+                VipLevelId: Guid.Parse("3a6b6f1d-3094-4b66-3c7a-08d9262ce1a5"),
+                VipLevel: 1,
+                AutoState: Tgs.VipLevelService.Common.PlayerVipLevelAutoState.Enable,
+                AccumDepositId: Guid.NewGuid(),
+                AccumDeposit: 0,
+                AccumTurnoverId: Guid.NewGuid(),
+                AccumTurnover: 0,
+                LevelUpAccumulateBetAmount: 1000m,
+                LevelUpAccumulateDeposit: 1000m,
+                FullLevel: false,
+                NextVipLevelId: Guid.Parse("a5e5afe0-e87b-483d-98db-71629ba93290"),
+                NextVipLevel: 2
+            ));
+
+        var queryDict = new Dictionary<string, string?>
+        {
+            { nameof(PlayerPropertyName.VipLevelAutoState), modifyVipLevelAutoState }
+        };
+
+        var actual = await sut.GetAsync(new SetPlayerInfoCommand(playerCode, modifyUserId, modifyUsername, queryDict));
+
+        var modifyDict = new Dictionary<PlayerPropertyName, string?>
+        {
+            { PlayerPropertyName.VipLevelAutoState, modifyVipLevelAutoState }
+        };
+
+        _ = fakePlayerServiceClient
+            .Received(1)
+            .SetPlayerPropertiesAsync(
+                Arg.Is(playerCode),
+                Arg.Is<ImmutableDictionary<PlayerPropertyName, string?>>(x => x.SequenceEqual(modifyDict.ToImmutableDictionary())),
+                Arg.Is(modifyUserId));
+
+        _ = fakeSetPlayerVipLevelService
+            .Received(1)
+            .ExecuteAsync(
+            command: Arg.Is(new SetPlayerVipLevelCommand(
+                PlayerCode: playerCode,
+                ModifyUserId: Guid.Parse(modifyUserId),
+                ModifyUsername: modifyUsername,
+                VipId: Guid.Parse("3a6b6f1d-3094-4b66-3c7a-08d9262ce1a5"),
+                AutoState: Tgs.VipLevelService.Common.PlayerVipLevelAutoState.Disable,
+                Remark: string.Empty)));
+
+        _ = fakeRepository
+            .Received(1)
+            .PlayerAuditLogs
+            .AddAsync(Arg.Any<PlayerAuditLog>());
+
+        _ = fakeRepository
+            .Received(1)
+            .SaveChangesAsync();
+
+        ClassicAssert.True(actual.Valid);
+    }
+
+    [Test]
+    public async Task 變更玩家信息_Vip未進行任何變更()
+    {
+        var fakePlayerServiceClient = Substitute.For<IPlayerServiceClient>();
+        var fakeVipLevelServiceClient = Substitute.For<IVipLevelServiceClient>();
+        var fakeSetPlayerVipLevelService = Substitute.For<ICommandService<SetPlayerVipLevelCommand>>();
+        var fakeRepository = Substitute.For<ITgsRepository>();
+
+        var sut = new SetPlayerInfoCommandService(fakePlayerServiceClient, fakeVipLevelServiceClient, fakeSetPlayerVipLevelService, fakeRepository);
+
+        var playerCode = "playerCode";
+        var modifyUserId = "6a379883-d8d2-4ffb-3d05-08d9262ce1a5";
+        var modifyUsername = "username";
+        var modifyVipId = "3a6b6f1d-3094-4b66-3c7a-08d9262ce1a5";
+        var modifyVipLevelAutoState = "True";
+
+        _ = fakePlayerServiceClient
+            .GetPlayerInfoAsync(Arg.Is(playerCode))
+            .Returns(new PlayerInfo
+            {
+                PlayerCode = playerCode,
+                VipLevelId = Guid.Parse("3a6b6f1d-3094-4b66-3c7a-08d9262ce1a5")
+            });
+
+        _ = fakeVipLevelServiceClient
+            .PlayerVipLevelGetAsync(Arg.Is(playerCode))
+            .Returns(new Tgs.VipLevelService.Common.ViewModels.PlayerVipLevelInfoViewModel
+            (
+                ResellerId: Guid.NewGuid(),
+                ResellerCode: "Demo",
+                LicenseeId: Guid.NewGuid(),
+                LicenseeCode: "TGS",
+                BrandId: Guid.NewGuid(),
+                BrandCode: "GPI",
+                PlayerCode: playerCode,
+                Username: playerCode,
+                VipLevelId: Guid.Parse("3a6b6f1d-3094-4b66-3c7a-08d9262ce1a5"),
+                VipLevel: 1,
+                AutoState: Tgs.VipLevelService.Common.PlayerVipLevelAutoState.Enable,
+                AccumDepositId: Guid.NewGuid(),
+                AccumDeposit: 0,
+                AccumTurnoverId: Guid.NewGuid(),
+                AccumTurnover: 0,
+                LevelUpAccumulateBetAmount: 1000m,
+                LevelUpAccumulateDeposit: 1000m,
+                FullLevel: false,
+                NextVipLevelId: Guid.Parse("a5e5afe0-e87b-483d-98db-71629ba93290"),
+                NextVipLevel: 2
+            ));
+
+        var queryDict = new Dictionary<string, string?>
+        {
+            { nameof(PlayerPropertyName.VipId), modifyVipId },
+            { nameof(PlayerPropertyName.VipLevelAutoState), modifyVipLevelAutoState }
+        };
+
+        var actual = await sut.GetAsync(new SetPlayerInfoCommand(playerCode, modifyUserId, modifyUsername, queryDict));
+
+        var modifyDict = new Dictionary<PlayerPropertyName, string?>
+        {
+            { PlayerPropertyName.VipId, modifyVipId },
+            { PlayerPropertyName.VipLevelAutoState, modifyVipLevelAutoState }
+        };
+
+        _ = fakePlayerServiceClient
+            .Received(1)
+            .SetPlayerPropertiesAsync(
+                Arg.Is(playerCode),
+                Arg.Is<ImmutableDictionary<PlayerPropertyName, string?>>(x => x.SequenceEqual(modifyDict.ToImmutableDictionary())),
+                Arg.Is(modifyUserId));
+
+        _ = fakeSetPlayerVipLevelService
+            .Received(0)
+            .ExecuteAsync(
+            command: Arg.Is(new SetPlayerVipLevelCommand(
+                PlayerCode: playerCode,
+                ModifyUserId: Guid.Parse(modifyUserId),
+                ModifyUsername: modifyUsername,
+                VipId: Guid.Parse("3a6b6f1d-3094-4b66-3c7a-08d9262ce1a5"),
+                AutoState: Tgs.VipLevelService.Common.PlayerVipLevelAutoState.Enable,
                 Remark: string.Empty)));
 
         _ = fakeRepository
