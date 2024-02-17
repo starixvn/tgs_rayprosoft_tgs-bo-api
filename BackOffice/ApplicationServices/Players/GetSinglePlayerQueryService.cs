@@ -10,7 +10,7 @@ using Tgs.Payment.Clients;
 using Tgs.PlayerService.Client;
 using Tgs.Service.PlayerBuckets;
 using Tgs.ServiceUtility;
-using Tgs.VipLevelService.Common.ViewModels;
+using Tgs.VipLevelService.Clients;
 using TGS.Services.BackOffice.Application.Models.Player;
 using TGS.Services.BackOffice.ApplicationServices.Agents;
 using TGS.Services.BackOffice.Domain;
@@ -22,7 +22,8 @@ public class GetSinglePlayerQueryService(
     IPaymentServiceClient paymentServiceClient,
     ICashServiceClient cashServiceClient,
     IPlayerBucketClient playerBucketClient,
-    IServiceCoordinator serviceCoordinator) : IGetService<GetSinglePlayerQuery, PlayerModel?>
+    IServiceCoordinator serviceCoordinator,
+    IVipLevelServiceClient vipLevelServiceClient) : IGetService<GetSinglePlayerQuery, PlayerModel?>
 {
     private readonly ICashServiceClient _cashServiceClient = cashServiceClient ?? throw new ArgumentNullException(nameof(cashServiceClient));
     private readonly IPaymentServiceClient _paymentServiceClient = paymentServiceClient ?? throw new ArgumentNullException(nameof(paymentServiceClient));
@@ -58,14 +59,10 @@ public class GetSinglePlayerQueryService(
             .ToArrayAsync(cancellationToken)
             .ConfigureAwait(false);
 
-        var playerVipLevel = player.VipLevelId is null
-            ? default(int?)
-            : await _serviceCoordinator
-                .QueryAsync<AllVipLevelsQuery, VipLevelInfoViewModel>(new(player.BrandId), cancellationToken)
-                .Where(vip => vip.Id == player.VipLevelId)
-                .Select(vip => vip.Level)
-                .FirstOrDefaultAsync(cancellationToken: cancellationToken)
-                .ConfigureAwait(false);
+        var playerVipLevel = await vipLevelServiceClient.PlayerVipLevelGetAsync(
+            playerCode: player.PlayerCode,
+            cancellationToken: cancellationToken)
+            .ConfigureAwait(false);
 
         var playerAgentId = playerProperties.GetValueOrDefault("AgentId");
 
@@ -93,8 +90,15 @@ public class GetSinglePlayerQueryService(
             PlayerCode = player.PlayerCode,
             Username = player.UserName,
             RealName = playerProperties.GetValueOrDefault("RealName"),
-            VipLevel = playerVipLevel,
-            VipId = player.VipLevelId,
+            VipId = playerVipLevel.VipLevelId,
+            VipLevel = playerVipLevel.VipLevel,
+            AccumDeposit= playerVipLevel.AccumDeposit,
+            AccumTurnover= playerVipLevel.AccumTurnover,
+            LevelUpAccumulateBetAmount= playerVipLevel.LevelUpAccumulateBetAmount,
+            LevelUpAccumulateDeposit = playerVipLevel.LevelUpAccumulateDeposit,
+            FullLevel= playerVipLevel.FullLevel,
+            NextVipLevelId= playerVipLevel.NextVipLevelId,
+            NextVipLevel = playerVipLevel.NextVipLevel,
             Status = status,
             StatusName = status.ToString(),
             RegisteredOn = player.RegisteredOn,

@@ -343,7 +343,6 @@ public class PlayerTests(ITestOutputHelper testOutputHelper, NodeJsFixture nodeJ
 
         var vipId1 = Guid.NewGuid();
 
-
         _ = fakePlayerServiceClient.QueryPlayerListAsync(
                 Arg.Is(brandId),
                 Arg.Any<PlayerListQuery>(),
@@ -457,9 +456,8 @@ public class PlayerTests(ITestOutputHelper testOutputHelper, NodeJsFixture nodeJ
         var fakePlayerServiceClient = Substitute.For<IPlayerServiceClient>();
         var fakePaymentSerivceClient = Substitute.For<IPaymentServiceClient>();
         var fakePlayerBucketClient = Substitute.For<IPlayerBucketClient>();
-        var fakeVipLevelsQueryService = Substitute.For<IQueryService<AllVipLevelsQuery, VipLevelInfoViewModel>>();
         var fakeCashServiceClient = Substitute.For<ICashServiceClient>();
-
+        var fakeVipLevelServiceClient = Substitute.For<IVipLevelServiceClient>();
         using var web = TestBackendOfficeApplication.Builder
             .UseTestChannelServer(channelName)
             .ConfigureLogging(logging => logging.AddXUnit(_testOutputHelper))
@@ -476,8 +474,8 @@ public class PlayerTests(ITestOutputHelper testOutputHelper, NodeJsFixture nodeJ
                 .AddSingleton(fakePlayerServiceClient)
                 .AddSingleton(fakePaymentSerivceClient)
                 .AddSingleton(fakePlayerBucketClient)
-                .AddSingleton(fakeVipLevelsQueryService)
-                .AddSingleton(fakeCashServiceClient))
+                .AddSingleton(fakeCashServiceClient)
+                .AddSingleton(fakeVipLevelServiceClient))
             .Build();
 
         await web.StartAsync();
@@ -485,7 +483,7 @@ public class PlayerTests(ITestOutputHelper testOutputHelper, NodeJsFixture nodeJ
         var playerCode = "4ucmqplxb029";
         var brandId = Guid.Parse("4e86719f-243f-46f6-b010-5c758b7285af");
         var vipLevelId = Guid.Parse("bcd5a809-8b90-ec11-a746-ac82478e2af1");
-
+        var NextVipLevelId = Guid.NewGuid();
         _ = fakePlayerServiceClient.GetPlayerInfoAsync(
             Arg.Is(playerCode),
             Arg.Any<CancellationToken>())
@@ -531,32 +529,28 @@ public class PlayerTests(ITestOutputHelper testOutputHelper, NodeJsFixture nodeJ
             Arg.Any<CancellationToken>())
             .Returns(Array.Empty<PlayerBankInfo>().ToAsyncEnumerable());
 
-        _ = fakeVipLevelsQueryService.QueryAsync(
-            Arg.Is(new AllVipLevelsQuery(brandId)),
-            Arg.Any<CancellationToken>())
-            .Returns(new VipLevelInfoViewModel[]
-            {
-                new(
-                    vipLevelId,
-                    1,
-                    brandId,
-                    0M,
-                    0M,
-                    0M,
-                    0M,
-                    true,
-                    0M,
-                    0M,
-                    0M,
-                    0M,
-                    0M,
-                    0M,
-                    0M,
-                    0M,
-                    0M,
-                    -1,
-                    -1M)
-            }.ToAsyncEnumerable());
+        _ = fakeVipLevelServiceClient.PlayerVipLevelGetAsync(Arg.Is(playerCode))
+            .Returns(new PlayerVipLevelInfoViewModel(
+                ResellerId: Guid.NewGuid(),
+                ResellerCode: "Demo",
+                LicenseeId: Guid.NewGuid(),
+                LicenseeCode: "TGS",
+                BrandId: brandId,
+                BrandCode: "GPI",
+                PlayerCode: "4ucmqplxb029",
+                Username: "4ucmqplxb029",
+                VipLevelId: vipLevelId,
+                VipLevel: 1,
+                AutoState: Tgs.VipLevelService.Common.PlayerVipLevelAutoState.Enable,
+                AccumDepositId: Guid.NewGuid(),
+                AccumDeposit: 0,
+                AccumTurnoverId: Guid.NewGuid(),
+                AccumTurnover: 0,
+                LevelUpAccumulateBetAmount: 199m,
+                LevelUpAccumulateDeposit: 99m,
+                FullLevel: false,
+                NextVipLevelId: NextVipLevelId,
+                NextVipLevel: 2));
 
         _ = fakePlayerBucketClient.ReadBucketsAsync(
             Arg.Is(playerCode),
@@ -587,8 +581,15 @@ public class PlayerTests(ITestOutputHelper testOutputHelper, NodeJsFixture nodeJ
                 Status = "Enabled",
                 StatusName = "Enabled",
                 Username = playerCode,
-                VipId = "bcd5a809-8b90-ec11-a746-ac82478e2af1",
+                VipId = vipLevelId,
                 VipLevel = 1,
+                AccumDeposit = 0.0m,
+                AccumTurnover = 0.0m,
+                LevelUpAccumulateBetAmount = 199m,
+                LevelUpAccumulateDeposit = 99m,
+                FullLevel = false,
+                NextVipLevelId = NextVipLevelId,
+                NextVipLevel = 2,
                 WageringRequirement = 0,
                 IdentityAuthentication = true,
                 Zalo = "testZalo",
