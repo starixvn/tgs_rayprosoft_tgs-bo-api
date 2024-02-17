@@ -85,6 +85,9 @@ public class GetSinglePlayerQueryService(
             player.PlayerCode,
             cancellationToken).ConfigureAwait(false);
 
+        var upgradePlayerAgentId =
+            await playerServiceClient.GetAgentIdForPlayerUpgradedAsync(query.PlayerCode, cancellationToken);
+
         return new PlayerModel
         {
             PlayerCode = player.PlayerCode,
@@ -136,7 +139,8 @@ public class GetSinglePlayerQueryService(
             Birthdate = playerBirthdate is not null
                 ? DateOnly.Parse(playerBirthdate).ToString("yyyy/MM/dd")
                 : null,
-            IdentityAuthentication = player.IdentityAuthentication
+            IdentityAuthentication = player.IdentityAuthentication,
+            UpgradePlayerAgentId = upgradePlayerAgentId
         };
     }
 }

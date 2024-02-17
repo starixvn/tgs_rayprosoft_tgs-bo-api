@@ -50,4 +50,8 @@ public class CreateBrandRequest : IRequest<MessageResponse>
     public int TimeSpanMinutes { get; set; }
 
     public decimal WithdrawHandlingFeeRateTenPercentile { get; set; }
+
+    public bool AutoSendAgentBonus { get; init; }
+
+    public bool EnablePlayerAgent { get; init; }
 }

@@ -1,6 +1,8 @@
 ﻿using System;
 using System.Threading;
 using System.Threading.Tasks;
+using Tgs.BrandCertificate;
+using Tgs.BrandCertificate.Clients;
 using Tgs.ServiceUtility;
 using TGS.Services.BackOffice.Domain;
 using TGS.Services.BackOffice.Infrastructure.DataService;
@@ -8,7 +10,7 @@ using TGS.Services.BackOffice.Infrastructure.DataService;
 namespace TGS.Services.BackOffice.ApplicationServices;
 
 internal class CreateBrandCommandService(
-    IBrandService brandService) : IGetService<CreateBrandCommand, Guid>
+    IBrandService brandService,IBrandServiceClient brandServiceClient) : IGetService<CreateBrandCommand, Guid>
 {
     private readonly IBrandService _brandService = brandService ?? throw new ArgumentNullException(nameof(brandService));
 
@@ -16,26 +18,35 @@ internal class CreateBrandCommandService(
         CreateBrandCommand command,
         CancellationToken cancellationToken = default)
     {
+        var createBrand = new CreateBrandFullInfoRequest
+        {
+            Code = command.Code, Name = command.Name,
+            Description = command.Description,
+            OperationalEmail = command.OperationalEmail,
+            PlatformCharge = command.PlatformCharge,
+            TimeSpanMinutes = command.TimeSpanMinutes,
+            EnablePlayerIdentity = command.EnablePlayerIdentity,
+            LicenseeId = command.LicenseeId,
+            SettlementIntervalType = (SettlementIntervalType)command.SettlementIntervalType,
+            SettlementDay = command.SettlementDay,
+            AgentDividendType = (AgentDividendType)command.AgentDividendType,
+            CheckDividendActiveCount = command.CheckDividendActiveCount,
+            AutoClearWageringRequirement = command.AutoClearWageringRequirement,
+            AutoSendAgentBonus = command.AutoSendAgentBonus,
+            EnablePlayerAgent = command.EnablePlayerAgent,
+            AutoClearWageringRequirementBalance = command.AutoClearWageringRequirementBalance,
+            DepositHandlingFeeRateTenPercentile = command.DepositHandlingFeeRateTenPercentile,
+            WithdrawHandlingFeeRateTenPercentile = command.WithdrawHandlingFeeRateTenPercentile,
+            EditorUsername = command.Modifier
+        };
+
+        var brandId = await brandServiceClient.CreateBrandAsync(createBrand, cancellationToken);
+
         var createInfo = new CreateBrandInfo(
-            command.Code,
-            command.Name,
-            command.Description,
-            command.OperationalEmail,
-            command.PlatformCharge,
-            command.TimeSpanMinutes,
-            command.EnablePlayerIdentity,
-            command.LicenseeId,
+            brandId,
             command.CurrencyCodes,
             command.Languages,
-            command.SettlementIntervalType,
-            command.SettlementDay,
             command.GameProviders,
-            command.AgentDividendType,
-            command.CheckDividendActiveCount,
-            command.AutoClearWageringRequirement,
-            command.AutoClearWageringRequirementBalance,
-            command.DepositHandlingFeeRateTenPercentile,
-            command.WithdrawHandlingFeeRateTenPercentile,
             command.Domains,
             command.BetLimits,
             command.Modifier);

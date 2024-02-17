@@ -42,4 +42,6 @@ public class AgentRequest : BaseRequest
     public MemberUpdateType UpdateType { get; init; }
 
     public decimal VirtualSportsRebatePercentage { get; init; }
+
+    public bool NegativeAgentDividendCarryForward { get; init; }
 }

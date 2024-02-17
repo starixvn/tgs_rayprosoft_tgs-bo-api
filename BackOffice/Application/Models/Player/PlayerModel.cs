@@ -80,6 +80,8 @@ public class PlayerModel
 
     public bool IdentityAuthentication { get; set; }
 
+    public Guid? UpgradePlayerAgentId { get; init; }
+
     public class BankModel
     {
         public string BankType { get; init; } = default!;

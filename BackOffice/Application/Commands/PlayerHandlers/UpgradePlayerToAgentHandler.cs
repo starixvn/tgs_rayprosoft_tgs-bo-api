@@ -22,10 +22,10 @@ public class UpgradePlayerToAgentHandler(
     IAgentClient agentClient,
     IPlayerServiceClient playerServiceClient,
     IHttpContextAccessor accessor)
-    : Handler<UpdatePlayerToAgentRequest, MessageResponse>(accessor)
+    : Handler<UpgradePlayerToAgentRequest, MessageResponse>(accessor)
 {
     public override async Task<MessageResponse> Handle(
-        UpdatePlayerToAgentRequest request,
+        UpgradePlayerToAgentRequest request,
         CancellationToken cancellationToken)
     {
         var player = await service.GetPlayerAsync(x => x.PlayerCode == request.PlayerCode);
@@ -41,6 +41,8 @@ public class UpgradePlayerToAgentHandler(
         var agentId = await agentClient.CreateAgentByPlayerUpgradeAsync(new CreateAgentByPlayerUpgradeRequest(
                 player.BrandId,
                 playerWalletId,
+                player.Password,
+                player.Salt,
                 player.Username,
                 player.RealName,
                 player.PlayerCode,
