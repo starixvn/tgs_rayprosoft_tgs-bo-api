@@ -62,7 +62,7 @@ public class PlayerModel
     public Guid? VipId { get; init; }
 
     public int? VipLevel { get; init; }
-    public Tgs.VipLevelService.Common.PlayerVipLevelAutoState VipLevelAutoState { get; init; }
+    public bool VipLevelAutoState { get; init; }
     public decimal AccumTurnover { get; init; }
     public decimal AccumDeposit { get; init; }
     public decimal LevelUpAccumulateBetAmount { get; init; }

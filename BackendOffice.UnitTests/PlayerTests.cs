@@ -836,7 +836,7 @@ internal class PlayerTests
         var playerCode = "playerCode";
         var modifyUserId = "6a379883-d8d2-4ffb-3d05-08d9262ce1a5";
         var modifyUsername = "username";
-        var modifyVipLevelAutoState = "Disable";
+        var modifyVipLevelAutoState = "False";
 
         _ = fakePlayerServiceClient
             .GetPlayerInfoAsync(Arg.Is(playerCode))
@@ -928,7 +928,7 @@ internal class PlayerTests
         var modifyUserId = "6a379883-d8d2-4ffb-3d05-08d9262ce1a5";
         var modifyUsername = "username";
         var modifyVipId = "3a6b6f1d-3094-4b66-3c7a-08d9262ce1a5";
-        var modifyVipLevelAutoState = "Enable";
+        var modifyVipLevelAutoState = "True";
 
         _ = fakePlayerServiceClient
             .GetPlayerInfoAsync(Arg.Is(playerCode))
