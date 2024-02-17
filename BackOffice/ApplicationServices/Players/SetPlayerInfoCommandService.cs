@@ -72,7 +72,7 @@ internal class SetPlayerInfoCommandService(
                 vipId = Guid.Parse(vipIdString);
             }
 
-            if (!string.IsNullOrWhiteSpace(vipLevelAutoStateString) && bool.TryParse(vipLevelAutoStateString, out bool autoStateBool))
+            if (!string.IsNullOrWhiteSpace(vipLevelAutoStateString) && bool.TryParse(vipLevelAutoStateString, out var autoStateBool))
             {
                 autoState = autoStateBool ? Tgs.VipLevelService.Common.PlayerVipLevelAutoState.Enable : Tgs.VipLevelService.Common.PlayerVipLevelAutoState.Disable;
             }
