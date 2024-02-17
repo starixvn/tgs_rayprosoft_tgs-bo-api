@@ -27,12 +27,13 @@ using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 using Microsoft.OpenApi.Models;
+using NATS.Client.Core;
 using OpenTelemetry;
-using OpenTelemetry.Instrumentation.AspNetCore;
 using OpenTelemetry.Metrics;
 using OpenTelemetry.Resources;
 using OpenTelemetry.Trace;
 using Tgs.CashQueryService.Client;
+using Tgs.Player.All.Agent.Client.DependencyInjection;
 using Tgs.StationLetterService.Client;
 using Tgs.StationLetterService.Client.DependencyInjection;
 using TGS.Apis.BackendOffice.Filters;
@@ -45,9 +46,7 @@ using TGS.Apis.BackendOffice.Workers;
 using TGS.Core.Infrastructures.Redis;
 using TGS.Core.Models;
 using TGS.Payment.ManualDeposit;
-using Tgs.Player.All.Agent.Client.DependencyInjection;
 using TGS.Services.BackOffice.Domain;
-using NATS.Client.Core;
 
 AppContext.SetSwitch("Npgsql.EnableLegacyTimestampBehavior", true);
 SqlMapper.AddTypeMap(typeof(DateOnly), DbType.Date);
@@ -197,6 +196,7 @@ builder.Services
     .AddRouting(options => options.LowercaseUrls = true);
 
 builder.Services
+    .AddDateOnlyTimeOnlyStringConverters()
     .AddFluentValidationAutoValidation(config => config.DisableDataAnnotationsValidation = true)
     .AddFluentValidationClientsideAdapters()
     .AddControllers(options =>
