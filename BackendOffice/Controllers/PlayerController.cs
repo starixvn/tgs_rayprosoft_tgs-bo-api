@@ -12,6 +12,7 @@ using Tgs.Payment.Clients;
 using Tgs.PlayerService.Client;
 using Tgs.Promotion.Clients;
 using Tgs.ServiceUtility;
+using Tgs.VipLevelService.Clients;
 using Tgs.VipLevelService.Common.ViewModels;
 using TGS.Apis.BackendOffice.Attributes;
 using TGS.Apis.BackendOffice.Controllers.Messages.Promotion;
@@ -97,8 +98,9 @@ public partial class PlayerController(IMediator mediator, IPromotionClient clien
     public async Task<PagedResponse<PlayersModel>> GetListAsync(
         [FromServices] IPlayerServiceClient playerServiceClient,
         [FromServices] IPaymentServiceClient paymentServiceClient,
+        [FromServices] IVipLevelServiceClient vipLevelServiceClient,
         [FromServices] IQueryService<AllAgentsByBrandQuery, AgentInfo> queryAgentsService,
-        [FromServices] IQueryService<AllVipLevelsQuery, VipLevelInfoViewModel> queryVipService,
+        
         [FromQuery] GetPlayersRequest request)
     {
         var agentQuery = queryAgentsService
@@ -194,14 +196,6 @@ public partial class PlayerController(IMediator mediator, IPromotionClient clien
                 a => a.UserName)
             .ConfigureAwait(false);
 
-        var vipDict = await queryVipService
-            .QueryAsync(new(request.BrandId), HttpContext.RequestAborted)
-            .ToDictionaryAsync(
-                info => info.Id,
-                info => info.Level,
-                HttpContext.RequestAborted)
-            .ConfigureAwait(false);
-
         var pagedView = await result
             .ToArrayAsync(HttpContext.RequestAborted)
             .ConfigureAwait(false);
@@ -222,31 +216,39 @@ public partial class PlayerController(IMediator mediator, IPromotionClient clien
                 .ConfigureAwait(false)
             : [];
 
+        List<PlayersModel> players = [];
+
+        foreach (var item in pagedView)
+        {
+            var playerVipLevel = await vipLevelServiceClient.PlayerVipLevelGetAsync(
+                playerCode: item.PlayerCode,
+                cancellationToken: HttpContext.RequestAborted)
+                .ConfigureAwait(false);
+
+            players.Add(new PlayersModel
+            {
+                PlayerCode = item.PlayerCode,
+                RealName = item.RealName,
+                RegisteredTime = item.RegisteredOn,
+                RegisterHost = item.RegisteredDomainName,
+                Status = (Core.Models.Enums.PlayerStatus)item.Status,
+                Username = item.UserName,
+                AgentName = item.AgentId is not null && agentNameDict.TryGetValue(item.AgentId.Value, out var agentName)
+                        ? agentName
+                        : null,
+                VipLevel = playerVipLevel.VipLevel,
+                ParentUsername = !string.IsNullOrEmpty(item.ParentPlayerCode)
+                        && parentPlayerDict.TryGetValue(item.ParentPlayerCode, out var parentName)
+                        ? parentName
+                        : null
+            });
+        }
+
         return new PagedResponse<PlayersModel>
         {
             Valid = true,
             TotalCount = totalCount,
-            Items = pagedView
-                .Select(item => new PlayersModel
-                {
-                    PlayerCode = item.PlayerCode,
-                    RealName = item.RealName,
-                    RegisteredTime = item.RegisteredOn,
-                    RegisterHost = item.RegisteredDomainName,
-                    Status = (Core.Models.Enums.PlayerStatus)item.Status,
-                    Username = item.UserName,
-                    AgentName = item.AgentId is not null && agentNameDict.TryGetValue(item.AgentId.Value, out var agentName)
-                        ? agentName
-                        : null,
-                    VipLevel = item.VipId is not null && vipDict.TryGetValue(item.VipId.Value, out var level)
-                        ? level
-                        : null,
-                    ParentUsername = !string.IsNullOrEmpty(item.ParentPlayerCode)
-                        && parentPlayerDict.TryGetValue(item.ParentPlayerCode, out var parentName)
-                        ? parentName
-                        : null
-                })
-                .ToArray()
+            Items = [.. players]
         };
     }
 
