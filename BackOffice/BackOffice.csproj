@@ -87,7 +87,7 @@
     <PackageReference Include="Tgs.SerialNumberGenerator" Version="1.0.1" />
     <PackageReference Include="TGS.ServiceUtility" Version="0.2.0" />
     <PackageReference Include="Tgs.StationLetter.Client" Version="0.0.7" />
-    <PackageReference Include="Tgs.VipLevelService.Client" Version="0.0.20" />
+    <PackageReference Include="Tgs.VipLevelService.Client" Version="0.0.21" />
   </ItemGroup>
 
   <ItemGroup>
