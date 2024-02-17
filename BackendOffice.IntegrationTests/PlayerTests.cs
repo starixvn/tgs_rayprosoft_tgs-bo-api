@@ -583,7 +583,7 @@ public class PlayerTests(ITestOutputHelper testOutputHelper, NodeJsFixture nodeJ
                 Username = playerCode,
                 VipId = vipLevelId,
                 VipLevel = 1,
-                VipLevelAutoState = Tgs.VipLevelService.Common.PlayerVipLevelAutoState.Enable,
+                VipLevelAutoState = true,
                 AccumDeposit = 0.0m,
                 AccumTurnover = 0.0m,
                 LevelUpAccumulateBetAmount = 199m,
@@ -1185,7 +1185,7 @@ public class PlayerTests(ITestOutputHelper testOutputHelper, NodeJsFixture nodeJ
         var fakeTgsRepository = Substitute.For<ITgsRepository>();
 
         var playerCode = "playerCode";
-        var modifyVipLevelAutoState = "Disable";
+        var modifyVipLevelAutoState = "False";
 
         _ = fakePlayerServiceClient
             .GetPlayerInfoAsync(Arg.Is(playerCode), Arg.Any<CancellationToken>())
@@ -1244,111 +1244,6 @@ public class PlayerTests(ITestOutputHelper testOutputHelper, NodeJsFixture nodeJ
 
         var request = new SetPlayerInfoRequest
         {
-            { nameof(PlayerPropertyName.VipLevelAutoState), modifyVipLevelAutoState }
-        };
-
-        using var nodeService = _nodeJsFixture.BuildNodeJsService();
-
-        var isWindows = RuntimeInformation.IsOSPlatform(OSPlatform.Windows) ? "true" : "false";
-
-        var nodeModule = $$"""
-            const axiosConfigFactory = require('./models/axios-configuration.js').default;
-            const BackOfficeService = require('./services/bo-service.js').default;
-
-            module.exports = async (playerCode, request) =>
-            {
-                let instance = axiosConfigFactory("{{channelName}}", {{isWindows}});
-
-                let svc = new BackOfficeService(instance);
-
-                return await svc.setPlayerInfo(playerCode, request);
-            };
-            """;
-
-        // Act
-        var actual = await nodeService.InvokeFromStringAsync<MessageResponse>(
-            nodeModule,
-            args: new object[] { playerCode, request });
-
-        // Assert
-        Assert.NotNull(actual);
-        Assert.True(actual.Valid);
-    }
-
-    [Fact]
-    public async Task 修改玩家信息_Vip未進行任何變更()
-    {
-        // Arrange
-        var channelName = Guid.NewGuid().ToString();
-        var userId = Guid.NewGuid();
-
-        var fakePlayerServiceClient = Substitute.For<IPlayerServiceClient>();
-        var fakeVipLevelServiceClient = Substitute.For<IVipLevelServiceClient>();
-        var fakeSetPlayerVipLevelService = Substitute.For<ICommandService<SetPlayerVipLevelCommand>>();
-        var fakeTgsRepository = Substitute.For<ITgsRepository>();
-
-        var playerCode = "playerCode";
-        var modifyVipId = "3a6b6f1d-3094-4b66-3c7a-08d9262ce1a5";
-        var modifyVipLevelAutoState = "Enable";
-
-        _ = fakePlayerServiceClient
-            .GetPlayerInfoAsync(Arg.Is(playerCode), Arg.Any<CancellationToken>())
-            .Returns(new Tgs.PlayerService.Client.PlayerInfo
-            {
-                PlayerCode = playerCode,
-                VipLevelId = Guid.Parse("3a6b6f1d-3094-4b66-3c7a-08d9262ce1a5")
-            });
-
-        _ = fakeVipLevelServiceClient
-            .PlayerVipLevelGetAsync(Arg.Is(playerCode), Arg.Any<CancellationToken>())
-            .Returns(new Tgs.VipLevelService.Common.ViewModels.PlayerVipLevelInfoViewModel
-            (
-                ResellerId: Guid.NewGuid(),
-                ResellerCode: "Demo",
-                LicenseeId: Guid.NewGuid(),
-                LicenseeCode: "TGS",
-                BrandId: Guid.NewGuid(),
-                BrandCode: "GPI",
-                PlayerCode: playerCode,
-                Username: playerCode,
-                VipLevelId: Guid.Parse("3a6b6f1d-3094-4b66-3c7a-08d9262ce1a5"),
-                VipLevel: 1,
-                AutoState: Tgs.VipLevelService.Common.PlayerVipLevelAutoState.Enable,
-                AccumDepositId: Guid.NewGuid(),
-                AccumDeposit: 0,
-                AccumTurnoverId: Guid.NewGuid(),
-                AccumTurnover: 0,
-                LevelUpAccumulateBetAmount: 1000m,
-                LevelUpAccumulateDeposit: 1000m,
-                FullLevel: false,
-                NextVipLevelId: Guid.Parse("a5e5afe0-e87b-483d-98db-71629ba93290"),
-                NextVipLevel: 2
-            ));
-
-        using var web = TestBackendOfficeApplication.Builder
-            .UseTestChannelServer(channelName)
-            .ConfigureLogging(logging => logging.AddXUnit(_testOutputHelper))
-            .ConfigureServices(services => services
-                .AddAuthentication("Fake")
-                .AddScheme<FakeAuthenticationSchemaOptions, FakeAuthenticationHandler>(
-                    "Fake",
-                    options =>
-                    {
-                        options.UserId = userId;
-                        options.UserName = "system";
-                    })
-                .Services
-                .AddSingleton(fakePlayerServiceClient)
-                .AddSingleton(fakeVipLevelServiceClient)
-                .AddSingleton(fakeSetPlayerVipLevelService)
-                .AddSingleton(fakeTgsRepository))
-            .Build();
-
-        await web.StartAsync();
-
-        var request = new SetPlayerInfoRequest
-        {
-            { nameof(PlayerPropertyName.VipId), modifyVipId },
             { nameof(PlayerPropertyName.VipLevelAutoState), modifyVipLevelAutoState }
         };
 

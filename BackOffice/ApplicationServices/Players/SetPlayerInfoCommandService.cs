@@ -72,9 +72,9 @@ internal class SetPlayerInfoCommandService(
                 vipId = Guid.Parse(vipIdString);
             }
 
-            if (!string.IsNullOrWhiteSpace(vipLevelAutoStateString) && Enum.TryParse(vipLevelAutoStateString, out Tgs.VipLevelService.Common.PlayerVipLevelAutoState _))
+            if (!string.IsNullOrWhiteSpace(vipLevelAutoStateString) && bool.TryParse(vipLevelAutoStateString, out bool autoStateBool))
             {
-                autoState = (Tgs.VipLevelService.Common.PlayerVipLevelAutoState)Enum.Parse(typeof(Tgs.VipLevelService.Common.PlayerVipLevelAutoState), vipLevelAutoStateString, true);
+                autoState = autoStateBool ? Tgs.VipLevelService.Common.PlayerVipLevelAutoState.Enable : Tgs.VipLevelService.Common.PlayerVipLevelAutoState.Disable;
             }
 
             if (vipId != playerVipLevelInfo.VipLevelId || autoState != playerVipLevelInfo.AutoState)

@@ -95,7 +95,7 @@ public class GetSinglePlayerQueryService(
             RealName = playerProperties.GetValueOrDefault("RealName"),
             VipId = playerVipLevel.VipLevelId,
             VipLevel = playerVipLevel.VipLevel,
-            VipLevelAutoState = playerVipLevel.AutoState,
+            VipLevelAutoState = playerVipLevel.AutoState == Tgs.VipLevelService.Common.PlayerVipLevelAutoState.Enable,
             AccumDeposit = playerVipLevel.AccumDeposit,
             AccumTurnover = playerVipLevel.AccumTurnover,
             LevelUpAccumulateBetAmount = playerVipLevel.LevelUpAccumulateBetAmount,
