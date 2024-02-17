@@ -54,9 +54,9 @@ internal class SetPlayerInfoCommandService(
             }
         }
 
-        var vipIdString = string.Empty;
         var vipLevelAutoStateString = string.Empty;
-        if (modifyDict.TryGetValue(PlayerPropertyName.VipId, out vipIdString)
+
+        if (modifyDict.TryGetValue(PlayerPropertyName.VipId, out var vipIdString)
             || modifyDict.TryGetValue(PlayerPropertyName.VipLevelAutoState, out vipLevelAutoStateString))
         {
             var playerVipLevelInfo = await vipLevelServiceClient.PlayerVipLevelGetAsync(

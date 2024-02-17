@@ -17,13 +17,11 @@ using Tgs.PlayerService.Client;
 using Tgs.Service.PlayerBuckets;
 using Tgs.ServiceUtility;
 using Tgs.VipLevelService.Clients;
-using Tgs.VipLevelService.Common.ViewModels;
 using TGS.Apis.BackendOffice.ViewModels;
 using TGS.Core.DataServices.Base.Interfaces;
 using TGS.Core.DataServices.Tgs;
 using TGS.Core.Models.Enums;
 using TGS.Services.BackOffice.Application.Models.Player;
-using TGS.Services.BackOffice.ApplicationServices;
 using TGS.Services.BackOffice.ApplicationServices.Players;
 using TGS.Services.BackOffice.Domain;
 using Xunit.Abstractions;
@@ -114,7 +112,7 @@ public class PlayerTests(ITestOutputHelper testOutputHelper, NodeJsFixture nodeJ
         _ = fakeVipLevelServiceClient.PlayerVipLevelGetAsync(
             Arg.Any<string>(),
             Arg.Any<CancellationToken>())
-            .Returns(new PlayerVipLevelInfoViewModel(
+            .Returns(new Tgs.VipLevelService.Common.ViewModels.PlayerVipLevelInfoViewModel(
                 Guid.NewGuid(),
                 "Demo",
                 Guid.NewGuid(),
@@ -135,7 +133,7 @@ public class PlayerTests(ITestOutputHelper testOutputHelper, NodeJsFixture nodeJ
                 false,
                 Guid.NewGuid(),
                 2),
-                new PlayerVipLevelInfoViewModel(
+                new Tgs.VipLevelService.Common.ViewModels.PlayerVipLevelInfoViewModel(
                 Guid.NewGuid(),
                 "Demo",
                 Guid.NewGuid(),
@@ -363,7 +361,7 @@ public class PlayerTests(ITestOutputHelper testOutputHelper, NodeJsFixture nodeJ
         _ = fakeVipLevelServiceClient.PlayerVipLevelGetAsync(
             Arg.Is("4ucmqplxb029"),
             Arg.Any<CancellationToken>())
-            .Returns(new PlayerVipLevelInfoViewModel(
+            .Returns(new Tgs.VipLevelService.Common.ViewModels.PlayerVipLevelInfoViewModel(
                 Guid.NewGuid(),
                 "Demo",
                 Guid.NewGuid(),
@@ -532,7 +530,7 @@ public class PlayerTests(ITestOutputHelper testOutputHelper, NodeJsFixture nodeJ
         _ = fakeVipLevelServiceClient.PlayerVipLevelGetAsync(
             Arg.Is(playerCode),
             Arg.Any<CancellationToken>())
-            .Returns(new PlayerVipLevelInfoViewModel(
+            .Returns(new Tgs.VipLevelService.Common.ViewModels.PlayerVipLevelInfoViewModel(
                 ResellerId: Guid.NewGuid(),
                 ResellerCode: "Demo",
                 LicenseeId: Guid.NewGuid(),
@@ -1095,7 +1093,7 @@ public class PlayerTests(ITestOutputHelper testOutputHelper, NodeJsFixture nodeJ
             });
 
         _ = fakeVipLevelServiceClient
-            .PlayerVipLevelGetAsync(Arg.Is(playerCode))
+            .PlayerVipLevelGetAsync(Arg.Is(playerCode), Arg.Any<CancellationToken>())
             .Returns(new Tgs.VipLevelService.Common.ViewModels.PlayerVipLevelInfoViewModel
             (
                 ResellerId: Guid.NewGuid(),
@@ -1198,7 +1196,7 @@ public class PlayerTests(ITestOutputHelper testOutputHelper, NodeJsFixture nodeJ
             });
 
         _ = fakeVipLevelServiceClient
-            .PlayerVipLevelGetAsync(Arg.Is(playerCode))
+            .PlayerVipLevelGetAsync(Arg.Is(playerCode), Arg.Any<CancellationToken>())
             .Returns(new Tgs.VipLevelService.Common.ViewModels.PlayerVipLevelInfoViewModel
             (
                 ResellerId: Guid.NewGuid(),
@@ -1302,7 +1300,7 @@ public class PlayerTests(ITestOutputHelper testOutputHelper, NodeJsFixture nodeJ
             });
 
         _ = fakeVipLevelServiceClient
-            .PlayerVipLevelGetAsync(Arg.Is(playerCode))
+            .PlayerVipLevelGetAsync(Arg.Is(playerCode), Arg.Any<CancellationToken>())
             .Returns(new Tgs.VipLevelService.Common.ViewModels.PlayerVipLevelInfoViewModel
             (
                 ResellerId: Guid.NewGuid(),
