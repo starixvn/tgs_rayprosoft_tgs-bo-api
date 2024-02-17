@@ -529,7 +529,9 @@ public class PlayerTests(ITestOutputHelper testOutputHelper, NodeJsFixture nodeJ
             Arg.Any<CancellationToken>())
             .Returns(Array.Empty<PlayerBankInfo>().ToAsyncEnumerable());
 
-        _ = fakeVipLevelServiceClient.PlayerVipLevelGetAsync(Arg.Is(playerCode))
+        _ = fakeVipLevelServiceClient.PlayerVipLevelGetAsync(
+            Arg.Is(playerCode),
+            Arg.Any<CancellationToken>())
             .Returns(new PlayerVipLevelInfoViewModel(
                 ResellerId: Guid.NewGuid(),
                 ResellerCode: "Demo",
