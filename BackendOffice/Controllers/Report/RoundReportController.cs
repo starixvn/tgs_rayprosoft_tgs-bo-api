@@ -4,12 +4,13 @@ using System;
 using System.ComponentModel;
 using System.Text.Json;
 using System.Threading.Tasks;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Tgs.Report.Client;
 using Tgs.Report.Client.Models.Round;
 using Tgs.ServiceUtility;
 using TGS.Apis.BackendOffice.Attributes;
-using TGS.Core.Models.Messages;
+using TGS.Services.BackOffice.Domain;
 using TGS.Services.BackOffice.Application.Models.ReportRound;
 using TGS.Services.BackOffice.ApplicationServices;
 
@@ -120,6 +121,8 @@ public class RoundReportController : BaseContextController
             .GetAsync(request)
             .ConfigureAwait(false);
 
+    [AllowAnonymous]
+    [IgnoreAntiforgeryToken]
     [HttpGet("system")]
     [Description("Get System rounds")]
     public async ValueTask<PagedResponse<SystemRoundView>> GetSystemRoundsAsync(
