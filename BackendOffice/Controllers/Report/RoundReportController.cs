@@ -4,13 +4,12 @@ using System;
 using System.ComponentModel;
 using System.Text.Json;
 using System.Threading.Tasks;
-using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Tgs.Report.Client;
 using Tgs.Report.Client.Models.Round;
 using Tgs.ServiceUtility;
 using TGS.Apis.BackendOffice.Attributes;
-using TGS.Services.BackOffice.Domain;
+using TGS.Core.Models.Messages;
 using TGS.Services.BackOffice.Application.Models.ReportRound;
 using TGS.Services.BackOffice.ApplicationServices;
 
@@ -114,19 +113,17 @@ public class RoundReportController : BaseContextController
 
     [HttpGet]
     [Description("Get rounds")]
-    public async ValueTask<PagedResponse<RoundView>> GetRoundsAsync(
-        [FromServices] IGetService<GetRoundsReportRequest, PagedResponse<RoundView>> roundsService,
+    public async ValueTask<TGS.Services.BackOffice.Domain.PagedResponse<RoundView>> GetRoundsAsync(
+        [FromServices] IGetService<GetRoundsReportRequest, TGS.Services.BackOffice.Domain.PagedResponse<RoundView>> roundsService,
         [FromQuery] GetRoundsReportRequest request)
         => await roundsService
             .GetAsync(request)
             .ConfigureAwait(false);
 
-    [AllowAnonymous]
-    [IgnoreAntiforgeryToken]
     [HttpGet("system")]
     [Description("Get System rounds")]
-    public async ValueTask<PagedResponse<SystemRoundView>> GetSystemRoundsAsync(
-        [FromServices] IGetService<GetSystemRoundsReportRequest, PagedResponse<SystemRoundView>> roundsService,
+    public async ValueTask<TGS.Services.BackOffice.Domain.PagedResponse<SystemRoundView>> GetSystemRoundsAsync(
+        [FromServices] IGetService<GetSystemRoundsReportRequest, TGS.Services.BackOffice.Domain.PagedResponse<SystemRoundView>> roundsService,
         [FromQuery] GetSystemRoundsReportRequest request)
         => await roundsService
             .GetAsync(request)
