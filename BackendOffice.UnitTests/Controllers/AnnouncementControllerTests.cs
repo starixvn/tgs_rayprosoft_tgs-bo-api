@@ -17,6 +17,7 @@ using TGS.Core.DataServices.Tgs.Models;
 using TGS.Core.Infrastructures.Json;
 using TGS.Core.Infrastructures.Redis;
 using TGS.Core.Models.Enums;
+using TGS.Core.Models.Messages;
 
 namespace TGS.Tests.BackendOffice.UnitTests.Controllers;
 
@@ -178,7 +179,7 @@ public class AnnouncementControllerTests : BaseTests
             Page = 1,
             Rows = 10,
             SortBy = "UpdatedOn",
-            OrderBy = SortOrder.Descending,
+            OrderBy = Core.Models.Messages.SortOrder.Descending,
             ShowAll = showAll,
             Status = status
         };

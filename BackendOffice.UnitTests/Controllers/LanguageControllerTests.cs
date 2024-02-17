@@ -4,9 +4,9 @@ using FluentAssertions;
 using MediatR;
 using NSubstitute;
 using TGS.Apis.BackendOffice.Controllers;
-using TGS.Core.Models.Messages;
 using TGS.Services.BackOffice.Application.Models.Language;
 using TGS.Services.BackOffice.Application.Resources;
+using TGS.Services.BackOffice.Domain;
 
 namespace TGS.Tests.BackendOffice.UnitTests.Controllers;
 
@@ -52,7 +52,7 @@ public class LanguageControllerTests : BaseTests
             Page = 1,
             Rows = 10,
             SortBy = "updatedOn",
-            OrderBy = SortOrder.Descending,
+            OrderBy = Core.Models.Messages.SortOrder.Descending,
             ShowAll = showAll
         };
         var (skip, take) = GetPage(request);

@@ -106,7 +106,7 @@ internal class ProcessBatchCommandService(
 
         _logger.LogDebug("Notify begin publish.");
 
-        await _messageSender.PublishAsync(
+        await _messageSender.PublishAsync<ReadOnlyMemory<byte>>(
             "tgs.bo.notify",
             notifyEvent.ToByteArray(),
             cancellationToken).ConfigureAwait(false);

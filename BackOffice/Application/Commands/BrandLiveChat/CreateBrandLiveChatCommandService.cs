@@ -1,8 +1,8 @@
-﻿using System.Threading;
+﻿using System.Text.Json;
+using System.Threading;
 using System.Threading.Tasks;
 using Tgs.ServiceUtility;
 using TGS.Core.DataServices.Base.Interfaces;
-using TGS.Core.Infrastructures.Extensions;
 using CoreModels = TGS.Core.DataServices.Tgs.Models;
 
 namespace TGS.Services.BackOffice.Application.Commands.BrandLiveChat;
@@ -17,7 +17,7 @@ internal class CreateBrandLiveChatCommandService(ITgsCommands<CoreModels.BrandLi
         {
             BrandId = command.BrandId,
             ChatName = command.Name,
-            ChatSetting = command.Setting.ToJson()
+            ChatSetting = JsonSerializer.Serialize(command.Setting)
         };
         await _commands.CreateAsync(brandLiveChat);
     }

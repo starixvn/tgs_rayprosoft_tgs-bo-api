@@ -4,13 +4,13 @@ using System.Linq.Dynamic.Core;
 using System.Threading;
 using System.Threading.Tasks;
 using Tgs.ServiceUtility;
-using TGS.Core.DataServices.Base.Extensions;
-using TGS.Core.Models.Messages;
+using TGS.Services.BackOffice.Domain;
 using TGS.Services.BackOffice.Infrastructure.DataService;
 
 namespace TGS.Services.BackOffice.ApplicationServices.Players;
 
-internal class GetPlayerIpsByUserNameGetService(IPlayerIpService service) : IGetService<GetPlayerIpsByUserNameQuery, PagedResponse<GetPlayerIpsByUserNameResult>>
+internal class GetPlayerIpsByUserNameGetService(IPlayerIpService service)
+    : IGetService<GetPlayerIpsByUserNameQuery, PagedResponse<GetPlayerIpsByUserNameResult>>
 {
     private readonly IPlayerIpService _service = service ?? throw new ArgumentNullException(nameof(service));
 
@@ -28,15 +28,18 @@ internal class GetPlayerIpsByUserNameGetService(IPlayerIpService service) : IGet
             })
             .OrderByDescending(x => x.CreatedOn);
 
-        return await loginRecords.GroupBy(x => new
-        {
-            x.IpAddress
-        }).Select(group => new GetPlayerIpsByUserNameResult
-        {
-            IpAddress = group.Key.IpAddress,
-            CreatedOn = group.Max(y => y.CreatedOn)
-        }).OrderByDescending(x => x.CreatedOn)
-          .CreatePagedResponseAsync(query)
-          .ConfigureAwait(false);
+        return await loginRecords
+            .GroupBy(x => new
+            {
+                x.IpAddress
+            })
+            .Select(group => new GetPlayerIpsByUserNameResult
+            {
+                IpAddress = group.Key.IpAddress,
+                CreatedOn = group.Max(y => y.CreatedOn)
+            })
+            .OrderByDescending(x => x.CreatedOn)
+            .CreatePagedResponseAsync(query)
+            .ConfigureAwait(false);
     }
 }

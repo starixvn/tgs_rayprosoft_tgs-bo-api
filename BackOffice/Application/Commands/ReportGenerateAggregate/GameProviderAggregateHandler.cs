@@ -77,7 +77,7 @@ public class GameProviderAggregateHandler(
                 RedisKey = "aggregate:GP"
             };
 
-            await _messageSender.PublishAsync("tgs.report.aggregate.game.provider",
+            await _messageSender.PublishAsync<ReadOnlyMemory<byte>>("tgs.report.aggregate.game.provider",
                     Encoding.UTF8.GetBytes(JsonSerializer.Serialize(data)),
                     cancellationToken)
                 .ConfigureAwait(false);

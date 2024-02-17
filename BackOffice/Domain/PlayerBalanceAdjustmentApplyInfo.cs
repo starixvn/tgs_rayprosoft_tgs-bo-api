@@ -1,10 +1,11 @@
-﻿using System;
+﻿#nullable enable
+
+using System;
 using System.Collections.Generic;
 using TGS.Core.Models.Enums;
 
-#nullable enable
-
 namespace TGS.Services.BackOffice.Domain;
+
 public record PlayerBalanceAdjustmentApplyInfo(
     Guid BrandId,
     string PlayerCode,

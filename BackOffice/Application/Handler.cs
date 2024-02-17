@@ -7,7 +7,7 @@ using MediatR;
 using Microsoft.AspNetCore.Http;
 using TGS.Core.Infrastructures.Extensions;
 using TGS.Core.Models;
-using TGS.Core.Models.Messages;
+using TGS.Services.BackOffice.Domain;
 
 namespace TGS.Services.BackOffice.Application;
 
@@ -63,6 +63,6 @@ new()
     private Guid? GetIdByKey(string key) =>
         !_userInfoMap.TryGetValue(key, out var value) || value.IsNullOrEmpty() ||
         !Guid.TryParse(value, out var id)
-            ? (Guid?)null
+            ? null
             : id;
 }

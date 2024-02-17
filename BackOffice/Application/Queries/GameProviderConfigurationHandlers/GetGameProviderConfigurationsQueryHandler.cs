@@ -2,23 +2,21 @@
 using System.Threading;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Http;
-using TGS.Core.DataServices.Base.Extensions;
-using TGS.Core.Models.Messages;
 using TGS.Services.BackOffice.Application.Models.GameProviderConfiguration;
+using TGS.Services.BackOffice.Domain;
 using TGS.Services.BackOffice.Infrastructure.DataService;
 
 namespace TGS.Services.BackOffice.Application.Queries.GameProviderConfigurationHandlers;
 
-public class GetGameProviderConfigurationsQueryHandler(IGameProviderConfigurationService service,
-    IHttpContextAccessor accessor) : Handler<GetGameProviderConfigurationsRequest,
-    PagedResponse<GameProviderConfigurationModel>>(accessor)
+public class GetGameProviderConfigurationsQueryHandler(
+    IGameProviderConfigurationService service,
+    IHttpContextAccessor accessor)
+    : Handler<GetGameProviderConfigurationsRequest, PagedResponse<GameProviderConfigurationModel>>(accessor)
 {
-    private readonly IGameProviderConfigurationService _service = service;
-
     public override Task<PagedResponse<GameProviderConfigurationModel>> Handle(
         GetGameProviderConfigurationsRequest request,
-        CancellationToken cancellationToken) =>
-        _service.GetGameProviderConfigurationQueries(q => q.Where(x => x.GameProviderId == request.GameProviderId)
+        CancellationToken cancellationToken)
+        => service.GetGameProviderConfigurationQueries(q => q.Where(x => x.GameProviderId == request.GameProviderId)
                 .Where(ResellerId,
                     r => r.GameProvider.Resellers.Select(x => x.ResellerId).Contains(ResellerId.Value))
                 .Where(LicenseeId,
@@ -39,5 +37,6 @@ public class GetGameProviderConfigurationsQueryHandler(IGameProviderConfiguratio
                 IsDefault = x.IsDefault,
                 UpdatedByUsername = x.UpdatedByUsername,
                 UpdatedOn = x.UpdatedOn
-            }).CreatePagedResponseAsync(request);
+            })
+            .CreatePagedResponseAsync(request);
 }

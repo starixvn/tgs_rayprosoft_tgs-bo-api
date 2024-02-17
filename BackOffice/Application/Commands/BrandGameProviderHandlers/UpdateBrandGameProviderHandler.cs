@@ -2,16 +2,18 @@
 using System.Threading;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Http;
-using TGS.Core.Models.Messages;
 using TGS.Services.BackOffice.Application.Models.BrandGameProviderSchedule;
 using TGS.Services.BackOffice.Application.Resources;
+using TGS.Services.BackOffice.Domain;
 using TGS.Services.BackOffice.Infrastructure.DataService;
 
 namespace TGS.Services.BackOffice.Application.Commands.BrandGameProviderHandlers;
 
-public class UpdateBrandGameProviderHandler(IBrandGameProviderService service,
+public class UpdateBrandGameProviderHandler(
+    IBrandGameProviderService service,
     IBrandGameProviderScheduleService scheduleService,
-    IHttpContextAccessor accessor) : Handler<UpdateBrandGameProviderRequest, MessageResponse>(accessor)
+    IHttpContextAccessor accessor) 
+    : Handler<UpdateBrandGameProviderRequest, MessageResponse>(accessor)
 {
     private readonly IBrandGameProviderScheduleService _scheduleService = scheduleService;
     private readonly IBrandGameProviderService _service = service;

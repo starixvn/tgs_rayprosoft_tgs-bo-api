@@ -8,8 +8,10 @@ using Tgs.Agent.Dividend.Client;
 using Tgs.Agent.Dividend.Client.Models;
 using TGS.Apis.BackendOffice.Attributes;
 using Tgs.BrandCertificate.Clients;
-using Tgs.Core.Infrastructures.Utility;
 using TGS.Core.Models.Enums;
+using ClosedXML.Excel;
+using System.Collections.Generic;
+using System.Resources;
 
 namespace TGS.Apis.BackendOffice.Controllers.Agent;
 
@@ -28,7 +30,8 @@ public class AgentDividendController(IAgentDividendClient agentDividendClient, I
 
         var brand = await brandServiceClient.GetBrandInfoByCodeAsync(brandCode, HttpContext.RequestAborted);
 
-        if (brand == null) return null;
+        if (brand == null)
+            return null;
 
         var agentDividends = await agentDividendClient
             .GetPreCalculateAgentDividend(brand.Id, HttpContext.RequestAborted)
@@ -38,14 +41,15 @@ public class AgentDividendController(IAgentDividendClient agentDividendClient, I
         {
             agentDividendModel.AgentDividendMultipleLayerModels = new AgentDividendMultipleLayerModel[]
             {
-                new AgentDividendMultipleLayerModel
-                {
-                    ActualDividendPercentage = 1, AgentDividendPercentage = 1, AgentId = Guid.NewGuid()
+                new() {
+                    ActualDividendPercentage = 1,
+                    AgentDividendPercentage = 1,
+                    AgentId = Guid.NewGuid()
                 }
             };
         }
 
-        var excel = agentDividends.Export("PreCalculateAgentDividend");
+        var excel = Export(agentDividends, "PreCalculateAgentDividend");
 
         await using var stream = new MemoryStream();
 
@@ -55,5 +59,22 @@ public class AgentDividendController(IAgentDividendClient agentDividendClient, I
             new MemoryStream(stream.ToArray()),
             "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
             "PreCalculateAgentDividend.xlsx");
+    }
+
+    private static XLWorkbook Export<T>(IEnumerable<T> models, string sheetName)
+    {
+        var workbook = new XLWorkbook();
+        var sheet = workbook.Worksheets.Add(sheetName);
+        var colIdx = 1;
+
+        foreach (var item in typeof(T).GetProperties())
+            sheet.Cell(1, colIdx++).Value = item.Name;
+
+        if (models == null)
+            return workbook;
+
+        _ = sheet.Cell("A2").InsertData(models);
+
+        return workbook;
     }
 }

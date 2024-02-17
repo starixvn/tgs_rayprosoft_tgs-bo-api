@@ -31,7 +31,7 @@ internal class SetPlayerPasswordCommandService(
 
         var auditLog = new PlayerAuditLog
         {
-            Id = GuidExtensions.NewSequentialGuid(),
+            Id = Guid.NewGuid(),
             ModuleName = "Player",
             CreatedByUsername = command.ModifyUsername,
             CreatedOn = DateTimeOffset.Now,

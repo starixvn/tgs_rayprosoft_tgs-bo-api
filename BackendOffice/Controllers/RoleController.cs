@@ -6,14 +6,13 @@ using System.Threading.Tasks;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using TGS.Apis.BackendOffice.Controllers.Messages.Roles;
-using TGS.Core.DataServices.Base.Extensions;
 using TGS.Core.DataServices.Base.Interfaces;
 using TGS.Core.DataServices.Tgs.Models;
 using TGS.Core.Infrastructures.Extensions;
 using TGS.Core.Infrastructures.Json;
 using TGS.Core.Models.Enums;
-using TGS.Core.Models.Messages;
 using TGS.Core.Models.Services;
+using TGS.Services.BackOffice.Domain;
 
 namespace TGS.Apis.BackendOffice.Controllers;
 
@@ -157,8 +156,8 @@ public class RoleController(
 
     [HttpGet]
     [Description("Get roles")]
-    public Task<PagedResponse<RoleModel>> GetListAsync([FromQuery] GetRolesRequest request) =>
-        roleQueries.GetQueries()
+    public Task<PagedResponse<RoleModel>> GetListAsync([FromQuery] GetRolesRequest request)
+        => roleQueries.GetQueries()
             .Where(request.IsRoot, x => x.IsRoot == request.IsRoot)
             .Where(request.ResellerId, x => x.ResellerId == request.ResellerId)
             .Where(request.LicenseeId, x => x.LicenseeId == request.LicenseeId)
@@ -406,11 +405,18 @@ public class RoleController(
     }
 
     private Role CreateRole(
-            string name, string displayName, string description, Guid? resellerId,
-        RoleType roleType, Guid? licenseeId, Guid? brandId, string menuSetting, bool isRoot) =>
-        new()
+        string name,
+        string displayName,
+        string description,
+        Guid? resellerId,
+        RoleType roleType,
+        Guid? licenseeId,
+        Guid? brandId,
+        string menuSetting,
+        bool isRoot)
+        => new()
         {
-            Id = GuidExtensions.NewSequentialGuid(),
+            Id = Guid.NewGuid(),
             IsRoot = isRoot,
             Name = name,
             Description = description ?? name,
@@ -449,8 +455,8 @@ public class RoleController(
         return templateMenus;
     }
 
-    private MenuSetting[] GetMenuSettingByString(string setting) =>
-            jsonSerializationProvider.DeserializeFromString<MenuSetting[]>(setting);
+    private MenuSetting[] GetMenuSettingByString(string setting)
+        => jsonSerializationProvider.DeserializeFromString<MenuSetting[]>(setting);
 
     private void UpdateRoles(Role templateRole, IEnumerable<Role> roles)
     {

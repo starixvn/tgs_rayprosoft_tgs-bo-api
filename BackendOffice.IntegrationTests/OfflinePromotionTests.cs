@@ -101,7 +101,7 @@ public class OfflinePromotionTests(ITestOutputHelper testOutputHelper, NodeJsFix
         _ = fakeMessageSender.Received(1)
             .PublishAsync(
                 Arg.Is("tgs.bo.background.offline-promotion"),
-                Arg.Any<ReadOnlyMemory<byte>>(),
+                Arg.Any<byte[]>(),
                 Arg.Any<CancellationToken>());
     }
 

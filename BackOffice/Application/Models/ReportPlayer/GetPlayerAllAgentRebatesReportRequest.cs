@@ -1,6 +1,6 @@
 ﻿#nullable enable
 using System;
-using TGS.Core.Models.Messages;
+using TGS.Services.BackOffice.Domain;
 
 namespace TGS.Services.BackOffice.Application.Models.ReportPlayer;
 

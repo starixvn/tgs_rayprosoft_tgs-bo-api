@@ -7,8 +7,8 @@ using Tgs.Paging;
 using Tgs.ServiceUtility;
 using Tgs.VipLevelService.Clients;
 using TGS.Apis.BackendOffice.ViewModels;
-using TGS.Core.Models.Messages;
 using TGS.Services.BackOffice.ApplicationServices;
+using TGS.Services.BackOffice.Domain;
 
 namespace TGS.Apis.BackendOffice.Controllers;
 

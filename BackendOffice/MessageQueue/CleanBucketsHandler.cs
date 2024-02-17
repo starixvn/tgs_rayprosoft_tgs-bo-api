@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.Threading;
 using System.Threading.Tasks;
 using Tgs.Services.PlayerBucket.Protos;
@@ -8,11 +9,16 @@ using Valhalla.MessageQueue;
 
 namespace TGS.Apis.BackendOffice.MessageQueue;
 
-public class CleanBucketsHandler(ICommandService<ProcessCleanBucketsRequestCommand> cleanService) : IMessageHandler
+public class CleanBucketsHandler(ICommandService<ProcessCleanBucketsRequestCommand> cleanService)
+    : IMessageHandler<ReadOnlyMemory<byte>>
 {
     private readonly ICommandService<ProcessCleanBucketsRequestCommand> _cleanService = cleanService ?? throw new ArgumentNullException(nameof(cleanService));
 
-    public ValueTask HandleAsync(ReadOnlyMemory<byte> data, CancellationToken cancellationToken = default)
+    public ValueTask HandleAsync(
+        string subject,
+        ReadOnlyMemory<byte> data,
+        IEnumerable<MessageHeaderValue> headerValues,
+        CancellationToken cancellationToken = default)
     {
         var eventData = CleanFormCreatedEvent.Parser.ParseFrom(data.Span);
 

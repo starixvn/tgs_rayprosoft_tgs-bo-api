@@ -3,14 +3,18 @@ using System.Threading.Tasks;
 using Microsoft.AspNetCore.Http;
 using Tgs.BrandCertificate;
 using Tgs.BrandCertificate.Clients;
-using TGS.Core.Models.Messages;
 using TGS.Services.BackOffice.Application.Models.Brand;
 using TGS.Services.BackOffice.Application.Resources;
+using TGS.Services.BackOffice.Domain;
 using TGS.Services.BackOffice.Infrastructure.DataService;
 
 namespace TGS.Services.BackOffice.Application.Commands.BrandHandlers;
 
-public class UpdateBrandHandler(IBrandService service, IBrandServiceClient brandServiceClient, IHttpContextAccessor accessor) : Handler<UpdateBrandRequest, MessageResponse>(accessor)
+public class UpdateBrandHandler(
+    IBrandService service,
+    IBrandServiceClient brandServiceClient,
+    IHttpContextAccessor accessor)
+    : Handler<UpdateBrandRequest, MessageResponse>(accessor)
 {
     public override async Task<MessageResponse> Handle(UpdateBrandRequest request,
         CancellationToken cancellationToken)

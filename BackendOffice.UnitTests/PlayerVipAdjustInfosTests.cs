@@ -1,7 +1,7 @@
-﻿using System.Threading;
-using NSubstitute;
+﻿using NSubstitute;
 using Tgs.VipLevelService.Clients;
 using TGS.Services.BackOffice.ApplicationServices.Players;
+using TGS.Services.BackOffice.Domain;
 
 namespace TGS.Tests.BackendOffice.UnitTests;
 
@@ -17,7 +17,7 @@ public class PlayerVipAdjustInfosTests
             BrandId: Guid.NewGuid(),
             From: DateTimeOffset.Now.AddDays(-10),
             To: DateTimeOffset.Now,
-            Paging: new Core.Models.Messages.PageableRequest
+            Paging: new PageableRequest
             {
                 Page = 1,
                 Rows = 20,

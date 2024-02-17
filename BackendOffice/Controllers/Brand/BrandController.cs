@@ -14,7 +14,6 @@ using Tgs.ServiceUtility;
 using TGS.Apis.BackendOffice.Controllers.Messages;
 using TGS.Apis.BackendOffice.Controllers.Messages.BrandToken;
 using TGS.Apis.BackendOffice.ViewModels;
-using TGS.Core.Models.Messages;
 using TGS.Services.BackOffice.Application.Models.Brand;
 using TGS.Services.BackOffice.Application.Queries.BrandToken;
 using TGS.Services.BackOffice.ApplicationServices;
@@ -304,4 +303,27 @@ public partial class BrandController(IMediator mediator) : BaseContextController
         request.Id = id;
         return mediator.Send(request);
     }
+
+    [HttpGet("platform-account-fund/{brandId:Guid}", Name = "GetBrandPlatformAccountFundFlag")]
+    public async ValueTask<bool> GetBrandPlatformAccountFundFlagAsync(
+        [FromServices] IBrandServiceClient brandServiceClient,
+        Guid brandId)
+    {
+        var flag = await brandServiceClient.GetBrandPlatformAccountFundAsync(
+            brandId,
+            HttpContext.RequestAborted).ConfigureAwait(false);
+
+        return flag ?? false;
+    }
+
+    [HttpPatch("platform-account-fund/{brandId:Guid}", Name = "SetBrandPlatformAccountFundFlag")]
+    public ValueTask SetBrandPlatformAccountFundFlagAsync(
+        [FromServices] IBrandServiceClient brandServiceClient,
+        Guid brandId,
+        [FromBody] bool enabled)
+        => brandServiceClient.SetBrandPlatformAccountFundAsync(
+            brandId,
+            enabled,
+            UserId,
+            HttpContext.RequestAborted);
 }

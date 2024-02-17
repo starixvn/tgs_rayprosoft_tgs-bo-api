@@ -6,8 +6,7 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using TGS.Apis.BackendOffice.Controllers.Messages.Licensee;
 using TGS.Apis.BackendOffice.DataService.Services;
-using TGS.Core.DataServices.Base.Extensions;
-using TGS.Core.Models.Messages;
+using TGS.Services.BackOffice.Domain;
 
 namespace TGS.Apis.BackendOffice.Controllers.Licensee;
 
@@ -99,8 +98,7 @@ public partial class LicenseeController(ILicenseeService service) : BaseContextC
     [HttpGet]
     [Description("Get licensees: 營運商列表")]
     public Task<PagedResponse<LicenseeModel>> GetLicenseesAsync([FromQuery] GetLicenseesRequest request)
-    {
-        return service.GetLicensees(request)
+        => service.GetLicensees(request)
             .Where(request.ResellerId, x => x.ResellerId == request.ResellerId)
             .Where(ResellerId, x => x.ResellerId == ResellerId)
             .Where(LicenseeId, x => x.Id == LicenseeId)
@@ -116,8 +114,8 @@ public partial class LicenseeController(ILicenseeService service) : BaseContextC
                 OperationalEmail = x.OperationalEmail,
                 CreatedOn = x.CreatedOn,
                 UpdatedOn = x.UpdatedOn
-            }).CreatePagedResponseAsync(request);
-    }
+            })
+            .CreatePagedResponseAsync(request);
 
     [HttpPut("{id}")]
     [Description("Update a Licensee")]

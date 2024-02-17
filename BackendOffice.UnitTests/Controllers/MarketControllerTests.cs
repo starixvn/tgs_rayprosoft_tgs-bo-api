@@ -1,10 +1,9 @@
-﻿using System.Data.SqlClient;
-using AutoFixture;
+﻿using AutoFixture;
 using FluentAssertions;
 using NSubstitute;
+using Tgs.ServiceUtility;
 using TGS.Apis.BackendOffice.Controllers.Report;
 using TGS.Services.BackOffice.Application.Models.ReportMarket;
-using Tgs.ServiceUtility;
 
 namespace TGS.Tests.BackendOffice.UnitTests.Controllers;
 
@@ -32,7 +31,7 @@ public class MarketControllerTests : BaseTests
             Page = 1,
             Rows = 10,
             SortBy = "updatedOn",
-            OrderBy = SortOrder.Descending,
+            OrderBy = Core.Models.Messages.SortOrder.Descending,
             ShowAll = showAll
         };
         var (skip, take) = GetPage(request);

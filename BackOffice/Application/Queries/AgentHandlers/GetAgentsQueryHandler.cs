@@ -5,9 +5,8 @@ using Microsoft.AspNetCore.Http;
 using Tgs.Agent.Client;
 using Tgs.Agent.Client.Models;
 using Tgs.CashService.Client;
-using TGS.Core.DataServices.Base.Extensions;
-using TGS.Core.Models.Messages;
 using TGS.Services.BackOffice.Application.Models.Agent;
+using TGS.Services.BackOffice.Domain;
 using TGS.Services.BackOffice.Infrastructure.DataService;
 
 namespace TGS.Services.BackOffice.Application.Queries.AgentHandlers;

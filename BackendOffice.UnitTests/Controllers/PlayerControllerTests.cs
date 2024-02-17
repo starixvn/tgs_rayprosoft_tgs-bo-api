@@ -1,25 +1,25 @@
 ﻿using System.Collections.Immutable;
-using System.Data.SqlClient;
 using AutoFixture;
 using ExpectedObjects;
 using FluentAssertions;
 using MediatR;
 using MockQueryable.Moq;
 using NSubstitute;
-using TGS.Apis.BackendOffice.Controllers;
 using Tgs.CashService.Client;
-using TGS.Core.Models.Enums;
-using TGS.Core.Models.Messages;
 using Tgs.Payment.Clients;
 using Tgs.PlayerService.Client;
 using Tgs.Promotion.Clients;
 using Tgs.Service.PlayerBuckets;
+using Tgs.ServiceUtility;
+using Tgs.VipLevelService.Clients;
+using Tgs.VipLevelService.Common.ViewModels;
+using TGS.Apis.BackendOffice.Controllers;
+using TGS.Core.Models.Enums;
 using TGS.Services.BackOffice.Application.Models.Player;
 using TGS.Services.BackOffice.Application.Resources;
 using TGS.Services.BackOffice.ApplicationServices.Agents;
 using TGS.Services.BackOffice.ApplicationServices.Players;
 using TGS.Services.BackOffice.Domain;
-using Tgs.ServiceUtility;
 using PlayerInfo = Tgs.PlayerService.Client.PlayerInfo;
 
 namespace TGS.Tests.BackendOffice.UnitTests.Controllers;
@@ -39,13 +39,15 @@ public class PlayerControllerTests : BaseTests
         var fakeCashServiceClient = Substitute.For<ICashServiceClient>();
         var fakePlayerBucketClient = Substitute.For<IPlayerBucketClient>();
         var fakeServiceCoordinator = Substitute.For<IServiceCoordinator>();
+        var fakeVipLevelServiceClient = Substitute.For<IVipLevelServiceClient>();
 
         var sut = new GetSinglePlayerQueryService(
             fakePlayerServiceClient,
             fakePaymentServiceClient,
             fakeCashServiceClient,
             fakePlayerBucketClient,
-            fakeServiceCoordinator);
+            fakeServiceCoordinator,
+            fakeVipLevelServiceClient);
 
         var query = new GetSinglePlayerQuery("test1");
 
@@ -71,7 +73,16 @@ public class PlayerControllerTests : BaseTests
                 { "Birthdate" , "2022/11/09" },
                 { "Email" , "test@test.com" },
                 { "Zalo", "testZalo" }
-            }
+            },
+            VipId = Guid.NewGuid(),
+            VipLevel = 1,
+            AccumDeposit = 500m,
+            AccumTurnover = 0.0m,
+            LevelUpAccumulateBetAmount = 1999m,
+            LevelUpAccumulateDeposit = 999m,
+            FullLevel = false,
+            NextVipLevelId = Guid.NewGuid(),
+            NextVipLevel = 2,
         };
 
         _ = fakePlayerServiceClient.GetPlayerInfoAsync(
@@ -113,6 +124,29 @@ public class PlayerControllerTests : BaseTests
         _ = fakeCashServiceClient.GetBalanceAsync(Arg.Any<Guid>())
             .Returns(500M);
 
+        _ = fakeVipLevelServiceClient.PlayerVipLevelGetAsync(Arg.Is(query.PlayerCode))
+            .Returns(new PlayerVipLevelInfoViewModel(
+                ResellerId: Guid.NewGuid(),
+                ResellerCode: "Demo",
+                LicenseeId: Guid.NewGuid(),
+                LicenseeCode: "TGS",
+                BrandId: Guid.NewGuid(),
+                BrandCode: "GPI",
+                PlayerCode: "tester",
+                Username: "tester",
+                VipLevelId: expected.VipId,
+                VipLevel: expected.VipLevel,
+                AutoState: Tgs.VipLevelService.Common.PlayerVipLevelAutoState.Enable,
+                AccumDepositId: Guid.NewGuid(),
+                AccumDeposit: expected.AccumDeposit,
+                AccumTurnoverId: Guid.NewGuid(),
+                AccumTurnover: expected.AccumTurnover,
+                LevelUpAccumulateBetAmount: expected.LevelUpAccumulateBetAmount,
+                LevelUpAccumulateDeposit: expected.LevelUpAccumulateDeposit,
+                FullLevel: expected.FullLevel,
+                NextVipLevelId: expected.NextVipLevelId,
+                NextVipLevel: expected.NextVipLevel));
+
         var actual = await sut.GetAsync(query);
 
         expected.ToExpectedObject().ShouldMatch(actual);
@@ -138,7 +172,7 @@ public class PlayerControllerTests : BaseTests
             Page = 1,
             Rows = 10,
             SortBy = "CreatedOn",
-            OrderBy = SortOrder.Descending,
+            OrderBy = TGS.Core.Models.Messages.SortOrder.Descending,
             ShowAll = showAll
         };
 
@@ -272,7 +306,6 @@ public class PlayerControllerTests : BaseTests
 
         _ = mediatorMock.Received(1).Send(Arg.Any<UpdatePlayerRequest>(), Arg.Any<CancellationToken>());
     }
-
 
     private static Fixture CreateUpdatePlayerRequestFixture()
     {

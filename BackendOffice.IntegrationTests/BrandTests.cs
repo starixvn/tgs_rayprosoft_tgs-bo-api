@@ -1,5 +1,4 @@
-﻿using System.Data.SqlClient;
-using System.Globalization;
+﻿using System.Globalization;
 using System.Runtime.InteropServices;
 using System.Text.Json;
 using ExpectedObjects;
@@ -13,11 +12,11 @@ using Tgs.Agent.Dividend.Client;
 using Tgs.BrandCertificate;
 using Tgs.BrandCertificate.Clients;
 using TGS.Apis.BackendOffice.ViewModels;
-using TGS.Core.Models.Messages;
 using TGS.Services.BackOffice.Application.Models.Brand;
 using TGS.Services.BackOffice.Application.Resources;
 using TGS.Services.BackOffice.Domain;
 using TGS.Services.BackOffice.Infrastructure.DataService;
+using Xunit;
 using Xunit.Abstractions;
 using CreateBrandRequest = TGS.Services.BackOffice.Application.Models.Brand.CreateBrandRequest;
 using Enums = TGS.Core.Models.Enums;
@@ -61,7 +60,7 @@ public class BrandTests(ITestOutputHelper testOutputHelper, NodeJsFixture nodeJs
         var page = 1;
         var rows = 20;
         var sortby = "code";
-        var orderby = SortOrder.Ascending;
+        var orderby = TGS.Core.Models.Messages.SortOrder.Ascending;
         var showAll = false;
 
         _ = fakeBrandServiceClient.QueryBrandListAsync(
@@ -100,7 +99,7 @@ public class BrandTests(ITestOutputHelper testOutputHelper, NodeJsFixture nodeJs
 
         var nodeModule = $$"""
             const axiosConfigFactory = require('./models/axios-configuration.js').default;
-            const BackOfficeService = require('./services/bo-service.js').default;
+            const BackOfficeService = require('./services/bo-brand-service.js').default;
 
             module.exports = async (request, paging) =>
             {
@@ -199,7 +198,7 @@ public class BrandTests(ITestOutputHelper testOutputHelper, NodeJsFixture nodeJs
         var page = 1;
         var rows = 20;
         var sortby = "code";
-        var orderby = SortOrder.Ascending;
+        var orderby = TGS.Core.Models.Messages.SortOrder.Ascending;
         var showAll = false;
 
         _ = fakeBrandServiceClient.QueryBrandListAsync(
@@ -238,7 +237,7 @@ public class BrandTests(ITestOutputHelper testOutputHelper, NodeJsFixture nodeJs
 
         var nodeModule = $$"""
             const axiosConfigFactory = require('./models/axios-configuration.js').default;
-            const BackOfficeService = require('./services/bo-service.js').default;
+            const BackOfficeService = require('./services/bo-brand-service.js').default;
 
             module.exports = async (request, paging) =>
             {
@@ -335,7 +334,7 @@ public class BrandTests(ITestOutputHelper testOutputHelper, NodeJsFixture nodeJs
         var page = 1;
         var rows = 20;
         var sortby = "code";
-        var orderby = SortOrder.Ascending;
+        var orderby = TGS.Core.Models.Messages.SortOrder.Ascending;
         var showAll = false;
 
         _ = fakeBrandServiceClient.QueryBrandListAsync(
@@ -374,7 +373,7 @@ public class BrandTests(ITestOutputHelper testOutputHelper, NodeJsFixture nodeJs
 
         var nodeModule = $$"""
             const axiosConfigFactory = require('./models/axios-configuration.js').default;
-            const BackOfficeService = require('./services/bo-service.js').default;
+            const BackOfficeService = require('./services/bo-brand-service.js').default;
 
             module.exports = async (request, paging) =>
             {
@@ -473,7 +472,7 @@ public class BrandTests(ITestOutputHelper testOutputHelper, NodeJsFixture nodeJs
         var page = 1;
         var rows = 20;
         var sortby = "code";
-        var orderby = SortOrder.Ascending;
+        var orderby = TGS.Core.Models.Messages.SortOrder.Ascending;
         var showAll = false;
 
         _ = fakeBrandServiceClient.QueryBrandListAsync(
@@ -512,7 +511,7 @@ public class BrandTests(ITestOutputHelper testOutputHelper, NodeJsFixture nodeJs
 
         var nodeModule = $$"""
             const axiosConfigFactory = require('./models/axios-configuration.js').default;
-            const BackOfficeService = require('./services/bo-service.js').default;
+            const BackOfficeService = require('./services/bo-brand-service.js').default;
 
             module.exports = async (request, paging) =>
             {
@@ -611,7 +610,7 @@ public class BrandTests(ITestOutputHelper testOutputHelper, NodeJsFixture nodeJs
         var page = 1;
         var rows = 20;
         var sortby = "code";
-        var orderby = SortOrder.Ascending;
+        var orderby = TGS.Core.Models.Messages.SortOrder.Ascending;
         var showAll = false;
 
         _ = fakeBrandServiceClient.QueryBrandListAsync(
@@ -667,7 +666,7 @@ public class BrandTests(ITestOutputHelper testOutputHelper, NodeJsFixture nodeJs
 
         var nodeModule = $$"""
             const axiosConfigFactory = require('./models/axios-configuration.js').default;
-            const BackOfficeService = require('./services/bo-service.js').default;
+            const BackOfficeService = require('./services/bo-brand-service.js').default;
 
             module.exports = async (request, paging) =>
             {
@@ -809,7 +808,7 @@ public class BrandTests(ITestOutputHelper testOutputHelper, NodeJsFixture nodeJs
 
         var nodeModule = $$"""
             const axiosConfigFactory = require('./models/axios-configuration.js').default;
-            const BackOfficeService = require('./services/bo-service.js').default;
+            const BackOfficeService = require('./services/bo-brand-service.js').default;
 
             module.exports = async (request) =>
             {
@@ -951,7 +950,7 @@ public class BrandTests(ITestOutputHelper testOutputHelper, NodeJsFixture nodeJs
 
         var nodeModule = $$"""
             const axiosConfigFactory = require('./models/axios-configuration.js').default;
-            const BackOfficeService = require('./services/bo-service.js').default;
+            const BackOfficeService = require('./services/bo-brand-service.js').default;
 
             module.exports = async (request) =>
             {
@@ -1094,7 +1093,7 @@ public class BrandTests(ITestOutputHelper testOutputHelper, NodeJsFixture nodeJs
 
         var nodeModule = $$"""
             const axiosConfigFactory = require('./models/axios-configuration.js').default;
-            const BackOfficeService = require('./services/bo-service.js').default;
+            const BackOfficeService = require('./services/bo-brand-service.js').default;
 
             module.exports = async (request) =>
             {
@@ -1205,7 +1204,7 @@ public class BrandTests(ITestOutputHelper testOutputHelper, NodeJsFixture nodeJs
         var page = 1;
         var rows = 20;
         var sortby = "code";
-        var orderby = SortOrder.Ascending;
+        var orderby = TGS.Core.Models.Messages.SortOrder.Ascending;
         var showAll = false;
 
         _ = fakeBrandServiceClient.QueryBrandListAsync(
@@ -1295,7 +1294,7 @@ public class BrandTests(ITestOutputHelper testOutputHelper, NodeJsFixture nodeJs
 
         var nodeModule = $$"""
             const axiosConfigFactory = require('./models/axios-configuration.js').default;
-            const BackOfficeService = require('./services/bo-service.js').default;
+            const BackOfficeService = require('./services/bo-brand-service.js').default;
 
             module.exports = async (request, paging) =>
             {
@@ -1419,7 +1418,7 @@ public class BrandTests(ITestOutputHelper testOutputHelper, NodeJsFixture nodeJs
 
         var nodeModule = $$"""
             const axiosConfigFactory = require('./models/axios-configuration.js').default;
-            const BackOfficeService = require('./services/bo-service.js').default;
+            const BackOfficeService = require('./services/bo-brand-service.js').default;
 
             module.exports = async (brandId, status) =>
             {
@@ -1486,7 +1485,7 @@ public class BrandTests(ITestOutputHelper testOutputHelper, NodeJsFixture nodeJs
 
         var nodeModule = $$"""
             const axiosConfigFactory = require('./models/axios-configuration.js').default;
-            const BackOfficeService = require('./services/bo-service.js').default;
+            const BackOfficeService = require('./services/bo-brand-service.js').default;
 
             module.exports = async (brandId, status) =>
             {
@@ -1512,6 +1511,149 @@ public class BrandTests(ITestOutputHelper testOutputHelper, NodeJsFixture nodeJs
                 Arg.Is(brandId),
                 Arg.Is(BrandStatus.Maintenance),
                 Arg.Any<string>(),
+                Arg.Any<CancellationToken>());
+    }
+
+    [Fact]
+    public async Task 整合測試_取得Brand是否有開啟平台資金告警設定()
+    {
+        // Arrange
+        var channelName = Guid.NewGuid().ToString();
+        var userId = Guid.NewGuid();
+
+        var fakeBrandServiceClient = Substitute.For<IBrandServiceClient>();
+
+        using var web = TestBackendOfficeApplication.Builder
+            .UseTestChannelServer(channelName)
+            .ConfigureLogging(logging => logging.AddXUnit(_testOutputHelper))
+            .ConfigureServices(services => services
+                .AddAuthentication("Fake")
+                .AddScheme<FakeAuthenticationSchemaOptions, FakeAuthenticationHandler>(
+                    "Fake",
+                    options =>
+                    {
+                        options.UserId = userId;
+                        options.UserName = "system";
+                    })
+                .Services
+                .AddSingleton(fakeBrandServiceClient))
+            .Build();
+
+        await web.StartAsync();
+
+        var brandId = Guid.NewGuid();
+
+        _ = fakeBrandServiceClient.GetBrandInfoAsync(
+                Arg.Is(brandId),
+                Arg.Any<CancellationToken>())
+            .Returns(new BrandInfo
+            {
+                Id = brandId,
+                Code = "GPI",
+                Status = BrandStatus.Archived
+            });
+
+        _ = fakeBrandServiceClient.GetBrandPlatformAccountFundAsync(
+            Arg.Is(brandId),
+            Arg.Any<CancellationToken>())
+            .Returns(true);
+
+        using var nodeService = _nodeJsFixture.BuildNodeJsService();
+
+        var isWindows = RuntimeInformation.IsOSPlatform(OSPlatform.Windows) ? "true" : "false";
+
+        var nodeModule = $$"""
+            const axiosConfigFactory = require('./models/axios-configuration.js').default;
+            const BackOfficeService = require('./services/bo-brand-service.js').default;
+
+            module.exports = async (brandId) =>
+            {
+                let instance = axiosConfigFactory("{{channelName}}", {{isWindows}});
+
+                let svc = new BackOfficeService(instance);
+
+                return await svc.getBrandPlatformAccountFundFlag(brandId);
+            };
+        """;
+
+        // Act
+        var actual = await nodeService.InvokeFromStringAsync<bool>(
+            nodeModule,
+            args: new object[] { brandId });
+
+        // Assert
+        Assert.True(actual);
+    }
+
+    [Fact]
+    public async Task 整合測試_設定Brand開啟平台資金告警設定()
+    {
+        // Arrange
+        var channelName = Guid.NewGuid().ToString();
+        var userId = Guid.NewGuid();
+
+        var fakeBrandServiceClient = Substitute.For<IBrandServiceClient>();
+
+        using var web = TestBackendOfficeApplication.Builder
+            .UseTestChannelServer(channelName)
+            .ConfigureLogging(logging => logging.AddXUnit(_testOutputHelper))
+            .ConfigureServices(services => services
+                .AddAuthentication("Fake")
+                .AddScheme<FakeAuthenticationSchemaOptions, FakeAuthenticationHandler>(
+                    "Fake",
+                    options =>
+                    {
+                        options.UserId = userId;
+                        options.UserName = "system";
+                    })
+                .Services
+                .AddSingleton(fakeBrandServiceClient))
+            .Build();
+
+        await web.StartAsync();
+
+        var brandId = Guid.NewGuid();
+        var enabled = true;
+
+        _ = fakeBrandServiceClient.GetBrandInfoAsync(
+            Arg.Is(brandId),
+            Arg.Any<CancellationToken>())
+            .Returns(new BrandInfo
+            {
+                Id = brandId,
+                Code = "GPI",
+                Status = BrandStatus.Archived
+            });
+
+        using var nodeService = _nodeJsFixture.BuildNodeJsService();
+
+        var isWindows = RuntimeInformation.IsOSPlatform(OSPlatform.Windows) ? "true" : "false";
+
+        var nodeModule = $$"""
+            const axiosConfigFactory = require('./models/axios-configuration.js').default;
+            const BackOfficeService = require('./services/bo-brand-service.js').default;
+
+            module.exports = async (brandId, enabled) =>
+            {
+                let instance = axiosConfigFactory("{{channelName}}", {{isWindows}});
+
+                let svc = new BackOfficeService(instance);
+
+                return await svc.setBrandPlatformAccountFundFlag(brandId, enabled);
+            };
+        """;
+
+        // Act
+        await nodeService.InvokeFromStringAsync(
+             nodeModule,
+             args: new object[] { brandId, true });
+
+        // Assert
+        _ = fakeBrandServiceClient.Received(1)
+            .SetBrandPlatformAccountFundAsync(
+                Arg.Is(brandId),
+                Arg.Is(enabled),
+                Arg.Is(userId.ToString()),
                 Arg.Any<CancellationToken>());
     }
 }

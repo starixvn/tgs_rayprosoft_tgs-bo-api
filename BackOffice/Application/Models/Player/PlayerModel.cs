@@ -62,6 +62,13 @@ public class PlayerModel
     public Guid? VipId { get; init; }
 
     public int? VipLevel { get; init; }
+    public decimal AccumTurnover { get; init; }
+    public decimal AccumDeposit { get; init; }
+    public decimal LevelUpAccumulateBetAmount { get; init; }
+    public decimal LevelUpAccumulateDeposit { get; init; }
+    public bool FullLevel { get; init; }
+    public Guid NextVipLevelId { get; init; }
+    public int NextVipLevel { get; init; }
 
     public decimal WageringRequirement { get; set; }
 

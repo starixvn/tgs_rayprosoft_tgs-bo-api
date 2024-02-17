@@ -10,13 +10,11 @@ using Microsoft.AspNetCore.Http;
 using Microsoft.Extensions.Logging;
 using Tgs.GameProviders.Pluggable.Client;
 using Tgs.PlayerService.Client;
-using Tgs.VipLevelService.Clients;
-using Tgs.VipLevelService.Common;
 using TGS.Core.Infrastructures.Extensions;
 using TGS.Core.Models.Enums;
-using TGS.Core.Models.Messages;
 using TGS.Services.BackOffice.Application.Models.Player;
 using TGS.Services.BackOffice.Application.Resources;
+using TGS.Services.BackOffice.Domain;
 using TGS.Services.BackOffice.Infrastructure.DataService;
 using PlayerStatus = TGS.Core.Models.Enums.PlayerStatus;
 

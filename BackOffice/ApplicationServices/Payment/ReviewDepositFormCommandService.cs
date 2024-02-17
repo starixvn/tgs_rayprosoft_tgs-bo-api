@@ -69,10 +69,11 @@ internal class ReviewDepositFormCommandService : ICommandService<ReviewDepositFo
         CancellationToken cancellationToken = default)
     {
         var form = await _paymentServiceClient
-            .GetDepositFormAsync(command.BrandId, command.FormId, cancellationToken)
+            .GetDepositFormAsync(command.FormId, cancellationToken)
             .ConfigureAwait(false);
 
         if (form is null
+            || form.BrandId != command.BrandId
             || form.Status == PaymentFlowState.Approved
             || form.Status == PaymentFlowState.Reject)
             return;
@@ -152,7 +153,7 @@ internal class ReviewDepositFormCommandService : ICommandService<ReviewDepositFo
                 command.FormId,
                 string.IsNullOrEmpty(command.ReviewUserId) ? null : Guid.Parse(command.ReviewUserId));
 
-            var response = await _messageSender.RequestAsync(
+            var response = await _messageSender.RequestAsync<ReadOnlyMemory<byte>, ReadOnlyMemory<byte>>(
                 subject,
                 Encoding.UTF8.GetBytes(JsonSerializer.Serialize(request)),
                 cancellationToken: cancellationToken).ConfigureAwait(false);

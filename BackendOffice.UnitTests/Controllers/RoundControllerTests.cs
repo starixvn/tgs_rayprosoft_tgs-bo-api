@@ -2,6 +2,7 @@
 using NSubstitute;
 using Tgs.Report.Client;
 using Tgs.Report.Client.Models.Round;
+using TGS.Core.Models.Messages;
 using TGS.Services.BackOffice.Application.Queries.Game;
 
 namespace TGS.Tests.BackendOffice.UnitTests.Controllers;

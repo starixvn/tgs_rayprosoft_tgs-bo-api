@@ -6,8 +6,8 @@ using Microsoft.AspNetCore.Mvc;
 using Tgs.BrandCertificate.Clients;
 using Tgs.ServiceUtility;
 using TGS.Apis.BackendOffice.Controllers.Messages.BrandMaintenance;
-using TGS.Core.Models.Messages;
 using TGS.Services.BackOffice.ApplicationServices;
+using TGS.Services.BackOffice.Domain;
 
 namespace TGS.Apis.BackendOffice.Controllers.Brand;
 
@@ -24,7 +24,7 @@ public class BrandMaintenanceController : BaseContextController
 
     [HttpGet(Name = "GetBrandMaintenanceInfos")]
     [Description("Get all brand maintenance infos")]
-    public IAsyncEnumerable<BrandMaintenanceInfo> GetBrandMaintenanceInfosAsync(
+    public IAsyncEnumerable<Tgs.BrandCertificate.Clients.BrandMaintenanceInfo> GetBrandMaintenanceInfosAsync(
         [FromServices] IBrandServiceClient brandServiceClient,
         [FromQuery] GetBrandMaintenanceInfosRequest request)
         => brandServiceClient.GetBrandMaintenanceInfosAsync(request.BrandCode);

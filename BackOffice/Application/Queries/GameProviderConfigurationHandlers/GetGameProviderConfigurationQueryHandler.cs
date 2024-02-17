@@ -9,10 +9,10 @@ using TGS.Services.BackOffice.Infrastructure.DataService;
 
 namespace TGS.Services.BackOffice.Application.Queries.GameProviderConfigurationHandlers;
 
-public class
-    GetGameProviderConfigurationQueryHandler(IGameProviderConfigurationService service,
-    IHttpContextAccessor accessor) : Handler<GetGameProviderConfigurationRequest,
-        GetGameProviderConfigurationResponse>(accessor)
+public class GetGameProviderConfigurationQueryHandler(
+    IGameProviderConfigurationService service,
+    IHttpContextAccessor accessor)
+    : Handler<GetGameProviderConfigurationRequest, GetGameProviderConfigurationResponse>(accessor)
 {
     private readonly IGameProviderConfigurationService _service = service;
 

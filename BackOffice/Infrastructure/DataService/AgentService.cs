@@ -60,7 +60,7 @@ public class AgentService(ITgsRepository repository, IPasswordHandler passwordHa
             invitationCode = InvitationCodeGenerator.NewId();
 
         var brand = await _repository.Brands.AsQueryable().FirstAsync(x => x.Id == request.BrandId);
-        var defaultWalletId = GuidExtensions.NewSequentialGuid();
+        var defaultWalletId = Guid.NewGuid();
         var agentId = Guid.NewGuid();
 
         var agent = new Agent

@@ -6,16 +6,17 @@ using Microsoft.EntityFrameworkCore;
 using Tgs.Agent.Client;
 using TGS.Core.Infrastructures.Extensions;
 using TGS.Core.Models.Enums;
-using TGS.Core.Models.Messages;
 using TGS.Services.BackOffice.Application.Models.Agent;
 using TGS.Services.BackOffice.Application.Resources;
+using TGS.Services.BackOffice.Domain;
 using TGS.Services.BackOffice.Infrastructure.DataService;
 
 namespace TGS.Services.BackOffice.Application.Commands.AgentHandlers;
 
 public class UpdateAgentHandler(
     IAgentService service,
-    IHttpContextAccessor accessor) : Handler<UpdateAgentRequest, MessageResponse>(accessor)
+    IHttpContextAccessor accessor)
+    : Handler<UpdateAgentRequest, MessageResponse>(accessor)
 {
     public override async Task<MessageResponse> Handle(
         UpdateAgentRequest request,

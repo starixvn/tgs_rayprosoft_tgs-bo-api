@@ -12,24 +12,28 @@ using Valhalla.MessageQueue;
 
 namespace TGS.Apis.BackendOffice.MessageQueue;
 
-internal class BackgroundNotifyHandler(MessageQueueNotifyEventSource eventSource, ILogger<BackgroundNotifyHandler> logger) : IMessageHandler
+internal class BackgroundNotifyHandler(
+    MessageQueueNotifyEventSource eventSource,
+    ILogger<BackgroundNotifyHandler> logger)
+    : IMessageHandler<ReadOnlyMemory<byte>>
 {
-    private readonly MessageQueueNotifyEventSource _eventSource = eventSource ?? throw new ArgumentNullException(nameof(eventSource));
-    private readonly ILogger<BackgroundNotifyHandler> _logger = logger ?? throw new ArgumentNullException(nameof(logger));
-
-    public ValueTask HandleAsync(ReadOnlyMemory<byte> data, CancellationToken cancellationToken = default)
+    public ValueTask HandleAsync(
+        string subject,
+        ReadOnlyMemory<byte> data,
+        IEnumerable<MessageHeaderValue> headerValues,
+        CancellationToken cancellationToken = default)
     {
         var eventData = NotifyEvent.Parser.ParseFrom(data.Span);
 
-        _logger.LogDebug("NotifyEvent: begin receive. {evt}", eventData);
+        logger.LogDebug("NotifyEvent: begin receive. {evt}", eventData);
 
         var officeNotify = new BackOfficeNotifyEvent(
             eventData.Tags.Select(tag => new KeyValuePair<string, string>(tag.Name, tag.Value)),
             eventData.Data);
 
-        _logger.LogDebug("NotifyEvent: received.");
+        logger.LogDebug("NotifyEvent: received.");
 
-        _eventSource.PublishEvent(officeNotify);
+        eventSource.PublishEvent(officeNotify);
 
         return ValueTask.CompletedTask;
     }

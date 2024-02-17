@@ -1,7 +1,7 @@
 ﻿#nullable enable
 
 using MediatR;
-using TGS.Core.Models.Messages;
+using TGS.Services.BackOffice.Domain;
 
 namespace TGS.Services.BackOffice.Application.Models.Player;
 

@@ -13,7 +13,8 @@ namespace TGS.Services.BackOffice.ApplicationServices;
 internal class PlayerTransferBalanceToParentAgentCommandService(
     IPlayerServiceClient playerServiceClient,
     IQueryService<AllAgentsByBrandQuery, AgentInfo> queryAgentsService,
-    IPlayerAdjustBalanceService playerAdjustBalanceService) : ICommandService<PlayerTransferBalanceToParentAgentCommand>
+    IPlayerAdjustBalanceService playerAdjustBalanceService)
+    : ICommandService<PlayerTransferBalanceToParentAgentCommand>
 {
     private readonly IPlayerAdjustBalanceService _playerAdjustBalanceService = playerAdjustBalanceService ?? throw new ArgumentNullException(nameof(playerAdjustBalanceService));
     private readonly IPlayerServiceClient _playerServiceClient = playerServiceClient ?? throw new ArgumentNullException(nameof(playerServiceClient));

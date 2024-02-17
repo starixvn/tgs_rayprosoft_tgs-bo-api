@@ -2,27 +2,27 @@
 using System.Threading;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Http;
-using TGS.Core.DataServices.Base.Extensions;
-using TGS.Core.Models.Messages;
 using TGS.Services.BackOffice.Application.Models.PlatformCredit;
+using TGS.Services.BackOffice.Domain;
 using TGS.Services.BackOffice.Infrastructure.DataService;
 
 namespace TGS.Services.BackOffice.Application.Queries.PlatformCreditHandlers;
 
-public class
-    GetPlatformCreditPaymentsQueryHandler(IPlatformCreditService service, IHttpContextAccessor accessor) : Handler<GetPlatformCreditPaymentRequest,
-        PagedResponse<PlatformCreditPaymentModel>>(accessor)
+public class GetPlatformCreditPaymentsQueryHandler(
+    IPlatformCreditService service,
+    IHttpContextAccessor accessor)
+    : Handler<GetPlatformCreditPaymentRequest, PagedResponse<PlatformCreditPaymentModel>>(accessor)
 {
-    private readonly IPlatformCreditService _service = service;
-
-    public override Task<PagedResponse<PlatformCreditPaymentModel>> Handle(GetPlatformCreditPaymentRequest request,
-        CancellationToken cancellationToken) =>
-        _service.GetPlatformCreditPaymentQueries(q => q
-                .Where(x => x.PlatformCreditId == request.PlatformCreditId))
+    public override Task<PagedResponse<PlatformCreditPaymentModel>> Handle(
+        GetPlatformCreditPaymentRequest request,
+        CancellationToken cancellationToken)
+        => service.GetPlatformCreditPaymentQueries(q => q
+            .Where(x => x.PlatformCreditId == request.PlatformCreditId))
             .Select(x => new PlatformCreditPaymentModel
             {
                 Amount = x.PayAmount,
                 Balance = x.Balance,
                 CreatedOn = x.CreatedOn
-            }).CreatePagedResponseAsync(request);
+            })
+            .CreatePagedResponseAsync(request);
 }

@@ -7,7 +7,6 @@ using System.Threading.Tasks;
 using System.Transactions;
 using Microsoft.EntityFrameworkCore;
 using TGS.Core.DataServices.Base;
-using TGS.Core.DataServices.Base.Extensions;
 using TGS.Core.DataServices.Tgs;
 using TGS.Core.DataServices.Tgs.Models;
 using TGS.Core.Infrastructures.Extensions;
@@ -24,12 +23,9 @@ public class BrandService(
     ITgsRepository tgsRepository,
     IRedisCacheManager cacheManager) : BaseRepositoryOperations<ITgsRepository>(tgsRepository), IBrandService
 {
-    private readonly IRedisCacheManager _cacheManager = cacheManager ?? throw new ArgumentNullException(nameof(cacheManager));
-    private readonly ITgsRepository _repository = tgsRepository ?? throw new ArgumentNullException(nameof(tgsRepository));
-
     public async ValueTask<Guid> CreateBrandAsync(CreateBrandInfo createInfo, CancellationToken cancellationToken = default)
     {
-        var brand = await _repository.Brands.FirstAsync(x => x.Id == createInfo.BrandId, cancellationToken);
+        var brand = await tgsRepository.Brands.FirstAsync(x => x.Id == createInfo.BrandId, cancellationToken);
 
         using var scope = new TransactionScope(TransactionScopeAsyncFlowOption.Enabled);
 
@@ -96,11 +92,11 @@ public class BrandService(
 
     public async Task SyncBrandGamesAsync(Guid brandId)
     {
-        var brand = await _repository.Brands.AsQueryable().FirstOrDefaultAsync(x => x.Id == brandId);
+        var brand = await tgsRepository.Brands.AsQueryable().FirstOrDefaultAsync(x => x.Id == brandId);
 
         var brandCurrencies = brand.Currencies.Select(bc => bc.CurrencyCode);
 
-        var baseGames = await _repository.Games.AsQueryable()
+        var baseGames = await tgsRepository.Games.AsQueryable()
             .Where(x => x.AvailableToBrand)
             .Where(x => brand.GameProviders.Select(g => g.GameProviderId).Contains(x.GameProviderId))
             .Where(x => x.GameProvider.Currencies.Any(c => brandCurrencies.Contains(c.CurrencyCode)))
@@ -125,14 +121,14 @@ public class BrandService(
 
         await CreateEntitiesAsync(games);
 
-        await _cacheManager.ClearCacheAsync(RedisCacheType.BrandGames, brand.Id, true);
+        await cacheManager.ClearCacheAsync(RedisCacheType.BrandGames, brand.Id, true);
     }
 
     public async Task UpdateBrandAsync(Guid brandId, UpdateBrandRequest request)
     {
-        var brand = await _repository.Brands.FirstAsync(x => x.Id == brandId);
+        var brand = await tgsRepository.Brands.FirstAsync(x => x.Id == brandId);
 
-        await using var tran = await _repository.BeginTransactionAsync(IsolationLevel.ReadCommitted);
+        await using var tran = await tgsRepository.BeginTransactionAsync(IsolationLevel.ReadCommitted);
 
         await DeleteEntitiesAsync(brand.BetLimits);
         await DeleteEntitiesAsync(brand.Languages);
@@ -198,7 +194,7 @@ public class BrandService(
             }
         };
 
-        _ = await _cacheManager.ClearCacheByBatchAsync(cacheKeys);
+        _ = await cacheManager.ClearCacheByBatchAsync(cacheKeys);
     }
 
     private static HashSet<BrandDomain> GenerateBrandDomains(Guid brandId, string[] domains)
@@ -270,10 +266,9 @@ public class BrandService(
 
         bool BetLimitIsSportsFunc(GameProviderBetLimit b) => betLimit.MaxBetPerMatch >= b.MaxBetPerMatch;
 
-        var brandGroupGameProviderBetLimits = brandGameProviders.Where(x => x.GameProvider.BetLimits
-                .Any(BetLimitRangeFunc))
-            .Where(isSports, x => x.GameProvider.BetLimits
-                .Any(BetLimitIsSportsFunc))
+        var brandGroupGameProviderBetLimits = brandGameProviders
+            .Where(x => x.GameProvider.BetLimits.Any(BetLimitRangeFunc))
+            .Where(isSports, x => x.GameProvider.BetLimits.Any(BetLimitIsSportsFunc))
             .Select(x =>
             {
                 var gameProviderBetLimits = x.GameProvider.BetLimits
@@ -452,12 +447,12 @@ public class BrandService(
         var gameProviderIds =
             brandGameProviderModels.Where(x => x.Id == null).Select(x => x.GameProviderId).ToArray();
 
-        var gameProviders = await _repository.GameProviders.AsQueryable()
+        var gameProviders = await tgsRepository.GameProviders.AsQueryable()
             .Where(x => gameProviderIds.Contains(x.Id)).ToArrayAsync();
         var brandGameProviders = gameProviders.Select(x =>
             {
                 var requestBrandGameProvider = brandGameProviderModels.First(m => m.GameProviderId == x.Id);
-                var brandGameProviderId = GuidExtensions.NewSequentialGuid();
+                var brandGameProviderId = Guid.NewGuid();
 
                 var newBrandGameProvider = new BrandGameProvider
                 {
@@ -494,7 +489,7 @@ public class BrandService(
         Guid brandId,
         BrandBetLimitModel[] brandBetLimitModels)
     {
-        var betLimits = await _repository.BetLimits.AsQueryable()
+        var betLimits = await tgsRepository.BetLimits.AsQueryable()
             .Where(x => brandBetLimitModels.Select(b => b.Id).Contains(x.Id)).ToArrayAsync();
         var brandBetLimits = betLimits.Select(x =>
             new BrandBetLimit
@@ -511,7 +506,7 @@ public class BrandService(
         Guid brandId,
         string[] currencyCodes)
     {
-        var brandCurrencies = _repository.Currencies.AsQueryable()
+        var brandCurrencies = tgsRepository.Currencies.AsQueryable()
             .Where(x => currencyCodes.Contains(x.Code)).Select(x =>
                 new BrandCurrency
                 {
@@ -527,7 +522,7 @@ public class BrandService(
         BrandLanguageModel[] languageModels)
     {
         var cultureCodes = languageModels.Select(c => c.CultureCode);
-        var languages = await _repository.Languages.AsQueryable()
+        var languages = await tgsRepository.Languages.AsQueryable()
             .Where(x => cultureCodes.Contains(x.CultureCode)).ToArrayAsync();
         var brandLanguages = languages.Select(x =>
             new BrandLanguage
@@ -544,7 +539,7 @@ public class BrandService(
     {
         var gameProviderIds = brandGameProviders.Select(x => x.GameProviderId).ToArray();
 
-        var brandGames = await _repository.Games.AsQueryable()
+        var brandGames = await tgsRepository.Games.AsQueryable()
             .Where(x => x.AvailableToBrand)
             .Where(x => gameProviderIds.Contains(x.GameProviderId)).ToArrayAsync();
 
@@ -572,7 +567,7 @@ public class BrandService(
 
         var brandCurrencyCodes = brand.Currencies.Select(x => x.CurrencyCode).ToArray();
 
-        var games = await _repository.Games.AsQueryable()
+        var games = await tgsRepository.Games.AsQueryable()
             .Where(x => x.AvailableToBrand)
             .Where(x => gameProviderIds.Contains(x.GameProviderId))
             .Where(x => x.GameProvider.Currencies.Any(c => brandCurrencyCodes.Contains(c.CurrencyCode)))

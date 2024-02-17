@@ -12,9 +12,9 @@ using Tgs.CashService.Client;
 using TGS.Apis.BackendOffice.ViewModels;
 using TGS.Core.DataServices.Base.Interfaces;
 using TGS.Core.Models.Enums;
-using TGS.Core.Models.Messages;
 using TGS.Services.BackOffice.Application.Models.Agent;
 using TGS.Services.BackOffice.Application.Models.ReportAgent;
+using TGS.Services.BackOffice.Domain;
 using TGS.Services.BackOffice.Infrastructure.DataService;
 using Xunit.Abstractions;
 using AgentLevelType = Tgs.Agent.Client.Models.Enums.AgentLevelType;
@@ -419,7 +419,7 @@ public class AgentTests(ITestOutputHelper testOutputHelper, NodeJsFixture nodeJs
             Page = 1,
             ShowAll = false,
             SortBy = "createdOn",
-            OrderBy = System.Data.SqlClient.SortOrder.Descending,
+            OrderBy = TGS.Core.Models.Messages.SortOrder.Descending,
         };
         var request = new GetAgentOperationsRequest
         {

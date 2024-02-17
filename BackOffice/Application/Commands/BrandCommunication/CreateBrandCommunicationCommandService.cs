@@ -1,4 +1,5 @@
-﻿using System.Threading;
+﻿using System;
+using System.Threading;
 using System.Threading.Tasks;
 using Tgs.ServiceUtility;
 using TGS.Core.DataServices.Base.Interfaces;
@@ -18,7 +19,7 @@ internal class CreateBrandCommunicationCommandService(
     {
         var brandCommunication = new CoreModels.BrandCommunication()
         {
-            Id = GuidExtensions.NewSequentialGuid(),
+            Id = Guid.NewGuid(),
             BrandId = command.BrandId,
             Type = command.CommunicationType,
             Phone = command.Phone,

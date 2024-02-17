@@ -9,6 +9,7 @@ using TGS.Apis.BackendOffice.Controllers.Licensee;
 using TGS.Apis.BackendOffice.Controllers.Messages.Licensee;
 using TGS.Apis.BackendOffice.DataService.Services;
 using TGS.Core.DataServices.Tgs.Models;
+using TGS.Core.Models.Messages;
 
 namespace TGS.Tests.BackendOffice.UnitTests.Controllers;
 
@@ -62,7 +63,7 @@ public class LicenseeControllerTests : BaseTests
             Page = 1,
             Rows = 10,
             SortBy = "updatedOn",
-            OrderBy = SortOrder.Descending,
+            OrderBy = Core.Models.Messages.SortOrder.Descending,
             ShowAll = showAll
         };
 

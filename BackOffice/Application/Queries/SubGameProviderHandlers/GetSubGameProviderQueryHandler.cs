@@ -7,8 +7,10 @@ using TGS.Services.BackOffice.Infrastructure.DataService;
 
 namespace TGS.Services.BackOffice.Application.Queries.SubGameProviderHandlers;
 
-public class
-    GetSubGameProviderQueryHandler(ISubGameProviderService service, IHttpContextAccessor accessor) : Handler<GetSubGameProviderRequest, GetSubGameProviderResponse>(accessor)
+public class GetSubGameProviderQueryHandler(
+    ISubGameProviderService service,
+    IHttpContextAccessor accessor)
+    : Handler<GetSubGameProviderRequest, GetSubGameProviderResponse>(accessor)
 {
     private readonly ISubGameProviderService _service = service;
 

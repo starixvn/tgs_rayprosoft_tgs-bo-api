@@ -1,5 +1,5 @@
 ﻿using System;
-using Tgs.Logging;
+using TGS.Services.BackOffice.Domain.Enums;
 
 namespace TGS.Apis.BackendOffice.Controllers.Messages.Log;
 

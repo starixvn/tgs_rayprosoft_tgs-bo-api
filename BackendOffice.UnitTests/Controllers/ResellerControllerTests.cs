@@ -9,6 +9,7 @@ using TGS.Apis.BackendOffice.Controllers.Messages.Reseller;
 using TGS.Apis.BackendOffice.Controllers.Reseller;
 using TGS.Apis.BackendOffice.DataService.Services;
 using TGS.Core.DataServices.Tgs.Models;
+using TGS.Core.Models.Messages;
 
 namespace TGS.Tests.BackendOffice.UnitTests.Controllers;
 

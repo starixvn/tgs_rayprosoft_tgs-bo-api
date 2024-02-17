@@ -314,7 +314,7 @@ public class RoleControllerTests : BaseTests
             Page = 1,
             Rows = 10,
             SortBy = "Name",
-            OrderBy = SortOrder.Descending,
+            OrderBy = TGS.Core.Models.Messages.SortOrder.Descending,
             ShowAll = showAll
         };
 

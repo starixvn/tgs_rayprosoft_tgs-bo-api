@@ -9,6 +9,7 @@ using TGS.Apis.BackendOffice.Controllers.Messages.Settings;
 using TGS.Apis.BackendOffice.Resources;
 using TGS.Core.DataServices.Base.Interfaces;
 using TGS.Core.Infrastructures.Redis;
+using TGS.Core.Models.Messages;
 using Setting = TGS.Core.DataServices.Tgs.Models.Setting;
 
 namespace TGS.Tests.BackendOffice.UnitTests.Controllers;

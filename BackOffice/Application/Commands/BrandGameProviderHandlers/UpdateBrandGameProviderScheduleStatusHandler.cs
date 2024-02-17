@@ -3,17 +3,18 @@ using System.Threading.Tasks;
 using Microsoft.AspNetCore.Http;
 using TGS.Core.Infrastructures.Redis;
 using TGS.Core.Models.Enums;
-using TGS.Core.Models.Messages;
 using TGS.Services.BackOffice.Application.Models.BrandGameProviderSchedule;
 using TGS.Services.BackOffice.Application.Resources;
+using TGS.Services.BackOffice.Domain;
 using TGS.Services.BackOffice.Infrastructure.DataService;
 
 namespace TGS.Services.BackOffice.Application.Commands.BrandGameProviderHandlers;
 
-public class
-    UpdateBrandGameProviderScheduleStatusHandler(IBrandGameProviderService service,
+public class UpdateBrandGameProviderScheduleStatusHandler(
+    IBrandGameProviderService service,
     IRedisCacheManager cacheManager,
-    IHttpContextAccessor accessor) : Handler<UpdateBrandGameProviderStatusRequest, MessageResponse>(accessor)
+    IHttpContextAccessor accessor) 
+    : Handler<UpdateBrandGameProviderStatusRequest, MessageResponse>(accessor)
 {
     private readonly IRedisCacheManager _cacheManager = cacheManager;
     private readonly IBrandGameProviderService _service = service;

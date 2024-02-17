@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.Threading;
 using System.Threading.Tasks;
 using Microsoft.Extensions.Logging;
@@ -12,10 +13,20 @@ namespace TGS.Apis.BackendOffice.MessageQueue;
 
 public class AutoRejectDepositProcessor(
     ICommandService<ReviewDepositFormCommand> reviewCommandService,
-    ILogger<AutoRejectDepositProcessor> logger) : IMessageHandler
+    ILogger<AutoRejectDepositProcessor> logger)
+    : IMessageHandler<ReadOnlyMemory<byte>>
 {
     private readonly ILogger<AutoRejectDepositProcessor> _logger = logger ?? throw new ArgumentNullException(nameof(logger));
     private readonly ICommandService<ReviewDepositFormCommand> _reviewCommandService = reviewCommandService ?? throw new ArgumentNullException(nameof(reviewCommandService));
+
+    public ValueTask HandleAsync(
+        string subject,
+        ReadOnlyMemory<byte> data,
+        IEnumerable<MessageHeaderValue> headerValues,
+        CancellationToken cancellationToken = default)
+    {
+        throw new NotImplementedException();
+    }
 
     public async ValueTask HandleAsync(ReadOnlyMemory<byte> data, CancellationToken cancellationToken)
     {

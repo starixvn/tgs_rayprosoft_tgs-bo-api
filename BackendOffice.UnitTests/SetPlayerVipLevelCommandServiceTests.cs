@@ -29,10 +29,26 @@ public class SetPlayerVipLevelCommandServiceTests
             playerCode: Arg.Is(command.PlayerCode),
             cancellationToken: Arg.Any<CancellationToken>())
             .Returns(new PlayerVipLevelInfoViewModel(
+                ResellerId: Guid.NewGuid(),
+                ResellerCode: "r1",
+                LicenseeId: Guid.NewGuid(),
+                LicenseeCode: "l1",
+                BrandId: Guid.NewGuid(),
+                BrandCode: "b1",
                 PlayerCode: command.PlayerCode,
+                Username: "test1",
                 VipLevelId: Guid.Parse("3a6b6f1d-3094-4b66-3c7a-08d9262ce1a5"),
                 VipLevel: 1,
-                AutoState: PlayerVipLevelAutoState.Enable));
+                AutoState: PlayerVipLevelAutoState.Enable,
+                AccumDepositId: Guid.NewGuid(),
+                AccumDeposit: 1000M,
+                AccumTurnoverId: Guid.NewGuid(),
+                AccumTurnover: 1000M,
+                LevelUpAccumulateBetAmount: 2999m,
+                LevelUpAccumulateDeposit: 1999m,
+                FullLevel: false,
+                NextVipLevelId: Guid.NewGuid(),
+                NextVipLevel: 2));
 
         _ = fakeVipLevelServiceClient.VipLevelGetAsync(
             id: Arg.Is(command.VipId),

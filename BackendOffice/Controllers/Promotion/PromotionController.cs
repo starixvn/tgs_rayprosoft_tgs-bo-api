@@ -13,7 +13,6 @@ using Tgs.ServiceUtility;
 using TGS.Apis.BackendOffice.Controllers.Messages.Promotion;
 using TGS.Apis.BackendOffice.ViewModels;
 using TGS.Core.Models.Enums;
-using TGS.Core.Models.Messages;
 using TGS.Services.BackOffice.ApplicationServices.Promotion;
 using TGS.Services.BackOffice.Domain;
 using PromotionStatus = TGS.Core.Models.Enums.PromotionStatus;

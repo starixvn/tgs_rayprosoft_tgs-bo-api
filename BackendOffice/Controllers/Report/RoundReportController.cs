@@ -113,18 +113,17 @@ public class RoundReportController : BaseContextController
 
     [HttpGet]
     [Description("Get rounds")]
-    public async ValueTask<PagedResponse<RoundView>> GetRoundsAsync(
-        [FromServices] IGetService<GetRoundsReportRequest, PagedResponse<RoundView>>
-            roundsService,
+    public async ValueTask<TGS.Services.BackOffice.Domain.PagedResponse<RoundView>> GetRoundsAsync(
+        [FromServices] IGetService<GetRoundsReportRequest, TGS.Services.BackOffice.Domain.PagedResponse<RoundView>> roundsService,
         [FromQuery] GetRoundsReportRequest request)
         => await roundsService
             .GetAsync(request)
             .ConfigureAwait(false);
 
     [HttpGet("system")]
-    [Description("Get rounds")]
-    public async ValueTask<PagedResponse<SystemRoundView>> GetSystemRoundsAsync(
-        [FromServices] IGetService<GetSystemRoundsReportRequest, PagedResponse<SystemRoundView>> roundsService,
+    [Description("Get System rounds")]
+    public async ValueTask<TGS.Services.BackOffice.Domain.PagedResponse<SystemRoundView>> GetSystemRoundsAsync(
+        [FromServices] IGetService<GetSystemRoundsReportRequest, TGS.Services.BackOffice.Domain.PagedResponse<SystemRoundView>> roundsService,
         [FromQuery] GetSystemRoundsReportRequest request)
         => await roundsService
             .GetAsync(request)

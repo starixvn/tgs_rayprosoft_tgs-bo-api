@@ -32,7 +32,7 @@ var (salt, password) = passwordHandler.GenerateCredential(builder.Configuration.
 
 var user = new User
 {
-    Id = GuidExtensions.NewSequentialGuid(),
+    Id = Guid.NewGuid(),
     Username = builder.Configuration.GetValue<string>("BO:User"),
     Name = builder.Configuration.GetValue<string>("BO:UserName"),
     Password = password,

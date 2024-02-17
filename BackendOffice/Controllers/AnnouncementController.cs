@@ -9,14 +9,12 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Options;
 using TGS.Apis.BackendOffice.Controllers.Messages;
 using TGS.Apis.BackendOffice.Controllers.Messages.Announcement;
-using TGS.Core.DataServices.Base.Extensions;
 using TGS.Core.DataServices.Base.Interfaces;
 using TGS.Core.DataServices.Tgs.Models;
-using TGS.Core.Infrastructures.Extensions;
 using TGS.Core.Infrastructures.Json;
 using TGS.Core.Infrastructures.Redis;
 using TGS.Core.Models.Enums;
-using TGS.Core.Models.Messages;
+using TGS.Services.BackOffice.Domain;
 
 namespace TGS.Apis.BackendOffice.Controllers;
 
@@ -85,7 +83,7 @@ public partial class AnnouncementController(
 
         var announcement = new Announcement
         {
-            Id = GuidExtensions.NewSequentialGuid(),
+            Id = Guid.NewGuid(),
             BrandId = request.BrandId,
             DisplayOrder = 99,
             Subject = request.Subject,

@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Linq;
+using System.Text.Json;
 using System.Threading;
 using System.Threading.Tasks;
 using Microsoft.EntityFrameworkCore;
@@ -38,7 +39,7 @@ internal class
                 var game = await _tgsRepository.SubGameProviders.AsQueryable().FirstOrDefaultAsync(
                     x => x.Code == code,
                     cancellationToken);
-                game.Localization = model.Localization.ToJson();
+                game.Localization = JsonSerializer.Serialize(model.Localization);
                 game.UpdatedByUsername = request.EditorUsername;
                 game.UpdatedOn = DateTimeOffset.Now;
             }

@@ -1,5 +1,4 @@
 ﻿using System.Collections.Immutable;
-using System.Data.SqlClient;
 using System.Runtime.InteropServices;
 using System.Text.Json;
 using ExpectedObjects;
@@ -18,13 +17,11 @@ using Tgs.PlayerService.Client;
 using Tgs.Service.PlayerBuckets;
 using Tgs.ServiceUtility;
 using Tgs.VipLevelService.Clients;
-using Tgs.VipLevelService.Common;
 using Tgs.VipLevelService.Common.ViewModels;
 using TGS.Apis.BackendOffice.ViewModels;
 using TGS.Core.DataServices.Base.Interfaces;
 using TGS.Core.DataServices.Tgs;
 using TGS.Core.Models.Enums;
-using TGS.Core.Models.Messages;
 using TGS.Services.BackOffice.Application.Models.Player;
 using TGS.Services.BackOffice.ApplicationServices;
 using TGS.Services.BackOffice.ApplicationServices.Players;
@@ -76,7 +73,7 @@ public class PlayerTests(ITestOutputHelper testOutputHelper, NodeJsFixture nodeJ
         var page = 1;
         var rows = 20;
         var sortby = "registeredTime";
-        var orderby = SortOrder.Ascending;
+        var orderby = TGS.Core.Models.Messages.SortOrder.Ascending;
         var showAll = false;
 
         _ = fakeAgentRepository.GetAgentsAsync(Arg.Is(brandId))
@@ -86,52 +83,6 @@ public class PlayerTests(ITestOutputHelper testOutputHelper, NodeJsFixture nodeJ
             }.ToAsyncEnumerable());
 
         var vipId1 = Guid.NewGuid();
-
-        _ = fakeVipLevelServiceClient.VipLevelQueryAsync(
-            Arg.Is(brandId),
-            Arg.Any<CancellationToken>())
-            .Returns(new VipLevelInfoViewModel[] {
-                new(
-                    vipId1,
-                    1,
-                    brandId,
-                    0M,
-                    0M,
-                    0M,
-                    0M,
-                    false,
-                    0M,
-                    0M,
-                    0M,
-                    0M,
-                    0M,
-                    0M,
-                    0M,
-                    0M,
-                    0M,
-                    -1,
-                    -1M),
-                new(
-                    Guid.NewGuid(),
-                    2,
-                    brandId,
-                    0M,
-                    0M,
-                    0M,
-                    0M,
-                    false,
-                    0M,
-                    0M,
-                    0M,
-                    0M,
-                    0M,
-                    0M,
-                    0M,
-                    0M,
-                    0M,
-                    -1,
-                    -1M)
-            }.ToAsyncEnumerable());
 
         _ = fakePlayerServiceClient.QueryPlayerListAsync(
                 Arg.Any<Guid>(),
@@ -159,6 +110,52 @@ public class PlayerTests(ITestOutputHelper testOutputHelper, NodeJsFixture nodeJ
                     Status:Tgs.PlayerService.Client.PlayerStatus.Enabled,
                     ParentPlayerCode:null)
             }.ToAsyncEnumerable());
+
+        _ = fakeVipLevelServiceClient.PlayerVipLevelGetAsync(
+            Arg.Any<string>(),
+            Arg.Any<CancellationToken>())
+            .Returns(new PlayerVipLevelInfoViewModel(
+                Guid.NewGuid(),
+                "Demo",
+                Guid.NewGuid(),
+                "TGS",
+                Guid.NewGuid(),
+                "GPI",
+                "4ucmqplxb029",
+                "4ucmqplxb029",
+                vipId1,
+                1,
+                Tgs.VipLevelService.Common.PlayerVipLevelAutoState.Enable,
+                Guid.NewGuid(),
+                0.0m,
+                Guid.NewGuid(),
+                0.0m,
+                99,
+                49,
+                false,
+                Guid.NewGuid(),
+                2),
+                new PlayerVipLevelInfoViewModel(
+                Guid.NewGuid(),
+                "Demo",
+                Guid.NewGuid(),
+                "TGS",
+                Guid.NewGuid(),
+                "GPI",
+                "4ucmqplxkuyd",
+                "4ucmqplxkuyd",
+                vipId1,
+                1,
+                Tgs.VipLevelService.Common.PlayerVipLevelAutoState.Enable,
+                Guid.NewGuid(),
+                0.0m,
+                Guid.NewGuid(),
+                0.0m,
+                99,
+                49,
+                false,
+                Guid.NewGuid(),
+                2));
 
         using var nodeService = _nodeJsFixture.BuildNodeJsService();
 
@@ -335,7 +332,7 @@ public class PlayerTests(ITestOutputHelper testOutputHelper, NodeJsFixture nodeJ
         var page = 1;
         var rows = 20;
         var sortby = "registeredTime";
-        var orderby = SortOrder.Ascending;
+        var orderby = TGS.Core.Models.Messages.SortOrder.Ascending;
         var showAll = false;
 
         _ = fakeAgentRepository.GetAgentsAsync(Arg.Is(brandId))
@@ -345,52 +342,6 @@ public class PlayerTests(ITestOutputHelper testOutputHelper, NodeJsFixture nodeJ
             }.ToAsyncEnumerable());
 
         var vipId1 = Guid.NewGuid();
-
-        _ = fakeVipLevelServiceClient.VipLevelQueryAsync(
-            Arg.Is(brandId),
-            Arg.Any<CancellationToken>())
-            .Returns(new VipLevelInfoViewModel[] {
-                new(
-                    vipId1,
-                    1,
-                    brandId,
-                    0M,
-                    0M,
-                    0M,
-                    0M,
-                    false,
-                    0M,
-                    0M,
-                    0M,
-                    0M,
-                    0M,
-                    0M,
-                    0M,
-                    0M,
-                    0M,
-                    -1,
-                    -1M),
-                new(
-                    Guid.NewGuid(),
-                    2,
-                    brandId,
-                    0M,
-                    0M,
-                    0M,
-                    0M,
-                    false,
-                    0M,
-                    0M,
-                    0M,
-                    0M,
-                    0M,
-                    0M,
-                    0M,
-                    0M,
-                    0M,
-                    -1,
-                    -1M)
-            }.ToAsyncEnumerable());
 
         _ = fakePlayerServiceClient.QueryPlayerListAsync(
                 Arg.Is(brandId),
@@ -408,6 +359,31 @@ public class PlayerTests(ITestOutputHelper testOutputHelper, NodeJsFixture nodeJ
                     Status: Tgs.PlayerService.Client.PlayerStatus.Enabled,
                     ParentPlayerCode: null)
             }.ToAsyncEnumerable());
+
+        _ = fakeVipLevelServiceClient.PlayerVipLevelGetAsync(
+            Arg.Is("4ucmqplxb029"),
+            Arg.Any<CancellationToken>())
+            .Returns(new PlayerVipLevelInfoViewModel(
+                Guid.NewGuid(),
+                "Demo",
+                Guid.NewGuid(),
+                "TGS",
+                Guid.NewGuid(),
+                "GPI",
+                "4ucmqplxb029",
+                "4ucmqplxb029",
+                vipId1,
+                1,
+                Tgs.VipLevelService.Common.PlayerVipLevelAutoState.Enable,
+                Guid.NewGuid(),
+                0.0m,
+                Guid.NewGuid(),
+                0.0m,
+                99,
+                49,
+                false,
+                Guid.NewGuid(),
+                2));
 
         using var nodeService = _nodeJsFixture.BuildNodeJsService();
 
@@ -480,9 +456,8 @@ public class PlayerTests(ITestOutputHelper testOutputHelper, NodeJsFixture nodeJ
         var fakePlayerServiceClient = Substitute.For<IPlayerServiceClient>();
         var fakePaymentSerivceClient = Substitute.For<IPaymentServiceClient>();
         var fakePlayerBucketClient = Substitute.For<IPlayerBucketClient>();
-        var fakeVipLevelsQueryService = Substitute.For<IQueryService<AllVipLevelsQuery, VipLevelInfoViewModel>>();
         var fakeCashServiceClient = Substitute.For<ICashServiceClient>();
-
+        var fakeVipLevelServiceClient = Substitute.For<IVipLevelServiceClient>();
         using var web = TestBackendOfficeApplication.Builder
             .UseTestChannelServer(channelName)
             .ConfigureLogging(logging => logging.AddXUnit(_testOutputHelper))
@@ -499,8 +474,8 @@ public class PlayerTests(ITestOutputHelper testOutputHelper, NodeJsFixture nodeJ
                 .AddSingleton(fakePlayerServiceClient)
                 .AddSingleton(fakePaymentSerivceClient)
                 .AddSingleton(fakePlayerBucketClient)
-                .AddSingleton(fakeVipLevelsQueryService)
-                .AddSingleton(fakeCashServiceClient))
+                .AddSingleton(fakeCashServiceClient)
+                .AddSingleton(fakeVipLevelServiceClient))
             .Build();
 
         await web.StartAsync();
@@ -508,7 +483,7 @@ public class PlayerTests(ITestOutputHelper testOutputHelper, NodeJsFixture nodeJ
         var playerCode = "4ucmqplxb029";
         var brandId = Guid.Parse("4e86719f-243f-46f6-b010-5c758b7285af");
         var vipLevelId = Guid.Parse("bcd5a809-8b90-ec11-a746-ac82478e2af1");
-
+        var NextVipLevelId = Guid.NewGuid();
         _ = fakePlayerServiceClient.GetPlayerInfoAsync(
             Arg.Is(playerCode),
             Arg.Any<CancellationToken>())
@@ -554,32 +529,30 @@ public class PlayerTests(ITestOutputHelper testOutputHelper, NodeJsFixture nodeJ
             Arg.Any<CancellationToken>())
             .Returns(Array.Empty<PlayerBankInfo>().ToAsyncEnumerable());
 
-        _ = fakeVipLevelsQueryService.QueryAsync(
-            Arg.Is(new AllVipLevelsQuery(brandId)),
+        _ = fakeVipLevelServiceClient.PlayerVipLevelGetAsync(
+            Arg.Is(playerCode),
             Arg.Any<CancellationToken>())
-            .Returns(new VipLevelInfoViewModel[]
-            {
-                new(
-                    vipLevelId,
-                    1,
-                    brandId,
-                    0M,
-                    0M,
-                    0M,
-                    0M,
-                    true,
-                    0M,
-                    0M,
-                    0M,
-                    0M,
-                    0M,
-                    0M,
-                    0M,
-                    0M,
-                    0M,
-                    -1,
-                    -1M)
-            }.ToAsyncEnumerable());
+            .Returns(new PlayerVipLevelInfoViewModel(
+                ResellerId: Guid.NewGuid(),
+                ResellerCode: "Demo",
+                LicenseeId: Guid.NewGuid(),
+                LicenseeCode: "TGS",
+                BrandId: brandId,
+                BrandCode: "GPI",
+                PlayerCode: "4ucmqplxb029",
+                Username: "4ucmqplxb029",
+                VipLevelId: vipLevelId,
+                VipLevel: 1,
+                AutoState: Tgs.VipLevelService.Common.PlayerVipLevelAutoState.Enable,
+                AccumDepositId: Guid.NewGuid(),
+                AccumDeposit: 0,
+                AccumTurnoverId: Guid.NewGuid(),
+                AccumTurnover: 0,
+                LevelUpAccumulateBetAmount: 199m,
+                LevelUpAccumulateDeposit: 99m,
+                FullLevel: false,
+                NextVipLevelId: NextVipLevelId,
+                NextVipLevel: 2));
 
         _ = fakePlayerBucketClient.ReadBucketsAsync(
             Arg.Is(playerCode),
@@ -610,8 +583,15 @@ public class PlayerTests(ITestOutputHelper testOutputHelper, NodeJsFixture nodeJ
                 Status = "Enabled",
                 StatusName = "Enabled",
                 Username = playerCode,
-                VipId = "bcd5a809-8b90-ec11-a746-ac82478e2af1",
+                VipId = vipLevelId,
                 VipLevel = 1,
+                AccumDeposit = 0.0m,
+                AccumTurnover = 0.0m,
+                LevelUpAccumulateBetAmount = 199m,
+                LevelUpAccumulateDeposit = 99m,
+                FullLevel = false,
+                NextVipLevelId = NextVipLevelId,
+                NextVipLevel = 2,
                 WageringRequirement = 0,
                 IdentityAuthentication = true,
                 Zalo = "testZalo",

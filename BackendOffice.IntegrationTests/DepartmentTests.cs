@@ -10,8 +10,8 @@ using NSubstitute;
 using TGS.Apis.BackendOffice.Controllers.Messages.Department;
 using TGS.Core.DataServices.Base.Interfaces;
 using TGS.Core.DataServices.Tgs.Models;
-using TGS.Core.Models.Messages;
 using TGS.Services.BackOffice.ApplicationServices;
+using TGS.Services.BackOffice.Domain;
 using Xunit.Abstractions;
 
 namespace BackendOffice.IntegrationTests;
@@ -128,7 +128,7 @@ public class DepartmentTests(ITestOutputHelper testOutputHelper, NodeJsFixture n
             Rows = 20,
             Page = 1,
             SortBy = "Name",
-            OrderBy = System.Data.SqlClient.SortOrder.Ascending,
+            OrderBy = TGS.Core.Models.Messages.SortOrder.Ascending,
             ShowAll = false
         };
 

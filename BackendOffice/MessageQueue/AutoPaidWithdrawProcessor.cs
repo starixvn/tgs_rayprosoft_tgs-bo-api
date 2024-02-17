@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.Threading;
 using System.Threading.Tasks;
 using Microsoft.Extensions.Logging;
@@ -13,9 +14,13 @@ namespace TGS.Apis.BackendOffice.MessageQueue;
 public class AutoPaidWithdrawProcessor(
     ICommandService<ReviewWithdrawFormCommand> reviewService,
     ILogger<AutoPaidWithdrawProcessor> logger)
-    : IMessageHandler
+    : IMessageHandler<ReadOnlyMemory<byte>>
 {
-    public async ValueTask HandleAsync(ReadOnlyMemory<byte> data, CancellationToken cancellationToken = default)
+    public async ValueTask HandleAsync(
+        string subject,
+        ReadOnlyMemory<byte> data,
+        IEnumerable<MessageHeaderValue> headerValues,
+        CancellationToken cancellationToken = default)
     {
         logger.LogInformation("Receive AutoPaidWithdraw request.");
 
