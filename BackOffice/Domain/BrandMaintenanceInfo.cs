@@ -1,4 +1,7 @@
-﻿using System;
+﻿#nullable enable
+
+using System;
+using Tgs.BrandCertificate;
 
 namespace TGS.Services.BackOffice.Domain;
 
@@ -7,6 +10,8 @@ public record BrandMaintenanceInfo(
     string BrandCode,
     string LicenseeName,
     Guid BrandId,
-    TimeOnly? BeginTime = null,
-    TimeOnly? EndTime = null,
-    Guid? Id = null);
+    BrandStatus BrandStatus,
+    string? BeginTime = null,
+    string? EndTime = null,
+    Guid? BrandMaintenanceId = null);
+

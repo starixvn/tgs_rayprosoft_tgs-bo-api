@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.ComponentModel;
+using System.Linq;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Mvc;
 using Tgs.BrandCertificate.Clients;
@@ -24,10 +25,30 @@ public class BrandMaintenanceController : BaseContextController
 
     [HttpGet(Name = "GetBrandMaintenanceInfos")]
     [Description("Get all brand maintenance infos")]
-    public IAsyncEnumerable<Tgs.BrandCertificate.Clients.BrandMaintenanceInfo> GetBrandMaintenanceInfosAsync(
+    public async IAsyncEnumerable<TGS.Services.BackOffice.Domain.BrandMaintenanceInfo> GetBrandMaintenanceInfosAsync(
         [FromServices] IBrandServiceClient brandServiceClient,
         [FromQuery] GetBrandMaintenanceInfosRequest request)
-        => brandServiceClient.GetBrandMaintenanceInfosAsync(request.BrandCode);
+    {
+        var infos = await brandServiceClient
+            .GetBrandMaintenanceInfosAsync(request.BrandCode, HttpContext.RequestAborted)
+            .ToArrayAsync(HttpContext.RequestAborted)
+            .ConfigureAwait(false);
+
+        foreach (var info in infos)
+        {
+            yield return new TGS.Services.BackOffice.Domain.BrandMaintenanceInfo
+            (
+                info.BrandName,
+                info.BrandCode,
+                info.LicenseeName,
+                info.BrandId,
+                info.BrandStatus,
+                info.BeginTime,
+                info.EndTime,
+                info.BrandMaintenanceId
+            );
+        }
+    }
 
     [HttpPut("allmaintain")]
     [Description("Change all open status brands to maintenance status")]

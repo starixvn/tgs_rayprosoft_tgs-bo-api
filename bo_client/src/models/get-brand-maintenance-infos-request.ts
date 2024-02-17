@@ -1,0 +1,3 @@
+interface GetBrandMaintenanceInfosRequest{
+    brandCode: string;
+}
