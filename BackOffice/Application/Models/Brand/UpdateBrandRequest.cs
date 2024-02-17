@@ -48,4 +48,8 @@ public class UpdateBrandRequest : IRequest<MessageResponse>
     public SettlementIntervalType SettlementIntervalType { get; set; }
 
     public decimal WithdrawHandlingFeeRateTenPercentile { get; set; }
+
+    public bool AutoSendAgentBonus { get; set; }
+
+    public bool EnablePlayerAgent { get; set; }
 }

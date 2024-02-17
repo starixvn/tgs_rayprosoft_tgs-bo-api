@@ -25,5 +25,5 @@ public interface IBrandService
 
     Task SyncBrandGamesAsync(Guid brandId);
 
-    Task UpdateBrandAsync(Brand brand, UpdateBrandRequest request);
+    Task UpdateBrandAsync(Guid brandId, UpdateBrandRequest request);
 }

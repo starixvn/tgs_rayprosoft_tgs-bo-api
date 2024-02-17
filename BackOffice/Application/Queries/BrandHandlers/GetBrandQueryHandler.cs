@@ -3,7 +3,9 @@ using System.Threading;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Http;
 using Microsoft.EntityFrameworkCore;
+using Tgs.BrandCertificate.Clients;
 using TGS.Core.DataServices.Base.Extensions;
+using TGS.Core.Models.Enums;
 using TGS.Services.BackOffice.Application.Models.Brand;
 using TGS.Services.BackOffice.Application.Resources;
 using TGS.Services.BackOffice.Infrastructure.DataService;
@@ -16,63 +18,59 @@ public class GetBrandQueryHandler(IBrandService service, IBrandGameProviderServi
     IBrandGameService brandGameService,
     IBrandBetLimitService brandBetLimitService,
     IBrandGroupService brandGroupService,
+    IBrandServiceClient brandServiceClient,
     IHttpContextAccessor accessor) : Handler<GetBrandRequest, GetBrandResponse>(accessor)
 {
-    private readonly IBrandBetLimitService _brandBetLimitService = brandBetLimitService;
-    private readonly IBrandCurrencyService _brandCurrencyService = brandCurrencyService;
-    private readonly IBrandGameProviderService _brandGameProviderService = brandGameProviderService;
-    private readonly IBrandGameService _brandGameService = brandGameService;
-    private readonly IBrandGroupService _brandGroupService = brandGroupService;
-    private readonly IBrandLanguageService _brandLanguageService = brandLanguageService;
-    private readonly IBrandService _service = service;
-
     public override async Task<GetBrandResponse> Handle(GetBrandRequest request,
         CancellationToken cancellationToken)
     {
-        var brand = await _service.GetBrandAsync(x => x.Id == request.Id,
-            x => x
-                .Where(ResellerId, r => r.Licensee.ResellerId == ResellerId)
-                .Where(LicenseeId, l => l.LicenseeId == LicenseeId)
-                .Where(BrandId, l => l.Id == BrandId));
+        var brand = await brandServiceClient.GetBrandFullInfoAsync(request.Id, cancellationToken);
 
-        return brand == null
-            ? CreateInvalidResponse<GetBrandResponse>(Brand.NotFound)
-            : new()
-            {
+        if (brand is null ||
+            ResellerId != null && brand.ResellerId != ResellerId ||
+            LicenseeId != null && brand.LicenseeId != LicenseeId)
+        {
+            return CreateInvalidResponse<GetBrandResponse>(Brand.NotFound);
+        }
+
+        var brandDomains = await brandServiceClient.GetBrandDomainsAsync(request.Id, cancellationToken)
+            .ToArrayAsync(cancellationToken);
+
+        return new GetBrandResponse
+        {
                 Valid = true,
-                Brand = new()
+                Brand = new BrandModel
                 {
                     Id = brand.Id,
                     LicenseeId = brand.LicenseeId,
-                    LicenseeName = brand.Licensee.Name,
-                    BusinessType = brand.Licensee.Reseller.BusinessType,
+                    LicenseeName = brand.LicenseeName,
                     Code = brand.Code,
                     Name = brand.Name,
-                    Status = brand.Status,
-                    AgentDividendType = brand.AgentDividendType,
+                    Status = (BrandStatus)brand.Status,
+                    AgentDividendType = (AgentDividendType)brand.AgentDividendType,
                     ClientId = brand.ClientId,
                     SecretKey = brand.SecretKey,
                     ApiKey = brand.ApiKey,
                     SettlementDay = brand.SettlementDay,
-                    SettlementIntervalType = brand.SettlementIntervalType,
+                    SettlementIntervalType = (SettlementIntervalType)brand.SettlementIntervalType,
                     PlatformCharge = brand.PlatformCharge,
                     CheckDividendActiveCount = brand.CheckDividendActiveCount,
-                    Domains = brand.Domains.Select(x => x.Url).ToArray(),
-                    Currencies = await _brandCurrencyService.GetBrandCurrenciesQueries()
+                    Domains = brandDomains,
+                    Currencies = await brandCurrencyService.GetBrandCurrenciesQueries()
                     .Where(x => x.BrandId == request.Id)
                     .Select(x => new BrandCurrencyModel
                     {
                         Code = x.CurrencyCode,
                         Name = x.Currency.Name
                     }).ToArrayAsync(cancellationToken),
-                    Languages = await _brandLanguageService.GetBrandLanguagesQueries()
+                    Languages = await brandLanguageService.GetBrandLanguagesQueries()
                     .Where(x => x.BrandId == request.Id)
                     .Select(x => new BrandLanguageModel
                     {
                         CultureCode = x.CultureCode,
                         BrandCultureCode = x.BrandCultureCode
                     }).ToArrayAsync(cancellationToken),
-                    GameProviders = await _brandGameProviderService.GetBrandGameProviderQueries()
+                    GameProviders = await brandGameProviderService.GetBrandGameProviderQueries()
                     .Where(x => x.BrandId == request.Id)
                     .Select(x => new BrandGameProviderModel
                     {
@@ -85,7 +83,7 @@ public class GetBrandQueryHandler(IBrandService service, IBrandGameProviderServi
                         MobileQueryString = x.MobileQueryString
                     }).ToArrayAsync(cancellationToken),
                     Games =
-                    await _brandGameService.GetBrandGameQueries().Where(x => x.BrandId == request.Id).Select(x
+                    await brandGameService.GetBrandGameQueries().Where(x => x.BrandId == request.Id).Select(x
                         => new BrandGameModel
                         {
                             GameProviderId = x.Game.GameProviderId,
@@ -94,14 +92,14 @@ public class GetBrandQueryHandler(IBrandService service, IBrandGameProviderServi
                             GameType = x.Game.Type
                         }).ToArrayAsync(cancellationToken),
                     BetLimits =
-                    await _brandBetLimitService.GetBrandBetLimitsQueries().Where(x => x.BrandId == request.Id)
+                    await brandBetLimitService.GetBrandBetLimitsQueries().Where(x => x.BrandId == request.Id)
                         .Select(x => new BrandBetLimitModel
                         {
                             Id = x.BetLimitId,
                             CurrencyCode = x.BetLimit.CurrencyCode,
                             IsDefault = x.IsDefault
                         }).ToArrayAsync(cancellationToken),
-                    BrandGroups = await _brandGroupService.GetBrandGroupsQueries().Where(x => x.BrandId == request.Id)
+                    BrandGroups = await brandGroupService.GetBrandGroupsQueries().Where(x => x.BrandId == request.Id)
                     .Select(x => new BrandGroupModel
                     {
                         Id = x.Id,

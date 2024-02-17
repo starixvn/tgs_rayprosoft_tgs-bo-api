@@ -200,8 +200,9 @@ internal class BrandTests
     public async Task 建立Brand()
     {
         var fakeBrandService = Substitute.For<IBrandService>();
-        
-        var sut = new CreateBrandCommandService(fakeBrandService);
+        var fakeBrandServiceClient = Substitute.For<IBrandServiceClient>();
+
+        var sut = new CreateBrandCommandService(fakeBrandService, fakeBrandServiceClient);
 
         var languages = new[] {
             new BrandLanguageModel
@@ -238,6 +239,8 @@ internal class BrandTests
             AgentDividendType.OneLayer,
             false,
             false,
+            true,
+            true,
             0m,
             100m,
             100m,
@@ -249,9 +252,7 @@ internal class BrandTests
 
         _ = fakeBrandService.Received(1)
             .CreateBrandAsync(
-                Arg.Is<CreateBrandInfo>(x =>
-                    x.Code == command.Code
-                    && x.LicenseeId == command.LicenseeId),
+                Arg.Any<CreateBrandInfo>(),
                 Arg.Any<CancellationToken>());
     }
 

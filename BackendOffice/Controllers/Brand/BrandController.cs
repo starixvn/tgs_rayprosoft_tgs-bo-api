@@ -73,6 +73,8 @@ public partial class BrandController(IMediator mediator) : BaseContextController
             request.AgentDividendType,
             request.CheckDividendActiveCount,
             request.AutoClearWageringRequirement,
+            request.AutoSendAgentBonus,
+            request.EnablePlayerAgent,
             request.AutoClearWageringRequirementBalance,
             request.DepositHandlingFeeRateTenPercentile,
             request.WithdrawHandlingFeeRateTenPercentile,

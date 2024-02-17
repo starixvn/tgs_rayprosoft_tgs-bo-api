@@ -3,6 +3,7 @@ using System.Threading;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Http;
 using Microsoft.EntityFrameworkCore;
+using Tgs.Agent.Client;
 using TGS.Core.Infrastructures.Extensions;
 using TGS.Core.Models.Enums;
 using TGS.Core.Models.Messages;
@@ -16,25 +17,20 @@ public class UpdateAgentHandler(
     IAgentService service,
     IHttpContextAccessor accessor) : Handler<UpdateAgentRequest, MessageResponse>(accessor)
 {
-    private readonly IAgentService _service = service;
-
     public override async Task<MessageResponse> Handle(
         UpdateAgentRequest request,
         CancellationToken cancellationToken)
     {
-        var agent = await _service.GetAgentAsync(q => q.Id == request.Id);
+        var agent = await service.GetAgentAsync(q => q.Id == request.Id);
 
         if (agent == null)
         {
             return CreateInvalidResponse<MessageResponse>(Agent.NotFound);
         }
 
-        var nLevel = await _service.GetAgentQueries().Where(x => x.Id == request.Id).Select(x => x.Path.NLevel)
-            .FirstOrDefaultAsync(cancellationToken).ConfigureAwait(false);
-
         if (request.ParentUsername.IsNotNullOrEmpty())
         {
-            var parentAgent = await _service.GetAgentAsync(x => x.BrandId == request.BrandId &&
+            var parentAgent = await service.GetAgentAsync(x => x.BrandId == request.BrandId &&
                 x.Username == request.ParentUsername);
 
             if (request.ParentUsername == agent.Username || parentAgent == null)
@@ -49,7 +45,7 @@ public class UpdateAgentHandler(
                     .DividendPercentageMustLessThanOrEqualToUpperLayer);
             }
 
-            if (await _service.GetAgentQueries()
+            if (await service.GetAgentQueries()
                     .Where(x => x.Id == parentAgent.Id)
                     .AnyAsync(x => x.Path.MatchesLTxtQuery(agent.Id.ToString("N")), cancellationToken: cancellationToken)
                     .ConfigureAwait(false))
@@ -60,7 +56,7 @@ public class UpdateAgentHandler(
 
         if (agent.Brand.AgentDividendType == AgentDividendType.OneLayer)
         {
-            var childAgentMaxDividendPercentage = await _service.GetAgentQueries()
+            var childAgentMaxDividendPercentage = await service.GetAgentQueries()
                 .Where(x => x.ParentAgentId == agent.Id)
                 .MaxAsync(x => (decimal?)x.DividendPercentage, cancellationToken)
                 .ConfigureAwait(false) ?? 0M;
@@ -88,7 +84,7 @@ public class UpdateAgentHandler(
             }
         }
 
-        await _service.UpdateAgentAsync(agent, nLevel, request);
+        await service.UpdateAgentAsync(agent, request);
 
         return CreateValidResponse<MessageResponse>();
     }

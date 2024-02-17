@@ -24,6 +24,8 @@ public record CreateBrandCommand(
     AgentDividendType AgentDividendType,
     bool CheckDividendActiveCount,
     bool AutoClearWageringRequirement,
+    bool AutoSendAgentBonus,
+    bool EnablePlayerAgent,
     decimal AutoClearWageringRequirementBalance,
     decimal DepositHandlingFeeRateTenPercentile,
     decimal WithdrawHandlingFeeRateTenPercentile,

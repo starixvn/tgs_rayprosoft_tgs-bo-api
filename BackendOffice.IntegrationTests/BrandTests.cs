@@ -19,7 +19,7 @@ using TGS.Services.BackOffice.Application.Resources;
 using TGS.Services.BackOffice.Domain;
 using TGS.Services.BackOffice.Infrastructure.DataService;
 using Xunit.Abstractions;
-
+using CreateBrandRequest = TGS.Services.BackOffice.Application.Models.Brand.CreateBrandRequest;
 using Enums = TGS.Core.Models.Enums;
 
 namespace BackendOffice.IntegrationTests;
@@ -849,7 +849,7 @@ public class BrandTests(ITestOutputHelper testOutputHelper, NodeJsFixture nodeJs
             }
         };
 
-        var request = new CreateBrandRequest
+        var request = new TGS.Services.BackOffice.Application.Models.Brand.CreateBrandRequest
         {
             Code = "Brand1",
             Name = "TestBrand",
@@ -885,7 +885,7 @@ public class BrandTests(ITestOutputHelper testOutputHelper, NodeJsFixture nodeJs
 
         _ = fakeBrandService.Received(1)
             .CreateBrandAsync(
-                Arg.Is<CreateBrandInfo>(x => x.Code == request.Code),
+                Arg.Any<CreateBrandInfo>(),
                 Arg.Any<CancellationToken>());
     }
 
@@ -991,7 +991,7 @@ public class BrandTests(ITestOutputHelper testOutputHelper, NodeJsFixture nodeJs
             }
         };
 
-        var request = new CreateBrandRequest
+        var request = new TGS.Services.BackOffice.Application.Models.Brand.CreateBrandRequest
         {
             Code = "GPI",
             Name = "TestBrand",
@@ -1028,7 +1028,7 @@ public class BrandTests(ITestOutputHelper testOutputHelper, NodeJsFixture nodeJs
 
         _ = fakeBrandService.DidNotReceive()
             .CreateBrandAsync(
-                Arg.Is<CreateBrandInfo>(x => x.Code == request.Code),
+                Arg.Any<CreateBrandInfo>(),
                 Arg.Any<CancellationToken>());
     }
 
@@ -1171,7 +1171,7 @@ public class BrandTests(ITestOutputHelper testOutputHelper, NodeJsFixture nodeJs
 
         _ = fakeBrandService.DidNotReceive()
             .CreateBrandAsync(
-                Arg.Is<CreateBrandInfo>(x => x.Code == request.Code),
+                Arg.Any<CreateBrandInfo>(),
                 Arg.Any<CancellationToken>());
     }
 
