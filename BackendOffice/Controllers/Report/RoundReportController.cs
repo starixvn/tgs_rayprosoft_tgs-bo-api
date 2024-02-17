@@ -121,7 +121,7 @@ public class RoundReportController : BaseContextController
             .ConfigureAwait(false);
 
     [HttpGet("system")]
-    [Description("Get rounds")]
+    [Description("Get System rounds")]
     public async ValueTask<PagedResponse<SystemRoundView>> GetSystemRoundsAsync(
         [FromServices] IGetService<GetSystemRoundsReportRequest, PagedResponse<SystemRoundView>> roundsService,
         [FromQuery] GetSystemRoundsReportRequest request)
