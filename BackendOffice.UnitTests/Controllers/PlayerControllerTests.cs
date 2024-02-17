@@ -76,6 +76,7 @@ public class PlayerControllerTests : BaseTests
             },
             VipId = Guid.NewGuid(),
             VipLevel = 1,
+            VipLevelAutoState = Tgs.VipLevelService.Common.PlayerVipLevelAutoState.Enable,
             AccumDeposit = 500m,
             AccumTurnover = 0.0m,
             LevelUpAccumulateBetAmount = 1999m,
