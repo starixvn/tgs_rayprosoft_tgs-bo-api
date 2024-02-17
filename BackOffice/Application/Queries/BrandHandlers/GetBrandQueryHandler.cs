@@ -4,7 +4,6 @@ using System.Threading.Tasks;
 using Microsoft.AspNetCore.Http;
 using Microsoft.EntityFrameworkCore;
 using Tgs.BrandCertificate.Clients;
-using TGS.Core.DataServices.Base.Extensions;
 using TGS.Core.Models.Enums;
 using TGS.Services.BackOffice.Application.Models.Brand;
 using TGS.Services.BackOffice.Application.Resources;
@@ -12,7 +11,8 @@ using TGS.Services.BackOffice.Infrastructure.DataService;
 
 namespace TGS.Services.BackOffice.Application.Queries.BrandHandlers;
 
-public class GetBrandQueryHandler(IBrandService service, IBrandGameProviderService brandGameProviderService,
+public class GetBrandQueryHandler(
+    IBrandGameProviderService brandGameProviderService,
     IBrandCurrencyService brandCurrencyService,
     IBrandLanguageService brandLanguageService,
     IBrandGameService brandGameService,
@@ -130,7 +130,9 @@ public class GetBrandQueryHandler(IBrandService service, IBrandGameProviderServi
                     AutoClearWageringRequirementBalance = brand.AutoClearWageringRequirementBalance,
                     DepositHandlingFeeRateTenPercentile = brand.DepositHandlingFeeRateTenPercentile,
                     WithdrawHandlingFeeRateTenPercentile = brand.WithdrawHandlingFeeRateTenPercentile,
-                    TimeSpanMinutes = (int)brand.TimeSpanMinutes!
+                    TimeSpanMinutes = (int)brand.TimeSpanMinutes!,
+                    EnablePlayerAgent = brand.EnablePlayerAgent,
+                    AutoSendAgentBonus = brand.AutoSendAgentBonus
                 }
             };
     }
