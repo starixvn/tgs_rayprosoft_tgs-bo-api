@@ -36,6 +36,14 @@ public class BrandMaintenanceController : BaseContextController
 
         foreach (var info in infos)
         {
+            var beginTime = string.IsNullOrEmpty(info.BeginTime)
+                ? null
+                : TimeOnly.Parse(info.BeginTime).ToString("HH:mm");
+
+            var endTime = string.IsNullOrEmpty(info.EndTime)
+                ? null
+                : TimeOnly.Parse(info.EndTime).ToString("HH:mm");
+
             yield return new TGS.Services.BackOffice.Domain.BrandMaintenanceInfo
             (
                 info.BrandName,
@@ -43,8 +51,8 @@ public class BrandMaintenanceController : BaseContextController
                 info.LicenseeName,
                 info.BrandId,
                 info.BrandStatus,
-                info.BeginTime,
-                info.EndTime,
+                beginTime,
+                endTime,
                 info.BrandMaintenanceId
             );
         }
