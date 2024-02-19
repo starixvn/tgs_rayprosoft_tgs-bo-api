@@ -1,0 +1,21 @@
+﻿#nullable enable
+using System;
+using Tgs.Agent.Dividend.Client.Enums;
+using TGS.Services.BackOffice.Domain.Enums;
+
+namespace TGS.Apis.BackendOffice.Controllers.Messages.AgentDividend;
+
+public record AgentDividendRecordViewModel(
+    AgentDividendDistributeStatus Status,
+    DateTime From,
+    DateTime To,
+    int AgentDividendId,
+    string AgentUsername,
+    decimal AgentDividendAmount,
+    decimal ActualAgentDividendAmount,
+    decimal NegativeAgentDividendAmount,
+    bool NegativeAgentDividendCarryForward,
+    DateTime CreatedOn,
+    DateTime UpdatedOn,
+    DateTime? ApprovedOn,
+    string? Remark);

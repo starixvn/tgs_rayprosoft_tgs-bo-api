@@ -626,6 +626,14 @@ public partial class PlayerController(IMediator mediator, IPromotionClient clien
     public Task UpgradePlayerToAgentAsync(string playerCode)
         => mediator.Send(new UpgradePlayerToAgentRequest(playerCode, Username));
 
+    [HttpGet("{playerCode}/agent-identity", Name = "GetPlayerAgentIdentity")]
+    [Description("Get the player's agent identity")]
+    public ValueTask<Guid?> GetPlayerAgentIdentityAsync(string playerCode,
+        [FromServices] IPlayerServiceClient playerServiceClient)
+    {
+        return playerServiceClient.GetAgentIdForPlayerUpgradedAsync(playerCode, HttpContext.RequestAborted);
+    }
+
     private static string TryParseUsername(Dictionary<Guid, string> UserDicts, string Modifier)
     {
         if (Guid.TryParse(Modifier, out var userId) && UserDicts.Count != 0)
