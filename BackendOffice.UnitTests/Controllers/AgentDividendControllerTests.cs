@@ -3,7 +3,6 @@ using NSubstitute;
 using Tgs.Agent.Dividend.Client;
 using Tgs.Agent.Dividend.Client.Models;
 using TGS.Apis.BackendOffice.Controllers.Agent;
-using TGS.Apis.BackendOffice.Controllers.Messages.AgentContract;
 using TGS.Apis.BackendOffice.Controllers.Messages.AgentDividend;
 using Tgs.BrandCertificate.Clients;
 using TGS.Services.BackOffice.Domain.Enums;
