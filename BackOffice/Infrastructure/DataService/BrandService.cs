@@ -136,22 +136,19 @@ public class BrandService(
         await DeleteEntitiesAsync(brand.BrandGroups);
         await DeleteEntitiesAsync(brand.Domains);
 
-        var languages = await GenerateBrandLanguagesAsync(brand.Id, request.Languages);
-        var currencies = GenerateBrandCurrencies(brand.Id, request.CurrencyCodes);
-        var betLimits = await GenerateBetLimitsAsync(brand.Id, request.BetLimits);
-        var games = await GenerateWithUpdateGamesAsync(brand, request.GameProviders);
-        var gameProviders = GenerateBrandGameProviders(brand, request.GameProviders);
-        var brandGroups = GenerateWithUpdateGroups(brand, request.BrandGroups, request.EditorUsername);
-        var domains = GenerateBrandDomains(brand.Id, request.Domains);
+        brand.Languages = await GenerateBrandLanguagesAsync(brand.Id, request.Languages);
+        brand.Currencies = GenerateBrandCurrencies(brand.Id, request.CurrencyCodes);
+        brand.BetLimits = await GenerateBetLimitsAsync(brand.Id, request.BetLimits);
+        brand.BrandGroups = GenerateWithUpdateGroups(brand, request.BrandGroups, request.EditorUsername);
+        brand.Domains = GenerateBrandDomains(brand.Id, request.Domains);
+        brand.Games = await GenerateWithUpdateGamesAsync(brand, request.GameProviders);
+        brand.GameProviders = GenerateBrandGameProviders(brand, request.GameProviders);
 
-        await UpdateEntitiesAsync(gameProviders);
-        await UpdateEntitiesAsync(games);
+        var gameProviders =
+            await GenerateAddBrandGameProvidersAsync(brand.Id, brand.Languages.ToArray(), request.GameProviders);
 
-        await CreateEntitiesAsync(languages);
-        await CreateEntitiesAsync(currencies);
-        await CreateEntitiesAsync(betLimits);
-        await CreateEntitiesAsync(brandGroups);
-        await CreateEntitiesAsync(domains);
+        await UpdateEntityAsync(brand);
+        await CreateEntitiesAsync(gameProviders);
 
         await tran.CommitAsync();
 
@@ -194,7 +191,7 @@ public class BrandService(
             }
         };
 
-        _ = await cacheManager.ClearCacheByBatchAsync(cacheKeys);
+        //_ = await cacheManager.ClearCacheByBatchAsync(cacheKeys);
     }
 
     private static HashSet<BrandDomain> GenerateBrandDomains(Guid brandId, string[] domains)
@@ -208,7 +205,8 @@ public class BrandService(
     }
 
     private static HashSet<BrandGameProvider> GenerateBrandGameProviders(
-            Brand brand, BrandGameProviderModel[] brandGameProviderModels)
+            Brand brand, 
+            BrandGameProviderModel[] brandGameProviderModels)
     {
         var gameProviderIds = brandGameProviderModels.Select(x => x.GameProviderId).ToArray();
         var brandGameProviders = brand.GameProviders.Where(x => gameProviderIds.Contains(x.GameProviderId)).Select(
