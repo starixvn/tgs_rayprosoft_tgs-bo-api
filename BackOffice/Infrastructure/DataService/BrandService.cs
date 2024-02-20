@@ -139,10 +139,10 @@ public class BrandService(
         brand.Languages = await GenerateBrandLanguagesAsync(brand.Id, request.Languages);
         brand.Currencies = GenerateBrandCurrencies(brand.Id, request.CurrencyCodes);
         brand.BetLimits = await GenerateBetLimitsAsync(brand.Id, request.BetLimits);
-        brand.BrandGroups = GenerateWithUpdateGroups(brand, request.BrandGroups, request.EditorUsername);
-        brand.Domains = GenerateBrandDomains(brand.Id, request.Domains);
         brand.Games = await GenerateWithUpdateGamesAsync(brand, request.GameProviders);
         brand.GameProviders = GenerateBrandGameProviders(brand, request.GameProviders);
+        brand.BrandGroups = GenerateWithUpdateGroups(brand, request.BrandGroups, request.EditorUsername);
+        brand.Domains = GenerateBrandDomains(brand.Id, request.Domains);
 
         var gameProviders =
             await GenerateAddBrandGameProvidersAsync(brand.Id, brand.Languages.ToArray(), request.GameProviders);
