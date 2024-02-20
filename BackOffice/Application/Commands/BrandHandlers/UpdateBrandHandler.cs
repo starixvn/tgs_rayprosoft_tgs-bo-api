@@ -56,9 +56,9 @@ public class UpdateBrandHandler(
             EditorUsername = request.EditorUsername
         };
 
-        var brandId = await brandServiceClient.UpdateBrandAsync(updateBrand, cancellationToken);
+        await service.UpdateBrandAsync(request.Id, request);
 
-        await service.UpdateBrandAsync(brandId, request);
+        _ = await brandServiceClient.UpdateBrandAsync(updateBrand, cancellationToken);
 
         return CreateValidResponse<MessageResponse>();
     }

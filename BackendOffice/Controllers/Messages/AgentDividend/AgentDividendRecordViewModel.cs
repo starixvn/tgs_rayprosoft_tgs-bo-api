@@ -6,10 +6,10 @@ using TGS.Services.BackOffice.Domain.Enums;
 namespace TGS.Apis.BackendOffice.Controllers.Messages.AgentDividend;
 
 public record AgentDividendRecordViewModel(
+    Guid Id,
     AgentDividendDistributeStatus Status,
     DateTime From,
     DateTime To,
-    int AgentDividendId,
     string AgentUsername,
     decimal AgentDividendAmount,
     decimal ActualAgentDividendAmount,
