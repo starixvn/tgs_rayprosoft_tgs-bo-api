@@ -8,5 +8,5 @@ public record SetPlayerVipLevelCommand(
     Guid ModifyUserId,
     string ModifyUsername,
     Guid VipId,
-    PlayerVipLevelAutoState AutoState = PlayerVipLevelAutoState.Enable,
+    PlayerVipLevelAutoState AutoState,
     string Remark = "");
