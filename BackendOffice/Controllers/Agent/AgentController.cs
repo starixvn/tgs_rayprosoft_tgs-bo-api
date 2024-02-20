@@ -339,6 +339,21 @@ public partial class AgentController(IMediator mediator) : BaseContextController
         };
     }
 
+    [HttpPatch("negative-agent-dividend-carry-forward/{agentId}", Name = "SetNegativeAgentDividendCarryForward")]
+    [Description("Update agent negativeAgentDividendCarryForward")]
+    public async ValueTask<MessageResponse> SetAgentNegativeAgentDividendCarryForwardAsync(
+        [FromServices] IAgentClient agentClient,
+        Guid agentId,
+        [FromBody] SetAgentNegativeAgentDividendCarryForwardViewModel request)
+    {
+        await agentClient.SetAgentNegativeAgentDividendCarryForwardAsync(agentId,
+            request.NegativeAgentDividendCarryForward,
+            Username,
+            HttpContext.RequestAborted);
+
+        return CreateValidResponse<MessageResponse>();
+    }
+
     private static string TryParseUsername(Dictionary<Guid, string> UserDicts, string Modifier)
     {
         if (Guid.TryParse(Modifier, out var userId) && UserDicts.Count != 0)
