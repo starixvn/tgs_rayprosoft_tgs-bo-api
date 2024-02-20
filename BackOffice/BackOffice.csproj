@@ -59,7 +59,7 @@
     <PackageReference Include="System.Interactive.Async" Version="6.0.1" />
     <PackageReference Include="System.Linq.Async" Version="6.0.1" />
     <PackageReference Include="Tgs.Agent.Client" Version="0.0.29" />
-    <PackageReference Include="Tgs.Agent.Dividend.Client" Version="1.0.12" />
+    <PackageReference Include="Tgs.Agent.Dividend.Client" Version="1.0.13" />
     <PackageReference Include="Tgs.ArticleManagementClient" Version="0.0.4" />
     <PackageReference Include="Tgs.BrandCertificateClient" Version="0.1.4" />
     <PackageReference Include="Tgs.BrandGameCredits.Client" Version="0.0.9" />
