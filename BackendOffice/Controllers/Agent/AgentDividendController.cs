@@ -133,6 +133,7 @@ public class AgentDividendController(IAgentDividendClient agentDividendClient, I
     public async Task<MessageResponse> CreateAgentReduceAmountAsync(ManualSendAgentDividendsRequest request)
     {
         await agentDividendClient.SendAgentDividendsAsync(request.AgentDividendRecordIds,
+            request.Approve,
             Username,
             request.Remark,
             HttpContext.RequestAborted);
