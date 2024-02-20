@@ -13,6 +13,10 @@ internal class SetPlayerVipLevelCommandService(
 {
     public async ValueTask ExecuteAsync(SetPlayerVipLevelCommand command, CancellationToken cancellationToken = default)
     {
+        logger.LogDebug("LogOn:{logOn} Mesaage:This command information.({command})",
+            DateTime.Now.ToString("o"),
+            command);
+
         var playerVipLevelInfo = await vipLevelServiceClient.PlayerVipLevelGetAsync(
             playerCode: command.PlayerCode,
             cancellationToken: cancellationToken)
@@ -32,13 +36,14 @@ internal class SetPlayerVipLevelCommandService(
             DateTime.Now.ToString("o"),
             vipLevelInfo);
 
-        if (playerVipLevelInfo.VipLevel != vipLevelInfo.Level)
+        if (playerVipLevelInfo.VipLevel != vipLevelInfo.Level ||
+            playerVipLevelInfo.AutoState != command.AutoState)
         {
             logger.LogDebug("LogOn:{logOn} Mesaage:This adjusts VipLevl.", DateTime.Now.ToString("o"));
             await vipLevelServiceClient.PlayerVipLevelManualAsync(
                 playerCode: playerVipLevelInfo.PlayerCode,
                 vipLevel: vipLevelInfo.Level,
-                autoState: playerVipLevelInfo.AutoState,
+                autoState: command.AutoState,
                 modifierUserId: command.ModifyUserId,
                 modifierUsername: command.ModifyUsername,
                 remark: command.Remark,
