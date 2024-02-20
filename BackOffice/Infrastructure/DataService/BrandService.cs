@@ -31,10 +31,15 @@ public class BrandService(
 
         var languages = await GenerateBrandLanguagesAsync(brand.Id, createInfo.Languages.ToArray());
         var currencies = GenerateBrandCurrencies(brand.Id, createInfo.CurrencyCodes.ToArray());
-        var gameProviders = await GenerateAddBrandGameProvidersAsync(brand.Id, languages.ToArray(), createInfo.GameProviders.ToArray());
+        var gameProviders = await GenerateAddBrandGameProvidersAsync(brand.Id, [.. languages], createInfo.GameProviders.ToArray());
         var betLimits = await GenerateBetLimitsAsync(brand.Id, createInfo.BetLimits.ToArray());
-        var games = await GenerateWithCreateGamesAsync(brand.Id, gameProviders.ToArray());
-        var brandGroups = GenerateWithCreateGroups(brand.Id,games.ToArray(),betLimits.ToArray(),gameProviders.ToArray(), createInfo.Modifier);
+        var games = await GenerateWithCreateGamesAsync(brand.Id, [.. gameProviders]);
+        var brandGroups = GenerateWithCreateGroups(
+            brand.Id,
+            [.. games],
+            [.. betLimits],
+            [.. gameProviders],
+            createInfo.Modifier);
         var domains = GenerateBrandDomains(brand.Id, createInfo.Domains.ToArray());
 
         await CreateEntitiesAsync(languages);

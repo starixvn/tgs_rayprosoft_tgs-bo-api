@@ -132,10 +132,11 @@ public class AgentDividendController(IAgentDividendClient agentDividendClient, I
     [Description("Send the agent dividend")]
     public async Task<MessageResponse> CreateAgentReduceAmountAsync(ManualSendAgentDividendsRequest request)
     {
-        await agentDividendClient.SendAgentDividendsAsync(request.AgentDividendRecordIds,
+        await agentDividendClient.SendAgentDividendsAsync(
+            request.AgentDividendRecordIds,
             Username,
             request.Remark,
-            HttpContext.RequestAborted);
+            HttpContext.RequestAborted).ConfigureAwait(false);
 
         return CreateValidResponse<MessageResponse>();
     }
