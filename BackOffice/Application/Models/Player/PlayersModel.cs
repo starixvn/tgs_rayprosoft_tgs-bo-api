@@ -26,4 +26,6 @@ public class PlayersModel
     public string Username { get; init; } = default!;
 
     public int? VipLevel { get; init; }
+
+    public Guid? UpgradePlayerAgentId { get; init; }
 }

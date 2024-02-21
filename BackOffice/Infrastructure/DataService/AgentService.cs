@@ -40,11 +40,9 @@ public interface IAgentService
         Func<IQueryable<Agent>, IQueryable<Agent>> preQuery = null,
         bool tracking = false);
 
-    Task<(IEnumerable<AgentModel>, int)> GetAgentsAsync(GetAgentsRequest request);
+    Task<(IEnumerable<AgentsModel>, int)> GetAgentsAsync(GetAgentsRequest request);
 
     Task<IEnumerable<AgentPathModel>> GetSubAgentsAsync(Guid agentId);
-
-    Task UpdateAgentAsync(Agent agent, UpdateAgentRequest request);
 }
 
 public class AgentService(ITgsRepository repository, IPasswordHandler passwordHandler, IAgentClient agentClient) : BaseRepositoryOperations<ITgsRepository>(repository), IAgentService
@@ -142,11 +140,11 @@ public class AgentService(ITgsRepository repository, IPasswordHandler passwordHa
         bool tracking) =>
         GetQueriesAsync(preQuery, tracking);
 
-    public async Task<(IEnumerable<AgentModel>, int)> GetAgentsAsync(GetAgentsRequest request)
+    public async Task<(IEnumerable<AgentsModel>, int)> GetAgentsAsync(GetAgentsRequest request)
     {
         const string spName = "dbo.agent_get_agents_with_team_counts";
 
-        var results = await _repository.SqlQueryMultipleAsync<AgentModel>(spName,
+        var results = await _repository.SqlQueryMultipleAsync<AgentsModel>(spName,
             parameters: new Dictionary<string, object>
             {
                 { "_brand_id", request.BrandId },
@@ -169,104 +167,6 @@ public class AgentService(ITgsRepository repository, IPasswordHandler passwordHa
 
         return _repository.SqlQueryMultipleAsync<AgentPathModel>(spName,
             parameters: new Dictionary<string, object> { { "_agent_path", agentId.ToString("N") } });
-    }
-
-    async Task IAgentService.UpdateAgentAsync(Agent agent, UpdateAgentRequest request)
-    {
-        var parentAgent =
-            await _repository.Agents.AsQueryable().FirstOrDefaultAsync(x =>
-                x.BrandId == request.BrandId && x.Username == request.ParentUsername).ConfigureAwait(false);
-
-        var operation = (AgentOperation)Enum.Parse(typeof(AgentOperation), request.UpdateType.ToString());
-
-        if (request.ParentUsername.IsNotNullOrEmpty() && agent.ParentAgentId != parentAgent?.Id)
-        {
-            operation = AgentOperation.Agent;
-
-            agent.Path = new LTree($"{parentAgent!.Path}.{agent.Id:N}");
-
-            var nLevel = await _repository.Agents.Where(x => x.Id == request.Id).Select(x => x.Path.NLevel)
-                .FirstOrDefaultAsync().ConfigureAwait(false);
-
-            var agents = await _repository.Agents.AsQueryable().Where(x => x.BrandId == agent.BrandId)
-                .ToArrayAsync().ConfigureAwait(false);
-
-            var updateAgents = GetChildAgents(request.Id, agents);
-
-            await UpdateEntitiesAsync(updateAgents).ConfigureAwait(false);
-
-            _ = await UpdateSubAgentsPathAsync(agent, nLevel, parentAgent).ConfigureAwait(false);
-        }
-
-        if (request.UpdateType == MemberUpdateType.Info)
-        {
-            await DeleteEntitiesAsync(agent.AgentDividendConditions);
-
-            agent.AgentDividendConditions = request.AgentDividendConditions.Select(x
-                    => new AgentDividendCondition
-                    {
-                        Rank = x.Rank,
-                        NetProfit = x.NetProfit,
-                        ActiveNumber = x.ActiveNumber,
-                        DividendPercentage = operation == AgentOperation.Agent ? 0 : x.DividendPercentage
-                    })
-                .ToHashSet();
-        }
-
-        await UpdateEntityAsync(agent).ConfigureAwait(false);
-
-        switch (request.UpdateType)
-        {
-            case MemberUpdateType.Info:
-                await agentClient.SetAgentInfoAsync(new SetAgentInfoRequest(agent.Id,
-                    parentAgent?.Id,
-                    (Tgs.Agent.Client.Models.Enums.AgentStatus)request.Status,
-                    request.ParentUsername.IsNullOrEmpty()
-                        ? (Tgs.Agent.Client.Models.Enums.AgentLevelType)AgentLevelType.Chief
-                        : (Tgs.Agent.Client.Models.Enums.AgentLevelType)AgentLevelType.Agent,
-                    operation == AgentOperation.Agent
-                        ? (Tgs.Agent.Client.Models.Enums.AgentConfigStatus)AgentConfigStatus.WaitForConfigurePercentage
-                        : (Tgs.Agent.Client.Models.Enums.AgentConfigStatus)AgentConfigStatus.DoneForConfigurePercentage,
-                    request.NegativeAgentDividendCarryForward,
-                    request.RealName,
-                    request.Remarks,
-                    request.EditorUsername));
-
-                await agentClient.SetAgentStatusAsync(agent.Id,
-                    (Tgs.Agent.Client.Models.Enums.AgentStatus)request.Status,
-                    request.EditorUsername);
-
-                await agentClient.SetAgentDividendPercentageAsync(new SetAgentDividendPercentageRequest(agent.Id,
-                    operation == AgentOperation.Agent ? -1 : request.DividendPercentage));
-
-                break;
-
-            case MemberUpdateType.Contact:
-                var contactProperties = new Dictionary<AgentPropertyName, string>
-                {
-                    { AgentPropertyName.Phone, request.Phone },
-                    { AgentPropertyName.Email, request.Email },
-                    { AgentPropertyName.Qq, request.QQ },
-                    { AgentPropertyName.Wechat, request.Wechat }
-                };
-
-                await agentClient.SetAgentPropertiesAsync(agent.Id,
-                    contactProperties.ToImmutableDictionary(),
-                    request.EditorUsername);
-
-                break;
-
-            case MemberUpdateType.Password:
-                await agentClient.SetAgentPasswordAsync(new SetAgentPasswordRequest(agent.Id,
-                    request.Password,
-                    request.EditorUsername));
-
-                break;
-        }
-
-        await agentClient.AddAgentAuditLogAsync(new AddAgentAuditLogRequest(agent.Id,
-            (Tgs.Agent.Client.Models.Enums.AgentOperation)operation,
-            request.EditorUsername));
     }
 
     public async ValueTask<int> UpdateSubAgentsPathAsync(Agent agent, int nLevel, Agent newParentAgent)

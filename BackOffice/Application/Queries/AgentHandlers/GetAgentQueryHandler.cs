@@ -85,7 +85,8 @@ public class GetAgentQueryHandler(
                             DividendPercentage = x.DividendPercentage
                         }).OrderBy(x => x.Rank),
                     ],
-                    Path = agent.Path
+                    Path = agent.Path,
+                    NegativeAgentDividendCarryForward = agent.NegativeAgentDividendCarryForward
                 }
             };
     }

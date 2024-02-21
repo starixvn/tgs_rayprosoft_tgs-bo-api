@@ -5,7 +5,7 @@ using TGS.Services.BackOffice.Domain;
 
 namespace TGS.Services.BackOffice.Application.Models.Agent;
 
-public class GetAgentsRequest : PageableRequest, IRequest<PagedResponse<AgentModel>>
+public class GetAgentsRequest : PageableRequest, IRequest<PagedResponse<AgentsModel>>
 {
     public Guid BrandId { get; set; }
 

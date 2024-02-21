@@ -36,7 +36,7 @@ public class CreateAnAgentTests
         var brandId = Guid.NewGuid();
         var parentAgentId = Guid.NewGuid();
 
-        var agentModels = new AgentModel[] { new() { Id = Guid.NewGuid() } };
+        var agentModels = new AgentsModel[] { new() { Id = Guid.NewGuid() } };
 
         _ = fakeAgentService.GetAgentsAsync(Arg.Any<GetAgentsRequest>()).Returns((agentModels, 1));
 
