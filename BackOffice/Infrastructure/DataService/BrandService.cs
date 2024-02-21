@@ -208,7 +208,7 @@ public class BrandService(
             }
         };
 
-        //_ = await cacheManager.ClearCacheByBatchAsync(cacheKeys);
+        _ = await cacheManager.ClearCacheByBatchAsync(cacheKeys);
     }
 
     private static HashSet<BrandDomain> GenerateBrandDomains(Guid brandId, string[] domains)
