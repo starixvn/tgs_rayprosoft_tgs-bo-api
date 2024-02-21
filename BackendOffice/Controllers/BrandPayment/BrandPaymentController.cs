@@ -13,6 +13,7 @@ using TGS.Apis.BackendOffice.Controllers.Messages;
 using TGS.Apis.BackendOffice.Controllers.Messages.BrandPayment;
 using TGS.Apis.BackendOffice.DataService.Services;
 using TGS.Apis.BackendOffice.Services;
+using TGS.Apis.BackendOffice.ViewModels;
 using TGS.Core.DataServices.Base.Extensions;
 using TGS.Core.DataServices.Base.Interfaces;
 using TGS.Core.DataServices.Tgs.Models;
@@ -360,6 +361,28 @@ public partial class BrandPaymentController(
             HttpContext.RequestAborted).ConfigureAwait(false);
 
         return CreateValidResponse<MessageResponse>();
+    }
+
+    [HttpGet("balance/{brandId:Guid}", Name = "GetPaymentBalances")]
+    public async IAsyncEnumerable<BrandPaymentBalanceViewModel> GetPaymentBalancesAsync(
+        [FromServices] IGetService<GetBrandPaymentBalanceQuery, decimal?> getBalanceService,
+        Guid brandId,
+        [FromQuery(Name = "id")] IEnumerable<Guid> brandPaymentIds)
+    {
+        foreach (var id in brandPaymentIds)
+        {
+            var query = new GetBrandPaymentBalanceQuery(brandId, id);
+
+            var balance = await getBalanceService.GetAsync(
+                query,
+                HttpContext.RequestAborted).ConfigureAwait(false);
+
+            yield return new BrandPaymentBalanceViewModel
+            {
+                BrandPaymentId = id,
+                Balance = balance
+            };
+        }
     }
 
     private async Task<CreateUpdateBrandPaymentResponse> CreateBrandPaymentAsync(

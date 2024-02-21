@@ -137,7 +137,7 @@ public class AgentDividendController(IAgentDividendClient agentDividendClient, I
             request.Approve,
             Username,
             request.Remark,
-            HttpContext.RequestAborted);
+            HttpContext.RequestAborted).ConfigureAwait(false);
 
         return CreateValidResponse<MessageResponse>();
     }

@@ -1,4 +1,5 @@
 import { AxiosInstance } from "axios";
+import qs from "qs";
 
 export default class BoPaymentService {
     constructor(private http: AxiosInstance) { }
@@ -52,9 +53,26 @@ export default class BoPaymentService {
     public getWithdrawFormDetail(
         brandId: string,
         formId: string
-    ): Promise<GenericResponse<WithdrawFormDetailViewModel>>{
+    ): Promise<GenericResponse<WithdrawFormDetailViewModel>> {
         return this.http
             .get(`/api/withdraw/${brandId}/${formId}`)
+            .then(res => res.data);
+    }
+
+    public getPaymentBalances(brandId: string, ...brandPaymentIds: string[]): Promise<BrandPaymentBalance[]> {
+        return this.http
+            .get(
+                `/api/brandpayment/balance/${brandId}`,
+                {
+                    params: {
+                        id: brandPaymentIds
+                    },
+                    paramsSerializer: {
+                        serialize: params => {
+                            return (<string[]>params["id"]).map(v => `id=${v}`).join('&');
+                        }
+                    }
+                })
             .then(res => res.data);
     }
 }

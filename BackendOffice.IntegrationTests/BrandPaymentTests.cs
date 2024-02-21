@@ -8,7 +8,9 @@ using Microsoft.Extensions.Options;
 using NSubstitute;
 using Tgs.Payment.Clients;
 using TGS.Apis.BackendOffice.Controllers.Messages.BrandPayment;
+using TGS.Apis.BackendOffice.ViewModels;
 using TGS.Core.Models.Messages;
+using Xunit;
 using Xunit.Abstractions;
 
 namespace BackendOffice.IntegrationTests;
@@ -154,5 +156,64 @@ public class BrandPaymentTests(ITestOutputHelper testOutputHelper, NodeJsFixture
         // Assert
         Assert.NotNull(actual);
         Assert.True(actual.Valid);
+    }
+
+    [Fact]
+    public async Task 整合測試_取得指定BrandPayment的商戶餘額()
+    {
+        // Arrange
+        var channelName = Guid.NewGuid().ToString();
+        var userId = Guid.NewGuid();
+
+        var fakePaymentServiceClient = Substitute.For<IPaymentServiceClient>();
+        var fakePaymentClient = Substitute.For<IPaymentClient>();
+
+        using var web = TestBackendOfficeApplication.Builder
+            .UseTestChannelServer(channelName)
+            .ConfigureLogging(logging => logging.AddXUnit(_testOutputHelper))
+            .ConfigureServices(services => services
+                .AddAuthentication("Fake")
+                .AddScheme<FakeAuthenticationSchemaOptions, FakeAuthenticationHandler>(
+                    "Fake",
+                    options =>
+                    {
+                        options.UserId = userId;
+                        options.UserName = "system";
+                    })
+                .Services
+                .AddSingleton(fakePaymentServiceClient)
+                .AddSingleton(fakePaymentClient))
+            .Build();
+
+        await web.StartAsync();
+
+        var brandId = Guid.NewGuid();
+        var brandPaymentId = Guid.NewGuid();
+
+        using var nodeService = _nodeJsFixture.BuildNodeJsService();
+
+        var isWindows = RuntimeInformation.IsOSPlatform(OSPlatform.Windows) ? "true" : "false";
+
+        var nodeModule = $$"""
+            const axiosConfigFactory = require('./models/axios-configuration.js').default;
+            const BackOfficeService = require('./services/bo-payment-service.js').default;
+
+            module.exports = async (brandId, brandPaymentIds) =>
+            {
+                let instance = axiosConfigFactory("{{channelName}}", {{isWindows}});
+
+                let svc = new BackOfficeService(instance);
+
+                return await svc.getPaymentBalances(brandId, brandPaymentIds);
+            };
+        """;
+
+        // Act
+        var actual = await nodeService.InvokeFromStringAsync<BrandPaymentBalanceViewModel[]>(
+            nodeModule,
+            args: new object[] { brandId, new[] { brandPaymentId } });
+
+        // Assert
+        Assert.NotNull(actual);
     }
 }
