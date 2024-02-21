@@ -7,6 +7,7 @@ using System.Threading;
 using System.Threading.Tasks;
 using MediatR;
 using Microsoft.AspNetCore.Mvc;
+using Tgs.Agent.Client;
 using Tgs.Paging;
 using Tgs.Payment.Clients;
 using Tgs.PlayerService.Client;
@@ -539,14 +540,27 @@ public partial class PlayerController(IMediator mediator, IPromotionClient clien
     [HttpPatch("password/{playerCode}/{password}")]
     [Description("Update player login password")]
     public async ValueTask<MessageResponse> SetPlayerPasswordAsync(
+        [FromServices] IPlayerServiceClient playerServiceClient,
         [FromServices] IGetService<SetPlayerPasswordCommand, SetPlayerPasswordInfo> setPlayerPasswordService,
+        [FromServices] IGetService<SetAgentPasswordCommand, SetAgentPasswordResult> setAgentPasswordService,
         string playerCode,
         string password)
     {
+        var playerAgentId = await playerServiceClient.GetAgentIdForPlayerUpgradedAsync(playerCode, HttpContext.RequestAborted);
+
         var command = new SetPlayerPasswordCommand(playerCode, password, UserId, Username);
 
         var processInfo = await setPlayerPasswordService
             .GetAsync(command, HttpContext.RequestAborted)
+            .ConfigureAwait(false);
+
+        if (playerAgentId is null)
+            return new MessageResponse { Valid = processInfo.Valid, Message = processInfo.Message };
+
+        var agentCommand = new SetAgentPasswordCommand(playerAgentId.Value, password, UserId, Username);
+
+        _ = await setAgentPasswordService
+            .GetAsync(agentCommand, HttpContext.RequestAborted)
             .ConfigureAwait(false);
 
         return new MessageResponse
