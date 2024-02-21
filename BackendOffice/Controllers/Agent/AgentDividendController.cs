@@ -111,12 +111,13 @@ public class AgentDividendController(IAgentDividendClient agentDividendClient, I
                 HttpContext.RequestAborted)
             .ToArrayAsync(HttpContext.RequestAborted);
 
-        return records.Select(x => new AgentDividendRecordViewModel((AgentDividendDistributeStatus)x.Status,
+        return records.Select(x => new AgentDividendRecordViewModel(
+                x.Id,
+                (AgentDividendDistributeStatus)x.Status,
                 x.From,
                 x.To,
-                x.AgentDividendId,
                 x.AgentUsername,
-                x.ActualAgentDividendAmount,
+                x.AgentDividendAmount,
                 x.ActualAgentDividendAmount,
                 x.NegativeAgentDividendAmount,
                 x.NegativeAgentDividendCarryForward,
@@ -132,8 +133,8 @@ public class AgentDividendController(IAgentDividendClient agentDividendClient, I
     [Description("Send the agent dividend")]
     public async Task<MessageResponse> CreateAgentReduceAmountAsync(ManualSendAgentDividendsRequest request)
     {
-        await agentDividendClient.SendAgentDividendsAsync(
-            request.AgentDividendRecordIds,
+        await agentDividendClient.SendAgentDividendsAsync(request.AgentDividendRecordIds,
+            request.Approve,
             Username,
             request.Remark,
             HttpContext.RequestAborted).ConfigureAwait(false);
