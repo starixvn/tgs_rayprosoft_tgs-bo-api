@@ -225,6 +225,9 @@ public partial class PlayerController(IMediator mediator, IPromotionClient clien
                 cancellationToken: HttpContext.RequestAborted)
                 .ConfigureAwait(false);
 
+            var upgradePlayerAgentId =
+                await playerServiceClient.GetAgentIdForPlayerUpgradedAsync(item.PlayerCode, HttpContext.RequestAborted);
+
             players.Add(new PlayersModel
             {
                 PlayerCode = item.PlayerCode,
@@ -240,7 +243,8 @@ public partial class PlayerController(IMediator mediator, IPromotionClient clien
                 ParentUsername = !string.IsNullOrEmpty(item.ParentPlayerCode)
                         && parentPlayerDict.TryGetValue(item.ParentPlayerCode, out var parentName)
                         ? parentName
-                        : null
+                        : null,
+                UpgradePlayerAgentId = upgradePlayerAgentId
             });
         }
 
