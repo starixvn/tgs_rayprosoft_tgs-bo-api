@@ -69,4 +69,6 @@ public class AgentModel
     public decimal VirtualSportsRebatePercentage { get; init; }
 
     public string Wechat { get; set; }
+
+    public bool NegativeAgentDividendCarryForward { get; set; }
 }

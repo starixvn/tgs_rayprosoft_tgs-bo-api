@@ -130,16 +130,8 @@ public partial class AgentController(IMediator mediator) : BaseContextController
 
     [HttpGet]
     [Description("Get agents")]
-    public Task<PagedResponse<AgentModel>> GetAgentsAsync([FromQuery] GetAgentsRequest request) =>
+    public Task<PagedResponse<AgentsModel>> GetAgentsAsync([FromQuery] GetAgentsRequest request) =>
         mediator.Send(request);
-
-    [HttpPut("{id:guid}")]
-    [Description("Update a agent")]
-    public Task<MessageResponse> UpdateAgentAsync(Guid id, UpdateAgentRequest request)
-    {
-        request.Id = id;
-        return mediator.Send(request);
-    }
 
     [HttpPatch("pay-password", Name = "UpdateAgentPayPassword")]
     [Description("Update Agent Pay Password")]
