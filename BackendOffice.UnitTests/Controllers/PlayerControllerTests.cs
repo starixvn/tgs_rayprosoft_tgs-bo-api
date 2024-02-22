@@ -4,7 +4,6 @@ using ExpectedObjects;
 using FluentAssertions;
 using MediatR;
 using MockQueryable.Moq;
-using NSubstitute;
 using Tgs.CashService.Client;
 using Tgs.Payment.Clients;
 using Tgs.PlayerService.Client;
@@ -14,6 +13,7 @@ using Tgs.ServiceUtility;
 using Tgs.VipLevelService.Clients;
 using Tgs.VipLevelService.Common.ViewModels;
 using TGS.Apis.BackendOffice.Controllers;
+using TGS.Apis.BackendOffice.ViewModels;
 using TGS.Core.Models.Enums;
 using TGS.Services.BackOffice.Application.Models.Player;
 using TGS.Services.BackOffice.Application.Resources;
@@ -21,6 +21,7 @@ using TGS.Services.BackOffice.ApplicationServices.Agents;
 using TGS.Services.BackOffice.ApplicationServices.Players;
 using TGS.Services.BackOffice.Domain;
 using PlayerInfo = Tgs.PlayerService.Client.PlayerInfo;
+using PlayerStatus = TGS.Core.Models.Enums.PlayerStatus;
 
 namespace TGS.Tests.BackendOffice.UnitTests.Controllers;
 
@@ -273,6 +274,82 @@ public class PlayerControllerTests : BaseTests
         _ = response.Message.Should().Be(Player.UpdateTypeNotFound);
 
         _ = mediatorMock.Received(1).Send(Arg.Any<UpdatePlayerRequest>(), Arg.Any<CancellationToken>());
+    }
+
+    [Test]
+    public async Task Can_Update_Player_Status()
+    {
+        var mediatorMock = Substitute.For<IMediator>();
+
+        var promotionClientMock = Substitute.For<IPromotionClient>();
+        var fakePlayerServiceClient = Substitute.For<IPlayerServiceClient>();
+        var fakeSetPlayerStatus = Substitute.For<IGetService<SetPlayerStatusCommand, SetPlayerStatusResult>>();
+        var fakeSetAgentStatus = Substitute.For<IGetService<SetAgentStatusCommand, SetAgentStatusResult>>();
+
+        var controller = new PlayerController(mediatorMock, promotionClientMock)
+        {
+            ControllerContext = { HttpContext = HttpContextMock }
+        };
+
+        var playerCode = Generator.RandomString(12);
+        var agentId = Guid.NewGuid();
+
+        _ = fakePlayerServiceClient.GetAgentIdForPlayerUpgradedAsync(Arg.Any<string>(), Arg.Any<CancellationToken>())
+            .Returns(agentId);
+
+        _ = fakeSetPlayerStatus.GetAsync(Arg.Any<SetPlayerStatusCommand>(), Arg.Any<CancellationToken>())
+            .Returns(new SetPlayerStatusResult(true, ""));
+
+        var request = new UpdatePlayerStatusViewModel { Status = PlayerStatus.Disabled };
+
+        var response = await controller.SetPlayerStatusAsync(fakePlayerServiceClient,
+            fakeSetPlayerStatus,
+            fakeSetAgentStatus,
+            playerCode,
+            request);
+
+        _ = response.Valid.Should().BeTrue();
+
+        _ = fakeSetPlayerStatus.ReceivedWithAnyArgs(1).GetAsync(null!, default);
+
+        _ = fakeSetAgentStatus.ReceivedWithAnyArgs(1).GetAsync(null!, default);
+    }
+
+    [Test]
+    public async Task Can_Update_Player_Password()
+    {
+        var mediatorMock = Substitute.For<IMediator>();
+
+        var promotionClientMock = Substitute.For<IPromotionClient>();
+        var fakePlayerServiceClient = Substitute.For<IPlayerServiceClient>();
+        var fakeSetPlayerPassword = Substitute.For<IGetService<SetPlayerPasswordCommand, SetPlayerPasswordInfo>>();
+        var fakeSetAgentPassword = Substitute.For<IGetService<SetAgentPasswordCommand, SetAgentPasswordResult>>();
+
+        var controller = new PlayerController(mediatorMock, promotionClientMock)
+        {
+            ControllerContext = { HttpContext = HttpContextMock }
+        };
+
+        var playerCode = Generator.RandomString(12);
+        var agentId = Guid.NewGuid();
+
+        _ = fakePlayerServiceClient.GetAgentIdForPlayerUpgradedAsync(Arg.Any<string>(), Arg.Any<CancellationToken>())
+            .Returns(agentId);
+
+        _ = fakeSetPlayerPassword.GetAsync(Arg.Any<SetPlayerPasswordCommand>(), Arg.Any<CancellationToken>())
+            .Returns(new SetPlayerPasswordInfo(true, ""));
+
+        var response = await controller.SetPlayerPasswordAsync(fakePlayerServiceClient,
+            fakeSetPlayerPassword,
+            fakeSetAgentPassword,
+            playerCode,
+            "password");
+
+        _ = response.Valid.Should().BeTrue();
+
+        _ = fakeSetPlayerPassword.ReceivedWithAnyArgs(1).GetAsync(null!, default);
+
+        _ = fakeSetAgentPassword.ReceivedWithAnyArgs(1).GetAsync(null!, default);
     }
 
     [Test]
