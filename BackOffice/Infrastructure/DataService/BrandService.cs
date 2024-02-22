@@ -140,31 +140,21 @@ public class BrandService(
         await DeleteEntitiesAsync(brand.Currencies);
         await DeleteEntitiesAsync(brand.BrandGroups);
         await DeleteEntitiesAsync(brand.Domains);
-        await DeleteEntitiesAsync(brand.GameProviders.Where(x => !request.GameProviders.Select(g => g.GameProviderId).Contains(x.GameProviderId)));
 
-        var languages = await GenerateBrandLanguagesAsync(brand.Id, request.Languages);
-        var currencies = GenerateBrandCurrencies(brand.Id, request.CurrencyCodes);
-        var betLimits = await GenerateBetLimitsAsync(brand.Id, request.BetLimits);
-        var (oldBrandGames, newBrandGames, deleteBrandGames) =
-            await GenerateWithUpdateGamesAsync(brand, [.. currencies], request.GameProviders);
-        var oldGameProviders = GenerateBrandGameProviders([.. brand.GameProviders], [.. languages], request.GameProviders);
-        var brandGroups = GenerateWithUpdateGroups(brand, [.. oldBrandGames,.. newBrandGames], [.. betLimits], request.BrandGroups, request.EditorUsername);
-        var domains = GenerateBrandDomains(brand.Id, request.Domains);
+        brand.Languages = await GenerateBrandLanguagesAsync(brand.Id, request.Languages);
+        brand.Currencies = GenerateBrandCurrencies(brand.Id, request.CurrencyCodes);
+        brand.BetLimits = await GenerateBetLimitsAsync(brand.Id, request.BetLimits);
+        brand.Games = await GenerateWithUpdateGamesAsync(brand, request.GameProviders);
+        brand.GameProviders = GenerateBrandGameProviders(brand, request.GameProviders);
+        brand.BrandGroups = GenerateWithUpdateGroups(brand, request.BrandGroups, request.EditorUsername);
+        brand.Domains = GenerateBrandDomains(brand.Id, request.Domains);
 
         var gameProviders = await GenerateAddBrandGameProvidersAsync(
             brand.Id,
-            [.. languages],
+            [.. brand.Languages],
             request.GameProviders).ConfigureAwait(false);
 
-        await DeleteEntitiesAsync(deleteBrandGames);
-        await CreateEntitiesAsync(languages);
-        await CreateEntitiesAsync(currencies);
-        await CreateEntitiesAsync(betLimits);
-        await CreateEntitiesAsync(newBrandGames);
-        tgsRepository.BrandGames.UpdateRange(oldBrandGames);
-        tgsRepository.BrandGameProviders.UpdateRange(oldGameProviders);
-        await CreateEntitiesAsync(brandGroups);
-        await CreateEntitiesAsync(domains);
+        await UpdateEntityAsync(brand);
         await CreateEntitiesAsync(gameProviders);
 
         await tran.CommitAsync();
@@ -208,7 +198,7 @@ public class BrandService(
             }
         };
 
-        //_ = await cacheManager.ClearCacheByBatchAsync(cacheKeys);
+        _ = await cacheManager.ClearCacheByBatchAsync(cacheKeys);
     }
 
     private static HashSet<BrandDomain> GenerateBrandDomains(Guid brandId, string[] domains)
@@ -222,25 +212,26 @@ public class BrandService(
     }
 
     private static HashSet<BrandGameProvider> GenerateBrandGameProviders(
-            BrandGameProvider[] brandGameProviders,
-            BrandLanguage[] brandLanguages,
+            Brand brand,
             BrandGameProviderModel[] brandGameProviderModels)
     {
         var gameProviderIds = brandGameProviderModels.Select(x => x.GameProviderId).ToArray();
-        return brandGameProviders.Where(x => gameProviderIds.Contains(x.GameProviderId)).Select(
+        var brandGameProviders = brand.GameProviders.Where(x => gameProviderIds.Contains(x.GameProviderId)).Select(
             x =>
             {
                 var requestBrandGameProvider =
                     brandGameProviderModels.First(m => m.GameProviderId == x.GameProviderId);
 
-                x.DefaultLanguageCode = brandLanguages.FirstOrDefault()?.CultureCode;
+                x.DefaultLanguageCode = brand.Languages.FirstOrDefault()?.CultureCode;
                 x.GameProviderConfigurationId = requestBrandGameProvider.ConfigurationId;
                 x.DesktopQueryString = requestBrandGameProvider.DesktopQueryString;
                 x.MobileQueryString = requestBrandGameProvider.MobileQueryString;
 
                 return x;
             }
-        ).ToHashSet();
+        );
+
+        return new(brandGameProviders);
     }
 
     private static HashSet<BrandGroupBetLimit> GenerateBrandGroupBetLimits(BrandBetLimit[] brandBetLimits, BrandGameProvider[] brandGameProviders, Guid brandGroupId,
@@ -335,11 +326,11 @@ public class BrandService(
     }
 
     private static HashSet<BrandGroupBetLimit> GenerateWithUpdateBrandGroupBetLimits(
-        BrandBetLimit[] brandBetLimits,
+        Brand brand,
         BrandGroup brandGroup,
         BrandGroupGameProviderBetLimitModel[] models)
     {
-        var brandGroupBetLimits = brandBetLimits.Select(x =>
+        var brandGroupBetLimits = brand.BetLimits.Select(x =>
         {
             var brandGroupBetLimit = new BrandGroupBetLimit
             {
@@ -354,16 +345,16 @@ public class BrandService(
         return new(brandGroupBetLimits);
     }
 
-    private static HashSet<BrandGroupGame> GenerateWithUpdateBrandGroupGames(BrandGame[] brandGames, BrandGroup brandGroup,
+    private static HashSet<BrandGroupGame> GenerateWithUpdateBrandGroupGames(Brand brand, BrandGroup brandGroup,
                 IEnumerable<int> brandGameIds)
     {
-        var brandGamePoolIds = brandGames.Select(x => x.GameId).ToArray();
+        var brandGamePoolIds = brand.Games.Select(x => x.GameId).ToArray();
         var brandGroupGames = brandGameIds?
             .Where(brandGameId => brandGamePoolIds.Contains(brandGameId)).Select(brandGameId =>
                 new BrandGroupGame
                 {
                     BrandGroup = brandGroup,
-                    BrandGameId = brandGames.First(g => g.GameId == brandGameId).Id
+                    BrandGameId = brand.Games.First(g => g.GameId == brandGameId).Id
                 });
         return new(brandGroupGames ?? Array.Empty<BrandGroupGame>());
     }
@@ -382,7 +373,7 @@ public class BrandService(
         return new(brandGroupGameProviderBetLimits ?? Array.Empty<BrandGroupGameProviderBetLimit>());
     }
 
-    private static HashSet<BrandGroup> GenerateWithUpdateGroups(Brand brand, BrandGame[] brandGames, BrandBetLimit[] brandBetLimits, BrandGroupModel[] brandGroupModels, string editorUsername)
+    private static HashSet<BrandGroup> GenerateWithUpdateGroups(Brand brand, BrandGroupModel[] brandGroupModels, string editorUsername)
     {
         var brandGroups = brandGroupModels.Select(x =>
         {
@@ -398,9 +389,9 @@ public class BrandService(
                 UpdatedOn = DateTimeOffset.Now
             };
             brandGroup.BrandGames =
-                GenerateWithUpdateBrandGroupGames(brandGames, brandGroup, x.BrandGames?.Select(g => g.GameId));
+                GenerateWithUpdateBrandGroupGames(brand, brandGroup, x.BrandGames?.Select(g => g.GameId));
             brandGroup.BrandGroupBetLimits =
-                GenerateWithUpdateBrandGroupBetLimits(brandBetLimits, brandGroup, x.GameProviderBetLimits);
+                GenerateWithUpdateBrandGroupBetLimits(brand, brandGroup, x.GameProviderBetLimits);
 
             return brandGroup;
         });
@@ -573,15 +564,13 @@ public class BrandService(
         return new(games);
     }
 
-    private async
-        Task<(BrandGame[] oldBrandGames, BrandGame[] newBrandGames, BrandGame[] deleteBrandGames)> GenerateWithUpdateGamesAsync(
-            Brand brand,
-            BrandCurrency[] brandCurrencies,
-            BrandGameProviderModel[] brandGameProviderModels)
+    private async Task<HashSet<BrandGame>> GenerateWithUpdateGamesAsync(
+        Brand brand,
+        BrandGameProviderModel[] brandGameProviderModels)
     {
         var gameProviderIds = brandGameProviderModels.Select(x => x.GameProviderId);
 
-        var brandCurrencyCodes = brandCurrencies.Select(x => x.CurrencyCode).ToArray();
+        var brandCurrencyCodes = brand.Currencies.Select(x => x.CurrencyCode).ToArray();
 
         var games = await tgsRepository.Games.AsQueryable()
             .Where(x => x.AvailableToBrand)
@@ -590,19 +579,15 @@ public class BrandService(
             .ToArrayAsync();
 
         games = games.Where(x
-                => x.AvailableCurrencies.IsNullOrEmpty() ||
-                   x.AvailableCurrencies.Split(",").Any(c => brandCurrencyCodes.Contains(c)))
-            .ToArray();
+            => x.AvailableCurrencies.IsNullOrEmpty() ||
+            x.AvailableCurrencies.Split(",").Any(c => brandCurrencyCodes.Contains(c))).ToArray();
 
-        var old = brand.Games.Where(x => games.Select(g => g.Id).Contains(x.GameId));
+        var brandGames = games.Select(x =>
+        {
+            var originBrandGame = brand.Games.FirstOrDefault(g => g.GameId == x.Id);
 
-        var delBrandGames = brand.Games.Where(x => !games.Select(g => g.Id).Contains(x.GameId));
-
-        var newBrandGames = games.Where(x => !brand.Games.Select(g => g.GameId).Contains(x.Id))
-            .Select(x => new BrandGame
+            var brandGame = new BrandGame
             {
-                Id = Guid.NewGuid(),
-                Brand = brand,
                 BrandId = brand.Id,
                 GameId = x.Id,
                 Game = x,
@@ -611,8 +596,23 @@ public class BrandService(
                 DisplayOrder = 99,
                 Rebate = true,
                 EffectiveBettingPercentage = 100M
-            });
+            };
 
-        return (old.ToArray(), newBrandGames.ToArray(), delBrandGames.ToArray());
+            if (originBrandGame == null)
+            {
+                return brandGame;
+            }
+
+            brandGame.Id = originBrandGame.Id;
+            brandGame.Status = originBrandGame.Status;
+            brandGame.Tag = originBrandGame.Tag;
+            brandGame.DisplayOrder = originBrandGame.DisplayOrder;
+            brandGame.Rebate = originBrandGame.Rebate;
+            brandGame.EffectiveBettingPercentage = originBrandGame.EffectiveBettingPercentage;
+
+            return brandGame;
+        });
+
+        return new(brandGames);
     }
 }
