@@ -572,12 +572,33 @@ public partial class PlayerController(IMediator mediator, IPromotionClient clien
     [HttpPatch("status/{playerCode}", Name = "SetPlayerStatus")]
     [Description("Update player status")]
     public async ValueTask<MessageResponse> SetPlayerStatusAsync(
+        [FromServices] IPlayerServiceClient playerServiceClient,
         [FromServices] IGetService<SetPlayerStatusCommand, SetPlayerStatusResult> getService,
+        [FromServices] IGetService<SetAgentStatusCommand, SetAgentStatusResult> getAgentStatusService,
         string playerCode,
         [FromBody] UpdatePlayerStatusViewModel request)
     {
+        var playerAgentId = await playerServiceClient.GetAgentIdForPlayerUpgradedAsync(playerCode, HttpContext.RequestAborted);
+
         var processInfo = await getService
             .GetAsync(new SetPlayerStatusCommand(playerCode, request.Status, UserId, Username), HttpContext.RequestAborted)
+            .ConfigureAwait(false);
+
+        if (playerAgentId is null)
+            return new MessageResponse { Valid = processInfo.Valid, Message = processInfo.Message };
+
+        var status = request.Status switch
+        {
+            Core.Models.Enums.PlayerStatus.Enabled => Tgs.Agent.Client.Models.Enums.AgentStatus.Enabled,
+            Core.Models.Enums.PlayerStatus.Disabled => Tgs.Agent.Client.Models.Enums.AgentStatus.Disabled,
+            Core.Models.Enums.PlayerStatus.InBlacklist => Tgs.Agent.Client.Models.Enums.AgentStatus.InBlacklist,
+            _ => Tgs.Agent.Client.Models.Enums.AgentStatus.Disabled
+        };
+
+        var agentCommand = new SetAgentStatusCommand(playerAgentId.Value, status, UserId, Username);
+
+        _ = await getAgentStatusService
+            .GetAsync(agentCommand, HttpContext.RequestAborted)
             .ConfigureAwait(false);
 
         return new MessageResponse
