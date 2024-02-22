@@ -42,7 +42,7 @@
     <PackageReference Include="ClosedXML.Report" Version="0.2.9" />
     <PackageReference Include="ExcelDataReader" Version="3.6.0" />
     <PackageReference Include="Google.Protobuf" Version="3.25.3" />
-    <PackageReference Include="Grpc.Tools" Version="2.61.0">
+    <PackageReference Include="Grpc.Tools" Version="2.62.0">
       <PrivateAssets>all</PrivateAssets>
       <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
     </PackageReference>
@@ -53,7 +53,7 @@
       <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
     </PackageReference>
     <PackageReference Include="PhoenixToolkits.MessageQueue" Version="2.1.0" />
-    <PackageReference Include="PhoenixToolkits.Protobuf.ExtendTypes" Version="0.0.6" />
+    <PackageReference Include="PhoenixToolkits.Protobuf.ExtendTypes" Version="0.0.7" />
     <PackageReference Include="Polly" Version="8.3.0" />
     <PackageReference Include="Scrutor" Version="4.2.2" />
     <PackageReference Include="System.Interactive.Async" Version="6.0.1" />
@@ -75,7 +75,7 @@
     <PackageReference Include="Tgs.MarketingReport.Client" Version="0.0.9" />
     <PackageReference Include="Tgs.Notification.Contacts.Client" Version="0.0.1" />
     <PackageReference Include="Tgs.Paging.AsyncEnumerable" Version="1.2.1" />
-    <PackageReference Include="Tgs.Payment.Client" Version="0.6.4" />
+    <PackageReference Include="Tgs.Payment.Client" Version="0.6.5" />
     <PackageReference Include="Tgs.Payment.ManualDeposit" Version="0.2.0" />
     <PackageReference Include="Tgs.PaymentService.Client" Version="0.8.5" />
     <PackageReference Include="Tgs.Player.All.Agent.Client" Version="0.0.2" />
@@ -87,7 +87,7 @@
     <PackageReference Include="Tgs.SerialNumberGenerator" Version="1.0.1" />
     <PackageReference Include="TGS.ServiceUtility" Version="0.2.0" />
     <PackageReference Include="Tgs.StationLetter.Client" Version="0.0.7" />
-    <PackageReference Include="Tgs.VipLevelService.Client" Version="0.0.23" />
+    <PackageReference Include="Tgs.VipLevelService.Client" Version="0.0.25" />
   </ItemGroup>
 
   <ItemGroup>
