@@ -19,16 +19,11 @@ public class AutoRejectDepositProcessor(
     private readonly ILogger<AutoRejectDepositProcessor> _logger = logger ?? throw new ArgumentNullException(nameof(logger));
     private readonly ICommandService<ReviewDepositFormCommand> _reviewCommandService = reviewCommandService ?? throw new ArgumentNullException(nameof(reviewCommandService));
 
-    public ValueTask HandleAsync(
+    public async ValueTask HandleAsync(
         string subject,
         ReadOnlyMemory<byte> data,
         IEnumerable<MessageHeaderValue> headerValues,
         CancellationToken cancellationToken = default)
-    {
-        throw new NotImplementedException();
-    }
-
-    public async ValueTask HandleAsync(ReadOnlyMemory<byte> data, CancellationToken cancellationToken)
     {
         _logger.LogInformation("Receive AutoRejectDeposit request.");
 
