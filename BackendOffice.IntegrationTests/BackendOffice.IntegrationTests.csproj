@@ -39,7 +39,7 @@
       <PrivateAssets>all</PrivateAssets>
       <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
     </PackageReference>
-    <PackageReference Include="PhoenixToolkits.ExpectedObjects.Extend" Version="0.0.4" />
+    <PackageReference Include="PhoenixToolkits.ExpectedObjects.Extend" Version="0.0.5" />
     <PackageReference Include="PhoenixToolkits.HttpOverStream.NamedPipe" Version="0.0.1" />
     <PackageReference Include="PhoenixToolkits.HttpOverStream.Server.AspnetCore" Version="0.0.1" />
     <PackageReference Include="PhoenixToolkits.Xunit.AssemblyFixture" Version="0.0.1" />
