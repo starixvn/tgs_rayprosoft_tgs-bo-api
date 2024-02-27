@@ -33,6 +33,7 @@ using OpenTelemetry.Metrics;
 using OpenTelemetry.Resources;
 using OpenTelemetry.Trace;
 using Tgs.CashQueryService.Client;
+using Tgs.MessageQueue.Nats.Serializers;
 using Tgs.Player.All.Agent.Client.DependencyInjection;
 using Tgs.StationLetterService.Client;
 using Tgs.StationLetterService.Client.DependencyInjection;
@@ -111,7 +112,8 @@ builder.Services
         "Nats",
         (sp, _) => new NatsConnection(NatsOpts.Default with
         {
-            Url = builder.Configuration.GetValue<string>("NatsSetting:Urls")
+            Url = builder.Configuration.GetValue<string>("NatsSetting:Urls"),
+            SerializerRegistry = TgsNatsSerializerRegistration.Default
         }))
     .AddMessageQueue()
     .AddNatsMessageQueue(config => config
