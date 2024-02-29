@@ -1653,7 +1653,7 @@ public class BrandTests(ITestOutputHelper testOutputHelper, NodeJsFixture nodeJs
             .SetBrandPlatformAccountFundAsync(
                 Arg.Is(brandId),
                 Arg.Is(enabled),
-                Arg.Is(userId.ToString()),
+                Arg.Is("system"),
                 Arg.Any<CancellationToken>());
     }
 }
