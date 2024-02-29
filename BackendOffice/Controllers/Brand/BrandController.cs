@@ -324,6 +324,6 @@ public partial class BrandController(IMediator mediator) : BaseContextController
         => brandServiceClient.SetBrandPlatformAccountFundAsync(
             brandId,
             enabled,
-            UserId,
+            Username,
             HttpContext.RequestAborted);
 }
