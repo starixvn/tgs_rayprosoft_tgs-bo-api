@@ -1,15 +1,20 @@
 ﻿using System;
 using System.ComponentModel;
+using System.Linq;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Mvc;
+using Tgs.Payment.Clients;
 using Tgs.ServiceUtility;
+using TGS.Apis.BackendOffice.ViewModels;
 using TGS.Services.BackOffice.Application.Commands.PlayerBank;
 using TGS.Services.BackOffice.Application.Models.PlayerBank;
 using TGS.Services.BackOffice.Domain;
 
 namespace TGS.Apis.BackendOffice.Controllers;
 
-public partial class PlayerController
+[Route("api/player")]
+[ApiController]
+public class PlayerBankInfoController : BaseContextController
 {
     [HttpPost("{playerCode}/bank", Name = "CreatePlayerBankInfo")]
     [Description("Create a player bank info")]
@@ -85,5 +90,32 @@ public partial class PlayerController
             .ConfigureAwait(false);
 
         return CreateValidResponse<MessageResponse>();
+    }
+
+    [HttpGet("{playerCode}/bank", Name = "ListPlayerBankInfos")]
+    public async Task<PagedResponse<PlayerBankInfoViewModel>> ListPlayerBankInfosAsync(
+        [FromServices] IPaymentServiceClient paymentServiceClient,
+        string playerCode)
+    {
+        var items = await paymentServiceClient.GetPlayerBankInfosAsync(playerCode, HttpContext.RequestAborted)
+            .Select(bankInfo => new PlayerBankInfoViewModel
+            {
+                Id = bankInfo.Id,
+                PaymentChannelId = bankInfo.PaymentChannelId,
+                BankType = bankInfo.BankType,
+                Detail = bankInfo.Detail,
+                IsDefault = bankInfo.IsDefault,
+                UpdatedOn = bankInfo.UpdatedOn,
+                Modifier = bankInfo.Modifier
+            })
+            .ToArrayAsync(HttpContext.RequestAborted)
+            .ConfigureAwait(false);
+
+        return new PagedResponse<PlayerBankInfoViewModel>
+        {
+            Valid = true,
+            TotalCount = items.Length,
+            Items = items
+        };
     }
 }

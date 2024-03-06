@@ -75,4 +75,10 @@ export default class BoPaymentService {
                 })
             .then(res => res.data);
     }
+
+    public listPlayerBankInfos(playerCode: string): Promise<PagedResponse<PlayerBankInfo>> {
+        return this.http
+            .get(`/api/player/${playerCode}/bank`)
+            .then(res => res.data);
+    }
 }
