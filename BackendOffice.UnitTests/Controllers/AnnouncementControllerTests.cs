@@ -46,8 +46,8 @@ public class AnnouncementControllerTests : BaseTests
 
         var request = new ChangeOrderRequest
         {
-            Orders = new[]
-            {
+            Orders =
+            [
                 new ChangeOrderModel
                 {
                     Id = (await list.FirstOrDefaultAsync())!.Id,
@@ -58,7 +58,7 @@ public class AnnouncementControllerTests : BaseTests
                     Id = (await list.LastOrDefaultAsync())!.Id,
                     DisplayOrder = 2
                 }
-            }
+            ]
         };
         _ = queriesMock.GetQueries()
             .Returns(list);

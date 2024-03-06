@@ -79,7 +79,7 @@ public class OfflineLoginRewardTests(
         _ = fakePlayerItemsQueryService.GetAsync(
             Arg.Is(new GetProcessedUsersQuery(request.BatchId)),
             Arg.Any<CancellationToken>())
-            .Returns(new OfflineUsersResult(players, 2, Array.Empty<string>()));
+            .Returns(new OfflineUsersResult(players, 2, []));
 
         var promotionId = Guid.NewGuid();
         var createInfo = new CreatePromotionMainInfo
@@ -120,7 +120,7 @@ public class OfflineLoginRewardTests(
         // Act
         var actual = await nodeService.InvokeFromStringAsync<MessageResponse>(
             nodeModule,
-            args: new object[] { brandId, request });
+            args: [brandId, request]);
 
         // Assert
         Assert.NotNull(actual);

@@ -97,7 +97,7 @@ public class StationLetterTests(ITestOutputHelper testOutputHelper, NodeJsFixtur
         // Act
         await nodeService.InvokeFromStringAsync(
             nodeModule,
-            args: new object[] { brandId, letterId, content });
+            args: [brandId, letterId, content]);
 
         // Assert
         _ = fakeStationLetterClient.Received(1)
@@ -207,7 +207,7 @@ public class StationLetterTests(ITestOutputHelper testOutputHelper, NodeJsFixtur
         // Act
         var actual = await nodeService.InvokeFromStringAsync<PagedResponse<StationLetterListItemViewModel>>(
             nodeModule,
-            args: new object[] { brandId, 1, 10 });
+            args: [brandId, 1, 10]);
 
         // Assert
         Assert.NotNull(actual);
@@ -336,7 +336,7 @@ public class StationLetterTests(ITestOutputHelper testOutputHelper, NodeJsFixtur
         // Act
         var actual = await nodeService.InvokeFromStringAsync<PagedResponse<StationLetterListItemViewModel>>(
             nodeModule,
-            args: new object[] { brandId, 2, 1 });
+            args: [brandId, 2, 1]);
 
         // Assert
         Assert.NotNull(actual);
@@ -466,7 +466,7 @@ public class StationLetterTests(ITestOutputHelper testOutputHelper, NodeJsFixtur
         // Act
         var actual = await nodeService.InvokeFromStringAsync<PagedResponse<StationLetterListItemViewModel>>(
             nodeModule,
-            args: new object[] { brandId, searchPlayerCode, 1, 10 });
+            args: [brandId, searchPlayerCode, 1, 10]);
 
         // Assert
         Assert.NotNull(actual);
@@ -579,7 +579,7 @@ public class StationLetterTests(ITestOutputHelper testOutputHelper, NodeJsFixtur
         // Act
         var actual = await nodeService.InvokeFromStringAsync<PagedResponse<DeliveryLetterListItemViewModel>>(
             nodeModule,
-            args: new object[] { brandId, 2, 1 });
+            args: [brandId, 2, 1]);
 
         // Assert
         Assert.NotNull(actual);
@@ -693,7 +693,7 @@ public class StationLetterTests(ITestOutputHelper testOutputHelper, NodeJsFixtur
         // Act
         var actual = await nodeService.InvokeFromStringAsync<PagedResponse<DeliveryLetterListItemViewModel>>(
             nodeModule,
-            args: new object[] { brandId, operatorUser, 1, 10 });
+            args: [brandId, operatorUser, 1, 10]);
 
         // Assert
         Assert.NotNull(actual);
@@ -790,7 +790,7 @@ public class StationLetterTests(ITestOutputHelper testOutputHelper, NodeJsFixtur
         // Act
         var actual = await nodeService.InvokeFromStringAsync<StationLetterViewModel>(
             nodeModule,
-            args: new object[] { brandId, letterId });
+            args: [brandId, letterId]);
 
         // Assert
         Assert.NotNull(actual);
@@ -884,7 +884,7 @@ public class StationLetterTests(ITestOutputHelper testOutputHelper, NodeJsFixtur
         // Act
         var actual = await nodeService.InvokeFromStringAsync<DeliveryLetterViewModel>(
             nodeModule,
-            args: new object[] { brandId, deliveryId });
+            args: [brandId, deliveryId]);
 
         // Assert
         Assert.NotNull(actual);
@@ -959,7 +959,7 @@ public class StationLetterTests(ITestOutputHelper testOutputHelper, NodeJsFixtur
         // Act
         await nodeService.InvokeFromStringAsync(
             nodeModule,
-            args: new object[] { brandId, request });
+            args: [brandId, request]);
 
         // Assert
         var requestExpected = new StationLetterRequest(
@@ -1045,7 +1045,7 @@ public class StationLetterTests(ITestOutputHelper testOutputHelper, NodeJsFixtur
         // Act
         await nodeService.InvokeFromStringAsync(
             nodeModule,
-            args: new object[] { brandId, request });
+            args: [brandId, request]);
 
         // Assert
         var requestExpected = new BrandAllPlayersStationLetterRequest(

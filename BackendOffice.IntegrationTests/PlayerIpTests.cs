@@ -111,7 +111,7 @@ public class PlayerIpTests(ITestOutputHelper testOutputHelper, NodeJsFixture nod
         // Act
         var actual = await nodeService.InvokeFromStringAsync<PagedResponse<GetPlayerIpsByUserNameResult>>(
             nodeModule,
-            args: new object[] { brandId, userName, page, rows, sortby, orderby, showAll });
+            args: [brandId, userName, page, rows, sortby, orderby, showAll]);
 
         // Assert
         Assert.True(actual!.Valid);

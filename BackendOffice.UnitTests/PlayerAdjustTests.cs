@@ -31,7 +31,7 @@ public class PlayerAdjustTests
             100M,
             "remark",
             true,
-            BucketTypes: Array.Empty<string>(),
+            BucketTypes: [],
             Guid.NewGuid(),
             "modifier");
 

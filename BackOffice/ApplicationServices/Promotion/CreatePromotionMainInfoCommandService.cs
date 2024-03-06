@@ -14,14 +14,13 @@ internal class CreatePromotionMainInfoCommandService(
     IPromotionServiceClient promotionServiceClient,
     IGetService<GetBrandInfoQuery, BrandInfo?> getBranInfoService) : IGetService<CreatePromotionMainInfoCommand, Guid>
 {
-    private static readonly HashSet<string> _PromotionTypes = new(5)
-    {
+    private static readonly HashSet<string> _PromotionTypes = [
         "ReliefMoneyDaily",
         "ReliefMoneyWeekly",
         "ReliefMoneyMonthly",
         "TurnoverRebate",
         "TurnoverRebateWeekly"
-    };
+    ];
 
     private readonly IGetService<GetBrandInfoQuery, BrandInfo?> _getBranInfoService = getBranInfoService ?? throw new ArgumentNullException(nameof(getBranInfoService));
     private readonly IPromotionServiceClient _promotionServiceClient = promotionServiceClient ?? throw new ArgumentNullException(nameof(promotionServiceClient));

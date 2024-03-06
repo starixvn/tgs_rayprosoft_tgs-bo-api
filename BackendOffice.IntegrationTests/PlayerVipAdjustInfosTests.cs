@@ -71,7 +71,7 @@ public class PlayerVipAdjustInfosTests(ITestOutputHelper testOutputHelper, NodeJ
         var response = new PagingResponseViewModel<PlayerVipLevelLogInfoViewModel>()
         {
             TotalCount = 2,
-            Items = new PlayerVipLevelLogInfoViewModel[] {
+            Items = [
                 new(
                     Type:Tgs.VipLevelService.Common.PlayerVipLevelLogType.Register,
                     BeforeLevelId:Guid.Empty,
@@ -96,7 +96,7 @@ public class PlayerVipAdjustInfosTests(ITestOutputHelper testOutputHelper, NodeJ
                     CreatedUserId:Guid.NewGuid(),
                     CreatedUsername:string.Empty,
                     Remark:string.Empty) ,
-            }
+            ]
         };
 
         _ = fakeService.GetAsync(
@@ -125,7 +125,7 @@ public class PlayerVipAdjustInfosTests(ITestOutputHelper testOutputHelper, NodeJ
         // Act
         var actual = await nodeService.InvokeFromStringAsync<PagedResponse<PlayerVipAdjustViewModel>>(
             nodeModule,
-            args: new object[] { playerCode, brandId, from, to, page, rows, sortby, orderby, showAll });
+            args: [playerCode, brandId, from, to, page, rows, sortby, orderby, showAll]);
 
         //Assert
         Assert.Equal(2, actual!.TotalCount);

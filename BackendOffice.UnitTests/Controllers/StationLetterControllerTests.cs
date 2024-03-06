@@ -466,15 +466,15 @@ public class StationLetterControllerTests : BaseTests
                 })
             .With(s => s.Brand, new Brand())
             .With(s => s.BetLimit, new BetLimit())
-            .With(s => s.Banks, Array.Empty<PlayerBankInfo>())
+            .With(s => s.Banks, [])
             .With(s => s.PlayerLoginRecords,
-                Array.Empty<PlayerLoginRecord>())
+                [])
             .With(s => s.Letters,
-                Array.Empty<StationLetterPlayer>())
+                [])
             .With(s => s.BrandPaymentPlayers,
-                Array.Empty<BrandPaymentPlayer>())
+                [])
             .With(s => s.SportsBetLimits,
-                Array.Empty<PlayerSportsBetLimit>())
+                [])
             .With(s => s.Birthdate, new DateOnly()));
 
         fixture.Behaviors.Add(new OmitOnRecursionBehavior());
@@ -488,7 +488,7 @@ public class StationLetterControllerTests : BaseTests
 
         fixture.Customize<StationLetter>(u => u
             .With(s => s.Players,
-                Array.Empty<StationLetterPlayer>())
+                [])
             .With(s => s.Brand, new Brand())
             .With(s => s.Localization, "{}"));
 

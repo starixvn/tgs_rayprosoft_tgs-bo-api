@@ -33,7 +33,7 @@ internal class GetMarketingReportAggregateInfosByAgentQueryService(
             return new MarketingReportResponse
             {
                 Valid = true,
-                Items = Array.Empty<MarketingReportModel>()
+                Items = []
             };
         }
 

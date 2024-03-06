@@ -58,8 +58,8 @@ public class DepositTests(ITestOutputHelper testOutputHelper, NodeJsFixture node
                 Page = 1,
                 Rows = 10,
                 Sum = 100M,
-                Items = new[]
-                {
+                Items =
+                [
                     new DepositFormInfo
                     {
                         Id = Guid.NewGuid(),
@@ -70,7 +70,7 @@ public class DepositTests(ITestOutputHelper testOutputHelper, NodeJsFixture node
                         PromotionId = Guid.NewGuid(),
                         PaymentMethodId = paymentMethodId
                     }
-                }
+                ]
             });
 
         _ = fakePaymentServiceClient.GetAllPaymentMethodsAsync(Arg.Any<CancellationToken>())
@@ -105,11 +105,11 @@ public class DepositTests(ITestOutputHelper testOutputHelper, NodeJsFixture node
         // Act
         var actual = await nodeService.InvokeFromStringAsync<string>(
             nodeModule,
-            args: new object[] {
+            args: [
                 brandId,
                 new(),
                 new PageableRequest()
-            });
+            ]);
 
         // Assert
         Assert.Equal("application/vnd.openxmlformats-officedocument.spreadsheetml.sheet", actual);

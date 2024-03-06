@@ -100,7 +100,7 @@ public class MarketAgentProfitTests(ITestOutputHelper testOutputHelper, NodeJsFi
         // Act
         var actual = await nodeService.InvokeFromStringAsync<PagedResponse<MarketAgentProfitReportModel>>(
             nodeModule,
-            args: new object[] { request });
+            args: [request]);
 
         // Assert
         Assert.True(actual!.Valid);

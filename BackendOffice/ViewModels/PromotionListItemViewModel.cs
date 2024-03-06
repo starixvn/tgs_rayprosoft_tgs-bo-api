@@ -29,5 +29,5 @@ public class PromotionListItemViewModel
 
     public bool Unlimited { get; init; }
 
-    public IEnumerable<int> VipLevels { get; init; } = Enumerable.Empty<int>();
+    public IEnumerable<int> VipLevels { get; init; } = [];
 }

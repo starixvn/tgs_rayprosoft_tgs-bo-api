@@ -76,7 +76,7 @@ public partial class BrandPaymentController(
             .ConfigureAwait(false);
 
         var brandPaymentVipLevels = await paymentServiceClient
-                .GetBrandPaymentVipsAsync(new Guid[] { id }, HttpContext.RequestAborted)
+                .GetBrandPaymentVipsAsync([id], HttpContext.RequestAborted)
                 .ToArrayAsync()
                 .ConfigureAwait(false);
 

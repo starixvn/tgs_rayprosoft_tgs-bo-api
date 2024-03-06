@@ -77,12 +77,11 @@ internal class ProcessCleanBucketsRequestCommandService(
                     form.Id,
                     new ReviewCleanBucketRequest<GetPlayerGameProviderBalanceResponse[]>(
                         processingWalletBalance,
-                        new[]
-                        {
+                        [
                             new TypeBucketResult(
                                 null,
                                 processingBucketResult)
-                        },
+                        ],
                         playerAllBalances),
                     cancellationToken).ConfigureAwait(false);
             }
@@ -91,12 +90,11 @@ internal class ProcessCleanBucketsRequestCommandService(
                     form.Id,
                     new ReviewCleanBucketRequest<GetPlayerGameProviderBalanceResponse[]>(
                         processingWalletBalance,
-                        new[]
-                        {
+                        [
                             new TypeBucketResult(
                                 null,
                                 processingBucketResult)
-                        },
+                        ],
                         playerAllBalances),
                     cancellationToken).ConfigureAwait(false);
         }

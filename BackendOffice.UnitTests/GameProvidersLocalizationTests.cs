@@ -107,11 +107,11 @@ public class GameProvidersLocalizationTests
         };
 
         var command = new UpdateGameProvidersLocalizationCommand(
-            new List<SubGameProvidersLocalizationModel>() {
+            [
                 new() {
                     Code = "SubGp",
                     Localization = localization
-                }},
+                }],
             "Tester");
 
         _ = await sut.QueryAsync(command, default).CountAsync();
@@ -142,11 +142,11 @@ public class GameProvidersLocalizationTests
         };
 
         var command = new UpdateGameProvidersLocalizationCommand(
-            new List<SubGameProvidersLocalizationModel>() {
+            [
                 new() {
                     Code = "SubGp",
                     Localization = localization
-                }},
+                }],
             "Tester");
 
         var actual = await sut.QueryAsync(command, default).CountAsync();

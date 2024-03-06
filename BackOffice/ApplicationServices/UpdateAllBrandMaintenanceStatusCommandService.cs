@@ -22,7 +22,7 @@ internal class UpdateAllBrandMaintenanceStatusCommandService(
         var brands = await _brandListQueryService
             .QueryAsync(
                 new BrandListQuery(
-                    Enumerable.Empty<Guid>(),
+                    [],
                     null,
                     BrandStatus.Active),
                 cancellationToken)

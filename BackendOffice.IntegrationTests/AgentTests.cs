@@ -135,7 +135,7 @@ public class AgentTests(ITestOutputHelper testOutputHelper, NodeJsFixture nodeJs
         // Act
         var actual = await nodeService.InvokeFromStringAsync<PagedResponse<AgentPlayerWinLossReportModel>>(
             nodeModule,
-            args: new object[] { agentId, request });
+            args: [agentId, request]);
 
         // Assert
         Assert.True(actual?.Valid);
@@ -253,7 +253,7 @@ public class AgentTests(ITestOutputHelper testOutputHelper, NodeJsFixture nodeJs
         // Act
         var actual = await nodeService.InvokeFromStringAsync<PagedResponse<AgentPlayerWinLossReportModel>>(
             nodeModule,
-            args: new object[] { agentId, request });
+            args: [agentId, request]);
 
         // Assert
         Assert.True(actual?.Valid);
@@ -326,7 +326,7 @@ public class AgentTests(ITestOutputHelper testOutputHelper, NodeJsFixture nodeJs
         // Act
         var actual = await nodeService.InvokeFromStringAsync<MessageResponse>(
             nodeModule,
-            args: new object[] { request });
+            args: [request]);
 
         // Assert
         Assert.True(actual?.Valid);
@@ -399,15 +399,15 @@ public class AgentTests(ITestOutputHelper testOutputHelper, NodeJsFixture nodeJs
                 Arg.Any<CancellationToken>())
            .Returns(new Tgs.Agent.Client.Models.PagingResponse<AgentAuditLogInfo>
            {
-               Items = new AgentAuditLogInfo[]
-               {
+               Items =
+               [
                    new() {
                        CreatedByUsername = "username",
                        CreatedOn = DateTimeOffset.Now.AddDays(-1),
                        Id = Guid.NewGuid(),
                        Operation = Tgs.Agent.Client.Models.Enums.AgentOperation.PayPassword
                    }
-               },
+               ],
                TotalCount = 1,
                Rows = 20,
                Page = 1
@@ -431,7 +431,7 @@ public class AgentTests(ITestOutputHelper testOutputHelper, NodeJsFixture nodeJs
         // Act
         var actual = await nodeService.InvokeFromStringAsync<MessageResponse>(
             nodeModule,
-            args: new object[] { id, paging, request });
+            args: [id, paging, request]);
 
         // Assert
         Assert.True(actual?.Valid);
@@ -515,7 +515,7 @@ public class AgentTests(ITestOutputHelper testOutputHelper, NodeJsFixture nodeJs
         // Act
         var actual = await nodeService.InvokeFromStringAsync<MessageResponse>(
             nodeModule,
-            args: new object[] { agentId, request });
+            args: [agentId, request]);
 
         // Assert
         Assert.True(actual?.Valid);
@@ -595,7 +595,7 @@ public class AgentTests(ITestOutputHelper testOutputHelper, NodeJsFixture nodeJs
         // Act
         var actual = await nodeService.InvokeFromStringAsync<MessageResponse>(
             nodeModule,
-            args: new object[] { agentId, password });
+            args: [agentId, password]);
 
         // Assert
         Assert.True(actual?.Valid);
@@ -679,7 +679,7 @@ public class AgentTests(ITestOutputHelper testOutputHelper, NodeJsFixture nodeJs
         // Act
         var actual = await nodeService.InvokeFromStringAsync<MessageResponse>(
             nodeModule,
-            args: new object[] { agentId, request });
+            args: [agentId, request]);
 
         // Assert
         _ = fakeAgentClient
@@ -771,7 +771,7 @@ public class AgentTests(ITestOutputHelper testOutputHelper, NodeJsFixture nodeJs
         // Act
         var actual = await nodeService.InvokeFromStringAsync<MessageResponse>(
             nodeModule,
-            args: new object[] { agentId, request });
+            args: [agentId, request]);
 
         // Assert
         Assert.True(actual?.Valid);
@@ -860,7 +860,7 @@ public class AgentTests(ITestOutputHelper testOutputHelper, NodeJsFixture nodeJs
         // Act
         var actual = await nodeService.InvokeFromStringAsync<string>(
             nodeModule,
-            args: new object[] { agentId, request, page, rows });
+            args: [agentId, request, page, rows]);
 
         // Assert
         Assert.NotNull(actual);
@@ -943,7 +943,7 @@ public class AgentTests(ITestOutputHelper testOutputHelper, NodeJsFixture nodeJs
         // Act
         var actual = await nodeService.InvokeFromStringAsync<string>(
             nodeModule,
-            args: new object[] { eventId });
+            args: [eventId]);
 
         // Assert
         Assert.NotNull(actual);

@@ -111,7 +111,7 @@ public class ArticleManagementTests(ITestOutputHelper testOutputHelper, NodeJsFi
         // Act
         var response = await nodeService.InvokeFromStringAsync<string>(
             nodeModule,
-            args: new object[] { brandId, 1, 10 });
+            args: [brandId, 1, 10]);
 
         var jsonOptions = web.Services.GetRequiredService<IOptions<JsonOptions>>().Value;
         var actual = JsonSerializer.Deserialize<PagedResponse<DraftListItemViewModel>>(
@@ -226,7 +226,7 @@ public class ArticleManagementTests(ITestOutputHelper testOutputHelper, NodeJsFi
         // Act
         var response = await nodeService.InvokeFromStringAsync<string>(
             nodeModule,
-            args: new object[] { formId });
+            args: [formId]);
 
         var jsonOptions = web.Services.GetRequiredService<IOptions<JsonOptions>>().Value;
         var actual = JsonSerializer.Deserialize<DraftFormViewModel>(
@@ -331,7 +331,7 @@ public class ArticleManagementTests(ITestOutputHelper testOutputHelper, NodeJsFi
         // Act
         var response = await nodeService.InvokeFromStringAsync<string>(
             nodeModule,
-            args: new object[] { brandId, request });
+            args: [brandId, request]);
         var actual = Guid.Parse(response!);
 
         // Assert
@@ -388,7 +388,7 @@ public class ArticleManagementTests(ITestOutputHelper testOutputHelper, NodeJsFi
         // Act
         _ = await nodeService.InvokeFromStringAsync<string>(
             nodeModule,
-            args: new object[] { formId });
+            args: [formId]);
 
         // Assert
         _ = fakeArticleManagementClient.Received(1)
@@ -487,7 +487,7 @@ public class ArticleManagementTests(ITestOutputHelper testOutputHelper, NodeJsFi
         // Act
         _ = await nodeService.InvokeFromStringAsync<string>(
             nodeModule,
-            args: new object[] { formId, request });
+            args: [formId, request]);
 
         // Assert
         _ = fakeArticleManagementClient.Received(1)
@@ -549,7 +549,7 @@ public class ArticleManagementTests(ITestOutputHelper testOutputHelper, NodeJsFi
         // Act
         _ = await nodeService.InvokeFromStringAsync<string>(
             nodeModule,
-            args: new object[] { formId, publishDate });
+            args: [formId, publishDate]);
 
         // Assert
         _ = fakeArticleManagementClient.Received(1)

@@ -165,7 +165,7 @@ public class PlayerService(
             return;
 
         var formData = await _repository.PlayerAuthenticationForms
-            .FindAsync(new object[] { formId })
+            .FindAsync([formId])
             .ConfigureAwait(false);
 
         var playerCode = formData.PlayerCode;

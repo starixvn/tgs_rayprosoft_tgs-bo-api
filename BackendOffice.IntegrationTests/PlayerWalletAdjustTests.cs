@@ -128,7 +128,7 @@ public class PlayerWalletAdjustTests(ITestOutputHelper testOutputHelper, NodeJsF
         // Act
         var actual = await nodeService.InvokeFromStringAsync<MessageResponse>(
             nodeModule,
-            args: new object[] { playerCode, request });
+            args: [playerCode, request]);
 
         // Assert
         Assert.True(actual?.Valid);
@@ -222,7 +222,7 @@ public class PlayerWalletAdjustTests(ITestOutputHelper testOutputHelper, NodeJsF
             request.BucketAmount,
             request.IncludeInNetProfit,
             request.Remark,
-            Array.Empty<string>());
+            []);
 
         using var nodeService = _nodeJsFixture.BuildNodeJsService();
 
@@ -245,7 +245,7 @@ public class PlayerWalletAdjustTests(ITestOutputHelper testOutputHelper, NodeJsF
         // Act
         var actual = await nodeService.InvokeFromStringAsync<MessageResponse>(
             nodeModule,
-            args: new object[] { playerCode, request });
+            args: [playerCode, request]);
 
         // Assert
         Assert.True(actual?.Valid);
@@ -321,7 +321,7 @@ public class PlayerWalletAdjustTests(ITestOutputHelper testOutputHelper, NodeJsF
         // Act
         await nodeService.InvokeFromStringAsync(
             nodeModule,
-            args: new object[] { playerCode, lockAmount, remark });
+            args: [playerCode, lockAmount, remark]);
 
         // Assert
         _ = fakeCashServiceClient.Received(1)

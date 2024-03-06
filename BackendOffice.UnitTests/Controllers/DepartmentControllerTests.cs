@@ -85,10 +85,10 @@ public class DepartmentControllerTests : BaseTests
 
         var departmentId = Guid.NewGuid();
 
-        department.Users = new[]
-        {
+        department.Users =
+        [
             new User()
-        };
+        ];
 
         _ = queriesMock.GetSingleAsync(Arg.Any<Expression<Func<Department, bool>>>(),
                 Arg.Any<Func<IQueryable<Department>, IQueryable<Department>>>())
@@ -293,7 +293,7 @@ public class DepartmentControllerTests : BaseTests
     {
         var fixture = new Fixture();
         fixture.Customize<Department>(u => u
-            .With(s => s.Users, Array.Empty<User>())
+            .With(s => s.Users, [])
             .With(s => s.Reseller, new Reseller())
             .With(s => s.Licensee, new Licensee())
             .With(s => s.Brand, new Brand()));

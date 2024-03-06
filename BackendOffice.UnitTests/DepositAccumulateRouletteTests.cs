@@ -29,8 +29,8 @@ internal class DepositAccumulateRouletteTests
         {
             CampaignDetail = new DepositAccumulateRouletteCollection
             {
-                RouletteItems = new[]
-               {
+                RouletteItems =
+               [
                    new DepositAccumulateRouletteItem
                    {
                        Id = Guid.NewGuid().ToString(),
@@ -46,7 +46,7 @@ internal class DepositAccumulateRouletteTests
                        Id = Guid.NewGuid().ToString(),
                        Title = "prize3"
                    }
-               }
+               ]
             }
         };
 
@@ -82,7 +82,7 @@ internal class DepositAccumulateRouletteTests
         var playerCodes = new[] { "player1" };
         var query = new DepositAccumulateRouletteGameRecordQuery(
             Guid.NewGuid(),
-            Array.Empty<Guid>(),
+            [],
             playerCodes,
             (Begin: DateTimeOffset.Parse("2022-11-01 00:00:00+08:00"),
              End: DateTimeOffset.Parse("2022-11-20 00:00:00+08:00")));

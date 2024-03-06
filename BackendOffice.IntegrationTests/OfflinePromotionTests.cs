@@ -94,7 +94,7 @@ public class OfflinePromotionTests(ITestOutputHelper testOutputHelper, NodeJsFix
         // Act
         var actual = await nodeService.InvokeFromStringAsync<ResponseViewModel<Guid?>>(
             nodeModule,
-            args: new object[] { brandId, filePath });
+            args: [brandId, filePath]);
 
         expected.ToExpectedObject().ShouldEqual(actual);
 
@@ -222,7 +222,7 @@ public class OfflinePromotionTests(ITestOutputHelper testOutputHelper, NodeJsFix
         // Act
         var actual = await nodeService.InvokeFromStringAsync<int>(
             nodeModule,
-            args: new object[] { batchId });
+            args: [batchId]);
 
         Assert.Equal(204, actual);
         _ = fakeCheckService.Received(1)

@@ -147,7 +147,7 @@ public class DepositAccumulateRouletteController : BaseContextController
                     info => info.UserName,
                     HttpContext.RequestAborted)
                 .ConfigureAwait(false)
-            : new Dictionary<string, string>(0);
+            : [];
 
         var promotionNames = dataQuery.Length > 0
             ? (await promotionClient
@@ -158,7 +158,7 @@ public class DepositAccumulateRouletteController : BaseContextController
                         .ToArray()))
                 .ConfigureAwait(false))
                 .ToDictionary(model => model.Id, model => model.Name)
-            : new Dictionary<Guid, string>(0);
+            : [];
 
         return new DepositAccumulateRouletteGameRecordsResponse
         {

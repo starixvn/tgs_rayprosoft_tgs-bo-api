@@ -20,5 +20,5 @@ public record CreatePlayerIncreaseAmountRequest
 
     public decimal BucketAmount { get; set; }
 
-    public IEnumerable<string> BucketTypes { get; set; } = Array.Empty<string>();
+    public IEnumerable<string> BucketTypes { get; set; } = [];
 }

@@ -570,14 +570,15 @@ public class DepositFormTests
             brandId,
             walletId,
             0M,
-            new[]
-            {
+            [
                 new TypeBucketResult(
                     null,
                     bucketResult)
-            },
+            ],
             formId,
-            0M).ToExpectedObject(ctx => ctx.IgnoreEqualsOverride());
+            0M).ToExpectedObject(ctx => ctx
+                .ArrayMemberShouldMatch(o => o.CurrentBucketAmounts)
+                .IgnoreEqualsOverride());
 
         await sut.ExecuteAsync(command);
 

@@ -367,10 +367,9 @@ public class RoleController(
             if (licenseeRootRole != null)
             {
                 UpdateRoles(role,
-                    new[]
-                    {
+                    [
                         licenseeRootRole
-                    });
+                    ]);
             }
 
             var licenseeRoles = roles.Where(x => x.RoleType == RoleType.Licensee).ToArray();
@@ -382,10 +381,9 @@ public class RoleController(
         if (brandRootRole != null)
         {
             UpdateRoles(role,
-                new[]
-                {
+                [
                     brandRootRole
-                });
+                ]);
         }
 
         var brandRoles = roles.Where(x => x.RoleType == RoleType.Brand).ToArray();

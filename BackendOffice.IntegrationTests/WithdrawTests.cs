@@ -134,9 +134,9 @@ public class WithdrawTests(ITestOutputHelper testOutputHelper, NodeJsFixture nod
         // Act
         var actual = await nodeService.InvokeFromStringAsync<string>(
             nodeModule,
-            args: new object[] {
+            args: [
                 request
-            });
+            ]);
 
         // Assert
         _ = fakePaymentServiceClient.Received(1)
@@ -274,9 +274,9 @@ public class WithdrawTests(ITestOutputHelper testOutputHelper, NodeJsFixture nod
         // Act
         var actual = await nodeService.InvokeFromStringAsync<string>(
             nodeModule,
-            args: new object[] {
+            args: [
                 request
-            });
+            ]);
 
         // Assert
         Assert.Equal("500", actual);
@@ -324,15 +324,15 @@ public class WithdrawTests(ITestOutputHelper testOutputHelper, NodeJsFixture nod
                 Page = 1,
                 Rows = 10,
                 Sum = 100M,
-                Items = new[]
-                {
+                Items =
+                [
                     new WithdrawFormInfo
                     {
                         Id = Guid.NewGuid(),
                         Amount = 100M,
                         BrandId = brandId
                     }
-                }
+                ]
             });
 
         using var nodeService = nodeJsFixture.BuildNodeJsService();
@@ -356,11 +356,11 @@ public class WithdrawTests(ITestOutputHelper testOutputHelper, NodeJsFixture nod
         // Act
         var actual = await nodeService.InvokeFromStringAsync<string>(
             nodeModule,
-            args: new object[] {
+            args: [
                 brandId,
                 new(),
                 new PageableRequest()
-            });
+            ]);
 
         // Assert
         Assert.Equal("application/vnd.openxmlformats-officedocument.spreadsheetml.sheet", actual);
@@ -427,10 +427,10 @@ public class WithdrawTests(ITestOutputHelper testOutputHelper, NodeJsFixture nod
         // Act
         var actual = await nodeService.InvokeFromStringAsync<MessageResponse>(
             nodeModule,
-            args: new object[] {
+            args: [
                 formId,
                 request
-            });
+            ]);
 
         // Assert
         _ = fakePaymentServiceClient.Received(1)
@@ -507,10 +507,10 @@ public class WithdrawTests(ITestOutputHelper testOutputHelper, NodeJsFixture nod
         // Act
         var actual = await nodeService.InvokeFromStringAsync<MessageResponse>(
             nodeModule,
-            args: new object[] {
+            args: [
                 formId,
                 request
-            });
+            ]);
 
         // Assert
         _ = fakePaymentServiceClient.Received(1)
@@ -587,10 +587,10 @@ public class WithdrawTests(ITestOutputHelper testOutputHelper, NodeJsFixture nod
         // Act
         var actual = await nodeService.InvokeFromStringAsync<MessageResponse>(
             nodeModule,
-            args: new object[] {
+            args: [
                 formId,
                 request
-            });
+            ]);
 
         // Assert
         _ = fakePaymentServiceClient.Received(1)
@@ -673,10 +673,10 @@ public class WithdrawTests(ITestOutputHelper testOutputHelper, NodeJsFixture nod
         // Act
         var actual = await nodeService.InvokeFromStringAsync<GenericResponse<WithdrawFormDetailViewModel>>(
             nodeModule,
-            args: new object[] {
+            args: [
                 brandId,
                 formId,
-            });
+            ]);
 
         // Assert
         Assert.NotNull(actual);

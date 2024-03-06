@@ -23,20 +23,18 @@ internal class DuplicatePromotionCommandService(ISystemClock systemClock,
     ICommandService<UpdatePromotionStatusCommand> updateStatusService,
     ILogger<DuplicatePromotionCommandService> logger) : IGetService<DuplicatePromotionCommand, Guid>
 {
-    private static readonly HashSet<string> _OfflinePromotionTypes = new(2)
-    {
+    private static readonly HashSet<string> _OfflinePromotionTypes = [
         "OfflineLoginReward",
         "OfflineDepositReward"
-    };
+    ];
 
-    private static readonly HashSet<string> _PromotionTypes = new(5)
-    {
+    private static readonly HashSet<string> _PromotionTypes = [
         "ReliefMoneyDaily",
         "ReliefMoneyWeekly",
         "ReliefMoneyMonthly",
         "TurnoverRebate",
         "TurnoverRebateWeekly"
-    };
+    ];
 
     private readonly IGetService<CreatePromotionMainInfoCommand, Guid> _createMainInfoService = createMainInfoService ?? throw new ArgumentNullException(nameof(createMainInfoService));
     private readonly IGetService<GetBrandInfoQuery, BrandInfo?> _getBrandInfoService = getBrandInfoService ?? throw new ArgumentNullException(nameof(getBrandInfoService));
@@ -135,9 +133,9 @@ internal class DuplicatePromotionCommandService(ISystemClock systemClock,
 
         await _updateStatusService.ExecuteAsync(
             new UpdatePromotionStatusCommand(
-                promotionId, 
-                PromotionStatus.Disabled, 
-                command.Modifier), 
+                promotionId,
+                PromotionStatus.Disabled,
+                command.Modifier),
             cancellationToken).ConfigureAwait(false);
 
         return promotionId;

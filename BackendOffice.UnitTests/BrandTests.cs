@@ -152,7 +152,7 @@ internal class BrandTests
         var sut = new BrandListQueryService(fakeBrandServiceClient);
 
         var query = new BrandListQuery(
-            Array.Empty<Guid>(),
+            [],
             null,
             null);
 
@@ -244,8 +244,8 @@ internal class BrandTests
             0m,
             100m,
             100m,
-            Array.Empty<string>(),
-            Array.Empty<BrandBetLimitModel>(),
+            [],
+            [],
             "User1");
 
         _ = await sut.GetAsync(command);

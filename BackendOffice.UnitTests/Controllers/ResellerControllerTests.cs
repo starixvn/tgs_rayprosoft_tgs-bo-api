@@ -269,12 +269,12 @@ public class ResellerControllerTests : BaseTests
     {
         var fixture = new Fixture();
         fixture.Customize<Reseller>(u => u
-            .With(s => s.GameProviders, Array.Empty<ResellerGameProvider>())
-            .With(s => s.Languages, Array.Empty<ResellerLanguage>())
-            .With(s => s.Currencies, Array.Empty<ResellerCurrency>())
-            .With(s => s.BetLimits, Array.Empty<ResellerBetLimit>())
-            .With(s => s.Licensees, Array.Empty<Licensee>())
-            .With(s => s.Departments, Array.Empty<Department>()));
+            .With(s => s.GameProviders, [])
+            .With(s => s.Languages, [])
+            .With(s => s.Currencies, [])
+            .With(s => s.BetLimits, [])
+            .With(s => s.Licensees, [])
+            .With(s => s.Departments, []));
         fixture.Behaviors.Add(new OmitOnRecursionBehavior());
         return fixture;
     }

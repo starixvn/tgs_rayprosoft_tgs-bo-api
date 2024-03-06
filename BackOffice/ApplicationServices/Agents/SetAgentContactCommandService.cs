@@ -33,13 +33,12 @@ internal class SetAgentContactCommandService(
         var modifyDict = new Dictionary<AgentPropertyName, string?>();
 
         var availablePropertyNames = new HashSet<string>(
-            new string[]
-            {
+            [
                 nameof(AgentPropertyName.Phone),
                 nameof(AgentPropertyName.Email),
                 nameof(AgentPropertyName.Qq),
                 nameof(AgentPropertyName.Wechat),
-            },
+            ],
             StringComparer.OrdinalIgnoreCase);
 
         foreach (var item in command.ModifyContact)

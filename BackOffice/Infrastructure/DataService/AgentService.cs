@@ -1,51 +1,26 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Collections.Immutable;
 using System.Linq;
 using System.Linq.Expressions;
 using System.Threading.Tasks;
-using System.Transactions;
 using Microsoft.EntityFrameworkCore;
-using Tgs.Agent.Client;
-using Tgs.Agent.Client.Models;
 using Tgs.Core.Infrastructures.Security;
 using TGS.Core.DataServices.Base;
 using TGS.Core.DataServices.Base.Extensions;
 using TGS.Core.DataServices.Tgs;
 using TGS.Core.DataServices.Tgs.Models;
-using TGS.Core.Infrastructures.Extensions;
 using TGS.Core.Infrastructures.Utility;
 using TGS.Core.Models.Enums;
 using TGS.Services.BackOffice.Application.Models.Agent;
-using TGS.Services.BackOffice.Domain.Enums;
 using CreateAgentRequest = TGS.Services.BackOffice.Application.Models.Agent.CreateAgentRequest;
 
 namespace TGS.Services.BackOffice.Infrastructure.DataService;
 
-public interface IAgentService
-{
-    Task CreateAgentAsync(CreateAgentRequest request, Agent parentAgent = null);
-
-    Task<bool> ExistsAsync(Expression<Func<Agent, bool>> predicate);
-
-    Task<Agent> GetAgentAsync(
-        Expression<Func<Agent, bool>> predicate,
-        Func<IQueryable<Agent>, IQueryable<Agent>> preQuery = null);
-
-    IQueryable<AgentAuditLog> GetAgentAuditLogQueries(
-        Func<IQueryable<AgentAuditLog>, IQueryable<AgentAuditLog>> preQuery = null,
-        bool tracking = false);
-
-    IQueryable<Agent> GetAgentQueries(
-        Func<IQueryable<Agent>, IQueryable<Agent>> preQuery = null,
-        bool tracking = false);
-
-    Task<(IEnumerable<AgentsModel>, int)> GetAgentsAsync(GetAgentsRequest request);
-
-    Task<IEnumerable<AgentPathModel>> GetSubAgentsAsync(Guid agentId);
-}
-
-public class AgentService(ITgsRepository repository, IPasswordHandler passwordHandler, IAgentClient agentClient) : BaseRepositoryOperations<ITgsRepository>(repository), IAgentService
+public class AgentService(
+    ITgsRepository repository,
+    IPasswordHandler passwordHandler)
+    : BaseRepositoryOperations<ITgsRepository>(repository)
+    , IAgentService
 {
     private readonly IPasswordHandler _passwordHandler = passwordHandler;
     private readonly ITgsRepository _repository = repository;
@@ -101,8 +76,7 @@ public class AgentService(ITgsRepository repository, IPasswordHandler passwordHa
         agent.WithdrawPassword = [];
         agent.WithdrawSalt = [];
 
-        agent.Wallets = new[]
-        {
+        agent.Wallets = [
             new AgentWallet
             {
                 Id = defaultWalletId,
@@ -112,7 +86,7 @@ public class AgentService(ITgsRepository repository, IPasswordHandler passwordHa
                 CreatedOn = DateTimeOffset.Now,
                 UpdatedOn = DateTimeOffset.Now
             }
-        }.ToHashSet();
+        ];
 
         agent.AgentDividendConditions = brand.BrandAgentDividendConditions.Select(x => new AgentDividendCondition
         {

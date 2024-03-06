@@ -55,7 +55,7 @@ public class BrandPaymentTests(ITestOutputHelper testOutputHelper, NodeJsFixture
             .Returns(new AutoWithdrawInfo
             {
                 AmountUpperLimit = 100M,
-                BrandPaymentIds = Array.Empty<Guid>(),
+                BrandPaymentIds = [],
                 EnableAutoWithdraw = true
             });
 
@@ -80,7 +80,7 @@ public class BrandPaymentTests(ITestOutputHelper testOutputHelper, NodeJsFixture
         // Act
         var actual = await nodeService.InvokeFromStringAsync<string>(
             nodeModule,
-            args: new object[] { brandId });
+            args: [brandId]);
 
         // Assert
         Assert.NotNull(actual);
@@ -126,7 +126,7 @@ public class BrandPaymentTests(ITestOutputHelper testOutputHelper, NodeJsFixture
         var request = new UpsertBrandAutoWithdrawRequest
         {
             AmountUpperLimit = 10m,
-            BrandPaymentIds = new[] { Guid.NewGuid() },
+            BrandPaymentIds = [Guid.NewGuid()],
             EnableAutoWithdraw = true,
         };
 
@@ -151,7 +151,7 @@ public class BrandPaymentTests(ITestOutputHelper testOutputHelper, NodeJsFixture
         // Act
         var actual = await nodeService.InvokeFromStringAsync<MessageResponse>(
             nodeModule,
-            args: new object[] { brandId, request });
+            args: [brandId, request]);
 
         // Assert
         Assert.NotNull(actual);
@@ -211,7 +211,7 @@ public class BrandPaymentTests(ITestOutputHelper testOutputHelper, NodeJsFixture
         // Act
         var actual = await nodeService.InvokeFromStringAsync<BrandPaymentBalanceViewModel[]>(
             nodeModule,
-            args: new object[] { brandId, new[] { brandPaymentId } });
+            args: [brandId, new[] { brandPaymentId }]);
 
         // Assert
         Assert.NotNull(actual);

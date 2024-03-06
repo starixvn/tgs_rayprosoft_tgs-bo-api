@@ -14,14 +14,14 @@ internal record UpdatePromotionMainInfoCommandService : ICommandService<UpdatePr
     private readonly IPromotionServiceClient _promotionServiceClient;
     private readonly IGetService<GetBrandInfoQuery, BrandInfo?> _getBrandInfoService;
 
-    private static readonly HashSet<string> _PromotionTypes = new(5)
-    {
+    private static readonly HashSet<string> _PromotionTypes =
+    [
         "ReliefMoneyDaily",
         "ReliefMoneyWeekly",
         "ReliefMoneyMonthly",
         "TurnoverRebate",
         "TurnoverRebateWeekly"
-    };
+    ];
 
     public UpdatePromotionMainInfoCommandService(
         IPromotionServiceClient promotionServiceClient,

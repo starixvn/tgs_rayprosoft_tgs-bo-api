@@ -149,7 +149,7 @@ public class DepartmentTests(ITestOutputHelper testOutputHelper, NodeJsFixture n
         // Act
         var actual = await nodeService.InvokeFromStringAsync<string>(
             nodeModule,
-            args: new object[] { request, pageableRequest });
+            args: [request, pageableRequest]);
 
         // Assert
         var jsonOptions = web.Services.GetRequiredService<IOptions<JsonOptions>>().Value;

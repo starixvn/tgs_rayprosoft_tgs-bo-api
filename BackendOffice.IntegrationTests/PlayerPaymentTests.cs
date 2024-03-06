@@ -89,7 +89,7 @@ public class PlayerPaymentTests(ITestOutputHelper testOutputHelper, NodeJsFixtur
         // Act
         var actual = await nodeService.InvokeFromStringAsync<PaymentOverviewViewModel>(
             nodeModule,
-            args: new object[] { playerCode });
+            args: [playerCode]);
 
         // Assert
         expected.ToExpectedObject().ShouldMatch(actual);

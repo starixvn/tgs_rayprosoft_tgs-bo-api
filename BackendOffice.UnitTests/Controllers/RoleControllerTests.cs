@@ -144,7 +144,7 @@ public class RoleControllerTests : BaseTests
                 Arg.Any<Func<IQueryable<Role>, IQueryable<Role>>>())
             .Returns(Task.FromResult(role));
 
-        role.Users = new List<User>();
+        role.Users = [];
         role.IsRoot = false;
 
         var response = await controller.DeleteAsync(role.Id);
@@ -186,7 +186,7 @@ public class RoleControllerTests : BaseTests
 
         var role = CreateRoleFixture().Create<Role>();
 
-        role.Users = new List<User> { new() };
+        role.Users = [new()];
 
         var request = new GetMenuRequest { RoleType = RoleType.Admin };
 
@@ -428,7 +428,7 @@ public class RoleControllerTests : BaseTests
 
         var role = CreateRoleFixture().Create<Role>();
 
-        role.Users = new List<User> { new() };
+        role.Users = [new()];
 
         _ = roleQueriesMock.GetSingleAsync(Arg.Any<Expression<Func<Role, bool>>>(),
                 Arg.Any<Func<IQueryable<Role>, IQueryable<Role>>>())
@@ -1533,7 +1533,7 @@ public class RoleControllerTests : BaseTests
 
         var role = CreateRoleFixture().Create<Role>();
 
-        role.Users = new List<User> { new() };
+        role.Users = [new()];
 
         _ = roleQueriesMock.GetSingleAsync(Arg.Any<Expression<Func<Role, bool>>>(),
                 Arg.Any<Func<IQueryable<Role>, IQueryable<Role>>>())
@@ -1581,7 +1581,7 @@ public class RoleControllerTests : BaseTests
 
         var request = new GetMenuRequest { RoleType = RoleType.Admin };
 
-        role.Users = new List<User> { new() };
+        role.Users = [new()];
 
         _ = settingQueriesMock.GetSingleAsync(Arg.Any<Expression<Func<Setting, bool>>>(),
                 Arg.Any<Func<IQueryable<Setting>, IQueryable<Setting>>>())
@@ -1622,7 +1622,7 @@ public class RoleControllerTests : BaseTests
 
         var request = new GetMenuRequest { RoleType = RoleType.Licensee };
 
-        role.Users = new List<User> { new() };
+        role.Users = [new()];
 
         _ = roleQueriesMock.GetSingleAsync(Arg.Any<Expression<Func<Role, bool>>>(),
                 Arg.Any<Func<IQueryable<Role>, IQueryable<Role>>>())
@@ -1981,31 +1981,31 @@ public class RoleControllerTests : BaseTests
         fixture.Customize<Brand>(u => u
             .With(s => s.Licensee, new Licensee())
             .With(s => s.GameProviders,
-                Array.Empty<BrandGameProvider>())
+                [])
             .With(s => s.Languages,
-                Array.Empty<BrandLanguage>())
+                [])
             .With(s => s.Currencies,
-                Array.Empty<BrandCurrency>())
+                [])
             .With(s => s.Players,
-                Array.Empty<Player>())
+                [])
             .With(s => s.Games,
-                Array.Empty<BrandGame>())
+                [])
             .With(s => s.BetLimits,
-                Array.Empty<BrandBetLimit>())
+                [])
             .With(s => s.BrandGroups,
-                Array.Empty<BrandGroup>())
+                [])
             .With(s => s.PlayerLoginRecords,
-                Array.Empty<PlayerLoginRecord>())
+                [])
             .With(s => s.Announcements,
-                Array.Empty<Announcement>())
+                [])
             .With(s => s.StationLetters,
-                Array.Empty<StationLetter>())
+                [])
             .With(s => s.VipLevels,
-                Array.Empty<VipLevel>())
+                [])
             .With(s => s.Departments,
-                Array.Empty<Department>())
+                [])
             .With(s => s.Domains,
-                Array.Empty<BrandDomain>()));
+                []));
         fixture.Behaviors.Add(new OmitOnRecursionBehavior());
 
         return fixture;
@@ -2018,17 +2018,17 @@ public class RoleControllerTests : BaseTests
         fixture.Customize<Licensee>(u => u
             .With(s => s.Reseller, new Reseller())
             .With(s => s.Brands,
-                Array.Empty<Brand>())
+                [])
             .With(s => s.GameProviders,
-                Array.Empty<LicenseeGameProvider>())
+                [])
             .With(s => s.Languages,
-                Array.Empty<LicenseeLanguage>())
+                [])
             .With(s => s.Currencies,
-                Array.Empty<LicenseeCurrency>())
+                [])
             .With(s => s.BetLimits,
-                Array.Empty<LicenseeBetLimit>())
+                [])
             .With(s => s.Departments,
-                Array.Empty<Department>()));
+                []));
         fixture.Behaviors.Add(new OmitOnRecursionBehavior());
 
         return fixture;
@@ -2053,17 +2053,17 @@ public class RoleControllerTests : BaseTests
 
         fixture.Customize<Reseller>(u => u
             .With(s => s.GameProviders,
-                Array.Empty<ResellerGameProvider>())
+                [])
             .With(s => s.Languages,
-                Array.Empty<ResellerLanguage>())
+                [])
             .With(s => s.Currencies,
-                Array.Empty<ResellerCurrency>())
+                [])
             .With(s => s.BetLimits,
-                Array.Empty<ResellerBetLimit>())
+                [])
             .With(s => s.Licensees,
-                Array.Empty<Licensee>())
+                [])
             .With(s => s.Departments,
-                Array.Empty<Department>()));
+                []));
         fixture.Behaviors.Add(new OmitOnRecursionBehavior());
 
         return fixture;
@@ -2075,7 +2075,7 @@ public class RoleControllerTests : BaseTests
 
         fixture.Customize<Role>(u => u
             .With(s => s.Users,
-                Array.Empty<User>())
+                [])
             .With(s => s.MenuSetting));
 
         return fixture;

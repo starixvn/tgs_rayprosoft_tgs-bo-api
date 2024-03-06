@@ -116,7 +116,7 @@ public class ManualDepositTests(ITestOutputHelper testOutputHelper, NodeJsFixtur
         // Act
         await nodeService.InvokeFromStringAsync(
             nodeModule,
-            args: new object[] { request });
+            args: [request]);
 
         // Assert
         _ = fakeCreateService
@@ -225,7 +225,7 @@ public class ManualDepositTests(ITestOutputHelper testOutputHelper, NodeJsFixtur
         // Act
         await nodeService.InvokeFromStringAsync(
             nodeModule,
-            args: new object[] { request });
+            args: [request]);
 
         // Assert
         _ = fakeCreateService
@@ -337,7 +337,7 @@ public class ManualDepositTests(ITestOutputHelper testOutputHelper, NodeJsFixtur
         // Act
         await nodeService.InvokeFromStringAsync(
             nodeModule,
-            args: new object[] { request });
+            args: [request]);
 
         // Assert
         _ = fakeCreateService

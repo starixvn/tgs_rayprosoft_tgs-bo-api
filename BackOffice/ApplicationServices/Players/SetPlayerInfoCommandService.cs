@@ -33,15 +33,14 @@ internal class SetPlayerInfoCommandService(
             return new SetPlayerInfoResult(false, Application.Resources.Player.NotFound);
 
         var availablePropertyNames = new HashSet<string>(
-            new string[]
-            {
+            [
                 nameof(PlayerPropertyName.RealName),
                 nameof(PlayerPropertyName.Birthdate),
                 nameof(PlayerPropertyName.Remark),
                 nameof(PlayerPropertyName.VipId),
                 nameof(PlayerPropertyName.IdNumber),
                 nameof(PlayerPropertyName.VipLevelAutoState),
-            },
+            ],
             StringComparer.OrdinalIgnoreCase);
 
         var modifyDict = new Dictionary<PlayerPropertyName, string?>();

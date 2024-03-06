@@ -29,8 +29,8 @@ public class UpdateBrandRequestValidatorTests
     {
         var model = new UpdateBrandRequest
         {
-            CurrencyCodes = new[] { "CNY", "RMB" },
-            BetLimits = new[] { new BrandBetLimitModel { Id = 1, CurrencyCode = "CNY", IsDefault = false } }
+            CurrencyCodes = ["CNY", "RMB"],
+            BetLimits = [new BrandBetLimitModel { Id = 1, CurrencyCode = "CNY", IsDefault = false }]
         };
         var result = _validator.TestValidate(model);
         _ = result.ShouldHaveValidationErrorFor(request => request.CurrencyCodes)
