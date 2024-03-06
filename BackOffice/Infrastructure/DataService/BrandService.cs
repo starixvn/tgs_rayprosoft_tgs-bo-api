@@ -21,7 +21,11 @@ namespace TGS.Services.BackOffice.Infrastructure.DataService;
 
 public class BrandService(
     ITgsRepository tgsRepository,
-    IRedisCacheManager cacheManager) : BaseRepositoryOperations<ITgsRepository>(tgsRepository), IBrandService
+    IRedisCacheManager cacheManager)
+#pragma warning disable CS9107 // 參數會擷取至包含類型的狀態，且其值也會傳遞給基礎建構函式。值也可能由基礎類別擷取。
+    : BaseRepositoryOperations<ITgsRepository>(tgsRepository)
+#pragma warning restore CS9107 // 參數會擷取至包含類型的狀態，且其值也會傳遞給基礎建構函式。值也可能由基礎類別擷取。
+    , IBrandService
 {
     public async ValueTask<Guid> CreateBrandAsync(CreateBrandInfo createInfo, CancellationToken cancellationToken = default)
     {
@@ -356,7 +360,7 @@ public class BrandService(
                     BrandGroup = brandGroup,
                     BrandGameId = brand.Games.First(g => g.GameId == brandGameId).Id
                 });
-        return new(brandGroupGames ?? Array.Empty<BrandGroupGame>());
+        return new(brandGroupGames ?? []);
     }
 
     private static HashSet<BrandGroupGameProviderBetLimit> GenerateWithUpdateGameProviderBetLimits(
@@ -370,7 +374,7 @@ public class BrandService(
                     GameProviderBetLimitId = x.GameProviderBetLimitId
                 });
 
-        return new(brandGroupGameProviderBetLimits ?? Array.Empty<BrandGroupGameProviderBetLimit>());
+        return new(brandGroupGameProviderBetLimits ?? []);
     }
 
     private static HashSet<BrandGroup> GenerateWithUpdateGroups(Brand brand, BrandGroupModel[] brandGroupModels, string editorUsername)
@@ -399,51 +403,6 @@ public class BrandService(
         return new(brandGroups);
     }
 
-    private static (DateTimeOffset, DateTimeOffset, DateTimeOffset, DateTimeOffset) GetInterval(
-        SettlementIntervalType type,
-        DateTimeOffset startDate,
-        int? dayOfMonth,
-        DateTimeOffset currentFromDate)
-    {
-        switch (type)
-        {
-            case SettlementIntervalType.Daily:
-                return (startDate, startDate, startDate.AddDays(1), startDate.AddDays(1));
-
-            case SettlementIntervalType.Weekly:
-                return (startDate,
-                    DateGenerator.GetLastDayOfWeek(startDate),
-                    DateGenerator.GetFirstDayOfWeek(startDate.AddDays(7)),
-                    DateGenerator.GetLastDayOfWeek(startDate.AddDays(7)));
-
-            case SettlementIntervalType.Monthly:
-                if (dayOfMonth == null)
-                {
-                    return (startDate,
-                        DateGenerator.GetLastDayOfMonth(startDate),
-                        DateGenerator.GetFirstDayOfMonth(startDate.AddMonths(1)),
-                        DateGenerator.GetLastDayOfMonth(startDate.AddMonths(1)));
-                }
-
-                if (startDate.Day <= dayOfMonth)
-                {
-                    return (currentFromDate,
-                        startDate,
-                        startDate.AddDays(1),
-                        DateGenerator.GetSpecifyDayOfMonth(startDate, dayOfMonth.Value!));
-                }
-
-                return (currentFromDate,
-                    startDate,
-                    startDate.AddDays(1),
-                    DateGenerator.GetSpecifyDayOfMonth(startDate.AddMonths(1),
-                        dayOfMonth.Value!));
-
-            default:
-                throw new ArgumentOutOfRangeException(nameof(type), type, null);
-        }
-    }
-
     private async Task<HashSet<BrandGameProvider>> GenerateAddBrandGameProvidersAsync(
         Guid brandId,
         BrandLanguage[] brandLanguages,
@@ -469,8 +428,7 @@ public class BrandService(
                     GameProviderConfigurationId = requestBrandGameProvider.ConfigurationId,
                     DesktopQueryString = requestBrandGameProvider.DesktopQueryString,
                     MobileQueryString = requestBrandGameProvider.MobileQueryString,
-                    Schedules = new BrandGameProviderSchedule[]
-                    {
+                    Schedules = [
                         new()
                         {
                             Id = Guid.NewGuid(),
@@ -481,7 +439,7 @@ public class BrandService(
                             IsDefault = true,
                             Status = SwitchStatus.Disabled
                         }
-                    }.ToHashSet()
+                    ]
                 };
 
                 return newBrandGameProvider;

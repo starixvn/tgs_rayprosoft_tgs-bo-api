@@ -30,11 +30,10 @@ internal class SetAgentInfoCommandService(IAgentClient agentClient) : IGetServic
             return new SetAgentInfoResult(false, Application.Resources.Agent.NotFound);
 
         var availablePropertyNames = new HashSet<string>(
-            new string[]
-            {
+            [
                 nameof(AgentPropertyName.RealName),
                 nameof(AgentPropertyName.Remarks),
-            },
+            ],
             StringComparer.OrdinalIgnoreCase);
 
         var modifyDict = new Dictionary<AgentPropertyName, string?>();

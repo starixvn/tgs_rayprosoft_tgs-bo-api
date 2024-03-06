@@ -170,14 +170,14 @@ public class BrandPaymentControllerTests : BaseTests
             DepositedAmountUnlimited = true,
             DepositedAmountMin = 0M,
             DepositedAmountMax = 0M,
-            Whitelist = new[]
-            {
+            Whitelist =
+            [
                 "Tester"
-            },
-            Blacklist = new[]
-            {
+            ],
+            Blacklist =
+            [
                 "Tester"
-            },
+            ],
             VipLevelIds = []
         };
 
@@ -265,8 +265,8 @@ public class BrandPaymentControllerTests : BaseTests
         var fixture = new Fixture();
         fixture.Customize<BrandPayment>(u => u
             .With(s => s.Brand, new Brand())
-            .With(s => s.BrandPaymentPlayers, Array.Empty<BrandPaymentPlayer>())
-            .With(s => s.VipLevels, Array.Empty<BrandPaymentVipLevel>())
+            .With(s => s.BrandPaymentPlayers, [])
+            .With(s => s.VipLevels, [])
             .With(s => s.ExtendedData, "{}"));
         fixture.Behaviors.Add(new OmitOnRecursionBehavior());
         return fixture;

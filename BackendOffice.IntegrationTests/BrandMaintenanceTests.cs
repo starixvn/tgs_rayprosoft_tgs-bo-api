@@ -161,10 +161,10 @@ public class BrandMaintenanceTests(ITestOutputHelper testOutputHelper, NodeJsFix
         // Act
         var actual = await nodeService.InvokeFromStringAsync<MessageResponse>(
             nodeModule,
-            args: new object[]{
+            args: [
                 brandId,
                 request
-            });
+            ]);
 
         // Assert
         Assert.NotNull(actual);
@@ -256,9 +256,9 @@ public class BrandMaintenanceTests(ITestOutputHelper testOutputHelper, NodeJsFix
         // Act
         var actual = await nodeService.InvokeFromStringAsync<string>(
             nodeModule,
-            args: new object[]{
+            args: [
                 request
-            });
+            ]);
 
         // Assert
         Assert.NotNull(actual);

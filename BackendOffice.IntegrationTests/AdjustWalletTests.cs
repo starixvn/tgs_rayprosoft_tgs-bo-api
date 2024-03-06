@@ -205,7 +205,7 @@ public class AdjustWalletTests(ITestOutputHelper testOutputHelper, NodeJsFixture
         // Act
         var actual = await nodeService.InvokeFromStringAsync<AdjustSummaryListItemViewModel[]>(
             nodeModule,
-            args: new object[] { resellerId, from, to });
+            args: [resellerId, from, to]);
 
         // Assert
         expected.ToExpectedObject().ShouldEqual(actual);
@@ -388,7 +388,7 @@ public class AdjustWalletTests(ITestOutputHelper testOutputHelper, NodeJsFixture
         // Act
         var responseString = await nodeService.InvokeFromStringAsync<string>(
             nodeModule,
-            args: new object[] {
+            args: [
                 brandId,
                 new {
                     queryViewModel.From,
@@ -399,7 +399,7 @@ public class AdjustWalletTests(ITestOutputHelper testOutputHelper, NodeJsFixture
                 },
                 1,
                 10
-            });
+            ]);
         var actual = JsonSerializer.Deserialize<PagedResponse<AdjustRecordListItemViewModel>>(
             responseString!,
             web.Services.GetRequiredService<IOptions<JsonOptions>>().Value.JsonSerializerOptions);
@@ -544,7 +544,7 @@ public class AdjustWalletTests(ITestOutputHelper testOutputHelper, NodeJsFixture
         // Act
         var responseString = await nodeService.InvokeFromStringAsync<string>(
             nodeModule,
-            args: new object[] {
+            args: [
                 brandId,
                 new {
                     queryViewModel.From,
@@ -555,7 +555,7 @@ public class AdjustWalletTests(ITestOutputHelper testOutputHelper, NodeJsFixture
                 },
                 1,
                 10
-            });
+            ]);
         var actual = JsonSerializer.Deserialize<PagedResponse<AdjustRecordListItemViewModel>>(
             responseString!,
             web.Services.GetRequiredService<IOptions<JsonOptions>>().Value.JsonSerializerOptions);
@@ -716,7 +716,7 @@ public class AdjustWalletTests(ITestOutputHelper testOutputHelper, NodeJsFixture
         // Act
         var responseString = await nodeService.InvokeFromStringAsync<string>(
             nodeModule,
-            args: new object[] {
+            args: [
                 brandId,
                 new
                 {
@@ -728,7 +728,7 @@ public class AdjustWalletTests(ITestOutputHelper testOutputHelper, NodeJsFixture
                 },
                 1,
                 10
-            });
+            ]);
         var actual = JsonSerializer.Deserialize<PagedResponse<AdjustRecordListItemViewModel>>(
             responseString!,
             web.Services.GetRequiredService<IOptions<JsonOptions>>().Value.JsonSerializerOptions);
@@ -860,7 +860,7 @@ public class AdjustWalletTests(ITestOutputHelper testOutputHelper, NodeJsFixture
         // Act
         var responseString = await nodeService.InvokeFromStringAsync<string>(
             nodeModule,
-            args: new object[] {
+            args: [
                 brandId,
                 new
                 {
@@ -872,7 +872,7 @@ public class AdjustWalletTests(ITestOutputHelper testOutputHelper, NodeJsFixture
                 },
                 1,
                 10
-            });
+            ]);
         var actual = JsonSerializer.Deserialize<PagedResponse<AdjustRecordListItemViewModel>>(
             responseString!,
             web.Services.GetRequiredService<IOptions<JsonOptions>>().Value.JsonSerializerOptions);
@@ -1006,11 +1006,11 @@ public class AdjustWalletTests(ITestOutputHelper testOutputHelper, NodeJsFixture
         // Act
         var actual = await nodeService.InvokeFromStringAsync<string>(
             nodeModule,
-            args: new object[] {
+            args: [
                 brandId,
                 from,
                 to
-            });
+            ]);
 
         // Assert
         Assert.Equal("application/vnd.openxmlformats-officedocument.spreadsheetml.sheet", actual);
@@ -1199,11 +1199,11 @@ public class AdjustWalletTests(ITestOutputHelper testOutputHelper, NodeJsFixture
         // Act
         var actual = await nodeService.InvokeFromStringAsync<string>(
             nodeModule,
-            args: new object[] {
+            args: [
                 brandId,
                 from,
                 to
-            });
+            ]);
 
         // Assert
         Assert.Equal("application/vnd.openxmlformats-officedocument.spreadsheetml.sheet", actual);
@@ -1321,11 +1321,11 @@ public class AdjustWalletTests(ITestOutputHelper testOutputHelper, NodeJsFixture
         // Act
         var actual = await nodeService.InvokeFromStringAsync<string>(
             nodeModule,
-            args: new object[] {
+            args: [
                 brandId,
                 from,
                 to
-            });
+            ]);
 
         // Assert
         Assert.Equal("application/vnd.openxmlformats-officedocument.spreadsheetml.sheet", actual);

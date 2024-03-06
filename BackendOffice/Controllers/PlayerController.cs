@@ -237,13 +237,13 @@ public partial class PlayerController(IMediator mediator, IPromotionClient clien
                 Status = (Core.Models.Enums.PlayerStatus)item.Status,
                 Username = item.UserName,
                 AgentName = item.AgentId is not null && agentNameDict.TryGetValue(item.AgentId.Value, out var agentName)
-                        ? agentName
-                        : null,
+                    ? agentName
+                    : null,
                 VipLevel = playerVipLevel.VipLevel,
                 ParentUsername = !string.IsNullOrEmpty(item.ParentPlayerCode)
-                        && parentPlayerDict.TryGetValue(item.ParentPlayerCode, out var parentName)
-                        ? parentName
-                        : null,
+                    && parentPlayerDict.TryGetValue(item.ParentPlayerCode, out var parentName)
+                    ? parentName
+                    : null,
                 UpgradePlayerAgentId = upgradePlayerAgentId
             });
         }

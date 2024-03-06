@@ -11,7 +11,7 @@ public class CreateOfflineDepositRewardPromotionViewModel
 
     public string Name { get; init; } = default!;
 
-    public IEnumerable<OfflineDepositPhaseViewModel> Phases { get; set; } = Array.Empty<OfflineDepositPhaseViewModel>();
+    public IEnumerable<OfflineDepositPhaseViewModel> Phases { get; set; } = [];
 
     public DateOnly To { get; init; } = default!;
 

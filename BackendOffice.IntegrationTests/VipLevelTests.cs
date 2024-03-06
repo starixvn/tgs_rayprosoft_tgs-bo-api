@@ -138,7 +138,7 @@ public class VipLevelTests(ITestOutputHelper testOutputHelper, NodeJsFixture nod
         // Act
         var actual = await nodeService.InvokeFromStringAsync<MessageResponse>(
             nodeModule,
-            args: new object[] { updateVipLevelModel.BrandId, vipLevelId, updateVipLevelModel });
+            args: [updateVipLevelModel.BrandId, vipLevelId, updateVipLevelModel]);
 
         // Assert
         Assert.NotNull(actual);
@@ -253,7 +253,7 @@ public class VipLevelTests(ITestOutputHelper testOutputHelper, NodeJsFixture nod
         // Act
         var actual = await nodeService.InvokeFromStringAsync<PagedResponse<VipLevelViewModel>>(
             nodeModule,
-            args: new object[] { brandId });
+            args: [brandId]);
 
         // Assert
         Assert.NotNull(actual);
@@ -358,7 +358,7 @@ public class VipLevelTests(ITestOutputHelper testOutputHelper, NodeJsFixture nod
         // Act
         var actual = await nodeService.InvokeFromStringAsync<MessageResponse>(
             nodeModule,
-            args: new object[] { createVipLevelViewModel.BrandId, createVipLevelViewModel });
+            args: [createVipLevelViewModel.BrandId, createVipLevelViewModel]);
 
         // Assert
         Assert.NotNull(actual);
@@ -490,7 +490,7 @@ public class VipLevelTests(ITestOutputHelper testOutputHelper, NodeJsFixture nod
         // Act
         var actual = await nodeService.InvokeFromStringAsync<MessageResponse>(
             nodeModule,
-            args: new object[] { updateVipLevelModel.BrandId, vipLevelId, updateVipLevelModel });
+            args: [updateVipLevelModel.BrandId, vipLevelId, updateVipLevelModel]);
 
         // Assert
         Assert.NotNull(actual);

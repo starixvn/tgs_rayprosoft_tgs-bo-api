@@ -39,8 +39,8 @@ public class BrandPaymentServiceTests
             DepositedAmountMax = 60000,
             DepositedAmountMin = 33,
             Reason = "source reason",
-            BrandPaymentPlayers = Array.Empty<BrandPaymentPlayer>(),
-            VipLevels = Array.Empty<BrandPaymentVipLevel>(),
+            BrandPaymentPlayers = [],
+            VipLevels = [],
             ExtendedData = "{}",
             CreatedByUsername = "System",
             UpdatedByUsername = "System"
@@ -63,7 +63,7 @@ public class BrandPaymentServiceTests
             DepositedAmountMax = 50000,
             DepositedAmountMin = 55,
             Reason = "this is reason",
-            Whitelist = new[] { "4uc3t7zw2k38", "4uc3t7zw2zo1" },
+            Whitelist = ["4uc3t7zw2k38", "4uc3t7zw2zo1"],
             VipLevelIds = [
                 Guid.Parse("0EAA7EC5-771E-EB11-8D6A-70B5E82B6B7C"),
                 Guid.Parse("0FAA7EC5-771E-EB11-8D6A-70B5E82B6B7C")

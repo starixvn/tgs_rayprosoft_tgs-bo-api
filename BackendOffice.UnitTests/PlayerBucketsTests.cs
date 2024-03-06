@@ -178,12 +178,11 @@ public class PlayerBucketsTests
             Guid.NewGuid(),
             Guid.NewGuid(),
             0M,
-            new[]
-            {
+            [
                 new TypeBucketResult(
                     null,
                     new ReadBucketResult(1000M, bucketAnchorId))
-            },
+            ],
             Guid.NewGuid(),
             5M,
             null,
@@ -264,12 +263,11 @@ public class PlayerBucketsTests
                 Guid.NewGuid(),
                 Guid.NewGuid(),
                 0M,
-                new[]
-                {
+                [
                     new TypeBucketResult(
                         null,
                         new ReadBucketResult(1000M, bucketAnchorId))
-                },
+                ],
                 Guid.NewGuid(),
                 5M,
                 null,
@@ -348,12 +346,11 @@ public class PlayerBucketsTests
                 Guid.NewGuid(),
                 Guid.NewGuid(),
                 0M,
-                new[]
-                {
+                [
                     new  TypeBucketResult(
                         null,
                         new ReadBucketResult(1000M, Guid.NewGuid()))
-                },
+                ],
                 Guid.NewGuid(),
                 5M,
                 null,

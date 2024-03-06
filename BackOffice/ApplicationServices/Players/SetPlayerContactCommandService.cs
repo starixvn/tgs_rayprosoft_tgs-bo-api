@@ -38,8 +38,7 @@ internal class SetPlayerContactCommandService(
         var modifyDict = new Dictionary<PlayerPropertyName, string?>();
 
         var availablePropertyNames = new HashSet<string>(
-            new string[]
-            {
+            [
                 nameof(PlayerPropertyName.AreaCode),
                 nameof(PlayerPropertyName.Phone),
                 nameof(PlayerPropertyName.Email),
@@ -52,7 +51,7 @@ internal class SetPlayerContactCommandService(
                 nameof(PlayerPropertyName.WhatsApp),
                 nameof(PlayerPropertyName.PhoneAuthentication),
                 nameof(PlayerPropertyName.Zalo)
-            },
+            ],
             StringComparer.OrdinalIgnoreCase);
 
         foreach (var item in command.ModifyContact)

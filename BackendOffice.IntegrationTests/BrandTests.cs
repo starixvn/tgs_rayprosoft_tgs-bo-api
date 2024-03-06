@@ -151,7 +151,7 @@ public class BrandTests(ITestOutputHelper testOutputHelper, NodeJsFixture nodeJs
         // Act
         var actual = await nodeService.InvokeFromStringAsync<string>(
             nodeModule,
-            args: new object[] { request, paging });
+            args: [request, paging]);
 
         // Assert
         Assert.NotNull(actual);
@@ -289,7 +289,7 @@ public class BrandTests(ITestOutputHelper testOutputHelper, NodeJsFixture nodeJs
         // Act
         var actual = await nodeService.InvokeFromStringAsync<string>(
             nodeModule,
-            args: new object[] { request, paging });
+            args: [request, paging]);
 
         // Assert
         Assert.NotNull(actual);
@@ -425,7 +425,7 @@ public class BrandTests(ITestOutputHelper testOutputHelper, NodeJsFixture nodeJs
         // Act
         var actual = await nodeService.InvokeFromStringAsync<string>(
             nodeModule,
-            args: new object[] { request, paging });
+            args: [request, paging]);
 
         // Assert
         Assert.NotNull(actual);
@@ -563,7 +563,7 @@ public class BrandTests(ITestOutputHelper testOutputHelper, NodeJsFixture nodeJs
         // Act
         var actual = await nodeService.InvokeFromStringAsync<string>(
             nodeModule,
-            args: new object[] { request, paging });
+            args: [request, paging]);
 
         // Assert
         Assert.NotNull(actual);
@@ -733,7 +733,7 @@ public class BrandTests(ITestOutputHelper testOutputHelper, NodeJsFixture nodeJs
         // Act
         var actual = await nodeService.InvokeFromStringAsync<string>(
             nodeModule,
-            args: new object[] { request, paging });
+            args: [request, paging]);
 
         // Assert
         Assert.NotNull(actual);
@@ -858,7 +858,7 @@ public class BrandTests(ITestOutputHelper testOutputHelper, NodeJsFixture nodeJs
             TimeSpanMinutes = 480,
             EnablePlayerIdentity = false,
             LicenseeId = Guid.NewGuid(),
-            CurrencyCodes = new[] { "CNY" },
+            CurrencyCodes = ["CNY"],
             Languages = languages,
             SettlementIntervalType = Enums.SettlementIntervalType.Daily,
             SettlementDay = 7,
@@ -876,7 +876,7 @@ public class BrandTests(ITestOutputHelper testOutputHelper, NodeJsFixture nodeJs
         // Act
         var actual = await nodeService.InvokeFromStringAsync<MessageResponse>(
             nodeModule,
-            args: new object[] { request });
+            args: [request]);
 
         // Assert
         Assert.NotNull(actual);
@@ -1000,7 +1000,7 @@ public class BrandTests(ITestOutputHelper testOutputHelper, NodeJsFixture nodeJs
             TimeSpanMinutes = 480,
             EnablePlayerIdentity = false,
             LicenseeId = Guid.NewGuid(),
-            CurrencyCodes = new[] { "CNY" },
+            CurrencyCodes = ["CNY"],
             Languages = languages,
             SettlementIntervalType = Enums.SettlementIntervalType.Daily,
             SettlementDay = 7,
@@ -1018,7 +1018,7 @@ public class BrandTests(ITestOutputHelper testOutputHelper, NodeJsFixture nodeJs
         // Act
         var actual = await nodeService.InvokeFromStringAsync<MessageResponse>(
             nodeModule,
-            args: new object[] { request });
+            args: [request]);
 
         // Assert
         Assert.NotNull(actual);
@@ -1143,7 +1143,7 @@ public class BrandTests(ITestOutputHelper testOutputHelper, NodeJsFixture nodeJs
             TimeSpanMinutes = 480,
             EnablePlayerIdentity = false,
             LicenseeId = Guid.NewGuid(),
-            CurrencyCodes = new[] { "CNY" },
+            CurrencyCodes = ["CNY"],
             Languages = languages,
             SettlementIntervalType = Enums.SettlementIntervalType.Daily,
             SettlementDay = 7,
@@ -1161,7 +1161,7 @@ public class BrandTests(ITestOutputHelper testOutputHelper, NodeJsFixture nodeJs
         // Act
         var actual = await nodeService.InvokeFromStringAsync<MessageResponse>(
             nodeModule,
-            args: new object[] { request });
+            args: [request]);
 
         // Assert
         Assert.NotNull(actual);
@@ -1358,7 +1358,7 @@ public class BrandTests(ITestOutputHelper testOutputHelper, NodeJsFixture nodeJs
         // Act
         var actual = await nodeService.InvokeFromStringAsync<string>(
             nodeModule,
-            args: new object[] { request, paging });
+            args: [request, paging]);
 
         // Assert
         Assert.NotNull(actual);
@@ -1433,7 +1433,7 @@ public class BrandTests(ITestOutputHelper testOutputHelper, NodeJsFixture nodeJs
         // Act
         var actual = await nodeService.InvokeFromStringAsync<MessageResponse>(
             nodeModule,
-            args: new object[] { brandId, Enums.BrandStatus.Maintenance.ToString() });
+            args: [brandId, Enums.BrandStatus.Maintenance.ToString()]);
 
         // Assert
         Assert.NotNull(actual);
@@ -1500,7 +1500,7 @@ public class BrandTests(ITestOutputHelper testOutputHelper, NodeJsFixture nodeJs
         // Act
         var actual = await nodeService.InvokeFromStringAsync<MessageResponse>(
             nodeModule,
-            args: new object[] { brandId, Enums.BrandStatus.Maintenance.ToString() });
+            args: [brandId, Enums.BrandStatus.Maintenance.ToString()]);
 
         // Assert
         Assert.NotNull(actual);
@@ -1579,7 +1579,7 @@ public class BrandTests(ITestOutputHelper testOutputHelper, NodeJsFixture nodeJs
         // Act
         var actual = await nodeService.InvokeFromStringAsync<bool>(
             nodeModule,
-            args: new object[] { brandId });
+            args: [brandId]);
 
         // Assert
         Assert.True(actual);
@@ -1646,7 +1646,7 @@ public class BrandTests(ITestOutputHelper testOutputHelper, NodeJsFixture nodeJs
         // Act
         await nodeService.InvokeFromStringAsync(
              nodeModule,
-             args: new object[] { brandId, true });
+             args: [brandId, true]);
 
         // Assert
         _ = fakeBrandServiceClient.Received(1)

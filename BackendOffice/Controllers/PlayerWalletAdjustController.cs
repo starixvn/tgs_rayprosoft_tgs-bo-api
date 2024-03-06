@@ -141,7 +141,7 @@ public class PlayerWalletAdjustController(ILogger<PlayerWalletAdjustController> 
                     request.BucketAmount,
                     request.Remark,
                     request.IncludeInNetProfit,
-                    BucketTypes: Array.Empty<string>(),
+                    BucketTypes: [],
                     Guid.Parse(UserId),
                     Username);
 

@@ -38,7 +38,7 @@ public class PlayerAdjustBalanceServiceTests
             0M,
             true,
             "aaa",
-            BucketTypes: Array.Empty<string>());
+            BucketTypes: []);
 
         var modifyUserId = Guid.NewGuid();
         var modifyUser = "system";
@@ -100,7 +100,7 @@ public class PlayerAdjustBalanceServiceTests
             0M,
             true,
             "aaa",
-            Array.Empty<string>());
+            []);
 
         var modifyUserId = Guid.NewGuid();
         var modifyUser = "system";
@@ -162,7 +162,7 @@ public class PlayerAdjustBalanceServiceTests
             0M,
             true,
             "aaa",
-            Array.Empty<string>());
+            []);
 
         var modifyUserId = Guid.NewGuid();
         var modifyUser = "system";
@@ -224,7 +224,7 @@ public class PlayerAdjustBalanceServiceTests
             0M,
             true,
             "aaa",
-            Array.Empty<string>());
+            []);
 
         var modifyUserId = Guid.NewGuid();
         var modifyUser = "system";
@@ -286,7 +286,7 @@ public class PlayerAdjustBalanceServiceTests
             100M,
             true,
             "aaa",
-            Array.Empty<string>());
+            []);
 
         var modifyUserId = Guid.NewGuid();
         var modifyUser = "system";
@@ -357,7 +357,7 @@ public class PlayerAdjustBalanceServiceTests
             0M,
             true,
             "aaa",
-            Array.Empty<string>());
+            []);
 
         var modifyUserId = Guid.NewGuid();
         var modifyUser = "system";

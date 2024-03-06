@@ -264,12 +264,12 @@ public class LicenseeControllerTests : BaseTests
         var fixture = new Fixture();
         fixture.Customize<Licensee>(u => u
             .With(s => s.Reseller, new Reseller())
-            .With(s => s.Brands, Array.Empty<Brand>())
-            .With(s => s.GameProviders, Array.Empty<LicenseeGameProvider>())
-            .With(s => s.Languages, Array.Empty<LicenseeLanguage>())
-            .With(s => s.Currencies, Array.Empty<LicenseeCurrency>())
-            .With(s => s.BetLimits, Array.Empty<LicenseeBetLimit>())
-            .With(s => s.Departments, Array.Empty<Department>()));
+            .With(s => s.Brands, [])
+            .With(s => s.GameProviders, [])
+            .With(s => s.Languages, [])
+            .With(s => s.Currencies, [])
+            .With(s => s.BetLimits, [])
+            .With(s => s.Departments, []));
         fixture.Behaviors.Add(new OmitOnRecursionBehavior());
         return fixture;
     }

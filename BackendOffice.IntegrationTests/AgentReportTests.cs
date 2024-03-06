@@ -112,7 +112,7 @@ public class AgentReportTests(ITestOutputHelper testOutputHelper, NodeJsFixture 
         // Act
         var actual = await nodeService.InvokeFromStringAsync<PagedResponse<AgentPlayerWinLossReportModel>>(
             nodeModule,
-            args: new object[] { agentId, queryCondition, paging });
+            args: [agentId, queryCondition, paging]);
 
         // Assert
         Assert.True(actual?.Valid);

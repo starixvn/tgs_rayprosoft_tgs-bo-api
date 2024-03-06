@@ -208,7 +208,7 @@ public class PlayerTests(ITestOutputHelper testOutputHelper, NodeJsFixture nodeJ
         // Act
         var actual = await nodeService.InvokeFromStringAsync<string>(
             nodeModule,
-            args: new object[] { request });
+            args: [request]);
 
         // Assert
         Assert.NotNull(actual);
@@ -286,7 +286,7 @@ public class PlayerTests(ITestOutputHelper testOutputHelper, NodeJsFixture nodeJ
         // Act
         var actual = await nodeService.InvokeFromStringAsync<MessageResponse>(
             nodeModule,
-            args: new object[] { playerCode, birthdate.ToString("yyyy/MM/dd") });
+            args: [playerCode, birthdate.ToString("yyyy/MM/dd")]);
 
         // Assert
         Assert.NotNull(actual);
@@ -430,7 +430,7 @@ public class PlayerTests(ITestOutputHelper testOutputHelper, NodeJsFixture nodeJ
         // Act
         var actual = await nodeService.InvokeFromStringAsync<string>(
             nodeModule,
-            args: new object[] { request });
+            args: [request]);
         // Assert
         Assert.NotNull(actual);
 
@@ -618,7 +618,7 @@ public class PlayerTests(ITestOutputHelper testOutputHelper, NodeJsFixture nodeJ
         // Act
         var actual = await nodeService.InvokeFromStringAsync<string>(
             nodeModule,
-            args: new object[] { playerCode });
+            args: [playerCode]);
 
         var jsonOptions = web.Services.GetRequiredService<IOptions<JsonOptions>>().Value;
         var result = JsonSerializer.Deserialize<GetPlayerResponse>(
@@ -698,7 +698,7 @@ public class PlayerTests(ITestOutputHelper testOutputHelper, NodeJsFixture nodeJ
         // Act
         var actual = await nodeService.InvokeFromStringAsync<JsonDocument[]>(
             nodeModule,
-            args: new object[] { brandId, userNamePrefix });
+            args: [brandId, userNamePrefix]);
 
         // Assert
         Assert.NotNull(actual);
@@ -795,7 +795,7 @@ public class PlayerTests(ITestOutputHelper testOutputHelper, NodeJsFixture nodeJ
         // Act
         var actual = await nodeService.InvokeFromStringAsync<string>(
             nodeModule,
-            args: new object[] { playerCode, request, page, rows });
+            args: [playerCode, request, page, rows]);
 
         // Assert
         Assert.NotNull(actual);
@@ -878,7 +878,7 @@ public class PlayerTests(ITestOutputHelper testOutputHelper, NodeJsFixture nodeJ
         // Act
         var actual = await nodeService.InvokeFromStringAsync<string>(
             nodeModule,
-            args: new object[] { eventId });
+            args: [eventId]);
 
         // Assert
         Assert.NotNull(actual);
@@ -985,7 +985,7 @@ public class PlayerTests(ITestOutputHelper testOutputHelper, NodeJsFixture nodeJ
         // Act
         var actual = await nodeService.InvokeFromStringAsync<MessageResponse>(
             nodeModule,
-            args: new object[] { playerCode, request });
+            args: [playerCode, request]);
 
         // Assert
         Assert.NotNull(actual);
@@ -1062,7 +1062,7 @@ public class PlayerTests(ITestOutputHelper testOutputHelper, NodeJsFixture nodeJ
         // Act
         var actual = await nodeService.InvokeFromStringAsync<MessageResponse>(
             nodeModule,
-            args: new object[] { playerCode, request });
+            args: [playerCode, request]);
 
         // Assert
         Assert.NotNull(actual);
@@ -1165,7 +1165,7 @@ public class PlayerTests(ITestOutputHelper testOutputHelper, NodeJsFixture nodeJ
         // Act
         var actual = await nodeService.InvokeFromStringAsync<MessageResponse>(
             nodeModule,
-            args: new object[] { playerCode, request });
+            args: [playerCode, request]);
 
         // Assert
         Assert.NotNull(actual);
@@ -1268,7 +1268,7 @@ public class PlayerTests(ITestOutputHelper testOutputHelper, NodeJsFixture nodeJ
         // Act
         var actual = await nodeService.InvokeFromStringAsync<MessageResponse>(
             nodeModule,
-            args: new object[] { playerCode, request });
+            args: [playerCode, request]);
 
         // Assert
         Assert.NotNull(actual);
@@ -1373,7 +1373,7 @@ public class PlayerTests(ITestOutputHelper testOutputHelper, NodeJsFixture nodeJ
         // Act
         var actual = await nodeService.InvokeFromStringAsync<MessageResponse>(
             nodeModule,
-            args: new object[] { playerCode, request });
+            args: [playerCode, request]);
 
         // Assert
         Assert.NotNull(actual);
@@ -1439,7 +1439,7 @@ public class PlayerTests(ITestOutputHelper testOutputHelper, NodeJsFixture nodeJ
         // Act
         var actual = await nodeService.InvokeFromStringAsync<MessageResponse>(
             nodeModule,
-            args: new object[] { playerCode, password });
+            args: [playerCode, password]);
 
         // Assert
         Assert.NotNull(actual);
@@ -1517,7 +1517,7 @@ public class PlayerTests(ITestOutputHelper testOutputHelper, NodeJsFixture nodeJ
         // Act
         var actual = await nodeService.InvokeFromStringAsync<MessageResponse>(
             nodeModule,
-            args: new object[] { playerCode, request });
+            args: [playerCode, request]);
 
         // Assert
         Assert.NotNull(actual);
@@ -1592,7 +1592,7 @@ public class PlayerTests(ITestOutputHelper testOutputHelper, NodeJsFixture nodeJ
         // Act
         var actual = await nodeService.InvokeFromStringAsync<MessageResponse>(
             nodeModule,
-            args: new object[] { playerCode, request });
+            args: [playerCode, request]);
 
         // Assert
         Assert.NotNull(actual);
@@ -1667,7 +1667,7 @@ public class PlayerTests(ITestOutputHelper testOutputHelper, NodeJsFixture nodeJ
         // Act
         var actual = await nodeService.InvokeFromStringAsync<MessageResponse>(
             nodeModule,
-            args: new object[] { playerCode, request });
+            args: [playerCode, request]);
 
         // Assert
         Assert.NotNull(actual);

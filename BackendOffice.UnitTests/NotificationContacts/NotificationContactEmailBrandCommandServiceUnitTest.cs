@@ -28,10 +28,10 @@ public class NotificationContactEmailBrandCommandServiceUnitTest
 
         var command = new NotificationContactEmailBrandCommand(
             BrandId: Guid.Parse("4e86719f-243f-46f6-b010-5c758b7285af"),
-            Emails: new NotificationContactEmail[] { new(
+            Emails: [ new(
                 Name:"test.tt",
                 Email:"test.tt@rayprosoft.com",
-                Remark:"test") });
+                Remark:"test") ]);
 
         var brandInfo = new BrandInfo
         {

@@ -65,7 +65,7 @@ public static class QueryableExtensions
 
         var genericMethod = OrderByMethod(descending).MakeGenericMethod(typeof(TSource), orderByProperty.Type);
 
-        var result = genericMethod.Invoke(null, new object[] { source, lambda });
+        var result = genericMethod.Invoke(null, [source, lambda]);
 
         return (IQueryable<TSource>)result;
     }

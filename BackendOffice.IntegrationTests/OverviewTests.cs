@@ -159,7 +159,7 @@ public class OverviewTests(ITestOutputHelper testOutputHelper, NodeJsFixture nod
         // Act
         var actual = await nodeService.InvokeFromStringAsync<TopTenPlayerViewModel[]>(
             nodeModule,
-            args: new object[] { brandId, sortType, ascending });
+            args: [brandId, sortType, ascending]);
 
         // Assert
         expected.ToExpectedObject().ShouldEqual(actual);
@@ -305,7 +305,7 @@ public class OverviewTests(ITestOutputHelper testOutputHelper, NodeJsFixture nod
         // Act
         var actual = await nodeService.InvokeFromStringAsync<TopTenPlayerViewModel[]>(
             nodeModule,
-            args: new object[] { brandId, sortType, ascending });
+            args: [brandId, sortType, ascending]);
 
         // Assert
         expected.ToExpectedObject().ShouldEqual(actual);
@@ -451,7 +451,7 @@ public class OverviewTests(ITestOutputHelper testOutputHelper, NodeJsFixture nod
         // Act
         var actual = await nodeService.InvokeFromStringAsync<TopTenPlayerViewModel[]>(
             nodeModule,
-            args: new object[] { brandId, sortType, ascending });
+            args: [brandId, sortType, ascending]);
 
         // Assert
         expected.ToExpectedObject().ShouldEqual(actual);
@@ -594,7 +594,7 @@ public class OverviewTests(ITestOutputHelper testOutputHelper, NodeJsFixture nod
         // Act
         var actual = await nodeService.InvokeFromStringAsync<TopTenPlayerViewModel[]>(
             nodeModule,
-            args: new object[] { brandId, sortType, ascending });
+            args: [brandId, sortType, ascending]);
 
         // Assert
         expected.ToExpectedObject().ShouldEqual(actual);
@@ -740,7 +740,7 @@ public class OverviewTests(ITestOutputHelper testOutputHelper, NodeJsFixture nod
         // Act
         var actual = await nodeService.InvokeFromStringAsync<TopTenPlayerViewModel[]>(
             nodeModule,
-            args: new object[] { brandId, sortType, ascending });
+            args: [brandId, sortType, ascending]);
 
         // Assert
         expected.ToExpectedObject().ShouldEqual(actual);
@@ -886,7 +886,7 @@ public class OverviewTests(ITestOutputHelper testOutputHelper, NodeJsFixture nod
         // Act
         var actual = await nodeService.InvokeFromStringAsync<TopTenPlayerViewModel[]>(
             nodeModule,
-            args: new object[] { brandId, sortType, ascending });
+            args: [brandId, sortType, ascending]);
 
         // Assert
         expected.ToExpectedObject().ShouldEqual(actual);
@@ -1016,7 +1016,7 @@ public class OverviewTests(ITestOutputHelper testOutputHelper, NodeJsFixture nod
         // Act
         var actual = await nodeService.InvokeFromStringAsync<TopTenGameViewModel[]>(
             nodeModule,
-            args: new object[] { brandId, sortType, winLossAscending });
+            args: [brandId, sortType, winLossAscending]);
 
         // Assert
         expected.ToExpectedObject().ShouldEqual(actual);
@@ -1146,7 +1146,7 @@ public class OverviewTests(ITestOutputHelper testOutputHelper, NodeJsFixture nod
         // Act
         var actual = await nodeService.InvokeFromStringAsync<TopTenGameViewModel[]>(
             nodeModule,
-            args: new object[] { brandId, sortType, ascending });
+            args: [brandId, sortType, ascending]);
 
         // Assert
         expected.ToExpectedObject().ShouldEqual(actual);
@@ -1276,7 +1276,7 @@ public class OverviewTests(ITestOutputHelper testOutputHelper, NodeJsFixture nod
         // Act
         var actual = await nodeService.InvokeFromStringAsync<TopTenGameViewModel[]>(
             nodeModule,
-            args: new object[] { brandId, sortType, winLossAscending });
+            args: [brandId, sortType, winLossAscending]);
 
         // Assert
         expected.ToExpectedObject().ShouldEqual(actual);
@@ -1340,7 +1340,7 @@ public class OverviewTests(ITestOutputHelper testOutputHelper, NodeJsFixture nod
         // Act
         var actual = await nodeService.InvokeFromStringAsync<NetDepositViewModel>(
             nodeModule,
-            args: new object[] { brandId });
+            args: [brandId]);
 
         // Assert
         Assert.NotNull(actual);
@@ -1411,7 +1411,7 @@ public class OverviewTests(ITestOutputHelper testOutputHelper, NodeJsFixture nod
         // Act
         var actual = await nodeService.InvokeFromStringAsync<DayDepositSuccessRateViewModel>(
             nodeModule,
-            args: new object[] { brandId });
+            args: [brandId]);
 
         // Assert
         Assert.NotNull(actual);
@@ -1482,7 +1482,7 @@ public class OverviewTests(ITestOutputHelper testOutputHelper, NodeJsFixture nod
         // Act
         var actual = await nodeService.InvokeFromStringAsync<DayPlayerRegisterCountViewModel>(
             nodeModule,
-            args: new object[] { brandId });
+            args: [brandId]);
 
         // Assert
         Assert.NotNull(actual);
@@ -1546,7 +1546,7 @@ public class OverviewTests(ITestOutputHelper testOutputHelper, NodeJsFixture nod
         // Act
         var actual = await nodeService.InvokeFromStringAsync<decimal>(
             nodeModule,
-            args: new object[] { brandId });
+            args: [brandId]);
 
         // Assert
         Assert.Equal(168, actual);

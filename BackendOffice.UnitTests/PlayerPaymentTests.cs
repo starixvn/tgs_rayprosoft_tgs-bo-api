@@ -1,5 +1,4 @@
-﻿using NSubstitute;
-using Tgs.Payment.Clients;
+﻿using Tgs.Payment.Clients;
 using TGS.Services.BackOffice.ApplicationServices.Payment;
 
 namespace TGS.Tests.BackendOffice.UnitTests;
@@ -24,7 +23,9 @@ public class PlayerPaymentTests
                 0,
                 DateTime.UtcNow,
                 DateOnly.FromDateTime(DateTime.Now),
+                0M,
                 0,
+                0M,
                 0));
 
         _ = await sut.GetAsync(query);

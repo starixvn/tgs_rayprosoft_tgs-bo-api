@@ -181,7 +181,7 @@ public class BatchAdjustBalanceTests(ITestOutputHelper testOutputHelper, NodeJsF
         // Act
         var actual = await nodeService.InvokeFromStringAsync<string>(
             nodeModule,
-            args: new object[] { brandId, clientToken, importFilePath });
+            args: [brandId, clientToken, importFilePath]);
 
         // Assert
         Assert.NotNull(actual);
@@ -302,7 +302,7 @@ public class BatchAdjustBalanceTests(ITestOutputHelper testOutputHelper, NodeJsF
 
         // Act
         var actual = await nodeService.InvokeFromStringAsync<int>(
-            nodeModule, args: new object[] { batchId, brandId, condition });
+            nodeModule, args: [batchId, brandId, condition]);
 
         // Assert
         Assert.Equal(200, actual);
@@ -400,7 +400,7 @@ public class BatchAdjustBalanceTests(ITestOutputHelper testOutputHelper, NodeJsF
         // Act
         var actual = await nodeService.InvokeFromStringAsync<BatchAdjustBalanceItemViewModel[]>(
             nodeModule,
-            args: new object[] { batchId });
+            args: [batchId]);
 
         // Assert
         expected.ToExpectedObject().ShouldMatch(actual);
@@ -459,7 +459,7 @@ public class BatchAdjustBalanceTests(ITestOutputHelper testOutputHelper, NodeJsF
 
         // Act
         var actual = await nodeService.InvokeFromStringAsync<int>(
-            nodeModule, args: new object[] { batchId });
+            nodeModule, args: [batchId]);
 
         // Assert
         Assert.Equal(200, actual);
@@ -536,7 +536,7 @@ public class BatchAdjustBalanceTests(ITestOutputHelper testOutputHelper, NodeJsF
         // Act
         var actual = await nodeService.InvokeFromStringAsync<BatchAdjustBalanceItemResultViewModel[]>(
             nodeModule,
-            args: new object[] { batchId });
+            args: [batchId]);
 
         // Assert
         expected.ToExpectedObject().ShouldMatch(actual);

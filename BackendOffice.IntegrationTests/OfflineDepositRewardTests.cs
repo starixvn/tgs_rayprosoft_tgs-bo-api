@@ -58,7 +58,7 @@ public class OfflineDepositRewardTests(ITestOutputHelper testOutputHelper, NodeJ
             TurnoverMultiple = 1m,
             From = DateOnly.Parse("2022-02-18"),
             To = DateOnly.Parse("2022-03-06"),
-            Phases = new[] {
+            Phases = [
                 new OfflineDepositPhaseViewModel
                 {
                     Condition = 100M,
@@ -69,7 +69,7 @@ public class OfflineDepositRewardTests(ITestOutputHelper testOutputHelper, NodeJ
                     Condition = 500M,
                     Bonus = 50M
                 }
-            }
+            ]
         };
 
         _ = fakeBrandServiceClient.GetBrandInfoAsync(Arg.Is(brandId))
@@ -88,7 +88,7 @@ public class OfflineDepositRewardTests(ITestOutputHelper testOutputHelper, NodeJ
         _ = fakePlayerItemsQueryService.GetAsync(
             Arg.Is(new GetProcessedUsersQuery(request.BatchId)),
             Arg.Any<CancellationToken>())
-            .Returns(new OfflineUsersResult(players, 2, Array.Empty<string>()));
+            .Returns(new OfflineUsersResult(players, 2, []));
 
         var promotionId = Guid.NewGuid();
         var createInfo = new CreatePromotionMainInfo
@@ -129,7 +129,7 @@ public class OfflineDepositRewardTests(ITestOutputHelper testOutputHelper, NodeJ
         // Act
         var actual = await nodeService.InvokeFromStringAsync<MessageResponse>(
             nodeModule,
-            args: new object[] { brandId, request });
+            args: [brandId, request]);
 
         // Assert
         Assert.NotNull(actual);

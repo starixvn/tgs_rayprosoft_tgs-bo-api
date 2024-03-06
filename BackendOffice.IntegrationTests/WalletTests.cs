@@ -85,7 +85,7 @@ public class WalletTests(ITestOutputHelper testOutputHelper, NodeJsFixture nodeJ
         // Act
         var actual = await nodeService.InvokeFromStringAsync<decimal>(
             nodeModule,
-            args: new object[] { playerCode });
+            args: [playerCode]);
 
         // Assert
         Assert.Equal(1000M, actual);
@@ -143,7 +143,7 @@ public class WalletTests(ITestOutputHelper testOutputHelper, NodeJsFixture nodeJ
         var transacationId2 = Guid.Parse("cf29d2e7-7f01-0000-0001-0000f79e2257");
 
         var transactionLogs = new Tgs.CashService.Client.PagingResponse<TransactionLog>(
-            Items: new List<TransactionLog>{
+            Items: [
                 new(
                     transactionId1,
                     DateTime.UtcNow,
@@ -164,7 +164,7 @@ public class WalletTests(ITestOutputHelper testOutputHelper, NodeJsFixture nodeJ
                     0M,
                     null,
                     null),
-            },
+            ],
             Page: page,
             TotalCount: 2
         );
@@ -259,7 +259,7 @@ public class WalletTests(ITestOutputHelper testOutputHelper, NodeJsFixture nodeJ
         // Act
         var actual = await nodeService.InvokeFromStringAsync<string>(
             nodeModule,
-            args: new object[] { playerCode, request, page, rows });
+            args: [playerCode, request, page, rows]);
 
         // Assert
         Assert.NotNull(actual);
@@ -342,7 +342,7 @@ public class WalletTests(ITestOutputHelper testOutputHelper, NodeJsFixture nodeJ
         var transacationId2 = Guid.Parse("cf29d2e7-7f01-0000-0001-0000f79e2257");
 
         var transactionLogs = new Tgs.CashService.Client.PagingResponse<TransactionLog>(
-            Items: new List<TransactionLog>{
+            Items: [
                 new(
                     transactionId1,
                     DateTime.UtcNow,
@@ -363,7 +363,7 @@ public class WalletTests(ITestOutputHelper testOutputHelper, NodeJsFixture nodeJ
                     0M,
                     null,
                     null),
-            },
+            ],
             Page: page,
             TotalCount: 2
         );
@@ -458,7 +458,7 @@ public class WalletTests(ITestOutputHelper testOutputHelper, NodeJsFixture nodeJ
         // Act
         var actual = await nodeService.InvokeFromStringAsync<string>(
             nodeModule,
-            args: new object[] { agentId, request, page, rows });
+            args: [agentId, request, page, rows]);
 
         // Assert
         Assert.NotNull(actual);
@@ -527,7 +527,7 @@ public class WalletTests(ITestOutputHelper testOutputHelper, NodeJsFixture nodeJ
         var transacationId2 = Guid.Parse("cf29d2e7-7f01-0000-0001-0000f79e2257");
 
         var transactionLogs = new Tgs.CashService.Client.PagingResponse<TransactionLog>(
-            Items: new List<TransactionLog>{
+            Items: [
                 new(
                     transactionId1,
                     DateTime.UtcNow,
@@ -548,7 +548,7 @@ public class WalletTests(ITestOutputHelper testOutputHelper, NodeJsFixture nodeJ
                     0M,
                     null,
                     null),
-            },
+            ],
             Page: page,
             TotalCount: 2
         );
@@ -649,7 +649,7 @@ public class WalletTests(ITestOutputHelper testOutputHelper, NodeJsFixture nodeJ
         // Act
         var actual = await nodeService.InvokeFromStringAsync<string>(
             nodeModule,
-            args: new object[] { request });
+            args: [request]);
 
         // Assert
         Assert.NotNull(actual);
@@ -734,7 +734,7 @@ public class WalletTests(ITestOutputHelper testOutputHelper, NodeJsFixture nodeJ
         var transacationId2 = Guid.Parse("cf29d2e7-7f01-0000-0001-0000f79e2257");
 
         var transactionLogs = new Tgs.CashService.Client.PagingResponse<TransactionLog>(
-            Items: new List<TransactionLog>{
+            Items: [
                 new(
                     transactionId1,
                     DateTime.UtcNow,
@@ -755,7 +755,7 @@ public class WalletTests(ITestOutputHelper testOutputHelper, NodeJsFixture nodeJ
                     0M,
                     null,
                     null),
-            },
+            ],
             Page: page,
             TotalCount: 2
         );
@@ -844,7 +844,7 @@ public class WalletTests(ITestOutputHelper testOutputHelper, NodeJsFixture nodeJ
         // Act
         var actual = await nodeService.InvokeFromStringAsync<string>(
             nodeModule,
-            args: new object[] { request });
+            args: [request]);
 
         // Assert
         Assert.NotNull(actual);
@@ -946,7 +946,7 @@ public class WalletTests(ITestOutputHelper testOutputHelper, NodeJsFixture nodeJ
         // Act
         var actual = await nodeService.InvokeFromStringAsync<decimal>(
             nodeModule,
-            args: new object[] { playerCode, request });
+            args: [playerCode, request]);
 
         // Assert
         Assert.Equal(168000000M, actual);
@@ -1042,7 +1042,7 @@ public class WalletTests(ITestOutputHelper testOutputHelper, NodeJsFixture nodeJ
         // Act
         var actual = await nodeService.InvokeFromStringAsync<string>(
             nodeModule,
-            args: new object[] { request });
+            args: [request]);
 
         // Assert
         Assert.NotNull(actual);
@@ -1106,7 +1106,7 @@ public class WalletTests(ITestOutputHelper testOutputHelper, NodeJsFixture nodeJ
         var transacationId2 = Guid.Parse("cf29d2e7-7f01-0000-0001-0000f79e2257");
 
         var transactionLogs = new Tgs.CashService.Client.PagingResponse<TransactionLog>(
-            Items: new List<TransactionLog>{
+            Items: [
                 new(
                     transactionId1,
                     DateTime.UtcNow,
@@ -1127,7 +1127,7 @@ public class WalletTests(ITestOutputHelper testOutputHelper, NodeJsFixture nodeJ
                     0M,
                     null,
                     null),
-            },
+            ],
             Page: page,
             TotalCount: 2
         );
@@ -1218,7 +1218,7 @@ public class WalletTests(ITestOutputHelper testOutputHelper, NodeJsFixture nodeJ
         // Act
         var actual = await nodeService.InvokeFromStringAsync<string>(
             nodeModule,
-            args: new object[] { playerCode, request, page, rows });
+            args: [playerCode, request, page, rows]);
 
         // Assert
         Assert.NotNull(actual);

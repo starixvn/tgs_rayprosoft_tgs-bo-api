@@ -53,10 +53,10 @@ public class NotificationContactEmailBrandQueryServiceUnitTest
             LicenseeCode: "TGS",
             BrandId: Guid.Parse("4e86719f-243f-46f6-b010-5c758b7285af"),
             BrandCode: "GPI",
-            Contacts: new EmailContact[] { new() {
+            Contacts: [ new() {
                 Name="test.tt",
                 Email= "test.tt@rayprosoft.com",
-                Remark= "test"} });
+                Remark= "test"} ]);
         _ = fakeNotificationContactsClient
             .EmailBrandGetAsync(
             code: Arg.Is(brandInfo.Code),

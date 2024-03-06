@@ -40,13 +40,13 @@ public static class EnumExtensions
         };
 
     public static IEnumerable<PaymentFlowState> ToPaymentFlowState(this FlowState? status)
-        => status?.ToPaymentFlowState() ?? new[] {
+        => status?.ToPaymentFlowState() ?? [
             PaymentFlowState.WaitPayment,
             PaymentFlowState.WaitApprove,
             PaymentFlowState.Approved,
             PaymentFlowState.Reject,
             PaymentFlowState.Paid
-        };
+        ];
 
     public static ReviewState ToReviewState(this ReviewResponseState reviewResponse)
         => reviewResponse switch

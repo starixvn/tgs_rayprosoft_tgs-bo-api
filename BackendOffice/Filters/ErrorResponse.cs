@@ -4,5 +4,5 @@ namespace TGS.Apis.BackendOffice.Filters;
 
 public class ErrorResponse
 {
-    public List<ErrorModel> Errors => new();
+    public List<ErrorModel> Errors => [];
 }

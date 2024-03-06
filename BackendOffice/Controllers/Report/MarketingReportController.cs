@@ -215,7 +215,7 @@ public class MarketingReportController : BaseContextController
                 {
                     TotalCount = 0,
                     Summary = new MarketingReportTotalModel(),
-                    Items = Array.Empty<MarketingReportModel>()
+                    Items = []
                 };
 
             dataQuery = dataQuery.Where(item => item.AgentId == agentId);

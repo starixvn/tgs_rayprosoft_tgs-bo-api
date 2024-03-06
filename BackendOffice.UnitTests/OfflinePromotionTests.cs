@@ -108,9 +108,9 @@ internal class OfflinePromotionTests
             new OfflineDepositSettings(
                 players,
                 3M,
-                new OfflineDepositHierarchy(new[] {
+                new OfflineDepositHierarchy([
                     new OfflineDepositPhase(100M, 20M),
-                    new OfflineDepositPhase(500M, 50M) })),
+                    new OfflineDepositPhase(500M, 50M) ])),
             "Modifier");
 
         var expectedCreateInfo = new CreatePromotionMainInfo

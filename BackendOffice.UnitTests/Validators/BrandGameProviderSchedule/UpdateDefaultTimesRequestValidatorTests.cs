@@ -23,7 +23,7 @@ public class UpdateDefaultTimesRequestValidatorTests
         var time = fixture.Build<DefaultTimeModel>()
             .With(x => x.From, DateTimeOffset.UtcNow.AddDays(1))
             .With(x => x.To, DateTimeOffset.UtcNow).Create();
-        var model = fixture.Build<UpdateDefaultTimesRequest>().With(x => x.DefaultTimes, new[] { time }).Create();
+        var model = fixture.Build<UpdateDefaultTimesRequest>().With(x => x.DefaultTimes, [time]).Create();
 
         var result = _validator.TestValidate(model);
         _ = result.ShouldHaveValidationErrorFor("DefaultTimes[0].From")

@@ -54,13 +54,13 @@ public class PromotionDispatchControllerTests : BaseTests
 
         var request = new DispatchPromotionBonusViewRequest
         {
-            Players = new DispatchPlayerView[]
-            {
+            Players =
+            [
                 new() {
                     PlayerCode = "playerCode",
                     PromotionBonusId = Guid.NewGuid()
                 }
-            }
+            ]
         };
 
         _ = await sut.DispatchPromotionsAsync(request);

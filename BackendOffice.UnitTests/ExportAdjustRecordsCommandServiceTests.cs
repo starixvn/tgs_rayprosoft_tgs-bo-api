@@ -121,7 +121,7 @@ public class ExportAdjustRecordsCommandServiceTests
 
         var brandId = Guid.NewGuid();
         var command = new ExportAllAdjustRecordsCommand(
-            new[] { brandId },
+            [brandId],
             (DateTime.Now.AddDays(-1D), DateTime.Now),
             fs);
 

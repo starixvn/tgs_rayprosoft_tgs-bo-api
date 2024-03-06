@@ -108,7 +108,7 @@ public class PromotionTests(ITestOutputHelper testOutputHelper, NodeJsFixture no
         // Act
         var actual = await nodeService.InvokeFromStringAsync<PromotionMainInfoViewModel>(
             nodeModule,
-            args: new object[] { promotionId });
+            args: [promotionId]);
 
         // Assert
         Assert.NotNull(actual);
@@ -185,7 +185,7 @@ public class PromotionTests(ITestOutputHelper testOutputHelper, NodeJsFixture no
         // Act
         var actual = await nodeService.InvokeFromStringAsync<PromotionContentViewModel>(
             nodeModule,
-            args: new object[] { promotionId });
+            args: [promotionId]);
 
         // Assert
         Assert.NotNull(actual);
@@ -270,7 +270,7 @@ public class PromotionTests(ITestOutputHelper testOutputHelper, NodeJsFixture no
         // Act
         var actual = await nodeService.InvokeFromStringAsync<JsonDocument>(
             nodeModule,
-            args: new object[] { promotionId });
+            args: [promotionId]);
 
         // Assert
         Assert.NotNull(actual);
@@ -390,7 +390,7 @@ public class PromotionTests(ITestOutputHelper testOutputHelper, NodeJsFixture no
                     TotalAmountLimit = null,
                     Unlimited = true,
                     Status = SwitchStatus.Enabled,
-                    VipLevels = new[] { 0, 1, 2 }
+                    VipLevels = [0, 1, 2]
                 }
             ]
         };
@@ -398,7 +398,7 @@ public class PromotionTests(ITestOutputHelper testOutputHelper, NodeJsFixture no
         // Act
         var actual = await nodeService.InvokeFromStringAsync<string>(
             nodeModule,
-            args: new object[] { request, paging });
+            args: [request, paging]);
 
         // Assert
         Assert.NotNull(actual);
@@ -410,8 +410,12 @@ public class PromotionTests(ITestOutputHelper testOutputHelper, NodeJsFixture no
 
         Assert.True(result?.Valid);
         Assert.Equal(1, result?.TotalCount);
-        expected.Items.ToExpectedObject(ctx =>
-            _ = ctx.IgnoreEqualsOverride()).ShouldMatch(result?.Items);
+        expected.Items.ToExpectedObject(ctx => ctx
+            .ArrayMemberShouldMatch(
+                o => o,
+                itemCtx => itemCtx
+                    .ArrayMemberShouldMatch(item => item.VipLevels))
+            .IgnoreEqualsOverride()).ShouldMatch(result?.Items);
     }
 
     [Fact]
@@ -527,7 +531,7 @@ public class PromotionTests(ITestOutputHelper testOutputHelper, NodeJsFixture no
                     TotalAmountLimit = null,
                     Unlimited = true,
                     Status = SwitchStatus.Disabled,
-                    VipLevels = new[] { 0, 1, 2 }
+                    VipLevels = [0, 1, 2]
                 }
             ]
         };
@@ -535,7 +539,7 @@ public class PromotionTests(ITestOutputHelper testOutputHelper, NodeJsFixture no
         // Act
         var actual = await nodeService.InvokeFromStringAsync<string>(
             nodeModule,
-            args: new object[] { request, paging });
+            args: [request, paging]);
 
         // Assert
         Assert.NotNull(actual);
@@ -547,8 +551,12 @@ public class PromotionTests(ITestOutputHelper testOutputHelper, NodeJsFixture no
 
         Assert.True(result?.Valid);
         Assert.Equal(1, result?.TotalCount);
-        expected.Items.ToExpectedObject(ctx =>
-            _ = ctx.IgnoreEqualsOverride()).ShouldMatch(result?.Items);
+        expected.Items.ToExpectedObject(ctx => ctx
+            .ArrayMemberShouldMatch(
+                o => o,
+                itemCtx => itemCtx
+                    .ArrayMemberShouldMatch(item => item.VipLevels))
+            .IgnoreEqualsOverride()).ShouldMatch(result?.Items);
     }
 
     [Fact]
@@ -664,7 +672,7 @@ public class PromotionTests(ITestOutputHelper testOutputHelper, NodeJsFixture no
                     TotalAmountLimit = null,
                     Unlimited = true,
                     Status = SwitchStatus.Disabled,
-                    VipLevels = new[] { 0, 1, 2 }
+                    VipLevels = [0, 1, 2]
                 }
             ]
         };
@@ -672,7 +680,7 @@ public class PromotionTests(ITestOutputHelper testOutputHelper, NodeJsFixture no
         // Act
         var actual = await nodeService.InvokeFromStringAsync<string>(
             nodeModule,
-            args: new object[] { request, paging });
+            args: [request, paging]);
 
         // Assert
         Assert.NotNull(actual);
@@ -684,8 +692,12 @@ public class PromotionTests(ITestOutputHelper testOutputHelper, NodeJsFixture no
 
         Assert.True(result?.Valid);
         Assert.Equal(1, result?.TotalCount);
-        expected.Items.ToExpectedObject(ctx =>
-            _ = ctx.IgnoreEqualsOverride()).ShouldMatch(result?.Items);
+        expected.Items.ToExpectedObject(ctx => ctx
+            .ArrayMemberShouldMatch(
+                o => o,
+                itemCtx => itemCtx
+                    .ArrayMemberShouldMatch(item => item.VipLevels))
+            .IgnoreEqualsOverride()).ShouldMatch(result?.Items);
     }
 
     [Fact]
@@ -798,7 +810,7 @@ public class PromotionTests(ITestOutputHelper testOutputHelper, NodeJsFixture no
                     TotalAmountLimit = null,
                     Unlimited = true,
                     Status = SwitchStatus.Enabled,
-                    VipLevels = new[] { 0, 1, 2 }
+                    VipLevels = [0, 1, 2]
                 }
             ]
         };
@@ -806,7 +818,7 @@ public class PromotionTests(ITestOutputHelper testOutputHelper, NodeJsFixture no
         // Act
         var actual = await nodeService.InvokeFromStringAsync<string>(
             nodeModule,
-            args: new object[] { request, paging });
+            args: [request, paging]);
 
         // Assert
         Assert.NotNull(actual);
@@ -818,8 +830,12 @@ public class PromotionTests(ITestOutputHelper testOutputHelper, NodeJsFixture no
 
         Assert.True(result?.Valid);
         Assert.Equal(1, result?.TotalCount);
-        expected.Items.ToExpectedObject(ctx =>
-            _ = ctx.IgnoreEqualsOverride()).ShouldMatch(result?.Items);
+        expected.Items.ToExpectedObject(ctx => ctx
+            .ArrayMemberShouldMatch(
+                o => o,
+                itemCtx => itemCtx
+                    .ArrayMemberShouldMatch(item => item.VipLevels))
+            .IgnoreEqualsOverride()).ShouldMatch(result?.Items);
     }
 
     [Fact]
@@ -904,7 +920,7 @@ public class PromotionTests(ITestOutputHelper testOutputHelper, NodeJsFixture no
         var request = new PromotionListQueryViewModel
         {
             BrandId = brandId,
-            PromotionTypes = new[] { "TestType" }
+            PromotionTypes = ["TestType"]
         };
 
         var paging = new PageableRequest
@@ -933,7 +949,7 @@ public class PromotionTests(ITestOutputHelper testOutputHelper, NodeJsFixture no
                     TotalAmountLimit = null,
                     Unlimited = true,
                     Status = SwitchStatus.Disabled,
-                    VipLevels = new[] { 0, 1, 2 }
+                    VipLevels = [0, 1, 2]
                 }
             ]
         };
@@ -941,7 +957,7 @@ public class PromotionTests(ITestOutputHelper testOutputHelper, NodeJsFixture no
         // Act
         var actual = await nodeService.InvokeFromStringAsync<string>(
             nodeModule,
-            args: new object[] { request, paging });
+            args: [request, paging]);
 
         // Assert
         Assert.NotNull(actual);
@@ -953,8 +969,12 @@ public class PromotionTests(ITestOutputHelper testOutputHelper, NodeJsFixture no
 
         Assert.True(result?.Valid);
         Assert.Equal(1, result?.TotalCount);
-        expected.Items.ToExpectedObject(ctx =>
-            _ = ctx.IgnoreEqualsOverride()).ShouldMatch(result?.Items);
+        expected.Items.ToExpectedObject(ctx => ctx
+            .ArrayMemberShouldMatch(
+                o => o,
+                itemCtx => itemCtx
+                    .ArrayMemberShouldMatch(item => item.VipLevels))
+            .IgnoreEqualsOverride()).ShouldMatch(result?.Items);
     }
 
     [Fact]
@@ -1067,7 +1087,7 @@ public class PromotionTests(ITestOutputHelper testOutputHelper, NodeJsFixture no
                     TotalAmountLimit = null,
                     Unlimited = true,
                     Status = SwitchStatus.Disabled,
-                    VipLevels = new[] { 0, 1, 2 }
+                    VipLevels = [0, 1, 2]
                 }
             ]
         };
@@ -1075,7 +1095,7 @@ public class PromotionTests(ITestOutputHelper testOutputHelper, NodeJsFixture no
         // Act
         var actual = await nodeService.InvokeFromStringAsync<string>(
             nodeModule,
-            args: new object[] { request, paging });
+            args: [request, paging]);
 
         // Assert
         Assert.NotNull(actual);
@@ -1087,8 +1107,12 @@ public class PromotionTests(ITestOutputHelper testOutputHelper, NodeJsFixture no
 
         Assert.True(result?.Valid);
         Assert.Equal(1, result?.TotalCount);
-        expected.Items.ToExpectedObject(ctx =>
-            _ = ctx.IgnoreEqualsOverride()).ShouldMatch(result?.Items);
+        expected.Items.ToExpectedObject(ctx => ctx
+            .ArrayMemberShouldMatch(
+                o => o,
+                itemCtx => itemCtx
+                    .ArrayMemberShouldMatch(item => item.VipLevels))
+            .IgnoreEqualsOverride()).ShouldMatch(result?.Items);
     }
 
     [Fact]
@@ -1176,7 +1200,7 @@ public class PromotionTests(ITestOutputHelper testOutputHelper, NodeJsFixture no
         // Act
         var actual = await nodeService.InvokeFromStringAsync<MessageResponse>(
             nodeModule,
-            args: new object[] { request });
+            args: [request]);
 
         // Assert
         Assert.NotNull(actual);
@@ -1278,7 +1302,7 @@ public class PromotionTests(ITestOutputHelper testOutputHelper, NodeJsFixture no
         // Act
         var actual = await nodeService.InvokeFromStringAsync<MessageResponse>(
             nodeModule,
-            args: new object[] { brandId, request });
+            args: [brandId, request]);
 
         // Assert
         Assert.NotNull(actual);
@@ -1440,7 +1464,7 @@ public class PromotionTests(ITestOutputHelper testOutputHelper, NodeJsFixture no
         // Act
         var actual = await nodeService.InvokeFromStringAsync<ResponseViewModel<Guid?>>(
             nodeModule,
-            args: new object[] { basePromotionId });
+            args: [basePromotionId]);
 
         // Assert
         Assert.NotNull(actual);
@@ -1538,7 +1562,7 @@ public class PromotionTests(ITestOutputHelper testOutputHelper, NodeJsFixture no
         // Act
         var actual = await nodeService.InvokeFromStringAsync<MessageResponse>(
             nodeModule,
-            args: new object[] { promotionId, request });
+            args: [promotionId, request]);
 
         // Assert
         Assert.NotNull(actual);
@@ -1661,7 +1685,7 @@ public class PromotionTests(ITestOutputHelper testOutputHelper, NodeJsFixture no
         // Act
         var actual = await nodeService.InvokeFromStringAsync<MessageResponse>(
             nodeModule,
-            args: new object[] { promotionId, request });
+            args: [promotionId, request]);
 
         // Assert
         Assert.NotNull(actual);
@@ -1745,7 +1769,7 @@ public class PromotionTests(ITestOutputHelper testOutputHelper, NodeJsFixture no
         // Act
         var actual = await nodeService.InvokeFromStringAsync<MessageResponse>(
             nodeModule,
-            args: new object[] { promotionId, request });
+            args: [promotionId, request]);
 
         // Assert
         Assert.NotNull(actual);
@@ -1810,7 +1834,7 @@ public class PromotionTests(ITestOutputHelper testOutputHelper, NodeJsFixture no
         // Act
         var actual = await nodeService.InvokeFromStringAsync<MessageResponse>(
             nodeModule,
-            args: new object[] { promotionId, status });
+            args: [promotionId, status]);
 
         // Assert
         Assert.NotNull(actual);
@@ -1855,9 +1879,9 @@ public class PromotionTests(ITestOutputHelper testOutputHelper, NodeJsFixture no
 
         var request = new UpdatePromotionRuleViewModel
         {
-            GameProviderIds = new[] { Guid.NewGuid() },
+            GameProviderIds = [Guid.NewGuid()],
             Rule = JsonDocument.Parse("{}"),
-            VipLevels = new[] { 1, 2, 3 }
+            VipLevels = [1, 2, 3]
         };
 
         using var nodeService = _nodeJsFixture.BuildNodeJsService();
@@ -1881,7 +1905,7 @@ public class PromotionTests(ITestOutputHelper testOutputHelper, NodeJsFixture no
         // Act
         var actual = await nodeService.InvokeFromStringAsync<MessageResponse>(
             nodeModule,
-            args: new object[] { promotionId, request });
+            args: [promotionId, request]);
 
         // Assert
         Assert.NotNull(actual);

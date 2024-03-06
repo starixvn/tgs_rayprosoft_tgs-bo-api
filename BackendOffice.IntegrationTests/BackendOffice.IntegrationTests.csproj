@@ -35,7 +35,7 @@
     <PackageReference Include="Microsoft.AspNetCore.Mvc.Testing" Version="8.0.2" />
     <PackageReference Include="Microsoft.NET.Test.Sdk" Version="17.9.0" />
     <PackageReference Include="NSubstitute" Version="5.1.0" />
-    <PackageReference Include="PhoenixToolkits.CodeAnalysis.Analyzers" Version="0.0.8">
+    <PackageReference Include="PhoenixToolkits.CodeAnalysis.Analyzers" Version="0.0.9">
       <PrivateAssets>all</PrivateAssets>
       <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
     </PackageReference>

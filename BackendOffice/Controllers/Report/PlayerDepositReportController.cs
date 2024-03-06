@@ -160,7 +160,7 @@ public class PlayerDepositReportController : BaseContextController
                 {
                     TotalCount = 0,
                     Summary = new PlayerDepositsSummaryViewModel(),
-                    Items = Array.Empty<PlayerDepositReportModel>()
+                    Items = []
                 };
 
             dataQuery = dataQuery.Where(a => a.AgentId == agentId);

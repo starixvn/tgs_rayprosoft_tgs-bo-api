@@ -76,7 +76,7 @@ public class AgentDomainTests(ITestOutputHelper testOutputHelper, NodeJsFixture 
         // Act
         var actual = await nodeService.InvokeFromStringAsync<ResponseViewModel<string[]>>(
             nodeModule,
-            args: new object[] { brandId, agentId });
+            args: [brandId, agentId]);
 
         // Assert
         Assert.True(actual?.Valid);
@@ -135,7 +135,7 @@ public class AgentDomainTests(ITestOutputHelper testOutputHelper, NodeJsFixture 
         // Act
         await nodeService.InvokeFromStringAsync(
             nodeModule,
-            args: new object[] { brandId, agentId, domain });
+            args: [brandId, agentId, domain]);
 
         // Assert
         _ = fakeAgentRepository.Received(1)
@@ -196,7 +196,7 @@ public class AgentDomainTests(ITestOutputHelper testOutputHelper, NodeJsFixture 
         // Act
         await nodeService.InvokeFromStringAsync(
             nodeModule,
-            args: new object[] { brandId, agentId, domain });
+            args: [brandId, agentId, domain]);
 
         // Assert
         _ = fakeAgentRepository.Received(1)

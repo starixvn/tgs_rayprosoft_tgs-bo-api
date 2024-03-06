@@ -138,7 +138,7 @@ public class PlayerBucketTests(ITestOutputHelper testOutputHelper, NodeJsFixture
         // Act
         var response = await nodeService.InvokeFromStringAsync<string>(
             nodeModule,
-            args: new object[] { playerCode });
+            args: [playerCode]);
         var actual = JsonSerializer.Deserialize<PlayerBucketViewModel[]>(
             response!,
             web.Services.GetRequiredService<IOptions<JsonOptions>>().Value.JsonSerializerOptions);
@@ -258,7 +258,7 @@ public class PlayerBucketTests(ITestOutputHelper testOutputHelper, NodeJsFixture
         // Act
         var response = await nodeService.InvokeFromStringAsync<string>(
             nodeModule,
-            args: new object[] { playerCode, gameType });
+            args: [playerCode, gameType]);
         var actual = JsonSerializer.Deserialize<PlayerBucketViewModel[]>(
             response!,
             web.Services.GetRequiredService<IOptions<JsonOptions>>().Value.JsonSerializerOptions);
@@ -345,7 +345,7 @@ public class PlayerBucketTests(ITestOutputHelper testOutputHelper, NodeJsFixture
         // Act
         var actual = await nodeService.InvokeFromStringAsync<decimal>(
             nodeModule,
-            args: new object[] { playerCode });
+            args: [playerCode]);
 
         // Assert
         Assert.Equal(1000M, actual);
@@ -448,7 +448,7 @@ public class PlayerBucketTests(ITestOutputHelper testOutputHelper, NodeJsFixture
         // Act
         var actual = await nodeService.InvokeFromStringAsync<decimal>(
             nodeModule,
-            args: new object[] { playerCode });
+            args: [playerCode]);
 
         // Assert
         Assert.Equal(5000M, actual);
@@ -559,7 +559,7 @@ public class PlayerBucketTests(ITestOutputHelper testOutputHelper, NodeJsFixture
         // Act
         var actual = await nodeService.InvokeFromStringAsync<TypeBucketResultViewModel[]>(
             nodeModule,
-            args: new object[] { playerCode });
+            args: [playerCode]);
 
         // Assert
         expected.ToExpectedObject().ShouldMatch(actual);
@@ -603,21 +603,19 @@ public class PlayerBucketTests(ITestOutputHelper testOutputHelper, NodeJsFixture
                 Guid.NewGuid(),
                 Guid.NewGuid(),
                 123M,
-                new[]
-                {
+                [
                     new TypeBucketResult(
                         null,
                         new ReadBucketResult(10000M, Guid.NewGuid()))
-                },
+                ],
                 Guid.NewGuid(),
                 100M,
                 124M,
-                new[]
-                {
+                [
                     new TypeBucketResult(
                         null,
                         new ReadBucketResult(11000M, Guid.NewGuid()))
-                },
+                ],
                 CleanFlowStatus.Completed,
                 DateTime.UtcNow),
             new CleanBucketForm(
@@ -626,12 +624,11 @@ public class PlayerBucketTests(ITestOutputHelper testOutputHelper, NodeJsFixture
                 Guid.NewGuid(),
                 Guid.NewGuid(),
                 456M,
-                new[]
-                {
+                [
                     new TypeBucketResult(
                         null,
                         new ReadBucketResult(20000M, Guid.NewGuid()))
-                },
+                ],
                 Guid.NewGuid(),
                 100M,
                 null,
@@ -692,7 +689,7 @@ public class PlayerBucketTests(ITestOutputHelper testOutputHelper, NodeJsFixture
         // Act
         var actual = await nodeService.InvokeFromStringAsync<CleanBucketFormViewModel[]>(
             nodeModule,
-            args: new object[] { playerCode });
+            args: [playerCode]);
 
         // Assert
         expected
@@ -739,25 +736,23 @@ public class PlayerBucketTests(ITestOutputHelper testOutputHelper, NodeJsFixture
                 Guid.NewGuid(),
                 Guid.NewGuid(),
                 123M,
-                new[]
-                {
+                [
                     new TypeBucketResult(
                         null,
                         new ReadBucketResult(
                             10000M,
                             Guid.NewGuid()))
-                },
+                ],
                 Guid.NewGuid(),
                 100M,
                 124M,
-                new[]
-                {
+                [
                     new TypeBucketResult(
                         null,
                         new ReadBucketResult(
                             11000M,
                             Guid.NewGuid()))
-                },
+                ],
                 CleanFlowStatus.Completed,
                 DateTime.UtcNow)
         };
@@ -814,7 +809,7 @@ public class PlayerBucketTests(ITestOutputHelper testOutputHelper, NodeJsFixture
         // Act
         var actual = await nodeService.InvokeFromStringAsync<CleanBucketFormViewModel[]>(
             nodeModule,
-            args: new object[] { playerCode, CleanFlowStatus.Completed });
+            args: [playerCode, CleanFlowStatus.Completed]);
 
         // Assert
         expected.ToExpectedObject(ctx => ctx
@@ -904,7 +899,7 @@ public class PlayerBucketTests(ITestOutputHelper testOutputHelper, NodeJsFixture
         // Act
         await nodeService.InvokeFromStringAsync(
             nodeModule,
-            args: new object[] { playerCode });
+            args: [playerCode]);
 
         // Assert
         _ = fakePlayerBucketClient.Received(1)
@@ -969,14 +964,13 @@ public class PlayerBucketTests(ITestOutputHelper testOutputHelper, NodeJsFixture
             Guid.NewGuid(),
             Guid.NewGuid(),
             0M,
-            new[]
-            {
+            [
                 new TypeBucketResult(
                     null,
                     new ReadBucketResult(
                         1000M,
                         anchorBucketId))
-            },
+            ],
             Guid.NewGuid(),
             5M,
             null,
@@ -1096,7 +1090,7 @@ public class PlayerBucketTests(ITestOutputHelper testOutputHelper, NodeJsFixture
         // Act
         await nodeService.InvokeFromStringAsync(
             nodeModule,
-            args: new object[] { playerCode, request });
+            args: [playerCode, request]);
 
         // Assert
         _ = fakePlayerBucketClient.Received(1)
@@ -1173,7 +1167,7 @@ public class PlayerBucketTests(ITestOutputHelper testOutputHelper, NodeJsFixture
         // Act
         var actual = await nodeService.InvokeFromStringAsync<string>(
             nodeModule,
-            args: new object[] { playerCode, request });
+            args: [playerCode, request]);
 
         // Assert
         Assert.Equal("400", actual);

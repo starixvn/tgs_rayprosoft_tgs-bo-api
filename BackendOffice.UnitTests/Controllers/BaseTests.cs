@@ -28,8 +28,8 @@ public class BaseTests
         string roleName = "Admin",
         RoleType roleType = RoleType.Admin,
         string id = "e4ecfa98-b373-4123-87e0-cb9e883d0691")
-        => new(new[]
-        {
+        => new(
+        [
             new ClaimsIdentity(new[]
             {
                 new Claim(Consts.BackendOffice.UserInfo.UserIdKey, id),
@@ -37,7 +37,7 @@ public class BaseTests
                 new Claim(Consts.BackendOffice.UserInfo.RolenameKey, roleName),
                 new Claim(Consts.BackendOffice.UserInfo.PortalKey, roleType.ToString())
             })
-        });
+        ]);
 
     public void Login(
         string username = "admin.enabled",
