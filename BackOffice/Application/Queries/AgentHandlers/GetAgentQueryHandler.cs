@@ -26,8 +26,14 @@ public class GetAgentQueryHandler(
         var agent = await service.GetAgentAsync(x => x.Id == request.Id).ConfigureAwait(false);
 
         var dividend = await agentDividendService.GetAgentDividends()
-            .Where(x => x.AgentId == request.Id && x.SentOn == null)
-            .SumAsync(x => x.BeforeDividendAmount ?? x.AgentDividendAmount, cancellationToken).ConfigureAwait(false);
+            .Where(x => x.AgentId == request.Id &&
+                        x.SentOn == null &&
+                        x.ReferencedAgentDividendId == null &&
+                        x.BeforeDividendAmount == null)
+            .SumAsync(x => x.BeforeDividendAmount ?? x.AgentDividendAmount, cancellationToken)
+            .ConfigureAwait(false);
+
+        dividend = dividend > 0 ? 0 : dividend;
 
         var playerNumber = (await tgsRepository.Players
             .Where(x => x.AgentId == request.Id)
