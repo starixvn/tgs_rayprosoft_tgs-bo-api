@@ -30,7 +30,7 @@ public class GetAgentQueryHandler(
                         x.SentOn == null &&
                         x.ReferencedAgentDividendId == null &&
                         x.BeforeDividendAmount == null)
-            .SumAsync(x => x.BeforeDividendAmount ?? x.AgentDividendAmount, cancellationToken)
+            .SumAsync(x => x.AgentDividendAmount, cancellationToken)
             .ConfigureAwait(false);
 
         dividend = dividend > 0 ? 0 : dividend;
