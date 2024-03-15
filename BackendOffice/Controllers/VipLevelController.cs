@@ -33,8 +33,8 @@ public class VipLevelController : BaseContextController
             .ConfigureAwait(false);
 
         if (lastVip != null
-            && (lastVip.LevelUpAccumulateBetAmount >= request.LevelUpAccumulateBetAmount
-                || lastVip.LevelUpAccumulateDeposit >= request.LevelUpAccumulateDeposit))
+            && (lastVip.LevelUpAccumulateBetAmount > request.LevelUpAccumulateBetAmount
+                || lastVip.LevelUpAccumulateDeposit > request.LevelUpAccumulateDeposit))
             return CreateInvalidResponse<MessageResponse>(string.Format(
                 "Level up accumulate can't greater than next level (Bet Amount :{0}) (Deposit :{1})",
                 lastVip.LevelUpAccumulateBetAmount,
@@ -149,8 +149,8 @@ public class VipLevelController : BaseContextController
             .Single();
 
         if (itemIndex > 0
-            && (allVip[itemIndex - 1].LevelUpAccumulateBetAmount >= request.LevelUpAccumulateBetAmount
-                || allVip[itemIndex - 1].LevelUpAccumulateDeposit >= request.LevelUpAccumulateDeposit))
+            && (allVip[itemIndex - 1].LevelUpAccumulateBetAmount > request.LevelUpAccumulateBetAmount
+                || allVip[itemIndex - 1].LevelUpAccumulateDeposit > request.LevelUpAccumulateDeposit))
             return CreateInvalidResponse<MessageResponse>(string.Format(
                 "Level up accumulate can't less than previous level (Bet Amount :{0}) (Deposit :{1})",
                 allVip[itemIndex - 1].LevelUpAccumulateBetAmount,
