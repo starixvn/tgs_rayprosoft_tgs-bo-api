@@ -26,13 +26,13 @@ public class BrandGameProviderReportController : BaseContextController
     }
 
     [HttpGet]
-    [Description("Get brand game provider round aggregate")]
-    public async Task<GetBrandGameProviderRoundsReportResponse> GetGameProviderRoundsAsync(
+    [Description("Get brand game provider aggregate")]
+    public async Task<GetBrandGameProvidersReportResponse> GetGameProvidersAsync(
         [FromServices]
-        IGetService<GetBrandGameProviderRoundsReportRequest, GetBrandGameProviderRoundsReportResponse>
-            brandGameProviderRoundsService,
-        [FromQuery] GetBrandGameProviderRoundsReportRequest request)
-        => await brandGameProviderRoundsService
+        IGetService<GetBrandGameProvidersReportRequest, GetBrandGameProvidersReportResponse>
+            brandGameProvidersService,
+        [FromQuery] GetBrandGameProvidersReportRequest request)
+        => await brandGameProvidersService
             .GetAsync(request)
             .ConfigureAwait(false);
 }
