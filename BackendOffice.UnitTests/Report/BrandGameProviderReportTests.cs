@@ -32,11 +32,11 @@ public class BrandGameProviderReportTests
                 {
                     Items = brandGameProviders
                 },
-                Totals = brandGameProviders.GroupBy(x => x).Select(x => new BrandGameProviderTotalModel
+                Total = brandGameProviders.GroupBy(x => x).Select(x => new BrandGameProviderTotalModel
                 {
                     TransactionCount = x.Sum(s => s.TransactionCount),
                     PlayerCount = x.Sum(s => s.PlayerCount)
-                }).ToArray()
+                }).First()
             });
 
         var response = await sut.GetAsync(request, default);

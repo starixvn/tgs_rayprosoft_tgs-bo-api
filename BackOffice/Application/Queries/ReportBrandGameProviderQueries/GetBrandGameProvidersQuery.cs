@@ -38,8 +38,8 @@ public class
         {
             Datas = new PagedResponse<BrandGameProvidersReportModel>
             {
-                TotalCount = response.Datas?.TotalCount ?? 0,
-                Items = response.Datas?.Items.Select(x => new BrandGameProvidersReportModel
+                TotalCount = response.Datas.TotalCount,
+                Items = response.Datas.Items.Select(x => new BrandGameProvidersReportModel
                     {
                         GameProviderId = x.GameProviderId,
                         GameProviderName = x.GameProviderName,
@@ -53,17 +53,16 @@ public class
                     })
                     .ToArray()
             },
-            Totals = response.Totals?.Select(x => new BrandGameProviderTotalReportModel
-                {
-                    CurrencyCode = x.CurrencyCode,
-                    TransactionCount = x.TransactionCount,
-                    BetAmount = x.BetAmount,
-                    ValidBetAmount = x.ValidBetAmount,
-                    OriginalTurnover = x.OriginalTurnover,
-                    CompanyWinLoss = x.CompanyWinLoss,
-                    PlayerCount = x.PlayerCount
-                })
-                .ToArray()
+            Total = new BrandGameProviderTotalReportModel
+            {
+                CurrencyCode = response.Total.CurrencyCode,
+                TransactionCount = response.Total.TransactionCount,
+                BetAmount = response.Total.BetAmount,
+                ValidBetAmount = response.Total.ValidBetAmount,
+                OriginalTurnover = response.Total.OriginalTurnover,
+                CompanyWinLoss = response.Total.CompanyWinLoss,
+                PlayerCount = response.Total.PlayerCount
+            }
         };
     }
 }
