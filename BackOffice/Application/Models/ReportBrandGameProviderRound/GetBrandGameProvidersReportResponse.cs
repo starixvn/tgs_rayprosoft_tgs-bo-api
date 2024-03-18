@@ -6,5 +6,5 @@ public record GetBrandGameProvidersReportResponse
 {
     public PagedResponse<BrandGameProvidersReportModel> Datas { get; init; } = default!;
 
-    public BrandGameProviderTotalReportModel[] Totals { get; init; } = default!;
+    public BrandGameProviderTotalReportModel Total { get; init; } = default!;
 }
