@@ -11,4 +11,6 @@ public record PlayerPaymentOverview(
     DateTime? FirstWithdrawOn,
     DateOnly RecordedBy,
     decimal TotalDepositAmount,
-    decimal TotalWithdrawAmount);
+    decimal TotalWithdrawAmount,
+    int TotalDepositCount,
+    int TotalWithdrawCount);

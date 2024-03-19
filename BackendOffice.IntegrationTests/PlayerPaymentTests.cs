@@ -49,29 +49,31 @@ public class PlayerPaymentTests(ITestOutputHelper testOutputHelper, NodeJsFixtur
             Arg.Is(playerCode),
             Arg.Any<CancellationToken>())
             .Returns(new PaymentOverview(
-                10,
-                20,
+                10M,
+                20M,
                 time,
-                30,
-                40,
+                30M,
+                40M,
                 time,
                 DateOnly.FromDateTime(time),
                 50M,
                 1,
                 60M,
-                1));
+                3));
 
         var expected = new PaymentOverviewViewModel
         {
-            FirstDepositAmount = 10,
-            FirstDepositHandlingFee = 20,
+            FirstDepositAmount = 10M,
+            FirstDepositHandlingFee = 20M,
             FirstDepositOn = time,
-            FirstWithdrawAmount = 30,
-            FirstWithdrawHandlingFee = 40,
+            FirstWithdrawAmount = 30M,
+            FirstWithdrawHandlingFee = 40M,
             FirstWithdrawOn = time,
             RecordedBy = DateOnly.FromDateTime(time),
-            TotalDepositAmount = 50,
-            TotalWithdrawAmount = 60
+            TotalDepositAmount = 50M,
+            TotalWithdrawAmount = 60M,
+            TotalDepositCount = 1,
+            TotalWithdrawCount = 3
         };
 
         using var nodeService = _nodeJsFixture.BuildNodeJsService();
@@ -80,7 +82,7 @@ public class PlayerPaymentTests(ITestOutputHelper testOutputHelper, NodeJsFixtur
 
         var nodeModule = $$"""
             const axiosConfigFactory = require('./models/axios-configuration.js').default;
-            const BackOfficeService = require('./services/bo-service.js').default;
+            const BackOfficeService = require('./services/bo-payment-service.js').default;
 
             module.exports = async (playerCode) =>
             {

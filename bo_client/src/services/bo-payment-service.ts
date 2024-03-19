@@ -81,4 +81,10 @@ export default class BoPaymentService {
             .get(`/api/player/${playerCode}/bank`)
             .then(res => res.data);
     }
+
+    public getPlayerPaymentOverview(playerCode: string): Promise<PlayerPaymentOverview> {
+        return this.http
+            .get(`/api/player/payment/${playerCode}`, {})
+            .then(res => res.data);
+    }
 }

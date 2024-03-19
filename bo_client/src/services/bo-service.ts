@@ -458,12 +458,6 @@ export default class BackOfficeService {
             .then(res => res.data);
     }
 
-    public getPlayerPaymentOverview(playerCode: string): Promise<any> {
-        return this.http
-            .get(`/api/player/payment/${playerCode}`, {})
-            .then(res => res.data);
-    }
-
     public getPlayerTypeBucketAmounts(playerCode: string): Promise<Iterable<TypeBucketResult>> {
         return this.http
             .get(`/api/player/bucket/type/amount/${playerCode}`)
