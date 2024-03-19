@@ -7,6 +7,7 @@ using Microsoft.EntityFrameworkCore;
 using Tgs.Paging;
 using Tgs.ServiceUtility;
 using TGS.Apis.BackendOffice.Controllers.Messages.Department;
+using TGS.Apis.BackendOffice.Controllers.Messages.Reseller;
 using TGS.Core.DataServices.Base.Interfaces;
 using TGS.Core.DataServices.Tgs.Models;
 using TGS.Core.Infrastructures.Extensions;
@@ -83,7 +84,7 @@ public class DepartmentController(
     {
         var paging = new Paging<DepartmentInfo>
         {
-            RowCount = pageableRequest.Rows,
+            RowCount = pageableRequest.ShowAll ? int.MaxValue : pageableRequest.Rows,
             Page = pageableRequest.Page,
         };
 
@@ -94,9 +95,9 @@ public class DepartmentController(
             pageableRequest.IsDesc);
 
         var query = new GetDepartmentsQuery(
-            ResellerId,
-            LicenseeId,
-            BrandId,
+            ResellerId ?? request.ResellerId,
+            LicenseeId ?? request.LicenseeId,
+            BrandId ?? request.BrandId,
             request.Name,
             paging);
 
