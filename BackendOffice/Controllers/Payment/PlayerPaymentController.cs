@@ -32,7 +32,9 @@ public class PlayerPaymentController : BaseContextController
             FirstWithdrawOn = result.FirstWithdrawOn,
             RecordedBy = result.RecordedBy,
             TotalDepositAmount = result.TotalDepositAmount,
-            TotalWithdrawAmount = result.TotalWithdrawAmount
+            TotalWithdrawAmount = result.TotalWithdrawAmount,
+            TotalDepositCount = result.TotalDepositCount,
+            TotalWithdrawCount = result.TotalWithdrawCount
         };
     }
 }

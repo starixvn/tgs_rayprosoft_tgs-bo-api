@@ -27,7 +27,9 @@ internal class GetPlayerPaymentOverviewQueryService(IPaymentServiceClient paymen
                 overview.FirstWithdrawOn,
                 overview.RecordedBy,
                 overview.TotalDepositAmount,
-                overview.TotalWithdrawAmount))
+                overview.TotalWithdrawAmount,
+                overview.TotalDepositCount,
+                overview.TotalWithdrawCount))
             .FirstAsync(cancellationToken: cancellationToken)
             .ConfigureAwait(false);
 }
