@@ -5,6 +5,7 @@ using System.Threading.Tasks;
 using Microsoft.Extensions.Logging;
 using Polly;
 using Tgs.CashService.Client;
+using Tgs.PlayerBucket.Client;
 using Tgs.Service.PlayerBuckets;
 using Tgs.ServiceUtility;
 using TGS.Services.BackOffice.Application.Models.Player;
@@ -14,33 +15,39 @@ namespace TGS.Services.BackOffice.ApplicationServices.PlayerBuckets;
 
 internal class ProcessCleanBucketsRequestCommandService(
     IPlayerBucketClient playerBucketClient,
+    IPlayerBucketForTypesClient playerBucketForTypesClient,
     ICashServiceClient cashServiceClient,
     IQueryService<GetPlayerGameProviderBalanceQuery, GetPlayerGameProviderBalanceResponse> gameProviderQueryService,
-    ILogger<ProcessCleanBucketsRequestCommandService> logger) : ICommandService<ProcessCleanBucketsRequestCommand>
+    ILogger<ProcessCleanBucketsRequestCommandService> logger)
+    : ICommandService<ProcessCleanBucketsRequestCommand>
 {
-    private readonly ICashServiceClient _cashServiceClient = cashServiceClient ?? throw new ArgumentNullException(nameof(cashServiceClient));
-    private readonly IQueryService<GetPlayerGameProviderBalanceQuery, GetPlayerGameProviderBalanceResponse> _gameProviderQueryService = gameProviderQueryService ?? throw new ArgumentNullException(nameof(gameProviderQueryService));
-    private readonly ILogger<ProcessCleanBucketsRequestCommandService> _logger = logger ?? throw new ArgumentNullException(nameof(logger));
-    private readonly IPlayerBucketClient _playerBucketClient = playerBucketClient ?? throw new ArgumentNullException(nameof(playerBucketClient));
-
     public async ValueTask ExecuteAsync(ProcessCleanBucketsRequestCommand command, CancellationToken cancellationToken = default)
     {
-        var form = await _playerBucketClient.GetCleanBucketFormAsync(
+        var form = await playerBucketClient.GetCleanBucketFormAsync(
             command.FormId,
             cancellationToken).ConfigureAwait(false);
 
         if (form is null)
             return;
 
-        var processingBucketResult = await _playerBucketClient.ReadBucketsAsync(
-            form.PlayerCode,
-            cancellationToken).ConfigureAwait(false);
+        var bucketTypes = await playerBucketClient.GetBrandBucketTypesAsync(
+            form.BrandId,
+            cancellationToken)
+            .ToArrayAsync(cancellationToken)
+            .ConfigureAwait(false);
 
-        var processingWalletBalance = await _cashServiceClient.GetBalanceAsync(
+        var processingBucketResults = await playerBucketForTypesClient.ReadBucketsForBucketTypesAsync(
+            form.PlayerCode,
+            bucketTypes,
+            cancellationToken)
+            .ToArrayAsync(cancellationToken)
+            .ConfigureAwait(false);
+
+        var processingWalletBalance = await cashServiceClient.GetBalanceAsync(
             form.WalletId,
             cancellationToken).ConfigureAwait(false);
 
-        var playerAllBalances = await _gameProviderQueryService
+        var playerAllBalances = await gameProviderQueryService
             .QueryAsync(
                 new GetPlayerGameProviderBalanceQuery(form.PlayerCode),
                 cancellationToken)
@@ -56,45 +63,36 @@ internal class ProcessCleanBucketsRequestCommandService(
                 await Policy.Handle<Exception>()
                     .RetryAsync(2, (ex, count) =>
                     {
-                        _logger.LogWarning(ex, "Clean buckets throw exception, retry {count}.", count);
+                        logger.LogWarning(ex, "Clean buckets throw exception, retry {count}.", count);
                     })
-                    .ExecuteAsync(async () => await _playerBucketClient
-                        .CleanBucketsAsync(
+                    .ExecuteAsync(async () => await playerBucketForTypesClient
+                        .CleanBucketsForBucketTypesAsync(
                             form.PlayerCode,
                             form.CurrentBucketAmounts
-                                .Where(result => result.BucketType is null)
-                                .First()
-                                .Result
-                                .AnchorBucketId
-                                .Value,
+                                .Where(result => result.Result.AnchorBucketId is not null)
+                                .Select(result => (result.BucketType, result.Result.AnchorBucketId.Value)),
                             form.DepositFormId.ToString(),
                             null,
                             cancellationToken)
                         .ConfigureAwait(false))
                     .ConfigureAwait(false);
 
-                await _playerBucketClient.CompleteCleanBucketsAsync(
+                await playerBucketClient.CompleteCleanBucketsAsync(
                     form.Id,
                     new ReviewCleanBucketRequest<GetPlayerGameProviderBalanceResponse[]>(
                         processingWalletBalance,
-                        [
-                            new TypeBucketResult(
-                                null,
-                                processingBucketResult)
-                        ],
+                        processingBucketResults.Select(
+                            result => new TypeBucketResult(result.BucketType, result.Result)),
                         playerAllBalances),
                     cancellationToken).ConfigureAwait(false);
             }
             else
-                await _playerBucketClient.RejectCleanBucketsAsync(
+                await playerBucketClient.RejectCleanBucketsAsync(
                     form.Id,
                     new ReviewCleanBucketRequest<GetPlayerGameProviderBalanceResponse[]>(
                         processingWalletBalance,
-                        [
-                            new TypeBucketResult(
-                                null,
-                                processingBucketResult)
-                        ],
+                        processingBucketResults.Select(
+                            result => new TypeBucketResult(result.BucketType, result.Result)),
                         playerAllBalances),
                     cancellationToken).ConfigureAwait(false);
         }
