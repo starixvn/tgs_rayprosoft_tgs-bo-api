@@ -48,7 +48,7 @@ public class
                         PlayerCount = x.PlayerCount,
                         BetAmount = x.BetAmount,
                         ValidBetAmount = x.ValidBetAmount,
-                        OriginalTurnover = x.OriginalTurnover,
+                        Turnover = x.Turnover,
                         CompanyWinLoss = x.CompanyWinLoss
                     })
                     .ToArray()
@@ -59,7 +59,7 @@ public class
                 TransactionCount = response.Total.TransactionCount,
                 BetAmount = response.Total.BetAmount,
                 ValidBetAmount = response.Total.ValidBetAmount,
-                OriginalTurnover = response.Total.OriginalTurnover,
+                Turnover = response.Total.Turnover,
                 CompanyWinLoss = response.Total.CompanyWinLoss,
                 PlayerCount = response.Total.PlayerCount
             }

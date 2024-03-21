@@ -16,7 +16,7 @@ public record BrandGameProvidersReportModel
 
     public decimal ValidBetAmount { get; init; }
 
-    public decimal OriginalTurnover { get; init; }
+    public decimal Turnover { get; init; }
 
     public decimal CompanyWinLoss { get; init; }
 
