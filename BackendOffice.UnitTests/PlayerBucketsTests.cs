@@ -1,4 +1,5 @@
-﻿using ExpectedObjects;
+﻿using System.Collections.Generic;
+using ExpectedObjects;
 using Microsoft.Extensions.Logging.Abstractions;
 using NSubstitute;
 using Tgs.CashService.Client;
@@ -160,11 +161,13 @@ public class PlayerBucketsTests
     public async Task 處理清流水表單_如果餘額大於清除允許的額度_拒絕處理()
     {
         var fakePlayerBucketClient = Substitute.For<IPlayerBucketClient>();
+        var fakePlayerBucketForTypesClient = Substitute.For<IPlayerBucketForTypesClient>();
         var fakeCashServiceClient = Substitute.For<ICashServiceClient>();
         var fakeGameProviderQueryService = Substitute.For<IQueryService<GetPlayerGameProviderBalanceQuery, GetPlayerGameProviderBalanceResponse>>();
 
         var sut = new ProcessCleanBucketsRequestCommandService(
             fakePlayerBucketClient,
+            fakePlayerBucketForTypesClient,
             fakeCashServiceClient,
             fakeGameProviderQueryService,
             NullLogger<ProcessCleanBucketsRequestCommandService>.Instance);
@@ -213,6 +216,16 @@ public class PlayerBucketsTests
                     1000M)
             }.ToAsyncEnumerable());
 
+        _ = fakePlayerBucketForTypesClient.ReadBucketsForBucketTypesAsync(
+            Arg.Is("test1"),
+            Arg.Any<IEnumerable<string>>())
+            .Returns(new[]
+            {
+                new TypeBucketResult(
+                    null,
+                    cleaningBucketResult)
+            }.ToAsyncEnumerable());
+
         var expected = new
         {
             CleaningBalance = 0M,
@@ -226,12 +239,12 @@ public class PlayerBucketsTests
 
         await sut.ExecuteAsync(command);
 
-        _ = fakePlayerBucketClient.Received(0)
-                .CleanBucketsAsync(
-                    Arg.Is(form.PlayerCode),
-                    Arg.Is(bucketAnchorId),
-                    Arg.Is(form.DepositFormId.ToString()),
-                    Arg.Is(default(string)));
+        _ = fakePlayerBucketForTypesClient.Received(0)
+            .CleanBucketsForBucketTypesAsync(
+                Arg.Is(form.PlayerCode),
+                Arg.Any<IEnumerable<(string? BucketType, Guid BucketAnchorId)>>(),
+                Arg.Is(form.DepositFormId.ToString()),
+                Arg.Is(default(string)));
 
         _ = fakePlayerBucketClient.Received(1)
             .RejectCleanBucketsAsync(
@@ -244,11 +257,13 @@ public class PlayerBucketsTests
     public async Task 處理清除流水表單()
     {
         var fakePlayerBucketClient = Substitute.For<IPlayerBucketClient>();
+        var fakePlayerBucketForTypesClient = Substitute.For<IPlayerBucketForTypesClient>();
         var fakeCashServiceClient = Substitute.For<ICashServiceClient>();
         var fakeGameProviderQueryService = Substitute.For<IQueryService<GetPlayerGameProviderBalanceQuery, GetPlayerGameProviderBalanceResponse>>();
 
         var sut = new ProcessCleanBucketsRequestCommandService(
             fakePlayerBucketClient,
+            fakePlayerBucketForTypesClient,
             fakeCashServiceClient,
             fakeGameProviderQueryService,
             NullLogger<ProcessCleanBucketsRequestCommandService>.Instance);
@@ -298,6 +313,16 @@ public class PlayerBucketsTests
                     0M)
             }.ToAsyncEnumerable());
 
+        _ = fakePlayerBucketForTypesClient.ReadBucketsForBucketTypesAsync(
+            Arg.Is("test1"),
+            Arg.Any<IEnumerable<string>>())
+            .Returns(new[]
+            {
+                new TypeBucketResult(
+                    null,
+                    cleaningBucketResult)
+            }.ToAsyncEnumerable());
+
         var expected = new
         {
             CleaningBalance = 0M,
@@ -307,14 +332,23 @@ public class PlayerBucketsTests
                     null,
                     cleaningBucketResult)
             }
-        };
+        }.ToExpectedObject();
 
         await sut.ExecuteAsync(command);
 
-        _ = fakePlayerBucketClient.Received(1)
-            .CleanBucketsAsync(
+        var cleanTypes = new (string? BucketType, Guid AnchorBucketId)[] {
+            (BucketType: null, bucketAnchorId)}.ToExpectedObject(ctx => ctx
+                .ArrayMemberShouldMatch(
+                    o => o,
+                    itemCtx => itemCtx
+                        .IgnoreEqualsOverride())
+                .IgnoreEqualsOverride());
+
+        _ = fakePlayerBucketForTypesClient.Received(1)
+            .CleanBucketsForBucketTypesAsync(
                 Arg.Is(form.PlayerCode),
-                Arg.Is(bucketAnchorId),
+                Arg.Is<IEnumerable<(string? BucketType, Guid AnchorBucketId)>>(
+                    items => cleanTypes.Matches(items)),
                 Arg.Is(form.DepositFormId.ToString()),
                 Arg.Is(default(string)));
 
@@ -322,18 +356,20 @@ public class PlayerBucketsTests
             .CompleteCleanBucketsAsync(
                 Arg.Is(form.Id),
                 Arg.Is<ReviewCleanBucketRequest<GetPlayerGameProviderBalanceResponse[]>>(
-                    req => expected.ToExpectedObject().Matches(req)));
+                    req => expected.Matches(req)));
     }
 
     [Test]
     public async Task 處理清除流水表單_如果遊戲廠商在維護中不處理()
     {
         var fakePlayerBucketClient = Substitute.For<IPlayerBucketClient>();
+        var fakePlayerBucketForTypesClient = Substitute.For<IPlayerBucketForTypesClient>();
         var fakeCashServiceClient = Substitute.For<ICashServiceClient>();
         var fakeGameProviderQueryService = Substitute.For<IQueryService<GetPlayerGameProviderBalanceQuery, GetPlayerGameProviderBalanceResponse>>();
 
         var sut = new ProcessCleanBucketsRequestCommandService(
             fakePlayerBucketClient,
+            fakePlayerBucketForTypesClient,
             fakeCashServiceClient,
             fakeGameProviderQueryService,
             NullLogger<ProcessCleanBucketsRequestCommandService>.Instance);
@@ -382,10 +418,10 @@ public class PlayerBucketsTests
 
         await sut.ExecuteAsync(command);
 
-        _ = fakePlayerBucketClient.Received(0)
-            .CleanBucketsAsync(
+        _ = fakePlayerBucketForTypesClient.Received(0)
+            .CleanBucketsForBucketTypesAsync(
                 Arg.Is(form.PlayerCode),
-                Arg.Is(form.CurrentBucketAmounts.First().Result.AnchorBucketId!.Value),
+                Arg.Any<IEnumerable<(string? BucketType, Guid AnchorBucketId)>>(),
                 Arg.Is(form.DepositFormId.ToString()),
                 Arg.Is(default(string)));
     }
