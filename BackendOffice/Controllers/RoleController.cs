@@ -354,40 +354,52 @@ public class RoleController(
             .Where(role.RoleType == RoleType.Licensee, x => x.LicenseeId == role.LicenseeId)
             .Where(role.RoleType == RoleType.Reseller, x => x.ResellerId == role.ResellerId).ToArrayAsync();
 
-        if (role.RoleType == RoleType.Reseller)
-        {
-            var resellerRoles = roles.Where(x => x.RoleType == RoleType.Reseller).ToArray();
-            UpdateRoles(role, resellerRoles);
-        }
-
         if (role.RoleType is RoleType.Reseller or RoleType.Licensee)
         {
-            var licenseeRootRole = roles.FirstOrDefault(x => x.RoleType == RoleType.Licensee && x.IsRoot);
+            var licenseeRootRoles = roles.Where(x => x.RoleType == RoleType.Licensee && x.IsRoot).ToArray();
 
-            if (licenseeRootRole != null)
+            UpdateRoles(role, licenseeRootRoles);
+
+            licenseeRootRoles.ForEach(licenseeRootRole =>
             {
-                UpdateRoles(role,
-                    [
-                        licenseeRootRole
-                    ]);
-            }
+                var licenseeRoles = roles
+                    .Where(x => x.RoleType == RoleType.Licensee && x.LicenseeId == licenseeRootRole.LicenseeId)
+                    .ToArray();
 
-            var licenseeRoles = roles.Where(x => x.RoleType == RoleType.Licensee).ToArray();
-            UpdateRoles(licenseeRootRole, licenseeRoles);
+                UpdateRoles(licenseeRootRole, licenseeRoles);
+
+                var brandRootRoles = roles.Where(x =>
+                        x.RoleType == RoleType.Brand && x.IsRoot && x.LicenseeId == licenseeRootRole.LicenseeId)
+                    .ToArray();
+
+                UpdateRoles(licenseeRootRole, brandRootRoles);
+
+                brandRootRoles.ForEach(brandRootRole =>
+                {
+                    var brandRoles = roles
+                        .Where(x => x.RoleType == RoleType.Brand && x.BrandId == brandRootRole.BrandId)
+                        .ToArray();
+                    UpdateRoles(brandRootRole, brandRoles);
+                });
+            });
+
         }
 
-        var brandRootRole = roles.FirstOrDefault(x => x.RoleType == RoleType.Brand && x.IsRoot);
-
-        if (brandRootRole != null)
+        if (role.RoleType is RoleType.Brand)
         {
-            UpdateRoles(role,
+            var brandRootRole = roles.FirstOrDefault(x => x.RoleType == RoleType.Brand && x.IsRoot);
+
+            if (brandRootRole != null)
+            {
+                UpdateRoles(role,
                 [
                     brandRootRole
                 ]);
-        }
+            }
 
-        var brandRoles = roles.Where(x => x.RoleType == RoleType.Brand).ToArray();
-        UpdateRoles(brandRootRole, brandRoles);
+            var brandRoles = roles.Where(x => x.RoleType == RoleType.Brand).ToArray();
+            UpdateRoles(brandRootRole, brandRoles);
+        }
 
         await roleCommands.BatchUpdateAsync(roles);
 
