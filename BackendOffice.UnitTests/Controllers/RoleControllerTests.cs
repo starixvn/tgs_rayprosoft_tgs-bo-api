@@ -258,6 +258,13 @@ public class RoleControllerTests : BaseTests
             .DeserializeFromString<MenuSetting[]>(Arg.Any<string>(), Arg.Any<JsonSerializerOptions>())
             .Returns(menuSettings);
 
+        menuSettings = menuSettings.Where(x => x.IsDisplay).ToArray();
+
+        menuSettings.ForEach(s =>
+        {
+            s.SubMenus = s.SubMenus.Where(sm => sm.IsDisplay).ToArray();
+        });
+
         var response = await controller.GetSingleAsync(role.Id);
         _ = response.Valid.Should().BeTrue();
         _ = response.Role.Id.Should().Be(role.Id);

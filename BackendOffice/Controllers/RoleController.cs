@@ -8,7 +8,6 @@ using Microsoft.EntityFrameworkCore;
 using TGS.Apis.BackendOffice.Controllers.Messages.Roles;
 using TGS.Core.DataServices.Base.Interfaces;
 using TGS.Core.DataServices.Tgs.Models;
-using TGS.Core.Infrastructures.Extensions;
 using TGS.Core.Infrastructures.Json;
 using TGS.Core.Models.Enums;
 using TGS.Core.Models.Services;
@@ -447,29 +446,6 @@ public class RoleController(
         var templateMenus = GetMenuSettingByString(template);
         var roleMenus = GetMenuSettingByString(menuSetting);
 
-        foreach (var menu in templateMenus)
-        {
-            var roleMenuLevel1 = SetMenuDisplay(menu, roleMenus);
-
-            foreach (var subMenu in menu.SubMenus)
-            {
-                var roleMenuLevel2 = SetMenuDisplay(subMenu, roleMenuLevel1?.SubMenus);
-
-                foreach (var permission in subMenu.SubMenus)
-                {
-                    _ = SetMenuDisplay(permission, roleMenuLevel2?.SubMenus);
-                }
-            }
-        }
-
-        return templateMenus;
-    }
-
-    private MenuSetting[] GetMenuSettingForUpdate(string template, string menuSetting)
-    {
-        var templateMenus = GetMenuSettingByString(template);
-        var roleMenus = GetMenuSettingByString(menuSetting);
-
         templateMenus = templateMenus.Where(x => x.IsDisplay).ToArray();
 
         templateMenus.ForEach(x =>
@@ -507,7 +483,7 @@ public class RoleController(
     {
         foreach (var roleItem in roles)
         {
-            var menus = GetMenuSettingForUpdate(templateRole.MenuSetting, roleItem.MenuSetting);
+            var menus = GetMenuSetting(templateRole.MenuSetting, roleItem.MenuSetting);
             roleItem.MenuSetting = jsonSerializationProvider.SerializeToString(menus);
             roleItem.UpdatedByUsername = Username;
             roleItem.UpdatedOn = DateTimeOffset.Now;
