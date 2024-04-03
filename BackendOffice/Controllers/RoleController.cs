@@ -358,12 +358,12 @@ public class RoleController(
         {
             var licenseeRootRoles = roles.Where(x => x.RoleType == RoleType.Licensee && x.IsRoot).ToArray();
 
-            UpdateRoles(role, licenseeRootRoles);
+            UpdateRoles(role, licenseeRootRoles.Where(x => x.Id != role.Id));
 
             licenseeRootRoles.ForEach(licenseeRootRole =>
             {
                 var licenseeRoles = roles
-                    .Where(x => x.RoleType == RoleType.Licensee && x.LicenseeId == licenseeRootRole.LicenseeId)
+                    .Where(x => x.RoleType == RoleType.Licensee && x.LicenseeId == licenseeRootRole.LicenseeId && !x.IsRoot)
                     .ToArray();
 
                 UpdateRoles(licenseeRootRole, licenseeRoles);
@@ -377,12 +377,11 @@ public class RoleController(
                 brandRootRoles.ForEach(brandRootRole =>
                 {
                     var brandRoles = roles
-                        .Where(x => x.RoleType == RoleType.Brand && x.BrandId == brandRootRole.BrandId)
+                        .Where(x => x.RoleType == RoleType.Brand && x.BrandId == brandRootRole.BrandId && !x.IsRoot)
                         .ToArray();
                     UpdateRoles(brandRootRole, brandRoles);
                 });
             });
-
         }
 
         if (role.RoleType is RoleType.Brand)
@@ -408,10 +407,11 @@ public class RoleController(
 
     private static MenuSetting SetMenuDisplay(MenuSetting menuTemplate, IEnumerable<MenuSetting> roleMenus)
     {
-        var roleMenuLevel1 = roleMenus?.FirstOrDefault(p => p.Code == menuTemplate.Code);
-        menuTemplate.IsDisplay = roleMenuLevel1?.IsDisplay ?? false;
+        var roleMenu = roleMenus?.FirstOrDefault(p => p.Code == menuTemplate.Code);
 
-        return roleMenuLevel1;
+        menuTemplate.IsDisplay = roleMenu?.IsDisplay ?? false;
+
+        return roleMenu;
     }
 
     private Role CreateRole(
@@ -465,6 +465,41 @@ public class RoleController(
         return templateMenus;
     }
 
+    private MenuSetting[] GetMenuSettingForUpdate(string template, string menuSetting)
+    {
+        var templateMenus = GetMenuSettingByString(template);
+        var roleMenus = GetMenuSettingByString(menuSetting);
+
+        templateMenus = templateMenus.Where(x => x.IsDisplay).ToArray();
+
+        templateMenus.ForEach(x =>
+        {
+            x.SubMenus = x.SubMenus.Where(s => s.IsDisplay).ToArray();
+
+            x.SubMenus.ForEach(s =>
+            {
+                s.SubMenus = s.SubMenus.Where(sm => sm.IsDisplay || sm.Code=="View").ToArray();
+            });
+        });
+
+        foreach (var menu in templateMenus)
+        {
+            var roleMenuLevel1 = SetMenuDisplay(menu, roleMenus);
+
+            foreach (var subMenu in menu.SubMenus)
+            {
+                var roleMenuLevel2 = SetMenuDisplay(subMenu, roleMenuLevel1?.SubMenus);
+
+                foreach (var permission in subMenu.SubMenus)
+                {
+                    _ = SetMenuDisplay(permission, roleMenuLevel2?.SubMenus);
+                }
+            }
+        }
+
+        return templateMenus;
+    }
+
     private MenuSetting[] GetMenuSettingByString(string setting)
         => jsonSerializationProvider.DeserializeFromString<MenuSetting[]>(setting);
 
@@ -472,7 +507,7 @@ public class RoleController(
     {
         foreach (var roleItem in roles)
         {
-            var menus = GetMenuSetting(templateRole.MenuSetting, roleItem.MenuSetting);
+            var menus = GetMenuSettingForUpdate(templateRole.MenuSetting, roleItem.MenuSetting);
             roleItem.MenuSetting = jsonSerializationProvider.SerializeToString(menus);
             roleItem.UpdatedByUsername = Username;
             roleItem.UpdatedOn = DateTimeOffset.Now;
