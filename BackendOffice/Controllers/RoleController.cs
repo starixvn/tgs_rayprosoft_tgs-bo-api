@@ -353,6 +353,12 @@ public class RoleController(
             .Where(role.RoleType == RoleType.Licensee, x => x.LicenseeId == role.LicenseeId)
             .Where(role.RoleType == RoleType.Reseller, x => x.ResellerId == role.ResellerId).ToArrayAsync();
 
+        if (role.RoleType == RoleType.Reseller)
+        {
+            var resellerRoles = roles.Where(x => x.RoleType == RoleType.Reseller && !x.IsRoot).ToArray();
+            UpdateRoles(role, resellerRoles);
+        }
+
         if (role.RoleType is RoleType.Reseller or RoleType.Licensee)
         {
             var licenseeRootRoles = roles.Where(x => x.RoleType == RoleType.Licensee && x.IsRoot).ToArray();
