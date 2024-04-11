@@ -757,7 +757,6 @@ public class BrandTests(ITestOutputHelper testOutputHelper, NodeJsFixture nodeJs
 
         var fakeBrandServiceClient = Substitute.For<IBrandServiceClient>();
         var fakeBrandService = Substitute.For<IBrandService>();
-        var fakeBrandContractClient = Substitute.For<IBrandContractClient>();
 
         using var web = TestBackendOfficeApplication.Builder
             .UseTestChannelServer(channelName)
@@ -773,8 +772,7 @@ public class BrandTests(ITestOutputHelper testOutputHelper, NodeJsFixture nodeJs
                     })
                 .Services
                 .AddSingleton(fakeBrandServiceClient)
-                .AddSingleton(fakeBrandService)
-                .AddSingleton(fakeBrandContractClient))
+                .AddSingleton(fakeBrandService))
             .Build();
 
         await web.StartAsync();
@@ -897,7 +895,6 @@ public class BrandTests(ITestOutputHelper testOutputHelper, NodeJsFixture nodeJs
 
         var fakeBrandServiceClient = Substitute.For<IBrandServiceClient>();
         var fakeBrandService = Substitute.For<IBrandService>();
-        var fakeBrandContractClient = Substitute.For<IBrandContractClient>();
 
         using var web = TestBackendOfficeApplication.Builder
             .UseTestChannelServer(channelName)
@@ -913,8 +910,7 @@ public class BrandTests(ITestOutputHelper testOutputHelper, NodeJsFixture nodeJs
                     })
                 .Services
                 .AddSingleton(fakeBrandServiceClient)
-                .AddSingleton(fakeBrandService)
-                .AddSingleton(fakeBrandContractClient))
+                .AddSingleton(fakeBrandService))
             .Build();
 
         await web.StartAsync();
@@ -1040,7 +1036,6 @@ public class BrandTests(ITestOutputHelper testOutputHelper, NodeJsFixture nodeJs
 
         var fakeBrandServiceClient = Substitute.For<IBrandServiceClient>();
         var fakeBrandService = Substitute.For<IBrandService>();
-        var fakeBrandContractClient = Substitute.For<IBrandContractClient>();
 
         using var web = TestBackendOfficeApplication.Builder
             .UseTestChannelServer(channelName)
@@ -1056,8 +1051,7 @@ public class BrandTests(ITestOutputHelper testOutputHelper, NodeJsFixture nodeJs
                     })
                 .Services
                 .AddSingleton(fakeBrandServiceClient)
-                .AddSingleton(fakeBrandService)
-                .AddSingleton(fakeBrandContractClient))
+                .AddSingleton(fakeBrandService))
             .Build();
 
         await web.StartAsync();
