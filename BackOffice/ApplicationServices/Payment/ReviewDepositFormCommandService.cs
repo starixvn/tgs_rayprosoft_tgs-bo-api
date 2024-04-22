@@ -17,19 +17,23 @@ using Tgs.Promotion.Clients;
 using Tgs.Service.PlayerBuckets;
 using Tgs.ServiceUtility;
 using TGS.Core.Infrastructures.Redis;
+using Valhalla.MessageQueue;
 
 namespace TGS.Services.BackOffice.ApplicationServices.Payment;
 
 internal class ReviewDepositFormCommandService : ICommandService<ReviewDepositFormCommand>
 {
+    private static readonly string[] _AllowDistributePromotionTypes = ["FirstDeposit", "DailySecondDeposit", "DailyFirstDeposit", "DepositReward"];
     private readonly IBrandServiceClient _brandServiceClient;
     private readonly ICashServiceClient _cashServiceClient;
     private readonly ILogger<ReviewDepositFormCommandService> _logger;
+    private readonly IMessageSender _messageSender;
     private readonly IPaymentServiceClient _paymentServiceClient;
     private readonly IPlayerBucketClient _playerBucketClient;
     private readonly IPlayerBucketForTypesClient _playerBucketForTypesClient;
     private readonly IPlayerServiceClient _playerServiceClient;
     private readonly IPromotionClient _promotionClient;
+    private readonly IPromotionServiceClient _promotionServiceClient;
     private readonly IDatabase _redisDatabase;
 
     public ReviewDepositFormCommandService(
@@ -38,9 +42,11 @@ internal class ReviewDepositFormCommandService : ICommandService<ReviewDepositFo
         IPlayerBucketClient playerBucketClient,
         IPlayerBucketForTypesClient playerBucketForTypesClient,
         IPromotionClient promotionClient,
+        IPromotionServiceClient promotionServiceClient,
         IRedisConnectionFactory redisConnectionFactory,
         IBrandServiceClient brandServiceClient,
         ICashServiceClient cashServiceClient,
+        IMessageSender messageSender,
         ILogger<ReviewDepositFormCommandService> logger)
     {
         ArgumentNullException.ThrowIfNull(redisConnectionFactory);
@@ -50,9 +56,11 @@ internal class ReviewDepositFormCommandService : ICommandService<ReviewDepositFo
         _playerBucketClient = playerBucketClient ?? throw new ArgumentNullException(nameof(playerBucketClient));
         _playerBucketForTypesClient = playerBucketForTypesClient ?? throw new ArgumentNullException(nameof(playerBucketForTypesClient));
         _promotionClient = promotionClient ?? throw new ArgumentNullException(nameof(promotionClient));
+        _promotionServiceClient = promotionServiceClient ?? throw new ArgumentNullException(nameof(promotionServiceClient));
         _redisDatabase = redisConnectionFactory.GetConnection().GetDatabase();
         _brandServiceClient = brandServiceClient ?? throw new ArgumentNullException(nameof(brandServiceClient));
         _cashServiceClient = cashServiceClient ?? throw new ArgumentNullException(nameof(cashServiceClient));
+        _messageSender = messageSender ?? throw new ArgumentNullException(nameof(messageSender));
         _logger = logger ?? throw new ArgumentNullException(nameof(logger));
     }
 
@@ -125,6 +133,36 @@ internal class ReviewDepositFormCommandService : ICommandService<ReviewDepositFo
             form.Id.ToString(),
             string.IsNullOrEmpty(command.ReviewUserId) ? null : Guid.Parse(command.ReviewUserId),
             cancellationToken).ConfigureAwait(false);
+
+        var promotion = form.PromotionId is null
+            ? null
+            : await _promotionServiceClient.GetPromotionMainInfoAsync(
+                form.PromotionId.Value,
+                cancellationToken).ConfigureAwait(false);
+
+        if (promotion is not null && _AllowDistributePromotionTypes.Contains(promotion.PromotionType))
+        {
+            var subject = $"tgs.promotion.{promotion?.PromotionType.ToLower()}.distribute";
+            var request = new CreatePlayerBucketWithDepositRequest(
+                command.BrandId,
+                form.PromotionId,
+                form.PlayerCode,
+                walletId,
+                (command.ActualAmount ?? form.Amount) - handlingFee,
+                command.Remark,
+                command.FormId,
+                string.IsNullOrEmpty(command.ReviewUserId) ? null : Guid.Parse(command.ReviewUserId));
+
+            var response = await _messageSender.RequestAsync<ReadOnlyMemory<byte>, ReadOnlyMemory<byte>>(
+                subject,
+                Encoding.UTF8.GetBytes(JsonSerializer.Serialize(request)),
+                cancellationToken: cancellationToken).ConfigureAwait(false);
+
+            var json = Encoding.UTF8.GetString(response.Span);
+            var responseData = JsonSerializer.Deserialize<DepositMessageDataResponse>(json)!;
+
+            return responseData.PromotionBonusPlayerId;
+        }
 
         return null;
     }
