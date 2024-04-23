@@ -18,7 +18,7 @@ namespace TGS.Apis.BackendOffice.Controllers.Agent
             var response = await agentClient.GetAgentProductFeeAsync(agentId, HttpContext.RequestAborted);
 
             return response == null
-                ? new GetAgentProductFeeResponse{AgentId = agentId }
+                ? new GetAgentProductFeeResponse{ AgentId = agentId }
                 : new GetAgentProductFeeResponse
                 {
                     AgentId = response.AgentId,
@@ -31,14 +31,13 @@ namespace TGS.Apis.BackendOffice.Controllers.Agent
                 };
         }
 
-        [HttpPut("{agentId}")]
+        [HttpPut(Name = "UpdateAgentProductFee")]
         public async ValueTask<MessageResponse> UpdateAgentProductFeeAsync(
-            [FromBody] UpdateAgentProductFeeRequest request,
-            Guid agentId)
+            [FromBody] UpdateAgentProductFeeRequest request)
         {
             await agentClient.SetAgentProductFeeAsync(new SetAgentProductFeeRequest
                 {
-                    AgentId = agentId,
+                    AgentId = request.AgentId,
                     CardGamePercentage = request.CardGamePercentage,
                     LiveDealerPercentage = request.LiveDealerPercentage,
                     LotteryPercentage = request.LotteryPercentage,
