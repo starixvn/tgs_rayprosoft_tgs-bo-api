@@ -1,5 +1,4 @@
 ﻿using System;
-using System.ComponentModel;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Mvc;
 using Tgs.BrandCertificate.Clients;
@@ -12,13 +11,12 @@ namespace TGS.Apis.BackendOffice.Controllers.Brand
     public class BrandProductFeeController(IBrandServiceClient client) : BaseContextController
     {
         [HttpGet("{brandId}", Name = "GetBrandProductFee")]
-        [Description("Get a brand's token")]
         public async Task<GetBrandProductFeeResponse> GetBrandProductFeeAsync(Guid brandId)
         {
             var response = await client.GetBrandProductFeeInfoAsync(brandId, HttpContext.RequestAborted);
 
             return response == null
-                ? CreateInvalidResponse<GetBrandProductFeeResponse>(TGS.Services.BackOffice.Application.Resources.Brand.NotFound)
+                ? new GetBrandProductFeeResponse{ BrandId = brandId }
                 : new GetBrandProductFeeResponse
                 {
                     BrandId = brandId,
