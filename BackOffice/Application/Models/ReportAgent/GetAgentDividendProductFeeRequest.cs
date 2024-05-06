@@ -1,7 +1,6 @@
 ﻿using System;
-using MediatR;
 
-namespace Tgs.Report.ViewModel.Agent;
+namespace TGS.Services.BackOffice.Application.Models.ReportAgent;
 
 public record GetAgentDividendProductFeeRequest
 {
