@@ -40,6 +40,7 @@ public class
         {
             Bonus = response.Bonus,
             BonusAdjust = response.BonusAdjust,
+            PlatformCharge = response.PlatformCharge,
             ProductFee = response.ProductFee
         };
     }

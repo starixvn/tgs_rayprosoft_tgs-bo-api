@@ -184,4 +184,19 @@ public class AgentReportController : BaseContextController
             .GetAsync(reportRequest)
             .ConfigureAwait(false);
     }
+
+    [HttpGet("dividend/product-fee")]
+    public async Task<GetAgentDividendProductFeeReportResponse> GetAgentDividendProductFeeAsync(
+        [FromServices] IGetService<GetAgentDividendProductFeeReportRequest, GetAgentDividendProductFeeReportResponse>
+            agentDividendsService,
+        [FromQuery] GetAgentDividendProductFeeReportViewRequest request) =>
+        await agentDividendsService
+            .GetAsync(new GetAgentDividendProductFeeReportRequest
+            {
+                AgentId = request.AgentId,
+                AgentDividendPercentage = request.AgentDividendPercentage,
+                From = request.From,
+                To = request.To
+            })
+            .ConfigureAwait(false);
 }
