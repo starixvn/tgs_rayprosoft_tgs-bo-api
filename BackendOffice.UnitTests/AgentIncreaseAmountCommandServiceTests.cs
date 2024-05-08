@@ -54,7 +54,8 @@ public class AgentIncreaseAmountCommandServiceTests
                 brandId,
                 Guid.NewGuid(),
                 walletId,
-                false));
+                false,
+                true));
 
         _ = fakeCashServiceClient.AdjustCompanyV2Async(
             Arg.Is(walletId),
