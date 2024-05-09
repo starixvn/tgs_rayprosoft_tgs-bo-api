@@ -25,8 +25,10 @@ internal class SetAgentOneLayerCommandService(
         if (agent is null)
             return new SetAgentOneLayerResult(false, Application.Resources.Agent.NotFound);
 
-        var parentAgent = await agentClient.GetAgentInfoByUsernameAsync(
-            new GetAgentInfoByUsernameRequest(agent.BrandId, command.ParentUsername), cancellationToken);
+        var parentAgent = command.ParentUsername is null
+            ? null
+            : await agentClient.GetAgentInfoByUsernameAsync(
+                new GetAgentInfoByUsernameRequest(agent.BrandId, command.ParentUsername), cancellationToken);
 
         var brand = await brandServiceClient.GetBrandFullInfoAsync(agent.BrandId, cancellationToken);
 
