@@ -235,7 +235,8 @@ internal class PlayerTests
                 brandId,
                 Guid.NewGuid(),
                 null,
-                false));
+                false,
+                true));
 
         var actual = await sut.GetAsync(new SetPlayerAgentCommand(playerCode, agentUsername, modifyUserId, modifyUsername));
 
@@ -338,7 +339,8 @@ internal class PlayerTests
                 brandId,
                 Guid.NewGuid(),
                 null,
-                false));
+                false,
+                true));
 
         var actual = await sut.GetAsync(new SetPlayerAgentCommand(playerCode, agentUsername, modifyUserId, modifyUsername));
 

@@ -116,7 +116,8 @@ public class AgentTests(ITestOutputHelper testOutputHelper, NodeJsFixture nodeJs
                 brandId,
                 Guid.NewGuid(),
                 walletId,
-                false));
+                false,
+                true));
 
         var transactionId = Guid.NewGuid();
 
@@ -234,7 +235,8 @@ public class AgentTests(ITestOutputHelper testOutputHelper, NodeJsFixture nodeJs
                 brandId,
                 Guid.NewGuid(),
                 walletId,
-                false));
+                false,
+                true));
 
         var transactionId = Guid.NewGuid();
 
@@ -505,7 +507,8 @@ public class AgentTests(ITestOutputHelper testOutputHelper, NodeJsFixture nodeJs
                 Guid.NewGuid(),
                 Guid.NewGuid(),
                 null,
-                false));
+                false,
+                true));
 
         var request = new TGS.Apis.BackendOffice.ViewModels.SetAgentContactRequest
         {
@@ -590,7 +593,8 @@ public class AgentTests(ITestOutputHelper testOutputHelper, NodeJsFixture nodeJs
                 Guid.NewGuid(),
                 Guid.NewGuid(),
                 null,
-                false));
+                false,
+                true));
 
         // Act
         var actual = await nodeService.InvokeFromStringAsync<MessageResponse>(
@@ -674,7 +678,8 @@ public class AgentTests(ITestOutputHelper testOutputHelper, NodeJsFixture nodeJs
                 Guid.NewGuid(),
                 Guid.NewGuid(),
                 null,
-                false));
+                false,
+                true));
 
         // Act
         var actual = await nodeService.InvokeFromStringAsync<MessageResponse>(
@@ -761,7 +766,8 @@ public class AgentTests(ITestOutputHelper testOutputHelper, NodeJsFixture nodeJs
                 Guid.NewGuid(),
                 Guid.NewGuid(),
                 null,
-                false));
+                false,
+                true));
 
         var request = new SetAgentInfoViewModel
         {

@@ -42,7 +42,8 @@ public class AgentStatusTests
                 Guid.NewGuid(),
                 Guid.NewGuid(),
                 null,
-                false));
+                false,
+                true));
 
         var actual = await sut.GetAsync(new SetAgentStatusCommand(agentId, status, modifyUserId, modifyUsername));
 

@@ -937,7 +937,8 @@ public class PlayerTests(ITestOutputHelper testOutputHelper, NodeJsFixture nodeJ
                 brandId,
                 Guid.NewGuid(),
                 null,
-                false));
+                false,
+                true));
 
         using var web = TestBackendOfficeApplication.Builder
             .UseTestChannelServer(channelName)
