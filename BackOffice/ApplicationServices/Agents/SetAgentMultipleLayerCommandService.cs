@@ -28,8 +28,10 @@ internal class SetAgentMultipleLayerCommandService(
         if (agent is null)
             return new SetAgentMultipleLayerResult(false, Application.Resources.Agent.NotFound);
 
-        var parentAgent = await agentClient.GetAgentInfoByUsernameAsync(
-            new GetAgentInfoByUsernameRequest(agent.BrandId, command.ParentUsername), cancellationToken);
+        var parentAgent = command.ParentUsername is null
+            ? null
+            : await agentClient.GetAgentInfoByUsernameAsync(
+                new GetAgentInfoByUsernameRequest(agent.BrandId, command.ParentUsername), cancellationToken);
 
         if (!string.IsNullOrEmpty(command.ParentUsername))
         {
