@@ -84,6 +84,7 @@ public class AgentReportController : BaseContextController
             .ConfigureAwait(false);
     }
 
+    [Obsolete("substituted agentDividend for it.")]
     [HttpGet("dividends")]
     [Description("Get agent dividends report")]
     public async Task<GetAgentDividendsReportResponse>
