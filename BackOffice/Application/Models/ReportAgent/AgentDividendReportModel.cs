@@ -40,4 +40,6 @@ public record AgentDividendReportModel
     public decimal? AgentCoveredBonus { get; init; }
 
     public decimal? AgentCoveredBonusAdjust { get; init; }
+
+    public decimal ProductFee { get; init; }
 }
