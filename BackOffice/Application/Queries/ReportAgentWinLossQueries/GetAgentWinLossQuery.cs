@@ -3,7 +3,6 @@ using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 using Microsoft.EntityFrameworkCore;
-using TGS.Core.DataServices.Base.Extensions;
 using TGS.Core.Models.Enums;
 using Tgs.Report.Client;
 using Tgs.Report.Client.Models;
@@ -17,30 +16,20 @@ namespace TGS.Services.BackOffice.Application.Queries.ReportAgentWinLossQueries;
 public class
     GetAgentWinLossQuery(
     IReportClient reportClient,
-    IBrandService brandService,
     IAgentService agentService,
     IPlayerService playerService) : IGetService<GetAgentWinLossReportRequest, GetAgentWinLossReportResponse>
 {
-    private readonly IAgentService _agentService = agentService ?? throw new ArgumentNullException(nameof(agentService));
-    private readonly IBrandService _brandService = brandService ?? throw new ArgumentNullException(nameof(brandService));
-    private readonly IPlayerService _playerService = playerService ?? throw new ArgumentNullException(nameof(playerService));
-    private readonly IReportClient _reportClient = reportClient ?? throw new ArgumentNullException(nameof(reportClient));
-
     public async ValueTask<GetAgentWinLossReportResponse> GetAsync(GetAgentWinLossReportRequest request,
         CancellationToken cancellationToken = default)
     {
-        var platformCharge = await _brandService.GetBrandQueries().Where(x => x.Id == request.BrandId)
-            .Select(x => x.PlatformCharge).FirstOrDefaultAsync(cancellationToken);
-
         PagedResponse<AgentWinLossModel> response = null;
 
         switch (string.IsNullOrEmpty(request.Username))
         {
             case true:
-                response = await _reportClient.GetMasterAgentWinLossAsync(new()
+                response = await reportClient.GetMasterAgentWinLossAsync(new()
                 {
                     BrandId = request.BrandId,
-                    PlatformCharge = platformCharge,
                     From = request.From,
                     To = request.To,
                     Page = request.Page,
@@ -51,7 +40,7 @@ public class
                 });
                 break;
             case false when !request.DownLine && request.MemberType == AccountType.Agent:
-                var agent = await _agentService.GetAgentAsync(x => x.BrandId == request.BrandId && x.Username == request.Username);
+                var agent = await agentService.GetAgentAsync(x => x.BrandId == request.BrandId && x.Username == request.Username);
 
                 if (agent == null)
                 {
@@ -63,11 +52,10 @@ public class
                     };
                 }
 
-                response = await _reportClient.GetAgentWinLossAsync(new()
+                response = await reportClient.GetAgentWinLossAsync(new()
                 {
                     BrandId = request.BrandId,
                     AgentId = agent.Id,
-                    PlatformCharge = platformCharge,
                     From = request.From,
                     To = request.To,
                     Page = request.Page,
@@ -78,7 +66,7 @@ public class
                 });
                 break;
             case false when request.DownLine && request.MemberType == AccountType.Agent:
-                var downLineAgent = await _agentService.GetAgentAsync(x => x.BrandId == request.BrandId && x.Username == request.Username);
+                var downLineAgent = await agentService.GetAgentAsync(x => x.BrandId == request.BrandId && x.Username == request.Username);
 
                 if (downLineAgent == null)
                 {
@@ -90,11 +78,10 @@ public class
                     };
                 }
 
-                response = await _reportClient.GetDownLineAgentWinLossAsync(new()
+                response = await reportClient.GetDownLineAgentWinLossAsync(new()
                 {
                     BrandId = request.BrandId,
                     AgentId = downLineAgent.Id,
-                    PlatformCharge = platformCharge,
                     From = request.From,
                     To = request.To,
                     Page = request.Page,
@@ -105,7 +92,7 @@ public class
                 });
                 break;
             case false when request.MemberType == AccountType.Player:
-                var playerCode = await _playerService.GetPlayerQueries()
+                var playerCode = await playerService.GetPlayerQueries()
                     .Where(x => x.BrandId == request.BrandId && x.Username == request.Username)
                     .Select(x => x.PlayerCode)
                     .FirstOrDefaultAsync(cancellationToken);
@@ -120,10 +107,9 @@ public class
                     };
                 }
 
-                response = await _reportClient.GetAgentPlayerWinLossAsync(new GetPlayerWinLossRequest
+                response = await reportClient.GetAgentPlayerWinLossAsync(new GetPlayerWinLossRequest
                 {
                     PlayerCode = playerCode,
-                    PlatformCharge = platformCharge,
                     From = request.From,
                     To = request.To,
                     Page = request.Page,
