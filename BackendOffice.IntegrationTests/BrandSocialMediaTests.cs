@@ -98,7 +98,7 @@ public class BrandSocialMediaTests(
         Assert.NotNull(actual);
 
         var jsonOptions = web.Services.GetRequiredService<IOptions<JsonOptions>>().Value;
-        var result = JsonSerializer.Deserialize<SocialMediaSetting[]>(
+        var result = JsonSerializer.Deserialize<SocialMediaSettingViewModel[]>(
             actual!,
             jsonOptions.JsonSerializerOptions);
 
