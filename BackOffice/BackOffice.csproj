@@ -65,7 +65,7 @@
     <PackageReference Include="Tgs.Agent.Client" Version="0.0.35" />
     <PackageReference Include="Tgs.Agent.Dividend.Client" Version="1.0.14" />
     <PackageReference Include="Tgs.ArticleManagementClient" Version="0.0.4" />
-    <PackageReference Include="Tgs.BrandCertificateClient" Version="0.2.1" />
+    <PackageReference Include="Tgs.BrandCertificateClient" Version="0.2.2" />
     <PackageReference Include="Tgs.BrandGameCredits.Client" Version="1.0.1" />
     <PackageReference Include="Tgs.CashQuery.Client" Version="0.0.9" />
     <PackageReference Include="Tgs.CashService.Client" Version="0.2.9" />

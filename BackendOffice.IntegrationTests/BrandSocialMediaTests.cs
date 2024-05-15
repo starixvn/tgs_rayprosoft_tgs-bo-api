@@ -51,9 +51,24 @@ public class BrandSocialMediaTests(
             Arg.Any<CancellationToken>())
             .Returns(new[]
             {
-                new SocialMediaSetting(Guid.NewGuid(), "Test1", SocialType.Facebook, new Uri("https://localhost")),
-                new SocialMediaSetting(Guid.NewGuid(), "Test2", SocialType.Facebook, new Uri("https://localhost")),
-                new SocialMediaSetting(Guid.NewGuid(), "Test3", SocialType.Facebook, new Uri("https://localhost"))
+                new SocialMediaSetting(
+                    Guid.NewGuid(),
+                    "Test1",
+                    SocialType.Facebook,
+                    new Uri("https://localhost"),
+                    100),
+                new SocialMediaSetting(
+                    Guid.NewGuid(),
+                    "Test2",
+                    SocialType.Facebook,
+                    new Uri("https://localhost"),
+                    200),
+                new SocialMediaSetting(
+                    Guid.NewGuid(),
+                    "Test3",
+                    SocialType.Facebook,
+                    new Uri("https://localhost"),
+                    300)
             }.ToAsyncEnumerable());
 
         using var nodeService = nodeJsFixture.BuildNodeJsService();

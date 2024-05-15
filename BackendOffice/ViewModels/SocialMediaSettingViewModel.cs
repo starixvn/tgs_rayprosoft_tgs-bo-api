@@ -12,4 +12,6 @@ public class SocialMediaSettingViewModel
     public required SocialType Type { get; set; }
 
     public required Uri Url { get; set; }
+
+    public required int Order { get; set; }
 }

@@ -28,7 +28,8 @@ public class BrandSocialMediaController : BaseContextController
                 Id = setting.Id,
                 Name = setting.Name,
                 Type = setting.Type,
-                Url = setting.Url
+                Url = setting.Url,
+                Order = setting.Order
             });
     }
 
