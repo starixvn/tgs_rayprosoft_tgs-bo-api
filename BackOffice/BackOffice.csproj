@@ -52,6 +52,10 @@
       <PrivateAssets>all</PrivateAssets>
       <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
     </PackageReference>
+    <PackageReference Include="PhoenixToolkits.CodeAnalysis.Analyzers" Version="0.0.12">
+      <PrivateAssets>all</PrivateAssets>
+      <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
+    </PackageReference>
     <PackageReference Include="PhoenixToolkits.MessageQueue" Version="2.2.0" />
     <PackageReference Include="PhoenixToolkits.Protobuf.ExtendTypes" Version="0.0.7" />
     <PackageReference Include="Polly" Version="8.4.0" />
