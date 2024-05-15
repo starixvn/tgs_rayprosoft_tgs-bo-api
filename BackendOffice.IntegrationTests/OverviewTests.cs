@@ -7,6 +7,7 @@ using NSubstitute;
 using Tgs.BrandCertificate.Clients;
 using Tgs.GameWagers.Client;
 using Tgs.GameWagers.Common;
+using Tgs.GameWagers.Common.Enums;
 using Tgs.Payment.Clients;
 using Tgs.PlayerService.Client;
 using TGS.Apis.BackendOffice.ViewModels;

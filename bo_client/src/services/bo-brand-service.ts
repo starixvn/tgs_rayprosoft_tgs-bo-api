@@ -39,14 +39,14 @@ export default class BoBrandService {
 
     public getBrandMaintenanceInfos(
         request: GetBrandMaintenanceInfosRequest
-    ): Promise<BrandMaintenanceInfo[]>{
+    ): Promise<BrandMaintenanceInfo[]> {
         return this.http
             .get(`/api/BrandMaintenance`,
-            {
-                params: {
-                    ...request,
-                }
-            })
+                {
+                    params: {
+                        ...request,
+                    }
+                })
             .then(res => res.data);
     }
 
@@ -66,7 +66,7 @@ export default class BoBrandService {
         brandId: string,
         request: UpdateBrandMaintenanceTimeRequest): Promise<MessageResponse> {
         return this.http
-            .put(`/api/BrandMaintenance/time/${brandId}`, 
+            .put(`/api/BrandMaintenance/time/${brandId}`,
                 {
                     ...request
                 })
@@ -102,5 +102,25 @@ export default class BoBrandService {
             .then(res => res.data);
     }
 
+    public listBrandSocialMediaSettings(brandId: string): Promise<SocialMediaSetting[]> {
+        return this.http
+            .get(`/api/brand/social/${brandId}`)
+            .then(res => res.data);
+    }
+
+    public addBrandSocialMediaSetting(brandId: string, setting: AddSocialMediaSetting): Promise<string> {
+        return this.http
+            .put(`/api/brand/social/${brandId}`, setting)
+            .then(res => res.data);
+    }
+
+    public setSocialMediaSettingOrder(settingId: string, newOrder: number): Promise<void> {
+        let headers = new AxiosHeaders();
+        headers.setContentType("application/json");
+
+        return this.http
+            .patch(`/api/brand/social/order/${settingId}`, newOrder, { headers })
+            .then(res => res.data);
+    }
     // #endregion Public Methods (10)
 }
