@@ -148,7 +148,8 @@ public class
                     AgentSpecial = x.AgentSpecial,
                     CompanySpecial = x.CompanySpecial,
                     AgentTotal = x.AgentTotal,
-                    CompanyTotal = x.CompanyTotal
+                    CompanyTotal = x.CompanyTotal,
+                    PlatformChargeAmount = x.PlatformChargeAmount
                 });
 
         var total = new AgentWinLossReportTotalModel
@@ -162,7 +163,8 @@ public class
             AgentSpecial = response.Items.Sum(x => x.AgentSpecial),
             CompanySpecial = response.Items.Sum(x => x.CompanySpecial),
             AgentTotal = response.Items.Sum(x => x.AgentTotal),
-            CompanyTotal = response.Items.Sum(x => x.CompanyTotal)
+            CompanyTotal = response.Items.Sum(x => x.CompanyTotal),
+            PlatformChargeAmount = response.Items.Sum(x => x.PlatformChargeAmount)
         };
 
         return new()
