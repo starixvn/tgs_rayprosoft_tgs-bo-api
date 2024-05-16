@@ -326,4 +326,15 @@ public partial class BrandController(IMediator mediator) : BaseContextController
             enabled,
             Username,
             HttpContext.RequestAborted);
+
+    [HttpPatch("enable-sms/{brandId:Guid}", Name = "SetBrandEnableSms")]
+    public ValueTask SetBrandEnableSmsAsync(
+        [FromServices] ICommandService<SetBrandEnableSmsCommand> commandService,
+        Guid brandId,
+        [FromBody] bool enableSms)
+        => commandService.ExecuteAsync(new SetBrandEnableSmsCommand(
+            brandId,
+            enableSms,
+            Username),
+            HttpContext.RequestAborted);
 }
