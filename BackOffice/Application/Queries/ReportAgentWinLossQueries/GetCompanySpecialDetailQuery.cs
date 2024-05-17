@@ -37,6 +37,7 @@ public class
             PlayerSpecial = x.PlayerSpecial,
             CompanyWinLoss = x.CompanyWinLoss,
             CompanySpecial = x.CompanySpecial,
+            PlatformChargeAmount = x.PlatformChargeAmount,
             CompanyTotal = x.CompanyTotal
         });
     }

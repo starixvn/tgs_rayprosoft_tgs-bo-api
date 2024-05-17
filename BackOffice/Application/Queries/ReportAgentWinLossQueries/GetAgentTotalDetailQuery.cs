@@ -35,6 +35,7 @@ public class
             PlayerSpecial = x.PlayerSpecial,
             AgentWinLoss = x.AgentWinLoss,
             AgentSpecial = x.AgentSpecial,
+            PlatformChargeAmount = x.PlatformChargeAmount,
             AgentTotal = x.AgentTotal
         });
     }
