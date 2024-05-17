@@ -34,7 +34,7 @@ public class LocalizationController : ControllerBase
     public async Task ImportLocalizationFileAsync(
         [FromServices] ICommandService<ImportLocalizationFileCommand> importService,
         string systemCode,
-        [FromForm(Name = "file")] IFormFile file)
+        IFormFile file)
     {
         await using var fs = file.OpenReadStream();
 
