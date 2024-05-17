@@ -37,10 +37,6 @@ public class GetBrandQueryHandler(
         var brandDomains = await brandServiceClient.GetBrandDomainsAsync(request.Id, cancellationToken)
             .ToArrayAsync(cancellationToken);
 
-        var brandSmsSetting = await brandServiceClient
-            .GetBrandSmsSettingsAsync<JsonDocument>(request.Id, cancellationToken: cancellationToken)
-            .ConfigureAwait(false);
-
         return new GetBrandResponse
         {
             Valid = true,
@@ -139,7 +135,11 @@ public class GetBrandQueryHandler(
                 EnablePlayerAgent = brand.EnablePlayerAgent,
                 AutoSendAgentBonus = brand.AutoSendAgentBonus,
                 EnableSms = brand.SmsEnabled,
-                SmsVendorCode = brandSmsSetting.Code,
+                SmsVendorCode = brand.SmsEnabled
+                    ? (await brandServiceClient
+                        .GetBrandSmsSettingsAsync<JsonDocument>(request.Id, cancellationToken: cancellationToken)
+                        .ConfigureAwait(false)).Code
+                    : null
             }
         };
     }
