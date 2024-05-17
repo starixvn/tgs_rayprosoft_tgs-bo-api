@@ -61,10 +61,7 @@ internal class PaymentReportingRepository(ITgsRepository tgsRepository, ILogger<
                     SELECT
                         COALESCE(FD.player_code, SD.player_code) AS player_code,
                         FD.is_first_deposit,
-                        CASE SD.player_code
-                            WHEN NULL THEN false
-                            ELSE true
-                        END AS un_second_deposit
+                        SD.player_code IS NOT NULL AS un_second_deposit
                     FROM
                         (
                             SELECT
