@@ -75,7 +75,7 @@ public class BatchAdjustBalanceController : BaseContextController
         [FromServices] IGetService<SaveBatchCommand, Guid> saveService,
         Guid brandId,
         string? clientToken,
-        IFormFile file)
+        [FromForm(Name = "file")] IFormFile file)
     {
         await using var fs = file.OpenReadStream();
 
