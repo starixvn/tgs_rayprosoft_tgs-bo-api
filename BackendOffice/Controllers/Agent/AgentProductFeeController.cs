@@ -22,12 +22,18 @@ public class AgentProductFeeController(IAgentClient agentClient) : BaseContextCo
             : new GetAgentProductFeeResponse
             {
                 AgentId = response.AgentId,
-                CardGamePercentage = response.CardGamePercentage,
-                LiveDealerPercentage = response.LiveDealerPercentage,
-                LotteryPercentage = response.LotteryPercentage,
-                SlotPercentage = response.SlotPercentage,
-                SportsPercentage = response.SportsPercentage,
-                VirtualSportsPercentage = response.VirtualSportsPercentage,
+                CurrentCardGamePercentage = response.CurrentCardGamePercentage,
+                CurrentLiveDealerPercentage = response.CurrentLiveDealerPercentage,
+                CurrentLotteryPercentage = response.CurrentLotteryPercentage,
+                CurrentSlotPercentage = response.CurrentSlotPercentage,
+                CurrentSportsPercentage = response.CurrentSportsPercentage,
+                CurrentVirtualSportsPercentage = response.CurrentVirtualSportsPercentage,
+                NextCardGamePercentage = response.NextCardGamePercentage,
+                NextLiveDealerPercentage = response.NextLiveDealerPercentage,
+                NextLotteryPercentage = response.NextLotteryPercentage,
+                NextSlotPercentage = response.NextSlotPercentage,
+                NextSportsPercentage = response.NextSportsPercentage,
+                NextVirtualSportsPercentage = response.NextVirtualSportsPercentage,
             };
     }
 
@@ -35,17 +41,24 @@ public class AgentProductFeeController(IAgentClient agentClient) : BaseContextCo
     public async ValueTask<MessageResponse> UpdateAgentProductFeeAsync(
         [FromBody] UpdateAgentProductFeeRequest request)
     {
-        await agentClient.SetAgentProductFeeAsync(new SetAgentProductFeeRequest
-        {
-            AgentId = request.AgentId,
-            CardGamePercentage = request.CardGamePercentage,
-            LiveDealerPercentage = request.LiveDealerPercentage,
-            LotteryPercentage = request.LotteryPercentage,
-            SlotPercentage = request.SlotPercentage,
-            SportsPercentage = request.SportsPercentage,
-            VirtualSportsPercentage = request.VirtualSportsPercentage,
-            EditorUsername = Username
-        },
+        await agentClient.SetAgentProductFeeAsync(
+            new SetAgentProductFeeRequest
+            {
+                AgentId = request.AgentId,
+                CurrentCardGamePercentage = request.CurrentCardGamePercentage,
+                CurrentLiveDealerPercentage = request.CurrentLiveDealerPercentage,
+                CurrentLotteryPercentage = request.CurrentLotteryPercentage,
+                CurrentSlotPercentage = request.CurrentSlotPercentage,
+                CurrentSportsPercentage = request.CurrentSportsPercentage,
+                CurrentVirtualSportsPercentage = request.CurrentVirtualSportsPercentage,
+                NextCardGamePercentage = request.NextCardGamePercentage,
+                NextLiveDealerPercentage = request.NextLiveDealerPercentage,
+                NextLotteryPercentage = request.NextLotteryPercentage,
+                NextSlotPercentage = request.NextSlotPercentage,
+                NextSportsPercentage = request.NextSportsPercentage,
+                NextVirtualSportsPercentage = request.NextVirtualSportsPercentage,
+                EditorUsername = Username
+            },
             HttpContext.RequestAborted);
 
         return CreateValidResponse<MessageResponse>();

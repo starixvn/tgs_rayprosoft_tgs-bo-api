@@ -12,7 +12,6 @@ public record CreateBrandCommand(
     string Name,
     string? Description,
     string? OperationalEmail,
-    decimal PlatformCharge,
     int TimeSpanMinutes,
     bool EnablePlayerIdentity,
     Guid LicenseeId,

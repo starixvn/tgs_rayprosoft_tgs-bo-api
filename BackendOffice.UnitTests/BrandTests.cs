@@ -228,7 +228,6 @@ internal class BrandTests
             "TestBrand",
             "TestBrand",
             string.Empty,
-            10000m,
             480,
             false,
             Guid.NewGuid(),

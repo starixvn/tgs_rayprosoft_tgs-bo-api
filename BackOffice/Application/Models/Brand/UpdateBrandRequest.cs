@@ -41,8 +41,6 @@ public class UpdateBrandRequest : IRequest<MessageResponse>
 
     public string OperationalEmail { get; set; }
 
-    public decimal PlatformCharge { get; set; }
-
     public int? SettlementDay { get; set; }
 
     public SettlementIntervalType SettlementIntervalType { get; set; }
