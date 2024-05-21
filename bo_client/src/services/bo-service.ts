@@ -6,7 +6,13 @@ import fs from 'fs';
 import path from 'path';
 
 export default class BackOfficeService {
+    // #region Constructors (1)
+
     constructor(private http: AxiosInstance) { }
+
+    // #endregion Constructors (1)
+
+    // #region Public Methods (101)
 
     public addAgentDomain(brandId: string, agentId: string, domain: string): Promise<void> {
         return this.http
@@ -19,6 +25,13 @@ export default class BackOfficeService {
                     }
                 })
             .then(res => res.data);
+    }
+
+    public async addSmsSetting(
+        request: AddSmsSettingRequest): Promise<void>{
+        await this.http.post('/api/sms', {
+            ...request
+        });
     }
 
     public adjustIncreasePlayerBucket(playerCode: string, request: AdjustPlayerBucketRequest): Promise<void> {
@@ -516,6 +529,12 @@ export default class BackOfficeService {
             .then(res => res.data);
     }
 
+    public getSmsSettings(): Promise<SmsSettingViewModel[]> {
+        return this.http
+            .get(`/api/sms`)
+            .then(res => res.data);
+    }
+
     public getTopTenGames(brandId: string, sortType: string, ascending: boolean): Promise<TopTenGameViewModel> {
         const queryString = {
             sortType: sortType,
@@ -797,6 +816,12 @@ export default class BackOfficeService {
             .then(res => res.data);
     }
 
+    public async removeSmsSetting(
+        smsSettingId: string): Promise<void>{
+        await this.http
+            .delete(`/api/sms/${smsSettingId}`);
+    }
+
     public async replyBrandLetter(brandId: string, letterId: string, content: string): Promise<void> {
         await this.http
             .put(`/api/station-letter/${brandId}/${letterId}:reply`, { content });
@@ -981,6 +1006,15 @@ export default class BackOfficeService {
             .then(res => res.data);
     }
 
+    public async updateSmsSetting(
+        smsSettingId: string,
+        request: UpdateSmsSettingRequest): Promise<void>{
+            await this.http
+                .put(`/api/sms/${smsSettingId}`,{
+                    ...request
+                })
+        }
+
     public updateVipLevel(brandId: string, id: string, request: ModifyVipLevel): Promise<MessageResponse> {
         return this.http
             .put(`/api/viplevel/${id}`, {
@@ -1013,4 +1047,6 @@ export default class BackOfficeService {
             })
             .then(res => res.data);
     }
+
+    // #endregion Public Methods (101)
 }

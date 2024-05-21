@@ -10,6 +10,7 @@ using TGS.Services.BackOffice.ApplicationServices;
 using TGS.Services.BackOffice.Domain;
 using TGS.Services.BackOffice.Infrastructure.DataService;
 using TGS.Services.BackOffice.Infrastructure.RedisServices;
+using TGS.SmsService.Client;
 using BrandListQuery = TGS.Services.BackOffice.ApplicationServices.BrandListQuery;
 
 namespace TGS.Tests.BackendOffice.UnitTests;
@@ -268,5 +269,49 @@ internal class BrandTests
 
         _ = fakeClearCacheService.Received(1)
             .ClearAsync(Arg.Any<CancellationToken>());
+    }
+
+    [Test]
+    public async Task SetBrandEnableSmsCommandService_開關平台簡訊設定()
+    {
+        // Arrange
+        var fakeClient = Substitute.For<IBrandServiceClient>();
+        var sut = new SetBrandEnableSmsCommandService(fakeClient);
+
+        var brandId = Guid.NewGuid();
+        var enableSms = true;
+        var modifier = "test";
+        var command = new SetBrandEnableSmsCommand(brandId, enableSms, modifier);
+        // Act
+        await sut.ExecuteAsync(command);
+        // Assert
+        _ = fakeClient.Received(1)
+            .SetBrandEnableSmsAsync(
+                Arg.Is(brandId),
+                Arg.Is(enableSms),
+                Arg.Is(modifier));
+    }
+
+    [Test]
+    public async Task ApplyBrandSmsCommandService_套用平台簡訊設定()
+    {
+        // Arrange
+        var fakeClient = Substitute.For<ISmsServiceClient>();
+        var sut = new ApplyBrandSmsCommandService(fakeClient);
+
+        var brandId = Guid.NewGuid();
+        var smsSettingId = Guid.NewGuid();
+        var modifier = "test";
+        var command = new ApplyBrandSmsCommand(brandId, smsSettingId, modifier);
+
+        // Act
+        await sut.ExecuteAsync(command);
+
+        // Assert
+        _ = fakeClient.Received(1)
+            .ApplyBrandSmsAsync(
+                Arg.Is(brandId),
+                Arg.Is(smsSettingId),
+                Arg.Is(modifier));
     }
 }

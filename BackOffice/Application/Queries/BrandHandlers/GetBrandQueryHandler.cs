@@ -1,4 +1,5 @@
 ﻿using System.Linq;
+using System.Text.Json;
 using System.Threading;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Http;
@@ -38,39 +39,39 @@ public class GetBrandQueryHandler(
 
         return new GetBrandResponse
         {
-                Valid = true,
-                Brand = new BrandModel
-                {
-                    Id = brand.Id,
-                    LicenseeId = brand.LicenseeId,
-                    LicenseeName = brand.LicenseeName,
-                    Code = brand.Code,
-                    Name = brand.Name,
-                    Status = (BrandStatus)brand.Status,
-                    AgentDividendType = (AgentDividendType)brand.AgentDividendType,
-                    ClientId = brand.ClientId,
-                    SecretKey = brand.SecretKey,
-                    ApiKey = brand.ApiKey,
-                    SettlementDay = brand.SettlementDay,
-                    SettlementIntervalType = (SettlementIntervalType)brand.SettlementIntervalType,
-                    PlatformCharge = brand.PlatformCharge,
-                    CheckDividendActiveCount = brand.CheckDividendActiveCount,
-                    Domains = brandDomains,
-                    Currencies = await brandCurrencyService.GetBrandCurrenciesQueries()
+            Valid = true,
+            Brand = new BrandModel
+            {
+                Id = brand.Id,
+                LicenseeId = brand.LicenseeId,
+                LicenseeName = brand.LicenseeName,
+                Code = brand.Code,
+                Name = brand.Name,
+                Status = (BrandStatus)brand.Status,
+                AgentDividendType = (AgentDividendType)brand.AgentDividendType,
+                ClientId = brand.ClientId,
+                SecretKey = brand.SecretKey,
+                ApiKey = brand.ApiKey,
+                SettlementDay = brand.SettlementDay,
+                SettlementIntervalType = (SettlementIntervalType)brand.SettlementIntervalType,
+                PlatformCharge = brand.PlatformCharge,
+                CheckDividendActiveCount = brand.CheckDividendActiveCount,
+                Domains = brandDomains,
+                Currencies = await brandCurrencyService.GetBrandCurrenciesQueries()
                     .Where(x => x.BrandId == request.Id)
                     .Select(x => new BrandCurrencyModel
                     {
                         Code = x.CurrencyCode,
                         Name = x.Currency.Name
                     }).ToArrayAsync(cancellationToken),
-                    Languages = await brandLanguageService.GetBrandLanguagesQueries()
+                Languages = await brandLanguageService.GetBrandLanguagesQueries()
                     .Where(x => x.BrandId == request.Id)
                     .Select(x => new BrandLanguageModel
                     {
                         CultureCode = x.CultureCode,
                         BrandCultureCode = x.BrandCultureCode
                     }).ToArrayAsync(cancellationToken),
-                    GameProviders = await brandGameProviderService.GetBrandGameProviderQueries()
+                GameProviders = await brandGameProviderService.GetBrandGameProviderQueries()
                     .Where(x => x.BrandId == request.Id)
                     .Select(x => new BrandGameProviderModel
                     {
@@ -82,7 +83,7 @@ public class GetBrandQueryHandler(
                         DesktopQueryString = x.DesktopQueryString,
                         MobileQueryString = x.MobileQueryString
                     }).ToArrayAsync(cancellationToken),
-                    Games =
+                Games =
                     await brandGameService.GetBrandGameQueries().Where(x => x.BrandId == request.Id).Select(x
                         => new BrandGameModel
                         {
@@ -91,7 +92,7 @@ public class GetBrandQueryHandler(
                             GameName = x.Game.Name,
                             GameType = x.Game.Type
                         }).ToArrayAsync(cancellationToken),
-                    BetLimits =
+                BetLimits =
                     await brandBetLimitService.GetBrandBetLimitsQueries().Where(x => x.BrandId == request.Id)
                         .Select(x => new BrandBetLimitModel
                         {
@@ -99,7 +100,7 @@ public class GetBrandQueryHandler(
                             CurrencyCode = x.BetLimit.CurrencyCode,
                             IsDefault = x.IsDefault
                         }).ToArrayAsync(cancellationToken),
-                    BrandGroups = await brandGroupService.GetBrandGroupsQueries().Where(x => x.BrandId == request.Id)
+                BrandGroups = await brandGroupService.GetBrandGroupsQueries().Where(x => x.BrandId == request.Id)
                     .Select(x => new BrandGroupModel
                     {
                         Id = x.Id,
@@ -121,19 +122,25 @@ public class GetBrandQueryHandler(
                                 GameProviderBetLimitId = b.GameProviderBetLimitId
                             }).ToArray()
                     }).ToArrayAsync(cancellationToken),
-                    Description = brand.Description,
-                    OperationalEmail = brand.OperationalEmail,
-                    CreatedOn = brand.CreatedOn,
-                    UpdatedOn = brand.UpdatedOn,
-                    EnablePlayerIdentity = brand.EnablePlayerIdentity,
-                    AutoClearWageringRequirement = brand.AutoClearWageringRequirement,
-                    AutoClearWageringRequirementBalance = brand.AutoClearWageringRequirementBalance,
-                    DepositHandlingFeeRateTenPercentile = brand.DepositHandlingFeeRateTenPercentile,
-                    WithdrawHandlingFeeRateTenPercentile = brand.WithdrawHandlingFeeRateTenPercentile,
-                    TimeSpanMinutes = (int)brand.TimeSpanMinutes!,
-                    EnablePlayerAgent = brand.EnablePlayerAgent,
-                    AutoSendAgentBonus = brand.AutoSendAgentBonus
-                }
-            };
+                Description = brand.Description,
+                OperationalEmail = brand.OperationalEmail,
+                CreatedOn = brand.CreatedOn,
+                UpdatedOn = brand.UpdatedOn,
+                EnablePlayerIdentity = brand.EnablePlayerIdentity,
+                AutoClearWageringRequirement = brand.AutoClearWageringRequirement,
+                AutoClearWageringRequirementBalance = brand.AutoClearWageringRequirementBalance,
+                DepositHandlingFeeRateTenPercentile = brand.DepositHandlingFeeRateTenPercentile,
+                WithdrawHandlingFeeRateTenPercentile = brand.WithdrawHandlingFeeRateTenPercentile,
+                TimeSpanMinutes = (int)brand.TimeSpanMinutes!,
+                EnablePlayerAgent = brand.EnablePlayerAgent,
+                AutoSendAgentBonus = brand.AutoSendAgentBonus,
+                EnableSms = brand.SmsEnabled,
+                SmsVendorCode = brand.SmsEnabled
+                    ? (await brandServiceClient
+                        .GetBrandSmsSettingsAsync<JsonDocument>(request.Id, cancellationToken: cancellationToken)
+                        .ConfigureAwait(false)).Code
+                    : null
+            }
+        };
     }
 }
