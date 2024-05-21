@@ -23,7 +23,6 @@ internal class CreateBrandCommandService(
             Code = command.Code, Name = command.Name,
             Description = command.Description,
             OperationalEmail = command.OperationalEmail,
-            PlatformCharge = command.PlatformCharge,
             TimeSpanMinutes = command.TimeSpanMinutes,
             EnablePlayerIdentity = command.EnablePlayerIdentity,
             LicenseeId = command.LicenseeId,

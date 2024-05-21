@@ -42,7 +42,6 @@ public class UpdateBrandHandler(
             Name = request.Name,
             Description = request.Description,
             OperationalEmail = request.OperationalEmail,
-            PlatformCharge = request.PlatformCharge,
             EnablePlayerIdentity = request.EnablePlayerIdentity,
             SettlementIntervalType = (SettlementIntervalType)request.SettlementIntervalType,
             SettlementDay = request.SettlementDay,

@@ -60,7 +60,7 @@ public partial class BrandController(IMediator mediator) : BaseContextController
             request.Name,
             request.Description,
             request.OperationalEmail,
-            request.PlatformCharge,
+            0,
             request.TimeSpanMinutes,
             request.EnablePlayerIdentity,
             request.LicenseeId,
