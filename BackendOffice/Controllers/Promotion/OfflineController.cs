@@ -62,9 +62,9 @@ public class OfflineController : BaseContextController
         [FromServices] IMessageSender messageSender,
         Guid brandId,
         string? clientToken,
-        [FromForm(Name = "file")] IFormFile excelFile)
+        IFormFile file)
     {
-        await using var fs = excelFile.OpenReadStream();
+        await using var fs = file.OpenReadStream();
 
         var userNames = await readService
             .QueryAsync(new ReadOfflinePromotionUserListQuery(fs), HttpContext.RequestAborted)

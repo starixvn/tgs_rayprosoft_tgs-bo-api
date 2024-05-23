@@ -44,7 +44,7 @@ public class FileController : BaseContextController
     public async Task<UploadResponse> UploadFileAsync(
         [FromServices] IFileServiceClient fileServiceClient,
         string prefix,
-        [FromForm(Name = "file")] IFormFile file)
+        IFormFile file)
     {
         var type = Consts.UploadFile.Types.FirstOrDefault(name => name == prefix);
 
