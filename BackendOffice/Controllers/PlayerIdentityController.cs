@@ -26,14 +26,14 @@ public class PlayerIdentityController : BaseContextController
 {
     [HttpPost("{brandId}/{playerCode}/upload", Name = "CreatePlayerIdentityForm")]
     public async Task<MessageResponse> CreatePlayerIdentityFormAsync(
-        IFormFile identityFile,
+        IFormFile file,
         [FromServices] IFileServiceClient fileServiceClient,
         [FromServices] IGetService<CreateIdentityAuthenticationFormCommand, MessageResponse> commandService,
         Guid brandId,
         string playerCode)
     {
-        var contentType = identityFile.ContentType;
-        await using var fileStream = identityFile.OpenReadStream();
+        var contentType = file.ContentType;
+        await using var fileStream = file.OpenReadStream();
 
         var randomFileName = StringGenerator.GenerateAlphanumericString(32);
 
