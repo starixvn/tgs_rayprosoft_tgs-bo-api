@@ -295,6 +295,9 @@ public class BrandSocialMediaTests(
 
         // Assert
         _ = fakeBrandServiceClient.Received(1)
-            .DeleteSocialMediaSettingAsync(Arg.Is(brandId), Arg.Is(settingId));
+            .DeleteSocialMediaSettingAsync(
+                Arg.Is(brandId),
+                Arg.Is(settingId),
+                Arg.Any<CancellationToken>());
     }
 }
