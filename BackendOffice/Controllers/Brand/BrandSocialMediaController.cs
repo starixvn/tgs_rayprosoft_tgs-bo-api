@@ -57,4 +57,15 @@ public class BrandSocialMediaController : BaseContextController
 
         return setOrderService.ExecuteAsync(command, HttpContext.RequestAborted);
     }
+
+    [HttpDelete("{brandId:Guid}/{settingId:Guid}", Name = "DeleteSocialMediaSetting")]
+    public ValueTask DeleteSocialMediaSettingAsync(
+        [FromServices] ICommandService<DeleteBrandSocialMediaSettingCommand> deleteService,
+        Guid brandId,
+        Guid settingId)
+    {
+        var command = new DeleteBrandSocialMediaSettingCommand(brandId, settingId);
+
+        return deleteService.ExecuteAsync(command, HttpContext.RequestAborted);
+    }
 }
