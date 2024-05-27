@@ -34,5 +34,12 @@ public class PlayerVipAdjustInfosTests
             page: Arg.Is(query.Paging.Page),
             rowCount: Arg.Is(query.Paging.Rows),
             cancellationToken: Arg.Any<CancellationToken>());
+
+        _ = fakeClient.Received(1)
+            .PlayerVipLevelLogQueryCountAsync(
+            playerCode: Arg.Is(query.PlayerCode),
+            startOn: Arg.Is(query.From),
+            endOn: Arg.Is(query.To),
+            cancellationToken: Arg.Any<CancellationToken>());
     }
 }
