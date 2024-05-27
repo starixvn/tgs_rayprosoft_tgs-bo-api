@@ -10,12 +10,12 @@ export default class BoBrandService {
     // #region Public Methods (18)
 
     public async addBrandSms(
-        brandId:string,
-        smsSettingId: string): Promise<void>{
+        brandId: string,
+        smsSettingId: string): Promise<void> {
         let headers = new AxiosHeaders();
         headers.setContentType("application/json");
 
-        await this.http.post(`/api/brand/sms/${brandId}`, smsSettingId,{headers});
+        await this.http.post(`/api/brand/sms/${brandId}`, smsSettingId, { headers });
     }
 
     public addBrandSocialMediaSetting(brandId: string, setting: AddSocialMediaSetting): Promise<string> {
@@ -80,10 +80,10 @@ export default class BoBrandService {
     }
 
     public listBrandSms(
-        brandId:string): Promise<BrandSmsViewModel[]>{
+        brandId: string): Promise<BrandSmsViewModel[]> {
         return this.http
             .get(`/api/brand/sms/${brandId}`)
-            .then(res=>res.data);
+            .then(res => res.data);
     }
 
     public listBrandSocialMediaSettings(brandId: string): Promise<SocialMediaSetting[]> {
@@ -93,12 +93,12 @@ export default class BoBrandService {
     }
 
     public async removeBrandSms(
-        brandId:string,
-        smsSettingId: string): Promise<void>{
+        brandId: string,
+        smsSettingId: string): Promise<void> {
         let headers = new AxiosHeaders();
         headers.setContentType("application/json");
-        
-        await this.http.delete(`/api/brand/sms/${brandId}/${smsSettingId}`,{headers});
+
+        await this.http.delete(`/api/brand/sms/${brandId}/${smsSettingId}`, { headers });
     }
 
     public setAllBrandsMaintenance(): Promise<MessageResponse> {
@@ -142,6 +142,12 @@ export default class BoBrandService {
         return this.http
             .patch(`/api/brand/social/order/${settingId}`, newOrder, { headers })
             .then(res => res.data);
+    }
+
+    public deleteSocialMediaSetting(brandId: string, settingId: string): Promise<void> {
+        return this.http
+            .delete(`/api/brand/social/${brandId}/${settingId}`)
+            .then(res => res.data);``
     }
 
     public updateBrandStatus(

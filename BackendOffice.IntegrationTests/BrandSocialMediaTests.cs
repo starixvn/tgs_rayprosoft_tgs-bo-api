@@ -9,6 +9,7 @@ using NSubstitute;
 using Tgs.BrandCertificate;
 using Tgs.BrandCertificate.Clients;
 using TGS.Apis.BackendOffice.ViewModels;
+using Xunit;
 using Xunit.Abstractions;
 
 namespace BackendOffice.IntegrationTests;
@@ -237,5 +238,63 @@ public class BrandSocialMediaTests(
                 Arg.Is(200),
                 Arg.Is("system"),
                 Arg.Any<CancellationToken>());
+    }
+
+    [Fact]
+    public async Task 整合測試_刪除一個社群連結設定()
+    {
+        // Arrange
+        var channelName = Guid.NewGuid().ToString();
+        var userId = Guid.NewGuid();
+
+        var fakeBrandServiceClient = Substitute.For<IBrandServiceClient>();
+
+        using var web = TestBackendOfficeApplication.Builder
+            .UseTestChannelServer(channelName)
+            .ConfigureLogging(logging => logging.AddXUnit(testOutputHelper))
+            .ConfigureServices(services => services
+                .AddAuthentication("Fake")
+                .AddScheme<FakeAuthenticationSchemaOptions, FakeAuthenticationHandler>(
+                    "Fake",
+                    options =>
+                    {
+                        options.UserId = userId;
+                        options.UserName = "system";
+                    })
+                .Services
+                .AddSingleton(fakeBrandServiceClient))
+            .Build();
+
+        await web.StartAsync();
+
+        var brandId = Guid.NewGuid();
+        var settingId = Guid.NewGuid();
+
+        using var nodeService = nodeJsFixture.BuildNodeJsService();
+
+        var isWindows = RuntimeInformation.IsOSPlatform(OSPlatform.Windows) ? "true" : "false";
+
+        var nodeModule = $$"""
+            const axiosConfigFactory = require('./models/axios-configuration.js').default;
+            const BackOfficeService = require('./services/bo-brand-service.js').default;
+
+            module.exports = async (brandId, settingId) =>
+            {
+                let instance = axiosConfigFactory("{{channelName}}", {{isWindows}});
+
+                let svc = new BackOfficeService(instance);
+
+                await svc.deleteSocialMediaSetting(brandId, settingId);
+            };
+            """;
+
+        // Act
+        await nodeService.InvokeFromStringAsync(
+            nodeModule,
+            args: [brandId, settingId]);
+
+        // Assert
+        _ = fakeBrandServiceClient.Received(1)
+            .DeleteSocialMediaSettingAsync(Arg.Is(brandId), Arg.Is(settingId));
     }
 }
