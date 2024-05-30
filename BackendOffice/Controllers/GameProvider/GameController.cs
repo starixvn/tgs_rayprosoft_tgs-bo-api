@@ -354,8 +354,7 @@ public class GameController(IMediator mediator, IUploadService uploadService) : 
     [Description("Upload game localization file")]
     public async Task<MessageResponse> UploadGamesLocalizationAsync(
         IFormFile file,
-        [FromServices]
-        IGetService<UpdateGameLocalizationQuery, UpdateGameLocationInfo> updateGameLocalizationQueryService)
+        [FromServices] IGetService<UpdateGameLocalizationQuery, UpdateGameLocationInfo> updateGameLocalizationQueryService)
     {
         var uploadedResult = await uploadService.GetUploadedExcelAsync<UploadGameLocalizationModel>(file);
 
@@ -374,7 +373,8 @@ public class GameController(IMediator mediator, IUploadService uploadService) : 
                     { "th-TH", JsonDocument.Parse("{ \"name\": \"" + x.ThTH + "\" }") },
                     { "vi-VN", JsonDocument.Parse("{ \"name\": \"" + x.ViVN + "\" }") },
                     { "ko-KR", JsonDocument.Parse("{ \"name\": \"" + x.KoKR + "\" }") },
-                    { "ja-JP", JsonDocument.Parse("{ \"name\": \"" + x.JaJP + "\" }") }
+                    { "ja-JP", JsonDocument.Parse("{ \"name\": \"" + x.JaJP + "\" }") },
+                    { "hi-IN", JsonDocument.Parse("{ \"name\": \"" + x.HiIN + "\" }") }
                 }
             })
             .ToList();

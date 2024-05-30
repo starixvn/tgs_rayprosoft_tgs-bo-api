@@ -31,4 +31,7 @@ public class UploadGameLocalizationModel
 
     [JsonPropertyName("zhTW")]
     public string ZhTW { get; set; }
+    
+    [JsonPropertyName("hiIN")]
+    public string HiIN { get; set; }
 }
