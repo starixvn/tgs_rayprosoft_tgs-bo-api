@@ -365,7 +365,7 @@ public class GameController(IMediator mediator, IUploadService uploadService) : 
                 Id = int.Parse(x["Id"]),
                 Code = x["Code"],
                 Localization = x.Where(p => p.Key is not "Id" or "Code")
-                    .Select(p => new { Key = p.Key, Info = JsonDocument.Parse($$"""{"name": "{{p.Value}}"}""") })
+                    .Select(p => new { p.Key, Info = JsonDocument.Parse($$"""{"name": "{{p.Value}}"}""") })
                     .ToDictionary(p => p.Key, p => p.Info)
             })
             .ToList();
