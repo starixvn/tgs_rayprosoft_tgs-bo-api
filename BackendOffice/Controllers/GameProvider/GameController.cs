@@ -276,7 +276,7 @@ public class GameController(IMediator mediator, IUploadService uploadService) : 
                 row.Append(
                     new Cell
                     {
-                        CellValue = new CellValue(item.Replace("-", "")),
+                        CellValue = new CellValue(item),
                         DataType = CellValues.String
                     }
                 );
@@ -314,6 +314,14 @@ public class GameController(IMediator mediator, IUploadService uploadService) : 
                                     DataType = CellValues.String
                                 }
                             );
+                        }
+                        else
+                        {
+                            row.Append(new Cell
+                            {
+                                CellValue = new CellValue(""),
+                                DataType = CellValues.String
+                            });
                         }
                     }
                 }
@@ -356,7 +364,7 @@ public class GameController(IMediator mediator, IUploadService uploadService) : 
         IFormFile file,
         [FromServices] IGetService<UpdateGameLocalizationQuery, UpdateGameLocationInfo> updateGameLocalizationQueryService)
     {
-        var uploadedResult = await uploadService.GetUploadedExcelAsync<Dictionary<string,string>>(file);
+        var uploadedResult = await uploadService.GetUploadedExcelAsync<Dictionary<string, string>>(file);
 
         var games = uploadedResult
             .Where(p => !string.IsNullOrEmpty(p["Id"]))
