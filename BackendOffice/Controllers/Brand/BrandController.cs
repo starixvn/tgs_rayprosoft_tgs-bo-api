@@ -134,24 +134,6 @@ public partial class BrandController(IMediator mediator) : BaseContextController
             };
     }
 
-    [HttpGet("sms-info/{brandId}", Name = "GetBrandSmsInfo")]
-    public async ValueTask<BrandSmsResultViewModel> GetBrandSmsInfoAsync(
-        [FromServices] IGetService<GetBrandSmsQuery, BrandSmsResult> getService,
-        Guid brandId)
-    {
-        var query = new GetBrandSmsQuery(brandId);
-
-        var info = await getService
-            .GetAsync(query, HttpContext.RequestAborted)
-            .ConfigureAwait(false);
-
-        return new BrandSmsResultViewModel
-        {
-            EnableSms = info.EnableSms,
-            SmsVendorCode = info.SmsVendorCode,
-        };
-    }
-
     [HttpGet("token/{brandId}", Name = "GetBrandToken")]
     [Description("Get a brand's token")]
     public async Task<GetBrandTokenResponse> GetBrandTokenAsync(

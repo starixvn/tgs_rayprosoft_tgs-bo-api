@@ -64,4 +64,22 @@ public class BrandSmsController : BaseContextController
            smsSettingId,
            Username),
            HttpContext.RequestAborted);
+
+    [HttpGet("info/{brandId}", Name = "GetBrandSmsInfo")]
+    public async ValueTask<BrandSmsResultViewModel> GetBrandSmsInfoAsync(
+        [FromServices] IGetService<GetBrandSmsQuery, BrandSmsResult> getService,
+        Guid brandId)
+    {
+        var query = new GetBrandSmsQuery(brandId);
+
+        var info = await getService
+            .GetAsync(query, HttpContext.RequestAborted)
+            .ConfigureAwait(false);
+
+        return new BrandSmsResultViewModel
+        {
+            EnableSms = info.EnableSms,
+            SmsVendorCode = info.SmsVendorCode,
+        };
+    }
 }
