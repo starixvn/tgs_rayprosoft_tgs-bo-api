@@ -89,14 +89,14 @@ export default class BoBrandService {
         brandId: string        
     ): Promise<BrandSmsResultViewModel> {
         return this.http
-            .get(`/api/brand/sms/info/${brandId}`)
+            .get(`/api/brand/sms/${brandId}`)
             .then(res => res.data);
     }
 
     public listBrandSms(
         brandId: string): Promise<BrandSmsViewModel[]> {
         return this.http
-            .get(`/api/brand/sms/${brandId}`)
+            .get(`/api/brand/sms/options/${brandId}`)
             .then(res => res.data);
     }
 

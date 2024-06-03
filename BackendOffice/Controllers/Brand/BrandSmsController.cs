@@ -39,7 +39,7 @@ public class BrandSmsController : BaseContextController
         return commandService.ExecuteAsync(command, HttpContext.RequestAborted);
     }
 
-    [HttpGet("{brandId:Guid}", Name = "ListBrandSms")]
+    [HttpGet("options/{brandId:Guid}", Name = "ListBrandSms")]
     public IAsyncEnumerable<BrandSmsSettingViewModel> ListBrandSmsAsync(
         [FromServices] IQueryService<ListBrandSmsQuery, BrandSmsInfo> queryService,
         Guid brandId)
@@ -65,7 +65,7 @@ public class BrandSmsController : BaseContextController
            Username),
            HttpContext.RequestAborted);
 
-    [HttpGet("info/{brandId}", Name = "GetBrandSmsInfo")]
+    [HttpGet("{brandId}", Name = "GetBrandSmsInfo")]
     public async ValueTask<BrandSmsResultViewModel> GetBrandSmsInfoAsync(
         [FromServices] IGetService<GetBrandSmsQuery, BrandSmsResult> getService,
         Guid brandId)
