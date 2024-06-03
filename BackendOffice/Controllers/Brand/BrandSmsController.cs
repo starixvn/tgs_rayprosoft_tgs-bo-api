@@ -40,14 +40,14 @@ public class BrandSmsController : BaseContextController
     }
 
     [HttpGet("{brandId:Guid}", Name = "ListBrandSms")]
-    public IAsyncEnumerable<BrandSmsViewModel> ListBrandSmsAsync(
+    public IAsyncEnumerable<BrandSmsSettingViewModel> ListBrandSmsAsync(
         [FromServices] IQueryService<ListBrandSmsQuery, BrandSmsInfo> queryService,
         Guid brandId)
     {
         var query = new ListBrandSmsQuery(brandId);
 
         return queryService.QueryAsync(query, HttpContext.RequestAborted)
-            .Select(info => new BrandSmsViewModel
+            .Select(info => new BrandSmsSettingViewModel
             {
                 SmsSettingId = info.SmsSettingId,
                 Name = info.SmsSettingName,

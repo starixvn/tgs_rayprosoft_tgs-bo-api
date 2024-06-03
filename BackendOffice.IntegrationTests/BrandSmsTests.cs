@@ -174,7 +174,7 @@ public class BrandSmsTests(ITestOutputHelper testOutputHelper, NodeJsFixture nod
         };
 
         var expected = rows.Select(
-            item => new BrandSmsViewModel
+            item => new BrandSmsSettingViewModel
             {
                 SmsSettingId = item.SmsSettingId,
                 Name = item.SmsSettingName,
@@ -204,7 +204,7 @@ public class BrandSmsTests(ITestOutputHelper testOutputHelper, NodeJsFixture nod
         """;
 
         // Act
-        var actual = await nodeService.InvokeFromStringAsync<BrandSmsViewModel[]>(
+        var actual = await nodeService.InvokeFromStringAsync<BrandSmsSettingViewModel[]>(
              nodeModule,
              args: [brandId]);
 

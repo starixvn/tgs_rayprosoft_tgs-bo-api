@@ -1,5 +1,4 @@
-﻿using NSubstitute;
-using Tgs.Agent.Dividend.Client;
+﻿using System.Text.Json;
 using Tgs.BrandCertificate.Clients;
 using Tgs.ServiceUtility;
 using TGS.Core.Infrastructures.Redis;
@@ -313,5 +312,34 @@ internal class BrandTests
                 Arg.Is(brandId),
                 Arg.Is(smsSettingId),
                 Arg.Is(modifier));
+    }
+
+    [Test]
+    public async Task GetBrandSmsQueryService_取得平台使用的簡訊設定()
+    {
+        // Arrange
+        var fakeClient = Substitute.For<IBrandServiceClient>();
+        var sut = new GetBrandSmsQueryService(fakeClient);
+
+        var brandId = Guid.NewGuid();
+        var query = new GetBrandSmsQuery(brandId);
+
+        _ = fakeClient
+            .GetBrandInfoAsync(Arg.Is(brandId))
+            .Returns(new BrandInfo()
+            {
+                Id = brandId,
+                SmsEnabled = true
+            });
+
+        _ = fakeClient
+            .GetBrandSmsSettingsAsync<JsonDocument>(Arg.Is(brandId))
+            .Returns(new SmsVendorInfo<JsonDocument>("Mock", JsonDocument.Parse("{}")));
+        // Act
+        var actual = await sut.GetAsync(query);
+        // Assert
+
+        Assert.That(actual.EnableSms, Is.EqualTo(true));
+        Assert.That(actual.SmsVendorCode, Is.EqualTo("Mock"));
     }
 }

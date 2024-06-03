@@ -133,13 +133,7 @@ public class GetBrandQueryHandler(
                 WithdrawHandlingFeeRateTenPercentile = brand.WithdrawHandlingFeeRateTenPercentile,
                 TimeSpanMinutes = (int)brand.TimeSpanMinutes!,
                 EnablePlayerAgent = brand.EnablePlayerAgent,
-                AutoSendAgentBonus = brand.AutoSendAgentBonus,
-                EnableSms = brand.SmsEnabled,
-                SmsVendorCode = brand.SmsEnabled
-                    ? (await brandServiceClient
-                        .GetBrandSmsSettingsAsync<JsonDocument>(request.Id, cancellationToken: cancellationToken)
-                        .ConfigureAwait(false)).Code
-                    : null
+                AutoSendAgentBonus = brand.AutoSendAgentBonus
             }
         };
     }

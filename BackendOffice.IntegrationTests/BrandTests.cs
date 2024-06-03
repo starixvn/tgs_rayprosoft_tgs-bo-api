@@ -1708,4 +1708,84 @@ public class BrandTests(ITestOutputHelper testOutputHelper, NodeJsFixture nodeJs
                 Arg.Is("system"),
                 Arg.Any<CancellationToken>());
     }
+
+    [Fact]
+    public async Task 整合測試_以BrandId查詢Brand簡訊設定()
+    {
+        // Arrange
+        var channelName = Guid.NewGuid().ToString();
+        var userId = Guid.NewGuid();
+
+        var fakeBrandServiceClient = Substitute.For<IBrandServiceClient>();
+
+        using var web = TestBackendOfficeApplication.Builder
+            .UseTestChannelServer(channelName)
+            .ConfigureLogging(logging => logging.AddXUnit(_testOutputHelper))
+            .ConfigureServices(services => services
+                .AddAuthentication("Fake")
+                .AddScheme<FakeAuthenticationSchemaOptions, FakeAuthenticationHandler>(
+                    "Fake",
+                    options =>
+                    {
+                        options.UserId = userId;
+                        options.UserName = "system";
+                    })
+                .Services
+                .AddSingleton(fakeBrandServiceClient))
+            .Build();
+
+        await web.StartAsync();
+
+        var brandId = Guid.Parse("4e86719f-243f-46f6-b010-5c758b7285af");
+
+
+        _ = fakeBrandServiceClient.GetBrandInfoAsync(
+            Arg.Is(brandId),
+            Arg.Any<CancellationToken>())
+            .Returns(new BrandInfo
+            {
+                Id = brandId,
+                SmsEnabled = true
+            });
+
+        _ = fakeBrandServiceClient.GetBrandSmsSettingsAsync<JsonDocument>(
+                Arg.Is(brandId),
+                cancellationToken: Arg.Any<CancellationToken>())
+            .Returns(new SmsVendorInfo<JsonDocument>("Mock", JsonDocument.Parse("{}")));
+
+        using var nodeService = _nodeJsFixture.BuildNodeJsService();
+
+        var isWindows = RuntimeInformation.IsOSPlatform(OSPlatform.Windows) ? "true" : "false";
+
+        var nodeModule = $$"""
+            const axiosConfigFactory = require('./models/axios-configuration.js').default;
+            const BackOfficeService = require('./services/bo-brand-service.js').default;
+
+            module.exports = async (brandId) =>
+            {
+                let instance = axiosConfigFactory("{{channelName}}", {{isWindows}});
+
+                let svc = new BackOfficeService(instance);
+
+                return await svc.getBrandSmsInfo(brandId);
+            };
+        """;        
+
+        // Act
+        var actual = await nodeService.InvokeFromStringAsync<string>(
+            nodeModule,
+            args: [brandId]);
+
+        // Assert
+        Assert.NotNull(actual);
+
+        var jsonOptions = web.Services.GetRequiredService<IOptions<JsonOptions>>().Value;
+        var result = JsonSerializer.Deserialize< BrandSmsResultViewModel> (
+            actual!,
+            jsonOptions.JsonSerializerOptions);
+
+        Assert.True(result?.EnableSms);
+        Assert.Equal("Mock", result?.SmsVendorCode);        
+    }
+
 }
