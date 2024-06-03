@@ -2,7 +2,7 @@
 
 namespace TGS.Apis.BackendOffice.ViewModels;
 
-public class BrandSmsViewModel
+public class BrandSmsSettingViewModel
 {
     public Guid SmsSettingId { get; set; }
 

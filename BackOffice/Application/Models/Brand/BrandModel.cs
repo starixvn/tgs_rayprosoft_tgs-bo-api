@@ -76,8 +76,4 @@ public class BrandModel
     public bool AutoSendAgentBonus { get; init; }
 
     public bool EnablePlayerAgent { get; init; }
-
-    public bool EnableSms { get; set; }
-
-    public string SmsVendorCode { get; set; }
 }

@@ -1,12 +1,17 @@
 ﻿using System.Runtime.InteropServices;
+using System.Text.Json;
 using ExpectedObjects;
+using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
+using Microsoft.Extensions.Options;
 using NSubstitute;
+using Tgs.BrandCertificate.Clients;
 using TGS.Apis.BackendOffice.ViewModels;
 using TGS.SmsService.Client;
 using Xunit.Abstractions;
+using Xunit.Sdk;
 
 namespace BackendOffice.IntegrationTests;
 
@@ -174,7 +179,7 @@ public class BrandSmsTests(ITestOutputHelper testOutputHelper, NodeJsFixture nod
         };
 
         var expected = rows.Select(
-            item => new BrandSmsViewModel
+            item => new BrandSmsSettingViewModel
             {
                 SmsSettingId = item.SmsSettingId,
                 Name = item.SmsSettingName,
@@ -204,7 +209,7 @@ public class BrandSmsTests(ITestOutputHelper testOutputHelper, NodeJsFixture nod
         """;
 
         // Act
-        var actual = await nodeService.InvokeFromStringAsync<BrandSmsViewModel[]>(
+        var actual = await nodeService.InvokeFromStringAsync<BrandSmsSettingViewModel[]>(
              nodeModule,
              args: [brandId]);
 
@@ -276,5 +281,82 @@ public class BrandSmsTests(ITestOutputHelper testOutputHelper, NodeJsFixture nod
                 Arg.Is(smsSettingId),
                 Arg.Is("system"),
                 Arg.Any<CancellationToken>());
+    }
+
+    [Fact]
+    public async Task 整合測試_以BrandId查詢Brand簡訊設定()
+    {
+        // Arrange
+        var channelName = Guid.NewGuid().ToString();
+        var userId = Guid.NewGuid();
+
+        var fakeBrandServiceClient = Substitute.For<IBrandServiceClient>();
+        using var web = TestBackendOfficeApplication.Builder
+            .UseTestChannelServer(channelName)
+            .ConfigureLogging(logging => logging.AddXUnit(testOutputHelper))
+            .ConfigureServices(services => services
+                .AddAuthentication("Fake")
+                .AddScheme<FakeAuthenticationSchemaOptions, FakeAuthenticationHandler>(
+                    "Fake",
+                    options =>
+                    {
+                        options.UserId = userId;
+                        options.UserName = "system";
+                    })
+                .Services
+                .AddSingleton(fakeBrandServiceClient))
+            .Build();
+
+        await web.StartAsync();
+
+        var brandId = Guid.Parse("4e86719f-243f-46f6-b010-5c758b7285af");
+
+        _ = fakeBrandServiceClient.GetBrandInfoAsync(
+            Arg.Is(brandId),
+            Arg.Any<CancellationToken>())
+            .Returns(new BrandInfo
+            {
+                Id = brandId,
+                SmsEnabled = true
+            });
+
+        _ = fakeBrandServiceClient.GetBrandSmsSettingsAsync<JsonDocument>(
+                Arg.Is(brandId),
+                cancellationToken: Arg.Any<CancellationToken>())
+            .Returns(new SmsVendorInfo<JsonDocument>("Mock", JsonDocument.Parse("{}")));
+
+        using var nodeService = nodeJsFixture.BuildNodeJsService();
+
+        var isWindows = RuntimeInformation.IsOSPlatform(OSPlatform.Windows) ? "true" : "false";
+
+        var nodeModule = $$"""
+            const axiosConfigFactory = require('./models/axios-configuration.js').default;
+            const BackOfficeService = require('./services/bo-brand-service.js').default;
+
+            module.exports = async (brandId) =>
+            {
+                let instance = axiosConfigFactory("{{channelName}}", {{isWindows}});
+
+                let svc = new BackOfficeService(instance);
+
+                return await svc.getBrandSmsInfo(brandId);
+            };
+        """;
+
+        // Act
+        var actual = await nodeService.InvokeFromStringAsync<string>(
+            nodeModule,
+            args: [brandId]);
+
+        // Assert
+        Assert.NotNull(actual);
+
+        var jsonOptions = web.Services.GetRequiredService<IOptions<JsonOptions>>().Value;
+        var result = JsonSerializer.Deserialize<BrandSmsResultViewModel>(
+            actual!,
+            jsonOptions.JsonSerializerOptions);
+
+        Assert.True(result?.EnableSms);
+        Assert.Equal("Mock", result?.SmsVendorCode);
     }
 }

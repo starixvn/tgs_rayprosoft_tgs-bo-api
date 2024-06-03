@@ -7,7 +7,7 @@ export default class BoBrandService {
 
     // #endregion Constructors (1)
 
-    // #region Public Methods (18)
+    // #region Public Methods (20)
 
     public async addBrandSms(
         brandId: string,
@@ -37,6 +37,12 @@ export default class BoBrandService {
         return this.http
             .post('/api/brand', request)
             .then(res => res.data);
+    }
+
+    public deleteSocialMediaSetting(brandId: string, settingId: string): Promise<void> {
+        return this.http
+            .delete(`/api/brand/social/${brandId}/${settingId}`)
+            .then(res => res.data);``
     }
 
     public getBrandAutoWithdrawSetting(brandId: string): Promise<AutoWithdrawInfo> {
@@ -79,10 +85,18 @@ export default class BoBrandService {
             .then(res => res.data);
     }
 
+    public getBrandSmsInfo(
+        brandId: string        
+    ): Promise<BrandSmsResultViewModel> {
+        return this.http
+            .get(`/api/brand/sms/${brandId}`)
+            .then(res => res.data);
+    }
+
     public listBrandSms(
         brandId: string): Promise<BrandSmsViewModel[]> {
         return this.http
-            .get(`/api/brand/sms/${brandId}`)
+            .get(`/api/brand/sms/options/${brandId}`)
             .then(res => res.data);
     }
 
@@ -144,12 +158,6 @@ export default class BoBrandService {
             .then(res => res.data);
     }
 
-    public deleteSocialMediaSetting(brandId: string, settingId: string): Promise<void> {
-        return this.http
-            .delete(`/api/brand/social/${brandId}/${settingId}`)
-            .then(res => res.data);``
-    }
-
     public updateBrandStatus(
         brandId: string,
         status: string): Promise<MessageResponse> {
@@ -170,5 +178,5 @@ export default class BoBrandService {
             .then(res => res.data);
     }
 
-    // #endregion Public Methods (18)
+    // #endregion Public Methods (20)
 }

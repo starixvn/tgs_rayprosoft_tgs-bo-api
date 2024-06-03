@@ -39,15 +39,15 @@ public class BrandSmsController : BaseContextController
         return commandService.ExecuteAsync(command, HttpContext.RequestAborted);
     }
 
-    [HttpGet("{brandId:Guid}", Name = "ListBrandSms")]
-    public IAsyncEnumerable<BrandSmsViewModel> ListBrandSmsAsync(
+    [HttpGet("options/{brandId:Guid}", Name = "ListBrandSms")]
+    public IAsyncEnumerable<BrandSmsSettingViewModel> ListBrandSmsAsync(
         [FromServices] IQueryService<ListBrandSmsQuery, BrandSmsInfo> queryService,
         Guid brandId)
     {
         var query = new ListBrandSmsQuery(brandId);
 
         return queryService.QueryAsync(query, HttpContext.RequestAborted)
-            .Select(info => new BrandSmsViewModel
+            .Select(info => new BrandSmsSettingViewModel
             {
                 SmsSettingId = info.SmsSettingId,
                 Name = info.SmsSettingName,
@@ -64,4 +64,22 @@ public class BrandSmsController : BaseContextController
            smsSettingId,
            Username),
            HttpContext.RequestAborted);
+
+    [HttpGet("{brandId}", Name = "GetBrandSmsInfo")]
+    public async ValueTask<BrandSmsResultViewModel> GetBrandSmsInfoAsync(
+        [FromServices] IGetService<GetBrandSmsQuery, BrandSmsResult> getService,
+        Guid brandId)
+    {
+        var query = new GetBrandSmsQuery(brandId);
+
+        var info = await getService
+            .GetAsync(query, HttpContext.RequestAborted)
+            .ConfigureAwait(false);
+
+        return new BrandSmsResultViewModel
+        {
+            EnableSms = info.EnableSms,
+            SmsVendorCode = info.SmsVendorCode,
+        };
+    }
 }

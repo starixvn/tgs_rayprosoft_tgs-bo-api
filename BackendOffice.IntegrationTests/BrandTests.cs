@@ -8,7 +8,6 @@ using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 using NSubstitute;
-using Tgs.Agent.Dividend.Client;
 using Tgs.BrandCertificate;
 using Tgs.BrandCertificate.Clients;
 using TGS.Apis.BackendOffice.ViewModels;
@@ -16,7 +15,6 @@ using TGS.Services.BackOffice.Application.Models.Brand;
 using TGS.Services.BackOffice.Application.Resources;
 using TGS.Services.BackOffice.Domain;
 using TGS.Services.BackOffice.Infrastructure.DataService;
-using Xunit;
 using Xunit.Abstractions;
 using CreateBrandRequest = TGS.Services.BackOffice.Application.Models.Brand.CreateBrandRequest;
 using Enums = TGS.Core.Models.Enums;
@@ -1647,7 +1645,7 @@ public class BrandTests(ITestOutputHelper testOutputHelper, NodeJsFixture nodeJs
                 Arg.Is("system"),
                 Arg.Any<CancellationToken>());
     }
-    
+
     [Fact]
     public async Task 整合測試_設定Brand開啟簡訊設定()
     {
@@ -1675,7 +1673,7 @@ public class BrandTests(ITestOutputHelper testOutputHelper, NodeJsFixture nodeJs
 
         await web.StartAsync();
 
-        var brandId = Guid.NewGuid();        
+        var brandId = Guid.NewGuid();
 
         using var nodeService = _nodeJsFixture.BuildNodeJsService();
 
