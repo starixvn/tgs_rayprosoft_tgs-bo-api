@@ -4,6 +4,8 @@ using System.Threading.Tasks;
 using Tgs.BrandCertificate.Clients;
 using Tgs.ServiceUtility;
 
+# nullable enable
+
 namespace TGS.Services.BackOffice.ApplicationServices;
 
 internal class GetBrandSmsQueryService(IBrandServiceClient brandServiceClient)
@@ -15,13 +17,16 @@ internal class GetBrandSmsQueryService(IBrandServiceClient brandServiceClient)
             .GetBrandInfoAsync(query.BrandId, cancellationToken)
             .ConfigureAwait(false);
 
+        if (brand is null)
+            return new BrandSmsResult(false, null);
+
         if (brand.SmsEnabled)
         {
             var smsInfo = await brandServiceClient
                 .GetBrandSmsSettingsAsync<JsonDocument>(query.BrandId, cancellationToken: cancellationToken)
                 .ConfigureAwait(false);
 
-            return new BrandSmsResult(brand.SmsEnabled, smsInfo.Code);
+            return new BrandSmsResult(brand.SmsEnabled, smsInfo?.Code);
         }
 
         return new BrandSmsResult(brand.SmsEnabled, null);
