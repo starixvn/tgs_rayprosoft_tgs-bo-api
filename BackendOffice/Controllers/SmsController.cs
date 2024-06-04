@@ -26,7 +26,9 @@ public class SmsController : BaseContextController
         var command = new AddSmsSettingCommand(
             request.Name,
             request.Code,
-            JsonDocument.Parse(request.Setting),
+            JsonDocument.Parse(string.IsNullOrWhiteSpace(request.Setting)
+                ? "{}" 
+                : request.Setting),
             Username);
 
         return commandService.ExecuteAsync(command, HttpContext.RequestAborted);
