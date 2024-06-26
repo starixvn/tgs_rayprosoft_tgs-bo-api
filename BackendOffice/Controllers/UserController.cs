@@ -38,11 +38,6 @@ public class UserController(
             return CreateInvalidResponse<MessageResponse>(Resources.Role.NotFound);
         }
 
-        if (role.RoleType == RoleType.Admin && Username != "hank.wu")
-        {
-            return CreateValidResponse<MessageResponse>();
-        }
-
         var usernameExisted = await userQueries.GetQueries()
             .AnyAsync(x => x.Username == request.Username);
 
