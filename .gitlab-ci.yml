@@ -13,6 +13,7 @@ stages:
   - build
   - test
   - publish
+  - deploy-for_monitor_resource
   - deploy-dev
   - deploy-staging
   - deploy-prod
@@ -78,7 +79,7 @@ deploy-for_monitor_resource:
     kube_config: KubeConfig_Raypro_dev
   environment:
     name: dev
-  stage: deploy-dev
+  stage: deploy-for_monitor_resource
   needs:
     - push-docker-image
     - job: push-k8s-template
