@@ -86,7 +86,6 @@ deploy-for_monitor_resource:
       artifacts: true
   only:
     - for_monitor_resource
-  when: on_success
 
 deploy-dev:
   extends: .deploy-template
