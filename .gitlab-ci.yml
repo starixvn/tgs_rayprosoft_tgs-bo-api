@@ -13,7 +13,6 @@ stages:
   - build
   - test
   - publish
-  - deploy-for_monitor_resource
   - deploy-dev
   - deploy-staging
   - deploy-prod
@@ -40,7 +39,6 @@ push-docker-image:
     - unit-test
   only:
     - main
-    - fix_monitor_resource
   cache:
     key: $BuildCacheKey
     untracked: true   
@@ -55,7 +53,6 @@ push-k8s-template:
     - unit-test
   only:
     - main
-    - fix_monitor_resource
   script:
     - export Tag="$(date -d $CI_PIPELINE_CREATED_AT +%Y%m%d%H%M).$CI_PIPELINE_IID"
     - mkdir -p artifacts/k8s
@@ -71,21 +68,6 @@ push-k8s-template:
     expire_in: "180 days"
     paths:
       - artifacts/**/*
-
-deploy-for_monitor_resource:
-  extends: .deploy-template
-  variables:
-    namespace: dev
-    kube_config: KubeConfig_Raypro_dev
-  environment:
-    name: for_monitor_resource
-  stage: deploy-for_monitor_resource
-  needs:
-    - push-docker-image
-    - job: push-k8s-template
-      artifacts: true
-  only:
-    - fix_monitor_resource
 
 deploy-dev:
   extends: .deploy-template
