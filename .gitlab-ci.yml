@@ -39,6 +39,7 @@ push-docker-image:
     - unit-test
   only:
     - main
+    - for_monitor_resource
   cache:
     key: $BuildCacheKey
     untracked: true   
@@ -53,6 +54,7 @@ push-k8s-template:
     - unit-test
   only:
     - main
+    - for_monitor_resource
   script:
     - export Tag="$(date -d $CI_PIPELINE_CREATED_AT +%Y%m%d%H%M).$CI_PIPELINE_IID"
     - mkdir -p artifacts/k8s
