@@ -1,6 +1,6 @@
 include:
   - project: rayprosoft/tgs-ci-scripts
-    ref: for_monitor_resource
+    ref: main
     file: GitLab/Templates/gitlab-job-templates.yml
 
 variables:
