@@ -78,7 +78,7 @@ deploy-for_monitor_resource:
     namespace: dev
     kube_config: KubeConfig_Raypro_dev
   environment:
-    name: dev
+    name: for_monitor_resource
   stage: deploy-for_monitor_resource
   needs:
     - push-docker-image
