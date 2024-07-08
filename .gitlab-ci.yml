@@ -82,7 +82,8 @@ deploy-dev:
   stage: deploy-dev
   tags:
     - dev
-    - backend-api
+    - kubernetes
+    - deploy
   needs:
     - push-docker-image
     - job: push-k8s-template
@@ -93,12 +94,19 @@ deploy-dev:
 
 deploy-staging:
   extends: .deploy-template
+  image: 
+    name: pgtgs/tgs-backend-deploy:latest
+    entrypoint: [""]
   variables:
     namespace: staging
     kube_config: KubeConfig_Raypro_staging
   environment:
     name: staging
   stage: deploy-staging
+  tags:
+    - staging
+    - kubernetes
+    - deploy
   needs:
     - deploy-dev
     - job: push-k8s-template
@@ -109,12 +117,19 @@ deploy-staging:
 
 deploy-prod:
   extends: .deploy-template
+  image: 
+    name: pgtgs/tgs-backend-deploy:latest
+    entrypoint: [""]
   variables:
     namespace: prod
     kube_config: KubeConfig_Raypro_prod
   environment:
     name: prod
   stage: deploy-prod
+  tags:
+    - prod
+    - kubernetes
+    - deploy
   needs:
     - deploy-staging
     - job: push-k8s-template
