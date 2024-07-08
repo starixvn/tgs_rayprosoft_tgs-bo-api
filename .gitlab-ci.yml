@@ -76,7 +76,7 @@ deploy-dev:
     entrypoint: [""]
   variables:
     namespace: dev
-    kube_config: KubeConfig_Raypro_dev
+    kube_config: KubeConfig_Raypro_local
   environment:
     name: dev
   stage: deploy-dev
