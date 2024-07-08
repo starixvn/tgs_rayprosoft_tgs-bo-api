@@ -77,6 +77,9 @@ deploy-dev:
   environment:
     name: dev
   stage: deploy-dev
+  tags:
+    - dev
+    - backend-api
   needs:
     - push-docker-image
     - job: push-k8s-template
