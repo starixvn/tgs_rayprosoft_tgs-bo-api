@@ -71,6 +71,9 @@ push-k8s-template:
 
 deploy-dev:
   extends: .deploy-template
+  image: 
+    name: pgtgs/tgs-backend-deploy:latest
+    entrypoint: [""]
   variables:
     namespace: dev
     kube_config: KubeConfig_Raypro_dev
