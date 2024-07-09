@@ -20,7 +20,8 @@ internal class AccountChangesQueryService(
                 .Cast<Domain.Enums.TransactionType>()
                 .Where(x => x is not Domain.Enums.TransactionType.WithdrawCommit
                     and not Domain.Enums.TransactionType.TransferCommit
-                    and not Domain.Enums.TransactionType.Receive)
+                    and not Domain.Enums.TransactionType.Receive
+                    and not Domain.Enums.TransactionType.GameProviderFundOutCommit)
                 .Select(x => (int)x)
                 .ToArray()
             : query.AccountChangeType.Value switch
@@ -39,7 +40,8 @@ internal class AccountChangesQueryService(
                 ],
                 Domain.Enums.TransactionType.GameProviderFundOut => [
                     (int)Domain.Enums.TransactionType.GameProviderFundOut,
-                    (int)Domain.Enums.TransactionType.GameProviderFundOutLock
+                    (int)Domain.Enums.TransactionType.GameProviderFundOutLock,
+                    (int)Domain.Enums.TransactionType.GameProviderFundOutRollback
                 ],
                 _ => [
                     (int)query.AccountChangeType.Value
