@@ -70,12 +70,11 @@ push-k8s-template:
       - artifacts/**/*
 
 deploy-dev:
-  extends: .deploy-template
+  extends: .deploy-k8s-template
   image: 
     name: pgtgs/tgs-backend-deploy:latest
   variables:
     namespace: dev
-    kube_config: KubeConfig_Raypro_local
   environment:
     name: dev
   stage: deploy-dev
@@ -92,12 +91,11 @@ deploy-dev:
   when: on_success
 
 deploy-staging:
-  extends: .deploy-template
+  extends: .deploy-k8s-template
   image: 
     name: pgtgs/tgs-backend-deploy:latest
   variables:
     namespace: staging
-    kube_config: KubeConfig_Raypro_staging
   environment:
     name: staging
   stage: deploy-staging
@@ -114,12 +112,11 @@ deploy-staging:
   when: manual
 
 deploy-prod:
-  extends: .deploy-template
+  extends: .deploy-k8s-template
   image: 
     name: pgtgs/tgs-backend-deploy:latest
   variables:
     namespace: prod
-    kube_config: KubeConfig_Raypro_prod
   environment:
     name: prod
   stage: deploy-prod
