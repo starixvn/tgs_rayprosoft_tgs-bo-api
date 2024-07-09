@@ -340,7 +340,7 @@ public class RoleControllerTests : BaseTests
 
         var orderedRoles = roles.OrderByDescending(p => p.Name);
 
-        var expectedRoles = showAll ? orderedRoles.ToArray() : orderedRoles.Skip(skip).Take(take).ToArray();
+        var expectedRoles = showAll ? orderedRoles.ToArray() : [.. orderedRoles.Skip(skip).Take(take)];
 
         _ = roleQueriesMock.GetQueries().Returns(roles);
 

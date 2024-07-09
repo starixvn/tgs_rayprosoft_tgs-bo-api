@@ -72,7 +72,7 @@ public class BrandGameControllerTests : BaseTests
         var (skip, take) = GetPage(request);
         var orderedRoles = list.OrderByDescending(p => p.DisplayOrder);
 
-        var expectedRoles = showAll ? orderedRoles.ToArray() : orderedRoles.Skip(skip).Take(take).ToArray();
+        var expectedRoles = showAll ? [.. orderedRoles] : orderedRoles.Skip(skip).Take(take).ToArray();
 
         _ = mediatorMock
             .Send(Arg.Any<GetBrandGamesRequest>(), Arg.Any<CancellationToken>())
