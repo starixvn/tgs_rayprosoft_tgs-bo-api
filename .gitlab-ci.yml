@@ -73,7 +73,6 @@ deploy-dev:
   extends: .deploy-template
   image: 
     name: pgtgs/tgs-backend-deploy:latest
-    entrypoint: [""]
   variables:
     namespace: dev
     kube_config: KubeConfig_Raypro_local
@@ -96,7 +95,6 @@ deploy-staging:
   extends: .deploy-template
   image: 
     name: pgtgs/tgs-backend-deploy:latest
-    entrypoint: [""]
   variables:
     namespace: staging
     kube_config: KubeConfig_Raypro_staging
@@ -119,7 +117,6 @@ deploy-prod:
   extends: .deploy-template
   image: 
     name: pgtgs/tgs-backend-deploy:latest
-    entrypoint: [""]
   variables:
     namespace: prod
     kube_config: KubeConfig_Raypro_prod
