@@ -200,7 +200,7 @@ public class AnnouncementControllerTests : BaseTests
             .Where(x => x.Status != AnnounceStatus.Archived)
             .OrderByDescending(p => p.UpdatedOn);
 
-        var expectedRoles = showAll ? orderedRoles.ToArray() : orderedRoles.Skip(skip).Take(take).ToArray();
+        var expectedRoles = showAll ? orderedRoles.ToArray() : [.. orderedRoles.Skip(skip).Take(take)];
 
         _ = queriesMock.GetQueries()
             .Returns(list);

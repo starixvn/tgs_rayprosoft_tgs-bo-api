@@ -30,13 +30,12 @@ public class BaseTests
         string id = "e4ecfa98-b373-4123-87e0-cb9e883d0691")
         => new(
         [
-            new ClaimsIdentity(new[]
-            {
+            new ClaimsIdentity([
                 new Claim(Consts.BackendOffice.UserInfo.UserIdKey, id),
                 new Claim(Consts.BackendOffice.UserInfo.UsernameKey, username),
                 new Claim(Consts.BackendOffice.UserInfo.RolenameKey, roleName),
                 new Claim(Consts.BackendOffice.UserInfo.PortalKey, roleType.ToString())
-            })
+            ])
         ]);
 
     public void Login(

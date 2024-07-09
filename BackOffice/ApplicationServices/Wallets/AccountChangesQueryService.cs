@@ -37,6 +37,10 @@ internal class AccountChangesQueryService(
                     (int)Domain.Enums.TransactionType.CancelWithdrawal,
                     (int)Domain.Enums.TransactionType.WithdrawRollback
                 ],
+                Domain.Enums.TransactionType.GameProviderFundOut => [
+                    (int)Domain.Enums.TransactionType.GameProviderFundOut,
+                    (int)Domain.Enums.TransactionType.GameProviderFundOutLock
+                ],
                 _ => [
                     (int)query.AccountChangeType.Value
                 ],
