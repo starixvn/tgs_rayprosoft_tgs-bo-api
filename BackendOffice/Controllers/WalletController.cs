@@ -76,7 +76,11 @@ public class WalletController : BaseContextController
                 GameActionId = null,
                 Amount = x.Amount,
                 Balance = x.Balance,
-                TransactionType = (BoEnums.TransactionType?)x.TransactionType,
+                TransactionType = (BoEnums.TransactionType)x.TransactionType switch
+                {
+                    BoEnums.TransactionType.GameProviderFundOutLock => BoEnums.TransactionType.GameProviderFundOut,
+                    var type => type
+                },
                 GameActionType = (GameActionType?)x.TransactionType switch
                 {
                     GameActionType.PlaceBet => TransactionGameActionType.GameBet,
@@ -144,11 +148,7 @@ public class WalletController : BaseContextController
                 LockAmount = x.LockAmount,
                 Balance = x.Balance,
                 LockedBalance = x.LockedBalance,
-                TransactionType = (BoEnums.TransactionType)x.TransactionType switch
-                {
-                    BoEnums.TransactionType.GameProviderFundOutLock => BoEnums.TransactionType.GameProviderFundOut,
-                    var type => type
-                },
+                TransactionType = (BoEnums.TransactionType)x.TransactionType,
                 RecordedOn = x.RecordedOn,
                 IncludeInNetProfit = adjustPlayerRecords
                     .FirstOrDefault(apr => apr.TransactionId == x.Id)?.IncludeInNetProfit
