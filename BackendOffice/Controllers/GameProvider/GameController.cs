@@ -13,7 +13,6 @@ using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Tgs.ServiceUtility;
-using TGS.Apis.BackendOffice.Controllers.Messages.Game;
 using TGS.Apis.BackendOffice.Services;
 using TGS.Services.BackOffice.Application.Models.Game;
 using TGS.Services.BackOffice.Application.Queries.Game;
@@ -373,7 +372,8 @@ public class GameController(IMediator mediator, IUploadService uploadService) : 
                 Id = int.Parse(x["Id"]),
                 Code = x["Code"],
                 Localization = x.Where(p => p.Key is not ("Id" or "Code"))
-                    .Select(p => new { p.Key, Info = JsonDocument.Parse($$"""{"name": "{{p.Value}}"}""") })
+                    .Select(p =>
+                        new { p.Key, Info = new GameLocalizationDetailModel { Name = p.Value?.Trim() ?? string.Empty } })
                     .ToDictionary(p => p.Key, p => p.Info)
             })
             .ToList();
