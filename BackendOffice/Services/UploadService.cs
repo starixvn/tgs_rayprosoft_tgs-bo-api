@@ -41,7 +41,7 @@ public class UploadService : IUploadService
                 var header = headers[i];
                 _ = obj.TryAdd(header, reader.GetValue(i));
 
-                ((IDictionary<string, object>)obj)[header] = reader.GetValue(i).ToString();
+                ((IDictionary<string, object>)obj)[header] = reader.GetValue(i)?.ToString();
             }
 
             var json = JsonSerializer.Serialize(obj);
