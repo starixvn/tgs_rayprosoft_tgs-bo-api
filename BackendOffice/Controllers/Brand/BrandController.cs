@@ -189,7 +189,7 @@ public partial class BrandController(IMediator mediator) : BaseContextController
             .Where(viewModel.BrandId.HasValue, x => x.BrandId == viewModel.BrandId)
             .Select(x => x.BrandId);
 
-        if (!IsAdmin && !brandIds.Any())
+        if (brandIds.Any())
         {
             return CreateValidResponse<PagedResponse<BrandListItemViewModel>>();
         }
