@@ -7,19 +7,20 @@ using Google.Protobuf;
 using Google.Protobuf.WellKnownTypes;
 using MediatR;
 using Microsoft.AspNetCore.Mvc;
-using Tgs.BrandCertificate;
 using Tgs.BrandCertificate.Clients;
 using Tgs.Paging;
 using Tgs.ServiceUtility;
 using TGS.Apis.BackendOffice.Controllers.Messages;
 using TGS.Apis.BackendOffice.Controllers.Messages.BrandToken;
 using TGS.Apis.BackendOffice.ViewModels;
+using TGS.Core.Models.Enums;
 using TGS.Services.BackOffice.Application.Models.Brand;
 using TGS.Services.BackOffice.Application.Queries.BrandToken;
 using TGS.Services.BackOffice.ApplicationServices;
 using TGS.Services.BackOffice.Domain;
 using Valhalla.MessageQueue;
 using BrandListQuery = TGS.Services.BackOffice.ApplicationServices.BrandListQuery;
+using BrandStatus = Tgs.BrandCertificate.BrandStatus;
 using Resource = TGS.Services.BackOffice.Application.Resources;
 
 namespace TGS.Apis.BackendOffice.Controllers.Brand;
@@ -179,28 +180,19 @@ public partial class BrandController(IMediator mediator) : BaseContextController
             .ToArrayAsync(HttpContext.RequestAborted)
             .ConfigureAwait(false);
 
-        var brandIds = new HashSet<Guid>();
+        var brandIds = brandRelations
+            .Where(ResellerId.HasValue, x => x.ResellerId == ResellerId)
+            .Where(LicenseeId.HasValue, x => x.LicenseeId == LicenseeId)
+            .Where(BrandId.HasValue, x => x.BrandId == BrandId)
+            .Where(viewModel.ResellerId.HasValue, x => x.ResellerId == viewModel.ResellerId)
+            .Where(viewModel.LicenseeId.HasValue, x => x.LicenseeId == viewModel.LicenseeId)
+            .Where(viewModel.BrandId.HasValue, x => x.BrandId == viewModel.BrandId)
+            .Select(x => x.BrandId);
 
-        if (viewModel.ResellerId.HasValue)
+        if (!IsAdmin && !brandIds.Any())
         {
-            var ids = brandRelations
-                .Where(b => b.ResellerId == viewModel.ResellerId.Value)
-                .Select(b => b.BrandId);
-
-            brandIds.UnionWith(ids);
+            return CreateValidResponse<PagedResponse<BrandListItemViewModel>>();
         }
-
-        if (viewModel.LicenseeId.HasValue)
-        {
-            var ids = brandRelations
-                .Where(b => b.LicenseeId == viewModel.LicenseeId.Value)
-                .Select(b => b.BrandId);
-
-            brandIds.UnionWith(ids);
-        }
-
-        if (viewModel.BrandId.HasValue)
-            _ = brandIds.Add(viewModel.BrandId.Value);
 
         var query = new BrandListQuery(
             brandIds,
