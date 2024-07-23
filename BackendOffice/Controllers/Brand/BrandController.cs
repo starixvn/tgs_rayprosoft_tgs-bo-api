@@ -191,7 +191,11 @@ public partial class BrandController(IMediator mediator) : BaseContextController
 
         if (!brandIds.Any())
         {
-            return CreateValidResponse<PagedResponse<BrandListItemViewModel>>();
+            return new PagedResponse<BrandListItemViewModel>
+            {
+                Valid = true,
+                Items = []
+            };
         }
 
         var query = new BrandListQuery(
