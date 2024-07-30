@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Diagnostics;
 using System.IO;
 using System.Linq;
 using System.Text.Json;
@@ -25,7 +26,10 @@ public class DepositController : BaseContextController
     public ValueTask<int> CountUntreatedDepositFormsAsync(
         [FromServices] IGetService<CountUntreatedDepositFormsQuery, int> countService,
         Guid brandId)
-        => countService.GetAsync(new CountUntreatedDepositFormsQuery(brandId));
+    {
+        _ = (Activity.Current?.AddTag("username", Username));
+        return countService.GetAsync(new CountUntreatedDepositFormsQuery(brandId));
+    }
 
     [HttpGet("exportDeposit/{brandId}")]
     public async Task<IActionResult> ExportDepositAsync(
