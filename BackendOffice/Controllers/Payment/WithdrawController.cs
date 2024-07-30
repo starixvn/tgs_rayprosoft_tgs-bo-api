@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Diagnostics;
 using System.IO;
 using System.Linq;
 using System.Text.Json;
@@ -27,7 +28,10 @@ public class WithdrawController : BaseContextController
     public ValueTask<int> CountUntreatedWithdrawFormsAsync(
         [FromServices] IGetService<CountUntreatedWithdrawFormsQuery, int> countService,
         Guid brandId)
-        => countService.GetAsync(new CountUntreatedWithdrawFormsQuery(brandId));
+    {
+        _ = (Activity.Current?.AddTag("username", Username));
+        return countService.GetAsync(new CountUntreatedWithdrawFormsQuery(brandId));
+    }
 
     [HttpPost("player", Name = "CreatePlayerWithdrawRequest")]
     public async Task<MessageResponse> CreatePlayerWithdrawRequestAsync(
