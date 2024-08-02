@@ -5,8 +5,8 @@ namespace TGS.Apis.BackendOffice.Controllers.Messages.Deposit;
 
 public record DepositFormRequest
 {
-    [FromQuery(Name = "userName")]
-    public string UserName { get; init; }
+    [FromQuery(Name = "username")]
+    public string Username { get; init; }
 
     [FromQuery(Name = "channel")]
     public string ChannelName { get; init; }

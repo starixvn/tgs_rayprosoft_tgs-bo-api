@@ -9,7 +9,7 @@ public record DepositFormDetailViewModel
 
     public string PlayerCode { get; init; }
 
-    public string UserName { get; init; }
+    public string Username { get; init; }
 
     public Guid BrandId { get; init; }
 
