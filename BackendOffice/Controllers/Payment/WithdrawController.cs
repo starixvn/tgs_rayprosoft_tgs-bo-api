@@ -243,7 +243,7 @@ public class WithdrawController : BaseContextController
             .ConfigureAwait(false);
 
         var playerInfos = playerServiceClient.QueryPlayerInfoListAsync(brandId,
-            result.Items.Where(x => x.UserType == UserType.Player).Select(x => x.UserName),
+            result.Items.Where(x => x.UserType == UserType.Player).Select(x => x.UserId),
             HttpContext.RequestAborted);
 
         var agents = agentClient.GetAgentNamesAsync(brandId);
