@@ -36,7 +36,7 @@ public class WithdrawFormDetailViewModel
 
     public string? PaidUserId { get; init; }
 
-    public string? PaidUserName { get; init; }
+    public string? PaidUsername { get; init; }
 
     public Guid? PaymentMethodId { get; init; }
 
@@ -50,7 +50,7 @@ public class WithdrawFormDetailViewModel
 
     public DateTimeOffset? ReviewedOn { get; init; }
 
-    public string? ReviewedUserName { get; init; }
+    public string? ReviewedUsername { get; init; }
 
     public FlowState Status { get; init; }
 
@@ -60,7 +60,7 @@ public class WithdrawFormDetailViewModel
 
     public string? UserId { get; init; }
 
-    public string? UserName { get; init; }
+    public string? Username { get; init; }
 
     public string UserType { get; init; } = default!;
 }

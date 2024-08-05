@@ -6,7 +6,9 @@ using System.Text.Json;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using Tgs.Agent.Client;
 using Tgs.Payment.Clients;
+using Tgs.PlayerService.Client;
 using Tgs.ServiceUtility;
 using TGS.Apis.BackendOffice.Controllers.Messages;
 using TGS.Apis.BackendOffice.Controllers.Messages.Deposit;
@@ -17,6 +19,7 @@ using TGS.Services.BackOffice.Application.Queries.Withdraw;
 using TGS.Services.BackOffice.Application.Resources;
 using TGS.Services.BackOffice.ApplicationServices.Payment;
 using TGS.Services.BackOffice.Domain;
+using UserType = Tgs.Payment.Clients.UserType;
 
 namespace TGS.Apis.BackendOffice.Controllers.Payment;
 
@@ -103,7 +106,7 @@ public class WithdrawController : BaseContextController
 
         var query = new WithdrawFormQuery(
             brandId,
-            request.UserName,
+            request.Username,
             request.ChannelName,
             request.ThirdPartyOrderNo,
             request.OrderNo,
@@ -157,7 +160,7 @@ public class WithdrawController : BaseContextController
             {
                 Id = formDetail.Id,
                 UserId = formDetail.UserId,
-                UserName = formDetail.UserName,
+                Username = formDetail.UserName,
                 UserType = formDetail.UserType.ToString(),
                 BrandId = formDetail.BrandId,
                 BrandPaymentId = formDetail.BrandPaymentId,
@@ -182,10 +185,10 @@ public class WithdrawController : BaseContextController
                 ThirdPartyOrderNo = formDetail.ThirdPartyOrderNo,
                 OrderNo = formDetail.OrderNo,
                 ReviewedOn = formDetail.ReviewedOn,
-                ReviewedUserName = formDetail.ReviewedUserName,
+                ReviewedUsername = formDetail.ReviewedUserName,
                 PaidOn = formDetail.PaidOn,
                 PaidUserId = formDetail.PaidUserId,
-                PaidUserName = formDetail.PaidUserName,
+                PaidUsername = formDetail.PaidUserName,
                 Note = formDetail.Note,
                 HandlingFee = formDetail.HandlingFee,
                 RealName = realName,
@@ -196,6 +199,8 @@ public class WithdrawController : BaseContextController
     [HttpGet("{brandId}")]
     public async Task<PagingWithdrawFormViewModel> QueryWithdrawFormsAsync(
         [FromServices] IGetService<WithdrawFormQuery, WithdrawForms> queryService,
+        [FromServices] IPlayerServiceClient playerServiceClient,
+        [FromServices] IAgentClient agentClient,
         Guid brandId,
         [FromQuery] WithdrawFormRequest request,
         [FromQuery] PageableRequest paging)
@@ -211,7 +216,7 @@ public class WithdrawController : BaseContextController
 
         var query = new WithdrawFormQuery(
             brandId,
-            request.UserName,
+            request.Username,
             request.ChannelName,
             request.ThirdPartyOrderNo,
             request.OrderNo,
@@ -237,6 +242,19 @@ public class WithdrawController : BaseContextController
             .GetAsync(query, HttpContext.RequestAborted)
             .ConfigureAwait(false);
 
+        var playerInfos = playerServiceClient.QueryPlayerInfoListAsync(brandId,
+            result.Items.Where(x => x.UserType == UserType.Player).Select(x => x.UserName),
+            HttpContext.RequestAborted);
+
+        var agents = agentClient.GetAgentNamesAsync(brandId);
+
+        var players = playerInfos.SelectAwait(async x =>
+        {
+            var agentInfo = await agents.FirstOrDefaultAsync(a => a.AgentId == x.AgentId);
+
+            return (x.PlayerCode, agentInfo?.Username);
+        }).ToEnumerable();
+
         var response = new PagingWithdrawFormViewModel()
         {
             Valid = true,
@@ -246,7 +264,7 @@ public class WithdrawController : BaseContextController
             {
                 Id = form.Id,
                 UserId = form.UserId,
-                UserName = form.UserName,
+                Username = form.UserName,
                 UserType = form.UserType.ToString(),
                 BrandId = form.BrandId,
                 BrandPaymentId = form.BrandPaymentId,
@@ -259,12 +277,13 @@ public class WithdrawController : BaseContextController
                 CreatedOn = form.CreatedOn,
                 UpdatedOn = form.UpdatedOn,
                 ThirdPartyOrderNo = form.ThirdPartyOrderNo,
-                ReviewedUserName = form.ReviewedUserName,
+                ReviewedUsername = form.ReviewedUserName,
                 ReviewedOn = form.ReviewedOn,
                 OrderNo = form.OrderNo,
                 PaidOn = form.PaidOn,
                 PaidUserId = form.PaidUserId,
-                PaidUserName = form.PaidUserName
+                PaidUsername = form.PaidUserName,
+                AgentName = players.FirstOrDefault(x => x.PlayerCode == form.UserId).Username
             })
             .ToArray(),
             Sum = result.Sum

@@ -8,7 +8,7 @@ public record DepositFormViewModel
 
     public string PlayerCode { get; init; }
 
-    public string UserName { get; init; }
+    public string Username { get; init; }
 
     public Guid BrandId { get; init; }
 
@@ -40,4 +40,6 @@ public record DepositFormViewModel
     public decimal? Bonus { get; init; }
 
     public decimal HandlingFee { get; init; }
+
+    public string AgentName { get; init; }
 }

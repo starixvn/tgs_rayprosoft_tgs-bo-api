@@ -5,7 +5,9 @@ using System.Linq;
 using System.Text.Json;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Mvc;
+using Tgs.Agent.Client;
 using Tgs.Payment.Clients;
+using Tgs.PlayerService.Client;
 using Tgs.Promotion.Clients;
 using Tgs.Promotion.Clients.Models.Promotion;
 using Tgs.ServiceUtility;
@@ -50,7 +52,7 @@ public class DepositController : BaseContextController
 
         var query = new DepositFormQuery(
             brandId,
-            request.UserName,
+            request.Username,
             request.ChannelName,
             request.ThirdPartyOrderNo,
             request.OrderNo,
@@ -124,7 +126,7 @@ public class DepositController : BaseContextController
             {
                 Id = formDetail.Id,
                 PlayerCode = formDetail.PlayerCode,
-                UserName = formDetail.UserName,
+                Username = formDetail.UserName,
                 BrandId = formDetail.BrandId,
                 BrandPaymentId = formDetail.BrandPaymentId,
                 PaymentMethodId = formDetail.PaymentMethodId,
@@ -161,14 +163,18 @@ public class DepositController : BaseContextController
     /// </summary>
     /// <param name="queryService">The query service.</param>
     /// <param name="promotionClient">The promotion client.</param>
+    /// <param name="agentClient">The agent client.</param>
     /// <param name="brandId">The brand identifier.</param>
     /// <param name="request">The request.</param>
     /// <param name="paging">The paging.</param>
+    /// <param name="playerServiceClient">The player client.</param>
     /// <returns></returns>
     [HttpGet("{brandId}")]
     public async Task<DepositViewModel> QueryDepositFormsAsync(
         [FromServices] IGetService<DepositFormQuery, DepositForms> queryService,
         [FromServices] IPromotionClient promotionClient,
+        [FromServices] IPlayerServiceClient playerServiceClient,
+        [FromServices] IAgentClient agentClient,
         Guid brandId,
         [FromQuery] DepositFormRequest request,
         [FromQuery] PageableRequest paging)
@@ -184,7 +190,7 @@ public class DepositController : BaseContextController
 
         var query = new DepositFormQuery(
             brandId,
-            request.UserName,
+            request.Username,
             request.ChannelName,
             request.ThirdPartyOrderNo,
             request.OrderNo,
@@ -192,7 +198,7 @@ public class DepositController : BaseContextController
             request.PaymentId,
             request.PaymentMethodId,
             request.Status?.SelectMany(s => s.ToPaymentFlowState()).Distinct()
-                ?? default(FlowState?).ToPaymentFlowState(),
+            ?? default(FlowState?).ToPaymentFlowState(),
             createOnRange,
             updateOnRange,
             new Paging
@@ -207,20 +213,33 @@ public class DepositController : BaseContextController
         var result = await queryService.GetAsync(query).ConfigureAwait(false);
 
         var promotionNames = (await promotionClient
-            .GetPromotionNamesAsync(new GetPromotionNamesRequest(
-                result.Items
-                    .Where(info => info.PromotionId != null)
-                    .Select(info => info.PromotionId.Value)
-                    .ToArray()))
-            .ConfigureAwait(false))
+                .GetPromotionNamesAsync(new GetPromotionNamesRequest(
+                    result.Items
+                        .Where(info => info.PromotionId != null)
+                        .Select(info => info.PromotionId.Value)
+                        .ToArray()))
+                .ConfigureAwait(false))
             .ToDictionary(model => model.Id, model => model.Name);
 
         var promotionBonus = (await promotionClient.GetPromotionBonusOfDepositAsync(
-            result.Items
-                .Where(info => info.PromotionPlayerId != null)
-                .Select(info => info.PromotionPlayerId.Value)
-                .ToArray()).ConfigureAwait(false))
-                .ToDictionary(model => model.Id, model => model.BonusAmount);
+                result.Items
+                    .Where(info => info.PromotionPlayerId != null)
+                    .Select(info => info.PromotionPlayerId.Value)
+                    .ToArray()).ConfigureAwait(false))
+            .ToDictionary(model => model.Id, model => model.BonusAmount);
+
+        var playerInfos = playerServiceClient
+            .QueryPlayerInfoListAsync(brandId, result.Items.Select(x => x.PlayerCode),
+                HttpContext.RequestAborted);
+
+        var agents = agentClient.GetAgentNamesAsync(brandId);
+
+        var players = playerInfos.SelectAwait(async x =>
+            {
+                var agentInfo = await agents.FirstOrDefaultAsync(a => a.AgentId == x.AgentId);
+
+                return (x.PlayerCode, agentInfo?.Username);
+            }).ToEnumerable();
 
         var response = new DepositViewModel
         {
@@ -231,7 +250,7 @@ public class DepositController : BaseContextController
                 {
                     Id = form.Id,
                     PlayerCode = form.PlayerCode,
-                    UserName = form.UserName,
+                    Username = form.UserName,
                     BrandId = form.BrandId,
                     BrandPaymentId = form.BrandPaymentId,
                     PaymentMethodId = form.PaymentMethodId,
@@ -246,14 +265,15 @@ public class DepositController : BaseContextController
                     ReviewedUserName = form.ReviewedUserName,
                     OrderNo = form.OrderNo,
                     PromotionName = form.PromotionId != null
-                        && promotionNames.TryGetValue(form.PromotionId.Value, out var name)
+                                    && promotionNames.TryGetValue(form.PromotionId.Value, out var name)
                         ? name
                         : null,
                     Bonus = form.PromotionPlayerId != null
-                        && promotionBonus.TryGetValue(form.PromotionPlayerId.Value, out var bonus)
+                            && promotionBonus.TryGetValue(form.PromotionPlayerId.Value, out var bonus)
                         ? bonus
                         : null,
                     HandlingFee = form.HandlingFee,
+                    AgentName = players.FirstOrDefault(x => x.PlayerCode == form.PlayerCode).Username
                 })
                 .ToArray(),
             Sum = result.Sum
