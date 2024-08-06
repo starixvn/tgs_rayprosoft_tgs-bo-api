@@ -7,7 +7,7 @@ export default class BoBrandService {
 
     // #endregion Constructors (1)
 
-    // #region Public Methods (20)
+    // #region Public Methods (23)
 
     public async addBrandSms(
         brandId: string,
@@ -93,6 +93,14 @@ export default class BoBrandService {
             .then(res => res.data);
     }
 
+    public listBrandPlayerContractDisplay(
+        brandId: string        
+    ): Promise<BrandPlayerContractDisplayViewModel[]>{
+        return this.http
+            .get(`/api/brand/player-contract/${brandId}/display`)
+            .then(res => res.data);
+    }
+
     public listBrandSms(
         brandId: string): Promise<BrandSmsViewModel[]> {
         return this.http
@@ -103,6 +111,12 @@ export default class BoBrandService {
     public listBrandSocialMediaSettings(brandId: string): Promise<SocialMediaSetting[]> {
         return this.http
             .get(`/api/brand/social/${brandId}`)
+            .then(res => res.data);
+    }
+
+    public listPlayerContractType(): Promise<string[]>{
+        return this.http
+            .get('/api/brand/player-contract')
             .then(res => res.data);
     }
 
@@ -149,6 +163,18 @@ export default class BoBrandService {
             .then(res => res.data);
     }
 
+    public setBrandPlayerContractDisplay(
+        brandId: string,
+        request: UpsertBrandPlayerContractRequest
+    ): Promise<void>{        
+        let headers = new AxiosHeaders();
+        headers.setContentType("application/json");
+
+        return this.http
+            .patch(`/api/brand/player-contract/${brandId}`, request, { headers })
+            .then(res => res.data);
+    }
+
     public setSocialMediaSettingOrder(settingId: string, newOrder: number): Promise<void> {
         let headers = new AxiosHeaders();
         headers.setContentType("application/json");
@@ -178,5 +204,5 @@ export default class BoBrandService {
             .then(res => res.data);
     }
 
-    // #endregion Public Methods (20)
+    // #endregion Public Methods (23)
 }
