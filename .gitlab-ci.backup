@@ -1,0 +1,133 @@
+include:
+  - project: rayprosoft/tgs-ci-scripts
+    ref: main
+    file: GitLab/Templates/gitlab-job-templates.yml
+
+variables:
+  ImageName: pgtgs/backoffice-api
+  TgsSettingKey: backoffice-api
+  HelmTemplateFolderName: backoffice-api
+  BuildCacheKey: Tgs.Bo-Api.$CI_PIPELINE_IID
+
+stages:
+  - build
+  - test
+  - publish
+  - deploy-dev
+  - deploy-staging
+  - deploy-prod
+
+build-code:
+  extends: .build-code-template
+  script:
+    - npm ci --prefix bo_client
+    - npm run build --prefix bo_client
+    - dotnet build -c $BuildConfiguration
+
+unit-test:
+  extends: .unit-test-template
+  script:
+    - dotnet test "**/bin/$BuildConfiguration/*/*Tests.dll" -l:"junit;LogFilePath=TestReports/TestResults.xml"
+  artifacts:
+    reports:
+      junit: ./TestReports/TestResults.xml
+
+push-docker-image:
+  stage: publish
+  needs:
+    - build-code
+    - unit-test
+  only:
+    - main
+  cache:
+    key: $BuildCacheKey
+    untracked: true   
+    policy: pull
+  script:
+    - docker build -t "$ImageName:$Tag" --build-arg [BuildConfiguration]=$BuildConfiguration -f "BackendOffice/Dockerfile" . --no-cache
+    - docker push $ImageName:$Tag
+
+push-k8s-template:
+  stage: publish
+  needs:
+    - unit-test
+  only:
+    - main
+  script:
+    - export Tag="$(date -d $CI_PIPELINE_CREATED_AT +%Y%m%d%H%M).$CI_PIPELINE_IID"
+    - mkdir -p artifacts/k8s
+    - cp -R deployment/k8s/$HelmTemplateFolderName artifacts/k8s/
+    - |
+      yq -i e '
+        .image.repository = strenv(ImageName) |
+        .image.tag = strenv(Tag)
+      ' artifacts/k8s/$HelmTemplateFolderName/values.yaml
+  artifacts:
+    name: HelmTemplate
+    untracked: false
+    expire_in: "180 days"
+    paths:
+      - artifacts/**/*
+
+deploy-dev:
+  extends: .deploy-k8s-template
+  image: 
+    name: pgtgs/tgs-backend-deploy:latest
+  variables:
+    namespace: dev
+  environment:
+    name: dev
+  stage: deploy-dev
+  tags:
+    - dev
+    - kubernetes
+    - deploy
+  needs:
+    - push-docker-image
+    - job: push-k8s-template
+      artifacts: true
+  only:
+    - main
+  when: on_success
+
+deploy-staging:
+  extends: .deploy-k8s-template
+  image: 
+    name: pgtgs/tgs-backend-deploy:latest
+  variables:
+    namespace: staging
+  environment:
+    name: staging
+  stage: deploy-staging
+  tags:
+    - staging
+    - kubernetes
+    - deploy
+  needs:
+    - deploy-dev
+    - job: push-k8s-template
+      artifacts: true
+  only:
+    - main
+  when: manual
+
+deploy-prod:
+  extends: .deploy-k8s-template
+  image: 
+    name: pgtgs/tgs-backend-deploy:latest
+  variables:
+    namespace: prod
+  environment:
+    name: prod
+  stage: deploy-prod
+  tags:
+    - prod
+    - kubernetes
+    - deploy
+  needs:
+    - deploy-staging
+    - job: push-k8s-template
+      artifacts: true
+  only:
+    - main
+  when: manual
