@@ -2,6 +2,7 @@
 using System.ComponentModel;
 using System.Linq;
 using System.Threading.Tasks;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using Tgs.Core.Infrastructures.Security;
@@ -74,6 +75,7 @@ public class UserController(
         return CreateValidResponse<MessageResponse>();
     }
 
+    [AllowAnonymous]
     [HttpGet(Name = "GetUserList")]
     [Description("Get users")]
     public async Task<PagedResponse<UserModel>> GetUserListAsync(
