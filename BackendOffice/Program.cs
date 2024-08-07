@@ -19,6 +19,7 @@ using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.DataProtection.KeyManagement;
 using Microsoft.AspNetCore.DataProtection.StackExchangeRedis;
 using Microsoft.AspNetCore.Diagnostics.HealthChecks;
+using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.HttpLogging;
 using Microsoft.AspNetCore.Mvc.Authorization;
@@ -54,6 +55,12 @@ AppContext.SetSwitch("Npgsql.EnableLegacyTimestampBehavior", true);
 SqlMapper.AddTypeMap(typeof(DateOnly), DbType.Date);
 
 var builder = WebApplication.CreateBuilder(args);
+
+builder.Configuration.AddJsonFile("appsettings.json",
+        optional: true,
+        reloadOnChange: true);
+
+builder.WebHost.UseUrls($"http://0.0.0.0:{builder.Configuration["HostingPort"]}");
 
 builder.Logging
     .AddOpenTelemetry(options =>
@@ -191,9 +198,9 @@ builder.Services
         .ConfigureHttpClient(httpClient => httpClient.BaseAddress =
             builder.Configuration.GetValue<Uri>("BackOffice:ArticleManagementBaseUrl"))
     .Services
-    .AddSmsClient((sp, httpClient) => 
+    .AddSmsClient((sp, httpClient) =>
     {
-        var config = sp.GetRequiredService<IConfiguration>();        
+        var config = sp.GetRequiredService<IConfiguration>();
 
         httpClient.BaseAddress = config.GetValue<Uri>("BackOffice:SmsBaseUrl");
     }));
