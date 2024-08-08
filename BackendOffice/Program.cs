@@ -49,7 +49,6 @@ using TGS.Core.Infrastructures.Redis;
 using TGS.Core.Models;
 using TGS.Payment.ManualDeposit;
 using TGS.Services.BackOffice.Domain;
-using static System.Net.WebRequestMethods;
 
 AppContext.SetSwitch("Npgsql.EnableLegacyTimestampBehavior", true);
 SqlMapper.AddTypeMap(typeof(DateOnly), DbType.Date);
@@ -248,6 +247,7 @@ builder.Services
         options.HeaderName = Consts.BackendOffice.CsrfTokenName;
     });
 
+
 builder.Services
     .AddAuthentication(CookieAuthenticationDefaults.AuthenticationScheme)
     .AddCookie(options =>
@@ -400,6 +400,8 @@ builder.Services
         return ActivatorUtilities.CreateInstance<StationLetterTaskQueue>(sp, queueCapacity);
     });
 
+builder.Services.AddCors();
+
 var app = builder.Build();
 
 app.UseHttpLogging();
@@ -417,6 +419,12 @@ app.UseMiddleware<ExceptionMiddleware>();
 
 app.UseAuthentication();
 app.UseAuthorization();
+
+app.UseCors(x =>
+    x.AllowAnyMethod()
+    .AllowAnyHeader()
+    .SetIsOriginAllowed(origin => true)
+    .AllowCredentials());
 
 app.MapControllers();
 app.MapHub<NotifyHub>("api/notify");
