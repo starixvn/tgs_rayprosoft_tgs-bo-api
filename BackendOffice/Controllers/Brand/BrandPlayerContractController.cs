@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Mvc;
+using Tgs.BrandCertificate.Clients;
 using Tgs.PlayerService.Client;
 using Tgs.ServiceUtility;
 using TGS.Apis.BackendOffice.ViewModels;
@@ -45,7 +46,7 @@ public class BrandPlayerContractController : BaseContextController
         {
             yield return new BrandPlayerContractDisplayViewModel
             {
-                Name = item.Name.ToString(),
+                Name = item.Name,
                 IsVisualized = item.IsVisualized,
             };
         }
@@ -57,6 +58,8 @@ public class BrandPlayerContractController : BaseContextController
         Guid brandId,
         [FromBody] UpsertBrandPlayerContractRequest request)
     {
-        return commandService.ExecuteAsync(new UpsertBrandPlayerContractDisplayCommand(brandId, request), HttpContext.RequestAborted);
+        return commandService.ExecuteAsync(
+            new UpsertBrandPlayerContractDisplayCommand(brandId, request, Username),
+            HttpContext.RequestAborted);
     }
 }

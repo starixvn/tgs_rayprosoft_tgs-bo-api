@@ -6,11 +6,9 @@ using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 using NSubstitute;
-using Tgs.BrandCertificate;
 using Tgs.BrandCertificate.Clients;
 using Tgs.PlayerService.Client;
 using TGS.Apis.BackendOffice.ViewModels;
-using Xunit;
 using Xunit.Abstractions;
 
 namespace BackendOffice.IntegrationTests;
@@ -46,7 +44,7 @@ public class BrandPlayerContractTests(
 
         await web.StartAsync();
 
-        var brandId = Guid.NewGuid();        
+        var brandId = Guid.NewGuid();
 
         using var nodeService = nodeJsFixture.BuildNodeJsService();
 
@@ -82,6 +80,7 @@ public class BrandPlayerContractTests(
         Assert.NotNull(result);
         Assert.Equal(8, result.Length);
     }
+
     [Fact]
     public async Task 整合測試_取得Brand聯繫信息設定列表()
     {
@@ -111,29 +110,21 @@ public class BrandPlayerContractTests(
 
         var brandId = Guid.NewGuid();
 
-        _ = fakeBrandServiceClient.ListSocialMediaSettingsAsync(
+        _ = fakeBrandServiceClient.ListBrandPlayerContractDisplayAsync(
             Arg.Is(brandId),
             Arg.Any<CancellationToken>())
             .Returns(new[]
             {
-                new SocialMediaSetting(
-                    Guid.NewGuid(),
-                    "Test1",
-                    SocialType.Facebook,
-                    new Uri("https://localhost"),
-                    100),
-                new SocialMediaSetting(
-                    Guid.NewGuid(),
-                    "Test2",
-                    SocialType.Facebook,
-                    new Uri("https://localhost"),
-                    200),
-                new SocialMediaSetting(
-                    Guid.NewGuid(),
-                    "Test3",
-                    SocialType.Facebook,
-                    new Uri("https://localhost"),
-                    300)
+                new BrandPlayerContractDisplayInfo
+                {
+                    IsVisualized = true,
+                    Name = "Qq"
+                },
+                new BrandPlayerContractDisplayInfo
+                {
+                    IsVisualized = true,
+                    Name = "Wechat"
+                }
             }.ToAsyncEnumerable());
 
         using var nodeService = nodeJsFixture.BuildNodeJsService();
@@ -201,7 +192,7 @@ public class BrandPlayerContractTests(
         var brandId = Guid.NewGuid();
         var request = new UpsertBrandPlayerContractRequest()
         {
-            { "qq", true }
+            { "Qq", true }
         };
 
         using var nodeService = nodeJsFixture.BuildNodeJsService();
@@ -228,7 +219,10 @@ public class BrandPlayerContractTests(
             args: [brandId, request]);
 
         // Assert
-        //TODO: add brand Service Client
+        _ = fakeBrandServiceClient.SetBrandPlayerContractDisplayAsync(
+            Arg.Is(brandId),
+            Arg.Is(request.First().Key),
+            Arg.Is(request.First().Value), "system",
+            Arg.Any<CancellationToken>());
     }
-
 }

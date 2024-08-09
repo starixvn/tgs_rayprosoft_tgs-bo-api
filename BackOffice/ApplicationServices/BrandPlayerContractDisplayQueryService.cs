@@ -1,30 +1,30 @@
 ﻿using System.Collections.Generic;
+using System.Linq;
 using System.Runtime.CompilerServices;
 using System.Threading;
 using Tgs.BrandCertificate.Clients;
-using Tgs.PlayerService.Client;
 using Tgs.ServiceUtility;
 
 namespace TGS.Services.BackOffice.ApplicationServices;
 
-internal class BrandPlayerContractDisplayQueryService()
+internal class BrandPlayerContractDisplayQueryService(IBrandServiceClient brandServiceClient)
     : IQueryService<BrandPlayerContractDisplayQuery, BrandPlayerContractDisplayInfo>
 {
     public async IAsyncEnumerable<BrandPlayerContractDisplayInfo> QueryAsync(
         BrandPlayerContractDisplayQuery query,
         [EnumeratorCancellation] CancellationToken cancellationToken = default)
     {
-        
+        var displayInfo = await brandServiceClient
+            .ListBrandPlayerContractDisplayAsync(query.BrandId, cancellationToken)
+            .ToArrayAsync(cancellationToken);
 
-        var fake = new BrandPlayerContractDisplayInfo[]
+        foreach (var item in displayInfo)
         {
-            new(PlayerPropertyName.Qq, true),
-            new(PlayerPropertyName.Wechat, true)
-        };
-
-        foreach (var item in fake)
-        {
-            yield return new BrandPlayerContractDisplayInfo(item.Name, item.IsVisualized);
+            yield return new BrandPlayerContractDisplayInfo
+            {
+                Name = item.Name,
+                IsVisualized = item.IsVisualized,
+            };
         }
     }
 }

@@ -5,4 +5,5 @@ namespace TGS.Services.BackOffice.ApplicationServices;
 
 public record UpsertBrandPlayerContractDisplayCommand(
     Guid BrandId,
-    IDictionary<string, bool> UpdateTypes);
+    IDictionary<string, bool> UpdateTypes,
+    string Modifier);
