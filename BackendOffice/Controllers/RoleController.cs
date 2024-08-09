@@ -143,11 +143,6 @@ public class RoleController(
             return CreateInvalidResponse<MessageResponse>(Resources.Role.CannotDeleteRootRole);
         }
 
-        if (role.IsRoot)
-        {
-            return CreateInvalidResponse<MessageResponse>(Resources.Role.CannotDeleteRootRole);
-        }
-
         await roleCommands.DeleteAsync(role);
 
         return CreateValidResponse<MessageResponse>();
@@ -460,7 +455,7 @@ public class RoleController(
 
             x.SubMenus.ForEach(s =>
             {
-                s.SubMenus = s.SubMenus.Where(sm => sm.IsDisplay || sm.Code=="View").ToArray();
+                s.SubMenus = s.SubMenus.Where(sm => sm.IsDisplay || sm.Code == "View").ToArray();
             });
         });
 
