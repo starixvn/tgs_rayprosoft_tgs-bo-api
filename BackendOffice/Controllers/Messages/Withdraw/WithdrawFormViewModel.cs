@@ -49,5 +49,5 @@ public record WithdrawFormViewModel
 
     public DateTimeOffset? PaidOn { get; init; }
 
-    public string AgentName { get; init; } = string.Empty;
+    public string? AgentName { get; init; } = string.Empty;
 }

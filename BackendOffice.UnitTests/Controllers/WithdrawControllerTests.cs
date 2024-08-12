@@ -65,7 +65,8 @@ public class WithdrawControllerTests : BaseTests
         _ = fakeGetService.GetAsync(Arg.Any<WithdrawFormQuery>()).Returns(withdrawForms);
 
         _ = fakePlayerServiceClient
-            .QueryPlayerInfoListAsync(brand.Id, Arg.Any<IEnumerable<string>>(),
+            .QueryPlayerInfoListAsync(brand.Id,
+                Arg.Is<IEnumerable<string>>(x => x.SequenceEqual(new[]{ "playerCode1", "playerCode2" })),
                 Arg.Any<CancellationToken>()).Returns(playerInfos.ToAsyncEnumerable());
 
         _ = fakeAgentClient.GetAgentNamesAsync(brand.Id).Returns(agentNames.ToAsyncEnumerable());
