@@ -260,32 +260,34 @@ public class WithdrawController : BaseContextController
             Valid = true,
             TotalCount = result.TotalCount,
             Items = result.Items
-            .Select(form => new WithdrawFormViewModel
-            {
-                Id = form.Id,
-                UserId = form.UserId,
-                Username = form.UserName,
-                UserType = form.UserType.ToString(),
-                BrandId = form.BrandId,
-                BrandPaymentId = form.BrandPaymentId,
-                PaymentMethodId = form.PaymentMethodId,
-                ChannelName = form.ChannelName,
-                Status = form.Status.ToFlowState(),
-                Amount = form.Amount,
-                ActualAmount = form.ActualAmount,
-                Remark = form.Remark,
-                CreatedOn = form.CreatedOn,
-                UpdatedOn = form.UpdatedOn,
-                ThirdPartyOrderNo = form.ThirdPartyOrderNo,
-                ReviewedUsername = form.ReviewedUserName,
-                ReviewedOn = form.ReviewedOn,
-                OrderNo = form.OrderNo,
-                PaidOn = form.PaidOn,
-                PaidUserId = form.PaidUserId,
-                PaidUsername = form.PaidUserName,
-                AgentName = players.FirstOrDefault(x => x.PlayerCode == form.UserId).Username
-            })
-            .ToArray(),
+                .Select(form => new WithdrawFormViewModel
+                {
+                    Id = form.Id,
+                    UserId = form.UserId,
+                    Username = form.UserName,
+                    UserType = form.UserType.ToString(),
+                    BrandId = form.BrandId,
+                    BrandPaymentId = form.BrandPaymentId,
+                    PaymentMethodId = form.PaymentMethodId,
+                    ChannelName = form.ChannelName,
+                    Status = form.Status.ToFlowState(),
+                    Amount = form.Amount,
+                    ActualAmount = form.ActualAmount,
+                    Remark = form.Remark,
+                    CreatedOn = form.CreatedOn,
+                    UpdatedOn = form.UpdatedOn,
+                    ThirdPartyOrderNo = form.ThirdPartyOrderNo,
+                    ReviewedUsername = form.ReviewedUserName,
+                    ReviewedOn = form.ReviewedOn,
+                    OrderNo = form.OrderNo,
+                    PaidOn = form.PaidOn,
+                    PaidUserId = form.PaidUserId,
+                    PaidUsername = form.PaidUserName,
+                    AgentName = form.UserType == UserType.Agent
+                        ? null
+                        : players.FirstOrDefault(x => x.PlayerCode == form.UserId).Username
+                })
+                .ToArray(),
             Sum = result.Sum
         };
 

@@ -41,20 +41,20 @@ public class WithdrawControllerTests : BaseTests
 
         var withdrawForms = new WithdrawForms
         {
-            TotalCount = 3,
+            TotalCount = 4,
             Items = new WithdrawFormInfo[]
             {
                 new() { UserId = "playerCode1", UserType = UserType.Player },
                 new() { UserId = "playerCode2", UserType = UserType.Player },
-                new() { UserId = "playerCode3", UserType = UserType.Agent },
-                new() { UserId = "playerCode4", UserType = UserType.Agent }
+                new() { UserId = agentId.ToString(), UserType = UserType.Agent },
+                new() { UserId = agentId2.ToString(), UserType = UserType.Agent }
             }
         };
 
         var playerInfos = new PlayerInfo[]
         {
             new() { PlayerCode = "playerCode1", AgentId = agentId },
-            new() { PlayerCode = "playerCode2", AgentId = agentId2 }
+            new() { PlayerCode = "playerCode2" }
         };
 
         var agentNames = new AgentNameInfo[]
@@ -79,7 +79,7 @@ public class WithdrawControllerTests : BaseTests
         Assert.That(response.Items.Length, Is.EqualTo(4));
 
         Assert.That(response.Items[0].AgentName, Is.EqualTo("agent1"));
-        Assert.That(response.Items[1].AgentName, Is.EqualTo("agent2"));
+        Assert.That(response.Items[1].AgentName, Is.EqualTo(null));
         Assert.That(response.Items[2].AgentName, Is.EqualTo(null));
         Assert.That(response.Items[3].AgentName, Is.EqualTo(null));
         Assert.That(response.Items[0].UserType, Is.EqualTo(UserType.Player.ToString()));
