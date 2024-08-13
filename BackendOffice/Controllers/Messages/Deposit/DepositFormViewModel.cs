@@ -33,7 +33,7 @@ public record DepositFormViewModel
 
     public string OrderNo { get; init; }
 
-    public string ReviewedUserName { get; init; }
+    public string ReviewedUsername { get; init; }
 
     public string PromotionName { get; init; }
 
