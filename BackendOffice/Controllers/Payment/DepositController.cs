@@ -262,7 +262,7 @@ public class DepositController : BaseContextController
                     CreatedOn = form.CreatedOn,
                     UpdatedOn = form.UpdatedOn,
                     ThirdPartyOrderNo = form.ThirdPartyOrderNo,
-                    ReviewedUserName = form.ReviewedUserName,
+                    ReviewedUsername = form.ReviewedUserName,
                     OrderNo = form.OrderNo,
                     PromotionName = form.PromotionId != null
                                     && promotionNames.TryGetValue(form.PromotionId.Value, out var name)
