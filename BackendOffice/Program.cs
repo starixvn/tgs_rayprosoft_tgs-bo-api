@@ -247,7 +247,6 @@ builder.Services
         options.HeaderName = Consts.BackendOffice.CsrfTokenName;
     });
 
-
 builder.Services
     .AddAuthentication(CookieAuthenticationDefaults.AuthenticationScheme)
     .AddCookie(options =>
@@ -379,7 +378,7 @@ builder.Services
             options.SetDbStatementForText = true;
         })
         .AddProfileViewExporter()
-        .AddOtlpExporter())
+        .AddOtlpExporter(options => { options.Endpoint = new Uri("http://10.10.50.121:31317/"); }))
     .WithMetrics(meterProviderBuilder => meterProviderBuilder
         .AddAspNetCoreInstrumentation()
         .AddRuntimeInstrumentation()
