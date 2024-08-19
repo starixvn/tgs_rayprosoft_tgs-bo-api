@@ -354,8 +354,7 @@ builder.Services.AddSwaggerGen(c =>
 var excludeExtensions = new[] { "html", "ico", "png", "jpg" };
 builder.Services
     .AddOpenTelemetry()
-    .ConfigureResource(_ => ResourceBuilder.CreateDefault()
-        .AddEnvironmentVariableDetector())
+    .ConfigureResource(_ => _.AddService("BackOffice-Api(local)"))
     .WithTracing(tracerProviderBuilder => tracerProviderBuilder
         .AddSource("Tgs.*")
         .AddSource("TGS.*")
