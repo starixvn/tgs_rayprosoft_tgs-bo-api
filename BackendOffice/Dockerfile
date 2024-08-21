@@ -23,4 +23,5 @@ FROM hub.lumigame.com/base/dotnet/core/aspnet:8.0-alpine-24h1.1 AS base
 USER app
 WORKDIR /app
 COPY --from=publish /app/publish .
+ENV ASPNETCORE_ENVIRONMENT=Development
 ENTRYPOINT ["dotnet", "TGS.Apis.BackendOffice.dll"]
