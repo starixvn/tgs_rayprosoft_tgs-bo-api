@@ -41,9 +41,9 @@ public class PlayerReportController : BaseContextController
 
     [HttpGet("playersAccountChanges")]
     [Description("Get account changes of multiple players")]
-    public async Task<PagedResponse<PlayersAccountChangeReportModel>> GetPlayersAccountChangesAsync(
+    public async Task<GetPlayersAccountChangesReportResponse> GetPlayersAccountChangesAsync(
         [FromServices]
-        IGetService<GetPlayersAccountChangesReportRequest, PagedResponse<PlayersAccountChangeReportModel>>
+        IGetService<GetPlayersAccountChangesReportRequest, GetPlayersAccountChangesReportResponse>
             playersAccountChangesService,
         [FromQuery] GetPlayersAccountChangesReportRequest request)
         => await playersAccountChangesService
