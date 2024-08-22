@@ -100,7 +100,7 @@ public partial class PlayerController(IMediator mediator, IPromotionClient clien
         [FromServices] IPaymentServiceClient paymentServiceClient,
         [FromServices] IVipLevelServiceClient vipLevelServiceClient,
         [FromServices] IQueryService<AllAgentsByBrandQuery, AgentInfo> queryAgentsService,
-        
+
         [FromQuery] GetPlayersRequest request)
     {
         var agentQuery = queryAgentsService
@@ -217,36 +217,44 @@ public partial class PlayerController(IMediator mediator, IPromotionClient clien
             : [];
 
         List<PlayersModel> players = [];
-
-        foreach (var item in pagedView)
-        {
-            var playerVipLevel = await vipLevelServiceClient.PlayerVipLevelGetAsync(
-                playerCode: item.PlayerCode,
-                cancellationToken: HttpContext.RequestAborted)
-                .ConfigureAwait(false);
-
-            var upgradePlayerAgentId =
-                await playerServiceClient.GetAgentIdForPlayerUpgradedAsync(item.PlayerCode, HttpContext.RequestAborted);
-
-            players.Add(new PlayersModel
+        
+            foreach (var item in pagedView)
             {
-                PlayerCode = item.PlayerCode,
-                RealName = item.RealName,
-                RegisteredTime = item.RegisteredOn,
-                RegisterHost = item.RegisteredDomainName,
-                Status = (Core.Models.Enums.PlayerStatus)item.Status,
-                Username = item.UserName,
-                AgentName = item.AgentId is not null && agentNameDict.TryGetValue(item.AgentId.Value, out var agentName)
-                    ? agentName
-                    : null,
-                VipLevel = playerVipLevel.VipLevel,
-                ParentUsername = !string.IsNullOrEmpty(item.ParentPlayerCode)
-                    && parentPlayerDict.TryGetValue(item.ParentPlayerCode, out var parentName)
-                    ? parentName
-                    : null,
-                UpgradePlayerAgentId = upgradePlayerAgentId
-            });
+            try
+            {
+                var playerVipLevel = await vipLevelServiceClient.PlayerVipLevelGetAsync(
+                    playerCode: item.PlayerCode,
+                    cancellationToken: HttpContext.RequestAborted)
+                    .ConfigureAwait(false);
+
+                var upgradePlayerAgentId =
+                    await playerServiceClient.GetAgentIdForPlayerUpgradedAsync(item.PlayerCode, HttpContext.RequestAborted);
+
+                players.Add(new PlayersModel
+                {
+                    PlayerCode = item.PlayerCode,
+                    RealName = item.RealName,
+                    RegisteredTime = item.RegisteredOn,
+                    RegisterHost = item.RegisteredDomainName,
+                    Status = (Core.Models.Enums.PlayerStatus)item.Status,
+                    Username = item.UserName,
+                    AgentName = item.AgentId is not null && agentNameDict.TryGetValue(item.AgentId.Value, out var agentName)
+                        ? agentName
+                        : null,
+                    VipLevel = playerVipLevel.VipLevel,
+                    ParentUsername = !string.IsNullOrEmpty(item.ParentPlayerCode)
+                        && parentPlayerDict.TryGetValue(item.ParentPlayerCode, out var parentName)
+                        ? parentName
+                        : null,
+                    UpgradePlayerAgentId = upgradePlayerAgentId
+                });
+            }
+            catch (Exception ex)
+            {
+                //TODO: Need to write log here
+            }
         }
+       
 
         return new PagedResponse<PlayersModel>
         {

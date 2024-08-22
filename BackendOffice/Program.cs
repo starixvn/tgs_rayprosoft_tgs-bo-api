@@ -79,7 +79,8 @@ builder.Logging
                     Environment.MachineName
                 }));
         });
-    });
+    })
+    .AddConsole();
 
 builder.Services
     .AddDataProtection();
