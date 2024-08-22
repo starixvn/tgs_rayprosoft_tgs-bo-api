@@ -12,6 +12,7 @@ using Microsoft.AspNetCore.Http.Features;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
 using Microsoft.IO;
+using Sentry;
 using TGS.Apis.BackendOffice.Attributes;
 using TGS.Core.Infrastructures.Extensions;
 using TGS.Core.Infrastructures.Json;
@@ -94,6 +95,7 @@ public class ExceptionMiddleware : IMiddleware
         }
         catch (Exception ex)
         {
+            SentrySdk.CaptureException(ex);
             _systemLogger.LogError(ex, "Error!");
 
             httpContext.Response.StatusCode = (int)HttpStatusCode.InternalServerError;

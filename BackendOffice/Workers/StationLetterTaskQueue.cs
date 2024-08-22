@@ -5,6 +5,7 @@ using System.Threading.Channels;
 using System.Threading.Tasks;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
+using Sentry;
 using TGS.Core.DataServices.Base.Extensions;
 using TGS.Core.DataServices.Tgs;
 
@@ -60,6 +61,7 @@ public class StationLetterTaskQueue : IStationLetterTaskQueue
                 }
                 catch (Exception ex)
                 {
+                    SentrySdk.CaptureException(ex);
                     _logger.LogError(ex, "Error occurred executing task work item.");
                 }
             }

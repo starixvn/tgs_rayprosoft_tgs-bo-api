@@ -49,6 +49,7 @@ using TGS.Core.Infrastructures.Redis;
 using TGS.Core.Models;
 using TGS.Payment.ManualDeposit;
 using TGS.Services.BackOffice.Domain;
+using Sentry;
 
 AppContext.SetSwitch("Npgsql.EnableLegacyTimestampBehavior", true);
 SqlMapper.AddTypeMap(typeof(DateOnly), DbType.Date);
@@ -402,6 +403,14 @@ builder.Services
 builder.Services.AddCors();
 
 var app = builder.Build();
+
+SentrySdk.Init(options =>
+{
+    options.Dsn = builder.Configuration["Sentry:Dsn"];
+    options.Debug = true;
+    options.AutoSessionTracking = true;
+    options.TracesSampleRate = 1.0;
+});
 
 app.UseHttpLogging();
 app.UseRequestLocalization(options =>

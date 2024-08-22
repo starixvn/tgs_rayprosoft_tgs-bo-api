@@ -3,6 +3,7 @@ using System.Threading.Tasks;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Logging;
+using Sentry;
 using Tgs.ServiceUtility;
 using TGS.Apis.BackendOffice.ViewModels;
 using TGS.Core.Models.Enums;
@@ -81,7 +82,9 @@ public class PlayerWalletAdjustController(ILogger<PlayerWalletAdjustController> 
         }
         catch (Exception ex)
         {
+            SentrySdk.CaptureException(ex);
             _logger.LogWarning(ex, "Adjust Fail");
+
 
             return new MessageResponse
             {
@@ -157,6 +160,7 @@ public class PlayerWalletAdjustController(ILogger<PlayerWalletAdjustController> 
         }
         catch (Exception ex)
         {
+            SentrySdk.CaptureException(ex);
             _logger.LogWarning(ex, "Adjust Fail");
 
             return new MessageResponse

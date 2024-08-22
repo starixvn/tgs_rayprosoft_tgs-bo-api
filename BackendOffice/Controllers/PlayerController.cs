@@ -7,6 +7,7 @@ using System.Threading;
 using System.Threading.Tasks;
 using MediatR;
 using Microsoft.AspNetCore.Mvc;
+using Sentry;
 using Tgs.Paging;
 using Tgs.Payment.Clients;
 using Tgs.PlayerService.Client;
@@ -222,6 +223,7 @@ public partial class PlayerController(IMediator mediator, IPromotionClient clien
             {
             try
             {
+                SentrySdk.ConfigureScope(scope => scope.SetExtra("username", item.UserName));
                 var playerVipLevel = await vipLevelServiceClient.PlayerVipLevelGetAsync(
                     playerCode: item.PlayerCode,
                     cancellationToken: HttpContext.RequestAborted)
@@ -252,6 +254,7 @@ public partial class PlayerController(IMediator mediator, IPromotionClient clien
             catch (Exception ex)
             {
                 //TODO: Need to write log here
+                SentrySdk.CaptureException(ex);
             }
         }
        

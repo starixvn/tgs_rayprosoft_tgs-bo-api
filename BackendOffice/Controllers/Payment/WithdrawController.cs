@@ -6,6 +6,7 @@ using System.Text.Json;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using Sentry;
 using Tgs.Agent.Client;
 using Tgs.Payment.Clients;
 using Tgs.PlayerService.Client;
@@ -72,6 +73,7 @@ public class WithdrawController : BaseContextController
         }
         catch (Exception ex)
         {
+            SentrySdk.CaptureException(ex);
             if (ex.Message == "Can't find player.")
                 return CreateInvalidResponse<MessageResponse>(Player.WithdrawAmountOrBrandPaymentIsWrong);
             else if (ex.Message == "InsufficientBucket")

@@ -6,6 +6,7 @@ using System.Linq;
 using System.Text.Json;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Mvc;
+using Sentry;
 using Tgs.Agent.Client;
 using Tgs.Agent.Client.Models;
 using Tgs.CashQueryService.Client;
@@ -354,8 +355,9 @@ public class WalletController : BaseContextController
                         _ = JsonDocument.Parse(description).RootElement.TryGetProperty("Remark", out var remark);
                         return remark.GetString();
                     }
-                    catch (Exception)
+                    catch (Exception ex)
                     {
+                        SentrySdk.CaptureException(ex);
                         return description;
                     }
                 }
