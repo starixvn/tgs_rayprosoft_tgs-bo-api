@@ -102,13 +102,14 @@ public class ExceptionMiddleware : IMiddleware
             var message = new ErrorDetails
             {
                 StatusCode = (int)HttpStatusCode.InternalServerError,
-                Message = "Internal Server Error."
+                Message = ex.Message
             };
 
-            if (_env.IsDevelopment())
-            {
-                message.Message = ex.Message;
-            }
+            //TODO: revert code to return general message error
+            //if (_env.IsDevelopment())
+            //{
+            //    message.Message = ex.Message;
+            //}
 
             var result = _json.SerializeToString(message);
             await httpContext.Response.Body.WriteAsync(Encoding.UTF8.GetBytes(result));
