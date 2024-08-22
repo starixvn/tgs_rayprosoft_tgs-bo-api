@@ -23,4 +23,6 @@ public class LicenseeRequest
     public string OperationalEmail { get; set; }
 
     public Guid ResellerId { get; set; }
+
+    public string ReferenceId { get; set; }
 }
