@@ -62,6 +62,8 @@ builder.Configuration.AddJsonFile("appsettings.json",
 
 builder.WebHost.UseUrls($"http://0.0.0.0:{builder.Configuration["HostingPort"]}");
 
+builder.WebHost.UseSentry();
+
 builder.Logging
     .AddOpenTelemetry(options =>
     {
@@ -403,14 +405,6 @@ builder.Services
 builder.Services.AddCors();
 
 var app = builder.Build();
-
-SentrySdk.Init(options =>
-{
-    options.Dsn = builder.Configuration["Sentry:Dsn"];
-    options.Debug = true;
-    options.AutoSessionTracking = true;
-    options.TracesSampleRate = 1.0;
-});
 
 app.UseHttpLogging();
 app.UseRequestLocalization(options =>
