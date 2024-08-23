@@ -36,4 +36,6 @@ public class LicenseeModel
     public string UpdatedByUsername { get; set; }
 
     public DateTimeOffset UpdatedOn { get; set; }
+
+    public string ReferenceId { get; set; }
 }

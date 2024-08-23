@@ -90,7 +90,8 @@ public partial class LicenseeController(ILicenseeService service) : BaseContextC
                     Description = licensee.Description,
                     OperationalEmail = licensee.OperationalEmail,
                     CreatedOn = licensee.CreatedOn,
-                    UpdatedOn = licensee.UpdatedOn
+                    UpdatedOn = licensee.UpdatedOn,
+                    ReferenceId = licensee.ReferenceId
                 }
             };
     }
