@@ -1,9 +1,6 @@
 ﻿#nullable enable
 
 using System;
-using System.Linq;
-using System.Text;
-using System.Text.Json;
 using System.Threading;
 using System.Threading.Tasks;
 using Microsoft.Extensions.Logging;
@@ -118,13 +115,14 @@ internal class ReviewDepositFormCommandService : ICommandService<ReviewDepositFo
 
         var walletId = Guid.Parse(playerProps["DefaultWalletId"]);
 
-        _ = await _playerBucketClient.CreateBucketAsync(
-            form.PlayerCode,
-            depositAmount,
-            BucketType.Deposit,
-            form.Id.ToString(),
-            command.Remark,
-            cancellationToken).ConfigureAwait(false);
+        //Todo
+        //_ = await _playerBucketClient.CreateBucketAsync(
+        //    form.PlayerCode,
+        //    depositAmount,
+        //    BucketType.Deposit,
+        //    form.Id.ToString(),
+        //    command.Remark,
+        //    cancellationToken).ConfigureAwait(false);
 
         _ = await _cashServiceClient.DepositedAsync(
             walletId,
@@ -140,29 +138,30 @@ internal class ReviewDepositFormCommandService : ICommandService<ReviewDepositFo
                 form.PromotionId.Value,
                 cancellationToken).ConfigureAwait(false);
 
-        if (promotion is not null && _AllowDistributePromotionTypes.Contains(promotion.PromotionType))
-        {
-            var subject = $"tgs.promotion.{promotion?.PromotionType.ToLower()}.distribute";
-            var request = new CreatePlayerBucketWithDepositRequest(
-                command.BrandId,
-                form.PromotionId,
-                form.PlayerCode,
-                walletId,
-                (command.ActualAmount ?? form.Amount) - handlingFee,
-                command.Remark,
-                command.FormId,
-                string.IsNullOrEmpty(command.ReviewUserId) ? null : Guid.Parse(command.ReviewUserId));
+        //Todo
+        //if (promotion is not null && _AllowDistributePromotionTypes.Contains(promotion.PromotionType))
+        //{
+        //    var subject = $"tgs.promotion.{promotion?.PromotionType.ToLower()}.distribute";
+        //    var request = new CreatePlayerBucketWithDepositRequest(
+        //        command.BrandId,
+        //        form.PromotionId,
+        //        form.PlayerCode,
+        //        walletId,
+        //        (command.ActualAmount ?? form.Amount) - handlingFee,
+        //        command.Remark,
+        //        command.FormId,
+        //        string.IsNullOrEmpty(command.ReviewUserId) ? null : Guid.Parse(command.ReviewUserId));
 
-            var response = await _messageSender.RequestAsync<ReadOnlyMemory<byte>, ReadOnlyMemory<byte>>(
-                subject,
-                Encoding.UTF8.GetBytes(JsonSerializer.Serialize(request)),
-                cancellationToken: cancellationToken).ConfigureAwait(false);
+        //    var response = await _messageSender.RequestAsync<ReadOnlyMemory<byte>, ReadOnlyMemory<byte>>(
+        //        subject,
+        //        Encoding.UTF8.GetBytes(JsonSerializer.Serialize(request)),
+        //        cancellationToken: cancellationToken).ConfigureAwait(false);
 
-            var json = Encoding.UTF8.GetString(response.Span);
-            var responseData = JsonSerializer.Deserialize<DepositMessageDataResponse>(json)!;
+        //    var json = Encoding.UTF8.GetString(response.Span);
+        //    var responseData = JsonSerializer.Deserialize<DepositMessageDataResponse>(json)!;
 
-            return responseData.PromotionBonusPlayerId;
-        }
+        //    return responseData.PromotionBonusPlayerId;
+        //}
 
         return null;
     }
@@ -177,53 +176,56 @@ internal class ReviewDepositFormCommandService : ICommandService<ReviewDepositFo
 
         if (command.Status == ReviewState.Approve)
         {
-            var brandPaymentSettings = await _brandServiceClient.GetBrandPaymentSettingsAsync(
-                form.BrandId,
-                cancellationToken).ConfigureAwait(false);
+            //TODO
+            //var brandPaymentSettings = await _brandServiceClient.GetBrandPaymentSettingsAsync(
+            //    form.BrandId,
+            //    cancellationToken).ConfigureAwait(false);
 
-            if (brandPaymentSettings?.AutoClearWageringRequirement == true)
-            {
-                try
-                {
-                    var bucketTypes = await _playerBucketClient.GetBrandBucketTypesAsync(
-                        command.BrandId,
-                        cancellationToken)
-                        .ToArrayAsync(cancellationToken: cancellationToken)
-                        .ConfigureAwait(false);
-                    var bucketResults = await _playerBucketForTypesClient.ReadBucketsForBucketTypesAsync(
-                        form.PlayerCode,
-                        bucketTypes,
-                        cancellationToken)
-                        .Where(result => result.Result.Amount > 0M)
-                        .ToArrayAsync(cancellationToken: cancellationToken)
-                        .ConfigureAwait(false);
 
-                    var walletBalance = await _cashServiceClient.GetBalanceAsync(
-                        walletId,
-                        cancellationToken).ConfigureAwait(false);
+            //if (brandPaymentSettings?.AutoClearWageringRequirement == true)
+            //{
+            //    try
+            //    {
+            //        var bucketTypes = await _playerBucketClient.GetBrandBucketTypesAsync(
+            //            command.BrandId,
+            //            cancellationToken)
+            //            .ToArrayAsync(cancellationToken: cancellationToken)
+            //            .ConfigureAwait(false);
 
-                    if (walletBalance <= brandPaymentSettings.ClearWageringRequirementBalance
-                        && bucketResults.Length > 0)
-                    {
-                        await _playerBucketClient.RequestCleanBucketsAsync(
-                            form.PlayerCode,
-                            new CleanBucketOrder(
-                                form.BrandId,
-                                walletId,
-                                walletBalance,
-                                bucketResults.Select(result => new TypeBucketResult(
-                                    result.BucketType,
-                                    result.Result)),
-                                form.Id,
-                                brandPaymentSettings.ClearWageringRequirementBalance),
-                            cancellationToken).ConfigureAwait(false);
-                    }
-                }
-                catch (Exception ex)
-                {
-                    _logger.LogWarning(ex, "Clean Buckets occur error.");
-                }
-            }
+            //var bucketResults = await _playerBucketForTypesClient.ReadBucketsForBucketTypesAsync(
+            //    form.PlayerCode,
+            //    bucketTypes,
+            //    cancellationToken)
+            //    .Where(result => result.Result.Amount > 0M)
+            //    .ToArrayAsync(cancellationToken: cancellationToken)
+            //    .ConfigureAwait(false);
+
+            //var walletBalance = await _cashServiceClient.GetBalanceAsync(
+            //    walletId,
+            //    cancellationToken).ConfigureAwait(false);
+
+            // if (walletBalance <= brandPaymentSettings.ClearWageringRequirementBalance
+            //    && bucketResults.Length > 0)
+            //{
+            //    await _playerBucketClient.RequestCleanBucketsAsync(
+            //        form.PlayerCode,
+            //        new CleanBucketOrder(
+            //            form.BrandId,
+            //            walletId,
+            //            walletBalance,
+            //            bucketResults.Select(result => new TypeBucketResult(
+            //                result.BucketType,
+            //                result.Result)),
+            //            form.Id,
+            //            brandPaymentSettings.ClearWageringRequirementBalance),
+            //        cancellationToken).ConfigureAwait(false);
+            //}
+            //}
+            //catch (Exception ex)
+            //{
+            //    _logger.LogWarning(ex, "Clean Buckets occur error.");
+            //}
+            //}
         }
 
         var handlingFee = await _paymentServiceClient
