@@ -218,19 +218,19 @@ public partial class PlayerController(IMediator mediator, IPromotionClient clien
             : [];
 
         List<PlayersModel> players = [];
-        
-            foreach (var item in pagedView)
-            {
+
+        foreach (var item in pagedView)
+        {
             try
             {
-                SentrySdk.ConfigureScope(scope => scope.SetExtra("username", item.UserName));
-                var playerVipLevel = await vipLevelServiceClient.PlayerVipLevelInfoGetAsync(
-                    playerCode: item.PlayerCode,
-                    cancellationToken: HttpContext.RequestAborted)
-                    .ConfigureAwait(false);
+                // SentrySdk.ConfigureScope(scope => scope.SetExtra("username", item.UserName));
+                // var playerVipLevel = await vipLevelServiceClient.PlayerVipLevelInfoGetAsync(
+                //     playerCode: item.PlayerCode,
+                //     cancellationToken: HttpContext.RequestAborted)
+                //     .ConfigureAwait(false);
 
-                var upgradePlayerAgentId =
-                    await playerServiceClient.GetAgentIdForPlayerUpgradedAsync(item.PlayerCode, HttpContext.RequestAborted);
+                // var upgradePlayerAgentId =
+                //     await playerServiceClient.GetAgentIdForPlayerUpgradedAsync(item.PlayerCode, HttpContext.RequestAborted);
 
                 players.Add(new PlayersModel
                 {
@@ -243,12 +243,12 @@ public partial class PlayerController(IMediator mediator, IPromotionClient clien
                     AgentName = item.AgentId is not null && agentNameDict.TryGetValue(item.AgentId.Value, out var agentName)
                         ? agentName
                         : null,
-                    VipLevel = playerVipLevel,
+                    VipLevel = null,
                     ParentUsername = !string.IsNullOrEmpty(item.ParentPlayerCode)
                         && parentPlayerDict.TryGetValue(item.ParentPlayerCode, out var parentName)
                         ? parentName
                         : null,
-                    UpgradePlayerAgentId = upgradePlayerAgentId
+                    UpgradePlayerAgentId = null
                 });
             }
             catch (Exception ex)
@@ -257,7 +257,6 @@ public partial class PlayerController(IMediator mediator, IPromotionClient clien
                 SentrySdk.CaptureException(ex);
             }
         }
-       
 
         return new PagedResponse<PlayersModel>
         {
