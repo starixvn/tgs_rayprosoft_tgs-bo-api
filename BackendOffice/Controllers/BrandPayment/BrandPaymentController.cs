@@ -185,7 +185,11 @@ public partial class BrandPaymentController(
                             : string.Empty
                     });
 
-        result = result.OrderBy(bp => bp.Number);
+        result = result
+            .OrderBy(bp => bp.TransferType)
+            .ThenBy(bp=>bp.PaymentName)
+            .ThenBy(bp=>bp.PaymentMethodName)
+            .ThenBy(bp=>bp.ChannelName);
 
         if (request.ShowAll || request.Rows == 0)
         {
