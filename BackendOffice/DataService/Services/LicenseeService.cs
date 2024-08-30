@@ -135,7 +135,6 @@ public class LicenseeService(
         licensee.Currencies = GenerateLicenseeCurrencies(licensee, request);
         licensee.GameProviders = GenerateLicenseeGameProviders(licensee, request);
         licensee.BetLimits = GenerateLicenseeBetLimits(licensee, request);
-        licensee.ReferenceId = request.ReferenceId;
 
         tgsRepository.Entry(licensee).State = EntityState.Modified;
 
