@@ -118,43 +118,59 @@ public class AgentService(
 
     public async Task<(IEnumerable<AgentsModel>, int)> GetAgentsAsync(GetAgentsRequest request)
     {
-        using (IDbConnection db = _repository.GetDbConnection())
+        var db = _repository.GetDbConnection();
+        var parameters = new Dictionary<string, object>
         {
-            var parameters = new Dictionary<string, object>
-            {
-                { "_brand_id", request.BrandId },
-                { "_username", request.Username },
-                { "_page_size", request.ShowAll ? int.MaxValue : request.Rows },
-                { "_page_number", request.ShowAll ? 1 : request.Page },
-                { "_sort_by", request.SortBy },
-                { "_is_desc", request.IsDesc },
-                { "_status", request.Status },
-                { "_type", request.Type },
-                { "_level_type", request.LevelType }
-            };
-            string sqlQuery = @"
-                    SELECT * FROM dbo.agent_get_agents_with_team_counts(
-                        @_brand_id,
-                        @_username,
-                        @_page_size,
-                        @_page_number,
-                        @_sort_by,
-                        @_is_desc,
-                        @_status,
-                        @_type,
-                        @_level_type
-                    )";
-            var results = await db.QueryAsync<AgentsModel>(sqlQuery, parameters);
-            return (results, results.Any() ? results.Count() : 0);
-        }
+            { "_brand_id", request.BrandId },
+            { "_username", request.Username },
+            { "_page_size", request.ShowAll ? int.MaxValue : request.Rows },
+            { "_page_number", request.ShowAll ? 1 : request.Page },
+            { "_sort_by", request.SortBy },
+            { "_is_desc", request.IsDesc },
+            { "_status", request.Status },
+            { "_type", request.Type },
+            { "_level_type", request.LevelType }
+        };
+        string sqlQuery = @"
+                SELECT * FROM dbo.agent_get_agents_with_team_counts(
+                    @_brand_id,
+                    @_username,
+                    @_page_size,
+                    @_page_number,
+                    @_sort_by,
+                    @_is_desc,
+                    @_status,
+                    @_type,
+                    @_level_type
+                )";
+        var results = await db.QueryAsync<AgentsModel>(sqlQuery, parameters);
+        return (results, results.Any() ? results.Count() : 0);
+        
     }
 
-    public Task<IEnumerable<AgentPathModel>> GetSubAgentsAsync(Guid agentId)
+    public async Task<IEnumerable<AgentPathModel>> GetSubAgentsAsync(Guid agentId)
     {
-        const string spName = "dbo.agent_get_all_sub_agents";
 
-        return _repository.SqlQueryMultipleAsync<AgentPathModel>(spName,
-            parameters: new Dictionary<string, object> { { "_agent_path", agentId.ToString("N") } });
+        var db = _repository.GetDbConnection();
+        var parameters = new Dictionary<string, object>
+        {
+            { "_agent_path",agentId.ToString("N") }
+        };
+        string sqlQuery = @"
+                SELECT * FROM dbo.agent_get_all_sub_agents(
+                    @_agent_path,
+                    @_username,
+                    @_page_size,
+                    @_page_number,
+                    @_sort_by,
+                    @_is_desc,
+                    @_status,
+                    @_type,
+                    @_level_type
+                )";
+        var results = await db.QueryAsync<AgentPathModel>(sqlQuery, parameters);
+        return results;
+        
     }
 
     public async ValueTask<int> UpdateSubAgentsPathAsync(Agent agent, int nLevel, Agent newParentAgent)
