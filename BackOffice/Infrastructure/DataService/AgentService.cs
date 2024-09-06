@@ -1,8 +1,10 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Data;
 using System.Linq;
 using System.Linq.Expressions;
 using System.Threading.Tasks;
+using Dapper;
 using Microsoft.EntityFrameworkCore;
 using Tgs.Core.Infrastructures.Security;
 using TGS.Core.DataServices.Base;
@@ -116,10 +118,9 @@ public class AgentService(
 
     public async Task<(IEnumerable<AgentsModel>, int)> GetAgentsAsync(GetAgentsRequest request)
     {
-        const string spName = "dbo.agent_get_agents_with_team_counts";
-
-        var results = await _repository.SqlQueryMultipleAsync<AgentsModel>(spName,
-            parameters: new Dictionary<string, object>
+        using (IDbConnection db = _repository.GetDbConnection())
+        {
+            var parameters = new Dictionary<string, object>
             {
                 { "_brand_id", request.BrandId },
                 { "_username", request.Username },
@@ -130,9 +131,22 @@ public class AgentService(
                 { "_status", request.Status },
                 { "_type", request.Type },
                 { "_level_type", request.LevelType }
-            });
-
-        return (results, results.Any() ? results.First().TotalCount : 0);
+            };
+            string sqlQuery = @"
+                    SELECT * FROM dbo.agent_get_agents_with_team_counts(
+                        @_brand_id,
+                        @_username,
+                        @_page_size,
+                        @_page_number,
+                        @_sort_by,
+                        @_is_desc,
+                        @_status,
+                        @_type,
+                        @_level_type
+                    )";
+            var results = await db.QueryAsync<AgentsModel>(sqlQuery, parameters);
+            return (results, results.Any() ? results.Count() : 0);
+        }
     }
 
     public Task<IEnumerable<AgentPathModel>> GetSubAgentsAsync(Guid agentId)
