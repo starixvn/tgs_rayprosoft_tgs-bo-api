@@ -20,7 +20,6 @@ internal class AccountChangesQueryService(
             Domain.Enums.TransactionType.WithdrawCommit,
             Domain.Enums.TransactionType.TransferCommit,
             Domain.Enums.TransactionType.Receive,
-            Domain.Enums.TransactionType.GameProviderFundOutCommit,
             Domain.Enums.TransactionType.GameProviderFundOutRollback,
         };
         queryTransactionTypes = query.AccountChangeType is null
@@ -45,7 +44,8 @@ internal class AccountChangesQueryService(
                 ],
                 Domain.Enums.TransactionType.GameProviderFundOut => [
                     (int)Domain.Enums.TransactionType.GameProviderFundOut,
-                    (int)Domain.Enums.TransactionType.GameProviderFundOutLock
+                    (int)Domain.Enums.TransactionType.GameProviderFundOutLock,
+                    (int)Domain.Enums.TransactionType.GameProviderFundOutCommit
                 ],
                 _ => [
                     (int)query.AccountChangeType.Value

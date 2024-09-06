@@ -175,7 +175,6 @@ public class WalletTests(ITestOutputHelper testOutputHelper, NodeJsFixture nodeJ
             .Where(x => x is not BoEnums.TransactionType.WithdrawCommit
                 and not BoEnums.TransactionType.TransferCommit
                 and not BoEnums.TransactionType.Receive
-                and not BoEnums.TransactionType.GameProviderFundOutCommit
                 and not BoEnums.TransactionType.GameProviderFundOutRollback)
             .Select(x => (int)x)
             .ToArray();
@@ -377,7 +376,6 @@ public class WalletTests(ITestOutputHelper testOutputHelper, NodeJsFixture nodeJ
             .Where(x => x is not BoEnums.TransactionType.WithdrawCommit
                 and not BoEnums.TransactionType.TransferCommit
                 and not BoEnums.TransactionType.Receive
-                and not BoEnums.TransactionType.GameProviderFundOutCommit
                 and not BoEnums.TransactionType.GameProviderFundOutRollback)
             .Select(x => (int)x)
             .ToArray();
@@ -563,7 +561,6 @@ public class WalletTests(ITestOutputHelper testOutputHelper, NodeJsFixture nodeJ
             .Where(x => x is not BoEnums.TransactionType.WithdrawCommit
                 and not BoEnums.TransactionType.TransferCommit
                 and not BoEnums.TransactionType.Receive
-                and not BoEnums.TransactionType.GameProviderFundOutCommit
                 and not BoEnums.TransactionType.GameProviderFundOutRollback)
             .Select(x => (int)x)
             .ToArray();
@@ -773,7 +770,6 @@ public class WalletTests(ITestOutputHelper testOutputHelper, NodeJsFixture nodeJ
             .Where(x => x is not BoEnums.TransactionType.WithdrawCommit
                 and not BoEnums.TransactionType.TransferCommit
                 and not BoEnums.TransactionType.Receive
-                and not BoEnums.TransactionType.GameProviderFundOutCommit
                 and not BoEnums.TransactionType.GameProviderFundOutRollback)
             .Select(x => (int)x)
             .ToArray();

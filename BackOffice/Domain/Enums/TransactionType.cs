@@ -4,10 +4,12 @@ public enum TransactionType
 {
     Deposit = 0,
     Withdrawal = 1,
+
     /// <summary>
     /// 公司調帳
     /// </summary>
     CompanyAdjust = 2,
+
     Bonus = 3,
     Rebate = 4,
     Dividend = 5,
@@ -20,6 +22,7 @@ public enum TransactionType
     UnsettledBetManual = 12,
     GameProviderDeductBalance = 13,
     GameProviderAddBalance = 14,
+    GameProviderAdjustBalance = 15,
 
     Other = 99,
 
@@ -62,6 +65,7 @@ public enum TransactionType
     /// The dividend all agent rebate
     /// </summary>
     DividendAllAgentRebate = 4100,
+
     AgentDividend = 4200,
 
     /// <summary>
@@ -81,6 +85,7 @@ public enum TransactionType
 
     // 轉帳 6000~6999
     Transfer = 6100,
+
     TransferCommit = 6200,
     TransferRollback = 6300,
     Receive = 6400,

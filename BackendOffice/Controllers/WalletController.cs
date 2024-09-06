@@ -367,6 +367,9 @@ public class WalletController : BaseContextController
             case BoEnums.TransactionType.DividendAllAgentRebate:
             case BoEnums.TransactionType.Transfer:
             case BoEnums.TransactionType.GameProviderFundOutLock:
+            case BoEnums.TransactionType.GameProviderAddBalance:
+            case BoEnums.TransactionType.GameProviderDeductBalance:
+            case BoEnums.TransactionType.GameProviderAdjustBalance:
                 return description;
 
             default:
