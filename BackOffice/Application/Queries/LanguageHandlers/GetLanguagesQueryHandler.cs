@@ -32,6 +32,7 @@ public class GetLanguagesQueryHandler(
                 LocalizedName = x.LocalizedName,
                 CreatedByUsername = x.CreatedByUsername,
                 UpdatedByUsername = x.UpdatedByUsername,
+                CreatedOn = x.CreatedOn,
                 UpdatedOn = x.UpdatedOn
             })
             .CreatePagedResponseAsync(request);
