@@ -11,7 +11,7 @@ namespace TGS.Services.BackOffice.Application.Commands.GameHandlers;
 
 public class UpdateGameHandler(
     IGameService gameService,
-    IHttpContextAccessor accessor) 
+    IHttpContextAccessor accessor)
     : Handler<UpdateGameRequest, MessageResponse>(accessor)
 {
     private readonly IGameService _gameService = gameService;
@@ -27,7 +27,7 @@ public class UpdateGameHandler(
         }
 
         if (await _gameService.ExistsAsync(x =>
-            x.GameProviderId == game.GameProviderId && x.Code != game.Code && request.ExternalId == x.ExternalId))
+            x.GameProviderId == game.GameProviderId && x.Code != game.Code && request.ExternalId == x.ExternalId && game.PlatformType == request.PlatformType))
         {
             return CreateInvalidResponse<MessageResponse>(GameProvider.ExternalIdExisted);
         }
