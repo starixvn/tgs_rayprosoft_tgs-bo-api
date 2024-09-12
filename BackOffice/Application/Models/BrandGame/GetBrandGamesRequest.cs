@@ -14,4 +14,10 @@ public class GetBrandGamesRequest : PageableRequest, IRequest<PagedResponse<Bran
     public GameType? GameType { get; set; }
 
     public string Keyword { get; set; }
+
+    public GamePlatformType? Platform { get; set; }
+
+    public GameStatus? Status { get; set; }
+
+    public GameTag? Tag { get; set; }
 }

@@ -1,7 +1,9 @@
-﻿using System.Linq;
+﻿using System;
+using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Http;
+using Microsoft.EntityFrameworkCore;
 using TGS.Services.BackOffice.Application.Models.GameProvider;
 using TGS.Services.BackOffice.Domain;
 using TGS.Services.BackOffice.Infrastructure.DataService;
@@ -20,8 +22,9 @@ public class GetGameProvidersQueryHandler(
             .Where(ResellerId, r => r.Resellers.Select(x => x.ResellerId).Contains(ResellerId.Value))
             .Where(LicenseeId, l => l.Licensees.Select(x => x.LicenseeId).Contains(LicenseeId.Value))
             .Where(BrandId, b => b.Brands.Select(x => x.BrandId).Contains(BrandId.Value))
-            .Where(request.Code, g => g.Code == request.Code)
-            .Where(request.Name, g => g.Name == request.Name))
+            .Where(request.Code, g => EF.Functions.Like(g.Code.ToLower(), $"%{request.Code.ToLower()}%"))
+            .Where(request.Name, g => EF.Functions.Like(g.Name.ToLower(), $"%{request.Name.ToLower()}%")))
+            .Where(g => request.Status == null || g.Status == request.Status)
             .Select(x => new GameProviderBaseModel
             {
                 Id = x.Id,

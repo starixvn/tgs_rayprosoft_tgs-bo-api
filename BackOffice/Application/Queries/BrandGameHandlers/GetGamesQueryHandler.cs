@@ -3,6 +3,7 @@ using System.Threading;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Http;
 using Microsoft.EntityFrameworkCore;
+using TGS.Core.Models.Enums;
 using TGS.Services.BackOffice.Application.Models.BrandGame;
 using TGS.Services.BackOffice.Domain;
 using TGS.Services.BackOffice.Infrastructure.DataService;
@@ -24,8 +25,12 @@ public class GetGamesQueryHandler(
                 .Where(BrandId, b => b.BrandId == BrandId)
                 .Where(request.GameProviderId, x => x.Game.GameProviderId == request.GameProviderId)
                 .Where(request.GameType, x => x.Game.Type == request.GameType)
-                .Where(request.Keyword, x => EF.Functions.ILike(x.Game.GameProvider.Name, $"%{request.Keyword}%") ||
-                    EF.Functions.ILike(x.Game.Name, $"%{request.Keyword}%")))
+                .Where(request.Keyword, x => EF.Functions.ILike(x.Game.GameProvider.Name.ToLower(), $"%{request.Keyword.ToLower()}%") ||
+                    EF.Functions.ILike(x.Game.Name.ToLower(), $"%{request.Keyword.ToLower()}%"))
+                .Where(request.Platform, x => request.Platform == null || x.Game.PlatformType == request.Platform)
+                .Where(request.Status, x => request.Status == null || x.Status == request.Status)
+                .Where(request.Tag, x => request.Tag == GameTag.None || (x.Tag & request.Tag) != 0))
+
             .Select(x => new BrandGameModel
             {
                 Id = x.Id,
