@@ -31,10 +31,10 @@ public class LanguageService(ITgsRepository tgsRepository) : BaseRepositoryOpera
     {
         var language = new Language
         {
-            Name = request.Name ?? string.Empty,
+            Name = request.Name,
             CultureCode = request.CultureCode,
             LanguageCode = request.LanguageCode,
-            LocalizedName = request.LocalizedName ?? string.Empty,
+            LocalizedName = request.LocalizedName,
             CreatedByUsername = request.EditorUsername,
             UpdatedByUsername = request.EditorUsername,
             CreatedOn = DateTimeOffset.Now,
@@ -63,6 +63,7 @@ public class LanguageService(ITgsRepository tgsRepository) : BaseRepositoryOpera
         language.CultureCode = request.CultureCode;
         language.LanguageCode = request.LanguageCode;
         language.LocalizedName = request.LocalizedName;
+        language.UpdatedByUsername = request.EditorUsername;
         language.UpdatedOn = DateTimeOffset.Now;
 
         await UpdateEntityAsync(language);
