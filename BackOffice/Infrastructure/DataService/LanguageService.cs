@@ -31,10 +31,10 @@ public class LanguageService(ITgsRepository tgsRepository) : BaseRepositoryOpera
     {
         var language = new Language
         {
-            Name = request.Name,
+            Name = request.Name ?? string.Empty,
             CultureCode = request.CultureCode,
             LanguageCode = request.LanguageCode,
-            LocalizedName = request.LocalizedName,
+            LocalizedName = request.LocalizedName ?? string.Empty,
             CreatedByUsername = request.EditorUsername,
             UpdatedByUsername = request.EditorUsername,
             CreatedOn = DateTimeOffset.Now,
