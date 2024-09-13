@@ -224,10 +224,10 @@ public partial class PlayerController(IMediator mediator, IPromotionClient clien
             try
             {
                 // SentrySdk.ConfigureScope(scope => scope.SetExtra("username", item.UserName));
-                // var playerVipLevel = await vipLevelServiceClient.PlayerVipLevelInfoGetAsync(
-                //     playerCode: item.PlayerCode,
-                //     cancellationToken: HttpContext.RequestAborted)
-                //     .ConfigureAwait(false);
+                var playerVipLevel = await vipLevelServiceClient.PlayerVipLevelInfoGetAsync(
+                    playerCode: item.PlayerCode,
+                    cancellationToken: HttpContext.RequestAborted)
+                    .ConfigureAwait(false);
 
                 // var upgradePlayerAgentId =
                 //     await playerServiceClient.GetAgentIdForPlayerUpgradedAsync(item.PlayerCode, HttpContext.RequestAborted);
@@ -243,7 +243,7 @@ public partial class PlayerController(IMediator mediator, IPromotionClient clien
                     AgentName = item.AgentId is not null && agentNameDict.TryGetValue(item.AgentId.Value, out var agentName)
                         ? agentName
                         : null,
-                    VipLevel = null,
+                    VipLevel = playerVipLevel,
                     ParentUsername = !string.IsNullOrEmpty(item.ParentPlayerCode)
                         && parentPlayerDict.TryGetValue(item.ParentPlayerCode, out var parentName)
                         ? parentName
