@@ -27,7 +27,7 @@ public class UpdateGameHandler(
         }
 
         if (await _gameService.ExistsAsync(x =>
-            x.GameProviderId == game.GameProviderId && x.Code != game.Code && request.ExternalId == x.ExternalId && game.PlatformType == request.PlatformType))
+            x.GameProviderId == game.GameProviderId && x.Code != game.Code && request.ExternalId == x.ExternalId))
         {
             return CreateInvalidResponse<MessageResponse>(GameProvider.ExternalIdExisted);
         }
