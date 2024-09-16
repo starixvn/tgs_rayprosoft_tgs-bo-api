@@ -45,11 +45,6 @@ internal class BrandPaymentsQueryService(
             .Distinct()
             .ToArray();
 
-        var brandPaymentVipLevels = await _paymentServiceClient
-            .GetBrandPaymentVipsAsync(brandPayments.Select(bp => bp.Id), cancellationToken)
-            .ToLookupAsync(bv => bv.BrandPaymentId, bv => bv.VipLevelId, cancellationToken: cancellationToken)
-            .ConfigureAwait(false);
-
         var playerInfo = await _playerServiceClient
             .GetPlayerInfoAsync(query.PlayerCode, cancellationToken)
             .ConfigureAwait(false)!;
@@ -70,7 +65,6 @@ internal class BrandPaymentsQueryService(
                     playerInfo.VipLevelId),
                 blockList,
                 whiteList,
-                brandPaymentVipLevels,
                 cancellationToken)
             .ToArrayAsync(cancellationToken: cancellationToken)
             .ConfigureAwait(false);
