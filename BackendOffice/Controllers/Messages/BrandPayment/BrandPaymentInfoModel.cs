@@ -45,4 +45,7 @@ public class BrandPaymentInfoModel
     public PaymentTransferType TransferType { get; set; }
 
     public Guid[] VipLevelIds { get; set; }
+
+    public string[] Blacklist { get; set; }
+    public string[] Whitelist { get; set; }
 }

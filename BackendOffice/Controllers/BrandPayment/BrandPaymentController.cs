@@ -83,6 +83,10 @@ public partial class BrandPaymentController(
         var brandPaymentFeeInfo = await paymentServiceClient
             .GetBrandPaymentFeeSettingsAsync(id, HttpContext.RequestAborted)
             .ConfigureAwait(false);
+        
+        var brandpaymentPlayerAccess = await paymentServiceClient
+            .GetBrandPaymentPlayerAccessAsync(id, HttpContext.RequestAborted)
+            .ConfigureAwait(false);
 
         return new BrandPaymentInfoModel
         {
@@ -112,6 +116,8 @@ public partial class BrandPaymentController(
             TransferType = info.TransferType == TransferType.Deposit
                 ? PaymentTransferType.Deposit
                 : PaymentTransferType.Withdrawal,
+            Blacklist = brandpaymentPlayerAccess.Blacklist.ToArray(),
+            Whitelist = brandpaymentPlayerAccess.Whitelist.ToArray()
         };
     }
 
