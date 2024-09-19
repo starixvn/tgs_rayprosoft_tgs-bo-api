@@ -15,6 +15,8 @@ public class ClosedRoundReportModel
 
     public DateTimeOffset? ClosedOn { get; set; }
 
+    public decimal? Turnover { get; set; }
+
     public decimal? Commission { get; set; }
 
     public DateTimeOffset CreatedOn { get; set; }
