@@ -59,7 +59,11 @@ public record OpenRoundReportModel
 
     public decimal? WinLoss { get; init; }
 
-    public decimal? TieBetAdjustment { get; init; }
+    public decimal? Turnover { get; set; }
+
+    public string ProviderName { get; set; }
+
+    public decimal? TieBetAdjustment { get; set; }
 
     public string AdditionalData { get; init; }
 }
