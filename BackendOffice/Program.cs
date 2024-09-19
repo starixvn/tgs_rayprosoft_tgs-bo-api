@@ -126,6 +126,7 @@ builder.Services
             Url = builder.Configuration.GetValue<string>("NatsSetting:Urls"),
             SerializerRegistry = TgsNatsSerializerRegistration.Default
         }))
+    .AddTgsLog()
     .AddMessageQueue()
     .AddNatsMessageQueue(config => config
         .ConfigureResolveConnection(sp => sp.GetRequiredKeyedService<NatsConnection>("Nats"))

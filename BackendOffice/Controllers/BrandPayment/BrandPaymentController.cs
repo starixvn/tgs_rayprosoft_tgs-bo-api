@@ -5,8 +5,11 @@ using System.Linq;
 using System.Text.Json;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Http;
+using Microsoft.AspNetCore.Http.Features;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.DependencyInjection;
+using Tgs.Logging;
 using Tgs.Payment.Clients;
 using Tgs.ServiceUtility;
 using TGS.Apis.BackendOffice.Controllers.Messages;
@@ -31,7 +34,8 @@ public partial class BrandPaymentController(
     ITgsQueries<Player> playerQueries,
     IUploadService uploadService,
     IBrandPaymentService brandPaymentService,
-    ITgsQueries<BrandPaymentAuditLog> auditLogQueries) : BaseContextController
+    ITgsQueries<BrandPaymentAuditLog> auditLogQueries,
+    IServiceProvider serviceProvider) : BaseContextController
 {
     [HttpPut("ChangeOrders")]
     [Description("Change Payment Order")]
@@ -88,6 +92,7 @@ public partial class BrandPaymentController(
             .GetBrandPaymentPlayerAccessAsync(id, HttpContext.RequestAborted)
             .ConfigureAwait(false);
 
+        LogAdminBrandpaymentSettingAccess(id);
         return new BrandPaymentInfoModel
         {
             PaymentId = info.PaymentId,
@@ -415,5 +420,24 @@ public partial class BrandPaymentController(
 
         await brandPaymentService.CreatePaymentAsync(request, transferType, Username);
         return CreateValidResponse<CreateUpdateBrandPaymentResponse>();
+    }
+
+    private void LogAdminBrandpaymentSettingAccess(Guid brandPaymentId) {
+        var ip = HttpContext.Connection.RemoteIpAddress;
+        var accountName = HttpContext.User.GetUserName();
+        var tgsLogger = serviceProvider.GetService<ITgsLog>();
+        var description = $"Access to brand payment extended data, user {accountName}";
+
+        var adminLogEvent = new AdminLogEvent() {
+            TrackingId = brandPaymentId,
+            ServerName = Environment.MachineName,
+            IpAddress = ip is null ? "" : ip.ToString(),
+            Description = description,
+            Method = "GET",
+            Path = $"/api/brandpayment/{brandPaymentId}/info",
+            RecordedOn = DateTimeOffset.Now,
+            ResponseCode = (short)HttpContext.Response.StatusCode
+        };
+        tgsLogger.LogAdmin(adminLogEvent);
     }
 }
