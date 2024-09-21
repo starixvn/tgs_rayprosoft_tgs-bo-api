@@ -356,13 +356,14 @@ public partial class BrandPaymentController(
         var allPlayers = await playerQueries.GetQueries()
             .Where(p => p.Status == PlayerStatus.Enabled && users.Contains(p.Username))
             .Select(p => p.Username)
+            .Distinct()
             .ToArrayAsync();
 
         var diffUsers = users.Except(allPlayers).ToArray();
 
         return diffUsers.Length != 0
             ? new() { Valid = false, Message = Resources.BrandPayment.PlayersNotFound, NotExistsPlayers = diffUsers }
-            : new UploadFileResponse { Valid = true, Players = allPlayers };
+            : new UploadFileResponse { Valid = true, Players = users.ToArray() };
     }
 
     [HttpPatch("autowithdraw/{brandId:guid}")]
