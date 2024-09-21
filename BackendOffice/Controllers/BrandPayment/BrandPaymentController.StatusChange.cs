@@ -2,6 +2,7 @@
 using System.ComponentModel;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Mvc;
+using Tgs.Logging;
 using TGS.Core.Models.Enums;
 using TGS.Services.BackOffice.Domain;
 
@@ -21,7 +22,26 @@ public partial class BrandPaymentController
         }
 
         await brandPaymentService.ChangeStatusAsync(payment, status, Username);
-
+        LogAdmin(paymentId, status);
         return CreateValidResponse<MessageResponse>();
+    }
+
+    private void LogAdmin(Guid brandPaymentId, SwitchStatus status) {
+
+        var ip = HttpContext.Connection.RemoteIpAddress;
+        var accountName = HttpContext.User.GetUserName();
+        var description = $"User {accountName}, switch brand payment status to {status}";
+
+        var adminLogEvent = new AdminLogEvent() {
+            TrackingId = brandPaymentId,
+            ServerName = Environment.MachineName,
+            IpAddress = ip is null ? "" : ip.ToString(),
+            Description = description,
+            Method = HttpContext.Request.Method,
+            Path = HttpContext.Request.Path,
+            RecordedOn = DateTimeOffset.Now,
+            ResponseCode = (short)HttpContext.Response.StatusCode
+        };
+        tgsLog.LogAdmin(adminLogEvent);
     }
 }

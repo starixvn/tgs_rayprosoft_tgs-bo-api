@@ -35,7 +35,7 @@ public partial class BrandPaymentController(
     IUploadService uploadService,
     IBrandPaymentService brandPaymentService,
     ITgsQueries<BrandPaymentAuditLog> auditLogQueries,
-    IServiceProvider serviceProvider) : BaseContextController
+    ITgsLog tgsLog) : BaseContextController
 {
     [HttpPut("ChangeOrders")]
     [Description("Change Payment Order")]
@@ -92,7 +92,8 @@ public partial class BrandPaymentController(
             .GetBrandPaymentPlayerAccessAsync(id, HttpContext.RequestAborted)
             .ConfigureAwait(false);
 
-        LogAdminBrandpaymentSettingAccess(id);
+        var adminLogMessage = $"User {Username} read brand payment extended data";
+        LogAdminBrandpaymentSettingAccess(id, adminLogMessage);
         return new BrandPaymentInfoModel
         {
             PaymentId = info.PaymentId,
@@ -334,11 +335,15 @@ public partial class BrandPaymentController(
 
     [HttpPatch("extendeddata/{brandPaymentId:guid}")]
     [Description("Update a brand Payment's extended data")]
-    public ValueTask UpdateBrandPaymentExtendedDataAsync(
+    public async ValueTask UpdateBrandPaymentExtendedDataAsync(
         Guid brandPaymentId,
         UpdateBrandPaymentExtendedDataRequest request,
-        [FromServices] IPaymentServiceClient paymentServiceClient)
-        => paymentServiceClient.UpdateBrandPaymentExtendedDataAsync(brandPaymentId, request.ExtendedData, HttpContext.RequestAborted);
+        [FromServices] IPaymentServiceClient paymentServiceClient) 
+        {
+            await paymentServiceClient.UpdateBrandPaymentExtendedDataAsync(brandPaymentId, request.ExtendedData, HttpContext.RequestAborted);
+            var adminLogMessage = $"User {Username} edit brand payment extended data";
+            LogAdminBrandpaymentSettingAccess(brandPaymentId, adminLogMessage);
+        }
 
     [HttpPost("upload")]
     [Description("Upload player file")]
@@ -422,22 +427,18 @@ public partial class BrandPaymentController(
         return CreateValidResponse<CreateUpdateBrandPaymentResponse>();
     }
 
-    private void LogAdminBrandpaymentSettingAccess(Guid brandPaymentId) {
+    private void LogAdminBrandpaymentSettingAccess(Guid brandPaymentId, string message) {
         var ip = HttpContext.Connection.RemoteIpAddress;
-        var accountName = HttpContext.User.GetUserName();
-        var tgsLogger = serviceProvider.GetService<ITgsLog>();
-        var description = $"Access to brand payment extended data, user {accountName}";
-
         var adminLogEvent = new AdminLogEvent() {
             TrackingId = brandPaymentId,
             ServerName = Environment.MachineName,
             IpAddress = ip is null ? "" : ip.ToString(),
-            Description = description,
-            Method = "GET",
-            Path = $"/api/brandpayment/{brandPaymentId}/info",
+            Description = message,
+            Method = HttpContext.Request.Method,
+            Path = HttpContext.Request.Path,
             RecordedOn = DateTimeOffset.Now,
             ResponseCode = (short)HttpContext.Response.StatusCode
         };
-        tgsLogger.LogAdmin(adminLogEvent);
+        tgsLog.LogAdmin(adminLogEvent);
     }
 }
