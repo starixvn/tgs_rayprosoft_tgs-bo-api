@@ -31,6 +31,7 @@ public class GetGameProviderQueryHandler(IGameProviderService service, IHttpCont
                 GameProvider = new()
                 {
                     Id = gameProvider.Id,
+                    Status = gameProvider.Status,
                     Name = gameProvider.Name,
                     Code = gameProvider.Code,
                     UniqueId = gameProvider.UniqueId,

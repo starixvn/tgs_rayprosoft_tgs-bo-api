@@ -59,7 +59,7 @@ public class GameProviderService(ITgsRepository tgsRepository, IRedisCacheManage
         {
             Code = request.Code,
             Name = request.Name,
-            Status = Status.Active,
+            Status = request.Status,
             AutoCloseRound = request.AutoCloseRound,
             SupportTestPlayer = request.SupportTestPlayer,
             AllowKickPlayer = request.AllowKickPlayer,
@@ -76,8 +76,7 @@ public class GameProviderService(ITgsRepository tgsRepository, IRedisCacheManage
 
         gameProvider.Currencies = await GenerateCurrenciesAsync(gameProvider, request);
         gameProvider.Languages = await GenerateLanguagesAsync(gameProvider, request);
-        gameProvider.BetLimits = GenerateBetLimits(gameProvider, request);
-
+        gameProvider.BetLimits = GenerateNewBetLimits(gameProvider, request);
         await CreateEntityAsync(gameProvider);
     }
 

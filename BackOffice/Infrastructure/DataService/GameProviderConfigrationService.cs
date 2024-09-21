@@ -5,7 +5,6 @@ using System.Threading.Tasks;
 using TGS.Core.DataServices.Base;
 using TGS.Core.DataServices.Tgs;
 using TGS.Core.DataServices.Tgs.Models;
-using TGS.Core.Models.Enums;
 using TGS.Services.BackOffice.Application.Models.GameProviderConfiguration;
 
 namespace TGS.Services.BackOffice.Infrastructure.DataService;
@@ -41,7 +40,7 @@ public class GameProviderConfigurationService(ITgsRepository tgsRepository) : Ba
             Description = request.Description,
             ClientId = request.ClientId,
             SecretKey = request.SecretKey,
-            Status = Status.Active,
+            Status = request.Status,
             GameProviderId = request.GameProviderId,
             DesktopEndpoint = request.DesktopEndpoint,
             MobileEndpoint = request.MobileEndpoint,
