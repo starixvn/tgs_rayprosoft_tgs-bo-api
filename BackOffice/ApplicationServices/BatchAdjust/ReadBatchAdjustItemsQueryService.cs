@@ -53,8 +53,16 @@ internal class ReadBatchAdjustItemsQueryService(IPlayerServiceClient playerServi
 
             var walletId = Guid.Parse(playerProps["DefaultWalletId"]);
 
-            var adjustAmount = sheet.Cell(index, 2).GetValue<decimal>();
-            var turnover = sheet.Cell(index, 3).GetValue<decimal>();
+            if (!decimal.TryParse(sheet.Cell(index, 2).GetValue<string>(), out var adjustAmount))
+            {
+                throw new InvalidOperationException("Invalid Adjust Amount");
+            }
+
+            if (!decimal.TryParse(sheet.Cell(index, 2).GetValue<string>(), out var turnover))
+            {
+                throw new InvalidOperationException("Invalid Turnover");
+            }
+
             var remark = sheet.Cell(index, 4).GetFormattedString();
 
             var item = new BatchAdjustBalanceItem(
