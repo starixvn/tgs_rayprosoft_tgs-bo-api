@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.ComponentModel;
 using System.IO;
 using System.Linq;
@@ -9,6 +10,7 @@ using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Options;
 using Tgs.ServiceUtility;
+using TGS.Apis.BackendOffice.Services;
 using TGS.Core.Infrastructures.Json;
 using TGS.Core.Models.Enums;
 using TGS.Services.BackOffice.Application.Models.GameProvider;
@@ -20,7 +22,7 @@ namespace TGS.Apis.BackendOffice.Controllers.GameProvider;
 
 [Route("api/[controller]")]
 [ApiController]
-public partial class GameProviderController(IMediator mediator) : BaseContextController
+public partial class GameProviderController(IMediator mediator, IUploadService uploadService) : BaseContextController
 {
     [HttpPost]
     [Description("Create a game provider")]
@@ -98,34 +100,30 @@ public partial class GameProviderController(IMediator mediator) : BaseContextCon
         [FromServices] IQueryService<UpdateGameProvidersLocalizationCommand, string> updateService)
     {
         using var fs = file.OpenReadStream();
-        var rows = readService.QueryAsync(new ReadSubGameProviderExcelQuery(fs));
-
-        var serializerOptions = jsonOptionsAccessor.Value.JsonSerializerOptions;
-
-        var gameProviders = rows
-            .Where(row => !string.IsNullOrWhiteSpace(row.Code))
-            .Select(row => new SubGameProvidersLocalizationModel
-            {
-                Code = row.Code,
-                Name = row.Name,
-                Localization = row.Localization
-                    .Select(p => new
-                    {
-                        p.Key,
-                        Value = jsonSerializationProvider.SerializeToString(
-                            new
-                            {
-                                Name = p.Value
-                            },
-                            serializerOptions)
-                    })
-                    .ToDictionary(
-                        item => item.Key,
-                        item => jsonSerializationProvider.DeserializeFromString<JsonDocument>(item.Value))
-            });
+        var uploadedResult = await uploadService.GetUploadedExcelAsync<Dictionary<string, string>>(file);
+        var gameProviders = uploadedResult
+          .Where(p => !string.IsNullOrEmpty(p["Id"]))
+          .Select(x => new SubGameProvidersLocalizationModel
+          {
+              Name = x["Name"],
+              Code = x["Id"],
+              Localization = x.Where(p => p.Key is not ("Id" or "Name"))
+                   .Select(p => new
+                   {
+                       p.Key,
+                       Value = jsonSerializationProvider.SerializeToString(
+                           new
+                           {
+                               name = p.Value
+                           })
+                   })
+                   .ToDictionary(
+                       item => item.Key,
+                       item => jsonSerializationProvider.DeserializeFromString<JsonDocument>(item.Value))
+          });
 
         var command = new UpdateGameProvidersLocalizationCommand(
-            gameProviders.ToEnumerable(),
+            gameProviders,
             Username);
 
         var diffSubGameProvidersIds = await updateService
