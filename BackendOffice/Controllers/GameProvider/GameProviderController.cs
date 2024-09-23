@@ -50,9 +50,10 @@ public partial class GameProviderController(IMediator mediator) : BaseContextCon
                 subGameProviders))
             .ConfigureAwait(false);
 
-        return new FileStreamResult(
-            fileStream,
-            "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet");
+        return new FileStreamResult(fileStream, "application/vnd.ms-excel")
+        {
+            FileDownloadName = "game-provider-localization.xlsx"
+        };
     }
 
     [HttpGet("{id}")]
