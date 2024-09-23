@@ -47,7 +47,8 @@ public class PaymentController : BaseContextController
                 {
                     Id = p.Id,
                     Name = p.Code,
-                    Code = p.Code
+                    Code = p.Code,
+                    Description = p.Description
                 })
                 .ToEnumerable()
         };
