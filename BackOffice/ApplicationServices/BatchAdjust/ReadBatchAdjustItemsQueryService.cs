@@ -55,12 +55,12 @@ internal class ReadBatchAdjustItemsQueryService(IPlayerServiceClient playerServi
 
             if (!decimal.TryParse(sheet.Cell(index, 2).GetValue<string>(), out var adjustAmount))
             {
-                throw new InvalidOperationException("Invalid Adjust Amount");
+                throw new InvalidOperationException("Column AdjustAmount is incorrect format");
             }
 
-            if (!decimal.TryParse(sheet.Cell(index, 2).GetValue<string>(), out var turnover))
+            if (!decimal.TryParse(sheet.Cell(index, 3).GetValue<string>(), out var turnover))
             {
-                throw new InvalidOperationException("Invalid Turnover");
+                throw new InvalidOperationException("Column Turnover is incorrect format");
             }
 
             var remark = sheet.Cell(index, 4).GetFormattedString();
