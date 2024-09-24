@@ -49,7 +49,6 @@ using TGS.Core.Infrastructures.Redis;
 using TGS.Core.Models;
 using TGS.Payment.ManualDeposit;
 using TGS.Services.BackOffice.Domain;
-using Sentry;
 
 AppContext.SetSwitch("Npgsql.EnableLegacyTimestampBehavior", true);
 SqlMapper.AddTypeMap(typeof(DateOnly), DbType.Date);
@@ -107,6 +106,8 @@ builder.Services
     })
     .AddSignalR();
 
+var natPrefix = builder.Configuration.GetValue<string>("NatPrefix");
+
 builder.Services
     .AddHostedService<BatchAdjustNotifyConsumer>()
     .AddHostedService<OfflinePromotionNotifyConsumer>()
@@ -131,32 +132,32 @@ builder.Services
     .AddNatsMessageQueue(config => config
         .ConfigureResolveConnection(sp => sp.GetRequiredKeyedService<NatsConnection>("Nats"))
         .AddReplyHandler<AutoApproveDepositProcessor>(
-            "tgs.payment.approve",
-            "tgs.payment.approve")
+            natPrefix + "tgs.payment.approve",
+            natPrefix + "tgs.payment.approve")
         .AddReplyHandler<AutoApproveDepositProcessor>(
-            "tgs.payment.deposit.approve",
-            "tgs.payment.deposit.approve")
+            natPrefix + "tgs.payment.deposit.approve",
+            natPrefix + "tgs.payment.deposit.approve")
         .AddReplyHandler<AutoRejectDepositProcessor>(
-            "tgs.payment.reject",
-            "tgs.payment.reject")
+            natPrefix + "tgs.payment.reject",
+            natPrefix + "tgs.payment.reject")
         .AddReplyHandler<AutoRejectDepositProcessor>(
-            "tgs.payment.deposit.reject",
-            "tgs.payment.deposit.reject")
+            natPrefix + "tgs.payment.deposit.reject",
+            natPrefix + "tgs.payment.deposit.reject")
         .AddReplyHandler<AutoRejectWithdrawProcessor>(
-            "tgs.payment.withdraw.reject",
-            "tgs.payment.withdraw.reject")
+            natPrefix + "tgs.payment.withdraw.reject",
+            natPrefix + "tgs.payment.withdraw.reject")
         .AddReplyHandler<AutoPaidWithdrawProcessor>(
-            "tgs.payment.withdraw.paid_ex",
-            "tgs.payment.withdraw.paid_ex")
+            natPrefix + "tgs.payment.withdraw.paid_ex",
+            natPrefix + "tgs.payment.withdraw.paid_ex")
         .AddHandler<BatchAdjustBalanceHandler>(
-            "tgs.bo.background.adjust_batch",
-            "tgs.bo.background.adjust_batch")
+            natPrefix + "tgs.bo.background.adjust_batch",
+            natPrefix + "tgs.bo.background.adjust_batch")
         .AddHandler<ProcessOfflineTempUserBatchHandler>(
-            "tgs.bo.background.offline-promotion",
-            "tgs.bo.background.offline-promotion")
-        .AddHandler<BackgroundNotifyHandler>("tgs.bo.notify")
-        .AddHandler<CleanBucketsHandler>("tgs.bucket.clean-form.created", "tgs.bo.clean-form")
-        .AddHandler<ClearBrandRelationCacheHandler>("tgs.bo.cache.brand-relation.clear"))
+            natPrefix + "tgs.bo.background.offline-promotion",
+            natPrefix + "tgs.bo.background.offline-promotion")
+        .AddHandler<BackgroundNotifyHandler>(natPrefix + "tgs.bo.notify")
+        .AddHandler<CleanBucketsHandler>(natPrefix + "tgs.bucket.clean-form.created", natPrefix + "tgs.bo.clean-form")
+        .AddHandler<ClearBrandRelationCacheHandler>(natPrefix + "tgs.bo.cache.brand-relation.clear"))
     .AddNatsGlobPatternExchange("*");
 
 builder.Services
