@@ -1,10 +1,13 @@
 ﻿#nullable enable
 
 using System;
+using System.Collections.Generic;
 using System.ComponentModel;
+using System.Reflection;
 using System.Text.Json;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Mvc;
+using Tgs.GameProviders.Pluggable.Client;
 using Tgs.Report.Client;
 using Tgs.Report.Client.Models.Round;
 using Tgs.ServiceUtility;
@@ -17,7 +20,7 @@ namespace TGS.Apis.BackendOffice.Controllers.Report;
 
 [Route("api/[controller]")]
 [ApiController]
-public class RoundReportController : BaseContextController
+public class RoundReportController(IGameProvidersBackofficePluggableClient providersClient) : BaseContextController
 {
     [HttpPut("system/addround")]
     [Description("Add round")]
@@ -100,15 +103,35 @@ public class RoundReportController : BaseContextController
 
     [HttpGet("{roundId}")]
     [Description("Get a round")]
-    public async Task<JsonDocument?> GetRoundHistoryAsync(Guid roundId,
-        [FromServices] IGetService<GetRoundHistoryReportRequest, JsonDocument?>
-            roundHistoryService,
+    public async Task<IActionResult> GetRoundHistoryAsync(Guid roundId,
+        [FromServices] IGetService<GetRoundHistoryReportRequest, JsonDocument?> roundHistoryService,
         [FromQuery] GetRoundHistoryReportRequest request)
     {
+        if (request.GameProviderCode.Equals("SABASW", StringComparison.OrdinalIgnoreCase))
+        {
+            return Ok(new
+            {
+                data = new List<object>
+                {
+                    new
+                    {
+                        type = "Iframe",
+                        value = await providersClient.TicketDetailUrlAsync(new()
+                        {
+                            GameProviderCode = request.GameProviderCode,
+                            PlayerCode = request.PlayerCode,
+                            ExternalId = long.Parse(request.ExternalId),
+                            Language = request.Language,
+                            BaseCurrency = request.BaseCurrency,
+                            PlayerUsername = request.PlayerUsername,
+                        }),
+                    }
+                }
+            });
+        }
+
         request.RoundId = roundId;
-        return await roundHistoryService
-            .GetAsync(request)
-            .ConfigureAwait(false);
+        return Ok(await roundHistoryService.GetAsync(request).ConfigureAwait(false));
     }
 
     [HttpGet]

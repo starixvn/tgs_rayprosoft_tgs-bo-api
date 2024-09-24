@@ -73,8 +73,8 @@
     <PackageReference Include="TGS.Core.Infrastructures.Json" Version="0.0.1" />
     <PackageReference Include="Tgs.Core.Infrastructures.Security" Version="0.0.2" />
     <PackageReference Include="Tgs.DepositAccumulateRoulette.Client" Version="0.1.0" />
-    <PackageReference Include="Tgs.GameProviders.Pluggable.Client" Version="1.0.1" />
     <PackageReference Include="Tgs.DomainSetting.Client" Version="0.0.7" />
+    <PackageReference Include="Tgs.GameProviders.Pluggable.Client" Version="1.0.6" />
     <PackageReference Include="Tgs.GameWagers.Client" Version="1.0.9" />
     <PackageReference Include="Tgs.MarketingReport.Client" Version="0.0.9" />
     <PackageReference Include="Tgs.Notification.Contacts.Client" Version="0.0.1" />
