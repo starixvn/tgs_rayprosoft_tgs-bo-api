@@ -12,6 +12,7 @@ using Tgs.Report.Client;
 using Tgs.Report.Client.Models.Round;
 using Tgs.ServiceUtility;
 using TGS.Apis.BackendOffice.Attributes;
+using TGS.Apis.BackendOffice.DataService.Services;
 using TGS.Core.Models.Messages;
 using TGS.Services.BackOffice.Application.Models.ReportRound;
 using TGS.Services.BackOffice.ApplicationServices;
@@ -20,7 +21,7 @@ namespace TGS.Apis.BackendOffice.Controllers.Report;
 
 [Route("api/[controller]")]
 [ApiController]
-public class RoundReportController(IGameProvidersBackofficePluggableClient providersClient) : BaseContextController
+public class RoundReportController() : BaseContextController
 {
     [HttpPut("system/addround")]
     [Description("Add round")]
@@ -105,29 +106,13 @@ public class RoundReportController(IGameProvidersBackofficePluggableClient provi
     [Description("Get a round")]
     public async Task<IActionResult> GetRoundHistoryAsync(Guid roundId,
         [FromServices] IGetService<GetRoundHistoryReportRequest, JsonDocument?> roundHistoryService,
+        [FromServices] IGetService<GetRoundHistoryReportRequest, GameRoundDetailResult?> roundDetailService,
         [FromQuery] GetRoundHistoryReportRequest request)
     {
-        if (request.GameProviderCode.Equals("SABASW", StringComparison.OrdinalIgnoreCase))
+        var result = await roundDetailService.GetAsync(request);
+        if (result is not null)
         {
-            return Ok(new
-            {
-                data = new List<object>
-                {
-                    new
-                    {
-                        type = "Iframe",
-                        value = await providersClient.TicketDetailUrlAsync(new()
-                        {
-                            GameProviderCode = request.GameProviderCode,
-                            PlayerCode = request.PlayerCode,
-                            ExternalId = long.Parse(request.ExternalId),
-                            Language = request.Language,
-                            BaseCurrency = request.BaseCurrency,
-                            PlayerUsername = request.PlayerUsername,
-                        }),
-                    }
-                }
-            });
+            return Ok(result);
         }
 
         request.RoundId = roundId;
