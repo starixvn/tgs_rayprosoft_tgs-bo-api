@@ -30,7 +30,7 @@ public partial class BrandPaymentController
 
         var ip = HttpContext.Connection.RemoteIpAddress;
         var accountName = HttpContext.User.GetUserName();
-        var description = $"User {accountName}, switch brand payment status to {status}";
+        var description = $"User: {accountName} | Action: Switch brand payment status to {status}";
 
         var adminLogEvent = new AdminLogEvent() {
             TrackingId = brandPaymentId,

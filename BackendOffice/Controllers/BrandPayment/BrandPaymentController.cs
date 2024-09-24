@@ -92,7 +92,7 @@ public partial class BrandPaymentController(
             .GetBrandPaymentPlayerAccessAsync(id, HttpContext.RequestAborted)
             .ConfigureAwait(false);
 
-        var adminLogMessage = $"User {Username} read brand payment extended data";
+        var adminLogMessage = $"User: {Username} | Action: Read brand payment extended data";
         LogAdminBrandpaymentSettingAccess(id, adminLogMessage);
         return new BrandPaymentInfoModel
         {
@@ -341,7 +341,7 @@ public partial class BrandPaymentController(
         [FromServices] IPaymentServiceClient paymentServiceClient) 
         {
             await paymentServiceClient.UpdateBrandPaymentExtendedDataAsync(brandPaymentId, request.ExtendedData, HttpContext.RequestAborted);
-            var adminLogMessage = $"User {Username} edit brand payment extended data";
+            var adminLogMessage = $"User: {Username} | Action: Edit brand payment extended data";
             LogAdminBrandpaymentSettingAccess(brandPaymentId, adminLogMessage);
         }
 
