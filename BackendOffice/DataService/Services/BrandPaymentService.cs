@@ -98,10 +98,12 @@ public class BrandPaymentService(ITgsRepository repository) : IBrandPaymentServi
         };
 
         var whitelist = await GeneratePaymentPlayerListAsync(
+            request.BrandId,
             paymentId,
             request.Whitelist,
             PlayerListType.White).ConfigureAwait(false);
         var blacklist = await GeneratePaymentPlayerListAsync(
+            request.BrandId,
             paymentId,
             request.Blacklist,
             PlayerListType.Black).ConfigureAwait(false);
@@ -186,8 +188,8 @@ public class BrandPaymentService(ITgsRepository repository) : IBrandPaymentServi
 
         _ = await repository.SaveChangesAsync();
 
-        var whitelist = await GeneratePaymentPlayerListAsync(payment.Id, request.Whitelist, PlayerListType.White);
-        var blacklist = await GeneratePaymentPlayerListAsync(payment.Id, request.Blacklist, PlayerListType.Black);
+        var whitelist = await GeneratePaymentPlayerListAsync(payment.BrandId, payment.Id, request.Whitelist, PlayerListType.White);
+        var blacklist = await GeneratePaymentPlayerListAsync(payment.BrandId, payment.Id, request.Blacklist, PlayerListType.Black);
         var playerList = whitelist.Union(blacklist).ToArray();
 
         payment.BrandPaymentPlayers = new HashSet<BrandPaymentPlayer>(playerList);
@@ -240,17 +242,17 @@ public class BrandPaymentService(ITgsRepository repository) : IBrandPaymentServi
             Operation = BrandPaymentOperation.Update
         };
 
-    private async Task<BrandPaymentPlayer[]> GeneratePaymentPlayerListAsync(Guid paymentId, string[] list,
+    private async Task<BrandPaymentPlayer[]> GeneratePaymentPlayerListAsync(Guid brandId, Guid brandPaymentId, string[] list,
                         PlayerListType playerListType)
     {
         var playerWhitelist = list != null
             ? await repository.Players.AsQueryable()
-                .Where(x => list.Contains(x.Username)).ToArrayAsync()
+                .Where(x => list.Contains(x.Username) && x.BrandId == brandId).ToArrayAsync()
             : [];
         return playerWhitelist.Select(player => new BrandPaymentPlayer
         {
             ListType = playerListType,
-            BrandPaymentId = paymentId,
+            BrandPaymentId = brandPaymentId,
             PlayerCode = player.PlayerCode,
             Player = player
         }).ToArray();
