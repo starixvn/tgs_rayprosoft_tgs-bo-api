@@ -106,7 +106,7 @@ public class RoundReportController() : BaseContextController
     [Description("Get a round")]
     public async Task<IActionResult> GetRoundHistoryAsync(Guid roundId,
         [FromServices] IGetService<GetRoundHistoryReportRequest, JsonDocument?> roundHistoryService,
-        [FromServices] IGetService<GetRoundHistoryReportRequest, GameRoundDetailResult?> roundDetailService,
+        [FromServices] IGetService<GetRoundHistoryReportRequest, GameRoundDetailResult> roundDetailService,
         [FromQuery] GetRoundHistoryReportRequest request)
     {
         var result = await roundDetailService.GetAsync(request);
