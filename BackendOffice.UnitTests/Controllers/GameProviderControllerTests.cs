@@ -2,6 +2,7 @@
 using FluentAssertions;
 using MediatR;
 using TGS.Apis.BackendOffice.Controllers.GameProvider;
+using TGS.Apis.BackendOffice.Services;
 using TGS.Services.BackOffice.Application.Models.GameProvider;
 using TGS.Services.BackOffice.Application.Resources;
 using TGS.Services.BackOffice.Domain;
@@ -20,7 +21,9 @@ public class GameProviderControllerTests : BaseTests
     {
         var mediatorMock = Substitute.For<IMediator>();
 
-        var controller = new GameProviderController(mediatorMock);
+        var uploadServiceMock = Substitute.For<IUploadService>();
+
+        var controller = new GameProviderController(mediatorMock, uploadServiceMock);
 
         var request = new Fixture().Create<CreateGameProviderRequest>();
 
@@ -40,7 +43,9 @@ public class GameProviderControllerTests : BaseTests
     {
         var mediatorMock = Substitute.For<IMediator>();
 
-        var controller = new GameProviderController(mediatorMock);
+        var uploadServiceMock = Substitute.For<IUploadService>();
+
+        var controller = new GameProviderController(mediatorMock, uploadServiceMock);
 
         var list = CreateGameProviderModelFixture()
             .CreateMany<GameProviderModel>(99)
@@ -88,7 +93,9 @@ public class GameProviderControllerTests : BaseTests
     {
         var mediatorMock = Substitute.For<IMediator>();
 
-        var controller = new GameProviderController(mediatorMock);
+        var uploadServiceMock = Substitute.For<IUploadService>();
+
+        var controller = new GameProviderController(mediatorMock, uploadServiceMock);
 
         var brand = CreateGameProviderModelFixture().Create<GameProviderModel>();
 
@@ -110,7 +117,9 @@ public class GameProviderControllerTests : BaseTests
     {
         var mediatorMock = Substitute.For<IMediator>();
 
-        var controller = new GameProviderController(mediatorMock);
+        var uploadServiceMock = Substitute.For<IUploadService>();
+
+        var controller = new GameProviderController(mediatorMock, uploadServiceMock);
 
         var list = CreateGameProviderModelFixture()
             .CreateMany<GameProviderModel>(99)

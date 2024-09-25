@@ -9,6 +9,7 @@ using TGS.Apis.BackendOffice.Services;
 using TGS.Core.DataServices.Base.Interfaces;
 using TGS.Core.DataServices.Tgs.Models;
 using TGS.Core.Models.Enums;
+using Tgs.Logging;
 
 namespace TGS.Tests.BackendOffice.UnitTests.Controllers;
 
@@ -30,8 +31,10 @@ public class BrandPaymentControllerTests : BaseTests
 
         var uploadServiceMock = Substitute.For<IUploadService>();
 
+        var tgsLogMock = Substitute.For<ITgsLog>();
+
         var controller = new BrandPaymentController(playerQueriesMock, uploadServiceMock, paymentServiceMock,
-            auditLogQueriesMock)
+            auditLogQueriesMock, tgsLogMock)
         { ControllerContext = { HttpContext = HttpContextMock } };
 
         var request = new CreateBrandPaymentRequest
@@ -83,9 +86,10 @@ public class BrandPaymentControllerTests : BaseTests
         var playerQueriesMock = Substitute.For<ITgsQueries<Player>>();
 
         var uploadServiceMock = Substitute.For<IUploadService>();
+        var tgsLogMock = Substitute.For<ITgsLog>();
 
         var controller = new BrandPaymentController(playerQueriesMock, uploadServiceMock, paymentServiceMock,
-            auditLogQueriesMock)
+            auditLogQueriesMock, tgsLogMock)
         { ControllerContext = { HttpContext = HttpContextMock } };
 
         var payment = CreatePaymentFixture().Create<BrandPayment>();
@@ -146,8 +150,10 @@ public class BrandPaymentControllerTests : BaseTests
 
         var uploadServiceMock = Substitute.For<IUploadService>();
 
+        var tgsLogMock = Substitute.For<ITgsLog>();
+
         var controller = new BrandPaymentController(playerQueriesMock, uploadServiceMock, paymentServiceMock,
-            auditLogQueriesMock);
+            auditLogQueriesMock, tgsLogMock);
 
         var request = new CreateBrandPaymentRequest
         {
@@ -202,8 +208,10 @@ public class BrandPaymentControllerTests : BaseTests
 
         var uploadServiceMock = Substitute.For<IUploadService>();
 
+        var tgsLogMock = Substitute.For<ITgsLog>();
+
         var controller = new BrandPaymentController(playerQueriesMock, uploadServiceMock, paymentServiceMock,
-            auditLogQueriesMock)
+            auditLogQueriesMock, tgsLogMock)
         { ControllerContext = { HttpContext = HttpContextMock } };
 
         var payment = CreatePaymentFixture().Create<BrandPayment>();
