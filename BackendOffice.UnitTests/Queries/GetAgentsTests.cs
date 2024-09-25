@@ -1,5 +1,4 @@
 ﻿using Microsoft.AspNetCore.Http;
-using NSubstitute;
 using TGS.Services.BackOffice.Application.Models.Agent;
 using TGS.Services.BackOffice.Application.Queries.AgentHandlers;
 using TGS.Services.BackOffice.Infrastructure.DataService;

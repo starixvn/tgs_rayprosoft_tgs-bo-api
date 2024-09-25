@@ -1,6 +1,5 @@
 ﻿using AutoFixture;
 using FluentAssertions;
-using NSubstitute;
 using Tgs.ServiceUtility;
 using TGS.Apis.BackendOffice.Controllers.Report;
 using TGS.Services.BackOffice.Application.Models.ReportMarket;

@@ -1,5 +1,4 @@
-﻿using NSubstitute;
-using Tgs.BrandCertificate.Clients;
+﻿using Tgs.BrandCertificate.Clients;
 using Tgs.ServiceUtility;
 using TGS.Core.Models.Enums;
 using TGS.Services.BackOffice.ApplicationServices;

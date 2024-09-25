@@ -1,7 +1,6 @@
 ﻿using AutoFixture;
 using FluentAssertions;
 using MediatR;
-using NSubstitute;
 using TGS.Apis.BackendOffice.Controllers;
 using TGS.Services.BackOffice.Application.Models.Currency;
 using TGS.Services.BackOffice.Application.Resources;

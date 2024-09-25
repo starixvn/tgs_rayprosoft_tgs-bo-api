@@ -1,5 +1,4 @@
-﻿using NSubstitute;
-using NUnit.Framework.Legacy;
+﻿using NUnit.Framework.Legacy;
 using Tgs.Agent.Client;
 using Tgs.Agent.Client.Models;
 using Tgs.BrandCertificate.Clients;

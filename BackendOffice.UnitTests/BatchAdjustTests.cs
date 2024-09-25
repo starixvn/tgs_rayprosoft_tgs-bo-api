@@ -2,7 +2,6 @@
 using System.Reflection;
 using Microsoft.Extensions.FileProviders;
 using Microsoft.Extensions.Logging.Abstractions;
-using NSubstitute;
 using NUnit.Framework.Legacy;
 using Tgs.PlayerService.Client;
 using TGS.Core.Models.Enums;

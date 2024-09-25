@@ -10,7 +10,6 @@ using Tgs.BrandCertificate;
 using Tgs.BrandCertificate.Clients;
 using Tgs.PlayerService.Client;
 using TGS.Apis.BackendOffice.ViewModels;
-using Xunit;
 using Xunit.Abstractions;
 
 namespace BackendOffice.IntegrationTests;

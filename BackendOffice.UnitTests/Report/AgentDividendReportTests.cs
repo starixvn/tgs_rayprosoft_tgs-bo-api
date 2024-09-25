@@ -1,15 +1,7 @@
-﻿using System.Linq.Expressions;
-using MockQueryable.Moq;
-using NSubstitute;
+﻿using MockQueryable.Moq;
 using TGS.Core.DataServices.Tgs.Models;
-using TGS.Core.Models.Enums;
 using Tgs.Report.Client;
-using Tgs.Report.Client.Models;
-using Tgs.Report.Client.Models.AgentWinLoss;
-using TGS.Services.BackOffice.Application.Models.ReportAgentWinLoss;
-using TGS.Services.BackOffice.Application.Queries.ReportAgentWinLossQueries;
 using TGS.Services.BackOffice.Infrastructure.DataService;
-using NUnit.Framework.Legacy;
 using Tgs.Report.Client.Models.Agent;
 using TGS.Services.BackOffice.Application.Queries.ReportAgentQueries;
 using TGS.Services.BackOffice.Application.Models.ReportAgent;

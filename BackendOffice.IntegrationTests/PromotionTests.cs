@@ -1,5 +1,4 @@
-﻿using System.Data.SqlClient;
-using System.Runtime.InteropServices;
+﻿using System.Runtime.InteropServices;
 using System.Text.Json;
 using ExpectedObjects;
 using Microsoft.AspNetCore.Mvc;

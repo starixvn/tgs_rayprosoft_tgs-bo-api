@@ -1,7 +1,5 @@
-﻿using System.Collections.Generic;
-using ExpectedObjects;
+﻿using ExpectedObjects;
 using Microsoft.Extensions.Logging.Abstractions;
-using NSubstitute;
 using Tgs.CashService.Client;
 using Tgs.PlayerBucket.Client;
 using Tgs.PlayerService.Client;

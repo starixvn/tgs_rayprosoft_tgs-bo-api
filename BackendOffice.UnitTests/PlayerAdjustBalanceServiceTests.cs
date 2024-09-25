@@ -1,11 +1,9 @@
-﻿using NSubstitute;
-using Tgs.CashService.Client;
+﻿using Tgs.CashService.Client;
 using Tgs.PlayerBucket.Client;
 using Tgs.SerialNumberGenerator;
 using Tgs.Service.PlayerBuckets;
 using TGS.Core.Models.Enums;
 using TGS.Services.BackOffice.Domain;
-using TGS.Services.WalletService;
 
 namespace TGS.Tests.BackendOffice.UnitTests;
 

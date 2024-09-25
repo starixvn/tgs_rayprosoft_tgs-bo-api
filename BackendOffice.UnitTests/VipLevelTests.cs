@@ -1,5 +1,4 @@
-﻿using NSubstitute;
-using Tgs.VipLevelService.Clients;
+﻿using Tgs.VipLevelService.Clients;
 using TGS.Services.BackOffice.ApplicationServices;
 
 namespace TGS.Tests.BackendOffice.UnitTests;

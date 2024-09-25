@@ -1,7 +1,6 @@
 ﻿using AutoFixture;
 using FluentAssertions;
 using MediatR;
-using NSubstitute;
 using TGS.Apis.BackendOffice.Controllers.Brand;
 using TGS.Services.BackOffice.Application.Models.BrandGameProviderSchedule;
 using TGS.Services.BackOffice.Domain;

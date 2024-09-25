@@ -1,5 +1,4 @@
-﻿using NSubstitute;
-using Tgs.ArticleManagement.Clients;
+﻿using Tgs.ArticleManagement.Clients;
 using TGS.Services.BackOffice.ApplicationServices.Articles;
 
 namespace TGS.Tests.BackendOffice.UnitTests;

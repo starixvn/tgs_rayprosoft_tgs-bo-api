@@ -11,7 +11,6 @@ using Tgs.Agent.Dividend.Client.Models;
 using TGS.Apis.BackendOffice.Attributes;
 using TGS.Apis.BackendOffice.Controllers.Messages.AgentDividend;
 using Tgs.BrandCertificate.Clients;
-using TGS.Core.DataServices.Base.Extensions;
 using TGS.Core.Models.Enums;
 using TGS.Services.BackOffice.Domain;
 using TGS.Services.BackOffice.Domain.Enums;

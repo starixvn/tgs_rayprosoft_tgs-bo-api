@@ -1,5 +1,4 @@
-﻿using NSubstitute;
-using Tgs.Report.Client;
+﻿using Tgs.Report.Client;
 using Tgs.Report.Client.Models.Player;
 using TGS.Services.BackOffice.Application.Queries.ReportPlayerQueries;
 using AutoFixture;

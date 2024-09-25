@@ -1,20 +1,8 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using NSubstitute;
-using NUnit.Framework.Legacy;
-using Tgs.BrandCertificate.Clients;
-using Tgs.BrandGameCredits.Client;
-using Tgs.BrandGameCredits.Common.Models;
-using Tgs.BrandGameCredits.Common;
-using TGS.Services.BackOffice.ApplicationServices.BrandGameCredits;
+﻿using Tgs.BrandCertificate.Clients;
 using TGS.Services.BackOffice.ApplicationServices.NotificationContacts;
 using Tgs.Notification.Contacts.Client;
 using Tgs.BrandCertificate;
 using Tgs.Notification.Contacts.Common.Models;
-using System.Threading;
 
 namespace TGS.Tests.BackendOffice.UnitTests.NotificationContacts;
 

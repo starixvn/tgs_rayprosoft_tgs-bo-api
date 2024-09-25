@@ -2,10 +2,7 @@
 using FluentValidation;
 using MediatR;
 using Microsoft.Extensions.DependencyInjection;
-using Tgs.Report.Client.Models.Round;
-using Tgs.ServiceUtility;
 using TGS.Services.BackOffice.Application.Middlewares;
-using TGS.Services.BackOffice.Application.Queries.Game;
 using TGS.Services.BackOffice.Domain;
 using TGS.Services.BackOffice.Infrastructure.DataService;
 using TGS.Services.BackOffice.Infrastructure.RedisServices;

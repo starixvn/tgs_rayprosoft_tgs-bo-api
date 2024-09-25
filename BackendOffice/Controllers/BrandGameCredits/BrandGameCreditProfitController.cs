@@ -1,17 +1,10 @@
 ﻿using System.Collections.Generic;
 using System.Linq;
 using System;
-using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using TGS.Apis.BackendOffice.ViewModels;
 using TGS.Services.BackOffice.ApplicationServices.BrandGameCredits;
 using Tgs.ServiceUtility;
-using DocumentFormat.OpenXml.Bibliography;
-using TGS.Apis.BackendOffice.Controllers.Messages.Licensee;
-using TGS.Apis.BackendOffice.Controllers.Messages.Reseller;
-using TGS.Services.BackOffice.Application.Models.Brand;
-using TGS.Services.BackOffice.Application.Models.GameProvider;
-using Microsoft.AspNetCore.Authorization;
 
 namespace TGS.Apis.BackendOffice.Controllers.BrandGameCredits;
 

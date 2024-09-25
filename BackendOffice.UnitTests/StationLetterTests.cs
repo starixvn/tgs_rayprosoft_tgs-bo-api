@@ -1,5 +1,4 @@
-﻿using NSubstitute;
-using Tgs.StationLetterService.Client;
+﻿using Tgs.StationLetterService.Client;
 using TGS.Services.BackOffice.ApplicationServices.StationLetters;
 
 namespace TGS.Tests.BackendOffice.UnitTests;

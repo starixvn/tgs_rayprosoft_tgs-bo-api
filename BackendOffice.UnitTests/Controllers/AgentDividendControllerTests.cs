@@ -1,5 +1,4 @@
 ﻿using AutoFixture;
-using NSubstitute;
 using Tgs.Agent.Dividend.Client;
 using Tgs.Agent.Dividend.Client.Models;
 using TGS.Apis.BackendOffice.Controllers.Agent;

@@ -1,12 +1,9 @@
-﻿using System;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
-using Microsoft.EntityFrameworkCore;
 using Tgs.Report.Client;
 using TGS.Services.BackOffice.Application.Models.ReportAgentWinLoss;
-using TGS.Services.BackOffice.Infrastructure.DataService;
 using Tgs.ServiceUtility;
 
 namespace TGS.Services.BackOffice.Application.Queries.ReportAgentWinLossQueries;

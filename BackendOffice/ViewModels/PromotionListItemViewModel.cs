@@ -2,7 +2,6 @@
 
 using System;
 using System.Collections.Generic;
-using System.Linq;
 using TGS.Core.Models.Enums;
 
 namespace TGS.Apis.BackendOffice.ViewModels;

@@ -1,6 +1,5 @@
 ﻿#nullable enable
 using System;
-using Tgs.Agent.Dividend.Client.Enums;
 using TGS.Services.BackOffice.Domain.Enums;
 
 namespace TGS.Apis.BackendOffice.Controllers.Messages.AgentDividend;

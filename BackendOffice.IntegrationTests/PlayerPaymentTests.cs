@@ -8,8 +8,6 @@ using NSubstitute;
 using Tgs.Payment.Clients;
 using TGS.Apis.BackendOffice.ViewModels;
 using TGS.Core.Models.Messages;
-using TGS.Services.BackOffice.ApplicationServices;
-using Xunit;
 using Xunit.Abstractions;
 
 namespace BackendOffice.IntegrationTests;

@@ -1,5 +1,4 @@
 ﻿using Microsoft.Extensions.Logging.Abstractions;
-using NSubstitute;
 using TGS.Services.BackOffice.ApplicationServices.Players;
 using Tgs.VipLevelService.Clients;
 using Tgs.VipLevelService.Common.ViewModels;

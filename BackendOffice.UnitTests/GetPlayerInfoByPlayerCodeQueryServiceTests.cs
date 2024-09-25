@@ -1,5 +1,4 @@
-﻿using NSubstitute;
-using Tgs.PlayerService.Client;
+﻿using Tgs.PlayerService.Client;
 using TGS.Services.BackOffice.ApplicationServices.Players;
 
 namespace TGS.Tests.BackendOffice.UnitTests;

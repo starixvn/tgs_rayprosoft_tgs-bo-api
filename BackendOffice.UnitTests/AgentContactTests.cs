@@ -1,5 +1,4 @@
 ﻿using System.Collections.Immutable;
-using NSubstitute;
 using NUnit.Framework.Legacy;
 using Tgs.Agent.Client;
 using Tgs.Agent.Client.Models;

@@ -1,5 +1,4 @@
-﻿using NSubstitute;
-using NUnit.Framework.Legacy;
+﻿using NUnit.Framework.Legacy;
 using Tgs.Service.PlayerBuckets;
 using TGS.Services.BackOffice.ApplicationServices.PlayerBuckets;
 

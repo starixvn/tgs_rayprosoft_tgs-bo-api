@@ -1,7 +1,6 @@
 ﻿using System.Security.Claims;
 using AutoFixture;
 using Microsoft.AspNetCore.Http;
-using NSubstitute;
 using Tgs.Agent.Client;
 using Tgs.Agent.Client.Models;
 using Tgs.BrandCertificate.Clients;

@@ -3,7 +3,6 @@ using System.Text;
 using System.Text.Json;
 using ExpectedObjects;
 using Microsoft.Extensions.Logging.Abstractions;
-using NSubstitute;
 using PlayerBucket.Repositories;
 using StackExchange.Redis;
 using Tgs.BrandCertificate.Clients;

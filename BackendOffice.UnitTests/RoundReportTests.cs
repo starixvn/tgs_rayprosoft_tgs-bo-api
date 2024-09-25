@@ -1,5 +1,4 @@
 ﻿using System.Collections.Immutable;
-using NSubstitute;
 using Tgs.BrandCertificate.Clients;
 using Tgs.GameProviders.Pluggable.Client;
 using Tgs.GameProviders.Pluggable.ViewModels;

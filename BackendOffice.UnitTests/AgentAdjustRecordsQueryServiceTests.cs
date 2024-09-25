@@ -1,5 +1,4 @@
-﻿using NSubstitute;
-using Tgs.CashQueryService.Client;
+﻿using Tgs.CashQueryService.Client;
 using TGS.Services.BackOffice.ApplicationServices.Adjust;
 
 namespace TGS.Tests.BackendOffice.UnitTests;

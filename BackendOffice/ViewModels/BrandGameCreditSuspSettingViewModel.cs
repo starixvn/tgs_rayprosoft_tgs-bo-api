@@ -1,5 +1,4 @@
 ﻿using System;
-using TGS.Services.BackOffice.ApplicationServices.BrandGameCredits;
 
 namespace TGS.Apis.BackendOffice.ViewModels;
 

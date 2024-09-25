@@ -4,7 +4,6 @@ using Microsoft.EntityFrameworkCore.Diagnostics;
 using NUnit.Framework.Legacy;
 using TGS.Core.DataServices.Tgs;
 using TGS.Core.Infrastructures.Json;
-using TGS.Services.BackOffice.Application.Models.SubGameProvider;
 using TGS.Services.BackOffice.Application.Queries.GameProviders;
 using CoreModels = TGS.Core.DataServices.Tgs.Models;
 

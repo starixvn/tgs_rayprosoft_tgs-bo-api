@@ -4,7 +4,6 @@ using FluentAssertions;
 using Microsoft.AspNetCore.Antiforgery;
 using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Http;
-using NSubstitute;
 using TGS.Apis.BackendOffice.Controllers;
 using TGS.Apis.BackendOffice.Controllers.Messages.Users.Authentication;
 using TGS.Core.DataServices.Base.Interfaces;

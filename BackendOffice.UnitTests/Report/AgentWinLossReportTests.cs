@@ -1,6 +1,5 @@
 ﻿using System.Linq.Expressions;
 using MockQueryable.Moq;
-using NSubstitute;
 using TGS.Core.DataServices.Tgs.Models;
 using TGS.Core.Models.Enums;
 using Tgs.Report.Client;

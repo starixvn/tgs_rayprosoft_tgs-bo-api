@@ -1,5 +1,4 @@
-﻿using NSubstitute;
-using Tgs.VipLevelService.Clients;
+﻿using Tgs.VipLevelService.Clients;
 using TGS.Services.BackOffice.ApplicationServices.Players;
 using TGS.Services.BackOffice.Domain;
 

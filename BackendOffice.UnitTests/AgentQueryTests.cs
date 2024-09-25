@@ -1,5 +1,4 @@
-﻿using NSubstitute;
-using TGS.Services.BackOffice.ApplicationServices.Agents;
+﻿using TGS.Services.BackOffice.ApplicationServices.Agents;
 using TGS.Services.BackOffice.Domain;
 
 namespace TGS.Tests.BackendOffice.UnitTests;

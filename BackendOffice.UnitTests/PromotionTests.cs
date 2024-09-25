@@ -1,6 +1,5 @@
 ﻿using System.Text.Json;
 using Microsoft.Extensions.Logging.Abstractions;
-using NSubstitute;
 using NUnit.Framework.Legacy;
 using Tgs.BrandCertificate.Clients;
 using Tgs.Promotion.Clients;

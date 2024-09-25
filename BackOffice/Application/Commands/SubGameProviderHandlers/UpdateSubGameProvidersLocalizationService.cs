@@ -6,7 +6,6 @@ using System.Threading.Tasks;
 using Microsoft.EntityFrameworkCore;
 using Tgs.ServiceUtility;
 using TGS.Core.DataServices.Tgs;
-using TGS.Core.Infrastructures.Extensions;
 using TGS.Services.BackOffice.Application.Models.SubGameProvider;
 
 namespace TGS.Services.BackOffice.Application.Commands.SubGameProviderHandlers;

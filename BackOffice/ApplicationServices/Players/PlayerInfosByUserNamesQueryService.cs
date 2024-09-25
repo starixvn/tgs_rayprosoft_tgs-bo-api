@@ -5,8 +5,6 @@ using System.Runtime.CompilerServices;
 using System.Threading;
 using Tgs.PlayerService.Client;
 using Tgs.ServiceUtility;
-using TGS.Services.BackOffice.ApplicationServices.Players;
-using TGS.Services.BackOffice.ApplicationServices;
 
 namespace TGS.Services.BackOffice.ApplicationServices.Players;
 

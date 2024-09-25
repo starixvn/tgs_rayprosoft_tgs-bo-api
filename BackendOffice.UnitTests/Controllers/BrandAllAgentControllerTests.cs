@@ -1,7 +1,6 @@
 ﻿using AutoFixture;
 using FluentAssertions;
 using MediatR;
-using NSubstitute;
 using TGS.Apis.BackendOffice.Controllers.Brand;
 using TGS.Core.Models.Enums;
 using TGS.Services.BackOffice.Application.Models.BrandAllAgent;

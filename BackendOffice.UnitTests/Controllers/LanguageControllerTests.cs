@@ -1,8 +1,6 @@
-﻿using System.Data.SqlClient;
-using AutoFixture;
+﻿using AutoFixture;
 using FluentAssertions;
 using MediatR;
-using NSubstitute;
 using TGS.Apis.BackendOffice.Controllers;
 using TGS.Services.BackOffice.Application.Models.Language;
 using TGS.Services.BackOffice.Application.Resources;

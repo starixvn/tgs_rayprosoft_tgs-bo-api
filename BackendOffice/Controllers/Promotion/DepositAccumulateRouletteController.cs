@@ -1,9 +1,7 @@
 ﻿using System;
-using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.EntityFrameworkCore;
 using Tgs.DepositAccumulateRoulette.Clients;
 using Tgs.Paging;
 using Tgs.PlayerService.Client;

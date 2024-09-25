@@ -1,5 +1,4 @@
-﻿using NSubstitute;
-using Tgs.Payment.Clients;
+﻿using Tgs.Payment.Clients;
 using Tgs.PlayerService.Client;
 using TGS.Services.BackOffice.ApplicationServices.Payment;
 

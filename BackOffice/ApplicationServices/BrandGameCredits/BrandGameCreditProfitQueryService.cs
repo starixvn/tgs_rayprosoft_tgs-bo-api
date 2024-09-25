@@ -2,17 +2,10 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Runtime.CompilerServices;
-using System.Text;
 using System.Threading;
-using System.Threading.Tasks;
-using DocumentFormat.OpenXml.Bibliography;
 using Tgs.BrandCertificate.Clients;
 using Tgs.BrandGameCredits.Client;
-using Tgs.BrandGameCredits.Common.Models;
 using Tgs.ServiceUtility;
-using TGS.Core.DataServices.Tgs.Models;
-using TGS.Services.BackOffice.Application.Models.Brand;
-using TGS.Services.BackOffice.Application.Models.GameProvider;
 using BrandGameCreditProfit = Tgs.BrandGameCredits.Common.Models.BrandGameCreditProfit;
 
 namespace TGS.Services.BackOffice.ApplicationServices.BrandGameCredits;

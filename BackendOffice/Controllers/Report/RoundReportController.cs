@@ -1,18 +1,14 @@
 ﻿#nullable enable
 
 using System;
-using System.Collections.Generic;
 using System.ComponentModel;
-using System.Reflection;
 using System.Text.Json;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Mvc;
-using Tgs.GameProviders.Pluggable.Client;
 using Tgs.Report.Client;
 using Tgs.Report.Client.Models.Round;
 using Tgs.ServiceUtility;
 using TGS.Apis.BackendOffice.Attributes;
-using TGS.Apis.BackendOffice.DataService.Services;
 using TGS.Core.Models.Messages;
 using TGS.Services.BackOffice.Application.Models.ReportRound;
 using TGS.Services.BackOffice.ApplicationServices;

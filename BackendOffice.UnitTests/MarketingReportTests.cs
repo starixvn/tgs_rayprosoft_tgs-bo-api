@@ -1,5 +1,4 @@
-﻿using NSubstitute;
-using Tgs.MarketingReport.Client;
+﻿using Tgs.MarketingReport.Client;
 using Tgs.ServiceUtility;
 using TGS.Core.Models.Enums;
 using TGS.Services.BackOffice.Application.Queries.ReportMarketingQueries;

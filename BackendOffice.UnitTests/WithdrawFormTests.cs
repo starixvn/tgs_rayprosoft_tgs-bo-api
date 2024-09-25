@@ -1,7 +1,6 @@
 ﻿using System.Collections.Immutable;
 using System.Linq.Expressions;
 using Microsoft.Extensions.Logging.Abstractions;
-using NSubstitute;
 using NUnit.Framework.Legacy;
 using Stateless;
 using Tgs.Payment.Clients;

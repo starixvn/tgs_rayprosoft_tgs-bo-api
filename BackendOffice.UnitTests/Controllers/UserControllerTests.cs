@@ -2,7 +2,6 @@
 using AutoFixture;
 using FluentAssertions;
 using MockQueryable.Moq;
-using NSubstitute;
 using Tgs.Core.Infrastructures.Security;
 using TGS.Apis.BackendOffice.Controllers;
 using TGS.Apis.BackendOffice.Controllers.Messages.Users;

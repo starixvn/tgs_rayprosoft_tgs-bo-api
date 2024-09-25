@@ -1,6 +1,5 @@
 ﻿using AutoFixture;
 using Microsoft.AspNetCore.Http;
-using NSubstitute;
 using Tgs.Player.All.Agent.Client;
 using Tgs.Player.All.Agent.Client.Models;
 using TGS.Services.BackOffice.Application.Commands.BrandAllAgentHandlers;

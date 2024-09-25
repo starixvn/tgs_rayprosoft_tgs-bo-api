@@ -1,5 +1,4 @@
-﻿using NSubstitute;
-using NUnit.Framework.Legacy;
+﻿using NUnit.Framework.Legacy;
 using TGS.Core.DataServices.Tgs.Models;
 using TGS.Core.Infrastructures.Redis;
 using TGS.Services.BackOffice.Application.Commands.ReportGenerateAggregate;

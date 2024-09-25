@@ -1,6 +1,4 @@
-﻿using System;
-
-namespace TGS.Services.BackOffice.Domain;
+﻿namespace TGS.Services.BackOffice.Domain;
 
 public class MessageResponse
 {

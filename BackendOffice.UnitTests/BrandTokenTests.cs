@@ -1,5 +1,4 @@
-﻿using NSubstitute;
-using Tgs.BrandCertificate.Clients;
+﻿using Tgs.BrandCertificate.Clients;
 using TGS.Services.BackOffice.Application.Queries.BrandToken;
 
 namespace TGS.Tests.BackendOffice.UnitTests;

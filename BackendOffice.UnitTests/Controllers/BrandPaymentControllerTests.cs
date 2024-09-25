@@ -2,7 +2,6 @@
 using System.Text.Json;
 using AutoFixture;
 using FluentAssertions;
-using NSubstitute;
 using TGS.Apis.BackendOffice.Controllers.BrandPayment;
 using TGS.Apis.BackendOffice.Controllers.Messages.BrandPayment;
 using TGS.Apis.BackendOffice.DataService.Services;

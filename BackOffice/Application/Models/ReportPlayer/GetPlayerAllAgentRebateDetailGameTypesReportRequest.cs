@@ -1,5 +1,4 @@
 ﻿using System;
-using Tgs.Report.Client.Models;
 
 namespace TGS.Services.BackOffice.Application.Models.ReportPlayer;
 

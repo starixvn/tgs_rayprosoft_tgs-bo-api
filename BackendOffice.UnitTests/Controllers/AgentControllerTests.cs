@@ -1,12 +1,7 @@
 ﻿using MediatR;
-using NSubstitute;
 using Tgs.Agent.Client;
 using Tgs.Agent.Client.Models;
 using TGS.Apis.BackendOffice.Controllers.Agent;
-using Tgs.Report.Client;
-using Tgs.CashService.Client;
-using TGS.Services.BackOffice.Application.Models.ReportAgent;
-using AutoFixture;
 
 namespace TGS.Tests.BackendOffice.UnitTests.Controllers;
 

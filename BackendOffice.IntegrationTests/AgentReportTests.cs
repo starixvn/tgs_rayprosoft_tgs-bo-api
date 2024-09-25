@@ -1,5 +1,4 @@
-﻿using System.Data.SqlClient;
-using System.Runtime.InteropServices;
+﻿using System.Runtime.InteropServices;
 using ExpectedObjects;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;

@@ -1,5 +1,4 @@
 ﻿using System.Reflection;
-using NSubstitute;
 using TGS.Services.BackOffice.ApplicationServices.Localization;
 using TGS.Services.BackOffice.Domain;
 

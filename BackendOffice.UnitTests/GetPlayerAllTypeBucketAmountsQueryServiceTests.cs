@@ -1,5 +1,4 @@
-﻿using NSubstitute;
-using Tgs.PlayerBucket.Client;
+﻿using Tgs.PlayerBucket.Client;
 using TGS.Services.BackOffice.ApplicationServices.PlayerBuckets;
 
 namespace TGS.Tests.BackendOffice.UnitTests;

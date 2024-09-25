@@ -18,6 +18,5 @@ public class CreateUserRequestValidator : AbstractValidator<CreateUserRequest>
             .Equal(p => p.ConfirmPassword)
             .WithMessage(Resources.User.PasswordNotMatched)
             .Password();
-        ;
     }
 }

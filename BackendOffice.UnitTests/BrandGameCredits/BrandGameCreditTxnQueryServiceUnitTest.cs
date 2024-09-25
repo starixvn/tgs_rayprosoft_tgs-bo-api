@@ -1,6 +1,4 @@
 ﻿using System.Text.Json.Nodes;
-
-using NSubstitute;
 using NUnit.Framework.Legacy;
 using Tgs.BrandCertificate;
 using Tgs.BrandCertificate.Clients;

@@ -1,5 +1,4 @@
 ﻿using ExpectedObjects;
-using NSubstitute;
 using Tgs.BrandCertificate.Clients;
 using Tgs.Payment.Clients;
 using Tgs.Payment.ManualDeposit;

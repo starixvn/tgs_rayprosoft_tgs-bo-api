@@ -1,9 +1,7 @@
-﻿using System.Data.SqlClient;
-using System.Linq.Expressions;
+﻿using System.Linq.Expressions;
 using AutoFixture;
 using FluentAssertions;
 using MockQueryable.Moq;
-using NSubstitute;
 using TGS.Apis.BackendOffice.Controllers;
 using TGS.Apis.BackendOffice.Controllers.Messages.Department;
 using TGS.Core.DataServices.Base.Interfaces;

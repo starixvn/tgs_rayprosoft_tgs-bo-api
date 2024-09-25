@@ -7,7 +7,6 @@ using System.Runtime.CompilerServices;
 using System.Threading;
 using Tgs.BrandCertificate.Clients;
 using Tgs.GameWagers.Client;
-using Tgs.GameWagers.Common;
 using Tgs.GameWagers.Common.Enums;
 using Tgs.ServiceUtility;
 using TGS.Services.BackOffice.Domain;

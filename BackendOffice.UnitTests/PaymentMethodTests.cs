@@ -1,5 +1,4 @@
-﻿using NSubstitute;
-using Tgs.Payment.Clients;
+﻿using Tgs.Payment.Clients;
 using TGS.Services.BackOffice.Application.Queries.PaymentMethod;
 
 namespace TGS.Tests.BackendOffice.UnitTests;

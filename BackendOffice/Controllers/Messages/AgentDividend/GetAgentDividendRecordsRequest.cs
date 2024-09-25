@@ -1,6 +1,5 @@
 ﻿#nullable enable
 using System;
-using TGS.Core.Models.Enums;
 using TGS.Services.BackOffice.Domain;
 using TGS.Services.BackOffice.Domain.Enums;
 

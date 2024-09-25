@@ -1,10 +1,8 @@
 ﻿using System.Reflection;
 using Microsoft.Extensions.FileProviders;
-using NSubstitute;
 using Tgs.PlayerService.Client;
 using Tgs.Promotion.Clients;
 using Tgs.ServiceUtility;
-using TGS.Services.BackOffice.ApplicationServices;
 using TGS.Services.BackOffice.ApplicationServices.Promotion.Offline;
 using TGS.Services.BackOffice.Domain;
 using TGS.Services.BackOffice.ApplicationServices.Players;

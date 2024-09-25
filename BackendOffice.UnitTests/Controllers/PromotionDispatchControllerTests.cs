@@ -1,5 +1,4 @@
-﻿using NSubstitute;
-using Tgs.Promotion.Clients;
+﻿using Tgs.Promotion.Clients;
 using Tgs.Promotion.Clients.Models;
 using Tgs.Promotion.Clients.Models.PromotionDispatch;
 using TGS.Apis.BackendOffice.Controllers.Messages.PromotionDispatch;

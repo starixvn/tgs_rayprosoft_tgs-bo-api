@@ -1,5 +1,4 @@
-﻿using NSubstitute;
-using NUnit.Framework.Legacy;
+﻿using NUnit.Framework.Legacy;
 using Tgs.DepositAccumulateRoulette.Clients;
 using Tgs.Promotion.Clients;
 using TGS.Services.BackOffice.ApplicationServices.Promotion;

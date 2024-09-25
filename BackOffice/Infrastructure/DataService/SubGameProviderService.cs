@@ -6,7 +6,6 @@ using System.Threading.Tasks;
 using TGS.Core.DataServices.Base;
 using TGS.Core.DataServices.Tgs;
 using TGS.Core.DataServices.Tgs.Models;
-using TGS.Core.Infrastructures.Extensions;
 using TGS.Services.BackOffice.Application.Models.SubGameProvider;
 
 namespace TGS.Services.BackOffice.Infrastructure.DataService;

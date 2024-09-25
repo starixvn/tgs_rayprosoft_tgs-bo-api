@@ -1,5 +1,4 @@
-﻿using NSubstitute;
-using Tgs.Agent.Client;
+﻿using Tgs.Agent.Client;
 using Tgs.Agent.Client.Models;
 using Tgs.CashService.Client;
 using TGS.Core.Models.Enums;

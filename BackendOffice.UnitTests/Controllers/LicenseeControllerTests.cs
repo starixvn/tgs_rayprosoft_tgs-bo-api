@@ -1,15 +1,12 @@
-﻿using System.Data.SqlClient;
-using System.Linq.Expressions;
+﻿using System.Linq.Expressions;
 using AutoFixture;
 using FluentAssertions;
 using Microsoft.EntityFrameworkCore;
 using MockQueryable.Moq;
-using NSubstitute;
 using TGS.Apis.BackendOffice.Controllers.Licensee;
 using TGS.Apis.BackendOffice.Controllers.Messages.Licensee;
 using TGS.Apis.BackendOffice.DataService.Services;
 using TGS.Core.DataServices.Tgs.Models;
-using TGS.Core.Models.Messages;
 
 namespace TGS.Tests.BackendOffice.UnitTests.Controllers;
 

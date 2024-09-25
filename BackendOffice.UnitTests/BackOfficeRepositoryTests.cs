@@ -1,6 +1,5 @@
 ﻿using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Diagnostics;
-using NSubstitute;
 using NUnit.Framework.Legacy;
 using TGS.BackOffice.Repositories;
 using TGS.Core.DataServices.Tgs;

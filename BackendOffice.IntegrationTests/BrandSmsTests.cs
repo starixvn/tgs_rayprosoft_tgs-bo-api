@@ -11,7 +11,6 @@ using Tgs.BrandCertificate.Clients;
 using TGS.Apis.BackendOffice.ViewModels;
 using TGS.SmsService.Client;
 using Xunit.Abstractions;
-using Xunit.Sdk;
 
 namespace BackendOffice.IntegrationTests;
 

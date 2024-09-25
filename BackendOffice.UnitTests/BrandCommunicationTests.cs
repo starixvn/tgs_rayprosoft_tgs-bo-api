@@ -1,5 +1,4 @@
 ﻿using System.Linq.Expressions;
-using NSubstitute;
 using NUnit.Framework.Legacy;
 using TGS.Core.DataServices.Base.Interfaces;
 using TGS.Core.Models.Enums;

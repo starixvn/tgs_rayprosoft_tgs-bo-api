@@ -1,13 +1,9 @@
 ﻿using System.Collections.Immutable;
 using System.Text.Json;
-using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging.Abstractions;
-using NSubstitute;
-using NUnit.Framework.Internal;
 using NUnit.Framework.Legacy;
 using Tgs.Agent.Client;
 using Tgs.Agent.Client.Models.Enums;
-using Tgs.BrandCertificate.Clients;
 using Tgs.GameProviders.Pluggable.Client;
 using Tgs.PlayerService.Client;
 using Tgs.ServiceUtility;
@@ -16,7 +12,6 @@ using TGS.Core.DataServices.Tgs;
 using TGS.Core.DataServices.Tgs.Models;
 using TGS.Services.BackOffice.ApplicationServices;
 using TGS.Services.BackOffice.ApplicationServices.Players;
-using TGS.Services.BackOffice.ApplicationServices.Promotion;
 using EventAction = Tgs.PlayerService.Client.EventAction;
 
 namespace TGS.Tests.BackendOffice.UnitTests;

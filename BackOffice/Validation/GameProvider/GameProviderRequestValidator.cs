@@ -1,5 +1,4 @@
-﻿using System.Linq;
-using FluentValidation;
+﻿using FluentValidation;
 using TGS.Services.BackOffice.Application.Models.GameProvider;
 
 namespace TGS.Services.BackOffice.Validation.GameProvider;

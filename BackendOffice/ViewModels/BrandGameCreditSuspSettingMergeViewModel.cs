@@ -1,6 +1,4 @@
-﻿using System;
-using System.ComponentModel.DataAnnotations;
-using TGS.Services.BackOffice.ApplicationServices.BrandGameCredits;
+﻿using System.ComponentModel.DataAnnotations;
 
 namespace TGS.Apis.BackendOffice.ViewModels;
 

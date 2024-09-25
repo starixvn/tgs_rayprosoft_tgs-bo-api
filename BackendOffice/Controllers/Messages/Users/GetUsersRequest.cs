@@ -1,7 +1,4 @@
-﻿using TGS.Core.Models.Enums;
-using TGS.Core.Models.Messages;
-
-namespace TGS.Apis.BackendOffice.Controllers.Messages.Users;
+﻿namespace TGS.Apis.BackendOffice.Controllers.Messages.Users;
 
 public class GetUsersRequest
 {

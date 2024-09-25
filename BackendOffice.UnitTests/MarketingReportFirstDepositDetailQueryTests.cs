@@ -1,5 +1,4 @@
-﻿using NSubstitute;
-using Tgs.ServiceUtility;
+﻿using Tgs.ServiceUtility;
 using TGS.Services.BackOffice.Application.Queries.ReportMarketingQueries;
 using TGS.Services.BackOffice.ApplicationServices.Agents;
 using TGS.Services.BackOffice.ApplicationServices.Payment;

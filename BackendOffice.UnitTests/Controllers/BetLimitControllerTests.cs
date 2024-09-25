@@ -1,7 +1,6 @@
 ﻿using AutoFixture;
 using FluentAssertions;
 using MediatR;
-using NSubstitute;
 using TGS.Apis.BackendOffice.Controllers.BetLimit;
 using TGS.Services.BackOffice.Application.Models.BetLimit;
 using TGS.Services.BackOffice.Domain;

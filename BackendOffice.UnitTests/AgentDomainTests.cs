@@ -1,5 +1,4 @@
-﻿using NSubstitute;
-using Tgs.DomainSettings.Clients;
+﻿using Tgs.DomainSettings.Clients;
 using TGS.Services.BackOffice.ApplicationServices;
 using TGS.Services.BackOffice.ApplicationServices.Agents;
 using TGS.Services.BackOffice.Domain;

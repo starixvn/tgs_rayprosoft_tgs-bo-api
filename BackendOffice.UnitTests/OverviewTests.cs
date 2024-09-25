@@ -1,5 +1,4 @@
-﻿using NSubstitute;
-using NUnit.Framework.Legacy;
+﻿using NUnit.Framework.Legacy;
 using Tgs.BrandCertificate.Clients;
 using Tgs.GameWagers.Client;
 using Tgs.GameWagers.Common;
