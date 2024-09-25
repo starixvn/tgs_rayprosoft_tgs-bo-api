@@ -53,7 +53,8 @@ public class GameProviderService(ITgsRepository tgsRepository, IRedisCacheManage
 
     async Task IGameProviderService.CreateGameProviderAsync(CreateGameProviderRequest request)
     {
-        var maxUniqueId = _repository.GameProviders.Max(x => x.UniqueId);
+        //var maxUniqueId = _repository.GameProviders.Max(x => x.UniqueId);
+        var maxUniqueId = _repository.GameProviders.Count();
 
         var gameProvider = new GameProvider
         {
