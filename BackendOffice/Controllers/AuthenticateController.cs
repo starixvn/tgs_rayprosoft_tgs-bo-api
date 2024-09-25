@@ -14,12 +14,14 @@ using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using Tgs.Core.Infrastructures.Security;
+using Tgs.ServiceUtility;
 using TGS.Apis.BackendOffice.Controllers.Messages.Users.Authentication;
 using TGS.Core.DataServices.Base.Interfaces;
 using TGS.Core.DataServices.Tgs.Models;
 using TGS.Core.Infrastructures.Json;
 using TGS.Core.Models;
 using TGS.Core.Models.Enums;
+using TGS.Services.BackOffice.ApplicationServices.Menus;
 
 namespace TGS.Apis.BackendOffice.Controllers;
 
@@ -35,7 +37,10 @@ public class AuthenticateController(
     [IgnoreAntiforgeryToken]
     [HttpPost("auth")]
     [Description("Authenticate user login")]
-    public async Task<AuthenticateUserResponse> AuthenticateAsync([FromBody] AuthenticateUserRequest request)
+    public async Task<AuthenticateUserResponse> AuthenticateAsync(
+        [FromServices] ICommandService<SetRoleMenusCommand> setRoleService,
+        [FromBody] AuthenticateUserRequest request
+        )
     {
         User user;
         if (!string.IsNullOrEmpty(request.Token))
@@ -77,6 +82,8 @@ public class AuthenticateController(
 
         await userCommands.UpdateAsync(user);
         await SignInAsync(user);
+
+        await setRoleService.ExecuteAsync(new SetRoleMenusCommand(user.Role.Id.ToString(), user.Role.MenuSetting));
 
         return new()
         {
@@ -147,6 +154,7 @@ public class AuthenticateController(
             new(Consts.BackendOffice.UserInfo.LicenseeKey, user.Role.LicenseeId.ToString()),
             new(Consts.BackendOffice.UserInfo.BrandKey, user.Role.BrandId.ToString()),
             new(Consts.BackendOffice.UserInfo.PortalKey, user.Role.RoleType.ToString()),
+            new("UserRoleId", user.Role.Id.ToString()),
             new(ClaimTypes.Name, user.Username),
             new(ClaimTypes.NameIdentifier, user.Id.ToString())
     };

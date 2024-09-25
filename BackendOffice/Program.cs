@@ -39,6 +39,7 @@ using Tgs.MessageQueue.Nats.Serializers;
 using Tgs.Player.All.Agent.Client.DependencyInjection;
 using Tgs.StationLetterService.Client;
 using Tgs.StationLetterService.Client.DependencyInjection;
+using TGS.Apis.BackendOffice.Attributes;
 using TGS.Apis.BackendOffice.Filters;
 using TGS.Apis.BackendOffice.MessageQueue;
 using TGS.Apis.BackendOffice.Middlewares;
@@ -222,6 +223,7 @@ builder.Services
     .AddDateOnlyTimeOnlyStringConverters()
     .AddFluentValidationAutoValidation(config => config.DisableDataAnnotationsValidation = true)
     .AddFluentValidationClientsideAdapters()
+    .AddSingleton<IAuthorizationHandler, BOAuthorizationHandler>()
     .AddControllers(options =>
     {
         var policy = new AuthorizationPolicyBuilder()
@@ -232,6 +234,7 @@ builder.Services
         _ = options.Filters.Add<AccessLogFilter>();
         _ = options.Filters.Add<ValidationFilter>();
     })
+
     .AddDataAnnotationsLocalization()
     .AddJsonOptions(options =>
     {
@@ -425,7 +428,6 @@ app.UseMiddleware<ExceptionMiddleware>();
 
 app.UseAuthentication();
 app.UseAuthorization();
-
 app.UseCors(x =>
     x.AllowAnyMethod()
     .AllowAnyHeader()

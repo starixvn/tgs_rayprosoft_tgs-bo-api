@@ -26,6 +26,10 @@ public static class ServiceCollectionExtensions
             .AddTransient<IBatchTempRepository>(
                 sp => ActivatorUtilities.CreateInstance<RedisBatchTempRepository>(
                     sp,
+                    redisDatabaseResolver(sp)))
+            .AddTransient<IMenuSettingRepository>(
+                sp => ActivatorUtilities.CreateInstance<MenuSettingRepository>(
+                    sp,
                     redisDatabaseResolver(sp)));
 
         return services;
