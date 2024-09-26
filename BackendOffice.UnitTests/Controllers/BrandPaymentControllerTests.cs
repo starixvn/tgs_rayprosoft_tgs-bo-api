@@ -2,6 +2,7 @@
 using System.Text.Json;
 using AutoFixture;
 using FluentAssertions;
+using Tgs.Logging;
 using TGS.Apis.BackendOffice.Controllers.BrandPayment;
 using TGS.Apis.BackendOffice.Controllers.Messages.BrandPayment;
 using TGS.Apis.BackendOffice.DataService.Services;
@@ -85,9 +86,10 @@ public class BrandPaymentControllerTests : BaseTests
 
     //    var uploadServiceMock = Substitute.For<IUploadService>();
 
-    //    var controller = new BrandPaymentController(playerQueriesMock, uploadServiceMock, paymentServiceMock,
-    //        auditLogQueriesMock)
-    //    { ControllerContext = { HttpContext = HttpContextMock } };
+        var tsgLogMock = Substitute.For<ITgsLog>();
+
+        var controller = new BrandPaymentController(playerQueriesMock, uploadServiceMock, paymentServiceMock,
+            auditLogQueriesMock, tsgLogMock)
 
     //    var payment = CreatePaymentFixture().Create<BrandPayment>();
 

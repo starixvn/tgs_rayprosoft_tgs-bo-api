@@ -4,6 +4,7 @@ using System;
 using System.Text.Json;
 using System.Threading;
 using System.Threading.Tasks;
+using Tgs.GameProviders.Pluggable.Client;
 using Tgs.Report.Client;
 using Tgs.Report.Client.Models.Round;
 using Tgs.ServiceUtility;
@@ -12,7 +13,7 @@ using TGS.Services.BackOffice.Application.Models.ReportRound;
 namespace TGS.Services.BackOffice.Application.Queries.ReportRoundQueries;
 
 public class
-    GetRoundHistoryQuery(IReportClient reportClient) : IGetService<GetRoundHistoryReportRequest,
+    GetRoundHistoryQuery(IGameProvidersBackofficePluggableClient client, IReportClient reportClient) : IGetService<GetRoundHistoryReportRequest,
         JsonDocument?>
 {
     private readonly IReportClient _reportClient = reportClient ?? throw new ArgumentNullException(nameof(reportClient));
@@ -21,6 +22,12 @@ public class
         GetRoundHistoryReportRequest request,
         CancellationToken cancellationToken = default)
     {
+        var result = await GetFromSupportedProvidersAsync(request, cancellationToken).ConfigureAwait(false);
+        if (result is not null)
+        {
+            return result;
+        }
+
         var reportRequest = new GetRoundHistoryRequest
         {
             GameProviderCode = request.GameProviderCode,
@@ -30,5 +37,25 @@ public class
         };
 
         return await _reportClient.GetRoundHistoriesAsync(reportRequest);
+    }
+
+    private async Task<JsonDocument?> GetFromSupportedProvidersAsync(GetRoundHistoryReportRequest request, CancellationToken cancellationToken = default)
+    {
+        return request.GameProviderCode switch
+        {
+            "SABASW" => await client.TicketDetailAsync(new()
+            {
+                GameProviderCode = request.GameProviderCode,
+                PlayerCode = request.PlayerCode,
+                GameId = request.GameId,
+                ExternalRoundId = request.ExternalRoundId,
+                SettleDate = DateTime.Now,
+                ResultId = string.Empty,
+                BaseCurrency = request.BaseCurrency,
+                PlayerUsername = request.PlayerUsername,
+                Language = request.Language,
+            }, cancellationToken).ConfigureAwait(false),
+            _ => null,
+        };
     }
 }
