@@ -41,21 +41,38 @@ public class
 
     private async Task<JsonDocument?> GetFromSupportedProvidersAsync(GetRoundHistoryReportRequest request, CancellationToken cancellationToken = default)
     {
-        return request.GameProviderCode switch
+        if (request.GameProviderCode.Equals("SABASW", StringComparison.CurrentCultureIgnoreCase))
         {
-            "SABASW" => await client.TicketDetailAsync(new()
+            return await client.TicketDetailAsync(new()
             {
                 GameProviderCode = request.GameProviderCode,
                 PlayerCode = request.PlayerCode,
                 GameId = request.GameId,
                 ExternalRoundId = request.ExternalRoundId,
-                SettleDate = DateTime.Now,
+                SettleDate = request.ExternalCloseOn,
                 ResultId = string.Empty,
                 BaseCurrency = request.BaseCurrency,
                 PlayerUsername = request.PlayerUsername,
                 Language = request.Language,
-            }, cancellationToken).ConfigureAwait(false),
-            _ => null,
-        };
+            }, cancellationToken).ConfigureAwait(false);
+        }
+
+        if (request.GameProviderCode.Contains("SABAPLUS", StringComparison.CurrentCultureIgnoreCase))
+        {
+            return await client.TicketDetailAsync(new()
+            {
+                GameProviderCode = request.GameProviderCode,
+                PlayerCode = request.PlayerCode,
+                GameId = request.GameId,
+                ExternalRoundId = request.ExternalRoundId,
+                SettleDate = request.ExternalCloseOn,
+                ResultId = string.Empty,
+                BaseCurrency = request.BaseCurrency,
+                PlayerUsername = request.PlayerUsername,
+                Language = request.Language,
+            }, cancellationToken).ConfigureAwait(false);
+        }
+
+        return null;
     }
 }

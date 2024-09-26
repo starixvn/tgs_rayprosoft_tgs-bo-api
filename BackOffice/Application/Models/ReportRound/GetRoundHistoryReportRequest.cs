@@ -26,5 +26,5 @@ public record GetRoundHistoryReportRequest
 
     public string? ResultId { get; set; }
 
-    public DateTime SettleDate { get; set; }
+    public DateTime ExternalCloseOn { get; set; }
 }
