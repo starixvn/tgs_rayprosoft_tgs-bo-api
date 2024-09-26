@@ -86,10 +86,10 @@ public class BrandPaymentControllerTests : BaseTests
 
     //    var uploadServiceMock = Substitute.For<IUploadService>();
 
-        var tsgLogMock = Substitute.For<ITgsLog>();
+        //var tsgLogMock = Substitute.For<ITgsLog>();
 
-        var controller = new BrandPaymentController(playerQueriesMock, uploadServiceMock, paymentServiceMock,
-            auditLogQueriesMock, tsgLogMock)
+        //var controller = new BrandPaymentController(playerQueriesMock, uploadServiceMock, paymentServiceMock,
+        //    auditLogQueriesMock, tsgLogMock)
 
     //    var payment = CreatePaymentFixture().Create<BrandPayment>();
 
@@ -262,15 +262,15 @@ public class BrandPaymentControllerTests : BaseTests
     //        Arg.Is<string>(r => r == Username));
     //}
 
-    private static Fixture CreatePaymentFixture()
-    {
-        var fixture = new Fixture();
-        fixture.Customize<BrandPayment>(u => u
-            .With(s => s.Brand, new Brand())
-            .With(s => s.BrandPaymentPlayers, [])
-            .With(s => s.VipLevels, [])
-            .With(s => s.ExtendedData, "{}"));
-        fixture.Behaviors.Add(new OmitOnRecursionBehavior());
-        return fixture;
-    }
+    //private static Fixture CreatePaymentFixture()
+    //{
+    //    var fixture = new Fixture();
+    //    fixture.Customize<BrandPayment>(u => u
+    //        .With(s => s.Brand, new Brand())
+    //        .With(s => s.BrandPaymentPlayers, [])
+    //        .With(s => s.VipLevels, [])
+    //        .With(s => s.ExtendedData, "{}"));
+    //    fixture.Behaviors.Add(new OmitOnRecursionBehavior());
+    //    return fixture;
+    //}
 }
