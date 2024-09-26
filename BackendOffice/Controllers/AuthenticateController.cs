@@ -2,7 +2,10 @@
 using System.Collections.Generic;
 using System.ComponentModel;
 using System.Security.Claims;
+using System.Security.Cryptography;
+using System.Text;
 using System.Threading.Tasks;
+using DocumentFormat.OpenXml.Drawing.Charts;
 using Microsoft.AspNetCore.Antiforgery;
 using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Authentication.Cookies;
@@ -34,15 +37,28 @@ public class AuthenticateController(
     [Description("Authenticate user login")]
     public async Task<AuthenticateUserResponse> AuthenticateAsync([FromBody] AuthenticateUserRequest request)
     {
-        var user = await userQueries.GetSingleAsync(p => p.Username == request.Username,
+        User user;
+        if (!string.IsNullOrEmpty(request.Token))
+        {
+            user = await userQueries.GetSingleAsync(p => p.ReferenceId == request.ReferenceId,
             u => u.Include(p => p.Role));
+            if (!CheckSsoUser(user, request))
+            {
+                user = null;
+            }
+        }
+        else
+        {
+            user = await userQueries.GetSingleAsync(p => p.Username == request.Username,
+                u => u.Include(p => p.Role));
+        }
 
         if (user == null)
         {
             return CreateInvalidResponse<AuthenticateUserResponse>(Resources.User.NotFound);
         }
 
-        if (!passwordHandler.Verify(user.Password, user.Salt, request.Password))
+        if (string.IsNullOrEmpty(request.Token) && !passwordHandler.Verify(user.Password, user.Salt, request.Password))
         {
             return CreateInvalidResponse<AuthenticateUserResponse>(Resources.User.InvalidPassword);
         }
@@ -104,6 +120,19 @@ public class AuthenticateController(
         );
     }
 
+    private bool CheckSsoUser(User user, AuthenticateUserRequest request)
+    {
+        var token = "";
+        var currentTimestamp = DateTimeOffset.UtcNow.ToUnixTimeSeconds();
+        using (var hmacsha256 = new HMACSHA256(user.Salt))
+        {
+            var hashMessage = hmacsha256.ComputeHash(Encoding.UTF8.GetBytes($"{request.ReferenceId}-{request.Timestamp}"));
+            token = Convert.ToHexString(hashMessage);
+        }
+
+        return token == request.Token && currentTimestamp - long.Parse(request.Timestamp) < 120;
+    }
+
     private Task SignInAsync(User user)
     {
         SetCsrfToken();
@@ -119,7 +148,7 @@ public class AuthenticateController(
             new(Consts.BackendOffice.UserInfo.BrandKey, user.Role.BrandId.ToString()),
             new(Consts.BackendOffice.UserInfo.PortalKey, user.Role.RoleType.ToString()),
             new(ClaimTypes.Name, user.Username),
-            new (ClaimTypes.NameIdentifier, user.Id.ToString())
+            new(ClaimTypes.NameIdentifier, user.Id.ToString())
     };
 
         var authProperties = new AuthenticationProperties

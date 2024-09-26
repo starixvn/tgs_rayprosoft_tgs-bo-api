@@ -69,7 +69,7 @@
     <PackageReference Include="Tgs.BrandGameCredits.Client" Version="1.0.1" />
     <PackageReference Include="Tgs.CashQuery.Client" Version="0.0.9" />
     <PackageReference Include="Tgs.CashService.Client" Version="0.2.9" />
-    <PackageReference Include="Tgs.Core" Version="1.1.10" />
+    <PackageReference Include="Tgs.Core" Version="1.1.11" />
     <PackageReference Include="TGS.Core.Infrastructures.Json" Version="0.0.1" />
     <PackageReference Include="Tgs.Core.Infrastructures.Security" Version="0.0.2" />
     <PackageReference Include="Tgs.DepositAccumulateRoulette.Client" Version="0.1.0" />
