@@ -87,7 +87,8 @@ public class PromotionDispatchController(IPromotionDispatchClient client, IPromo
                 PromotionType = x.PromotionType,
                 BonusAmount = x.BonusAmount,
                 CreatedOn = x.CreatedOn,
-                SentOn = x.SentOn
+                SentOn = x.SentOn,
+                Detail = x.Detail
             }).ToArray()
         };
     }
