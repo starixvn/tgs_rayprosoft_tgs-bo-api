@@ -30,7 +30,7 @@ public class GameProviderAggregateHandler(
         GenerateGameProviderAggregateRequest request,
         CancellationToken cancellationToken)
     {
-        if (request.StartDate.ToOffset(new(8, 0, 0)).Day != 1)
+        if (request.StartDate.ToOffset(new(-4, 0, 0)).Day != 1)
         {
             return new MessageResponse
             {
