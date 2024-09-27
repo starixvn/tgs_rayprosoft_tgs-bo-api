@@ -137,7 +137,7 @@
     <value>Waiting Payment</value>
   </data>
   <data name="WaitApprove" xml:space="preserve">
-    <value>Wait Approve</value>
+    <value>Review</value>
   </data>
   <data name="Reject" xml:space="preserve">
     <value>Rejected</value>
