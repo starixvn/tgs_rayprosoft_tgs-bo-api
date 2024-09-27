@@ -6,6 +6,7 @@ using Microsoft.AspNetCore.Mvc;
 using Tgs.Paging;
 using Tgs.ServiceUtility;
 using Tgs.VipLevelService.Clients;
+using TGS.Apis.BackendOffice.Attributes;
 using TGS.Apis.BackendOffice.ViewModels;
 using TGS.Services.BackOffice.ApplicationServices;
 using TGS.Services.BackOffice.Domain;
@@ -17,6 +18,7 @@ namespace TGS.Apis.BackendOffice.Controllers;
 public class VipLevelController : BaseContextController
 {
     [HttpPost]
+    [BOAuthorize(["Platform.VipLevel.Create"])]
     [Description("Create a vip level")]
     public async Task<MessageResponse> CreateAsync(
         [FromServices] IQueryService<AllVipLevelsQuery, Tgs.VipLevelService.Common.ViewModels.VipLevelInfoViewModel> queryService,
@@ -129,6 +131,7 @@ public class VipLevelController : BaseContextController
     }
 
     [HttpPut("{id}")]
+    [BOAuthorize(["Platform.VipLevel.Update"])]
     [Description("Update a vip level")]
     public async Task<MessageResponse> UpdateAsync(
         [FromServices] IQueryService<AllVipLevelsQuery, Tgs.VipLevelService.Common.ViewModels.VipLevelInfoViewModel> queryService,

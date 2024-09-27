@@ -10,6 +10,7 @@ using Tgs.Paging;
 using Tgs.Promotion;
 using Tgs.Promotion.Clients;
 using Tgs.ServiceUtility;
+using TGS.Apis.BackendOffice.Attributes;
 using TGS.Apis.BackendOffice.Controllers.Messages.Promotion;
 using TGS.Apis.BackendOffice.ViewModels;
 using TGS.Core.Models.Enums;
@@ -24,6 +25,7 @@ namespace TGS.Apis.BackendOffice.Controllers.Promotion;
 public class PromotionController : BaseContextController
 {
     [HttpPut("ChangeOrders", Name = "ChangeOrder")]
+    [BOAuthorize(["Promotion.PromotionList.Update"])]
     [Description("Change Promotion Display Order")]
     public async Task<MessageResponse> ChangeOrderAsync(
         [FromServices] IPromotionServiceClient promotionServiceClient,
@@ -43,6 +45,7 @@ public class PromotionController : BaseContextController
     }
 
     [HttpPost(Name = "CreatePromotion")]
+    [BOAuthorize(["Promotion.PromotionList.Update"])]
     [Description("Create a promotion")]
     public async Task<MessageResponse> CreatePromotionAsync(
         [FromServices] IGetService<CreatePromotionMainInfoCommand, Guid> createMainInfoCommandService,
@@ -123,6 +126,7 @@ public class PromotionController : BaseContextController
     }
 
     [HttpPut("main/{brandId}", Name = "CreatePromotionMainInfo")]
+    [BOAuthorize(["Promotion.PromotionList.Update"])]
     public async ValueTask<ResponseViewModel<Guid?>> CreatePromotionMainInfoAsync(
         [FromServices] IGetService<CreatePromotionMainInfoCommand, Guid> getService,
         Guid brandId,
@@ -151,6 +155,7 @@ public class PromotionController : BaseContextController
     }
 
     [HttpPut("{basePromotionId}:duplicate", Name = "DuplicatePromotion")]
+    [BOAuthorize(["Promotion.PromotionList.Update"])]
     [Description("duplicate a promotion")]
     public async Task<ResponseViewModel<Guid?>> DuplicatePromotionAsync(
         [FromServices] IGetService<DuplicatePromotionCommand, Guid> commandService,
@@ -170,6 +175,7 @@ public class PromotionController : BaseContextController
     }
 
     [HttpGet("content/{promotionId}", Name = "GetPromotionContent")]
+    [BOAuthorize(["Promotion.PromotionList"])]
     public async ValueTask<PromotionContentViewModel> GetPromotionContentAsync(
         [FromServices] IGetService<GetPromotionContentQuery, PromotionContent> queryService,
         Guid promotionId)
@@ -191,6 +197,7 @@ public class PromotionController : BaseContextController
     }
 
     [HttpGet("main/{promotionId}", Name = "GetPromotionMainInfo")]
+    [BOAuthorize(["Promotion.PromotionList"])]
     public async ValueTask<PromotionMainInfoViewModel> GetPromotionMainInfoAsync(
         [FromServices] IGetService<GetPromotionMainInfoQuery, PromotionMainInfo> queryService,
         Guid promotionId)
@@ -215,6 +222,7 @@ public class PromotionController : BaseContextController
     }
 
     [HttpGet("rule/{promotionId}", Name = "GetPromotionRule")]
+    [BOAuthorize(["Promotion.PromotionList"])]
     public async ValueTask<JsonDocument> GetPromotionRuleAsync(
         [FromServices] IGetService<GetPromotionRuleQuery, PromotionRuleInfo> getService,
         Guid promotionId)
@@ -237,6 +245,7 @@ public class PromotionController : BaseContextController
     }
 
     [HttpGet(Name = "GetPromotions")]
+    [BOAuthorize(["Promotion.PromotionList"])]
     [Description("Get promotions")]
     public async ValueTask<PagedResponse<PromotionListItemViewModel>> GetPromotionsAsync(
         [FromServices] IQueryService<PromotionListQuery, PromotionView> queryService,
@@ -317,6 +326,7 @@ public class PromotionController : BaseContextController
     }
 
     [HttpGet("player", Name = "ListPlayerPromotions")]
+    [BOAuthorize(["PlayerManagement.PlayerList.Update"])]
     public IAsyncEnumerable<PromotionViewModel> ListPlayerPromotionsAsync(
         [FromServices] IPromotionServiceClient promotionServiceClient,
         [FromQuery] ListPlayerPromotionsRequest request)
@@ -339,6 +349,7 @@ public class PromotionController : BaseContextController
     }
 
     [HttpPut("{promotionId}", Name = "UpdatePromotion")]
+    [BOAuthorize(["Promotion.PromotionList.Update"])]
     [Description("Update a promotion")]
     public async Task<MessageResponse> UpdatePromotionAsync(
         [FromServices] ICommandService<UpdatePromotionMainInfoCommand> updateMainInfoCommandService,
@@ -418,6 +429,7 @@ public class PromotionController : BaseContextController
     }
 
     [HttpPatch("content/{promotionId}", Name = "UpdatePromotionContent")]
+    [BOAuthorize(["Promotion.PromotionList.Update"])]
     public async ValueTask<MessageResponse> UpdatePromotionContentAsync(
         [FromServices] ICommandService<UpdatePromotionContentCommand> commandService,
         Guid promotionId,
@@ -443,6 +455,7 @@ public class PromotionController : BaseContextController
     }
 
     [HttpPatch("main/{promotionId}", Name = "UpdatePromotionMainInfo")]
+    [BOAuthorize(["Promotion.PromotionList.Update"])]
     public async ValueTask<MessageResponse> UpdatePromotionMainInfoAsync(
         [FromServices] ICommandService<UpdatePromotionMainInfoCommand> commandService,
         Guid promotionId,
@@ -470,6 +483,7 @@ public class PromotionController : BaseContextController
     }
 
     [HttpPatch("rule/{promotionId}", Name = "UpdatePromotionRule")]
+    [BOAuthorize(["Promotion.PromotionList.Update"])]
     public async ValueTask<MessageResponse> UpdatePromotionRuleAsync(
         [FromServices] ICommandService<UpdatePromotionRuleCommand> commandService,
         Guid promotionId,
@@ -501,6 +515,7 @@ public class PromotionController : BaseContextController
     }
 
     [HttpPut("{promotionId:guid}/{status}", Name = "UpdatePromotionStatus")]
+    [BOAuthorize(["Promotion.PromotionList.Update"])]
     [Description("change a Promotion's status")]
     public async Task<MessageResponse> UpdatePromotionStatusAsync(
         [FromServices] ICommandService<UpdatePromotionStatusCommand> commandService,

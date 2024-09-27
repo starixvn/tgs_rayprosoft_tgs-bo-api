@@ -7,6 +7,7 @@ using System.Threading.Tasks;
 using Microsoft.AspNetCore.Mvc;
 using Tgs.Promotion.Clients;
 using Tgs.ServiceUtility;
+using TGS.Apis.BackendOffice.Attributes;
 using TGS.Apis.BackendOffice.ViewModels;
 using TGS.Services.BackOffice.ApplicationServices.Promotion;
 
@@ -17,6 +18,7 @@ namespace TGS.Apis.BackendOffice.Controllers.Promotion;
 public class PromotionHistoryController : ControllerBase
 {
     [HttpGet("detail/{promotionId}/{eventId}", Name = "GetPromotionEventDetail")]
+    [BOAuthorize(["Promotion.PromotionList.ChangeLog"])]
     public async ValueTask<PromotionEventDetailViewModel?> GetPromotionEventDetailAsync(
         [FromServices] IGetService<GetPromotionEventDetailQuery, PromotionEventDetailInfo?> getService,
         Guid promotionId,
@@ -43,6 +45,7 @@ public class PromotionHistoryController : ControllerBase
     }
 
     [HttpGet("{promotionId}", Name = "QueryPromotionEvents")]
+    [BOAuthorize(["Promotion.PromotionList.ChangeLog"])]
     public IAsyncEnumerable<PromotionEventViewModel> QueryPromotionEventsAsync(
         [FromServices] IQueryService<GetPromotionEventsQuery, PromotionEventMainInfo> queryService,
         Guid promotionId)

@@ -7,6 +7,7 @@ using System.Threading.Tasks;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Options;
+using TGS.Apis.BackendOffice.Attributes;
 using TGS.Apis.BackendOffice.Controllers.Messages;
 using TGS.Apis.BackendOffice.Controllers.Messages.Announcement;
 using TGS.Core.DataServices.Base.Interfaces;
@@ -60,6 +61,7 @@ public partial class AnnouncementController(
     };
 
     [HttpPut("ChangeOrders", Name = "ChangeAnnouncementOrder")]
+    [BOAuthorize(["Platform.Announcement.Update"])]
     [Description("Change Announcement Order")]
     public async Task<MessageResponse> ChangeOrderAsync(ChangeOrderRequest request)
     {
@@ -73,6 +75,7 @@ public partial class AnnouncementController(
     }
 
     [HttpPost(Name = "Create")]
+    [BOAuthorize(["Platform.Announcement.Create"])]
     [Description("Create a announcement")]
     public async Task<MessageResponse> CreateAsync(
         [FromServices] IJsonSerializationProvider jsonSerializationProvider,
@@ -109,6 +112,7 @@ public partial class AnnouncementController(
     }
 
     [HttpGet(Name = "GetList")]
+    [BOAuthorize(["Platform.Announcement"])]
     [Description("Get announcements")]
     public Task<PagedResponse<AnnouncementModel>> GetListAsync(
         [FromQuery] GetAnnouncementsRequest request)
@@ -150,6 +154,7 @@ public partial class AnnouncementController(
     }
 
     [HttpPut("{id}", Name = "Update")]
+    [BOAuthorize(["Platform.Announcement.Update"])]
     [Description("Update a announcement")]
     public async Task<MessageResponse> UpdateAsync(
         [FromServices] IJsonSerializationProvider jsonSerializationProvider,
@@ -194,6 +199,7 @@ public partial class AnnouncementController(
     }
 
     [HttpPut("{id}/{type}", Name = "Verify")]
+    [BOAuthorize(["Platform.Announcement.Verify", "Platform.Announcement.Update"])]
     [Description("Verify a announcement")]
     public async Task<MessageResponse> VerifyAsync(Guid id, string type, [FromBody] VerifyRequest request)
     {

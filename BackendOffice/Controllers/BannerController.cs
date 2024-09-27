@@ -6,6 +6,7 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Options;
 using Tgs.Paging;
 using Tgs.ServiceUtility;
+using TGS.Apis.BackendOffice.Attributes;
 using TGS.Apis.BackendOffice.Controllers.Messages;
 using TGS.Apis.BackendOffice.Controllers.Messages.Banner;
 using TGS.Core.Infrastructures.Json;
@@ -19,6 +20,7 @@ namespace TGS.Apis.BackendOffice.Controllers;
 public class BannerController : BaseContextController
 {
     [HttpPut("archive/{bannerId}")]
+    [BOAuthorize(["Platform.Banner.Update"])]
     public ValueTask ArchiveBannerAsync(
         [FromServices] ICommandService<ChangeBannerStatusCommand> updateService,
         Guid bannerId)
@@ -32,6 +34,7 @@ public class BannerController : BaseContextController
     }
 
     [HttpPut("{brandId}")]
+    [BOAuthorize(["Platform.Banner.Create"])]
     public ValueTask CreateBannerAsync(
         [FromServices] ICommandService<CreateBannerCommand> createService,
         [FromServices] IOptions<JsonOptions> jsonOptionsAccessor,
@@ -55,6 +58,7 @@ public class BannerController : BaseContextController
     }
 
     [HttpPatch("disable/{brandId}/{bannerId}")]
+    [BOAuthorize(["Platform.Banner.Update", "Platform.Banner.Verify"])]
     public ValueTask DisableBannerAsync(
         [FromServices] ICommandService<SetIsEanbleBannerCommand> setService,
         Guid brandId,
@@ -70,6 +74,7 @@ public class BannerController : BaseContextController
     }
 
     [HttpPatch("enable/{brandId}/{bannerId}")]
+    [BOAuthorize(["Platform.Banner.Update", "Platform.Banner.Verify"])]
     public ValueTask EnableBannerAsync(
         [FromServices] ICommandService<SetIsEanbleBannerCommand> setService,
         Guid brandId,
@@ -85,6 +90,7 @@ public class BannerController : BaseContextController
     }
 
     [HttpGet("{brandId}/{bannerId}")]
+    [BOAuthorize(["Platform.Banner"])]
     public async Task<GenericResponse<BannerDetail>> GetBannerDetailAsync(
         [FromServices] IGetService<GetBannerDetailQuery, BannerInfo> getService,
         [FromServices] IOptions<JsonOptions> jsonOptionsAccessor,
@@ -120,6 +126,7 @@ public class BannerController : BaseContextController
     }
 
     [HttpGet("expired/{brandId}")]
+    [BOAuthorize(["Platform.Banner"])]
     public async Task<PagedResponse<BannerListItem>> GetExpiredBannersAsync(
         [FromServices] IGetService<GetBannersQuery, int> countService,
         [FromServices] IQueryService<GetBannersQuery, BannerInfo> queryService,
@@ -168,6 +175,7 @@ public class BannerController : BaseContextController
     }
 
     [HttpGet("rejected/{brandId}")]
+    [BOAuthorize(["Platform.Banner"])]
     public async Task<PagedResponse<BannerListItem>> GetRejectedBannersAsync(
         [FromServices] IGetService<GetBannersQuery, int> countService,
         [FromServices] IQueryService<GetBannersQuery, BannerInfo> queryService,
@@ -216,6 +224,7 @@ public class BannerController : BaseContextController
     }
 
     [HttpGet("reviewing/{brandId}")]
+    [BOAuthorize(["Platform.Banner"])]
     public async Task<PagedResponse<BannerListItem>> GetReviewingBannersAsync(
         [FromServices] IGetService<GetBannersQuery, int> countService,
         [FromServices] IQueryService<GetBannersQuery, BannerInfo> queryService,
@@ -264,6 +273,7 @@ public class BannerController : BaseContextController
     }
 
     [HttpGet("valid/{brandId}")]
+    [BOAuthorize(["Platform.Banner"])]
     public async Task<PagedResponse<BannerListItem>> GetValidBannersAsync(
         [FromServices] IGetService<GetBannersQuery, int> countService,
         [FromServices] IQueryService<GetBannersQuery, BannerInfo> queryService,
@@ -312,6 +322,7 @@ public class BannerController : BaseContextController
     }
 
     [HttpPost("{brandId}/{bannerId}")]
+    [BOAuthorize(["Platform.Banner.Update", "Platform.Banner.Verify"])]
     public ValueTask ReviewBannerAsync(
         [FromServices] ICommandService<ReviewBannerCommand> reviewService,
         Guid brandId,
@@ -329,6 +340,7 @@ public class BannerController : BaseContextController
     }
 
     [HttpPatch("{brandId}/{bannerId}/{orderNumber}")]
+    [BOAuthorize(["Platform.Banner.Update"])]
     public ValueTask SetBannerOrderAsync(
         [FromServices] ICommandService<ChangeBannerOrderCommand> setOrderService,
         Guid brandId,
@@ -345,6 +357,7 @@ public class BannerController : BaseContextController
     }
 
     [HttpPatch("{brandId}/{bannerId}")]
+    [BOAuthorize(["Platform.Banner.Update"])]
     public ValueTask UpdateBannerAsync(
         [FromServices] ICommandService<UpdateBannerCommand> updateService,
         [FromServices] IOptions<JsonOptions> jsonOptionsAccessor,

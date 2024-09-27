@@ -8,6 +8,7 @@ using Tgs.BrandCertificate.Clients;
 using Tgs.PlayerService.Client;
 using Tgs.ServiceUtility;
 using Tgs.StationLetterService.Client;
+using TGS.Apis.BackendOffice.Attributes;
 using TGS.Apis.BackendOffice.ViewModels;
 using TGS.Core.Models.Messages;
 using TGS.Services.BackOffice.ApplicationServices;
@@ -20,6 +21,7 @@ namespace TGS.Apis.BackendOffice.Controllers;
 public class StationLetterV2Controller : ControllerBase
 {
     [HttpGet("{brandId}", Name = "GetBrandLetters")]
+    [BOAuthorize(["Platform.Letter"])]
     public async Task<PagedResponse<StationLetterListItemViewModel>> GetBrandLettersAsync(
         [FromServices] IGetService<GetBrandInfoQuery, BrandInfo?> getBrandService,
         [FromServices] IQueryService<GetBrandLettersQuery, StationLetter> queryService,
@@ -70,6 +72,7 @@ public class StationLetterV2Controller : ControllerBase
     }
 
     [HttpGet("{brandId}/{letterId}")]
+    [BOAuthorize(["Platform.Letter"])]
     public async Task<StationLetterViewModel?> GetLetterAsync(
         [FromServices] IGetService<GetBrandInfoQuery, BrandInfo?> getBrandService,
         [FromServices] IGetService<GetLetterByIdQuery, StationLetter?> getLetterService,
@@ -104,6 +107,7 @@ public class StationLetterV2Controller : ControllerBase
     }
 
     [HttpPut("{brandId}/{letterId}:reply", Name = "ReplyLetter")]
+    [BOAuthorize(["Platform.Letter.Update"])]
     public async Task ReplyLetterAsync(
         [FromServices] IGetService<GetBrandInfoQuery, BrandInfo?> getBrandService,
         [FromServices] IGetService<GetLetterByIdQuery, StationLetter?> getLetterService,
@@ -139,6 +143,7 @@ public class StationLetterV2Controller : ControllerBase
     }
 
     [HttpPut("all/{brandId}", Name = "SendAllPlayersLetter")]
+    [BOAuthorize(["Platform.Letter.Update"])]
     public async Task SendAllPlayersLetterAsync(
         [FromServices] IGetService<GetBrandInfoQuery, BrandInfo?> getBrandService,
         [FromServices] ICommandService<SendAllPlayersLetterCommand> sendLetterService,
@@ -164,6 +169,7 @@ public class StationLetterV2Controller : ControllerBase
     }
 
     [HttpPut("player/{brandId}", Name = "SendLetterByPlayers")]
+    [BOAuthorize(["Platform.Letter.Update"])]
     public async Task SendLetterAsync(
         [FromServices] IGetService<GetBrandInfoQuery, BrandInfo?> getBrandService,
         [FromServices] ICommandService<SendLetterCommand> sendLetterService,

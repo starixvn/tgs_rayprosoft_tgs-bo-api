@@ -8,6 +8,7 @@ using Tgs.PlayerService.Client;
 using Tgs.Promotion.Clients;
 using Tgs.Promotion.Clients.Models.Promotion;
 using Tgs.ServiceUtility;
+using TGS.Apis.BackendOffice.Attributes;
 using TGS.Apis.BackendOffice.Controllers.Messages;
 using TGS.Apis.BackendOffice.Controllers.Messages.DepositAccumulateRoulette;
 using TGS.Services.BackOffice.ApplicationServices.Promotion;
@@ -20,6 +21,7 @@ namespace TGS.Apis.BackendOffice.Controllers.Promotion;
 public class DepositAccumulateRouletteController : BaseContextController
 {
     [HttpGet("detail/{brandId}/{recordId}", Name = "GetDepositAccumulateRouletteGameRecordDetail")]
+    [BOAuthorize(["Promotion.WinningList"])]
     public async ValueTask<GenericResponse<DepositAccumulateRouletteGameRecordDetailViewModel>> GetDepositAccumulateRouletteGameRecordDetailAsync(
         [FromServices] IGetService<DepositAccumulateRouletteRecordDetailQuery, DepositAccumulateRouletteGameRecordDetailInfo> getService,
         Guid brandId,
@@ -41,6 +43,7 @@ public class DepositAccumulateRouletteController : BaseContextController
     }
 
     [HttpGet("records/{brandId}", Name = "QueryDepositAccumulateRouletteGameRecords")]
+    [BOAuthorize(["Promotion.WinningList"])]
     public async ValueTask<DepositAccumulateRouletteGameRecordsResponse> QueryDepositAccumulateRouletteGameRecordsAsync(
         [FromServices] IPlayerServiceClient playerServiceClient,
         [FromServices] IPromotionClient promotionClient,

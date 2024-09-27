@@ -8,6 +8,7 @@ using TGS.Apis.BackendOffice.Controllers.Messages.PromotionDispatch;
 using Tgs.Promotion.Clients.Models;
 using Tgs.Promotion.Clients.Models.PromotionDispatch;
 using MessageResponse = TGS.Core.Models.Messages.MessageResponse;
+using TGS.Apis.BackendOffice.Attributes;
 
 namespace TGS.Apis.BackendOffice.Controllers.Promotion;
 
@@ -16,12 +17,13 @@ namespace TGS.Apis.BackendOffice.Controllers.Promotion;
 public class PromotionDispatchController(IPromotionDispatchClient client, IPromotionServiceClient promotionServiceClient) : BaseContextController
 {
     [HttpPost(Name = "DispatchPromotions")]
+    [BOAuthorize(["Promotion.PayoutList.Update"])]
     [Description("Dispatch promotion")]
     public async Task<MessageResponse> DispatchPromotionsAsync(
         [FromBody] DispatchPromotionBonusViewRequest request)
     {
         request.OperatorUserId = Guid.Parse(UserId);
-        
+
         var distributeRequest = new DistributePromotionBonusRequest
         {
             Distributor = Username,
@@ -50,6 +52,7 @@ public class PromotionDispatchController(IPromotionDispatchClient client, IPromo
     }
 
     [HttpGet(Name = "GetPromotionDispatches")]
+    [BOAuthorize(["Promotion.PayoutList"])]
     [Description("Get promotion dispatches")]
     public async Task<Core.Models.Messages.PagedResponse<PromotionDispatchViewModel>> GetPromotionDispatchesAsync(
         [FromQuery] GetPromotionDispatchesViewRequest request)

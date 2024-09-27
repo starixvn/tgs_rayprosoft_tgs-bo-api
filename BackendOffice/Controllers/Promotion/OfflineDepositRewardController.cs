@@ -6,6 +6,7 @@ using System.Threading.Tasks;
 using Microsoft.AspNetCore.Mvc;
 using Tgs.BrandCertificate.Clients;
 using Tgs.ServiceUtility;
+using TGS.Apis.BackendOffice.Attributes;
 using TGS.Apis.BackendOffice.ViewModels;
 using TGS.Services.BackOffice.ApplicationServices.Promotion.Offline;
 using TGS.Services.BackOffice.Domain;
@@ -17,6 +18,7 @@ namespace TGS.Apis.BackendOffice.Controllers.Promotion;
 public class OfflineDepositRewardController : BaseContextController
 {
     [HttpPut("{brandId}:create", Name = "CreateOfflineDepositPromotion")]
+    [BOAuthorize(["Promotion.PromotionList.Update"])]
     public async Task<MessageResponse> CreateOfflineDepositPromotionAsync(
         [FromServices] IGetService<GetProcessedUsersQuery, OfflineUsersResult?> getUsersService,
         [FromServices] ICommandService<CreateOfflineDepositPromotionCommand> createPromotionService,

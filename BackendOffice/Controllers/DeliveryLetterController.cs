@@ -8,6 +8,7 @@ using Tgs.BrandCertificate.Clients;
 using Tgs.Promotion.Clients.Models;
 using Tgs.ServiceUtility;
 using Tgs.StationLetterService.Client;
+using TGS.Apis.BackendOffice.Attributes;
 using TGS.Apis.BackendOffice.ViewModels;
 using TGS.Services.BackOffice.ApplicationServices;
 using TGS.Services.BackOffice.ApplicationServices.StationLetters;
@@ -19,6 +20,7 @@ namespace TGS.Apis.BackendOffice.Controllers;
 public class DeliveryLetterController : ControllerBase
 {
     [HttpGet("{brandId}", Name = "GetBrandDeliveryLetters")]
+    [BOAuthorize(["Platform.StationLetter"])]
     public async Task<PagedResponse<DeliveryLetterListItemViewModel>> GetBrandDeliveryLettersAsync(
         [FromServices] IGetService<GetBrandInfoQuery, BrandInfo?> getBrandService,
         [FromServices] IQueryService<GetDeliveryLettersQuery, DeliveryLetter> queryService,
@@ -58,6 +60,7 @@ public class DeliveryLetterController : ControllerBase
     }
 
     [HttpGet("{brandId}/{deliveryId}", Name = "GetDeliveryLetterById")]
+    [BOAuthorize(["Platform.StationLetter"])]
     public async Task<DeliveryLetterViewModel?> GetDeliveryLetterAsync(
         [FromServices] IGetService<GetBrandInfoQuery, BrandInfo?> getBrandService,
         [FromServices] IGetService<GetDeliveryLetterByIdQuery, DeliveryLetter?> getLetterService,

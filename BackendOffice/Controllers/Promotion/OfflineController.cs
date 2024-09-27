@@ -10,6 +10,7 @@ using Microsoft.AspNetCore.Http.Features;
 using Microsoft.AspNetCore.Mvc;
 using Tgs.BrandService.Protos;
 using Tgs.ServiceUtility;
+using TGS.Apis.BackendOffice.Attributes;
 using TGS.Apis.BackendOffice.ViewModels;
 using TGS.Services.BackOffice.ApplicationServices.BatchAdjust;
 using TGS.Services.BackOffice.ApplicationServices.Promotion.Offline;
@@ -22,6 +23,7 @@ namespace TGS.Apis.BackendOffice.Controllers.Promotion;
 public class OfflineController : BaseContextController
 {
     [HttpHead("{batchId}", Name = "CheckOfflineBackgroundProcessIsCompleted")]
+    [BOAuthorize(["Promotion.PromotionList"])]
     public async Task CheckBackgroundProcessIsCompletedAsync(
         [FromServices] IGetService<CheckBatchCompletedQuery, bool?> checkService,
         Guid batchId)
@@ -45,6 +47,7 @@ public class OfflineController : BaseContextController
     }
 
     [HttpGet("template", Name = "DownloadFormTemplate")]
+    [BOAuthorize(["Promotion.PromotionList"])]
     public async ValueTask<FileStreamResult> ExportFormTemplateAsync(
         [FromServices] IGetService<ExportOfflinePromotionFormTemplateCommand, Stream> exportService)
     {
@@ -56,6 +59,7 @@ public class OfflineController : BaseContextController
     }
 
     [HttpPost("{brandId}/{clientToken?}", Name = "UploadOfflineUserListExcel")]
+    [BOAuthorize(["Promotion.PromotionList.Update"])]
     public async ValueTask<ResponseViewModel<Guid?>> UploadOfflineUserListExcelAsync(
         [FromServices] IQueryService<ReadOfflinePromotionUserListQuery, string> readService,
         [FromServices] IGetService<SaveOfflineTempUserBatchCommand, Guid> saveService,

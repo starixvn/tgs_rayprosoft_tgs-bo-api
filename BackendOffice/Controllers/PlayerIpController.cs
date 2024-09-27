@@ -3,6 +3,7 @@ using System.Threading.Tasks;
 using MediatR;
 using Microsoft.AspNetCore.Mvc;
 using Tgs.ServiceUtility;
+using TGS.Apis.BackendOffice.Attributes;
 using TGS.Services.BackOffice.Application.Models.PlayerIp;
 using TGS.Services.BackOffice.ApplicationServices.Players;
 using TGS.Services.BackOffice.Domain;
@@ -11,6 +12,7 @@ namespace TGS.Apis.BackendOffice.Controllers;
 
 [Route("api/[controller]")]
 [ApiController]
+[BOAuthorize(["Platform.IPAddress"])]
 public class PlayerIpController(IMediator mediator) : BaseContextController
 {
     [HttpGet("Ip")]

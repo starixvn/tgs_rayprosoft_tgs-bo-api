@@ -4,6 +4,7 @@ using System.Text.Json;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Mvc;
 using Tgs.ServiceUtility;
+using TGS.Apis.BackendOffice.Attributes;
 using TGS.Apis.BackendOffice.Controllers.Messages.BrandLiveChat;
 using TGS.Services.BackOffice.Application.Commands.BrandLiveChat;
 using TGS.Services.BackOffice.Application.Queries.BrandLiveChat;
@@ -16,6 +17,7 @@ namespace TGS.Apis.BackendOffice.Controllers.Brand;
 public class BrandLiveChatController : BaseContextController
 {
     [HttpPost]
+    [BOAuthorize(["Platform.IMSettings.Update", "Platform.IMSettings.UpdateLiveChat"])]
     [Description("Create a brand live chat")]
     public async Task<MessageResponse> CreateBrandCommunicationAsync(
         [FromServices] ICommandService<CreateBrandLiveChatCommand> createService,
@@ -33,6 +35,7 @@ public class BrandLiveChatController : BaseContextController
     }
 
     [HttpDelete("{brandId}")]
+    [BOAuthorize(["Platform.IMSettings.Update", "Platform.IMSettings.UpdateLiveChat"])]
     [Description("Delete a brand live chat")]
     public async Task<MessageResponse> DeleteAsync(
         Guid brandId,
@@ -45,6 +48,7 @@ public class BrandLiveChatController : BaseContextController
     }
 
     [HttpGet("{brandId}")]
+    [BOAuthorize(["Platform.IMSettings.View", "Platform.IMSettings.Update", "Platform.IMSettings.ViewLiveChat", "Platform.IMSettings.UpdateLiveChat"])]
     [Description("Get a brand's live chat")]
     public async Task<GetBrandLiveChatResponse> GetBrandLiveChatAsync(
         Guid brandId,
@@ -66,6 +70,7 @@ public class BrandLiveChatController : BaseContextController
     }
 
     [HttpPut("{brandId}")]
+    [BOAuthorize(["Platform.IMSettings.Update", "Platform.IMSettings.UpdateLiveChat"])]
     [Description("Update a brand live chat")]
     public async Task<MessageResponse> UpdateBrandCommAsync(
         Guid brandId,
