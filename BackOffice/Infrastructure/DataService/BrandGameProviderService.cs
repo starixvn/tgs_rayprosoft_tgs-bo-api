@@ -24,6 +24,8 @@ public interface IBrandGameProviderService
     Task UpdateBrandGameProviderAsync(BrandGameProvider brandGameProvider);
 
     Task UpdateBrandGameProvidersAsync(string toMaintenanceIds, string toActiveIds);
+
+    Task UpdateGameProvidersAsync(IEnumerable<BrandGameProvider> brandGameProviders);
 }
 
 public class BrandGameProviderService(ITgsRepository tgsRepository) : BaseRepositoryOperations<ITgsRepository>(tgsRepository),
@@ -44,6 +46,9 @@ public class BrandGameProviderService(ITgsRepository tgsRepository) : BaseReposi
     Task IBrandGameProviderService.UpdateBrandGameProviderAsync(
         BrandGameProvider brandGameProvider) =>
         UpdateEntityAsync(brandGameProvider);
+
+    async Task IBrandGameProviderService.UpdateGameProvidersAsync(IEnumerable<BrandGameProvider> brandGameProviders) =>
+        await UpdateEntitiesAsync(brandGameProviders);
 
     Task IBrandGameProviderService.UpdateBrandGameProvidersAsync(string toMaintenanceIds, string toActiveIds)
     {

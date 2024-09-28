@@ -16,7 +16,7 @@
       <PrivateAssets>all</PrivateAssets>
       <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
     </PackageReference>
-    <PackageReference Include="Tgs.Core" Version="1.1.10" />
+    <PackageReference Include="Tgs.Core" Version="1.1.16" />
     <PackageReference Include="TGS.Core.Infrastructures.Json" Version="0.0.1" />
   </ItemGroup>
 

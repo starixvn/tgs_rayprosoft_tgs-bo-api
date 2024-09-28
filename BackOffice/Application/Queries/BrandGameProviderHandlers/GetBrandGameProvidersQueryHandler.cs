@@ -43,7 +43,8 @@ public class GetBrandGameProvidersQueryHandler(
             From = x.Schedules.FirstOrDefault(s => s.IsDefault).From,
             To = x.Schedules.FirstOrDefault(s => s.IsDefault).To,
             DayOfWeek = x.Schedules.FirstOrDefault(s => s.IsDefault).DayOfWeek,
-            ScheduleStatus = x.Schedules.FirstOrDefault(s => s.IsDefault).Status
+            ScheduleStatus = x.Schedules.FirstOrDefault(s => s.IsDefault).Status,
+            DisplayOrder = x.DisplayOrder
         });
 
         var response = brandGameProviderModels.CreatePagedResponseAsync(request);

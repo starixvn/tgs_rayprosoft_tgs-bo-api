@@ -13,6 +13,8 @@ public class BrandGameProviderModel
 
     public string GameProviderName { get; set; }
 
+    public int DisplayOrder { get; set; }
+
     public Guid Id { get; set; }
 
     public SwitchStatus ScheduleStatus { get; set; }

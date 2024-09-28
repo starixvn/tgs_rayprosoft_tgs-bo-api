@@ -3,6 +3,7 @@ using System.ComponentModel;
 using System.Threading.Tasks;
 using MediatR;
 using Microsoft.AspNetCore.Mvc;
+using TGS.Services.BackOffice.Application.Models;
 using TGS.Services.BackOffice.Application.Models.BrandGameProviderSchedule;
 using TGS.Services.BackOffice.Domain;
 
@@ -40,4 +41,8 @@ public partial class BrandGameProviderController(IMediator mediator) : BaseConte
         request.BrandGameProviderId = brandGameProviderId;
         return mediator.Send(request);
     }
+
+    [HttpPut("ChangeOrders")]
+    [Description("Change brand game order")]
+    public Task<MessageResponse> ChangeOrderAsync(ChangeOrderBrandGameProviderRequest request) => mediator.Send(request);
 }
