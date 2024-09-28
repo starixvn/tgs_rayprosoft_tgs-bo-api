@@ -5,6 +5,7 @@ using System.Linq;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
+using TGS.Apis.BackendOffice.Attributes;
 using TGS.Apis.BackendOffice.Controllers.Messages.Roles;
 using TGS.Core.DataServices.Base.Interfaces;
 using TGS.Core.DataServices.Tgs.Models;
@@ -27,6 +28,7 @@ public class RoleController(
     IJsonSerializationProvider jsonSerializationProvider) : BaseContextController
 {
     [HttpPost("{roleId}/copy")]
+    [BOAuthorize(["System.Roles.Copy"])]
     [Description("Copy role")]
     public async Task<MessageResponse> CopyAsync(Guid roleId, [FromBody] CopyRoleRequest request)
     {
@@ -69,6 +71,7 @@ public class RoleController(
     }
 
     [HttpPost]
+    [BOAuthorize(["System.Roles.Create"])]
     [Description("Create a role")]
     public async Task<MessageResponse> CreateAsync([FromBody] CreateRoleRequest request)
     {
@@ -123,6 +126,7 @@ public class RoleController(
     }
 
     [HttpDelete("{roleId}")]
+    [BOAuthorize(["System.Roles.Delete"])]
     [Description("Delete a role")]
     public async Task<MessageResponse> DeleteAsync(Guid roleId)
     {
@@ -149,6 +153,7 @@ public class RoleController(
     }
 
     [HttpGet]
+    [BOAuthorize(["System.Roles"])]
     [Description("Get roles")]
     public Task<PagedResponse<RoleModel>> GetListAsync([FromQuery] GetRolesRequest request)
         => roleQueries.GetQueries()
@@ -230,6 +235,7 @@ public class RoleController(
             .CreatePagedResponseAsync(request);
 
     [HttpPost("menus")]
+    [BOAuthorize(["System.Roles"])]
     [Description("Get menus")]
     public async Task<GetMenuResponse> GetMenuAsync(GetMenuRequest request)
     {
@@ -252,6 +258,7 @@ public class RoleController(
     }
 
     [HttpGet("{roleId}")]
+    [BOAuthorize(["System.Roles"])]
     [Description("Get a role")]
     public async Task<GetRoleResponse> GetSingleAsync(Guid roleId)
     {
@@ -308,6 +315,7 @@ public class RoleController(
     }
 
     [HttpPut("{roleId}")]
+    [BOAuthorize(["System.Roles.Update"])]
     [Description("Update role")]
     public async Task<MessageResponse> UpdateAsync(
         Guid roleId,

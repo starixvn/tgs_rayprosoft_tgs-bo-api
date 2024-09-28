@@ -6,6 +6,7 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using Tgs.Paging;
 using Tgs.ServiceUtility;
+using TGS.Apis.BackendOffice.Attributes;
 using TGS.Apis.BackendOffice.Controllers.Messages.Department;
 using TGS.Core.DataServices.Base.Interfaces;
 using TGS.Core.DataServices.Tgs.Models;
@@ -21,6 +22,7 @@ public class DepartmentController(
     ITgsCommands<Department> commands) : BaseContextController
 {
     [HttpPost]
+    [BOAuthorize(["System.Departments.Create"])]
     [Description("Create a department")]
     public async Task<MessageResponse> CreateAsync([FromBody] DepartmentRequest request)
     {
@@ -54,6 +56,7 @@ public class DepartmentController(
     }
 
     [HttpDelete("{id}")]
+    [BOAuthorize(["System.Departments.Delete"])]
     [Description("Delete a department")]
     public async Task<MessageResponse> DeleteAsync(Guid id)
     {
@@ -73,6 +76,7 @@ public class DepartmentController(
     }
 
     [HttpGet(Name = "GetDepartmentList")]
+    [BOAuthorize(["System.Departments"])]
     [Description("Get departments")]
     public async Task<PagedResponse<DepartmentModel>> GetDepartmentListAsync(
         [FromServices] IGetService<GetDepartmentsQuery, int> countService,
@@ -128,6 +132,7 @@ public class DepartmentController(
     }
 
     [HttpPut("{id}")]
+    [BOAuthorize(["System.Departments.Update"])]
     [Description("Update a department")]
     public async Task<MessageResponse> UpdateAsync(Guid id, [FromBody] DepartmentRequest request)
     {

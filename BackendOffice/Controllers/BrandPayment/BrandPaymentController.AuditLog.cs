@@ -5,6 +5,7 @@ using System.Text.Json;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
+using TGS.Apis.BackendOffice.Attributes;
 using TGS.Apis.BackendOffice.Controllers.Messages.BrandPayment;
 using TGS.Services.BackOffice.Domain;
 
@@ -13,6 +14,7 @@ namespace TGS.Apis.BackendOffice.Controllers.BrandPayment;
 public partial class BrandPaymentController
 {
     [HttpGet("{paymentId:guid}/auditLogs")]
+    [BOAuthorize(["System.BrandPayments"])]
     [Description("Get a payment's audit log")]
     public async Task<GetBrandPaymentAuditLogResponse> GetAuditLogAsync(Guid paymentId)
     {

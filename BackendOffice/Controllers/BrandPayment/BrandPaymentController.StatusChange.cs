@@ -3,6 +3,7 @@ using System.ComponentModel;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Mvc;
 using Tgs.Logging;
+using TGS.Apis.BackendOffice.Attributes;
 using TGS.Core.Models.Enums;
 using TGS.Services.BackOffice.Domain;
 
@@ -11,6 +12,7 @@ namespace TGS.Apis.BackendOffice.Controllers.BrandPayment;
 public partial class BrandPaymentController
 {
     [HttpPut("{paymentId:guid}/{status}")]
+    [BOAuthorize(["System.BrandPayments.Update"])]
     [Description("change a Payment's status")]
     public async Task<MessageResponse> UpdateBrandPaymentStatusAsync(Guid paymentId, SwitchStatus status)
     {
@@ -26,13 +28,14 @@ public partial class BrandPaymentController
         return CreateValidResponse<MessageResponse>();
     }
 
-    private void LogAdmin(Guid brandPaymentId, SwitchStatus status) {
-
+    private void LogAdmin(Guid brandPaymentId, SwitchStatus status)
+    {
         var ip = HttpContext.Connection.RemoteIpAddress;
         var accountName = HttpContext.User.GetUserName();
         var description = $"User: {accountName} | Action: Switch brand payment status to {status}";
 
-        var adminLogEvent = new AdminLogEvent() {
+        var adminLogEvent = new AdminLogEvent()
+        {
             TrackingId = brandPaymentId,
             ServerName = Environment.MachineName,
             IpAddress = ip is null ? "" : ip.ToString(),

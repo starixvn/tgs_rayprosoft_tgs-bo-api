@@ -5,6 +5,7 @@ using System.Threading.Tasks;
 using Microsoft.AspNetCore.Mvc;
 using Tgs.Payment.Clients;
 using Tgs.ServiceUtility;
+using TGS.Apis.BackendOffice.Attributes;
 using TGS.Apis.BackendOffice.Controllers.Messages;
 using TGS.Apis.BackendOffice.Controllers.Messages.PaymentMethod;
 using TGS.Services.BackOffice.Application.Queries.PaymentMethod;
@@ -32,6 +33,7 @@ public class PaymentMethodController : BaseContextController
     }
 
     [HttpGet]
+    [BOAuthorize(["System.BrandPayments", "SystemAdmin.BrandPayments", "FundManagement.Deposit", "PlayerManagement.PlayerList.Bank"])]
     [Description("Get PaymentMethods")]
     public GenericResponse<IEnumerable<PaymentMethodModel>> GetAllPaymentMethods(
         [FromServices] IQueryService<PaymentMethodQuery, PaymentMethodInfo> queryService)

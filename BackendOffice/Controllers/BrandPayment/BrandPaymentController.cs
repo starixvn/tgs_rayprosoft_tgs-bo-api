@@ -10,6 +10,7 @@ using Microsoft.EntityFrameworkCore;
 using Tgs.Logging;
 using Tgs.Payment.Clients;
 using Tgs.ServiceUtility;
+using TGS.Apis.BackendOffice.Attributes;
 using TGS.Apis.BackendOffice.Controllers.Messages;
 using TGS.Apis.BackendOffice.Controllers.Messages.BrandPayment;
 using TGS.Apis.BackendOffice.DataService.Services;
@@ -35,6 +36,7 @@ public partial class BrandPaymentController(
     ITgsLog tgsLog) : BaseContextController
 {
     [HttpPut("ChangeOrders")]
+    [BOAuthorize(["System.BrandPayments.Update"])]
     [Description("Change Payment Order")]
     public async Task<MessageResponse> ChangeOrderAsync(ChangeOrderRequest request)
     {
@@ -45,6 +47,7 @@ public partial class BrandPaymentController(
 
     [HttpPost("deposit")]
     [HttpPost()]
+    [BOAuthorize(["System.BrandPayments.Update", "SystemAdmin.BrandPayments.Update"])]
     [Description("Create a Deposit Payment")]
     public async Task<CreateUpdateBrandPaymentResponse> CreateDepositBrandPaymentAsync(CreateBrandPaymentRequest request)
     {
@@ -52,6 +55,7 @@ public partial class BrandPaymentController(
     }
 
     [HttpPost("withdraw")]
+    [BOAuthorize(["System.BrandPayments.Update", "SystemAdmin.BrandPayments.Update"])]
     [Description("Create a Withdraw Payment")]
     public async Task<CreateUpdateBrandPaymentResponse> CreateWithdrawBrandPaymentAsync(CreateBrandPaymentRequest request)
     {
@@ -59,6 +63,7 @@ public partial class BrandPaymentController(
     }
 
     [HttpGet("autowithdraw/{brandId:guid}", Name = "GetBrandAutoWithdrawSetting")]
+    [BOAuthorize(["System.BrandPayments.Update"])]
     [Description("Get a brand auto withdraw setting")]
     public ValueTask<AutoWithdrawInfo> GetBrandAutoWithdrawSettingAsync(
         Guid brandId,
@@ -66,6 +71,7 @@ public partial class BrandPaymentController(
         => paymentServiceClient.GetBrandAutoWithdrawSettingAsync(brandId, HttpContext.RequestAborted);
 
     [HttpGet("info/{id}")]
+    [BOAuthorize(["System.BrandPayments", "SystemAdmin.BrandPayments", "FundManagement"])]
     [Description("Get brand payment detail info")]
     public async Task<BrandPaymentInfoModel> GetBrandPaymentInfoAsync(
         Guid id,
@@ -84,7 +90,7 @@ public partial class BrandPaymentController(
         var brandPaymentFeeInfo = await paymentServiceClient
             .GetBrandPaymentFeeSettingsAsync(id, HttpContext.RequestAborted)
             .ConfigureAwait(false);
-        
+
         var brandpaymentPlayerAccess = await paymentServiceClient
             .GetBrandPaymentPlayerAccessAsync(id, HttpContext.RequestAborted)
             .ConfigureAwait(false);
@@ -125,6 +131,7 @@ public partial class BrandPaymentController(
     }
 
     [HttpGet]
+    [BOAuthorize(["System.BrandPayments", "SystemAdmin.BrandPayments", "PlayerManagement.PlayerList.Bank", "FundManagement"])]
     [Description("Get brand payments")]
     public async Task<PagedResponse<BrandPaymentModel>> GetBrandPaymentsAsync(
         [FromQuery] GetBrandPaymentsRequest request,
@@ -196,9 +203,9 @@ public partial class BrandPaymentController(
 
         result = result
             .OrderBy(bp => bp.TransferType)
-            .ThenBy(bp=>bp.PaymentName)
-            .ThenBy(bp=>bp.PaymentMethodName)
-            .ThenBy(bp=>bp.ChannelName);
+            .ThenBy(bp => bp.PaymentName)
+            .ThenBy(bp => bp.PaymentMethodName)
+            .ThenBy(bp => bp.ChannelName);
 
         if (request.ShowAll || request.Rows == 0)
         {
@@ -215,6 +222,7 @@ public partial class BrandPaymentController(
     }
 
     [HttpGet("{id}/DesignatedUsers")]
+    [BOAuthorize(["System.BrandPayments"])]
     [Description("Get Designated Users")]
     public async Task<GetDesignatedUsersResponse> GetDesignatedUsersAsync(
         Guid id,
@@ -236,6 +244,7 @@ public partial class BrandPaymentController(
     }
 
     [HttpGet("player", Name = "GetPlayerBrandPayments")]
+    [BOAuthorize(["PlayerManagement.PlayerList.DepositForm"])]
     [Description("Get Brand Payments for player deposit")]
     public async IAsyncEnumerable<BrandPaymentResponse> GetPlayerBrandPaymentsAsync(
         [FromServices] IQueryService<BrandPaymentsQuery, BrandPaymentInfo> brandPaymentsQueryService,
@@ -303,6 +312,7 @@ public partial class BrandPaymentController(
     }
 
     [HttpPut("{brandPaymentId:guid}")]
+    [BOAuthorize(["System.BrandPayments.Update", "SystemAdmin.BrandPayments.Update"])]
     [Description("Update a Payment")]
     public async Task<CreateUpdateBrandPaymentResponse> UpdateBrandPaymentAsync(
         Guid brandPaymentId,
@@ -335,18 +345,20 @@ public partial class BrandPaymentController(
     }
 
     [HttpPatch("extendeddata/{brandPaymentId:guid}")]
+    [BOAuthorize(["SystemAdmin.BrandPayments.Update"])]
     [Description("Update a brand Payment's extended data")]
     public async ValueTask UpdateBrandPaymentExtendedDataAsync(
         Guid brandPaymentId,
         UpdateBrandPaymentExtendedDataRequest request,
-        [FromServices] IPaymentServiceClient paymentServiceClient) 
-        {
-            await paymentServiceClient.UpdateBrandPaymentExtendedDataAsync(brandPaymentId, request.ExtendedData, HttpContext.RequestAborted);
-            var adminLogMessage = $"User: {Username} | Action: Edit brand payment extended data";
-            LogAdminBrandpaymentSettingAccess(brandPaymentId, adminLogMessage);
-        }
+        [FromServices] IPaymentServiceClient paymentServiceClient)
+    {
+        await paymentServiceClient.UpdateBrandPaymentExtendedDataAsync(brandPaymentId, request.ExtendedData, HttpContext.RequestAborted);
+        var adminLogMessage = $"User: {Username} | Action: Edit brand payment extended data";
+        LogAdminBrandpaymentSettingAccess(brandPaymentId, adminLogMessage);
+    }
 
     [HttpPost("upload")]
+    [BOAuthorize(["System.BrandPayments.Update"])]
     [Description("Upload player file")]
     public async Task<MessageResponse> UploadPlayersAsync(IFormFile file)
     {
@@ -368,6 +380,7 @@ public partial class BrandPaymentController(
     }
 
     [HttpPatch("autowithdraw/{brandId:guid}")]
+    [BOAuthorize(["System.BrandPayments.Update"])]
     [Description("Add or update a brand auto withdraw setting")]
     public async ValueTask<MessageResponse> UpsertBrandAutoWithdrawAsync(
         Guid brandId,
@@ -429,9 +442,11 @@ public partial class BrandPaymentController(
         return CreateValidResponse<CreateUpdateBrandPaymentResponse>();
     }
 
-    private void LogAdminBrandpaymentSettingAccess(Guid brandPaymentId, string message) {
+    private void LogAdminBrandpaymentSettingAccess(Guid brandPaymentId, string message)
+    {
         var ip = HttpContext.Connection.RemoteIpAddress;
-        var adminLogEvent = new AdminLogEvent() {
+        var adminLogEvent = new AdminLogEvent()
+        {
             TrackingId = brandPaymentId,
             ServerName = Environment.MachineName,
             IpAddress = ip is null ? "" : ip.ToString(),

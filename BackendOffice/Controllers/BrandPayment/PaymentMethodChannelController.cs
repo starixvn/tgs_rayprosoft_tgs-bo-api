@@ -5,6 +5,7 @@ using System.Threading.Tasks;
 using Microsoft.AspNetCore.Mvc;
 using Tgs.Payment.Clients;
 using Tgs.ServiceUtility;
+using TGS.Apis.BackendOffice.Attributes;
 using TGS.Apis.BackendOffice.Controllers.Messages;
 using TGS.Apis.BackendOffice.Controllers.Messages.BrandPayment;
 using TGS.Apis.BackendOffice.Controllers.Messages.PaymentChannel;
@@ -45,6 +46,7 @@ public class PaymentMethodChannelController : ControllerBase
 
     [HttpGet]
     [HttpGet("~/api/brandpayment/pmc")]
+    [BOAuthorize(["System.BrandPayments.Update", "SystemAdmin.BrandPayments", "Promotion.PromotionList"])]
     [Description("Get All Brand PaymentMethodChannels")]
     public async Task<GenericResponse<AllPaymentMethodChannelsResponse>> GetAllPaymentMethodChannelsAsync(
         [FromServices] IQueryService<AllPaymentMethodChannelQuery, PaymentMethodChannelInfo> queryService,

@@ -7,6 +7,7 @@ using Microsoft.EntityFrameworkCore;
 using Tgs.Core.Infrastructures.Security;
 using Tgs.Paging;
 using Tgs.ServiceUtility;
+using TGS.Apis.BackendOffice.Attributes;
 using TGS.Apis.BackendOffice.Controllers.Messages.Users;
 using TGS.Core.DataServices.Base.Interfaces;
 using TGS.Core.DataServices.Tgs.Models;
@@ -26,6 +27,7 @@ public class UserController(
 {
     [Route("")]
     [HttpPost]
+    [BOAuthorize(["System.Admins.Create"])]
     [Description("Create a user")]
     public async Task<MessageResponse> CreateAsync([FromBody] CreateUserRequest request)
     {
@@ -73,6 +75,7 @@ public class UserController(
     }
 
     [HttpGet(Name = "GetUserList")]
+    [BOAuthorize(["System.Admins"])]
     [Description("Get users")]
     public async Task<PagedResponse<UserModel>> GetUserListAsync(
         [FromServices] IGetService<GetUsersQuery, int> countService,
@@ -137,6 +140,7 @@ public class UserController(
     }
 
     [HttpPut("{userId}")]
+    [BOAuthorize(["System.Admins.Update"])]
     [Description("Update a user")]
     public async Task<MessageResponse> UpdateAsync(Guid userId, [FromBody] UpdateUserRequest request)
     {
@@ -170,6 +174,7 @@ public class UserController(
     }
 
     [HttpPut("{userId}/password")]
+    [BOAuthorize(["System.Admins.Update"])]
     [Description("Update user password")]
     public async Task<MessageResponse> UpdatePasswordAsync(Guid userId, [FromBody] UpdatePasswordRequest request)
     {

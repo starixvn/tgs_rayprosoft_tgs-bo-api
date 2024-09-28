@@ -5,6 +5,7 @@ using System.Threading.Tasks;
 using Microsoft.AspNetCore.Mvc;
 using Tgs.Payment.Clients;
 using Tgs.ServiceUtility;
+using TGS.Apis.BackendOffice.Attributes;
 using TGS.Apis.BackendOffice.Controllers.Messages;
 using TGS.Apis.BackendOffice.Controllers.Messages.PaymentChannel;
 using TGS.Services.BackOffice.Application.Queries.PaymentChannel;
@@ -32,6 +33,7 @@ public class PaymentChannelController : BaseContextController
     }
 
     [HttpGet]
+    [BOAuthorize(["System.BrandPayments", "SystemAdmin.BrandPayments", "FundManagement", "PlayerManagement.PlayerList", "Promotion.PromotionList"])]
     [Description("Get PaymentChannels")]
     public GenericResponse<IEnumerable<PaymentChannelModel>> GetAllPaymentChannels(
         [FromServices] IQueryService<PaymentChannelQuery, PaymentChannelInfo> queryService)
