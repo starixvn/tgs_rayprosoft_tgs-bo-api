@@ -253,12 +253,8 @@ public partial class BrandPaymentController(
             .ToArrayAsync()
             .ConfigureAwait(false);
 
-        var transferType = request.TransferType == PaymentTransferType.Deposit
-            ? TransferType.Deposit
-            : TransferType.Withdraw;
-
         var brandPaymentQuery = await brandPayments
-            .Where(bp => bp.TransferType == transferType)
+            .Where(bp => bp.TransferType == TransferType.Deposit)
             .AsParallel()
             .WithCancellation(HttpContext.RequestAborted)
             .Select(async bp =>
