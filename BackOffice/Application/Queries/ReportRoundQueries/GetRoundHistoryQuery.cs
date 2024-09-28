@@ -41,38 +41,25 @@ public class
 
     private async Task<JsonDocument?> GetFromSupportedProvidersAsync(GetRoundHistoryReportRequest request, CancellationToken cancellationToken = default)
     {
-        if (request.GameProviderCode.Equals("SABASW", StringComparison.CurrentCultureIgnoreCase))
+        var isSupportSabaSw = request.GameProviderCode.Equals("SABASW", StringComparison.CurrentCultureIgnoreCase);
+        var isSupportSabaPlus = request.GameProviderCode.StartsWith("SABAPLUS-", StringComparison.CurrentCultureIgnoreCase);
+
+        if (!isSupportSabaSw && !isSupportSabaPlus)
         {
-            return await client.TicketDetailAsync(new()
-            {
-                GameProviderCode = request.GameProviderCode,
-                PlayerCode = request.PlayerCode,
-                GameId = request.GameId,
-                ExternalRoundId = request.ExternalRoundId,
-                SettleDate = request.ExternalCloseOn,
-                ResultId = string.Empty,
-                BaseCurrency = request.BaseCurrency,
-                PlayerUsername = request.PlayerUsername,
-                Language = request.Language,
-            }, cancellationToken).ConfigureAwait(false);
+            return null;
         }
 
-        if (request.GameProviderCode.Contains("SABAPLUS", StringComparison.CurrentCultureIgnoreCase))
+        return await client.TicketDetailAsync(new()
         {
-            return await client.TicketDetailAsync(new()
-            {
-                GameProviderCode = request.GameProviderCode,
-                PlayerCode = request.PlayerCode,
-                GameId = request.GameId,
-                ExternalRoundId = request.ExternalRoundId,
-                SettleDate = request.ExternalCloseOn,
-                ResultId = string.Empty,
-                BaseCurrency = request.BaseCurrency,
-                PlayerUsername = request.PlayerUsername,
-                Language = request.Language,
-            }, cancellationToken).ConfigureAwait(false);
-        }
-
-        return null;
+            ResultId = string.Empty,
+            GameProviderCode = request.GameProviderCode,
+            PlayerCode = request.PlayerCode,
+            GameId = request.GameId,
+            ExternalRoundId = request.ExternalRoundId,
+            SettleDate = request.ExternalCloseOn,
+            BaseCurrency = request.BaseCurrency,
+            PlayerUsername = request.PlayerUsername,
+            Language = request.Language,
+        }, cancellationToken).ConfigureAwait(false);
     }
 }
