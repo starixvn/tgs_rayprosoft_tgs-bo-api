@@ -33,6 +33,7 @@ using OpenTelemetry;
 using OpenTelemetry.Metrics;
 using OpenTelemetry.Resources;
 using OpenTelemetry.Trace;
+using Sentry;
 using Tgs.CashQueryService.Client;
 using Tgs.MessageQueue.Nats.Serializers;
 using Tgs.Player.All.Agent.Client.DependencyInjection;
@@ -450,6 +451,8 @@ app.Use(async (httpContext, next) =>
 
     await next();
 });
+
+SentrySdk.CaptureMessage($"Started result ReportAggregate service at {DateTime.Now.ToString()}");
 
 app.UseSwagger();
 app.UseSwaggerUI(c => c.SwaggerEndpoint("/swagger/v1/swagger.json", "TGS BackOffice API"));
