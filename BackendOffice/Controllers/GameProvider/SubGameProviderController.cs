@@ -14,22 +14,25 @@ namespace TGS.Apis.BackendOffice.Controllers.GameProvider;
 public class SubGameProviderController(IMediator mediator) : BaseContextController
 {
     [HttpPost]
+    [BOAuthorize(["SystemAdmin.GameProviders.Update"])]
     [Description("Create a sub game provider")]
     public Task<MessageResponse> CreateGameProviderAsync(CreateSubGameProviderRequest request) =>
         mediator.Send(request);
 
     [HttpGet("{code}")]
+    [BOAuthorize(["SystemAdmin.GameProviders.Update"])]
     [Description("Get a sub game provider")]
     public Task<GetSubGameProviderResponse> GetSubGameProviderAsync(string code) =>
         mediator.Send(new GetSubGameProviderRequest(code));
 
     [HttpGet]
-    [BOAuthorize(["SystemAdmin.GameProviders", "SystemAdmin.GameProviderRound"])]
+    [BOAuthorize(["SystemAdmin.GameProviders.Update", "SystemAdmin.GameProviderRound"])]
     [Description("Get sub game providers")]
     public Task<PagedResponse<SubGameProviderModel>>
         GetSubGameProvidersAsync([FromQuery] GetSubGameProvidersRequest request) => mediator.Send(request);
 
     [HttpPut("{id}/{code}")]
+    [BOAuthorize(["SystemAdmin.GameProviders.Update"])]
     [Description("Update a sub game provider")]
     public Task<MessageResponse> UpdateGameProviderAsync(Guid id, string code, UpdateSubGameProviderRequest request)
     {

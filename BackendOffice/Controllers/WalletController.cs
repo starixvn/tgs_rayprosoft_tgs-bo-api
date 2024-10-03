@@ -13,6 +13,7 @@ using Tgs.CashQueryService.Client;
 using Tgs.CashService.Client;
 using Tgs.PlayerService.Client;
 using Tgs.ServiceUtility;
+using TGS.Apis.BackendOffice.Attributes;
 using TGS.Apis.BackendOffice.ViewModels;
 using TGS.Core.Models.Enums;
 using TGS.Core.Models.Messages;
@@ -29,6 +30,7 @@ public class WalletController : BaseContextController
 {
     [HttpGet("~/api/player/{playerCode}/mainwallet", Name = "GetPlayerMainWalletBalanceOld")]
     [HttpGet("player/{playerCode}", Name = "GetPlayerMainWalletBalance")]
+    [BOAuthorize(["SystemAdmin.GameRound.ViewGameAction", "SystemAdmin.ResettleGameRound.ViewGameAction"])]
     [Description("Get Player Main wallet")]
     public ValueTask<decimal> GetPlayerMainWalletBalanceAsync(
         [FromServices] IGetService<GetPlayerBalanceQuery, decimal> service,

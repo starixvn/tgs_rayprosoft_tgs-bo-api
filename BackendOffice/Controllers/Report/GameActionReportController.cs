@@ -13,7 +13,8 @@ namespace TGS.Apis.BackendOffice.Controllers.Report;
 public class GameActionReportController : BaseContextController
 {
     [HttpGet]
-    [BOAuthorize(["Report.OpenRound", "Report.OrderReport", "SystemAdmin.GameProviderRound", "SystemAdmin.GameRound", "SystemAdmin.ResettleGameRound"])]
+    [BOAuthorize(["Report.OpenRound", "Report.OrderReport", "SystemAdmin.GameProviderRound",
+        "SystemAdmin.GameRound.ViewGameAction", "SystemAdmin.ResettleGameRound.ViewGameAction"])]
     [Description("Get game actions")]
     public async Task<PagedResponse<GameActionReportModel>> GetGameActionsAsync(
         [FromServices] IGetService<GetGameActionsReportRequest, PagedResponse<GameActionReportModel>>

@@ -26,11 +26,13 @@ namespace TGS.Apis.BackendOffice.Controllers.GameProvider;
 public partial class GameProviderController(IMediator mediator, IUploadService uploadService) : BaseContextController
 {
     [HttpPost]
+    [BOAuthorize(["SystemAdmin.GameProviders.Update"])]
     [Description("Create a game provider")]
     public Task<MessageResponse> CreateGameProviderAsync(CreateGameProviderRequest request) =>
         mediator.Send(request);
 
     [HttpGet("localization/export")]
+    [BOAuthorize(["SystemAdmin.GameProviders"])]
     [Description("Export game providers localization for example")]
     public async Task<FileStreamResult> ExportGameProvidersLocalizationAsync(
         [FromServices] IQueryService<GetAllSupportLanguagesQuery, string> getAllSupportLangService,
@@ -60,6 +62,7 @@ public partial class GameProviderController(IMediator mediator, IUploadService u
     }
 
     [HttpGet("{id}")]
+    [BOAuthorize(["SystemAdmin.GameProviders.Update"])]
     [Description("Get a game provider")]
     public Task<GetGameProviderResponse> GetGameProviderAsync(Guid id) =>
         mediator.Send(new GetGameProviderRequest(id));
@@ -74,15 +77,16 @@ public partial class GameProviderController(IMediator mediator, IUploadService u
         => getService.GetAsync(new(gameProviderId, brand));
 
     [HttpGet]
-    [BOAuthorize(["Merchant.Resellers",
+    [BOAuthorize(["Merchant.Resellers", "PlayerManagement.PlayerList",
         "Report.GameProviderReport", "Report.GameProviders", "Report.OpenRound", "Report.OrderReport",
         "SystemAdmin.GameRound", "SystemAdmin.GameProviders", "SystemAdmin.GameProviderReport",
-        "SystemAdmin.ResettleGameRound", "SystemAdmin.GameProviderRound"])]
+        "SystemAdmin.ResettleGameRound", "SystemAdmin.GameProviderRound", "SystemAdmin.PlatformGameProvider"])]
     [Description("Get game providers")]
     public Task<PagedResponse<GameProviderBaseModel>>
         GetGameProvidersAsync([FromQuery] GetGameProvidersRequest request) => mediator.Send(request);
 
     [HttpPut("{id}")]
+    [BOAuthorize(["SystemAdmin.GameProviders.Update"])]
     [Description("Update a game provider")]
     public Task<MessageResponse> UpdateGameProviderAsync(Guid id, UpdateGameProviderRequest request)
     {
@@ -91,11 +95,13 @@ public partial class GameProviderController(IMediator mediator, IUploadService u
     }
 
     [HttpPut("{id:guid}/{status}")]
+    [BOAuthorize(["SystemAdmin.GameProviders.Update"])]
     [Description("change a game provider status")]
     public Task<MessageResponse> UpdateGameProviderStatusAsync(Guid id, Status status) =>
         mediator.Send(new UpdateGameProviderStatusRequest(id, status));
 
     [HttpPost("localization/upload")]
+    [BOAuthorize(["SystemAdmin.GameProviders.Update"])]
     [Description("Upload game providers localization file")]
     public async Task<MessageResponse> UploadGameProvidersLocalizationAsync(
         IFormFile file,

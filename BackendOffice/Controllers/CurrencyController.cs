@@ -17,7 +17,8 @@ public class CurrencyController(IMediator mediator) : BaseContextController
     public Task<MessageResponse> CreateCurrencyAsync(CreateCurrencyRequest request) => mediator.Send(request);
 
     [HttpGet]
-    [BOAuthorize(["Merchant.Resellers", "SystemAdmin.Currency", "SystemAdmin.GameProviders", "SystemAdmin.GameProviderRound", "SystemAdmin.BetLimit.Update"])]
+    [BOAuthorize(["Merchant.Resellers", "SystemAdmin.Currency", "SystemAdmin.GameProviders",
+        "SystemAdmin.GameProviderRound", "SystemAdmin.GameProviderReport", "SystemAdmin.BetLimit.Update"])]
     [Description("Get currencies")]
     public Task<PagedResponse<CurrencyModel>> GetCurrenciesAsync([FromQuery] GetCurrenciesRequest request) =>
         mediator.Send(request);

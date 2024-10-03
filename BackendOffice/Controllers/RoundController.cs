@@ -7,6 +7,7 @@ using Tgs.GameProviders.Pluggable.Client;
 using Tgs.GameProviders.Pluggable.ViewModels;
 using Tgs.Report.Client;
 using Tgs.Report.Client.Models.Round;
+using TGS.Apis.BackendOffice.Attributes;
 using TGS.Apis.BackendOffice.Controllers.Messages.Round;
 using TGS.Core.Models.Enums;
 using TGS.Services.BackOffice.Application.Models.ReportRound;
@@ -20,6 +21,7 @@ public class RoundController(IReportClient client,
     IGameProvidersBackofficePluggableClient gameProvidersBackofficePluggableClient) : BaseContextController
 {
     [HttpPut("{roundId}/AdjustClosedRound", Name = "AdjustClosedRound")]
+    [BOAuthorize(["SystemAdmin.ResettleGameRound.Update"])]
     [Description("Adjust a Closed round")]
     public async Task<MessageResponse> AdjustClosedRoundAsync(Guid roundId, AdjustClosedRoundRequest request)
     {
@@ -44,6 +46,7 @@ public class RoundController(IReportClient client,
     }
 
     [HttpPut("{roundId}/CloseGameRound", Name = "CloseGameRound")]
+    [BOAuthorize(["SystemAdmin.GameRound.Update"])]
     [Description("Close a game round")]
     public async Task<MessageResponse> CloseGameRoundAsync(Guid roundId, CloseGameRoundRequest request)
     {
@@ -68,6 +71,7 @@ public class RoundController(IReportClient client,
     }
 
     [HttpGet("openRounds", Name = "GetOpenRounds")]
+    [BOAuthorize(["SystemAdmin.GameRound"])]
     [Description("Get open rounds")]
     public async Task<PagedResponse<OpenRoundReportModel>> GetOpenRoundsAsync(
         [FromQuery] GetOpenRoundsReportRequest request)

@@ -13,6 +13,7 @@ using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Tgs.ServiceUtility;
+using TGS.Apis.BackendOffice.Attributes;
 using TGS.Apis.BackendOffice.Services;
 using TGS.Services.BackOffice.Application.Models.Game;
 using TGS.Services.BackOffice.Application.Queries.Game;
@@ -26,11 +27,13 @@ namespace TGS.Apis.BackendOffice.Controllers.GameProvider;
 public class GameController(IMediator mediator, IUploadService uploadService) : BaseContextController
 {
     [HttpPost]
+    [BOAuthorize(["SystemAdmin.GameProviders.Update"])]
     [Description("Create games")]
     public Task<MessageResponse> CreateGamesAsync(CreateGamesRequest request) =>
         mediator.Send(request);
 
     [AllowAnonymous]
+    [BOAuthorize(["SystemAdmin.GameProviders.Update"])]
     [HttpGet("export/{gameProviderId}")]
     [Description("Export games")]
     public async Task<IActionResult> ExportGamesAsync(
@@ -226,6 +229,7 @@ public class GameController(IMediator mediator, IUploadService uploadService) : 
     }
 
     [HttpGet("localization/export")]
+    [BOAuthorize(["SystemAdmin.GameProviders.Update"])]
     [Description("Export game localization for example")]
     public async Task<FileStreamResult> ExportGamesLocalizationAsync(
         [FromServices] IGetService<GetGameLocalizationQuery, GameLocalizationInfo> getLocalizationQueryService,
@@ -336,11 +340,13 @@ public class GameController(IMediator mediator, IUploadService uploadService) : 
     }
 
     [HttpGet]
+    [BOAuthorize(["Merchant.Brands", "SystemAdmin.GameProviders.Update", "SystemAdmin.GameProviderRound.Update"])]
     [Description("Get games")]
     public Task<PagedResponse<GameModel>>
         GetGameProvidersAsync([FromQuery] GetGamesRequest request) => mediator.Send(request);
 
     [HttpPut("{id}")]
+    [BOAuthorize(["SystemAdmin.GameProviders.Update"])]
     [Description("Update a game")]
     public Task<MessageResponse> UpdateGameAsync(int id, UpdateGameRequest request)
     {
@@ -349,6 +355,7 @@ public class GameController(IMediator mediator, IUploadService uploadService) : 
     }
 
     [HttpPost("upload")]
+    [BOAuthorize(["SystemAdmin.GameProviders.Update"])]
     [Description("Upload games")]
     public async Task<IActionResult> UploadGamesAsync([FromForm] UploadGamesRequest request)
     {
@@ -358,6 +365,7 @@ public class GameController(IMediator mediator, IUploadService uploadService) : 
     }
 
     [HttpPost("localization/upload")]
+    [BOAuthorize(["SystemAdmin.GameProviders.Update"])]
     [Description("Upload game localization file")]
     public async Task<MessageResponse> UploadGamesLocalizationAsync(
         IFormFile file,
