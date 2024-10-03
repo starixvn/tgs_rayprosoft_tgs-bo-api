@@ -3,6 +3,7 @@ using System.ComponentModel;
 using System.Threading.Tasks;
 using MediatR;
 using Microsoft.AspNetCore.Mvc;
+using TGS.Apis.BackendOffice.Attributes;
 using TGS.Services.BackOffice.Application.Models.SubGameProvider;
 using TGS.Services.BackOffice.Domain;
 
@@ -23,6 +24,7 @@ public class SubGameProviderController(IMediator mediator) : BaseContextControll
         mediator.Send(new GetSubGameProviderRequest(code));
 
     [HttpGet]
+    [BOAuthorize(["SystemAdmin.GameProviders", "SystemAdmin.GameProviderRound"])]
     [Description("Get sub game providers")]
     public Task<PagedResponse<SubGameProviderModel>>
         GetSubGameProvidersAsync([FromQuery] GetSubGameProvidersRequest request) => mediator.Send(request);

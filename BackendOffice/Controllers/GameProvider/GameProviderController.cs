@@ -10,6 +10,7 @@ using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Options;
 using Tgs.ServiceUtility;
+using TGS.Apis.BackendOffice.Attributes;
 using TGS.Apis.BackendOffice.Services;
 using TGS.Core.Infrastructures.Json;
 using TGS.Core.Models.Enums;
@@ -73,6 +74,10 @@ public partial class GameProviderController(IMediator mediator, IUploadService u
         => getService.GetAsync(new(gameProviderId, brand));
 
     [HttpGet]
+    [BOAuthorize(["Merchant.Resellers",
+        "Report.GameProviderReport", "Report.GameProviders", "Report.OpenRound", "Report.OrderReport",
+        "SystemAdmin.GameRound", "SystemAdmin.GameProviders", "SystemAdmin.GameProviderReport",
+        "SystemAdmin.ResettleGameRound", "SystemAdmin.GameProviderRound"])]
     [Description("Get game providers")]
     public Task<PagedResponse<GameProviderBaseModel>>
         GetGameProvidersAsync([FromQuery] GetGameProvidersRequest request) => mediator.Send(request);

@@ -2,6 +2,7 @@
 using System.Threading.Tasks;
 using MediatR;
 using Microsoft.AspNetCore.Mvc;
+using TGS.Apis.BackendOffice.Attributes;
 using TGS.Services.BackOffice.Application.Models.Currency;
 using TGS.Services.BackOffice.Domain;
 
@@ -16,6 +17,7 @@ public class CurrencyController(IMediator mediator) : BaseContextController
     public Task<MessageResponse> CreateCurrencyAsync(CreateCurrencyRequest request) => mediator.Send(request);
 
     [HttpGet]
+    [BOAuthorize(["Merchant.Resellers", "SystemAdmin.Currency", "SystemAdmin.GameProviders", "SystemAdmin.GameProviderRound", "SystemAdmin.BetLimit.Update"])]
     [Description("Get currencies")]
     public Task<PagedResponse<CurrencyModel>> GetCurrenciesAsync([FromQuery] GetCurrenciesRequest request) =>
         mediator.Send(request);

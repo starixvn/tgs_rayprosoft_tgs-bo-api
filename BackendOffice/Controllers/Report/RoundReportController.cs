@@ -20,6 +20,7 @@ namespace TGS.Apis.BackendOffice.Controllers.Report;
 public class RoundReportController() : BaseContextController
 {
     [HttpPut("system/addround")]
+    [BOAuthorize(["SystemAdmin.GameProviderRound.Update"])]
     [Description("Add round")]
     public ValueTask AddCompanyRoundAsync(
         [FromServices] ICommandService<AddCompanyRoundCommand> commandService,
@@ -45,6 +46,7 @@ public class RoundReportController() : BaseContextController
             }, HttpContext.RequestAborted);
 
     [HttpGet("exportSystemRounds")]
+    [BOAuthorize(["SystemAdmin.GameProviderRound.Export"])]
     [Description("Export system rounds")]
     [ByPassAdminLog]
     public async Task<IActionResult> ExportSystemRoundsAsync(
@@ -57,6 +59,7 @@ public class RoundReportController() : BaseContextController
             "SystemRounds.xlsx");
 
     [HttpGet("exportRounds")]
+    [BOAuthorize(["Report.WinlossReport"])]
     [Description("Export rounds")]
     [ByPassAdminLog]
     public async Task<IActionResult> ExportRoundsAsync(
@@ -69,6 +72,7 @@ public class RoundReportController() : BaseContextController
             "Rounds.xlsx");
 
     [HttpGet("betRecords")]
+    [BOAuthorize(["PlayerManagement.PlayerList"])]
     [Description("Get bet records")]
     public async ValueTask<GetBetRecordsReportResponse> GetBetRecordsAsync(
         [FromServices] IGetService<GetBetRecordsReportRequest, GetBetRecordsReportResponse>
@@ -79,6 +83,7 @@ public class RoundReportController() : BaseContextController
             .ConfigureAwait(false);
 
     [HttpGet("closedRounds")]
+    [BOAuthorize(["SystemAdmin.ResettleGameRound"])]
     [Description("Get closed rounds")]
     public async Task<PagedResponse<ClosedRoundReportModel>> GetClosedRoundsAsync(
         [FromServices] IGetService<GetClosedRoundsReportRequest, PagedResponse<ClosedRoundReportModel>>
@@ -99,6 +104,7 @@ public class RoundReportController() : BaseContextController
             .ConfigureAwait(false);
 
     [HttpGet("{roundId}")]
+    [BOAuthorize(["SystemAdmin.GameProviderRound", "FundManagement.Withdraw", "Report.OpenRound", "Report.OrderReport", "PlayerManagement.PlayerList"])]
     [Description("Get a round")]
     public async Task<IActionResult> GetRoundHistoryAsync(Guid roundId,
         [FromServices] IGetService<GetRoundHistoryReportRequest, JsonDocument?> roundHistoryService,
@@ -109,6 +115,7 @@ public class RoundReportController() : BaseContextController
     }
 
     [HttpGet]
+    [BOAuthorize(["SystemAdmin.GameProviderRound", "FundManagement.Withdraw", "Report.OpenRound", "Report.OrderReport", "Report.WinlossReport"])]
     [Description("Get rounds")]
     public async ValueTask<TGS.Services.BackOffice.Domain.PagedResponse<RoundView>> GetRoundsAsync(
         [FromServices] IGetService<GetRoundsReportRequest, TGS.Services.BackOffice.Domain.PagedResponse<RoundView>> roundsService,
@@ -118,6 +125,7 @@ public class RoundReportController() : BaseContextController
             .ConfigureAwait(false);
 
     [HttpGet("system")]
+    [BOAuthorize(["SystemAdmin.GameProviderRound"])]
     [Description("Get System rounds")]
     public async ValueTask<TGS.Services.BackOffice.Domain.PagedResponse<SystemRoundView>> GetSystemRoundsAsync(
         [FromServices] IGetService<GetSystemRoundsReportRequest, TGS.Services.BackOffice.Domain.PagedResponse<SystemRoundView>> roundsService,
@@ -127,6 +135,7 @@ public class RoundReportController() : BaseContextController
             .ConfigureAwait(false);
 
     [HttpGet("system/total", Name = "GetSystemRoundsTotal")]
+    [BOAuthorize(["SystemAdmin.GameProviderRound"])]
     [Description("Get rounds total about BetAmount & ValidBetAmount & Turnover & SettleAmount & WinLoss")]
     public async Task<SystemRoundTotalModel> GetSystemRoundsTotalAsync(
         [FromServices] IReportClient client,
