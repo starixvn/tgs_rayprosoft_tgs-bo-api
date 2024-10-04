@@ -23,6 +23,7 @@ public class PaymentController : BaseContextController
     /// <param name="request">The request.</param>
     /// <returns></returns>
     [HttpPut]
+    [BOAuthorize(["SystemAdmin.BrandPayments.Update"])]
     public ValueTask CreatePaymentAsync(
         [FromServices] ICommandService<CreatePaymentCommand> createService,
         [FromBody] CreatePaymentRequest request)

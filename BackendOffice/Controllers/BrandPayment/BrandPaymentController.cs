@@ -71,7 +71,7 @@ public partial class BrandPaymentController(
         => paymentServiceClient.GetBrandAutoWithdrawSettingAsync(brandId, HttpContext.RequestAborted);
 
     [HttpGet("info/{id}")]
-    [BOAuthorize(["System.BrandPayments", "SystemAdmin.BrandPayments", "FundManagement"])]
+    [BOAuthorize(["System.BrandPayments.Update", "SystemAdmin.BrandPayments.Update", "FundManagement"])]
     [Description("Get brand payment detail info")]
     public async Task<BrandPaymentInfoModel> GetBrandPaymentInfoAsync(
         Guid id,
@@ -244,7 +244,7 @@ public partial class BrandPaymentController(
     }
 
     [HttpGet("player", Name = "GetPlayerBrandPayments")]
-    [BOAuthorize(["PlayerManagement.PlayerList.DepositForm"])]
+    [BOAuthorize(["PlayerManagement.PlayerList.DepositForm", "PlayerManagement.PlayerList.Bank"])]
     [Description("Get Brand Payments for player deposit")]
     public async IAsyncEnumerable<BrandPaymentResponse> GetPlayerBrandPaymentsAsync(
         [FromServices] IQueryService<BrandPaymentsQuery, BrandPaymentInfo> brandPaymentsQueryService,
@@ -312,7 +312,7 @@ public partial class BrandPaymentController(
     }
 
     [HttpPut("{brandPaymentId:guid}")]
-    [BOAuthorize(["System.BrandPayments.Update", "SystemAdmin.BrandPayments.Update"])]
+    [BOAuthorize(["System.BrandPayments.Update"])]
     [Description("Update a Payment")]
     public async Task<CreateUpdateBrandPaymentResponse> UpdateBrandPaymentAsync(
         Guid brandPaymentId,
@@ -399,6 +399,7 @@ public partial class BrandPaymentController(
     }
 
     [HttpGet("balance/{brandId:Guid}", Name = "GetPaymentBalances")]
+    [BOAuthorize(["System.BrandPayments", "FundManagement.Withdraw.Update"])]
     public async IAsyncEnumerable<BrandPaymentBalanceViewModel> GetPaymentBalancesAsync(
         [FromServices] IGetService<GetBrandPaymentBalanceQuery, decimal?> getBalanceService,
         Guid brandId,

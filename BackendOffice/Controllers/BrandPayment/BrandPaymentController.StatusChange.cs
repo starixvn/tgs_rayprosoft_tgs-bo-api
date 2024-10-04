@@ -12,7 +12,7 @@ namespace TGS.Apis.BackendOffice.Controllers.BrandPayment;
 public partial class BrandPaymentController
 {
     [HttpPut("{paymentId:guid}/{status}")]
-    [BOAuthorize(["System.BrandPayments.Update"])]
+    [BOAuthorize(["System.BrandPayments.Update", "SystemAdmin.BrandPayments.Update"])]
     [Description("change a Payment's status")]
     public async Task<MessageResponse> UpdateBrandPaymentStatusAsync(Guid paymentId, SwitchStatus status)
     {

@@ -22,6 +22,7 @@ namespace TGS.Apis.BackendOffice.Controllers.BrandPayment;
 public class PaymentMethodChannelController : ControllerBase
 {
     [HttpPost]
+    [BOAuthorize(["SystemAdmin.BrandPayments.Update"])]
     public async Task CreatePaymentMethodChannelAsync(
         [FromServices] ICommandService<CreatePaymentMethodChannelCommand> createService,
         [FromBody] CreatePaymentMethodChannelRequest request)
@@ -35,6 +36,7 @@ public class PaymentMethodChannelController : ControllerBase
     }
 
     [HttpDelete("{id}")]
+    [BOAuthorize(["SystemAdmin.BrandPayments.Update"])]
     public async Task DeletePaymentMethodChannelAsync(
         [FromServices] ICommandService<DeletePaymentMethodChannelCommand> deleteService,
         Guid id)

@@ -23,6 +23,7 @@ public class PaymentChannelController : BaseContextController
     /// <param name="code">The code.</param>
     /// <returns></returns>
     [HttpPut]
+    [BOAuthorize(["SystemAdmin.BrandPayments.Update"])]
     public ValueTask CreatePaymentChannelAsync(
         [FromServices] ICommandService<CreatePaymentChannelCommand> createService,
         [FromBody] string code)
