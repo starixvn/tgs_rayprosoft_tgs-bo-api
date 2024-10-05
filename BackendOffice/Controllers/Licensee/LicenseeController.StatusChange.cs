@@ -2,6 +2,7 @@
 using System.ComponentModel;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Mvc;
+using TGS.Apis.BackendOffice.Attributes;
 using TGS.Core.Models.Enums;
 using TGS.Services.BackOffice.Domain;
 
@@ -10,6 +11,7 @@ namespace TGS.Apis.BackendOffice.Controllers.Licensee;
 public partial class LicenseeController
 {
     [HttpPut("{licenseeId:guid}/{status}")]
+    [BOAuthorize(["Merchant.Licensees.Update"])]
     [Description("change a Licensee's status")]
     public async Task<MessageResponse> UpdateLicenseeStatusAsync(Guid licenseeId, Status status)
     {

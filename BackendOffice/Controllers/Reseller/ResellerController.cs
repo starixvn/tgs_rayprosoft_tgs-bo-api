@@ -4,6 +4,7 @@ using System.Linq;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
+using TGS.Apis.BackendOffice.Attributes;
 using TGS.Apis.BackendOffice.Controllers.Messages.Reseller;
 using TGS.Apis.BackendOffice.DataService.Services;
 using TGS.Services.BackOffice.Domain;
@@ -15,6 +16,7 @@ namespace TGS.Apis.BackendOffice.Controllers.Reseller;
 public partial class ResellerController(IResellerService service) : BaseContextController
 {
     [HttpPost]
+    [BOAuthorize(["Merchant.Resellers.Update"])]
     [Description("Create a Reseller")]
     public async Task<MessageResponse> CreateResellerAsync(CreateResellerRequest request)
     {
@@ -36,6 +38,7 @@ public partial class ResellerController(IResellerService service) : BaseContextC
     }
 
     [HttpGet("{id}")]
+    [BOAuthorize(["Merchant.Resellers", "Merchant.Licensees", "ResellerReport.MarketReport"])]
     [Description("Get a Reseller")]
     public async Task<GetResellerResponse> GetResellerAsync(Guid id)
     {
@@ -115,6 +118,7 @@ public partial class ResellerController(IResellerService service) : BaseContextC
     }
 
     [HttpPut("{id}")]
+    [BOAuthorize(["Merchant.Resellers.Update"])]
     [Description("Update a Reseller")]
     public async Task<MessageResponse> UpdateResellerAsync(Guid id, UpdateResellerRequest request)
     {

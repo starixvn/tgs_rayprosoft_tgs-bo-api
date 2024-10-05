@@ -4,6 +4,7 @@ using System.Linq;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
+using TGS.Apis.BackendOffice.Attributes;
 using TGS.Apis.BackendOffice.Controllers.Messages.Licensee;
 using TGS.Apis.BackendOffice.DataService.Services;
 using TGS.Services.BackOffice.Domain;
@@ -15,6 +16,7 @@ namespace TGS.Apis.BackendOffice.Controllers.Licensee;
 public partial class LicenseeController(ILicenseeService service) : BaseContextController
 {
     [HttpPost]
+    [BOAuthorize(["Merchant.Licensees.Update"])]
     [Description("Create a Licensee")]
     public async Task<MessageResponse> CreateLicenseeAsync(CreateLicenseeRequest request)
     {
@@ -36,6 +38,7 @@ public partial class LicenseeController(ILicenseeService service) : BaseContextC
     }
 
     [HttpGet("{id}")]
+    [BOAuthorize(["LicenseeReport.MarketReport", "Merchant.Licensees", "Merchant.Brands"])]
     [Description("Get a Licensee")]
     public async Task<GetLicenseeResponse> GetLicenseeAsync(Guid id)
     {
@@ -119,6 +122,7 @@ public partial class LicenseeController(ILicenseeService service) : BaseContextC
             .CreatePagedResponseAsync(request);
 
     [HttpPut("{id}")]
+    [BOAuthorize(["Merchant.Licensees.Update"])]
     [Description("Update a Licensee")]
     public async Task<MessageResponse> UpdateLicenseeAsync(Guid id, UpdateLicenseeRequest request)
     {
