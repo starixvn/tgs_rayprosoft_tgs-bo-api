@@ -68,6 +68,7 @@ public partial class GameProviderController(IMediator mediator, IUploadService u
         mediator.Send(new GetGameProviderRequest(id));
 
     [HttpGet("brands")]
+    [BOAuthorize(["SystemAdmin.PlatformGameProvider"])]
     [Description("Get game provider Brands")]
     public ValueTask<GameProvidersBrandQueryResult>
        GetGameProviderBrandsAsync(

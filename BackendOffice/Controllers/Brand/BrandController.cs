@@ -9,6 +9,7 @@ using Microsoft.AspNetCore.Mvc;
 using Tgs.BrandCertificate.Clients;
 using Tgs.Paging;
 using Tgs.ServiceUtility;
+using TGS.Apis.BackendOffice.Attributes;
 using TGS.Apis.BackendOffice.Controllers.Messages;
 using TGS.Apis.BackendOffice.Controllers.Messages.BrandToken;
 using TGS.Apis.BackendOffice.ViewModels;
@@ -321,6 +322,7 @@ public partial class BrandController(IMediator mediator) : BaseContextController
             HttpContext.RequestAborted);
 
     [HttpPatch("enable-sms/{brandId:Guid}", Name = "SetBrandEnableSms")]
+    [BOAuthorize(["SystemAdmin.Sms.Update"])]
     public ValueTask SetBrandEnableSmsAsync(
         [FromServices] ICommandService<SetBrandEnableSmsCommand> commandService,
         Guid brandId,

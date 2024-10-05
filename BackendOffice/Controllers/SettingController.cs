@@ -3,6 +3,7 @@ using System.ComponentModel;
 using System.Linq;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Mvc;
+using TGS.Apis.BackendOffice.Attributes;
 using TGS.Apis.BackendOffice.Controllers.Messages.Settings;
 using TGS.Apis.BackendOffice.Resources;
 using TGS.Core.DataServices.Base.Interfaces;
@@ -21,6 +22,7 @@ public class SettingController(
     IRedisCacheManager cacheManager) : BaseContextController
 {
     [HttpPost("")]
+    [BOAuthorize(["SystemAdmin.Settings.Update"])]
     [Description("Create a setting")]
     public async Task<MessageResponse> CreateAsync([FromBody] CreateSettingRequest request)
     {
@@ -47,6 +49,7 @@ public class SettingController(
 
     [Route("{key}")]
     [HttpDelete]
+    [BOAuthorize(["SystemAdmin.Settings.Update"])]
     [Description("Delete setting by key")]
     public async Task<MessageResponse> DeleteAsync(string key)
     {
@@ -62,6 +65,7 @@ public class SettingController(
 
     [Route("")]
     [HttpGet]
+    [BOAuthorize(["SystemAdmin.Settings"])]
     [Description("Get setting list")]
     public Task<PagedResponse<SettingModel>> GetListAsync([FromQuery] GetSettingsRequest request)
         => queries.GetQueries()
@@ -80,6 +84,7 @@ public class SettingController(
 
     [Route("{key}")]
     [HttpGet]
+    [BOAuthorize(["Overview.Platform", "Promotion.PromotionList", "Promotion.PayoutList"])]
     [Description("Get setting by key")]
     public async Task<GetSettingResponse> GetSingleAsync(string key)
     {
@@ -104,6 +109,7 @@ public class SettingController(
     }
 
     [HttpPut("{key}")]
+    [BOAuthorize(["SystemAdmin.Settings.Update"])]
     [Description("Update setting by key")]
     public async Task<MessageResponse> UpdateAsync(string key, [FromBody] UpdateSettingRequest request)
     {

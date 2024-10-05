@@ -15,6 +15,7 @@ public class LogController(
     ILogQueries logQueries) : BaseContextController
 {
     [HttpGet("admin/{id:Guid}")]
+    [BOAuthorize(["Log.AdminLog"])]
     [ByPassAdminLog]
     public async Task<LogDetailResponse> GetAdminLogAsync(Guid id)
     {
@@ -28,6 +29,7 @@ public class LogController(
     }
 
     [HttpGet("admin")]
+    [BOAuthorize(["Log.AdminLog"])]
     [ByPassAdminLog]
     public async Task<PagedResponse<AdminLogModel>> GetAdminLogsAsync([FromQuery] AdminLogRequest request)
     {
@@ -37,6 +39,7 @@ public class LogController(
     }
 
     [HttpGet("api/{id:Guid}")]
+    [BOAuthorize(["Log.ApiLog"])]
     [ByPassAdminLog]
     public async Task<LogDetailResponse> GetApiLogAsync(Guid id)
     {
@@ -50,6 +53,7 @@ public class LogController(
     }
 
     [HttpGet("api")]
+    [BOAuthorize(["Log.ApiLog"])]
     [ByPassAdminLog]
     public async Task<PagedResponse<ApiLogModel>> GetApiLogsAsync([FromQuery] ApiLogRequest request)
     {
@@ -59,6 +63,7 @@ public class LogController(
     }
 
     [HttpGet("log")]
+    [BOAuthorize(["Log.Log"])]
     [ByPassAdminLog]
     public async Task<PagedResponse<LogRecordModel>> GetLogRecordsAsync([FromQuery] LogRecordRequest request)
     {

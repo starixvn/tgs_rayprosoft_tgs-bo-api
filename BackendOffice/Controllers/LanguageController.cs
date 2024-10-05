@@ -13,6 +13,7 @@ namespace TGS.Apis.BackendOffice.Controllers;
 public class LanguageController(IMediator mediator) : BaseContextController
 {
     [HttpPost]
+    [BOAuthorize(["SystemAdmin.Language.Update"])]
     [Description("Create a language")]
     public Task<MessageResponse> CreateLanguageAsync(CreateLanguageRequest request) => mediator.Send(request);
 
@@ -27,6 +28,7 @@ public class LanguageController(IMediator mediator) : BaseContextController
         mediator.Send(request);
 
     [HttpPut("{cultureCode}")]
+    [BOAuthorize(["SystemAdmin.Language.Update"])]
     [Description("Update a language")]
     public Task<MessageResponse> UpdateLanguageAsync(string cultureCode, UpdateLanguageRequest request)
     {

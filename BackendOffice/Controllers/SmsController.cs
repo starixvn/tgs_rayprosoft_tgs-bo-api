@@ -7,6 +7,7 @@ using System.Text.Json;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Mvc;
 using Tgs.ServiceUtility;
+using TGS.Apis.BackendOffice.Attributes;
 using TGS.Apis.BackendOffice.ViewModels;
 using TGS.Services.BackOffice.ApplicationServices.Sms;
 using TGS.SmsService.Client;
@@ -18,6 +19,7 @@ namespace TGS.Apis.BackendOffice.Controllers;
 public class SmsController : BaseContextController
 {
     [HttpPost(Name = "AddSmsSetting")]
+    [BOAuthorize(["SystemAdmin.Sms.Update"])]
     public ValueTask AddSmsSettingAsync(
        [FromServices] ICommandService<AddSmsSettingCommand> commandService,
        [FromBody] AddSmsSettingRequest request)
@@ -26,7 +28,7 @@ public class SmsController : BaseContextController
             request.Name,
             request.Code,
             JsonDocument.Parse(string.IsNullOrWhiteSpace(request.Setting)
-                ? "{}" 
+                ? "{}"
                 : request.Setting),
             Username);
 
@@ -34,6 +36,7 @@ public class SmsController : BaseContextController
     }
 
     [HttpDelete("{smsSettingId:Guid}", Name = "RemoveSmsSetting")]
+    [BOAuthorize(["SystemAdmin.Sms.Update"])]
     public ValueTask RemoveSmsSettingAsync(
         [FromServices] ICommandService<RemoveSmsSettingCommand> commandService,
         Guid smsSettingId)
@@ -44,6 +47,7 @@ public class SmsController : BaseContextController
     }
 
     [HttpPut("{smsSettingId:Guid}", Name = "UpdateSmsSetting")]
+    [BOAuthorize(["SystemAdmin.Sms.Update"])]
     public ValueTask UpdateSmsSettingAsync(
         [FromServices] ICommandService<UpdateSmsSettingCommand> commandService,
         [FromBody] UpdateSmsSettingRequest request,
@@ -60,6 +64,7 @@ public class SmsController : BaseContextController
     }
 
     [HttpGet(Name = "QuerySmsSettingList")]
+    [BOAuthorize(["SystemAdmin.Sms.Update"])]
     public IAsyncEnumerable<SmsSettingViewModel> QuerySmsSettingListAsync(
         [FromServices] IQueryService<GetSmsSettingsQuery, SmsSettingInfo> queryService)
     {

@@ -4,6 +4,7 @@ using System.Threading.Tasks;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Tgs.ServiceUtility;
+using TGS.Apis.BackendOffice.Attributes;
 using TGS.Services.BackOffice.ApplicationServices.Localization;
 
 namespace TGS.Apis.BackendOffice.Controllers;
@@ -13,6 +14,7 @@ namespace TGS.Apis.BackendOffice.Controllers;
 public class LocalizationController : ControllerBase
 {
     [HttpGet("export/{systemCode}")]
+    [BOAuthorize(["SystemAdmin.Settings"])]
     public async Task<FileContentResult> ExportLocalizationFileAsync(
         [FromServices] IGetService<ExportLocalizationFileCommand, Stream> exportService,
         string systemCode)
@@ -31,6 +33,7 @@ public class LocalizationController : ControllerBase
     }
 
     [HttpPost("import/{systemCode}")]
+    [BOAuthorize(["SystemAdmin.Settings.Update"])]
     public async Task ImportLocalizationFileAsync(
         [FromServices] ICommandService<ImportLocalizationFileCommand> importService,
         string systemCode,

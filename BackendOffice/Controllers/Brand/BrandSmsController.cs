@@ -4,6 +4,7 @@ using System.Linq;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Mvc;
 using Tgs.ServiceUtility;
+using TGS.Apis.BackendOffice.Attributes;
 using TGS.Apis.BackendOffice.ViewModels;
 using TGS.Services.BackOffice.ApplicationServices;
 using TGS.SmsService.Client;
@@ -15,6 +16,7 @@ namespace TGS.Apis.BackendOffice.Controllers.Brand;
 public class BrandSmsController : BaseContextController
 {
     [HttpPost("{brandId:Guid}", Name = "AddBrandSms")]
+    [BOAuthorize(["SystemAdmin.Sms.Update"])]
     public ValueTask AddBrandSmsAsync(
         [FromServices] ICommandService<AddBrandSmsCommand> commandService,
         Guid brandId,
@@ -28,6 +30,7 @@ public class BrandSmsController : BaseContextController
     }
 
     [HttpDelete("{brandId:Guid}/{smsSettingId:Guid}", Name = "RemoveBrandSms")]
+    [BOAuthorize(["SystemAdmin.Sms.Update"])]
     public ValueTask RemoveBrandSmsAsync(
         [FromServices] ICommandService<RemoveBrandSmsCommand> commandService,
         Guid brandId,
@@ -39,6 +42,7 @@ public class BrandSmsController : BaseContextController
     }
 
     [HttpGet("options/{brandId:Guid}", Name = "ListBrandSms")]
+    [BOAuthorize(["SystemAdmin.Sms", "Platform.IMSettings.ViewSms", "Platform.IMSettings.UpdateSms"])]
     public IAsyncEnumerable<BrandSmsSettingViewModel> ListBrandSmsAsync(
         [FromServices] IQueryService<ListBrandSmsQuery, BrandSmsInfo> queryService,
         Guid brandId)
@@ -54,6 +58,7 @@ public class BrandSmsController : BaseContextController
     }
 
     [HttpPatch("apply/{brandId:Guid}", Name = "ApplyBrandSms")]
+    [BOAuthorize(["SystemAdmin.Sms.Update", "Platform.IMSettings.ViewSms", "Platform.IMSettings.UpdateSms"])]
     public ValueTask ApplyBrandSmsAsync(
        [FromServices] ICommandService<ApplyBrandSmsCommand> commandService,
        Guid brandId,
@@ -65,6 +70,7 @@ public class BrandSmsController : BaseContextController
            HttpContext.RequestAborted);
 
     [HttpGet("{brandId}", Name = "GetBrandSmsInfo")]
+    [BOAuthorize(["SystemAdmin.Sms.Update", "Platform.IMSettings.ViewSms", "Platform.IMSettings.UpdateSms"])]
     public async ValueTask<BrandSmsResultViewModel> GetBrandSmsInfoAsync(
         [FromServices] IGetService<GetBrandSmsQuery, BrandSmsResult> getService,
         Guid brandId)

@@ -13,6 +13,7 @@ namespace TGS.Apis.BackendOffice.Controllers;
 public class CurrencyController(IMediator mediator) : BaseContextController
 {
     [HttpPost]
+    [BOAuthorize(["SystemAdmin.Currency.Update"])]
     [Description("Create a currency")]
     public Task<MessageResponse> CreateCurrencyAsync(CreateCurrencyRequest request) => mediator.Send(request);
 
@@ -29,6 +30,7 @@ public class CurrencyController(IMediator mediator) : BaseContextController
         mediator.Send(new GetCurrencyRequest(code));
 
     [HttpPut("{code}")]
+    [BOAuthorize(["SystemAdmin.Currency.Update"])]
     [Description("Update a currency")]
     public Task<MessageResponse> UpdateCurrencyAsync(string code, UpdateCurrencyRequest request)
     {
