@@ -53,7 +53,7 @@ public class AuthenticateController(
                 u => u.Include(p => p.Role));
         }
 
-        if (user == null)
+        if (user == null || user.Status != UserStatus.Enabled)
         {
             return CreateInvalidResponse<AuthenticateUserResponse>(Resources.User.NotFound);
         }

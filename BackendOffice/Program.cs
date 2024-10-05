@@ -258,8 +258,9 @@ builder.Services
     .AddAuthentication(CookieAuthenticationDefaults.AuthenticationScheme)
     .AddCookie(options =>
     {
-        options.LoginPath = new PathString("/api/auth");
         options.ExpireTimeSpan = TimeSpan.FromMinutes(20);
+        options.SlidingExpiration = true;
+        options.LoginPath = new PathString("/api/auth");
 
         options.Events.OnRedirectToLogin = context =>
         {
