@@ -139,9 +139,7 @@ public class PlayerControllerTests : BaseTests
                 VipLevelId: expected.VipId,
                 VipLevel: expected.VipLevel,
                 AutoState: Tgs.VipLevelService.Common.PlayerVipLevelAutoState.Enable,
-                AccumDepositId: Guid.NewGuid(),
                 AccumDeposit: expected.AccumDeposit,
-                AccumTurnoverId: Guid.NewGuid(),
                 AccumTurnover: expected.AccumTurnover,
                 LevelUpAccumulateBetAmount: expected.LevelUpAccumulateBetAmount,
                 LevelUpAccumulateDeposit: expected.LevelUpAccumulateDeposit,
@@ -187,7 +185,7 @@ public class PlayerControllerTests : BaseTests
         var (skip, take) = GetPage(request);
         var orderedPlayers = list.OrderByDescending(p => p.CreatedOn);
 
-        var expectedPlayers = showAll ? orderedPlayers.ToArray() : orderedPlayers.Skip(skip).Take(take).ToArray();
+        var expectedPlayers = showAll ? [.. orderedPlayers] : orderedPlayers.Skip(skip).Take(take).ToArray();
 
         _ = mediatorMock
             .Send(Arg.Any<GetPlayerOperationRequest>(), Arg.Any<CancellationToken>())

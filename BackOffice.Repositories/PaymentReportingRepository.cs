@@ -61,10 +61,7 @@ internal class PaymentReportingRepository(ITgsRepository tgsRepository, ILogger<
                     SELECT
                         COALESCE(FD.player_code, SD.player_code) AS player_code,
                         FD.is_first_deposit,
-                        CASE SD.player_code
-                            WHEN NULL THEN false
-                            ELSE true
-                        END AS un_second_deposit
+                        SD.player_code IS NOT NULL AS un_second_deposit
                     FROM
                         (
                             SELECT
@@ -252,6 +249,26 @@ internal class PaymentReportingRepository(ITgsRepository tgsRepository, ILogger<
                         FULL OUTER JOIN
                         withdrawStatistics AS WS ON DS.player_code = WS.player_code
                 ),
+                undepositAgainStatistics (
+                    player_code
+                )
+                AS
+                (
+                    SELECT
+                        PS.player_code
+                    FROM
+                        dbo.player_daily_payment_statistics AS PS
+                        JOIN
+                        dbo.players AS P ON PS.player_code = P.player_code
+                    WHERE
+                        PS.report_date <= @UndepositAgainCheckDate
+                        AND
+                        P.brand_id = @BrandId
+                    GROUP BY
+                        PS.player_code
+                    HAVING
+                        Max(PS.total_deposit_count) = 1
+                ),
                 historyStatistics (
                     player_code,
                     first_deposit_on,
@@ -271,24 +288,20 @@ internal class PaymentReportingRepository(ITgsRepository tgsRepository, ILogger<
                         dbo.player_daily_payment_statistics
                     WHERE
                         report_date < @QueryDate
+                        AND
+                        player_code IN(
+                            SELECT
+                                mergeStatistics.player_code
+                            FROM
+                                mergeStatistics
+                            UNION
+                            SELECT
+                                undepositAgainStatistics.player_code
+                            FROM
+                                undepositAgainStatistics
+                        )
                     GROUP BY
                         player_code
-                ),
-                undepositAgainStatistics (
-                    player_code
-                )
-                AS
-                (
-                    SELECT
-                        player_code
-                    FROM
-                        dbo.player_daily_payment_statistics AS PS
-                    WHERE
-                        report_date <= @UndepositAgainCheckDate
-                    GROUP BY
-                        player_code
-                    HAVING
-                        Max(total_deposit_count) = 1
                 )
                 SELECT
                     COALESCE(MS.player_code, UAS.player_code) AS PlayerCode,

@@ -6,18 +6,18 @@ using Tgs.Report.Client;
 using Tgs.Report.Client.Models.Player;
 using Tgs.ServiceUtility;
 using TGS.Core.Models.Enums;
-using TGS.Core.Models.Messages;
 using TGS.Services.BackOffice.Application.Models.ReportPlayer;
 
 namespace TGS.Services.BackOffice.Application.Queries.ReportPlayerQueries;
 
 public class
     GetPlayersAccountChangesQuery(IReportClient reportClient) : IGetService<GetPlayersAccountChangesReportRequest,
-        PagedResponse<PlayersAccountChangeReportModel>>
+    GetPlayersAccountChangesReportResponse>
 {
-    private readonly IReportClient _reportClient = reportClient ?? throw new ArgumentNullException(nameof(reportClient));
+    private readonly IReportClient
+        _reportClient = reportClient ?? throw new ArgumentNullException(nameof(reportClient));
 
-    public async ValueTask<PagedResponse<PlayersAccountChangeReportModel>> GetAsync(
+    public async ValueTask<GetPlayersAccountChangesReportResponse> GetAsync(
         GetPlayersAccountChangesReportRequest request,
         CancellationToken cancellationToken = default)
     {
@@ -35,14 +35,23 @@ public class
             ShowAll = request.ShowAll
         };
 
-        var response = await _reportClient.GetPlayersAccountChangesAsync(reportRequest);
+        var response = await _reportClient.GetMultiplePlayersAccountChangesAsync(reportRequest)
+            .ToArrayAsync(cancellationToken);
 
-        return new()
+        var reportTotalRequest = new GetPlayersAccountChangesTotalAmountRequest
         {
-            Valid = response.Valid,
-            Message = response.Message,
-            TotalCount = response.TotalCount,
-            Items = response.Items?.Select(x => new PlayersAccountChangeReportModel
+            BrandId = request.BrandId,
+            Username = request.Username,
+            TransactionType = (short?)request.TransactionType,
+            From = request.From,
+            To = request.To
+        };
+
+        var totalResponse = await _reportClient.GetMultiplePlayersAccountChangesTotalAmountAsync(reportTotalRequest);
+
+        return new GetPlayersAccountChangesReportResponse
+        {
+            Items = response.Select(x => new PlayersAccountChangeReportModel
             {
                 Username = x.Username,
                 Amount = x.Amount,
@@ -52,7 +61,14 @@ public class
                 RecordedOn = x.RecordedOn,
                 Operator = x.Operator,
                 Description = x.Description
-            }).ToArray()
+            }),
+            Total = new PlayersAccountChangesTotalAmountReportModel
+            {
+                Amount = totalResponse.Amount,
+                BeforeBalance = totalResponse.BeforeBalance,
+                AfterBalance = totalResponse.AfterBalance
+            },
+            TotalCount = totalResponse.TotalCount
         };
     }
 }

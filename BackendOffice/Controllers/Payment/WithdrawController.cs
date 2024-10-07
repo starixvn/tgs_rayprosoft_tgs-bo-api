@@ -1,11 +1,14 @@
 ﻿using System;
+using System.Diagnostics;
 using System.IO;
 using System.Linq;
 using System.Text.Json;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using Tgs.Agent.Client;
 using Tgs.Payment.Clients;
+using Tgs.PlayerService.Client;
 using Tgs.ServiceUtility;
 using TGS.Apis.BackendOffice.Controllers.Messages;
 using TGS.Apis.BackendOffice.Controllers.Messages.Deposit;
@@ -16,6 +19,7 @@ using TGS.Services.BackOffice.Application.Queries.Withdraw;
 using TGS.Services.BackOffice.Application.Resources;
 using TGS.Services.BackOffice.ApplicationServices.Payment;
 using TGS.Services.BackOffice.Domain;
+using UserType = Tgs.Payment.Clients.UserType;
 
 namespace TGS.Apis.BackendOffice.Controllers.Payment;
 
@@ -27,7 +31,10 @@ public class WithdrawController : BaseContextController
     public ValueTask<int> CountUntreatedWithdrawFormsAsync(
         [FromServices] IGetService<CountUntreatedWithdrawFormsQuery, int> countService,
         Guid brandId)
-        => countService.GetAsync(new CountUntreatedWithdrawFormsQuery(brandId));
+    {
+        _ = (Activity.Current?.AddTag("username", Username));
+        return countService.GetAsync(new CountUntreatedWithdrawFormsQuery(brandId));
+    }
 
     [HttpPost("player", Name = "CreatePlayerWithdrawRequest")]
     public async Task<MessageResponse> CreatePlayerWithdrawRequestAsync(
@@ -99,7 +106,7 @@ public class WithdrawController : BaseContextController
 
         var query = new WithdrawFormQuery(
             brandId,
-            request.UserName,
+            request.Username,
             request.ChannelName,
             request.ThirdPartyOrderNo,
             request.OrderNo,
@@ -153,7 +160,7 @@ public class WithdrawController : BaseContextController
             {
                 Id = formDetail.Id,
                 UserId = formDetail.UserId,
-                UserName = formDetail.UserName,
+                Username = formDetail.UserName,
                 UserType = formDetail.UserType.ToString(),
                 BrandId = formDetail.BrandId,
                 BrandPaymentId = formDetail.BrandPaymentId,
@@ -178,10 +185,10 @@ public class WithdrawController : BaseContextController
                 ThirdPartyOrderNo = formDetail.ThirdPartyOrderNo,
                 OrderNo = formDetail.OrderNo,
                 ReviewedOn = formDetail.ReviewedOn,
-                ReviewedUserName = formDetail.ReviewedUserName,
+                ReviewedUsername = formDetail.ReviewedUserName,
                 PaidOn = formDetail.PaidOn,
                 PaidUserId = formDetail.PaidUserId,
-                PaidUserName = formDetail.PaidUserName,
+                PaidUsername = formDetail.PaidUserName,
                 Note = formDetail.Note,
                 HandlingFee = formDetail.HandlingFee,
                 RealName = realName,
@@ -192,6 +199,8 @@ public class WithdrawController : BaseContextController
     [HttpGet("{brandId}")]
     public async Task<PagingWithdrawFormViewModel> QueryWithdrawFormsAsync(
         [FromServices] IGetService<WithdrawFormQuery, WithdrawForms> queryService,
+        [FromServices] IPlayerServiceClient playerServiceClient,
+        [FromServices] IAgentClient agentClient,
         Guid brandId,
         [FromQuery] WithdrawFormRequest request,
         [FromQuery] PageableRequest paging)
@@ -207,7 +216,7 @@ public class WithdrawController : BaseContextController
 
         var query = new WithdrawFormQuery(
             brandId,
-            request.UserName,
+            request.Username,
             request.ChannelName,
             request.ThirdPartyOrderNo,
             request.OrderNo,
@@ -233,36 +242,52 @@ public class WithdrawController : BaseContextController
             .GetAsync(query, HttpContext.RequestAborted)
             .ConfigureAwait(false);
 
+        var playerInfos = playerServiceClient.QueryPlayerInfoListAsync(brandId,
+            result.Items.Where(x => x.UserType == UserType.Player).Select(x => x.UserId),
+            HttpContext.RequestAborted);
+
+        var agents = agentClient.GetAgentNamesAsync(brandId);
+
+        var players = playerInfos.SelectAwait(async x =>
+        {
+            var agentInfo = await agents.FirstOrDefaultAsync(a => a.AgentId == x.AgentId);
+
+            return (x.PlayerCode, agentInfo?.Username);
+        }).ToEnumerable();
+
         var response = new PagingWithdrawFormViewModel()
         {
             Valid = true,
             TotalCount = result.TotalCount,
             Items = result.Items
-            .Select(form => new WithdrawFormViewModel
-            {
-                Id = form.Id,
-                UserId = form.UserId,
-                UserName = form.UserName,
-                UserType = form.UserType.ToString(),
-                BrandId = form.BrandId,
-                BrandPaymentId = form.BrandPaymentId,
-                PaymentMethodId = form.PaymentMethodId,
-                ChannelName = form.ChannelName,
-                Status = form.Status.ToFlowState(),
-                Amount = form.Amount,
-                ActualAmount = form.ActualAmount,
-                Remark = form.Remark,
-                CreatedOn = form.CreatedOn,
-                UpdatedOn = form.UpdatedOn,
-                ThirdPartyOrderNo = form.ThirdPartyOrderNo,
-                ReviewedUserName = form.ReviewedUserName,
-                ReviewedOn = form.ReviewedOn,
-                OrderNo = form.OrderNo,
-                PaidOn = form.PaidOn,
-                PaidUserId = form.PaidUserId,
-                PaidUserName = form.PaidUserName
-            })
-            .ToArray(),
+                .Select(form => new WithdrawFormViewModel
+                {
+                    Id = form.Id,
+                    UserId = form.UserId,
+                    Username = form.UserName,
+                    UserType = form.UserType.ToString(),
+                    BrandId = form.BrandId,
+                    BrandPaymentId = form.BrandPaymentId,
+                    PaymentMethodId = form.PaymentMethodId,
+                    ChannelName = form.ChannelName,
+                    Status = form.Status.ToFlowState(),
+                    Amount = form.Amount,
+                    ActualAmount = form.ActualAmount,
+                    Remark = form.Remark,
+                    CreatedOn = form.CreatedOn,
+                    UpdatedOn = form.UpdatedOn,
+                    ThirdPartyOrderNo = form.ThirdPartyOrderNo,
+                    ReviewedUsername = form.ReviewedUserName,
+                    ReviewedOn = form.ReviewedOn,
+                    OrderNo = form.OrderNo,
+                    PaidOn = form.PaidOn,
+                    PaidUserId = form.PaidUserId,
+                    PaidUsername = form.PaidUserName,
+                    AgentName = form.UserType == UserType.Agent
+                        ? null
+                        : players.FirstOrDefault(x => x.PlayerCode == form.UserId).Username
+                })
+                .ToArray(),
             Sum = result.Sum
         };
 

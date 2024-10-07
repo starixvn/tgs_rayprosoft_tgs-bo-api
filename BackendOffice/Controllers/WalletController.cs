@@ -76,7 +76,11 @@ public class WalletController : BaseContextController
                 GameActionId = null,
                 Amount = x.Amount,
                 Balance = x.Balance,
-                TransactionType = (BoEnums.TransactionType?)x.TransactionType,
+                TransactionType = (BoEnums.TransactionType)x.TransactionType switch
+                {
+                    BoEnums.TransactionType.GameProviderFundOutLock => BoEnums.TransactionType.GameProviderFundOut,
+                    var type => type
+                },
                 GameActionType = (GameActionType?)x.TransactionType switch
                 {
                     GameActionType.PlaceBet => TransactionGameActionType.GameBet,
@@ -360,6 +364,7 @@ public class WalletController : BaseContextController
             case BoEnums.TransactionType.GameProviderFundIn:
             case BoEnums.TransactionType.DividendAllAgentRebate:
             case BoEnums.TransactionType.Transfer:
+            case BoEnums.TransactionType.GameProviderFundOutLock:
                 return description;
 
             default:

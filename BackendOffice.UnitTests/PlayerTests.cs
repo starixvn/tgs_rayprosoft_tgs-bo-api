@@ -235,7 +235,8 @@ internal class PlayerTests
                 brandId,
                 Guid.NewGuid(),
                 null,
-                false));
+                false,
+                true));
 
         var actual = await sut.GetAsync(new SetPlayerAgentCommand(playerCode, agentUsername, modifyUserId, modifyUsername));
 
@@ -338,7 +339,8 @@ internal class PlayerTests
                 brandId,
                 Guid.NewGuid(),
                 null,
-                false));
+                false,
+                true));
 
         var actual = await sut.GetAsync(new SetPlayerAgentCommand(playerCode, agentUsername, modifyUserId, modifyUsername));
 
@@ -770,9 +772,7 @@ internal class PlayerTests
                 VipLevelId: Guid.Parse("3a6b6f1d-3094-4b66-3c7a-08d9262ce1a5"),
                 VipLevel: 1,
                 AutoState: Tgs.VipLevelService.Common.PlayerVipLevelAutoState.Enable,
-                AccumDepositId: Guid.NewGuid(),
                 AccumDeposit: 0,
-                AccumTurnoverId: Guid.NewGuid(),
                 AccumTurnover: 0,
                 LevelUpAccumulateBetAmount: 1000m,
                 LevelUpAccumulateDeposit: 1000m,
@@ -861,9 +861,7 @@ internal class PlayerTests
                 VipLevelId: Guid.Parse("3a6b6f1d-3094-4b66-3c7a-08d9262ce1a5"),
                 VipLevel: 1,
                 AutoState: Tgs.VipLevelService.Common.PlayerVipLevelAutoState.Enable,
-                AccumDepositId: Guid.NewGuid(),
                 AccumDeposit: 0,
-                AccumTurnoverId: Guid.NewGuid(),
                 AccumTurnover: 0,
                 LevelUpAccumulateBetAmount: 1000m,
                 LevelUpAccumulateDeposit: 1000m,
@@ -953,9 +951,7 @@ internal class PlayerTests
                 VipLevelId: Guid.Parse("3a6b6f1d-3094-4b66-3c7a-08d9262ce1a5"),
                 VipLevel: 1,
                 AutoState: Tgs.VipLevelService.Common.PlayerVipLevelAutoState.Enable,
-                AccumDepositId: Guid.NewGuid(),
                 AccumDeposit: 0,
-                AccumTurnoverId: Guid.NewGuid(),
                 AccumTurnover: 0,
                 LevelUpAccumulateBetAmount: 1000m,
                 LevelUpAccumulateDeposit: 1000m,
@@ -1047,9 +1043,7 @@ internal class PlayerTests
                 VipLevelId: Guid.Parse("3a6b6f1d-3094-4b66-3c7a-08d9262ce1a5"),
                 VipLevel: 1,
                 AutoState: Tgs.VipLevelService.Common.PlayerVipLevelAutoState.Enable,
-                AccumDepositId: Guid.NewGuid(),
                 AccumDeposit: 0,
-                AccumTurnoverId: Guid.NewGuid(),
                 AccumTurnover: 0,
                 LevelUpAccumulateBetAmount: 1000m,
                 LevelUpAccumulateDeposit: 1000m,

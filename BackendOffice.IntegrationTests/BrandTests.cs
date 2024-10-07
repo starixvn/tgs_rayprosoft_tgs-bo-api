@@ -8,7 +8,6 @@ using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 using NSubstitute;
-using Tgs.Agent.Dividend.Client;
 using Tgs.BrandCertificate;
 using Tgs.BrandCertificate.Clients;
 using TGS.Apis.BackendOffice.ViewModels;
@@ -16,7 +15,6 @@ using TGS.Services.BackOffice.Application.Models.Brand;
 using TGS.Services.BackOffice.Application.Resources;
 using TGS.Services.BackOffice.Domain;
 using TGS.Services.BackOffice.Infrastructure.DataService;
-using Xunit;
 using Xunit.Abstractions;
 using CreateBrandRequest = TGS.Services.BackOffice.Application.Models.Brand.CreateBrandRequest;
 using Enums = TGS.Core.Models.Enums;
@@ -757,7 +755,6 @@ public class BrandTests(ITestOutputHelper testOutputHelper, NodeJsFixture nodeJs
 
         var fakeBrandServiceClient = Substitute.For<IBrandServiceClient>();
         var fakeBrandService = Substitute.For<IBrandService>();
-        var fakeBrandContractClient = Substitute.For<IBrandContractClient>();
 
         using var web = TestBackendOfficeApplication.Builder
             .UseTestChannelServer(channelName)
@@ -773,8 +770,7 @@ public class BrandTests(ITestOutputHelper testOutputHelper, NodeJsFixture nodeJs
                     })
                 .Services
                 .AddSingleton(fakeBrandServiceClient)
-                .AddSingleton(fakeBrandService)
-                .AddSingleton(fakeBrandContractClient))
+                .AddSingleton(fakeBrandService))
             .Build();
 
         await web.StartAsync();
@@ -854,7 +850,6 @@ public class BrandTests(ITestOutputHelper testOutputHelper, NodeJsFixture nodeJs
             Name = "TestBrand",
             Description = "TestBrand",
             OperationalEmail = string.Empty,
-            PlatformCharge = 10000m,
             TimeSpanMinutes = 480,
             EnablePlayerIdentity = false,
             LicenseeId = Guid.NewGuid(),
@@ -897,7 +892,6 @@ public class BrandTests(ITestOutputHelper testOutputHelper, NodeJsFixture nodeJs
 
         var fakeBrandServiceClient = Substitute.For<IBrandServiceClient>();
         var fakeBrandService = Substitute.For<IBrandService>();
-        var fakeBrandContractClient = Substitute.For<IBrandContractClient>();
 
         using var web = TestBackendOfficeApplication.Builder
             .UseTestChannelServer(channelName)
@@ -913,8 +907,7 @@ public class BrandTests(ITestOutputHelper testOutputHelper, NodeJsFixture nodeJs
                     })
                 .Services
                 .AddSingleton(fakeBrandServiceClient)
-                .AddSingleton(fakeBrandService)
-                .AddSingleton(fakeBrandContractClient))
+                .AddSingleton(fakeBrandService))
             .Build();
 
         await web.StartAsync();
@@ -996,7 +989,6 @@ public class BrandTests(ITestOutputHelper testOutputHelper, NodeJsFixture nodeJs
             Name = "TestBrand",
             Description = "TestBrand",
             OperationalEmail = string.Empty,
-            PlatformCharge = 10000m,
             TimeSpanMinutes = 480,
             EnablePlayerIdentity = false,
             LicenseeId = Guid.NewGuid(),
@@ -1040,7 +1032,6 @@ public class BrandTests(ITestOutputHelper testOutputHelper, NodeJsFixture nodeJs
 
         var fakeBrandServiceClient = Substitute.For<IBrandServiceClient>();
         var fakeBrandService = Substitute.For<IBrandService>();
-        var fakeBrandContractClient = Substitute.For<IBrandContractClient>();
 
         using var web = TestBackendOfficeApplication.Builder
             .UseTestChannelServer(channelName)
@@ -1056,8 +1047,7 @@ public class BrandTests(ITestOutputHelper testOutputHelper, NodeJsFixture nodeJs
                     })
                 .Services
                 .AddSingleton(fakeBrandServiceClient)
-                .AddSingleton(fakeBrandService)
-                .AddSingleton(fakeBrandContractClient))
+                .AddSingleton(fakeBrandService))
             .Build();
 
         await web.StartAsync();
@@ -1139,7 +1129,6 @@ public class BrandTests(ITestOutputHelper testOutputHelper, NodeJsFixture nodeJs
             Name = "Game Integration",
             Description = "TestBrand",
             OperationalEmail = string.Empty,
-            PlatformCharge = 10000m,
             TimeSpanMinutes = 480,
             EnablePlayerIdentity = false,
             LicenseeId = Guid.NewGuid(),
@@ -1653,6 +1642,67 @@ public class BrandTests(ITestOutputHelper testOutputHelper, NodeJsFixture nodeJs
             .SetBrandPlatformAccountFundAsync(
                 Arg.Is(brandId),
                 Arg.Is(enabled),
+                Arg.Is("system"),
+                Arg.Any<CancellationToken>());
+    }
+
+    [Fact]
+    public async Task 整合測試_設定Brand開啟簡訊設定()
+    {
+        // Arrange
+        var channelName = Guid.NewGuid().ToString();
+        var userId = Guid.NewGuid();
+
+        var fakeBrandServiceClient = Substitute.For<IBrandServiceClient>();
+
+        using var web = TestBackendOfficeApplication.Builder
+            .UseTestChannelServer(channelName)
+            .ConfigureLogging(logging => logging.AddXUnit(_testOutputHelper))
+            .ConfigureServices(services => services
+                .AddAuthentication("Fake")
+                .AddScheme<FakeAuthenticationSchemaOptions, FakeAuthenticationHandler>(
+                    "Fake",
+                    options =>
+                    {
+                        options.UserId = userId;
+                        options.UserName = "system";
+                    })
+                .Services
+                .AddSingleton(fakeBrandServiceClient))
+            .Build();
+
+        await web.StartAsync();
+
+        var brandId = Guid.NewGuid();
+
+        using var nodeService = _nodeJsFixture.BuildNodeJsService();
+
+        var isWindows = RuntimeInformation.IsOSPlatform(OSPlatform.Windows) ? "true" : "false";
+
+        var nodeModule = $$"""
+            const axiosConfigFactory = require('./models/axios-configuration.js').default;
+            const BackOfficeService = require('./services/bo-brand-service.js').default;
+
+            module.exports = async (brandId, enableSms) =>
+            {
+                let instance = axiosConfigFactory("{{channelName}}", {{isWindows}});
+
+                let svc = new BackOfficeService(instance);
+
+                return await svc.setBrandEnableSms(brandId, enableSms);
+            };
+        """;
+
+        // Act
+        await nodeService.InvokeFromStringAsync(
+             nodeModule,
+             args: [brandId, true]);
+
+        // Assert
+        _ = fakeBrandServiceClient.Received(1)
+            .SetBrandEnableSmsAsync(
+                Arg.Is(brandId),
+                Arg.Is(true),
                 Arg.Is("system"),
                 Arg.Any<CancellationToken>());
     }

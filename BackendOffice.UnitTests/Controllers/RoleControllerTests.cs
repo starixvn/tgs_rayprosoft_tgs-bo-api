@@ -258,6 +258,13 @@ public class RoleControllerTests : BaseTests
             .DeserializeFromString<MenuSetting[]>(Arg.Any<string>(), Arg.Any<JsonSerializerOptions>())
             .Returns(menuSettings);
 
+        menuSettings = menuSettings.Where(x => x.IsDisplay).ToArray();
+
+        menuSettings.ForEach(s =>
+        {
+            s.SubMenus = s.SubMenus.Where(sm => sm.IsDisplay).ToArray();
+        });
+
         var response = await controller.GetSingleAsync(role.Id);
         _ = response.Valid.Should().BeTrue();
         _ = response.Role.Id.Should().Be(role.Id);
@@ -333,7 +340,7 @@ public class RoleControllerTests : BaseTests
 
         var orderedRoles = roles.OrderByDescending(p => p.Name);
 
-        var expectedRoles = showAll ? orderedRoles.ToArray() : orderedRoles.Skip(skip).Take(take).ToArray();
+        var expectedRoles = showAll ? orderedRoles.ToArray() : [.. orderedRoles.Skip(skip).Take(take)];
 
         _ = roleQueriesMock.GetQueries().Returns(roles);
 

@@ -75,7 +75,7 @@ public class LicenseeControllerTests : BaseTests
         var (skip, take) = GetPage(request);
         var orderedRoles = list.OrderByDescending(p => p.UpdatedOn);
 
-        var expectedRoles = showAll ? orderedRoles.ToArray() : orderedRoles.Skip(skip).Take(take).ToArray();
+        var expectedRoles = showAll ? [.. orderedRoles] : orderedRoles.Skip(skip).Take(take).ToArray();
 
         _ = licenseeServiceMock.GetLicensees(Arg.Any<GetLicenseesRequest>())
             .Returns(list);

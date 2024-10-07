@@ -37,7 +37,7 @@ public class MarketControllerTests : BaseTests
         var (skip, take) = GetPage(request);
         var orderedRoles = list.OrderByDescending(p => p.ReportDate);
 
-        var expectedRoles = showAll ? orderedRoles.ToArray() : orderedRoles.Skip(skip).Take(take).ToArray();
+        var expectedRoles = showAll ? [.. orderedRoles] : orderedRoles.Skip(skip).Take(take).ToArray();
 
         _ = getServiceMock
             .GetAsync(Arg.Any<GetMarketsReportRequest>())

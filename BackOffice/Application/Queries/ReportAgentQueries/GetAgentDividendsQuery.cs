@@ -43,7 +43,7 @@ public class
                 Message = response.Message,
                 TotalCount = response.TotalCount,
                 Items = [],
-                Total = new AgentDividendReportTotalModel(0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0)
+                Total = new AgentDividendReportTotalModel(0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0)
             };
         }
 
@@ -64,7 +64,8 @@ public class
             FromTeamAgentDividendAmount = x.FromTeamAgentDividendAmount,
             AgentDividendPercentage = x.AgentDividendPercentage,
             AgentCoveredBonus = x.AgentCoveredBonus,
-            AgentCoveredBonusAdjust = x.AgentCoveredBonusAdjust
+            AgentCoveredBonusAdjust = x.AgentCoveredBonusAdjust,
+            ProductFee = x.ProductFee
         }).AsQueryable().CreatePagedResponse(new PageableRequest
         {
             Page = request.Page,
@@ -86,7 +87,8 @@ public class
             response.Items.Sum(x => x.FromPlayerAgentDividendAmount),
             response.Items.Sum(x => x.FromTeamAgentDividendAmount),
             response.Items.Sum(x => x.AgentCoveredBonus) ?? 0M,
-            response.Items.Sum(x => x.AgentCoveredBonusAdjust) ?? 0M
+            response.Items.Sum(x => x.AgentCoveredBonusAdjust) ?? 0M,
+            response.Items.Sum(x => x.ProductFee)
         );
 
         return new GetAgentDividendsReportResponse

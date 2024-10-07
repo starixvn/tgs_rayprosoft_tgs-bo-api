@@ -13,7 +13,6 @@ using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Tgs.ServiceUtility;
-using TGS.Apis.BackendOffice.Controllers.Messages.Game;
 using TGS.Apis.BackendOffice.Services;
 using TGS.Services.BackOffice.Application.Models.Game;
 using TGS.Services.BackOffice.Application.Queries.Game;
@@ -276,7 +275,7 @@ public class GameController(IMediator mediator, IUploadService uploadService) : 
                 row.Append(
                     new Cell
                     {
-                        CellValue = new CellValue(item.Replace("-", "")),
+                        CellValue = new CellValue(item),
                         DataType = CellValues.String
                     }
                 );
@@ -314,6 +313,14 @@ public class GameController(IMediator mediator, IUploadService uploadService) : 
                                     DataType = CellValues.String
                                 }
                             );
+                        }
+                        else
+                        {
+                            row.Append(new Cell
+                            {
+                                CellValue = new CellValue(""),
+                                DataType = CellValues.String
+                            });
                         }
                     }
                 }
@@ -354,28 +361,20 @@ public class GameController(IMediator mediator, IUploadService uploadService) : 
     [Description("Upload game localization file")]
     public async Task<MessageResponse> UploadGamesLocalizationAsync(
         IFormFile file,
-        [FromServices]
-        IGetService<UpdateGameLocalizationQuery, UpdateGameLocationInfo> updateGameLocalizationQueryService)
+        [FromServices] IGetService<UpdateGameLocalizationQuery, UpdateGameLocationInfo> updateGameLocalizationQueryService)
     {
-        var uploadedResult = await uploadService.GetUploadedExcelAsync<UploadGameLocalizationModel>(file);
+        var uploadedResult = await uploadService.GetUploadedExcelAsync<Dictionary<string, string>>(file);
 
         var games = uploadedResult
-            .Where(p => !string.IsNullOrEmpty(p.Id))
+            .Where(p => !string.IsNullOrEmpty(p["Id"]))
             .Select(x => new GameLocalizationModel
             {
-                Id = int.Parse(x.Id),
-                Code = x.Code,
-                Localization = new Dictionary<string, JsonDocument>
-                {
-                    { "en-US", JsonDocument.Parse("{ \"name\": \"" + x.EnUS + "\" }") },
-                    { "zh-CN", JsonDocument.Parse("{ \"name\": \"" + x.ZhCN + "\" }") },
-                    { "zh-TW", JsonDocument.Parse("{ \"name\": \"" + x.ZhTW + "\" }") },
-                    { "id-ID", JsonDocument.Parse("{ \"name\": \"" + x.IdID + "\" }") },
-                    { "th-TH", JsonDocument.Parse("{ \"name\": \"" + x.ThTH + "\" }") },
-                    { "vi-VN", JsonDocument.Parse("{ \"name\": \"" + x.ViVN + "\" }") },
-                    { "ko-KR", JsonDocument.Parse("{ \"name\": \"" + x.KoKR + "\" }") },
-                    { "ja-JP", JsonDocument.Parse("{ \"name\": \"" + x.JaJP + "\" }") }
-                }
+                Id = int.Parse(x["Id"]),
+                Code = x["Code"],
+                Localization = x.Where(p => p.Key is not ("Id" or "Code"))
+                    .Select(p =>
+                        new { p.Key, Info = new GameLocalizationDetailModel { Name = p.Value?.Trim() ?? string.Empty } })
+                    .ToDictionary(p => p.Key, p => p.Info)
             })
             .ToList();
 

@@ -83,7 +83,7 @@ public class GetAgentQueryHandler(
                     AccumulatedProfitSharing = dividend,
                     PlayerNumber = playerNumber,
                     AgentDividendConditions = [
-                        .. agent.AgentDividendConditions.Select(x => new AgentDividendConditionModel
+                        .. agent.AgentDividendConditions.Select(x => new Models.Agent.AgentDividendConditionModel
                         {
                             Rank = x.Rank,
                             NetProfit = x.NetProfit,

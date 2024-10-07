@@ -2,17 +2,14 @@
 using System.Security.Claims;
 using AutoFixture;
 using Microsoft.AspNetCore.Http;
-using NSubstitute;
 using Tgs.Agent.Client;
 using Tgs.Agent.Client.Models;
 using Tgs.BrandCertificate.Clients;
-using Tgs.CashService.Client;
 using TGS.Core.DataServices.Tgs.Models;
 using TGS.Core.Models;
 using TGS.Core.Models.Enums;
 using TGS.Services.BackOffice.Application.Commands.AgentHandlers;
 using TGS.Services.BackOffice.Application.Models.Agent;
-using TGS.Services.BackOffice.Application.Queries.AgentHandlers;
 using TGS.Services.BackOffice.Infrastructure.DataService;
 using CreateAgentRequest = TGS.Services.BackOffice.Application.Models.Agent.CreateAgentRequest;
 
@@ -79,13 +76,6 @@ public class CreateAnAgentTests
                 Arg.Is<Tgs.Agent.Client.Models.CreateAgentRequest>(x => x.ParentAgentId == parentAgentId));
     }
 
-    private static Fixture CreateAgentInfoModelFixture()
-    {
-        var fixture = new Fixture();
-        _ = fixture.Create<AgentInfoModel>();
-        return fixture;
-    }
-
     protected static ClaimsPrincipal GetUserClaimsPrincipal(
         string username = "admin.enabled",
         string roleName = "Admin",
@@ -93,13 +83,18 @@ public class CreateAnAgentTests
         string id = "e4ecfa98-b373-4123-87e0-cb9e883d0691")
         => new(
         [
-            new ClaimsIdentity(new[]
-            {
+            new ClaimsIdentity([
                 new Claim(Consts.BackendOffice.UserInfo.UserIdKey, id),
                 new Claim(Consts.BackendOffice.UserInfo.UsernameKey, username),
                 new Claim(Consts.BackendOffice.UserInfo.RolenameKey, roleName),
                 new Claim(Consts.BackendOffice.UserInfo.PortalKey, roleType.ToString())
-            })
+            ])
         ]);
 
+    private static Fixture CreateAgentInfoModelFixture()
+    {
+        var fixture = new Fixture();
+        _ = fixture.Create<AgentInfoModel>();
+        return fixture;
+    }
 }

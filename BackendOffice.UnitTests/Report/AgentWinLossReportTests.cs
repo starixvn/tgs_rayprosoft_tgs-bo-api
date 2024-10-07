@@ -18,29 +18,17 @@ public class AgentWinLossReportTests
     [Test]
     public async Task Can_Get_Master_Agent_WinLoss()
     {
-        var fakeBrandService = Substitute.For<IBrandService>();
         var fakeAgentService = Substitute.For<IAgentService>();
         var fakePlayerService = Substitute.For<IPlayerService>();
         var fakeReportClient = Substitute.For<IReportClient>();
 
         var sut = new GetAgentWinLossQuery(fakeReportClient,
-            fakeBrandService,
             fakeAgentService,
             fakePlayerService);
 
         var brandId = Guid.NewGuid();
-        var agentId = Guid.NewGuid();
 
         var request = new GetAgentWinLossReportRequest { BrandId = brandId };
-
-        _ = fakeBrandService.GetBrandQueries().Returns(new Brand[]
-        {
-            new()
-            {
-                Id = brandId,
-                PlatformCharge = 0
-            }
-        }.AsQueryable().BuildMock());
 
         _ = fakeReportClient.GetMasterAgentWinLossAsync(Arg.Any<GetMasterAgentWinLossRequest>())
             .Returns(new PagedResponse<AgentWinLossModel> { Valid = true });
@@ -56,13 +44,11 @@ public class AgentWinLossReportTests
     [Test]
     public async Task Can_Get_Agent_WinLoss()
     {
-        var fakeBrandService = Substitute.For<IBrandService>();
         var fakeAgentService = Substitute.For<IAgentService>();
         var fakePlayerService = Substitute.For<IPlayerService>();
         var fakeReportClient = Substitute.For<IReportClient>();
 
         var sut = new GetAgentWinLossQuery(fakeReportClient,
-            fakeBrandService,
             fakeAgentService,
             fakePlayerService);
 
@@ -75,15 +61,6 @@ public class AgentWinLossReportTests
             Username = "Username",
             MemberType = AccountType.Agent
         };
-
-        _ = fakeBrandService.GetBrandQueries().Returns(new Brand[]
-        {
-            new()
-            {
-                Id = brandId,
-                PlatformCharge = 0
-            }
-        }.AsQueryable().BuildMock());
 
         _ = fakeAgentService.GetAgentAsync(Arg.Any<Expression<Func<Agent, bool>>>())
             .Returns(new Agent { Id = agentId });
@@ -102,13 +79,11 @@ public class AgentWinLossReportTests
     [Test]
     public async Task Can_Get_Down_Line_Agent_WinLoss()
     {
-        var fakeBrandService = Substitute.For<IBrandService>();
         var fakeAgentService = Substitute.For<IAgentService>();
         var fakePlayerService = Substitute.For<IPlayerService>();
         var fakeReportClient = Substitute.For<IReportClient>();
 
         var sut = new GetAgentWinLossQuery(fakeReportClient,
-            fakeBrandService,
             fakeAgentService,
             fakePlayerService);
 
@@ -122,15 +97,6 @@ public class AgentWinLossReportTests
             MemberType = AccountType.Agent,
             DownLine = true
         };
-
-        _ = fakeBrandService.GetBrandQueries().Returns(new Brand[]
-        {
-            new()
-            {
-                Id = brandId,
-                PlatformCharge = 0
-            }
-        }.AsQueryable().BuildMock());
 
         _ = fakeAgentService.GetAgentAsync(Arg.Any<Expression<Func<Agent, bool>>>())
             .Returns(new Agent { Id = agentId });
@@ -149,13 +115,11 @@ public class AgentWinLossReportTests
     [Test]
     public async Task Can_Get_Agent_Player_WinLoss()
     {
-        var fakeBrandService = Substitute.For<IBrandService>();
         var fakeAgentService = Substitute.For<IAgentService>();
         var fakePlayerService = Substitute.For<IPlayerService>();
         var fakeReportClient = Substitute.For<IReportClient>();
 
         var sut = new GetAgentWinLossQuery(fakeReportClient,
-            fakeBrandService,
             fakeAgentService,
             fakePlayerService);
 
@@ -167,15 +131,6 @@ public class AgentWinLossReportTests
             Username = "Username",
             MemberType = AccountType.Player
         };
-
-        _ = fakeBrandService.GetBrandQueries().Returns(new Brand[]
-        {
-            new()
-            {
-                Id = brandId,
-                PlatformCharge = 0
-            }
-        }.AsQueryable().BuildMock());
 
         _ = fakePlayerService.GetPlayerQueries().Returns(new Player[]
         {

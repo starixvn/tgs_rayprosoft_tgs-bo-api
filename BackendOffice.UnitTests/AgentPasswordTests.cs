@@ -42,7 +42,8 @@ public class AgentPasswordTests
                 Guid.NewGuid(),
                 Guid.NewGuid(),
                 null, 
-                false));
+                false,
+                true));
 
         var actual = await sut.GetAsync(new SetAgentPasswordCommand(agentId, password, modifyUserId, modifyUsername));
 

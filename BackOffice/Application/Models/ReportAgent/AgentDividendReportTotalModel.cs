@@ -13,5 +13,6 @@ public record AgentDividendReportTotalModel(
     decimal FromPlayerAgentDividendAmount,
     decimal FromTeamAgentDividendAmount,
     decimal AgentCoveredBonus,
-    decimal AgentCoveredBonusAdjust
+    decimal AgentCoveredBonusAdjust,
+    decimal ProductFee
     );

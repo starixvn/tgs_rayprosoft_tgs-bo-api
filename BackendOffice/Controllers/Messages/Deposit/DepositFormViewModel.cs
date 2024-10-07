@@ -9,7 +9,7 @@ public record DepositFormViewModel
 
     public string PlayerCode { get; init; }
 
-    public string UserName { get; init; }
+    public string Username { get; init; }
 
     public Guid BrandId { get; init; }
 
@@ -34,7 +34,7 @@ public record DepositFormViewModel
 
     public string OrderNo { get; init; }
 
-    public string ReviewedUserName { get; init; }
+    public string ReviewedUsername { get; init; }
 
     public string PromotionName { get; init; }
 
@@ -43,6 +43,8 @@ public record DepositFormViewModel
     public decimal HandlingFee { get; init; }
 
     public string? PromotionType { get; init; }
+    
+    public string AgentName { get; init; }
 
     public JsonDocument? PromotionDetail { get; init; }
 }

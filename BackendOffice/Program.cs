@@ -48,6 +48,7 @@ using TGS.Core.Infrastructures.Redis;
 using TGS.Core.Models;
 using TGS.Payment.ManualDeposit;
 using TGS.Services.BackOffice.Domain;
+using static System.Net.WebRequestMethods;
 
 AppContext.SetSwitch("Npgsql.EnableLegacyTimestampBehavior", true);
 SqlMapper.AddTypeMap(typeof(DateOnly), DbType.Date);
@@ -188,7 +189,14 @@ builder.Services
     .Services
     .AddArticleManagementClient(httpBuilder => httpBuilder
         .ConfigureHttpClient(httpClient => httpClient.BaseAddress =
-            builder.Configuration.GetValue<Uri>("BackOffice:ArticleManagementBaseUrl")));
+            builder.Configuration.GetValue<Uri>("BackOffice:ArticleManagementBaseUrl"))
+    .Services
+    .AddSmsClient((sp, httpClient) => 
+    {
+        var config = sp.GetRequiredService<IConfiguration>();        
+
+        httpClient.BaseAddress = config.GetValue<Uri>("BackOffice:SmsBaseUrl");
+    }));
 
 builder.Services
     .AddLocalization(options => options.ResourcesPath = "Resources");
@@ -333,7 +341,7 @@ builder.Services.AddSwaggerGen(c =>
     var xml = "TGS.Apis.BackendOffice.xml";
     var path = Path.Combine(AppContext.BaseDirectory, xml);
 
-    if (File.Exists(path))
+    if (System.IO.File.Exists(path))
         c.IncludeXmlComments(path);
 });
 

@@ -31,7 +31,7 @@ public record WithdrawFormViewModel
 
     public DateTimeOffset UpdatedOn { get; init; }
 
-    public string? UserName { get; init; }
+    public string? Username { get; init; }
 
     public string UserType { get; init; } = default!;
 
@@ -39,13 +39,15 @@ public record WithdrawFormViewModel
 
     public string OrderNo { get; init; } = default!;
 
-    public string? ReviewedUserName { get; init; }
+    public string? ReviewedUsername { get; init; }
 
     public DateTimeOffset? ReviewedOn { get; init; }
 
     public string? PaidUserId { get; init; }
 
-    public string? PaidUserName { get; init; }
+    public string? PaidUsername { get; init; }
 
     public DateTimeOffset? PaidOn { get; init; }
+
+    public string? AgentName { get; init; } = string.Empty;
 }

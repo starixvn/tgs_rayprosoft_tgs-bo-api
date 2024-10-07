@@ -7,13 +7,42 @@ export default class BoBrandService {
 
     // #endregion Constructors (1)
 
-    // #region Public Methods (10)
+    // #region Public Methods (23)
+
+    public async addBrandSms(
+        brandId: string,
+        smsSettingId: string): Promise<void> {
+        let headers = new AxiosHeaders();
+        headers.setContentType("application/json");
+
+        await this.http.post(`/api/brand/sms/${brandId}`, smsSettingId, { headers });
+    }
+
+    public addBrandSocialMediaSetting(brandId: string, setting: AddSocialMediaSetting): Promise<string> {
+        return this.http
+            .put(`/api/brand/social/${brandId}`, setting)
+            .then(res => res.data);
+    }
+
+    public async applyBrandSms(brandId: string, smsSettingId: string): Promise<void> {
+        let headers = new AxiosHeaders();
+        headers.setContentType("application/json");
+
+        await this.http
+            .patch(`/api/brand/sms/apply/${brandId}`, smsSettingId, { headers });
+    }
 
     public createBrand(
         request: CreateBrandRequest): Promise<MessageResponse> {
         return this.http
             .post('/api/brand', request)
             .then(res => res.data);
+    }
+
+    public deleteSocialMediaSetting(brandId: string, settingId: string): Promise<void> {
+        return this.http
+            .delete(`/api/brand/social/${brandId}/${settingId}`)
+            .then(res => res.data);``
     }
 
     public getBrandAutoWithdrawSetting(brandId: string): Promise<AutoWithdrawInfo> {
@@ -39,14 +68,14 @@ export default class BoBrandService {
 
     public getBrandMaintenanceInfos(
         request: GetBrandMaintenanceInfosRequest
-    ): Promise<BrandMaintenanceInfo[]>{
+    ): Promise<BrandMaintenanceInfo[]> {
         return this.http
             .get(`/api/BrandMaintenance`,
-            {
-                params: {
-                    ...request,
-                }
-            })
+                {
+                    params: {
+                        ...request,
+                    }
+                })
             .then(res => res.data);
     }
 
@@ -56,17 +85,69 @@ export default class BoBrandService {
             .then(res => res.data);
     }
 
+    public getBrandSmsInfo(
+        brandId: string        
+    ): Promise<BrandSmsResultViewModel> {
+        return this.http
+            .get(`/api/brand/sms/${brandId}`)
+            .then(res => res.data);
+    }
+
+    public listBrandPlayerContractDisplay(
+        brandId: string        
+    ): Promise<BrandPlayerContractDisplayViewModel[]>{
+        return this.http
+            .get(`/api/brand/player-contract/${brandId}/display`)
+            .then(res => res.data);
+    }
+
+    public listBrandSms(
+        brandId: string): Promise<BrandSmsViewModel[]> {
+        return this.http
+            .get(`/api/brand/sms/options/${brandId}`)
+            .then(res => res.data);
+    }
+
+    public listBrandSocialMediaSettings(brandId: string): Promise<SocialMediaSetting[]> {
+        return this.http
+            .get(`/api/brand/social/${brandId}`)
+            .then(res => res.data);
+    }
+
+    public listPlayerContractType(): Promise<string[]>{
+        return this.http
+            .get('/api/brand/player-contract')
+            .then(res => res.data);
+    }
+
+    public async removeBrandSms(
+        brandId: string,
+        smsSettingId: string): Promise<void> {
+        let headers = new AxiosHeaders();
+        headers.setContentType("application/json");
+
+        await this.http.delete(`/api/brand/sms/${brandId}/${smsSettingId}`, { headers });
+    }
+
     public setAllBrandsMaintenance(): Promise<MessageResponse> {
         return this.http
             .put('/api/brandmaintenance/allmaintain')
             .then(res => res.data);
     }
 
+    public async setBrandEnableSms(brandId: string, enableSms: boolean): Promise<void> {
+        let headers = new AxiosHeaders();
+        headers.setContentType("application/json");
+
+        await this.http
+            .patch(`/api/brand/enable-sms/${brandId}`, enableSms, { headers });
+    }
+
     public setBrandMaintenanceTime(
         brandId: string,
         request: UpdateBrandMaintenanceTimeRequest): Promise<MessageResponse> {
         return this.http
-            .put(`/api/BrandMaintenance/time/${brandId}`, 
+            .put(`/api/BrandMaintenance/time/${brandId}`,
                 {
                     ...request
                 })
@@ -79,6 +160,27 @@ export default class BoBrandService {
 
         return this.http
             .patch(`/api/brand/platform-account-fund/${brandId}`, enabled, { headers })
+            .then(res => res.data);
+    }
+
+    public setBrandPlayerContractDisplay(
+        brandId: string,
+        request: UpsertBrandPlayerContractRequest
+    ): Promise<void>{        
+        let headers = new AxiosHeaders();
+        headers.setContentType("application/json");
+
+        return this.http
+            .patch(`/api/brand/player-contract/${brandId}`, request, { headers })
+            .then(res => res.data);
+    }
+
+    public setSocialMediaSettingOrder(settingId: string, newOrder: number): Promise<void> {
+        let headers = new AxiosHeaders();
+        headers.setContentType("application/json");
+
+        return this.http
+            .patch(`/api/brand/social/order/${settingId}`, newOrder, { headers })
             .then(res => res.data);
     }
 
@@ -102,5 +204,5 @@ export default class BoBrandService {
             .then(res => res.data);
     }
 
-    // #endregion Public Methods (10)
+    // #endregion Public Methods (23)
 }

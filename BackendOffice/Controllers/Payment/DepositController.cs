@@ -1,10 +1,13 @@
 ﻿using System;
+using System.Diagnostics;
 using System.IO;
 using System.Linq;
 using System.Text.Json;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Mvc;
+using Tgs.Agent.Client;
 using Tgs.Payment.Clients;
+using Tgs.PlayerService.Client;
 using Tgs.Promotion.Clients;
 using Tgs.Promotion.Clients.Models.Promotion;
 using Tgs.ServiceUtility;
@@ -25,7 +28,10 @@ public class DepositController : BaseContextController
     public ValueTask<int> CountUntreatedDepositFormsAsync(
         [FromServices] IGetService<CountUntreatedDepositFormsQuery, int> countService,
         Guid brandId)
-        => countService.GetAsync(new CountUntreatedDepositFormsQuery(brandId));
+    {
+        _ = (Activity.Current?.AddTag("username", Username));
+        return countService.GetAsync(new CountUntreatedDepositFormsQuery(brandId));
+    }
 
     [HttpGet("exportDeposit/{brandId}")]
     public async Task<IActionResult> ExportDepositAsync(
@@ -46,7 +52,7 @@ public class DepositController : BaseContextController
 
         var query = new DepositFormQuery(
             brandId,
-            request.UserName,
+            request.Username,
             request.ChannelName,
             request.ThirdPartyOrderNo,
             request.OrderNo,
@@ -120,7 +126,7 @@ public class DepositController : BaseContextController
             {
                 Id = formDetail.Id,
                 PlayerCode = formDetail.PlayerCode,
-                UserName = formDetail.UserName,
+                Username = formDetail.UserName,
                 BrandId = formDetail.BrandId,
                 BrandPaymentId = formDetail.BrandPaymentId,
                 PaymentMethodId = formDetail.PaymentMethodId,
@@ -158,15 +164,19 @@ public class DepositController : BaseContextController
     /// <param name="queryService">The query service.</param>
     /// <param name="promotionClient">The promotion client.</param>
     /// <param name="promotionServiceClient">The promotion client.</param>
+    /// <param name="agentClient">The agent client.</param>
     /// <param name="brandId">The brand identifier.</param>
     /// <param name="request">The request.</param>
     /// <param name="paging">The paging.</param>
+    /// <param name="playerServiceClient">The player client.</param>
     /// <returns></returns>
     [HttpGet("{brandId}")]
     public async Task<DepositViewModel> QueryDepositFormsAsync(
         [FromServices] IGetService<DepositFormQuery, DepositForms> queryService,
         [FromServices] IPromotionClient promotionClient,
         [FromServices] IPromotionServiceClient promotionServiceClient,
+        [FromServices] IPlayerServiceClient playerServiceClient,
+        [FromServices] IAgentClient agentClient,
         Guid brandId,
         [FromQuery] DepositFormRequest request,
         [FromQuery] PageableRequest paging)
@@ -182,7 +192,7 @@ public class DepositController : BaseContextController
 
         var query = new DepositFormQuery(
             brandId,
-            request.UserName,
+            request.Username,
             request.ChannelName,
             request.ThirdPartyOrderNo,
             request.OrderNo,
@@ -190,7 +200,7 @@ public class DepositController : BaseContextController
             request.PaymentId,
             request.PaymentMethodId,
             request.Status?.SelectMany(s => s.ToPaymentFlowState()).Distinct()
-                ?? default(FlowState?).ToPaymentFlowState(),
+            ?? default(FlowState?).ToPaymentFlowState(),
             createOnRange,
             updateOnRange,
             new Paging
@@ -229,6 +239,19 @@ public class DepositController : BaseContextController
 
         var newPromotionBonus = await Task.WhenAll(newPromotionBonusTasks);
 
+        var playerInfos = playerServiceClient
+            .QueryPlayerInfoListAsync(brandId, result.Items.Select(x => x.PlayerCode),
+                HttpContext.RequestAborted);
+
+        var agents = agentClient.GetAgentNamesAsync(brandId);
+
+        var players = playerInfos.SelectAwait(async x =>
+            {
+                var agentInfo = await agents.FirstOrDefaultAsync(a => a.AgentId == x.AgentId);
+
+                return (x.PlayerCode, agentInfo?.Username);
+            }).ToEnumerable();
+            
         var response = new DepositViewModel
         {
             Valid = true,
@@ -238,7 +261,7 @@ public class DepositController : BaseContextController
                 {
                     Id = form.Id,
                     PlayerCode = form.PlayerCode,
-                    UserName = form.UserName,
+                    Username = form.UserName,
                     BrandId = form.BrandId,
                     BrandPaymentId = form.BrandPaymentId,
                     PaymentMethodId = form.PaymentMethodId,
@@ -250,7 +273,7 @@ public class DepositController : BaseContextController
                     CreatedOn = form.CreatedOn,
                     UpdatedOn = form.UpdatedOn,
                     ThirdPartyOrderNo = form.ThirdPartyOrderNo,
-                    ReviewedUserName = form.ReviewedUserName,
+                    ReviewedUsername = form.ReviewedUserName,
                     OrderNo = form.OrderNo,
                     PromotionName = promotions.FirstOrDefault(x => x.Id == form.PromotionId)?.Name,
                     Bonus = form.PromotionPlayerId != null
@@ -259,7 +282,8 @@ public class DepositController : BaseContextController
                         : null,
                     HandlingFee = form.HandlingFee,
                     PromotionType = promotions.FirstOrDefault(x => x.Id == form.PromotionId)?.PromotionType,
-                    PromotionDetail = newPromotionBonus.FirstOrDefault(x => x.PromotionId == form.PromotionId)?.Detail
+                    PromotionDetail = newPromotionBonus.FirstOrDefault(x => x.PromotionId == form.PromotionId)?.Detail,
+                    AgentName = players.FirstOrDefault(x => x.PlayerCode == form.PlayerCode).Username
                 })
                 .ToArray(),
             Sum = result.Sum

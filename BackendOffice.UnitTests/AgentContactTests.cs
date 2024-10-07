@@ -43,7 +43,8 @@ public class AgentContactTests
                 Guid.NewGuid(),
                 Guid.NewGuid(),
                 null,
-                false));
+                false,
+                true));
 
         var queryDict = new Dictionary<string, string?>
         {

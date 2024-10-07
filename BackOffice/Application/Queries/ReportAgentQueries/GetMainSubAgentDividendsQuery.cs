@@ -57,6 +57,7 @@ public class
                     0,
                     0,
                     0,
+                    0,
                     0)
             };
         }
@@ -100,6 +101,7 @@ public class
                     0,
                     0,
                     0,
+                    0,
                     0)
             };
         }
@@ -121,7 +123,8 @@ public class
             FromTeamAgentDividendAmount = x.FromTeamAgentDividendAmount,
             AgentDividendPercentage = x.AgentDividendPercentage,
             AgentCoveredBonus = x.AgentCoveredBonus,
-            AgentCoveredBonusAdjust = x.AgentCoveredBonusAdjust
+            AgentCoveredBonusAdjust = x.AgentCoveredBonusAdjust,
+            ProductFee = x.ProductFee
         }).AsQueryable().CreatePagedResponse(new PageableRequest
         {
             Page = request.Page,
@@ -143,7 +146,8 @@ public class
             subResponse.Items.Sum(x => x.FromPlayerAgentDividendAmount),
             subResponse.Items.Sum(x => x.FromTeamAgentDividendAmount),
             subResponse.Items.Sum(x => x.AgentCoveredBonus) ?? 0M,
-            subResponse.Items.Sum(x => x.AgentCoveredBonusAdjust) ?? 0M
+            subResponse.Items.Sum(x => x.AgentCoveredBonusAdjust) ?? 0M,
+            subResponse.Items.Sum(x => x.ProductFee)
         );
 
         return new GetMainSubAgentDividendsReportResponse
@@ -168,7 +172,8 @@ public class
                 FromTeamAgentDividendAmount = x.FromTeamAgentDividendAmount,
                 AgentDividendPercentage = x.AgentDividendPercentage,
                 AgentCoveredBonus = x.AgentCoveredBonus,
-                AgentCoveredBonusAdjust = x.AgentCoveredBonusAdjust
+                AgentCoveredBonusAdjust = x.AgentCoveredBonusAdjust,
+                ProductFee = x.ProductFee
             }).ToArray(),
             SubItems = pageArray.Items,
             SubTotal = subTotal

@@ -122,6 +122,10 @@ public enum TransactionType
     // 遊戲供應 15000~15999
     GameProvider = 15000,
 
+    GameProviderFundOutLock = 15110,
+    GameProviderFundOutCommit = 15120,
+    GameProviderFundOutRollback = 15130,
+
     // 遊戲供應資金退款
     GameProviderFundRefund = 15300,
 }

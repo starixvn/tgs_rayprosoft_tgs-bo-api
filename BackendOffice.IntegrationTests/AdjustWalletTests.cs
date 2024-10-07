@@ -292,7 +292,8 @@ public class AdjustWalletTests(ITestOutputHelper testOutputHelper, NodeJsFixture
                 brandId,
                 Guid.NewGuid(),
                 null,
-                false));
+                false,
+                true));
 
         var queryCondition = new AdjustRecordQueryCondition(
             (queryViewModel.From.ToUniversalTime(), queryViewModel.To.ToUniversalTime()),
@@ -349,7 +350,8 @@ public class AdjustWalletTests(ITestOutputHelper testOutputHelper, NodeJsFixture
                 brandId,
                 Guid.NewGuid(),
                 null,
-                false));
+                false,
+                true));
 
         var expected = queryRecords.Select(record => new AdjustRecordListItemViewModel
         {
@@ -521,7 +523,8 @@ public class AdjustWalletTests(ITestOutputHelper testOutputHelper, NodeJsFixture
                 brandId,
                 Guid.NewGuid(),
                 null,
-                false));
+                false,
+                true));
 
         using var nodeService = _nodeJsFixture.BuildNodeJsService();
 
@@ -983,7 +986,8 @@ public class AdjustWalletTests(ITestOutputHelper testOutputHelper, NodeJsFixture
                 brandId,
                 Guid.NewGuid(),
                 null,
-                false));
+                false,
+                true));
 
         using var nodeService = _nodeJsFixture.BuildNodeJsService();
 
@@ -1176,7 +1180,8 @@ public class AdjustWalletTests(ITestOutputHelper testOutputHelper, NodeJsFixture
                 brandId,
                 Guid.NewGuid(),
                 null,
-                false));
+                false,
+                true));
 
         using var nodeService = _nodeJsFixture.BuildNodeJsService();
 

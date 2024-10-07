@@ -23,6 +23,9 @@ public class BaseContextController : ControllerBase
 
     protected string Username => GetUserMap()[Consts.BackendOffice.UserInfo.UsernameKey];
 
+    protected bool IsAdmin =>
+        GetUserMap().GetTypeByKey<RoleType>(Consts.BackendOffice.UserInfo.RoleTypeKey) == RoleType.Admin;
+
     protected RoleType? UserRoleType =>
         GetUserMap().GetTypeByKey<RoleType>(Consts.BackendOffice.UserInfo.RoleTypeKey);
 

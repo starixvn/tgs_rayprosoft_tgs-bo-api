@@ -200,7 +200,9 @@ public class DepositFormTests
     {
         var moqPaymentServiceClient = Substitute.For<IPaymentServiceClient>();
 
-        var sut = new CountUntreatedDepositFormsQueryService(moqPaymentServiceClient);
+        var sut = new CountUntreatedDepositFormsQueryService(
+            moqPaymentServiceClient,
+            NullLogger<CountUntreatedDepositFormsQueryService>.Instance);
 
         var query = new CountUntreatedDepositFormsQuery(Guid.NewGuid());
 

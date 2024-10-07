@@ -8,7 +8,6 @@ using Microsoft.EntityFrameworkCore;
 using TGS.Apis.BackendOffice.Controllers.Messages.Roles;
 using TGS.Core.DataServices.Base.Interfaces;
 using TGS.Core.DataServices.Tgs.Models;
-using TGS.Core.Infrastructures.Extensions;
 using TGS.Core.Infrastructures.Json;
 using TGS.Core.Models.Enums;
 using TGS.Core.Models.Services;
@@ -356,38 +355,55 @@ public class RoleController(
 
         if (role.RoleType == RoleType.Reseller)
         {
-            var resellerRoles = roles.Where(x => x.RoleType == RoleType.Reseller).ToArray();
+            var resellerRoles = roles.Where(x => x.RoleType == RoleType.Reseller && !x.IsRoot).ToArray();
             UpdateRoles(role, resellerRoles);
         }
 
         if (role.RoleType is RoleType.Reseller or RoleType.Licensee)
         {
-            var licenseeRootRole = roles.FirstOrDefault(x => x.RoleType == RoleType.Licensee && x.IsRoot);
+            var licenseeRootRoles = roles.Where(x => x.RoleType == RoleType.Licensee && x.IsRoot).ToArray();
 
-            if (licenseeRootRole != null)
+            UpdateRoles(role, licenseeRootRoles.Where(x => x.Id != role.Id));
+
+            licenseeRootRoles.ForEach(licenseeRootRole =>
             {
-                UpdateRoles(role,
-                    [
-                        licenseeRootRole
-                    ]);
-            }
+                var licenseeRoles = roles
+                    .Where(x => x.RoleType == RoleType.Licensee && x.LicenseeId == licenseeRootRole.LicenseeId && !x.IsRoot)
+                    .ToArray();
 
-            var licenseeRoles = roles.Where(x => x.RoleType == RoleType.Licensee).ToArray();
-            UpdateRoles(licenseeRootRole, licenseeRoles);
+                UpdateRoles(licenseeRootRole, licenseeRoles);
+
+                var brandRootRoles = roles.Where(x =>
+                        x.RoleType == RoleType.Brand && x.IsRoot && x.LicenseeId == licenseeRootRole.LicenseeId)
+                    .ToArray();
+
+                UpdateRoles(licenseeRootRole, brandRootRoles);
+
+                brandRootRoles.ForEach(brandRootRole =>
+                {
+                    var brandRoles = roles
+                        .Where(x => x.RoleType == RoleType.Brand && x.BrandId == brandRootRole.BrandId && !x.IsRoot)
+                        .ToArray();
+                    UpdateRoles(brandRootRole, brandRoles);
+                });
+            });
         }
 
-        var brandRootRole = roles.FirstOrDefault(x => x.RoleType == RoleType.Brand && x.IsRoot);
-
-        if (brandRootRole != null)
+        if (role.RoleType is RoleType.Brand)
         {
-            UpdateRoles(role,
+            var brandRootRole = roles.FirstOrDefault(x => x.RoleType == RoleType.Brand && x.IsRoot);
+
+            if (brandRootRole != null)
+            {
+                UpdateRoles(role,
                 [
                     brandRootRole
                 ]);
-        }
+            }
 
-        var brandRoles = roles.Where(x => x.RoleType == RoleType.Brand).ToArray();
-        UpdateRoles(brandRootRole, brandRoles);
+            var brandRoles = roles.Where(x => x.RoleType == RoleType.Brand).ToArray();
+            UpdateRoles(brandRootRole, brandRoles);
+        }
 
         await roleCommands.BatchUpdateAsync(roles);
 
@@ -396,10 +412,11 @@ public class RoleController(
 
     private static MenuSetting SetMenuDisplay(MenuSetting menuTemplate, IEnumerable<MenuSetting> roleMenus)
     {
-        var roleMenuLevel1 = roleMenus?.FirstOrDefault(p => p.Code == menuTemplate.Code);
-        menuTemplate.IsDisplay = roleMenuLevel1?.IsDisplay ?? false;
+        var roleMenu = roleMenus?.FirstOrDefault(p => p.Code == menuTemplate.Code);
 
-        return roleMenuLevel1;
+        menuTemplate.IsDisplay = roleMenu?.IsDisplay ?? false;
+
+        return roleMenu;
     }
 
     private Role CreateRole(
@@ -434,6 +451,18 @@ public class RoleController(
     {
         var templateMenus = GetMenuSettingByString(template);
         var roleMenus = GetMenuSettingByString(menuSetting);
+
+        templateMenus = templateMenus.Where(x => x.IsDisplay).ToArray();
+
+        templateMenus.ForEach(x =>
+        {
+            x.SubMenus = x.SubMenus.Where(s => s.IsDisplay).ToArray();
+
+            x.SubMenus.ForEach(s =>
+            {
+                s.SubMenus = s.SubMenus.Where(sm => sm.IsDisplay || sm.Code=="View").ToArray();
+            });
+        });
 
         foreach (var menu in templateMenus)
         {
