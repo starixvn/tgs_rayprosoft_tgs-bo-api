@@ -29,6 +29,7 @@ public class DepositControllerTests : BaseTests
         var fakePromotionClient = Substitute.For<IPromotionClient>();
         var fakePlayerServiceClient = Substitute.For<IPlayerServiceClient>();
         var fakeAgentClient = Substitute.For<IAgentClient>();
+        var fakePromotionServiceClient = Substitute.For<IPromotionServiceClient>();
 
         var controller = new DepositController { ControllerContext = { HttpContext = HttpContextMock } };
 
@@ -71,7 +72,7 @@ public class DepositControllerTests : BaseTests
         _ = fakeAgentClient.GetAgentNamesAsync(brand.Id).Returns(agentNames.ToAsyncEnumerable());
 
         var response = await controller.QueryDepositFormsAsync(fakeGetService, fakePromotionClient,
-            fakePlayerServiceClient, fakeAgentClient, brand.Id, request, pageRequest);
+            fakePromotionServiceClient, fakePlayerServiceClient, fakeAgentClient, brand.Id, request, pageRequest);
 
         _ = response.Valid.Should().BeTrue();
 
