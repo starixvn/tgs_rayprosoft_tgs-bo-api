@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Text.Json;
 
 namespace TGS.Apis.BackendOffice.Controllers.Messages.Deposit;
 
@@ -41,5 +42,9 @@ public record DepositFormViewModel
 
     public decimal HandlingFee { get; init; }
 
+    public string? PromotionType { get; init; }
+    
     public string AgentName { get; init; }
+
+    public JsonDocument? PromotionDetail { get; init; }
 }

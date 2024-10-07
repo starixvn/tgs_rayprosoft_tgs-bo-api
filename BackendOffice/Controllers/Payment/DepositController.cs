@@ -163,6 +163,7 @@ public class DepositController : BaseContextController
     /// </summary>
     /// <param name="queryService">The query service.</param>
     /// <param name="promotionClient">The promotion client.</param>
+    /// <param name="promotionServiceClient">The promotion client.</param>
     /// <param name="agentClient">The agent client.</param>
     /// <param name="brandId">The brand identifier.</param>
     /// <param name="request">The request.</param>
@@ -173,6 +174,7 @@ public class DepositController : BaseContextController
     public async Task<DepositViewModel> QueryDepositFormsAsync(
         [FromServices] IGetService<DepositFormQuery, DepositForms> queryService,
         [FromServices] IPromotionClient promotionClient,
+        [FromServices] IPromotionServiceClient promotionServiceClient,
         [FromServices] IPlayerServiceClient playerServiceClient,
         [FromServices] IAgentClient agentClient,
         Guid brandId,
@@ -212,14 +214,10 @@ public class DepositController : BaseContextController
 
         var result = await queryService.GetAsync(query).ConfigureAwait(false);
 
-        var promotionNames = (await promotionClient
-                .GetPromotionNamesAsync(new GetPromotionNamesRequest(
-                    result.Items
-                        .Where(info => info.PromotionId != null)
-                        .Select(info => info.PromotionId.Value)
-                        .ToArray()))
-                .ConfigureAwait(false))
-            .ToDictionary(model => model.Id, model => model.Name);
+        var promotionIds = result.Items
+            .Where(info => info.PromotionId != null)
+            .Select(info => info.PromotionId.Value)
+            .ToArray();
 
         var promotionBonus = (await promotionClient.GetPromotionBonusOfDepositAsync(
                 result.Items
@@ -227,6 +225,19 @@ public class DepositController : BaseContextController
                     .Select(info => info.PromotionPlayerId.Value)
                     .ToArray()).ConfigureAwait(false))
             .ToDictionary(model => model.Id, model => model.BonusAmount);
+
+        var promotions = await promotionServiceClient
+            .ListPromotionsAsync(brandId, null, null, null, null, HttpContext.RequestAborted)
+            .Where(x => promotionIds.Contains(x.Id))
+            .ToArrayAsync(HttpContext.RequestAborted);
+
+        var newPromotionBonusTasks = result.Items.Where(x => x.PromotionId != null)
+            .Select(async x =>
+                await promotionServiceClient.GetPromotionDistributeDetailAsync(x.PromotionId.Value, x.Id,
+                    HttpContext.RequestAborted))
+            .ToArray();
+
+        var newPromotionBonus = await Task.WhenAll(newPromotionBonusTasks);
 
         var playerInfos = playerServiceClient
             .QueryPlayerInfoListAsync(brandId, result.Items.Select(x => x.PlayerCode),
@@ -240,7 +251,7 @@ public class DepositController : BaseContextController
 
                 return (x.PlayerCode, agentInfo?.Username);
             }).ToEnumerable();
-
+            
         var response = new DepositViewModel
         {
             Valid = true,
@@ -264,15 +275,14 @@ public class DepositController : BaseContextController
                     ThirdPartyOrderNo = form.ThirdPartyOrderNo,
                     ReviewedUsername = form.ReviewedUserName,
                     OrderNo = form.OrderNo,
-                    PromotionName = form.PromotionId != null
-                                    && promotionNames.TryGetValue(form.PromotionId.Value, out var name)
-                        ? name
-                        : null,
+                    PromotionName = promotions.FirstOrDefault(x => x.Id == form.PromotionId)?.Name,
                     Bonus = form.PromotionPlayerId != null
                             && promotionBonus.TryGetValue(form.PromotionPlayerId.Value, out var bonus)
                         ? bonus
                         : null,
                     HandlingFee = form.HandlingFee,
+                    PromotionType = promotions.FirstOrDefault(x => x.Id == form.PromotionId)?.PromotionType,
+                    PromotionDetail = newPromotionBonus.FirstOrDefault(x => x.PromotionId == form.PromotionId)?.Detail,
                     AgentName = players.FirstOrDefault(x => x.PlayerCode == form.PlayerCode).Username
                 })
                 .ToArray(),
