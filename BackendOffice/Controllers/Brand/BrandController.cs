@@ -9,8 +9,10 @@ using Microsoft.AspNetCore.Mvc;
 using Tgs.BrandCertificate.Clients;
 using Tgs.Paging;
 using Tgs.ServiceUtility;
+using TGS.Apis.BackendOffice.Attributes;
 using TGS.Apis.BackendOffice.Controllers.Messages;
 using TGS.Apis.BackendOffice.Controllers.Messages.BrandToken;
+using TGS.Apis.BackendOffice.Filters;
 using TGS.Apis.BackendOffice.ViewModels;
 using TGS.Services.BackOffice.Application.Models.Brand;
 using TGS.Services.BackOffice.Application.Queries.BrandToken;
@@ -96,6 +98,7 @@ public partial class BrandController(IMediator mediator) : BaseContextController
     }
 
     [HttpGet("{id}", Name = "GetBrand")]
+    [BOTypeFilter(typeof(MerchanPermissionRouteFiler), Arguments = ["brand", "id"])]
     [Description("Get a Brand")]
     public Task<GetBrandResponse> GetBrandAsync(Guid id)
         => mediator.Send(new GetBrandRequest(id), HttpContext.RequestAborted);
