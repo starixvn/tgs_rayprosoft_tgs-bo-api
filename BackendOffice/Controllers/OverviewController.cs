@@ -1,6 +1,4 @@
-﻿#nullable enable
-
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.Globalization;
 using System.Linq;
@@ -8,6 +6,8 @@ using System.Threading.Tasks;
 using Microsoft.AspNetCore.Mvc;
 using Tgs.PlayerService.Client;
 using Tgs.ServiceUtility;
+using TGS.Apis.BackendOffice.Attributes;
+using TGS.Apis.BackendOffice.Filters;
 using TGS.Apis.BackendOffice.ViewModels;
 using TGS.Services.BackOffice.ApplicationServices.Overview;
 using TGS.Services.BackOffice.Domain;
@@ -19,12 +19,14 @@ namespace TGS.Apis.BackendOffice.Controllers;
 [ApiController]
 public class OverviewController : BaseContextController
 {
+    [BOTypeFilter(typeof(MerchanPermissionRouteFiler), Arguments = ["brand", "brandId"])]
     [HttpGet("player/login/count/{brandId}", Name = "GetCurrentDayLoginPlayersCount")]
     public ValueTask<int> GetCurrentDayLoginPlayersCountAsync(
        [FromServices] IPlayerServiceClient playerServiceClient,
        Guid brandId)
        => playerServiceClient.CountCurrentDayLoginPlayersAsync(brandId, HttpContext.RequestAborted);
 
+    [BOTypeFilter(typeof(MerchanPermissionRouteFiler), Arguments = ["brand", "brandId"])]
     [HttpGet("net-deposit/{brandId}", Name = "GetDayNetDeposit")]
     public async ValueTask<NetDepositViewModel> GetDayNetDepositAsync(
         [FromServices] IGetService<GetDayNetDepositQuery, DayNetDepositInfo> getService,
@@ -41,6 +43,7 @@ public class OverviewController : BaseContextController
         };
     }
 
+    [BOTypeFilter(typeof(MerchanPermissionRouteFiler), Arguments = ["brand", "brandId"])]
     [HttpGet("success-rate/{brandId}", Name = "GetDepositDaySuccessRate")]
     public async ValueTask<DayDepositSuccessRateViewModel> GetDepositDaySuccessRateAsync(
         [FromServices] IGetService<GetDaySuccessRateQuery, DaySuccessRateInfo> getService,
@@ -57,6 +60,7 @@ public class OverviewController : BaseContextController
         };
     }
 
+    [BOTypeFilter(typeof(MerchanPermissionRouteFiler), Arguments = ["brand", "brandId"])]
     [HttpGet("player/reg/count/{brandId}", Name = "GetRegisterPlayersCount")]
     public async ValueTask<DayPlayerRegisterCountViewModel> GetRegisterPlayersCountAsync(
         [FromServices] IGetService<GetDayPlayerRegisterCountQuery, DayPlayerRegisterCountInfo> getService,
@@ -72,6 +76,7 @@ public class OverviewController : BaseContextController
         };
     }
 
+    [BOTypeFilter(typeof(MerchanPermissionRouteFiler), Arguments = ["brand", "brandId"])]
     [HttpGet("top-ten/game/{brandId}")]
     public async IAsyncEnumerable<TopTenGameViewModel> GetTopTenGamesAsync(
         [FromServices] IQueryService<GetTopTenGameQuery, TopTenGameInfo> queryService,
@@ -114,6 +119,7 @@ public class OverviewController : BaseContextController
         }
     }
 
+    [BOTypeFilter(typeof(MerchanPermissionRouteFiler), Arguments = ["brand", "brandId"])]
     [HttpGet("top-ten/{brandId}")]
     public async IAsyncEnumerable<TopTenPlayerViewModel> GetTopTenPlayersAsync(
         [FromServices] IQueryService<GetTopTenPlayerQuery, TopTenPlayerInfo> queryService,

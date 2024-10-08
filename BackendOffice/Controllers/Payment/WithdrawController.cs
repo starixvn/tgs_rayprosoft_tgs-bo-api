@@ -11,10 +11,12 @@ using Tgs.Agent.Client;
 using Tgs.Payment.Clients;
 using Tgs.PlayerService.Client;
 using Tgs.ServiceUtility;
+using TGS.Apis.BackendOffice.Attributes;
 using TGS.Apis.BackendOffice.Controllers.Messages;
 using TGS.Apis.BackendOffice.Controllers.Messages.Deposit;
 using TGS.Apis.BackendOffice.Controllers.Messages.Withdraw;
 using TGS.Apis.BackendOffice.Extensions;
+using TGS.Apis.BackendOffice.Filters;
 using TGS.Services.BackOffice.Application.Commands.Withdraw;
 using TGS.Services.BackOffice.Application.Queries.Withdraw;
 using TGS.Services.BackOffice.Application.Resources;
@@ -28,6 +30,7 @@ namespace TGS.Apis.BackendOffice.Controllers.Payment;
 [ApiController]
 public class WithdrawController : BaseContextController
 {
+    [BOTypeFilter(typeof(MerchanPermissionRouteFiler), Arguments = ["brand", "brandId"])]
     [HttpGet("untreated/{brandId}")]
     public ValueTask<int> CountUntreatedWithdrawFormsAsync(
         [FromServices] IGetService<CountUntreatedWithdrawFormsQuery, int> countService,
@@ -140,6 +143,7 @@ public class WithdrawController : BaseContextController
             "Withdraw.xlsx");
     }
 
+    [BOTypeFilter(typeof(MerchanPermissionRouteFiler), Arguments = ["brand", "brandId"])]
     [HttpGet("{brandId}/{formId}")]
     public async Task<GenericResponse<WithdrawFormDetailViewModel>> GetWithdrawFormDetailAsync(
         [FromServices] IGetService<GetWithdrawFormDetailQuery, WithdrawFormInfo> getWithdrawFormService,
@@ -198,6 +202,7 @@ public class WithdrawController : BaseContextController
         };
     }
 
+    [BOTypeFilter(typeof(MerchanPermissionRouteFiler), Arguments = ["brand", "brandId"])]
     [HttpGet("{brandId}")]
     public async Task<PagingWithdrawFormViewModel> QueryWithdrawFormsAsync(
         [FromServices] IGetService<WithdrawFormQuery, WithdrawForms> queryService,

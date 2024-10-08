@@ -2,6 +2,8 @@
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Mvc;
 using Tgs.ServiceUtility;
+using TGS.Apis.BackendOffice.Attributes;
+using TGS.Apis.BackendOffice.Filters;
 using TGS.Services.BackOffice.Application.Models.PlayerOnline;
 
 namespace TGS.Apis.BackendOffice.Controllers;
@@ -10,6 +12,7 @@ namespace TGS.Apis.BackendOffice.Controllers;
 [ApiController]
 public class PlayerOnlineController : ControllerBase
 {
+    [BOTypeFilter(typeof(MerchanPermissionQueryFiler), Arguments = ["brand", "brandId"])]
     [HttpGet]
     [Description("Get Player Online ")]
     public ValueTask<PlayerOnlineModel> GetPlayerIpsListAsync(
