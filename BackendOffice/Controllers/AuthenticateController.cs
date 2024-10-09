@@ -15,6 +15,7 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using Tgs.Core.Infrastructures.Security;
 using TGS.Apis.BackendOffice.Controllers.Messages.Users.Authentication;
+using TGS.Apis.BackendOffice.Utils;
 using TGS.Core.DataServices.Base.Interfaces;
 using TGS.Core.DataServices.Tgs.Models;
 using TGS.Core.Infrastructures.Json;
@@ -63,10 +64,7 @@ public class AuthenticateController(
             return CreateInvalidResponse<AuthenticateUserResponse>(Resources.User.InvalidPassword);
         }
 
-        if (HttpContext.Connection.RemoteIpAddress != null)
-        {
-            user.LastLoginIp = HttpContext.Connection.RemoteIpAddress.ToString();
-        }
+        user.LastLoginIp = IPUtils.GetRequestIP(HttpContext) ?? string.Empty;
 
         if (user.Status == UserStatus.Disabled)
         {

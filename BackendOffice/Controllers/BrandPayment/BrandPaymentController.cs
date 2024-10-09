@@ -14,6 +14,7 @@ using TGS.Apis.BackendOffice.Controllers.Messages;
 using TGS.Apis.BackendOffice.Controllers.Messages.BrandPayment;
 using TGS.Apis.BackendOffice.DataService.Services;
 using TGS.Apis.BackendOffice.Services;
+using TGS.Apis.BackendOffice.Utils;
 using TGS.Apis.BackendOffice.ViewModels;
 using TGS.Core.DataServices.Base.Interfaces;
 using TGS.Core.DataServices.Tgs.Models;
@@ -430,7 +431,7 @@ public partial class BrandPaymentController(
     }
 
     private void LogAdminBrandpaymentSettingAccess(Guid brandPaymentId, string message) {
-        var ip = HttpContext.Connection.RemoteIpAddress;
+        var ip = IPUtils.GetRequestIP(HttpContext) ?? string.Empty;
         var adminLogEvent = new AdminLogEvent() {
             TrackingId = brandPaymentId,
             ServerName = Environment.MachineName,

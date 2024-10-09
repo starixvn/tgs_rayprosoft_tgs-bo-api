@@ -3,6 +3,7 @@ using System.ComponentModel;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Mvc;
 using Tgs.Logging;
+using TGS.Apis.BackendOffice.Utils;
 using TGS.Core.Models.Enums;
 using TGS.Services.BackOffice.Domain;
 
@@ -28,7 +29,7 @@ public partial class BrandPaymentController
 
     private void LogAdmin(Guid brandPaymentId, SwitchStatus status) {
 
-        var ip = HttpContext.Connection.RemoteIpAddress;
+        var ip = IPUtils.GetRequestIP(HttpContext) ?? string.Empty;
         var accountName = HttpContext.User.GetUserName();
         var description = $"User: {accountName} | Action: Switch brand payment status to {status}";
 
