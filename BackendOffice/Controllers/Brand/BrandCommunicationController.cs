@@ -5,7 +5,9 @@ using System.Linq;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Mvc;
 using Tgs.ServiceUtility;
+using TGS.Apis.BackendOffice.Attributes;
 using TGS.Apis.BackendOffice.Controllers.Messages.BrandCommunication;
+using TGS.Apis.BackendOffice.Filters;
 using TGS.Core.Models.Enums;
 using TGS.Services.BackOffice.Application.Commands.BrandCommunication;
 using TGS.Services.BackOffice.Application.Queries.BrandCommunication;
@@ -17,6 +19,7 @@ namespace TGS.Apis.BackendOffice.Controllers.Brand;
 [ApiController]
 public class BrandCommunicationController : BaseContextController
 {
+    [BOTypeFilter(typeof(MerchanPermissionBodyFiler), Arguments = ["brand", "BrandId"])]
     [HttpPost]
     [Description("Create a brand communication")]
     public async Task<MessageResponse> CreateBrandCommunicationAsync(
@@ -50,6 +53,7 @@ public class BrandCommunicationController : BaseContextController
         return CreateValidResponse<MessageResponse>();
     }
 
+    [BOTypeFilter(typeof(MerchanPermissionRouteFiler), Arguments = ["brand", "brandId"])]
     [HttpGet("{brandId}")]
     [Description("Get a brand's communications")]
     public IAsyncEnumerable<BrandCommunicationModel> GetBrandCommunicationsAsync(

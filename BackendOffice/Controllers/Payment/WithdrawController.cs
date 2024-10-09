@@ -4,7 +4,6 @@ using System.IO;
 using System.Linq;
 using System.Text.Json;
 using System.Threading.Tasks;
-using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Sentry;
 using Tgs.Agent.Client;
@@ -40,6 +39,7 @@ public class WithdrawController : BaseContextController
         return countService.GetAsync(new CountUntreatedWithdrawFormsQuery(brandId));
     }
 
+    [BOTypeFilter(typeof(MerchanPermissionBodyFiler), Arguments = ["brand", "BrandId"])]
     [HttpPost("player", Name = "CreatePlayerWithdrawRequest")]
     public async Task<MessageResponse> CreatePlayerWithdrawRequestAsync(
         [FromServices] IGetService<CheckPlayerIdentityCommand, bool> checkService,
@@ -90,8 +90,7 @@ public class WithdrawController : BaseContextController
         return CreateValidResponse<MessageResponse>();
     }
 
-    [AllowAnonymous]
-    [IgnoreAntiforgeryToken]
+    [BOTypeFilter(typeof(MerchanPermissionRouteFiler), Arguments = ["brand", "brandId"])]
     [HttpGet("exportWithdraw/{brandId}")]
     public async Task<IActionResult> ExportWithdrawAsync(
         [FromServices] IGetService<WithdrawFormQuery, WithdrawForms> queryService,
@@ -299,19 +298,20 @@ public class WithdrawController : BaseContextController
         return response;
     }
 
+    [BOTypeFilter(typeof(MerchanPermissionBodyFiler), Arguments = ["brand", "BrandId"])]
     [HttpPost("{formId}")]
     public async Task<MessageResponse> ReviewWithdrawFormAsync(
         [FromServices] ICommandService<ReviewWithdrawFormCommand> reviewCommandService,
         Guid formId,
-        [FromBody] WithdrawReviewRequest reviewResponse)
+        [FromBody] WithdrawReviewRequest request)
     {
         var command = new ReviewWithdrawFormCommand(
-            reviewResponse.BrandId,
+            request.BrandId,
             formId,
-            reviewResponse.BrandPaymentId,
-            reviewResponse.ReviewResponse.ToReviewState(),
-            reviewResponse.Remark,
-            reviewResponse.PlayerRemark,
+            request.BrandPaymentId,
+            request.ReviewResponse.ToReviewState(),
+            request.Remark,
+            request.PlayerRemark,
             UserId,
             Username);
 

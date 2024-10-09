@@ -29,6 +29,7 @@ namespace TGS.Apis.BackendOffice.Controllers.Brand;
 [ApiController]
 public partial class BrandController(IMediator mediator) : BaseContextController
 {
+    [BOTypeFilter(typeof(MerchanPermissionBodyFiler), Arguments = ["licensee", "LicenseeId"])]
     [HttpPost(Name = "CreateBrand")]
     [Description("Create a Brand")]
     public async ValueTask<MessageResponse> CreateBrandAsync(
@@ -97,12 +98,13 @@ public partial class BrandController(IMediator mediator) : BaseContextController
         };
     }
 
-    [HttpGet("{id}", Name = "GetBrand")]
     [BOTypeFilter(typeof(MerchanPermissionRouteFiler), Arguments = ["brand", "id"])]
+    [HttpGet("{id}", Name = "GetBrand")]
     [Description("Get a Brand")]
     public Task<GetBrandResponse> GetBrandAsync(Guid id)
         => mediator.Send(new GetBrandRequest(id), HttpContext.RequestAborted);
 
+    [BOTypeFilter(typeof(MerchanPermissionRouteFiler), Arguments = ["brand", "brandId"])]
     [HttpGet("logo/{brandId}", Name = "GetBrandLogoInfo")]
     public async ValueTask<ResponseViewModel<BrandLogoInfoViewModel>> GetBrandLogoInfoAsync(
         [FromServices] IGetService<GetBrandLogoQuery, BrandLogoInfo> getService,
@@ -136,6 +138,7 @@ public partial class BrandController(IMediator mediator) : BaseContextController
             };
     }
 
+    [BOTypeFilter(typeof(MerchanPermissionRouteFiler), Arguments = ["brand", "brandId"])]
     [HttpGet("token/{brandId}", Name = "GetBrandToken")]
     [Description("Get a brand's token")]
     public async Task<GetBrandTokenResponse> GetBrandTokenAsync(
@@ -153,6 +156,7 @@ public partial class BrandController(IMediator mediator) : BaseContextController
         };
     }
 
+    [BOTypeFilter(typeof(MerchanPermissionBodyFiler), Arguments = ["brand", "BrandId"])]
     [HttpPut("logo", Name = "ModifyBrandLogoInfo")]
     public ValueTask ModifyBrandLogoInfoAsync(
         [FromServices] ICommandService<ModifyBrandLogoInfoCommand> modifyService,
@@ -287,11 +291,13 @@ public partial class BrandController(IMediator mediator) : BaseContextController
         };
     }
 
+    [BOTypeFilter(typeof(MerchanPermissionRouteFiler), Arguments = ["brand", "id"])]
     [HttpGet("{id}/syncGames", Name = "SyncBrandGames")]
     [Description("sync brand games")]
     public Task<MessageResponse> SyncBrandGamesAsync(Guid id)
         => mediator.Send(new SyncGamesRequest(id));
 
+    [BOTypeFilter(typeof(MerchanPermissionRouteFiler), Arguments = ["brand", "id"])]
     [HttpPut("{id}", Name = "UpdateBrand")]
     [Description("Update a Brand")]
     public Task<MessageResponse> UpdateBrandAsync(Guid id, UpdateBrandRequest request)
@@ -300,6 +306,7 @@ public partial class BrandController(IMediator mediator) : BaseContextController
         return mediator.Send(request);
     }
 
+    [BOTypeFilter(typeof(MerchanPermissionRouteFiler), Arguments = ["brand", "brandId"])]
     [HttpGet("platform-account-fund/{brandId:Guid}", Name = "GetBrandPlatformAccountFundFlag")]
     public async ValueTask<bool> GetBrandPlatformAccountFundFlagAsync(
         [FromServices] IBrandServiceClient brandServiceClient,
@@ -312,6 +319,7 @@ public partial class BrandController(IMediator mediator) : BaseContextController
         return flag ?? false;
     }
 
+    [BOTypeFilter(typeof(MerchanPermissionRouteFiler), Arguments = ["brand", "brandId"])]
     [HttpPatch("platform-account-fund/{brandId:Guid}", Name = "SetBrandPlatformAccountFundFlag")]
     public ValueTask SetBrandPlatformAccountFundFlagAsync(
         [FromServices] IBrandServiceClient brandServiceClient,
@@ -323,6 +331,7 @@ public partial class BrandController(IMediator mediator) : BaseContextController
             Username,
             HttpContext.RequestAborted);
 
+    [BOTypeFilter(typeof(MerchanPermissionRouteFiler), Arguments = ["brand", "brandId"])]
     [HttpPatch("enable-sms/{brandId:Guid}", Name = "SetBrandEnableSms")]
     public ValueTask SetBrandEnableSmsAsync(
         [FromServices] ICommandService<SetBrandEnableSmsCommand> commandService,

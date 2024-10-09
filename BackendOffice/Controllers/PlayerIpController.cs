@@ -3,6 +3,8 @@ using System.Threading.Tasks;
 using MediatR;
 using Microsoft.AspNetCore.Mvc;
 using Tgs.ServiceUtility;
+using TGS.Apis.BackendOffice.Attributes;
+using TGS.Apis.BackendOffice.Filters;
 using TGS.Services.BackOffice.Application.Models.PlayerIp;
 using TGS.Services.BackOffice.ApplicationServices.Players;
 using TGS.Services.BackOffice.Domain;
@@ -13,11 +15,13 @@ namespace TGS.Apis.BackendOffice.Controllers;
 [ApiController]
 public class PlayerIpController(IMediator mediator) : BaseContextController
 {
+    [BOTypeFilter(typeof(MerchanPermissionQueryFiler), Arguments = ["brand", "brandId"])]
     [HttpGet("Ip")]
     [Description("Get player ipaddress By IP ")]
     public Task<PagedResponse<PlayerIpByIpModel>> GetPlayerIpsByIpListAsync([FromQuery] GetPlayerIpsByIpRequest request)
         => mediator.Send(request);
 
+    [BOTypeFilter(typeof(MerchanPermissionQueryFiler), Arguments = ["brand", "brandId"])]
     [HttpGet("username")]
     [Description("Get player ipaddress By UserName")]
     public ValueTask<PagedResponse<GetPlayerIpsByUserNameResult>> GetPlayerIpsByUserNameListAsync(
@@ -27,6 +31,7 @@ public class PlayerIpController(IMediator mediator) : BaseContextController
             query: source,
             cancellationToken: HttpContext.RequestAborted);
 
+    [BOTypeFilter(typeof(MerchanPermissionQueryFiler), Arguments = ["brand", "brandId"])]
     [HttpGet]
     [Description("Get player ipaddress ")]
     public Task<PagedResponse<PlayerIpModel>> GetPlayerIpsListAsync([FromQuery] GetPlayerIpsRequest request) =>

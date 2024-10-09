@@ -5,6 +5,8 @@ using System.Threading.Tasks;
 using Microsoft.AspNetCore.Mvc;
 using Tgs.BrandCertificate.Clients;
 using Tgs.ServiceUtility;
+using TGS.Apis.BackendOffice.Attributes;
+using TGS.Apis.BackendOffice.Filters;
 using TGS.Apis.BackendOffice.ViewModels;
 using TGS.Services.BackOffice.ApplicationServices;
 
@@ -14,6 +16,7 @@ namespace TGS.Apis.BackendOffice.Controllers.Brand;
 [ApiController]
 public class BrandSocialMediaController : BaseContextController
 {
+    [BOTypeFilter(typeof(MerchanPermissionQueryFiler), Arguments = ["brand", "brandId"])]
     [HttpGet("{brandId:Guid}", Name = "ListBrandSocialMediaSettings")]
     public IAsyncEnumerable<SocialMediaSettingViewModel> ListSocialMediaSettingsAsync(
         [FromServices] IQueryService<ListBrandSocialMediaSettingsQuery, SocialMediaSetting> queryService,
@@ -32,6 +35,7 @@ public class BrandSocialMediaController : BaseContextController
             });
     }
 
+    [BOTypeFilter(typeof(MerchanPermissionQueryFiler), Arguments = ["brand", "brandId"])]
     [HttpPut("{brandId:Guid}", Name = "AddSocialMediaSetting")]
     public ValueTask<Guid> AddSocialMediaSettingAsync(
         [FromServices] IGetService<AddBrandSocialMediaSettingCommand, Guid> addService,
@@ -57,6 +61,7 @@ public class BrandSocialMediaController : BaseContextController
         return setOrderService.ExecuteAsync(command, HttpContext.RequestAborted);
     }
 
+    [BOTypeFilter(typeof(MerchanPermissionQueryFiler), Arguments = ["brand", "brandId"])]
     [HttpDelete("{brandId:Guid}/{settingId:Guid}", Name = "DeleteSocialMediaSetting")]
     public ValueTask DeleteSocialMediaSettingAsync(
         [FromServices] ICommandService<DeleteBrandSocialMediaSettingCommand> deleteService,

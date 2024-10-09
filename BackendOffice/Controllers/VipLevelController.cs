@@ -6,6 +6,8 @@ using Microsoft.AspNetCore.Mvc;
 using Tgs.Paging;
 using Tgs.ServiceUtility;
 using Tgs.VipLevelService.Clients;
+using TGS.Apis.BackendOffice.Attributes;
+using TGS.Apis.BackendOffice.Filters;
 using TGS.Apis.BackendOffice.ViewModels;
 using TGS.Services.BackOffice.ApplicationServices;
 using TGS.Services.BackOffice.Domain;
@@ -16,6 +18,7 @@ namespace TGS.Apis.BackendOffice.Controllers;
 [ApiController]
 public class VipLevelController : BaseContextController
 {
+    [BOTypeFilter(typeof(MerchanPermissionBodyFiler), Arguments = ["brand", "BrandId"])]
     [HttpPost]
     [Description("Create a vip level")]
     public async Task<MessageResponse> CreateAsync(
@@ -71,6 +74,7 @@ public class VipLevelController : BaseContextController
         };
     }
 
+    [BOTypeFilter(typeof(MerchanPermissionQueryFiler), Arguments = ["brand", "brandId"])]
     [HttpGet]
     [Description("Get vip levels")]
     public async Task<PagedResponse<VipLevelViewModel>> GetListAsync(
@@ -128,6 +132,7 @@ public class VipLevelController : BaseContextController
         };
     }
 
+    [BOTypeFilter(typeof(MerchanPermissionBodyFiler), Arguments = ["brand", "BrandId"])]
     [HttpPut("{id}")]
     [Description("Update a vip level")]
     public async Task<MessageResponse> UpdateAsync(

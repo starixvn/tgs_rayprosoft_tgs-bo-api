@@ -4,7 +4,9 @@ using System.Text.Json;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Mvc;
 using Tgs.ServiceUtility;
+using TGS.Apis.BackendOffice.Attributes;
 using TGS.Apis.BackendOffice.Controllers.Messages.BrandLiveChat;
+using TGS.Apis.BackendOffice.Filters;
 using TGS.Services.BackOffice.Application.Commands.BrandLiveChat;
 using TGS.Services.BackOffice.Application.Queries.BrandLiveChat;
 using TGS.Services.BackOffice.Domain;
@@ -15,6 +17,7 @@ namespace TGS.Apis.BackendOffice.Controllers.Brand;
 [ApiController]
 public class BrandLiveChatController : BaseContextController
 {
+    [BOTypeFilter(typeof(MerchanPermissionBodyFiler), Arguments = ["brand", "BrandId"])]
     [HttpPost]
     [Description("Create a brand live chat")]
     public async Task<MessageResponse> CreateBrandCommunicationAsync(
@@ -32,6 +35,7 @@ public class BrandLiveChatController : BaseContextController
         return CreateValidResponse<MessageResponse>();
     }
 
+    [BOTypeFilter(typeof(MerchanPermissionQueryFiler), Arguments = ["brand", "brandId"])]
     [HttpDelete("{brandId}")]
     [Description("Delete a brand live chat")]
     public async Task<MessageResponse> DeleteAsync(
@@ -44,6 +48,7 @@ public class BrandLiveChatController : BaseContextController
         return CreateValidResponse<MessageResponse>();
     }
 
+    [BOTypeFilter(typeof(MerchanPermissionQueryFiler), Arguments = ["brand", "brandId"])]
     [HttpGet("{brandId}")]
     [Description("Get a brand's live chat")]
     public async Task<GetBrandLiveChatResponse> GetBrandLiveChatAsync(
@@ -65,6 +70,7 @@ public class BrandLiveChatController : BaseContextController
             };
     }
 
+    [BOTypeFilter(typeof(MerchanPermissionQueryFiler), Arguments = ["brand", "brandId"])]
     [HttpPut("{brandId}")]
     [Description("Update a brand live chat")]
     public async Task<MessageResponse> UpdateBrandCommAsync(
