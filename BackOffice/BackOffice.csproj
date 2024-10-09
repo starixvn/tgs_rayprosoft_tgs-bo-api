@@ -91,7 +91,7 @@
     <PackageReference Include="Tgs.SerialNumberGenerator" Version="1.0.1" />
     <PackageReference Include="TGS.ServiceUtility" Version="0.2.0" />
     <PackageReference Include="TGS.SmsServiceClient" Version="0.1.2" />
-    <PackageReference Include="Tgs.StationLetter.Client" Version="0.0.7" />
+    <PackageReference Include="Tgs.StationLetter.Client" Version="0.0.9" />
     <PackageReference Include="Tgs.VipLevelService.Client" Version="1.0.3" />
     <PackageReference Include="Sentry.AspNetCore" Version="4.10.2" />
   </ItemGroup>

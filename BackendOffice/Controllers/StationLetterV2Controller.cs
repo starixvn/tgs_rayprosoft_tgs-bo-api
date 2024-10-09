@@ -141,6 +141,7 @@ public class StationLetterV2Controller : ControllerBase
     [HttpPut("all/{brandId}", Name = "SendAllPlayersLetter")]
     public async Task SendAllPlayersLetterAsync(
         [FromServices] IGetService<GetBrandInfoQuery, BrandInfo?> getBrandService,
+        [FromServices] IPlayerServiceClient playerServiceClient,
         [FromServices] ICommandService<SendAllPlayersLetterCommand> sendLetterService,
         Guid brandId,
         [FromBody] CreateAllPlayersStationLetterViewModel viewModel)
@@ -152,8 +153,18 @@ public class StationLetterV2Controller : ControllerBase
         if (brandInfo == null)
             return;
 
+        var players = await playerServiceClient.QueryPlayerListAsync(
+            brandInfo.Id,
+            new PlayerListQuery { Status = PlayerStatus.Enabled },
+            HttpContext.RequestAborted)
+            .ToArrayAsync(HttpContext.RequestAborted)
+            .ConfigureAwait(false);
+
+        var playerCodes = players.Select(p => p.PlayerCode);
+
         var command = new SendAllPlayersLetterCommand(
             brandInfo.Code,
+            playerCodes,
             viewModel.Subject,
             viewModel.Content,
             HttpContext.User.GetUserName()!);

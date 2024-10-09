@@ -1049,6 +1049,7 @@ public class StationLetterTests(ITestOutputHelper testOutputHelper, NodeJsFixtur
         // Assert
         var requestExpected = new BrandAllPlayersStationLetterRequest(
             "GPI",
+            ["test1"],
             request.Subject,
             request.Content,
             "system");

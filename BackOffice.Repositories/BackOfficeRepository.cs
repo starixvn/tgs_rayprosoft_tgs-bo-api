@@ -413,7 +413,7 @@ internal class BackOfficeRepository(
             BannerReviewState.Reject => 2000,
             _ => 9000
         };
-
+        banner.Remark = remark;
         banner.UpdatedByUserName = reviewer;
         banner.UpdatedOn = _systemClock.UtcNow;
 

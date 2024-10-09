@@ -16,6 +16,7 @@ internal class SendAllPlayersLetterCommandService(IStationLetterClient stationLe
     {
         var request = new BrandAllPlayersStationLetterRequest(
             command.BrandCode,
+            command.PlayerCodes,
             command.Subject,
             command.Content,
             command.Operator);

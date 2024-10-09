@@ -1,4 +1,5 @@
-﻿using Tgs.StationLetterService.Client;
+﻿using NSubstitute;
+using Tgs.StationLetterService.Client;
 using TGS.Services.BackOffice.ApplicationServices.StationLetters;
 
 namespace TGS.Tests.BackendOffice.UnitTests;
@@ -100,6 +101,7 @@ public class StationLetterTests
 
         var command = new SendAllPlayersLetterCommand(
             "GPI",
+            ["test1"],
             "title",
             "aabbcc",
             "operator");
@@ -109,6 +111,7 @@ public class StationLetterTests
         _ = fakeStationLetterClient.Received(1)
             .SendBrandAllPlayersStationLetterAsync(Arg.Is(new BrandAllPlayersStationLetterRequest(
                 command.BrandCode,
+                command.PlayerCodes,
                 command.Subject,
                 command.Content,
                 command.Operator)));
