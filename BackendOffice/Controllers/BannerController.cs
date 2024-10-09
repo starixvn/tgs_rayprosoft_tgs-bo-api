@@ -6,8 +6,10 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Options;
 using Tgs.Paging;
 using Tgs.ServiceUtility;
+using TGS.Apis.BackendOffice.Attributes;
 using TGS.Apis.BackendOffice.Controllers.Messages;
 using TGS.Apis.BackendOffice.Controllers.Messages.Banner;
+using TGS.Apis.BackendOffice.Filters;
 using TGS.Core.Infrastructures.Json;
 using TGS.Services.BackOffice.ApplicationServices.Banner;
 using TGS.Services.BackOffice.Domain;
@@ -31,6 +33,7 @@ public class BannerController : BaseContextController
         return updateService.ExecuteAsync(command);
     }
 
+    [BOTypeFilter(typeof(MerchanPermissionRouteFiler), Arguments = ["brand", "brandId"])]
     [HttpPut("{brandId}")]
     public ValueTask CreateBannerAsync(
         [FromServices] ICommandService<CreateBannerCommand> createService,
@@ -54,6 +57,7 @@ public class BannerController : BaseContextController
         return createService.ExecuteAsync(command);
     }
 
+    [BOTypeFilter(typeof(MerchanPermissionRouteFiler), Arguments = ["brand", "brandId"])]
     [HttpPatch("disable/{brandId}/{bannerId}")]
     public ValueTask DisableBannerAsync(
         [FromServices] ICommandService<SetIsEanbleBannerCommand> setService,
@@ -69,6 +73,7 @@ public class BannerController : BaseContextController
         return setService.ExecuteAsync(command);
     }
 
+    [BOTypeFilter(typeof(MerchanPermissionRouteFiler), Arguments = ["brand", "brandId"])]
     [HttpPatch("enable/{brandId}/{bannerId}")]
     public ValueTask EnableBannerAsync(
         [FromServices] ICommandService<SetIsEanbleBannerCommand> setService,
@@ -84,6 +89,7 @@ public class BannerController : BaseContextController
         return setService.ExecuteAsync(command);
     }
 
+    [BOTypeFilter(typeof(MerchanPermissionRouteFiler), Arguments = ["brand", "brandId"])]
     [HttpGet("{brandId}/{bannerId}")]
     public async Task<GenericResponse<BannerDetail>> GetBannerDetailAsync(
         [FromServices] IGetService<GetBannerDetailQuery, BannerInfo> getService,
@@ -119,6 +125,7 @@ public class BannerController : BaseContextController
         };
     }
 
+    [BOTypeFilter(typeof(MerchanPermissionRouteFiler), Arguments = ["brand", "brandId"])]
     [HttpGet("expired/{brandId}")]
     public async Task<PagedResponse<BannerListItem>> GetExpiredBannersAsync(
         [FromServices] IGetService<GetBannersQuery, int> countService,
@@ -167,6 +174,7 @@ public class BannerController : BaseContextController
         };
     }
 
+    [BOTypeFilter(typeof(MerchanPermissionRouteFiler), Arguments = ["brand", "brandId"])]
     [HttpGet("rejected/{brandId}")]
     public async Task<PagedResponse<BannerListItem>> GetRejectedBannersAsync(
         [FromServices] IGetService<GetBannersQuery, int> countService,
@@ -215,6 +223,7 @@ public class BannerController : BaseContextController
         };
     }
 
+    [BOTypeFilter(typeof(MerchanPermissionRouteFiler), Arguments = ["brand", "brandId"])]
     [HttpGet("reviewing/{brandId}")]
     public async Task<PagedResponse<BannerListItem>> GetReviewingBannersAsync(
         [FromServices] IGetService<GetBannersQuery, int> countService,
@@ -263,6 +272,7 @@ public class BannerController : BaseContextController
         };
     }
 
+    [BOTypeFilter(typeof(MerchanPermissionRouteFiler), Arguments = ["brand", "brandId"])]
     [HttpGet("valid/{brandId}")]
     public async Task<PagedResponse<BannerListItem>> GetValidBannersAsync(
         [FromServices] IGetService<GetBannersQuery, int> countService,
@@ -311,6 +321,7 @@ public class BannerController : BaseContextController
         };
     }
 
+    [BOTypeFilter(typeof(MerchanPermissionRouteFiler), Arguments = ["brand", "brandId"])]
     [HttpPost("{brandId}/{bannerId}")]
     public ValueTask ReviewBannerAsync(
         [FromServices] ICommandService<ReviewBannerCommand> reviewService,
@@ -328,6 +339,7 @@ public class BannerController : BaseContextController
         return reviewService.ExecuteAsync(command);
     }
 
+    [BOTypeFilter(typeof(MerchanPermissionRouteFiler), Arguments = ["brand", "brandId"])]
     [HttpPatch("{brandId}/{bannerId}/{orderNumber}")]
     public ValueTask SetBannerOrderAsync(
         [FromServices] ICommandService<ChangeBannerOrderCommand> setOrderService,
@@ -344,6 +356,7 @@ public class BannerController : BaseContextController
         return setOrderService.ExecuteAsync(command);
     }
 
+    [BOTypeFilter(typeof(MerchanPermissionRouteFiler), Arguments = ["brand", "brandId"])]
     [HttpPatch("{brandId}/{bannerId}")]
     public ValueTask UpdateBannerAsync(
         [FromServices] ICommandService<UpdateBannerCommand> updateService,

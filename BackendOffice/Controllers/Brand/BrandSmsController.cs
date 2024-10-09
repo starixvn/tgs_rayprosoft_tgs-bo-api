@@ -4,6 +4,8 @@ using System.Linq;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Mvc;
 using Tgs.ServiceUtility;
+using TGS.Apis.BackendOffice.Attributes;
+using TGS.Apis.BackendOffice.Filters;
 using TGS.Apis.BackendOffice.ViewModels;
 using TGS.Services.BackOffice.ApplicationServices;
 using TGS.SmsService.Client;
@@ -14,6 +16,7 @@ namespace TGS.Apis.BackendOffice.Controllers.Brand;
 [ApiController]
 public class BrandSmsController : BaseContextController
 {
+    [BOTypeFilter(typeof(MerchanPermissionQueryFiler), Arguments = ["brand", "brandId"])]
     [HttpPost("{brandId:Guid}", Name = "AddBrandSms")]
     public ValueTask AddBrandSmsAsync(
         [FromServices] ICommandService<AddBrandSmsCommand> commandService,
@@ -27,6 +30,7 @@ public class BrandSmsController : BaseContextController
         return commandService.ExecuteAsync(command, HttpContext.RequestAborted);
     }
 
+    [BOTypeFilter(typeof(MerchanPermissionQueryFiler), Arguments = ["brand", "brandId"])]
     [HttpDelete("{brandId:Guid}/{smsSettingId:Guid}", Name = "RemoveBrandSms")]
     public ValueTask RemoveBrandSmsAsync(
         [FromServices] ICommandService<RemoveBrandSmsCommand> commandService,
@@ -38,6 +42,7 @@ public class BrandSmsController : BaseContextController
         return commandService.ExecuteAsync(command, HttpContext.RequestAborted);
     }
 
+    [BOTypeFilter(typeof(MerchanPermissionQueryFiler), Arguments = ["brand", "brandId"])]
     [HttpGet("options/{brandId:Guid}", Name = "ListBrandSms")]
     public IAsyncEnumerable<BrandSmsSettingViewModel> ListBrandSmsAsync(
         [FromServices] IQueryService<ListBrandSmsQuery, BrandSmsInfo> queryService,
@@ -53,6 +58,7 @@ public class BrandSmsController : BaseContextController
             });
     }
 
+    [BOTypeFilter(typeof(MerchanPermissionQueryFiler), Arguments = ["brand", "brandId"])]
     [HttpPatch("apply/{brandId:Guid}", Name = "ApplyBrandSms")]
     public ValueTask ApplyBrandSmsAsync(
        [FromServices] ICommandService<ApplyBrandSmsCommand> commandService,
@@ -64,6 +70,7 @@ public class BrandSmsController : BaseContextController
            Username),
            HttpContext.RequestAborted);
 
+    [BOTypeFilter(typeof(MerchanPermissionQueryFiler), Arguments = ["brand", "brandId"])]
     [HttpGet("{brandId}", Name = "GetBrandSmsInfo")]
     public async ValueTask<BrandSmsResultViewModel> GetBrandSmsInfoAsync(
         [FromServices] IGetService<GetBrandSmsQuery, BrandSmsResult> getService,

@@ -6,6 +6,8 @@ using System.Threading.Tasks;
 using Microsoft.AspNetCore.Mvc;
 using Tgs.BrandCertificate.Clients;
 using Tgs.ServiceUtility;
+using TGS.Apis.BackendOffice.Attributes;
+using TGS.Apis.BackendOffice.Filters;
 using TGS.Core.Models.Enums;
 using TGS.Core.Models.Messages;
 using TGS.Services.BackOffice.ApplicationServices;
@@ -14,16 +16,17 @@ namespace TGS.Apis.BackendOffice.Controllers.Brand;
 
 public partial class BrandController
 {
+    [BOTypeFilter(typeof(MerchanPermissionRouteFiler), Arguments = ["brand", "brandId"])]
     [HttpPut("{brandId:guid}/{status}")]
     [Description("change a Brand's status")]
     public async ValueTask<MessageResponse> UpdateBrandStatusAsync(
         [FromServices] IGetService<GetBrandInfoQuery, BrandInfo?> getBrandService,
         [FromServices] ICommandService<UpdateBrandStatusCommand> updateStatusService,
-        Guid brandId, 
+        Guid brandId,
         BrandStatus status)
     {
         var brandInfo = await getBrandService.GetAsync(
-                new GetBrandInfoQuery(brandId), 
+                new GetBrandInfoQuery(brandId),
                 HttpContext.RequestAborted).ConfigureAwait(false);
 
         if (brandInfo is null)

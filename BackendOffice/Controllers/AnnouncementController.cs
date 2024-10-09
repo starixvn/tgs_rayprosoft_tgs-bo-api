@@ -7,8 +7,10 @@ using System.Threading.Tasks;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Options;
+using TGS.Apis.BackendOffice.Attributes;
 using TGS.Apis.BackendOffice.Controllers.Messages;
 using TGS.Apis.BackendOffice.Controllers.Messages.Announcement;
+using TGS.Apis.BackendOffice.Filters;
 using TGS.Core.DataServices.Base.Interfaces;
 using TGS.Core.DataServices.Tgs.Models;
 using TGS.Core.Infrastructures.Json;
@@ -72,6 +74,7 @@ public partial class AnnouncementController(
         return CreateValidResponse<MessageResponse>();
     }
 
+    [BOTypeFilter(typeof(MerchanPermissionBodyFiler), Arguments = ["brand", "BrandId"])]
     [HttpPost(Name = "Create")]
     [Description("Create a announcement")]
     public async Task<MessageResponse> CreateAsync(
@@ -108,6 +111,7 @@ public partial class AnnouncementController(
         return CreateValidResponse<MessageResponse>();
     }
 
+    [BOTypeFilter(typeof(MerchanPermissionQueryFiler), Arguments = ["brand", "brandId"])]
     [HttpGet(Name = "GetList")]
     [Description("Get announcements")]
     public Task<PagedResponse<AnnouncementModel>> GetListAsync(
@@ -149,6 +153,7 @@ public partial class AnnouncementController(
             .CreatePagedResponseAsync(request);
     }
 
+    [BOTypeFilter(typeof(MerchanPermissionBodyFiler), Arguments = ["brand", "BrandId"])]
     [HttpPut("{id}", Name = "Update")]
     [Description("Update a announcement")]
     public async Task<MessageResponse> UpdateAsync(

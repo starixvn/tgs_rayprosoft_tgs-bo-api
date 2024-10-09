@@ -8,6 +8,8 @@ using Tgs.BrandCertificate.Clients;
 using Tgs.PlayerService.Client;
 using Tgs.ServiceUtility;
 using Tgs.StationLetterService.Client;
+using TGS.Apis.BackendOffice.Attributes;
+using TGS.Apis.BackendOffice.Filters;
 using TGS.Apis.BackendOffice.ViewModels;
 using TGS.Core.Models.Messages;
 using TGS.Services.BackOffice.ApplicationServices;
@@ -17,8 +19,9 @@ namespace TGS.Apis.BackendOffice.Controllers;
 
 [Route("api/station-letter")]
 [ApiController]
-public class StationLetterV2Controller : ControllerBase
+public class StationLetterV2Controller : BaseContextController
 {
+    [BOTypeFilter(typeof(MerchanPermissionRouteFiler), Arguments = ["brand", "brandId"])]
     [HttpGet("{brandId}", Name = "GetBrandLetters")]
     public async Task<PagedResponse<StationLetterListItemViewModel>> GetBrandLettersAsync(
         [FromServices] IGetService<GetBrandInfoQuery, BrandInfo?> getBrandService,
@@ -69,6 +72,7 @@ public class StationLetterV2Controller : ControllerBase
         };
     }
 
+    [BOTypeFilter(typeof(MerchanPermissionRouteFiler), Arguments = ["brand", "brandId"])]
     [HttpGet("{brandId}/{letterId}")]
     public async Task<StationLetterViewModel?> GetLetterAsync(
         [FromServices] IGetService<GetBrandInfoQuery, BrandInfo?> getBrandService,
@@ -103,6 +107,7 @@ public class StationLetterV2Controller : ControllerBase
             };
     }
 
+    [BOTypeFilter(typeof(MerchanPermissionRouteFiler), Arguments = ["brand", "brandId"])]
     [HttpPut("{brandId}/{letterId}:reply", Name = "ReplyLetter")]
     public async Task ReplyLetterAsync(
         [FromServices] IGetService<GetBrandInfoQuery, BrandInfo?> getBrandService,
@@ -138,6 +143,7 @@ public class StationLetterV2Controller : ControllerBase
             HttpContext.RequestAborted).ConfigureAwait(false);
     }
 
+    [BOTypeFilter(typeof(MerchanPermissionRouteFiler), Arguments = ["brand", "brandId"])]
     [HttpPut("all/{brandId}", Name = "SendAllPlayersLetter")]
     public async Task SendAllPlayersLetterAsync(
         [FromServices] IGetService<GetBrandInfoQuery, BrandInfo?> getBrandService,
@@ -163,6 +169,7 @@ public class StationLetterV2Controller : ControllerBase
             HttpContext.RequestAborted).ConfigureAwait(false);
     }
 
+    [BOTypeFilter(typeof(MerchanPermissionRouteFiler), Arguments = ["brand", "brandId"])]
     [HttpPut("player/{brandId}", Name = "SendLetterByPlayers")]
     public async Task SendLetterAsync(
         [FromServices] IGetService<GetBrandInfoQuery, BrandInfo?> getBrandService,
