@@ -26,7 +26,8 @@ public class GetPlayerOnlineOperationQueryHandler(
             x => x.Where(x => playerCodes.Contains(x.PlayerCode))
             .Where(query.VipId.HasValue, x => x.Vip.Id == query.VipId.Value)
             .Where(query.Status.HasValue, x => x.Status == query.Status.Value)
-            .Where(!string.IsNullOrEmpty(query.PlayerCode), x => x.PlayerCode == query.PlayerCode))
+            .Where(!string.IsNullOrEmpty(query.PlayerCode), x => x.PlayerCode == query.PlayerCode)
+            .Where(!string.IsNullOrEmpty(query.UserName), x => x.Username == query.UserName))
             .Join(playerIps,
                 player => player.PlayerCode,
                 playerIp => playerIp.PlayerCode,

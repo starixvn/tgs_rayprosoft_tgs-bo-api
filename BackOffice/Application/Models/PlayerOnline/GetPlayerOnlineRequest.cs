@@ -15,4 +15,6 @@ public class GetPlayerOnlineRequest : PageableRequest
     public PlayerStatus? Status { get; init; }
 
     public Guid? VipId { get; init; }
+
+    public string UserName { get; init; }
 }
